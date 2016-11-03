@@ -9,11 +9,10 @@ Official Website is : <a href="http://www.newmips.com">www.newmips.com</a>
 ## Installation instructions #
 #############################
 
-Unzip downloaded archive in your working directory : https://github.com/newmips/newmips/archive/master.zip<br>
+Download and unzip the following archive in your working directory : https://github.com/newmips/newmips/archive/master.zip<br>
 
 Execute the following instructions:<br>
 <code>cd newmips-master</code><br>
-<br>
 <code>bash install.sh</code>
 
 <br>
