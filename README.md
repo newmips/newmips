@@ -3,9 +3,8 @@
 Newmips is a computer aided software that enable to create your own NodeJS applications talking to a Bot. It is released under AGPL V3 license.
 
 
-
 #############################
-# Installation instructions #
+## Installation instructions #
 #############################
 
 Unzip downloaded archive in your working directory.
@@ -16,7 +15,7 @@ Execute the following instructions logged as root or with admin privileges on yo
 ./install.sh</code>
 
 ##################
-# Prerequisites  #
+## Prerequisites  #
 ##################
 
 NodeJS v4 minimum
@@ -24,14 +23,14 @@ MySQL or MariaDB server installed.
 
 
 ################################
-# Documentation                #
+## Documentation                #
 ################################
 
 Newmips Software documentation is available at http://docs.newmips.com.
 
 
 ################################
-# How to start the application #
+## How to start the application #
 ################################
 
 Command line :
@@ -46,7 +45,7 @@ Notice : to create your first application, ports 9000 and 9001 must be available
 
 
 ################################
-# How to configure SSL         #
+## How to configure SSL         #
 ################################
 
 In config/global.js, set the protocol to https.
@@ -66,7 +65,7 @@ https.createServer({
 
 
 ################################
-# Follow us                    #
+## Follow us                    #
 ################################
 <ul>
 <li><a href="https://twitter.com/newmips">Twitter</a></li>
@@ -75,7 +74,7 @@ https.createServer({
 
 
 ################################
-# License                      #
+## License                      #
 ################################
 
 Newmips is released under the GNU/AGPLv3 license.
