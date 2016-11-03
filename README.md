@@ -2,7 +2,7 @@
 
 Newmips is a computer aided software that enable to create NodeJS applications with a ChatBot. It is released under AGPL V3 license. Official Website is : <a href="http://www.newmips.com">www.newmips.com</a>
 
-<br><br>
+<br>
 
 #############################
 ## Installation instructions #
@@ -10,12 +10,12 @@ Newmips is a computer aided software that enable to create NodeJS applications w
 
 Unzip downloaded archive in your working directory.<br>
 <code>tar -zxvf newmips_v2.0.tar.gz</code>
-
+<br>
 Execute the following instructions logged as root or with admin privileges on your computer:<br>
-<code>cd working_directory/newmips<br>
-./install.sh</code>
+<code>cd working_directory/newmips</code><br>
+<code>./install.sh</code>
 
-<br><br>
+<br>
 
 ##################
 ## Prerequisites  #
@@ -24,7 +24,7 @@ Execute the following instructions logged as root or with admin privileges on yo
 NodeJS v4 minimum
 MySQL or MariaDB server installed.
 
-<br><br>
+<br>
 
 ################################
 ## Documentation                #
@@ -32,22 +32,22 @@ MySQL or MariaDB server installed.
 
 Newmips Software documentation is available at http://docs.newmips.com.
 
-<br><br>
+<br>
 
 ################################
 ## How to start the application #
 ################################
 
 Command line :
-<code>node server.js</code>
-or
+<code>node server.js</code><br>
+or<br>
 <code>./start_newmips.sh</code>
 
 Newmips is available on http://127.0.0.1:1337
 
 Notice : to create your first application, ports 9000 and 9001 must be available on your computer.
 
-<br><br>
+<br>
 
 ################################
 ## How to configure SSL         #
@@ -68,7 +68,7 @@ https.createServer({
 	  passphrase : 'yourpassphrase'
 	}, app).listen(port);
 
-<br><br>
+<br>
 
 ################################
 ## Follow us                    #
@@ -78,7 +78,7 @@ https.createServer({
 <li><a href="https://www.facebook.com/newmips">Facebook</a></li>
 </ul>
 
-<br><br>
+<br>
 
 
 ################################
@@ -87,4 +87,4 @@ https.createServer({
 
 Newmips is released under the GNU/AGPLv3 license.
 
-<br><br>
+<br>
