@@ -10,12 +10,11 @@ Official Website is : <a href="http://www.newmips.com">www.newmips.com</a>
 #############################
 
 Unzip downloaded archive in your working directory.<br>
-<code>tar -zxvf newmips_v2.0.tar.gz</code>
+<code>git clone git@github.com:newmips/newmips.git</code><br>
 <br><br>
 
 Execute the following instructions logged as root or with admin privileges on your computer:<br>
-<code>cd working_directory/newmips</code><br>
-<code>./install.sh</code>
+<code>bash install.sh</code>
 
 <br>
 
@@ -43,7 +42,7 @@ Newmips Software documentation is available at http://docs.newmips.com.
 Command line :<br>
 <code>node server.js</code><br>
 or<br>
-<code>./start_newmips.sh</code>
+<code>./start_newmips.sh</code><br>
 
 Open your browser on http://127.0.0.1:1337 and log as "admin/admin" by default.
 
@@ -58,6 +57,7 @@ Notice : to create your first application, ports 9000 and 9001 must be available
 <ul>
 <li><a href="https://twitter.com/newmips">Twitter</a></li>
 <li><a href="https://www.facebook.com/newmips">Facebook</a></li>
+<li><a href="https://www.linkedin.com/company/newmips">LinkedIn</a></li>
 </ul>
 
 <br>
