@@ -1,6 +1,7 @@
 # Newmips
 
-Newmips is a computer aided software that enable to create NodeJS applications with a ChatBot. It is released under AGPL V3 license. Official Website is : <a href="http://www.newmips.com">www.newmips.com</a>
+Newmips is a computer aided software that enable to create NodeJS applications with a ChatBot. <br>
+Official Website is : <a href="http://www.newmips.com">www.newmips.com</a>
 
 <br>
 
@@ -10,7 +11,8 @@ Newmips is a computer aided software that enable to create NodeJS applications w
 
 Unzip downloaded archive in your working directory.<br>
 <code>tar -zxvf newmips_v2.0.tar.gz</code>
-<br>
+<br><br>
+
 Execute the following instructions logged as root or with admin privileges on your computer:<br>
 <code>cd working_directory/newmips</code><br>
 <code>./install.sh</code>
@@ -21,7 +23,7 @@ Execute the following instructions logged as root or with admin privileges on yo
 ## Prerequisites  #
 ##################
 
-NodeJS v4 minimum
+NodeJS v4 minimum<br>
 MySQL or MariaDB server installed.
 
 <br>
@@ -38,37 +40,17 @@ Newmips Software documentation is available at http://docs.newmips.com.
 ## How to start the application #
 ################################
 
-Command line :
+Command line :<br>
 <code>node server.js</code><br>
 or<br>
 <code>./start_newmips.sh</code>
 
-Newmips is available on http://127.0.0.1:1337
+Open your browser on http://127.0.0.1:1337 and log as "admin/admin" by default.
 
 Notice : to create your first application, ports 9000 and 9001 must be available on your computer.
 
 <br>
 
-################################
-## How to configure SSL         #
-################################
-
-In config/global.js, set the protocol to https.
-Default configuation is http and develop environment.
-
-Edit the server.js file and configure properly the variables for your HTTPS server :
-- set the complete path to your private.key file ( fill in the key option )
-- set the complete path to your ssl certificat ( fill in the cert option )
-- set your passphrase ( fill in the passphrase option )
-
-Example :
-https.createServer({
-	  key: fs.readFileSync('./cacerts/private.key'),
-	  cert: fs.readFileSync('./cacerts/yoursslcertificat.crt'),
-	  passphrase : 'yourpassphrase'
-	}, app).listen(port);
-
-<br>
 
 ################################
 ## Follow us                    #
