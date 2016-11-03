@@ -1,0 +1,1 @@
+mysql --local-infile -u root -p newmips < script_reprise.sql

@@ -1,0 +1,30 @@
+extends ../main_layout
+block header
+	h1
+		| #{__("module.home")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='/default/home')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.home")}
+block content
+	legend #{__("operation.settings")}
+	.row
+		.col-xs-12.connectedSortable
+			.box.box-primary
+				.box-body
+					.row
+						.col-xs-12
+							form(action='/settings/index', method='post')
+								.form-group
+									label(for='display_language') #{__("entity.settings.display_language")}
+									br
+									input.input(id='display_language', name='display_language', type='radio', value='en-EN', checked="#{getLang()}"=="en-EN"?true:false)
+									| &nbsp;&nbsp;#{__("language.english")}
+									br
+									input.input(id='display_language', name='display_language', type='radio', value='fr-FR', checked="#{getLang()}"=="fr-FR"?true:false)
+									| &nbsp;&nbsp;#{__("language.french")}
+								.form-group
+									button.btn.btn-primary(type='submit') #{__("button.execute")}

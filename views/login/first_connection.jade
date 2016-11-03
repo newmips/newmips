@@ -1,0 +1,34 @@
+extends ../login_layout
+block content
+    .header #{__("login.first_connection")}
+    form(action='/first_connection', method='post')
+        .body.bg-white
+            center
+                img(src='/img/logo_newmips.png', width='50%', height='50%')
+        if (message != '')
+            .body.bg-orange !{message}
+        .body.bg-gray
+            .form-group
+                label(for='login_user') #{__("login.login")}
+                input.form-control(type='text', name='login_user', placeholder='#{__("login.login")}', required)
+            .form-group
+                label(for='password') #{__("login.password")}
+                input.form-control(type='password', name='password_user', id='password', placeholder='#{__("login.password")}',required)
+            .form-group
+                label(for='password2') #{__("login.confirm_password")}
+                input.form-control(type='password', name='password_user2', id='confirm_password', placeholder='#{__("login.password")}',required)
+        .footer
+            button.btn.btn-primary.btn-block(type='submit') #{__("login.submit")}
+block custom_js
+    script(type='text/javascript').
+        var password = document.getElementById("password"), confirm_password = document.getElementById("confirm_password");
+        function validatePassword(){
+            if(password.value != confirm_password.value) {
+                confirm_password.setCustomValidity("Les mots de passe ne correspondent pas");
+            }
+            else{
+                confirm_password.setCustomValidity('');
+            }
+        };
+        password.onchange = validatePassword;
+        confirm_password.onkeyup = validatePassword;

@@ -1,0 +1,134 @@
+extends ../main_layout
+
+block custom_css
+	// DataTable
+	link(href='/css/Datatables/dataTables.bootstrap.css', rel='stylesheet', type='text/css')
+
+block header
+	// Header content
+	h1
+		| #{__("module.application")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='/default/home')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.application")}
+
+block content
+	legend #{__("tour_tip.listApplication.title")}
+	.row
+		.col-xs-12.connectedSortable
+			.box-body
+				a.btn.btn-default.pull-right(href='/default/home')
+					i.fa.fa-arrow-left.fa-md &nbsp;&nbsp;
+					span #{__("button.backtohome")}
+				br
+				br
+				each project in projects
+					.col-lg-offset-3.col-lg-6
+						.box.box-solid.box-default
+							.box-header.bg-newmips
+								h3.box-title(style="color: #fff")
+									|#{__("entity.project.label")} : #{project.name}
+							.box-body(style="overflow-y:auto;overflow-x:hidden;")
+								.row
+									.col-lg-12
+										.table-responsive
+											table.table.no-margin
+												thead
+													tr
+														th #{__("tour_tip.listApplication.id")}
+														th #{__("tour_tip.listApplication.name")}
+														th #{__("tour_tip.listApplication.nbModules")}
+														th(colspan="2", style="text-align:center;") #{__("tour_tip.listApplication.action")}
+												tbody
+													each application, index in project.Applications
+														tr
+															td
+																| #{application.id}
+															td
+																| #{application.name}
+															td
+																| #{application.Modules.length}
+															td.text-center
+																a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
+																	i.fa.fa-pencil-square-o.fa-md &nbsp;&nbsp;
+																	span #{__("button.preview")}
+															td.text-center
+																form.deleteAppForm
+																	button.btn.btn-danger
+																		i.fa.fa-trash-o.fa-md &nbsp;&nbsp;
+																		span #{__("button.delete")}
+																	input(type='hidden', name='instruction', value="delete application #{application.name}")
+							.box-footer
+								form.deleteProjectForm
+									button.btn.btn-danger
+										i.fa.fa-trash-o.fa-md &nbsp;&nbsp;
+										span #{__("button.delete")}
+									input(type="hidden", name="instruction", value="delete project #{project.name}")
+block custom_js
+	// AdminLTE App
+	script(src='/js/AdminLTE/app.js', type='text/javascript')
+	script(type='text/javascript').
+		function deleteApplication(formArray, index) {
+			return new Promise(function(resolve, reject) {
+				(function(arr, idx){
+					$(document.body).css({cursor: 'wait'});
+					var tr = $(arr[idx]).parents('tr');
+					$.ajax({
+						url: '/live/index',
+						method: 'post',
+						data: {instruction: $(arr[idx]).find('input[name="instruction"]').val()},
+						success: function() {
+							$(tr).remove();
+						},
+						complete: function() {
+							$(document.body).css({cursor: 'default'});
+							if (arr.length == 1) {
+								toastr.success("Application deleted");
+								return resolve();
+							}
+							return (arr[++idx]) ? resolve(deleteApplication(arr, idx)) : resolve();
+						}
+					});
+				})(formArray, index);
+			});
+		}
+
+		$(function() {
+			// Delete Project
+			$(".deleteProjectForm").submit(function() {
+				var self = this;
+				// Get all application delete form
+				var appForms = $(self).parents('.box').find("tbody tr form");
+				$(this).children("button").html("Loading...");
+				$(this).children("button").prop("disabled", true);
+				// Delete application one by one
+				deleteApplication(appForms, 0).then(function() {
+					toastr.success("All Applications deleted");
+					$(document.body).css({cursor: 'wait'});
+					$.ajax({
+						url: '/live/index',
+						method: 'post',
+						data: {instruction: $(self).find("input[name='instruction']").val()},
+						success: function() {
+							toastr.success("Project deleted");
+							$(self).parents('.col-lg-6').remove();
+							$(document.body).css({cursor: 'default'});
+						}
+					})
+				});
+				return false;
+			})
+
+			// Delete application
+			$(".deleteAppForm").submit(function(){
+				$(this).children("button").html("Loading...");
+				$(this).children("button").prop("disabled", true);
+				deleteApplication([$(this)], 0);
+				return false;
+			});
+		});
+

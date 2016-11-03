@@ -1,0 +1,55 @@
+extends ../../main_layout
+block custom_css
+	// DataTable
+	link(href='/css/Datatables/dataTables.bootstrap.css', rel='stylesheet', type='text/css')
+block header
+	h1
+		| #{__("module.application")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='#')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.application")}
+block content
+	legend #{__("operation.list")} #{__("entity.data_entity.plural")}
+	.row
+		.col-xs-12.connectedSortable
+			.box-body.table-responsive
+				table#list-data-entity.table.table-bordered.table-striped
+					thead
+						tr
+							th #{__("entity.data_entity.id_data_entity")} #{__("entity.data_entity.name")}
+							th #{__("entity.data_entity.name_data_entity")}
+							th #{__("entity.module.label")}
+							th #{__("entity.application.label")}
+							th
+					tbody
+						each data_entity in data_entities
+							tr
+								td #{data_entity.id}
+								td #{data_entity.name}
+								td #{data_entity.Module.name}
+								td #{data_entity.Module.Application.name}
+								td
+									a(href='/data_entity/show?id_data_entity=#{data_entity.id}')
+										button.btn.btn-primary
+											i.fa.fa-desktop.fa-md &nbsp;&nbsp;
+											span #{__("button.show")}
+block custom_js
+	// DataTables Script
+	script(src='/js/plugins/datatables/jquery.dataTables.js', type='text/javascript')
+	script(src='/js/plugins/datatables/dataTables.bootstrap.js', type='text/javascript')
+	script(type='text/javascript').
+		$('#list-data-entity').dataTable().fnDestroy();
+		$('#list-data-entity').dataTable({
+			"bPaginate": true,
+			"bLengthChange": true,
+			"bFilter": true,
+			"bSort": true,
+			"bInfo": true,
+			"bAutoWidth": true,
+			"bRetrieve": true,
+			"oLanguage": { "sUrl": "/js/UI/jquery-datatables_#{__("app.lang")}.js" }
+		});

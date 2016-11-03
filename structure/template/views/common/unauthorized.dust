@@ -1,0 +1,21 @@
+{>"main_layout"/}
+{<header}
+    <h1>403 Forbidden</h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i>Accueil</a></li>
+        <li><a href="#">Erreur</a></li>
+        <li class="active">403 Forbidden</li>
+    </ol>
+{/header}
+{<content}
+    <div class="error-page">
+        <h2 class="headline">403</h2>
+        <div class="error-content">
+            <h3><i class="fa fa-warning text-yellow"></i>Oops! Vous ne disposez pas des droits suffisants pour afficher cette page.</h3>
+            <p>
+                Merci de contacter votre administrateur.
+                Entre temps, vous pouvez<a href="/">retourner à la page d'accueil</a>ou<a href="javascript:history.back();">revenir en arrière.</a>
+            </p>
+        </div>
+    </div>
+{/content}

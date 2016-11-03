@@ -1,0 +1,104 @@
+extends ../main_layout
+block header
+	h1
+		| #{__("module.manager")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='/default/home')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.manager")}
+block content
+	.row
+		.col-md-9
+			.row
+				.col-xs-12.connectedSortable
+					.box-body
+						div.responsive-iframe
+							img.iframe-ratio(src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7")
+							iframe(id="iframe", name="iframe", height="800px", width="600px", src="#{iframe_url}", webkitAllowFullScreen mozallowfullscreen allowFullScreen)
+						br
+		.col-md-3
+			// Chat box
+			form(action='/application/preview', method='post')
+				.box.box-solid
+					.box-header
+						h4.box-title
+							i.fa.fa-comments-o
+							|  Instructions
+					#chat-box.box-body.chat
+						// Each item has : user, dateEmission, content
+						each item in chat.items
+								hr
+								.item
+									if (item.user == "Newmips")
+										img(src='/img/avatar.png', alt='user image')
+									else
+										img(src='/img/user.png', alt='user image')
+									p.message
+										a.name(href='#')
+											small.text-muted.pull-right
+												| #{item.dateEmission}
+											if (item.user == "Newmips")
+												| Newmips
+											else
+												| #{profile.first_name_user} #{profile.last_name_user}
+										| !{item.content}
+					.box-footer
+						.row
+							.col-xs-1
+								a.btn.btn-default(href="#", id="btn-speech", alt="Enregistrer une instruction")
+									i.fa.fa-microphone.fa-md
+							.col-xs-11
+								.input-group
+									input.form-control(id='instruction', name='instruction', type='text', autofocus, value='' x-webkit-speech)
+									input.form-control.input(id='iframe_url', name='iframe_url', type='hidden', value='#{iframe_url}')
+									input.form-control.input(id='iframe', name='iframe', type='hidden', value='true')
+									input.form-control.input(id='chat', name='chat', type='hidden', value='#{JSON.stringify(chat)}')
+									.input-group-btn
+										button.btn.btn-success#execute_instruction
+											| #{__("button.execute")}
+			// Session
+			.box.box-solid
+				.box-header
+					h4.box-title
+						i.fa.fa-gear
+						|  Session
+				.box-body
+					.callout.callout-warning
+						| #{__("entity.project.label")} : #{session.project.id_project} - #{session.project.name_project}
+						br
+						| #{__("entity.application.label")} : #{session.application.id_application} - #{session.application.name_application}
+						br
+						| #{__("entity.module.label")} : #{session.module.id_module} - #{session.module.name_module}
+						br
+						| #{__("entity.data_entity.label")} : #{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
+					a.btn.btn-info(href="/application/preview?id_application=#{session.application.id_application}")
+						| Reload Preview
+block custom_js
+	// AdminLTE App
+	script(src='/js/AdminLTE/app.min.js', type='text/javascript')
+	// Speech Recognition
+	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
+	script.
+		$(function() {
+			$("#instruction").keyup(function(e) {
+				var reg = new RegExp("[^a-zA-Zàâçéèêëîïôûùüÿñ, ']");
+				while (reg.test($(this).val()))
+				      $(this).val($(this).val().substring(0, $(this).val().length-1))
+			});
+
+			$(document).on("click", "#execute_instruction", function(e){
+				if($("#instruction").val() == ""){
+					toastr.error("Error, empty instruction.")
+					e.preventDefault();
+					e.stopPropagation();
+				}
+				else{
+					$(this).html("Loading...");
+					$(this).prop("disabled", true);
+					$(this).parents('form').submit();
+				}
+			});
+		})
