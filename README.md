@@ -2,34 +2,47 @@
 
 Newmips is a computer aided software that enable to create your own NodeJS applications talking to a Bot. It is released under AGPL V3 license.
 
-Software documentation is available at http://docs.newmips.com.
+
 
 #############################
 # Installation instructions #
 #############################
 
 Unzip downloaded archive in your working directory.
-tar -zxvf newmips_v2.0.tar.gz
+<code>tar -zxvf newmips_v2.0.tar.gz</code>
 
 Execute the following instructions logged as root or with admin privileges on your computer:
-cd working_directory/newmips
-./install.sh
+<code>cd working_directory/newmips<br>
+./install.sh</code>
 
 ##################
 # Prerequisites  #
 ##################
- node v4 minimum
- mysql or mariadb server installed.
+
+NodeJS v4 minimum
+MySQL or MariaDB server installed.
+
+
+################################
+# Documentation                #
+################################
+
+Newmips Software documentation is available at http://docs.newmips.com.
+
 
 ################################
 # How to start the application #
 ################################
-Command line : node server.js
-or ./start_newmips.sh
+
+Command line :
+<code>node server.js</code>
+or
+<code>./start_newmips.sh</code>
 
 Newmips is available on http://127.0.0.1:1337
 
-Notice : to create the first application, port 9000 and 9001 have to be available on your computer.
+Notice : to create your first application, ports 9000 and 9001 must be available on your computer.
+
 
 
 ################################
@@ -50,3 +63,19 @@ https.createServer({
 	  cert: fs.readFileSync('./cacerts/yoursslcertificat.crt'),
 	  passphrase : 'yourpassphrase'
 	}, app).listen(port);
+
+
+################################
+# Follow us                    #
+################################
+<ul>
+<li><a href="https://twitter.com/newmips">Twitter</a></li>
+<li><a href="https://www.facebook.com/newmips">Facebook</a></li>
+</ul>
+
+
+################################
+# License                      #
+################################
+
+Newmips is released under the GNU/AGPLv3 license.
