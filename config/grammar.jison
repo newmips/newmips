@@ -831,6 +831,8 @@ function selectApplication(options) { return { "function": "selectApplication", 
 function selectModule(options) { return { "function": "selectModule", "options": options }; }
 function selectDataEntity(options) { return { "function": "selectDataEntity", "options": options }; }
 
+function addFieldAttribute(options) { return { "function": "setFieldAttribute", "options": options};}
+
 function createNewProject(options) {  return { "function": "createNewProject", "options": options }; }
 function createNewApplication(options) { return { "function": "createNewApplication", "options": options }; }
 function createNewModule(options) { return { "function": "createNewModule", "options": options }; }
