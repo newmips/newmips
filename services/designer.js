@@ -571,6 +571,21 @@ exports.listDataField = function(attr, callback) {
     });
 }
 
+exports.setFieldAttribute = function(attr, callback) {
+    api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
+        if (err)
+            return callback(err);
+
+        attr.name_data_entity = entityName;
+        structure_data_field.setRequiredAttribute(attr, function(err) {
+            if (err)
+                return callback(err);
+
+            return callback(null, {message: 'Data Field attribute added.'});
+        });
+    });
+}
+
 /* --------------------------------------------------------------- */
 /* -------------------- ASSOCIATION / RELATION ------------------- */
 /* --------------------------------------------------------------- */

@@ -789,6 +789,19 @@ instr :
         break;
      }
   %}
+  | SET ENTITY STRING STRING plus
+  %{
+      // Preparing Options
+      var options = {
+        field_name: $3,
+        word: $4
+      };
+
+      // Reinitialize variable for future use
+      chaine = "";
+
+      return addFieldAttribute(options);
+  %}
   | SHOW SESSION
   %{
     return showSession();

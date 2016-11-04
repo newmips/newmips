@@ -425,6 +425,35 @@ exports.setupDataField = function(attr, callback) {
 	});
 }
 
+exports.setRequiredAttribute = function(attr, callback) {
+	var pathToViews = __dirname+'/../workspace/'+attr.id_application+'/views/'+attr.name_data_entity;
+
+	var set = attr.options.word.toLowerCase() == 'mandatory' ? true : false;
+	// Update create_fields.dust file
+	domHelper.read(pathToViews+'/create_fields.dust').then(function($){
+		if (set == true)
+			$("*[data-field='"+attr.options.field_name+"']").find('label').addClass('required');
+		else
+			$("*[data-field='"+attr.options.field_name+"']").find('label').removeClass('required');
+		$("*[data-field='"+attr.options.field_name+"']").find('input').prop('required', set);
+
+		domHelper.write(pathToViews+'/create_fields.dust', $("body")[0].innerHTML).then(function(){
+
+			// Update update_fields.dust file
+			domHelper.read(pathToViews+'/update_fields.dust').then(function($){
+				if (set == true)
+					$("*[data-field='"+attr.options.field_name+"']").find('label').addClass('required');
+				else
+					$("*[data-field='"+attr.options.field_name+"']").find('label').removeClass('required');
+				$("*[data-field='"+attr.options.field_name+"']").find('input').prop('required', set);
+				domHelper.write(pathToViews+'/update_fields.dust', $("body")[0].innerHTML).then(function(){
+					callback();
+				});
+			});
+		})
+	}).catch(callback);
+}
+
 exports.setupAssociationField = function(attr, relation, callback){
 	var target = attr.options.target.toLowerCase();
 	var source = attr.options.source.toLowerCase();
