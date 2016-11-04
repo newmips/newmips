@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/newbes/newmips.svg?branch=master)](https://travis-ci.org/newbes/newmips)
 # Newmips
 
 Newmips is a computer aided software that enable to create NodeJS applications with a ChatBot. <br>
