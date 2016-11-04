@@ -82,7 +82,7 @@ function addTab(attr, file, newLi, newTabContent) {
 	        $(".tab-content", context).append(newTabContent);
 
 	        $('body').empty().append(context);
-	        domHelper.write(file, $('body')[0].innerHTML).then(function() {
+	        domHelper.write(file, $).then(function() {
 	        	resolve();
 	        });
 	    });

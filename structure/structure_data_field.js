@@ -199,7 +199,7 @@ function updateFile(fileBase, file, string, callback){
 	fileToWrite = fileBase + '/'+file+'.dust';
 	domHelper.read(fileToWrite).then(function($) {
 		$("#fields").append(string);
-		domHelper.write(fileToWrite, $("body")[0].innerHTML).then(callback);
+		domHelper.write(fileToWrite, $).then(callback);
 	})
 }
 
@@ -227,7 +227,7 @@ function updateListFile(fileBase, file, thString, bodyString, callback){
 		}
 
 		// Write back to file
-		domHelper.write(fileToWrite, $("body")[0].innerHTML).then(callback);
+		domHelper.write(fileToWrite, $).then(callback);
 	});
 }
 
@@ -437,7 +437,7 @@ exports.setRequiredAttribute = function(attr, callback) {
 			$("*[data-field='"+attr.options.field_name+"']").find('label').removeClass('required');
 		$("*[data-field='"+attr.options.field_name+"']").find('input').prop('required', set);
 
-		domHelper.write(pathToViews+'/create_fields.dust', $("body")[0].innerHTML).then(function(){
+		domHelper.write(pathToViews+'/create_fields.dust', $).then(function(){
 
 			// Update update_fields.dust file
 			domHelper.read(pathToViews+'/update_fields.dust').then(function($){
@@ -446,7 +446,7 @@ exports.setRequiredAttribute = function(attr, callback) {
 				else
 					$("*[data-field='"+attr.options.field_name+"']").find('label').removeClass('required');
 				$("*[data-field='"+attr.options.field_name+"']").find('input').prop('required', set);
-				domHelper.write(pathToViews+'/update_fields.dust', $("body")[0].innerHTML).then(function(){
+				domHelper.write(pathToViews+'/update_fields.dust', $).then(function(){
 					callback();
 				});
 			});
@@ -460,7 +460,7 @@ exports.setColumnVisibility = function(attr, callback) {
 	var hide = attr.options.word.toLowerCase() == 'hidden' ? true : false;
 	domHelper.read(pathToViews+'/list_fields.dust').then(function($) {
 		$("*[data-field='"+attr.options.field_name+"']")[hide ? 'hide' : 'show']();
-		domHelper.write(pathToViews+'/list_fields.dust', $("body")[0].innerHTML).then(function() {
+		domHelper.write(pathToViews+'/list_fields.dust', $).then(function() {
 			callback();
 		})
 	}).catch(callback);
@@ -607,7 +607,7 @@ exports.setupAssociationField = function(attr, relation, callback){
 				$(".tab-content", context).append(newTab);
 
 				$('body').empty().append(context);
-				domHelper.write(file, $('body')[0].innerHTML).then(function() {
+				domHelper.write(file, $).then(function() {
 					callback();
 				});
 			});
@@ -644,7 +644,7 @@ function addTab(attr, file, newLi, newTabContent) {
 	        $(".tab-content", context).append(newTabContent);
 
 	        $('body').empty().append(context);
-	        domHelper.write(file, $('body')[0].innerHTML).then(function() {
+	        domHelper.write(file, $).then(function() {
 	            resolve();
 	        });
 	    });
@@ -758,7 +758,7 @@ exports.setupRelatedToField = function(attr, callback){
 				str += "</div>";
 				$("#fields").append(str);
 
-				domHelper.write(file, $('body')[0].innerHTML).then(function() {
+				domHelper.write(file, $).then(function() {
 					// Update the fr-FR translation file
 					var fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
 					var data = require(fileTranslation);
@@ -929,7 +929,7 @@ exports.deleteDataField = function(attr, callback) {
 				(function(file){
 					domHelper.read(file).then(function($){
 						$('*[data-field="'+name_data_field+'"]').remove();
-						domHelper.write(file, $('body')[0].innerHTML).then(function(){
+						domHelper.write(file, $).then(function(){
 							resolve();
 						});
 					});
@@ -941,7 +941,7 @@ exports.deleteDataField = function(attr, callback) {
 			domHelper.read(viewsPath+'/list_fields.dust').then(function($) {
 				$("th[data-field='"+name_data_field+"']").remove();
 				$("td[data-field='"+name_data_field+"']").remove();
-				domHelper.write(viewsPath+'/list_fields.dust', $("body")[0].innerHTML).then(function() {
+				domHelper.write(viewsPath+'/list_fields.dust', $).then(function() {
 					resolve();
 				});
 			});
@@ -987,7 +987,7 @@ exports.deleteTab = function(attr, callback) {
 			// Remove tab content
 			$("#"+tabName).remove();
 
-			domHelper.write(showFile, $('body')[0].innerHTML).then(function() {
+			domHelper.write(showFile, $).then(function() {
 				callback(null, option.foreignKey, option.target);
 			})
 		})

@@ -26,8 +26,9 @@ exports.read = function(fileName) {
 	});
 }
 
-exports.write = function(fileName, newFileData) {
+exports.write = function(fileName, $) {
 	return new Promise(function(resolve, reject) {
+		var newFileData = $("body")[0].innerHTML;
 
 		// Replace escaped characters and script inclusion
 		newFileData = newFileData.replace(/&gt;/g, '>');
