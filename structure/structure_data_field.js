@@ -454,6 +454,18 @@ exports.setRequiredAttribute = function(attr, callback) {
 	}).catch(callback);
 }
 
+exports.setColumnVisibility = function(attr, callback) {
+	var pathToViews = __dirname+'/../workspace/'+attr.id_application+'/views/'+attr.name_data_entity;
+
+	var hide = attr.options.word.toLowerCase() == 'hidden' ? true : false;
+	domHelper.read(pathToViews+'/list_fields.dust').then(function($) {
+		$("*[data-field='"+attr.options.field_name+"']")[hide ? 'hide' : 'show']();
+		domHelper.write(pathToViews+'/list_fields.dust', $("body")[0].innerHTML).then(function() {
+			callback();
+		})
+	}).catch(callback);
+}
+
 exports.setupAssociationField = function(attr, relation, callback){
 	var target = attr.options.target.toLowerCase();
 	var source = attr.options.source.toLowerCase();
