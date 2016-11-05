@@ -60,7 +60,8 @@
     "update": "Modifier une entité ",
     "create": "Créer une entité ",
     "delete": "Supprimer une entité ",
-    "list": "Lister toutes les entités "
+    "list": "Lister toutes les entités ",
+    "add": "Ajouter une entité "
   },
   "message": {
     "create": {
