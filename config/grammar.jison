@@ -114,6 +114,7 @@
 "composant"                 return 'COMPONENT';
 
 "avec"                      return 'WITH';
+"de"                        return 'WITH';
 "classe"                    return 'PROPERTY';
 "type"                      return 'PROPERTY';
 "les valeurs"               return 'PROPERTY';
