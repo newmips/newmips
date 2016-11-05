@@ -110,7 +110,7 @@ exports.setupModule = function(attr, callback) {
 
                                                     $("#dynamic_select").append(option);
 
-                                                    domHelper.write(fileName, $("body")[0].innerHTML).then(function() {
+                                                    domHelper.write(fileName, $).then(function() {
                                                         console.log('File => layout_' + modules[ibis].name.toLowerCase() + '.dust ------------------ UPDATED');
                                                         resolve();
                                                     });
@@ -146,7 +146,7 @@ exports.deleteModule = function(attr, callback) {
     }).forEach(function(file) {
         domHelper.read(layoutsPath+file).then(function($){
             $("option[data-module='"+attr.module_name+"']").remove();
-            domHelper.write(layoutsPath+file, $('body')[0].innerHTML).then(function(){
+            domHelper.write(layoutsPath+file, $).then(function(){
                 callback();
             });
         });

@@ -42,6 +42,7 @@
 "fields"                return 'ENTITY';
 
 "component"             return 'COMPONENT';
+"column"                return 'COLUMN';
 
 "with name"             return 'WITH_NAME';
 "with"                  return 'WITH';
@@ -112,6 +113,7 @@
 "les champs"                return 'ENTITY';
 
 "composant"                 return 'COMPONENT';
+"colonne"                   return 'COLUMN';
 
 "avec"                      return 'WITH';
 "de"                        return 'WITH';
@@ -790,7 +792,7 @@ instr :
         break;
      }
   %}
-  | SET ENTITY STRING STRING plus
+  | SET ENTITY STRING STRING
   %{
       // Preparing Options
       var options = {
@@ -798,10 +800,17 @@ instr :
         word: $4
       };
 
-      // Reinitialize variable for future use
-      chaine = "";
+      return setRequiredAttribute(options);
+  %}
+  | SET COLUMN STRING STRING
+  %{
+      // Preparing Options
+      var options = {
+        field_name: $3,
+        word: $4
+      };
 
-      return addFieldAttribute(options);
+      return setColumnVisibility(options);
   %}
   | SHOW SESSION
   %{
@@ -832,7 +841,8 @@ function selectApplication(options) { return { "function": "selectApplication", 
 function selectModule(options) { return { "function": "selectModule", "options": options }; }
 function selectDataEntity(options) { return { "function": "selectDataEntity", "options": options }; }
 
-function addFieldAttribute(options) { return { "function": "setFieldAttribute", "options": options};}
+function setRequiredAttribute(options) { return { "function": "setRequiredAttribute", "options": options};}
+function setColumnVisibility(options) { return { "function": "setColumnVisibility", "options": options};}
 
 function createNewProject(options) {  return { "function": "createNewProject", "options": options }; }
 function createNewApplication(options) { return { "function": "createNewApplication", "options": options }; }
