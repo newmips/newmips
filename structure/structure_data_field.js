@@ -428,7 +428,7 @@ exports.setupDataField = function(attr, callback) {
 exports.setRequiredAttribute = function(attr, callback) {
 	var pathToViews = __dirname+'/../workspace/'+attr.id_application+'/views/'+attr.name_data_entity;
 
-	var set = attr.options.word.toLowerCase() == 'mandatory' || attr.options.word.toLowerCase() == 'required' ? true : false;
+	var set = attr.options.word.toLowerCase() == 'mandatory' || attr.options.word.toLowerCase() == 'required' || attr.options.word.toLowerCase() == 'obligatoire' ? true : false;
 	// Update create_fields.dust file
 	domHelper.read(pathToViews+'/create_fields.dust').then(function($){
 		if (set == true)
