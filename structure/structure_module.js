@@ -136,7 +136,7 @@ exports.setupModule = function(attr, callback) {
 }
 
 exports.deleteModule = function(attr, callback) {
-    var moduleFilename = 'layout_'+attr.module_name+'.dust';
+    var moduleFilename = 'layout_'+attr.module_name.toLowerCase()+'.dust';
     var layoutsPath = __dirname + '/../workspace/'+attr.id_application+'/views/';
 
     fs.unlinkSync(layoutsPath+moduleFilename);
@@ -145,12 +145,10 @@ exports.deleteModule = function(attr, callback) {
         return file.indexOf('.') !== 0 && file.indexOf('layout_') === 0;
     }).forEach(function(file) {
         domHelper.read(layoutsPath+file).then(function($){
-            $("option[data-module='"+attr.module_name+"']").remove();
+            $("option[data-module='"+attr.module_name.toLowerCase()+"']").remove();
             domHelper.write(layoutsPath+file, $).then(function(){
                 callback();
             });
         });
     });
 }
-
-

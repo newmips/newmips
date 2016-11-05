@@ -262,6 +262,7 @@ exports.setupDataEntity = function(attr, callback) {
 
 exports.deleteDataEntity = function(id_application, name_module, name_data_entity, callback) {
 	var baseFolder = __dirname + '/../workspace/'+id_application;
+
 	// Delete views folder
 	helpers.rmdirSyncRecursive(baseFolder+'/views/'+name_data_entity);
 	// Delete route file

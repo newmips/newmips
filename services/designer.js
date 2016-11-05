@@ -322,7 +322,7 @@ exports.listDataEntity = function(attr, callback) {
 
 function deleteDataEntity(attr, callback) {
     var id_application = attr.id_application;
-    var name_data_entity = attr.options[0].value;
+    var name_data_entity = attr.options[0].value.toLowerCase();
     var name_module = "";
 
     var promises = [];

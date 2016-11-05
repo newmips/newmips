@@ -842,13 +842,15 @@ exports.setupFieldsetTab = function(attr, callback) {
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = fileBase + '/show_fields.dust';
 
-    var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+alias+'.label_entity" /}</a></li>';
+    // var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+source+'.'+alias+'" /}</a></li>';
+		// TODO Add alias in translation files and apply translation
+		var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+target+'.label_entity" /}</a></li>';
 
     var newTabContent = '';
     // Create select to add elements
     newTabContent += '<div id="' + alias + '" class="tab-pane fade">';
-	newTabContent += '	<label>{@__ key="operation.add"/} {@__ key="entity.'+alias+'.label_entity" /}</label>';
-	newTabContent += '	<form action="/'+source+'/fieldset/'+alias+'/add" method="post">'
+		newTabContent += '	<label>{@__ key="operation.add"/} {@__ key="entity.'+target+'.label_entity" /}</label>';
+		newTabContent += '	<form action="/'+source+'/fieldset/'+alias+'/add" method="post">'
     newTabContent += '		<select style="width:200px;" class="form-control" name="ids" multiple>';
     newTabContent += '			<!--{#'+alias+'_global_list}-->';
     newTabContent += '				<!--{#.'+usingField+'}-->';
@@ -882,9 +884,9 @@ exports.deleteDataField = function(attr, callback) {
 
     var options = attr.options;
     for (var i = 0; i < options.length; i++) {
-        if (options[i].property == "name_data_entity") name_data_entity = options[i].value;
-        if (options[i].property == "entity") name_data_field = options[i].value;
-        if (options[i].property == "name") name_data_field = options[i].value;
+        if (options[i].property == "name_data_entity") name_data_entity = options[i].value.toLowerCase();
+        if (options[i].property == "entity") name_data_field = options[i].value.toLowerCase();
+        if (options[i].property == "name") name_data_field = options[i].value.toLowerCase();
     }
 
     var dataToWrite;
