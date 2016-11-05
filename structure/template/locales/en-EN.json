@@ -60,7 +60,8 @@
 		"update": "Modify entity ",
 		"create": "Create entity ",
 		"delete": "Delete entity ",
-		"list": "List all entities "
+		"list": "List all entities ",
+    "add": "Add entity "
 	},
 	"message": {
 		"create": {
