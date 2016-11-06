@@ -175,6 +175,8 @@ instr :
       // Set entity name as the first option in options array
       property = "entity";
       value = $3;
+      // TEST DBL
+      value = value.replace(/\s+/g, '');
       json = { "property" : property, "value" : value };
       options.push(json);
 
