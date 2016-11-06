@@ -12,8 +12,8 @@ Official Website is : <a href="http://www.newmips.com">www.newmips.com</a>
 Download and unzip the following archive in your working directory : https://github.com/newmips/newmips/archive/master.zip<br>
 
 Execute the following instructions:<br>
-<code>cd newmips-master</code><br>
-<code>bash install.sh</code>
+<pre>cd newmips-master<br>
+bash install.sh</pre>
 
 <br>
 
@@ -39,9 +39,9 @@ Newmips Software documentation is available at http://docs.newmips.com.
 ################################
 
 Command line :<br>
-<code>node server.js</code><br>
+<pre>node server.js</pre><br>
 or<br>
-<code>./start_newmips.sh</code><br>
+<pre>./start_newmips.sh</pre><br>
 
 Open your browser on http://127.0.0.1:1337 and log as "admin/admin" by default.
 
