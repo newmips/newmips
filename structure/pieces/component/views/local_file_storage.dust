@@ -17,12 +17,14 @@
 				<th data-col="id">ID</th>
 				<th data-field="filename" data-col="filename">Filename</th>
 				<th></th>
+				<th></th>
 			</tr>
 		</thead>
 		<thead class="filters">
 			<tr class="fields">
 				<th data-col="id">ID</th>
 				<th data-field="filename" data-col="filename">Filename</th>
+				<th></th>
 				<th></th>
 			</tr>
 		</thead>
@@ -31,6 +33,19 @@
 				<tr id="bodyTR">
 					<td>{id}</td>
 					<td data-field="testfile">{filename}</td>
+					<td>
+						<form action="/COMPONENT_NAME_LOWER/file_download" method="POST" class='componentFileDownloadForm'>
+							<input type='hidden' value='local' name='storageType'>
+							<input type='hidden' value='COMPONENT_NAME_LOWER' name='dataComponent'>
+							<input type='hidden' value='SOURCE_LOWER' name='dataSource'>
+							<input type='hidden' value='{SOURCE_LOWER.id}' name='dataSourceID'>
+							<input type='hidden' value='{filename}' name='originalname'>
+							<button type="submit" class="btn btn-info">
+								<i class="fa fa-download fa-md">&nbsp;&nbsp;</i>
+								<span>{@__ key="button.download" /}</span>
+							</button>
+						</form>
+					</td>
 					<td>
 						<form data-component="COMPONENT_NAME_LOWER" class='componentDeleteForm'>
 							<input type='hidden' value='{id}' name='idRemove'>

@@ -53,7 +53,8 @@
 		"preview": "Preview",
 		"record": "Record",
 		"execute": "Execute",
-    	"settings": "Settings"
+    	"settings": "Settings",
+    	"download": "Download"
 	},
 	"operation": {
 		"show": "Show entity ",

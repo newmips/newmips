@@ -67,9 +67,6 @@ router.post('/file_upload', block_access.isLoggedIn, function(req, res) {
                   /* ---------------------------------------------------------- */
                   /* ------------- Local Storage in upload folder ------------- */
                   /* ---------------------------------------------------------- */
-                  console.log(req.body.dataEntity);
-                  console.log(req.session.passport);
-                  console.log(req.session.passport.user);
                   /* TODO - Check if folder exist, if not mkdir */
                   /* TODO - Create a path with req.body.dataEntity et les info de passport.user */
                   var uploadPath = __dirname + "/../upload/" + req.file.originalname;

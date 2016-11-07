@@ -53,7 +53,8 @@
     "preview": "Prévisualiser",
     "record": "Enregistrer",
     "execute": "Exécuter",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "download": "Télécharger"
   },
   "operation": {
     "show": "Afficher une entité ",

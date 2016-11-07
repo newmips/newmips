@@ -111,6 +111,21 @@ router.post('/file_upload', block_access.isLoggedIn, function(req, res) {
     });
 });
 
+/* COMPONENT ajax download file */
+router.post('/file_download', block_access.isLoggedIn, function(req, res) {
+
+    if(req.body.storageType == "local"){
+        /* ---------------------------------------------------------- */
+        /* ----------------- Download a local file ----------------- */
+        /* ---------------------------------------------------------- */
+        var downloadPath = __dirname + "/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
+        var fileName = req.body.originalname;
+
+        res.download(downloadPath, fileName, function(err) {
+        });
+    }
+});
+
 router.post('/delete', block_access.isLoggedIn, function(req, res) {
     var id_COMPONENT_NAME = req.body.id;
 
