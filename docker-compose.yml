@@ -1,0 +1,16 @@
+version: '2'
+services:
+  mysql:
+    image: mysql/mysql-server
+    environment:
+      - MYSQL_ROOT_PASSWORD=newpass
+      - MYSQL_USER=newmips
+      - mYSQL_PASSWORD=newmips
+    ports: 
+      - 3306:3306
+  newmips:
+    image: newmips
+    ports: 
+      - 1337:1337
+    links: [ mysql ]
+      

@@ -3,7 +3,7 @@ var globalConf = require('./global');
 var databaseConf = {
     develop: {
         connection: {
-            host: '127.0.0.1',
+            host: 'mysql',
             port: '3306',
             user: 'newmips',
             password: 'newmips',
@@ -15,7 +15,7 @@ var databaseConf = {
 
     production: {
         connection: {
-            host: '127.0.0.1',
+            host: 'mysql',
             port: '3306',
             user: 'newmips',
             password: 'newmips',
@@ -27,7 +27,7 @@ var databaseConf = {
 
     recette: {
         connection: {
-            host: '127.0.0.1',
+            host: 'mysql',
             port: '3306',
             user: 'newmips',
             password: 'newmips',
