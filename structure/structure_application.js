@@ -18,16 +18,23 @@ exports.setupApplication = function(attr, callback) {
     fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {
         if (err) return console.error(err)
 
-        // *** Update translation file ***
-        file = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-        data = require(file);
-        data.app.name = name_application;
+        // *** Update translation fileFR ***
+        fileFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
+        dataFR = require(fileFR);
+        dataFR.app.name = name_application;
 
-        fs.writeFile(file, JSON.stringify(data, null, 2), function(err) {
+        fs.writeFile(fileFR, JSON.stringify(dataFR, null, 2), function(err) {
             if (err) return console.log(err);
 
-            // Direct callback as application has been installed in template folder
-            callback();
+            fileEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
+            dataEN = require(fileEN);
+            dataEN.app.name = name_application;
+
+            fs.writeFile(fileEN, JSON.stringify(dataEN, null, 2), function(err) {
+                if (err) return console.log(err);
+                // Direct callback as application has been installed in template folder
+                callback();
+            });
         });
     });
 }

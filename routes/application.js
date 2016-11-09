@@ -265,7 +265,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     env.PORT = port;
                     var protocol = global.protocol;
                     var host = global.host;
-                    data.iframe_url = protocol + "://" + host + ":" + port + "/default/"+info.moduleName;
+                    data.iframe_url = protocol + "://" + host + ":" + port + "/default/"+info.moduleName.toLowerCase();
                     req.session.iframe_url = data.iframe_url;
                 }
                 else if ((attr.function == "createNewDataEntity")
@@ -330,7 +330,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 var env = Object.create(process.env);
                 env.PORT = port;
 
-                // Kill server first                
+                // Kill server first
                 process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
 
                     // Launch a new server instance to reload resources

@@ -7,4 +7,12 @@ node_js:
   - 4.4
   - 4.0
 notifications:
-  slack: novanit:11lhH4RsPtcVzWFJQA0BtL9G
+  slack: newmips:65VDeyCjdGVrhnr2VFOXnL1g
+env:
+  - CXX=g++-4.8
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8

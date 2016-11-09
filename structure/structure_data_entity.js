@@ -137,7 +137,7 @@ exports.setupDataEntity = function(attr, callback) {
 			$('#sortable').append(li);
 
 			// Write back to file
-			domHelper.write(fileName, $("body")[0].innerHTML).then(function() {
+			domHelper.write(fileName, $).then(function() {
 				callback();
 			});
 		}).catch(function(err) {
@@ -262,6 +262,7 @@ exports.setupDataEntity = function(attr, callback) {
 
 exports.deleteDataEntity = function(id_application, name_module, name_data_entity, callback) {
 	var baseFolder = __dirname + '/../workspace/'+id_application;
+
 	// Delete views folder
 	helpers.rmdirSyncRecursive(baseFolder+'/views/'+name_data_entity);
 	// Delete route file
@@ -276,7 +277,7 @@ exports.deleteDataEntity = function(id_application, name_module, name_data_entit
 	var filePath = __dirname+'/../workspace/'+id_application+'/views/layout_'+name_module+'.dust';
 	domHelper.read(filePath).then(function($){
 		$("#"+name_data_entity+'_menu_item').remove();
-		domHelper.write(filePath, $("body")[0].innerHTML).then(function() {
+		domHelper.write(filePath, $).then(function() {
 			callback();
 		})
 	})

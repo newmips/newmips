@@ -482,7 +482,7 @@ exports.getDataEntityByName = function(attr, callback) {
 }
 
 exports.getModuleNameByEntityName = function(entity_name, callback){
-	models.DataEntity.findOne({where: {name: entity_name}, include: [models.Module]}).then(function(entity){
+	models.DataEntity.findOne({where: {name: entity_name.toLowerCase()}, include: [models.Module]}).then(function(entity){
 		if (!entity)
 			return callback("Unable to find entity's module", null);
 		callback(null, entity.Module.name);

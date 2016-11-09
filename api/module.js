@@ -57,6 +57,7 @@ exports.selectModule = function(attr, callback) {
 
                 var info = {
                     "insertId": module.id,
+                    "moduleName": module.name,
                     "message": "Module " + module.id + " - " + module.name + " selected."
                 };
                 callback(null, info);

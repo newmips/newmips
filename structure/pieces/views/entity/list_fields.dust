@@ -1,7 +1,7 @@
 <table id="table_custom_data_entity" data-url="/custom_data_entity/datalist" class="dataTable table table-bordered table-striped">
     <thead class="main">
 		<tr class='fields'>
-			<th data-col="id">
+			<th data-field="id" data-col="id">
 				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
 			</th>
 			<th></th>
@@ -11,7 +11,7 @@
     </thead>
     <thead class='filters'>
     	<tr class='fields'>
-			<th data-col="id">
+			<th data-field="id" data-col="id">
 				{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}
 			</th>
 			<th></th>
@@ -22,7 +22,7 @@
     <tbody>
 		{#custom_data_entity}
 		<tr id='bodyTR'>
-			<td>{id}</td>
+			<td data-field="id">{id}</td>
 			<td>
 				{@eq key=for value="fieldset"}
 				<form class='fieldsetform'>

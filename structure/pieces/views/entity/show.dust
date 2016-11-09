@@ -82,6 +82,7 @@
                 return false;
             });
 
+            /* Call component delete action */
             $(document).on("submit", ".componentDeleteForm", function() {
                 var component = $(this).attr("data-component");
                 var url = '/'+component+'/delete';

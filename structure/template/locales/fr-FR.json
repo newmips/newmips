@@ -53,14 +53,16 @@
     "preview": "Prévisualiser",
     "record": "Enregistrer",
     "execute": "Exécuter",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "download": "Télécharger"
   },
   "operation": {
     "show": "Afficher une entité ",
     "update": "Modifier une entité ",
     "create": "Créer une entité ",
     "delete": "Supprimer une entité ",
-    "list": "Lister toutes les entités "
+    "list": "Lister toutes les entités ",
+    "add": "Ajouter une entité "
   },
   "message": {
     "create": {

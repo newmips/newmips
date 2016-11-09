@@ -14,8 +14,8 @@
 "select"                return 'SELECT';
 "create"                return 'CREATE';
 "add"                   return 'CREATE';
-"Create"                return 'CREATE';
-"Add"                   return 'CREATE';
+// "Create"                return 'CREATE';
+// "Add"                   return 'CREATE';
 "delete"                return 'DELETE';
 "remove"                return 'DELETE';
 "list"                  return 'LIST';
@@ -30,6 +30,8 @@
 "application"           return 'ENTITY';
 "applications"          return 'ENTITY';
 
+"tab"                   return 'ENTITY';
+
 "data entity"           return 'ENTITY';
 "data entities"         return 'ENTITY';
 "entity"                return 'ENTITY';
@@ -42,6 +44,7 @@
 "fields"                return 'ENTITY';
 
 "component"             return 'COMPONENT';
+"column"                return 'COLUMN';
 
 "with name"             return 'WITH_NAME';
 "with"                  return 'WITH';
@@ -66,26 +69,25 @@
 /* ------------------ French grammar ------------------ */
 /* ---------------------------------------------------- */
 
-"aide"                    return "HELP";
-"afficher"                return 'SHOW';
-"lister"                  return 'LIST';
-"sélectionner"            return 'SELECT';
-"créer"                   return 'CREATE';
-"ajouter"                 return 'CREATE';
-"supprimer"               return 'DELETE';
-"session"                 return 'SESSION';
-"la session"              return 'SESSION';
+"aide"                      return "HELP";
+"afficher"                  return 'SHOW';
+"lister"                    return 'LIST';
+"sélectionner"              return 'SELECT';
+"créer"                     return 'CREATE';
+"ajouter"                   return 'CREATE';
+"supprimer"                 return 'DELETE';
+"session"                   return 'SESSION';
+"la session"                return 'SESSION';
 
-"projet"                  return 'ENTITY';
-"un projet"               return 'ENTITY';
-"les projets"             return 'ENTITY';
+"projet"                    return 'ENTITY';
+"un projet"                 return 'ENTITY';
+"les projets"               return 'ENTITY';
 
-"application"                 return 'ENTITY';
-"une application"             return 'ENTITY';
-"les applications"            return 'ENTITY';
+"application"               return 'ENTITY';
+"une application"           return 'ENTITY';
+"les applications"          return 'ENTITY';
 
-"tab"                         return 'ENTITY';
-"onglet"                      return 'ENTITY';
+"onglet"                    return 'ENTITY';
 
 "module"                    return 'ENTITY';
 "un module"                 return 'ENTITY';
@@ -109,16 +111,21 @@
 "les champs de données"     return 'ENTITY';
 "champ"                     return 'ENTITY';
 "un champ"                  return 'ENTITY';
+"le champ"                  return 'ENTITY';
 "les champs"                return 'ENTITY';
 
 "composant"                 return 'COMPONENT';
+"colonne"                   return 'COLUMN';
 
+"nommé"                     return 'WITH_NAME';
 "avec"                      return 'WITH';
+"de"                        return 'WITH';
 "classe"                    return 'PROPERTY';
 "type"                      return 'PROPERTY';
 "les valeurs"               return 'PROPERTY';
 "comme une liste de"        return 'SET_OF';
 "affecte"                   return 'SET';
+"mettre"                    return 'SET';
 "ayant"                     return 'HAVING';
 
 "relié à"                   return 'RELATED_TO';
@@ -168,6 +175,8 @@ instr :
       // Set entity name as the first option in options array
       property = "entity";
       value = $3;
+      // TEST DBL
+      value = value.replace(/\s+/g, '');
       json = { "property" : property, "value" : value };
       options.push(json);
 
@@ -198,6 +207,7 @@ instr :
         case "un champ de données":
         case "champ":
         case "un champ":
+        case "le champ":
           return createNewDataField(options);
         default :
           break;
@@ -233,6 +243,7 @@ instr :
         case "un champ de données":
         case "champ":
         case "un champ":
+        case "le champ":
           return createNewDataField(options);
         default :
           break;
@@ -277,6 +288,7 @@ instr :
         case "un champ de données":
         case "champ":
         case "un champ":
+        case "le champ":
           return createNewFieldRelatedTo(options);
         default :
           break;
@@ -309,6 +321,7 @@ instr :
         case "un champ de données":
         case "champ":
         case "un champ":
+        case "le champ":
           return createNewFieldRelatedTo(options);
         default :
           break;
@@ -350,6 +363,7 @@ instr :
       case "un champ de données":
       case "champ":
       case "un champ":
+      case "le champ":
         return createNewDataField(options);
       default :
         break;
@@ -371,7 +385,12 @@ instr :
 
       // Creating entity
       switch ($2) {
+        case 'data entity':
         case 'entity' :
+        case 'entité':
+        case "l'entité":
+        case "entité de données":
+        case "l'entité de données":
           return createNewEntityWithBelongsTo(options);
         default :
           break;
@@ -395,7 +414,12 @@ instr :
 
       // Creating entity
       switch ($1) {
+        case 'data entity':
         case 'entity' :
+        case 'entité':
+        case "l'entité":
+        case "entité de données":
+        case "l'entité de données":
           return createNewBelongsTo(options);
         default :
           break;
@@ -422,7 +446,12 @@ instr :
 
       // Creating entity
       switch($1) {
+        case 'data entity':
         case 'entity' :
+        case 'entité':
+        case "l'entité":
+        case "entité de données":
+        case "l'entité de données":
           return createNewBelongsTo(options);
         default :
           break;
@@ -458,9 +487,21 @@ instr :
       }
       // Creating entity
       switch ($2) {
+        case 'data field' :
         case 'field' :
+        case "champ de données":
+        case "un champ de données":
+        case "champ":
+        case "un champ":
+        case "le champ":
           return createNewHasMany(options);
+
+        case 'data entity':
         case 'entity' :
+        case 'entité':
+        case "l'entité":
+        case "entité de données":
+        case "l'entité de données":
           return createNewEntityWithHasMany(options);
         default :
           break;
@@ -484,7 +525,12 @@ instr :
 
       // Creating entity
       switch ($1) {
+        case 'data entity':
         case 'entity' :
+        case 'entité':
+        case "l'entité":
+        case "entité de données":
+        case "l'entité de données":
           return createNewHasMany(options);
         default :
           break;
@@ -511,7 +557,12 @@ instr :
 
       // Creating entity
       switch ($1) {
+        case 'data entity':
         case 'entity' :
+        case 'entité':
+        case "l'entité":
+        case "entité de données":
+        case "l'entité de données":
           return createNewHasMany(options);
         default :
           break;
@@ -533,7 +584,12 @@ instr :
 
       // Creating entity
       switch ($1) {
+        case 'data entity':
         case 'entity' :
+        case 'entité':
+        case "l'entité":
+        case "entité de données":
+        case "l'entité de données":
           return createNewBelongsToMany(options);
         default :
           break;
@@ -645,6 +701,7 @@ instr :
         case "un champ de données":
         case "champ":
         case "un champ":
+        case "le champ":
           return createNewDataField(options);
         default :
           break;
@@ -676,6 +733,7 @@ instr :
         case "un champ de données":
         case "champ":
         case "un champ":
+        case "le champ":
           return deleteDataField(options);
 
         case 'data entity':
@@ -789,7 +847,7 @@ instr :
         break;
      }
   %}
-  | SET ENTITY STRING STRING plus
+  | SET ENTITY STRING STRING
   %{
       // Preparing Options
       var options = {
@@ -797,10 +855,17 @@ instr :
         word: $4
       };
 
-      // Reinitialize variable for future use
-      chaine = "";
+      return setRequiredAttribute(options);
+  %}
+  | SET COLUMN STRING STRING
+  %{
+      // Preparing Options
+      var options = {
+        field_name: $3,
+        word: $4
+      };
 
-      return addFieldAttribute(options);
+      return setColumnVisibility(options);
   %}
   | SHOW SESSION
   %{
@@ -831,7 +896,8 @@ function selectApplication(options) { return { "function": "selectApplication", 
 function selectModule(options) { return { "function": "selectModule", "options": options }; }
 function selectDataEntity(options) { return { "function": "selectDataEntity", "options": options }; }
 
-function addFieldAttribute(options) { return { "function": "setFieldAttribute", "options": options};}
+function setRequiredAttribute(options) { return { "function": "setRequiredAttribute", "options": options};}
+function setColumnVisibility(options) { return { "function": "setColumnVisibility", "options": options};}
 
 function createNewProject(options) {  return { "function": "createNewProject", "options": options }; }
 function createNewApplication(options) { return { "function": "createNewApplication", "options": options }; }

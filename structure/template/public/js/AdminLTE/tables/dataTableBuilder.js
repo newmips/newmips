@@ -57,7 +57,7 @@ function init_datatable(tableID){
 	// Fetch columns from html
 	var columns = [];
 	$(tableID+" .main th").each(function(){
-		if (typeof $(this).data('col') !== 'undefined')
+		if (typeof $(this).data('col') !== 'undefined' && $(this).is(":visible"))
 			columns.push({data: $(this).data('col'), type: $(this).data('type')});
 	});
 
