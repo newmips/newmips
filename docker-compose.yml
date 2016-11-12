@@ -1,5 +1,9 @@
 version: '2'
 services:
+  dbseed:
+    build:
+      context: sql
+    image: dbseed
   mysql:
     image: mysql/mysql-server
     environment:
@@ -8,6 +12,8 @@ services:
       - mYSQL_PASSWORD=newmips
     ports: 
       - 3306:3306
+    volumes_from:
+      - dbseed
   newmips:
     image: newmips
     ports: 
