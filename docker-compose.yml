@@ -14,11 +14,15 @@ services:
       - 3306:3306
     volumes_from:
       - dbseed
+    volumes:
+      - dbdata:/var/lib/mysql
   newmips:
     build:
       context: .
+      dockerfile: Dockerfile 
     image: newmips
     ports: 
       - 1337:1337
     links: [ mysql ]
-      
+volumes:
+  -dbdata:/usr/local/docker/data
