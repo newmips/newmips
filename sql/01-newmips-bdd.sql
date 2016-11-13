@@ -25,6 +25,7 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `application`
 --
+USE newmips;
 
 CREATE TABLE IF NOT EXISTS `application` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
