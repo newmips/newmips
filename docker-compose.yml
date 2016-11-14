@@ -9,7 +9,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=newpass
       - MYSQL_USER=newmips
-      - mYSQL_PASSWORD=newmips
+      - MYSQL_PASSWORD=newmips
+      - MYSQL_DATABASE=newmips
     ports: 
       - 3306:3306
     volumes_from:
