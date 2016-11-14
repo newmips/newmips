@@ -16,7 +16,7 @@ services:
     volumes_from:
       - dbseed
     volumes:
-      - dbdata:/var/lib/mysql
+      - /usr/local/docker/data:/var/lib/mysql
   newmips:
     build:
       context: .
@@ -25,5 +25,3 @@ services:
     ports: 
       - 1337:1337
     links: [ mysql ]
-volumes:
-  -dbdata:/usr/local/docker/data
