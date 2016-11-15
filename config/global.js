@@ -22,13 +22,13 @@ var config = {
 	'develop': {
 		env: 'develop',
 		protocol: 'http',
-		host: '127.0.0.1',
+		host: 'nemips',
 		port: process.env.PORT || 1337
 	},
 	'recette': {
 		env: 'recette',
 		protocol: 'https',
-		host: '127.0.0.1',
+		host: 'newmips',
 		port: process.env.PORT || 1337,
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
@@ -39,7 +39,7 @@ var config = {
 	'production': {
 		env: 'production',
 		protocol: 'https',
-		host: '127.0.0.1',
+		host: 'newmips',
 		port: process.env.PORT || 1337,
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
