@@ -9,6 +9,8 @@ RUN npm install
 
 COPY . /usr/src/app
 
+RUN cd /usr/src/app/structure/template && npm install
+
 EXPOSE 1337
 
 CMD ["npm", "start"]
