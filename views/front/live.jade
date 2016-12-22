@@ -1,0 +1,40 @@
+extends ../main_layout
+block header
+	h1
+		| #{__("module.live")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='/default/home')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.live")}
+block content
+	legend #{__("operation.live")}
+	.row
+		.col-xs-12.connectedSortable
+			.box-body
+				a.btn.btn-default.pull-right(href='/default/home')
+					i.fa.fa-arrow-left.fa-md &nbsp;&nbsp;
+					span #{__("button.backtohome")}
+				br
+				br
+				.row
+					.col-xs-12
+						.form-group
+							a.btn.btn-default(href="#", id="btn")
+								i.fa.fa-microphone.fa-md &nbsp;&nbsp;
+								span #{__("button.record")}
+
+						form(action='/live/index', id='singleInstruction', method='post')
+							.form-group
+								// input.form-control.input(id='instruction', name='instruction', type='text', value='#{instruction}' x-webkit-speech)
+								input.form-control.input(id='instruction', name='instruction', type='text', autofocus, value='' x-webkit-speech)
+
+							.form-group
+								button.btn.btn-primary(id='instructionSubmit', type='submit') #{__("button.execute")}
+				.row
+					.col-xs-12
+						.form-group
+							div.form-control.div(id='answers', name='answers', style="height: 500px;overflow:auto")
+								| !{answers}

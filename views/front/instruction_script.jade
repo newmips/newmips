@@ -1,0 +1,56 @@
+extends ../main_layout
+block header
+	h1
+		| #{__("module.instruction")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='/default/home')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.instruction")}
+block content
+	legend #{__("operation.script")}
+	.row
+		.col-xs-12.connectedSortable
+			.box-body
+				a.btn.btn-default.pull-right(href='/default/home')
+					i.fa.fa-arrow-left.fa-md &nbsp;&nbsp;
+					span #{__("button.backtohome")}
+				br
+				br
+				.row
+					.col-xs-12
+						form(action='/instruction_script/execute', id='instructionsScript', method='post', enctype="multipart/form-data")
+							.form-group
+								.row
+									.col-xs-12
+										input(type='file', required, name='instructions', style='float:left;')
+								.row
+									.col-xs-3
+										button.btn.btn-primary(id='scriptSubmit', type='submit', style='float:left;margin-top: 15px;') #{__("button.execute")}
+				.row
+					.col-xs-12
+						div(id='filename')
+						div(id='instructionCount', style='float: left;')
+						// i.fa.fa-spinner.fa-2x.fa-spin(id='spinner', style='display:none;margin-left:20px;')
+						br
+						if (__("app.lang") == 'en')
+							br
+							a.btn.btn-success#goTo(href='/application/preview?id_application=', style='display:none;')
+								| Go to generated application
+							br
+							br
+						else if (__("app.lang") == 'fr')
+							a.btn.btn-success#goTo(href='/application/preview?id_application=', style='display:none;')
+								| Aller vers l'application générée
+							br
+							br
+						.progress.sm.progress-striped.active(id='progressbarcontent', style='display:none;')
+							.progress-bar.progress-bar-success(id='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width:0%;')
+						.form-group
+							div.form-control.div(id='answers', name='answers', style="height: 500px;overflow:auto")
+								| !{answers}
+				input(id='lang', type='hidden', value=__("app.lang"))
+block custom_js
+	script(src='/js/Newmips/instructionsScriptStatus.js', type='text/javascript')

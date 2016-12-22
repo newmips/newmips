@@ -1,0 +1,8 @@
+{>"main_layout"/}
+{<modules}
+	<select id='dynamic_select' class='form-control select' onchange='navigate()'></select>
+{/modules}
+
+{<sidebar}
+	<ul id='sortable' class='sidebar-menu'></ul>
+{/sidebar}

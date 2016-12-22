@@ -1,0 +1,79 @@
+{>"main_layout"/}
+{<header}
+    <h1>Mon espace<small>R&eacute;serv&eacute;</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>Accueil</a></li>
+        <li class="active">Mon espace</li>
+    </ol>
+{/header}
+{<content}
+    <legend>Afficher un Utilisateur</legend>
+    <div class="row">
+        <div class="col-xs-12 connectedSortable"><br/>
+            {#user}
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="email">{@__ key="settings.email"/}</label>
+                        <input type="text" placeholder="{email}" disabled="disabled" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="first_name">{@__ key="settings.firstname"/}</label>
+                        <input type="text" placeholder="{first_name}" disabled="disabled" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">{@__ key="settings.lastname"/}</label>
+                        <input type="text" placeholder="{last_name}" disabled="disabled" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">{@__ key="settings.phone"/}</label>
+                        <input type="text" placeholder="{phone}" disabled="disabled" class="form-control"/>
+                    </div>
+                </div><br/>
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="id">Identifiant</label>
+                        <input type="text" placeholder="{id}" disabled="disabled" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="login">Login</label>
+                        <input type="text" placeholder="{login}" disabled="disabled" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="role_name">Profil</label>
+                        <input type="text" placeholder="{Role.name}" disabled="disabled" class="form-control"/>
+                    </div>
+                </div><br/>
+                <div class="box-footer">
+                    <form action="/user/delete" method="post">
+                        <div class="quicklinks">
+                            <span>
+                                <a href="/user/create" class="btn btn-success">
+                                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                                    <span>Cr&eacute;er</span>
+                                </a>
+                            </span>
+                            <span>
+                                <a href="/user/list" type="submit" class="btn btn-primary">
+                                    <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>Lister</span>
+                                </a>
+                            </span>
+                            <span>
+                                <a href="/user/update/{id}" class="btn btn-warning">
+                                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                                    <span>Modifier</span>
+                                </a>
+                            </span>
+                            <span>
+                                <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
+                                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                                <span>Supprimer</span>
+                                </button>
+                                <input name="id_user" type="hidden" value="{id}" class="form-control"/>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            {/user}
+        </div>
+    </div>
+{/content}

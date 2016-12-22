@@ -1,0 +1,88 @@
+{
+	"app": {
+		"name": "Application"
+	},
+	"login": {
+		"log_in": "Log in",
+		"reset_password": "Forgotten password",
+		"first_connection": "First connection",
+		"authentication": "Connection",
+		"login": "Login",
+		"password": "Password",
+		"confirm_password": "Confirm password",
+		"mail": "Email",
+		"remember_me": "Remember me",
+		"submit": "Submit"
+	},
+	"settings":{
+		"title": "Settings",
+		"legend": "Change your user settings",
+		"lang": "Language",
+		"login": "Login",
+		"email": "Email",
+		"firstname": "Firstname",
+		"lastname": "Lastname",
+		"phone": "Phone"
+	},
+	"navbar": {
+		"about": "About",
+		"help": "Help",
+		"support": "Support"
+	},
+	"module": {
+		"home": "Home",
+		"module": "Module",
+    "administration": "Administration",
+		"workspace": "My workspace"
+	},
+	"role": {
+		"administrator": "Administrator",
+		"developer": "Developer"
+	},
+	"button": {
+		"profile": "Profile",
+		"disconnect": "Disconnect",
+		"show": "Show",
+		"update": "Modify",
+		"delete": "Delete",
+		"create": "Create",
+		"list": "List",
+		"add": "Add",
+		"remove": "Remove",
+		"save": "Save",
+		"preview": "Preview",
+		"record": "Record",
+		"execute": "Execute",
+    	"settings": "Settings",
+    	"download": "Download",
+    	"search": "Search"
+	},
+	"operation": {
+		"show": "Show entity ",
+		"update": "Modify entity ",
+		"create": "Create entity ",
+		"delete": "Delete entity ",
+		"list": "List all entities ",
+    "add": "Add entity "
+	},
+	"message": {
+		"create": {
+			"success": "Success ! Data registered with success.",
+			"failure": "Error ! No data registered. May ask to your administrator."
+		},
+		"update": {
+			"success": "Success ! Data modified with success.",
+			"failure": "Error ! No data modified. May ask to your administrator."
+		},
+		"delete": {
+			"success": "Success ! Data deleted with success.",
+			"failure": "Error ! No data deleted. May ask to your administrator.",
+			"question": "Are you sure you want to delete this entity ?"
+		},
+		"empty": "No data to display"
+	},
+	"entity": {
+	},
+	"component": {
+	}
+}

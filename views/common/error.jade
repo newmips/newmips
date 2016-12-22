@@ -1,0 +1,29 @@
+extends ../main_layout
+block header
+	h1 Erreur #{code}
+	ol.breadcrumb
+		li
+			a(href='#')
+				i.fa.fa-dashboard
+				| Accueil
+		li
+			a(href='#') Erreur
+		li.active 500 Internal Error
+block content
+	.error-page
+		h2.headline #{code}
+		.error-content
+			if (msg != "")
+				h3
+					i.fa.fa-warning.text-yellow
+					| #{msg}
+			else
+				h3
+					i.fa.fa-warning.text-yellow
+					| Oops! Une erreur s'est produite.
+			p
+				| Merci de contacter votre administrateur.
+				| Entre temps, vous pouvez
+				a(href='/')&nbsp;retourner à la page d'accueil
+				|&nbsp;ou&nbsp;
+				a(href='javascript:history.back();') revenir en arrière.

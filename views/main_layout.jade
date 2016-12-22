@@ -1,0 +1,137 @@
+doctype html
+html
+	head
+		meta(charset='UTF-8')
+		title #{__("app.name")} | #{__("module.application")}
+		meta(content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no', name='viewport')
+
+		// ---------------- JAVASCRIPT ---------------- //
+		// Bootstrap 3.0.2
+		link(href='/css/Bootstrap/bootstrap.min.css', rel='stylesheet', type='text/css')
+		// Font Awesome
+		link(href='/css/Fonts/font-awesome.min.css', rel='stylesheet', type='text/css')
+		// Ionicons
+		link(href='/css/ionicons.min.css', rel='stylesheet', type='text/css')
+		// Demo style for icons
+		link(href='/css/AdminLTE/icons.css', rel='stylesheet', type='text/css')
+		// Theme style
+		link(href='/css/AdminLTE/AdminLTE.css', rel='stylesheet', type='text/css')
+		// Toastr
+		link(href='/css/toastr/toastr.min.css', rel='stylesheet', type='text/css')
+		// Select2
+		link(href='/css/select2/css/select2.min.css', rel='stylesheet', type='text/css')
+
+		script(src='/js/Newmips/navigation.js', type='text/javascript')
+		block custom_css
+
+	body.skin-blue
+		//Give the user_lang the client
+		script.
+			var user_lang = '#{getLang()}';
+		header.header
+			.liner
+		aside.right-side
+			section.content-header
+				block header
+			section.content
+				block content
+		block message-modal
+
+		// ---------------- JAVASCRIPT ---------------- //
+		// jQuery 2.0.2
+		script(src='/js/jQuery/jquery.min.js')
+		// Bootstrap
+		script(src='/js/Bootstrap/bootstrap.min.js', type='text/javascript')
+		// Toastr
+		script(src='/js/plugins/toastr/toastr.min.js', type='text/javascript')
+		// Select2
+		script(src="/js/plugins/select2/dist/js/select2.full.min.js", type='text/javascript')
+		script.
+			var toastrArray = [];
+		if toastr
+			- var toastrString = JSON.stringify(toastr).replace('\'', '&#39;');
+			script.
+				toastrArray = JSON.parse('!{toastrString}');
+		script.
+			$(document).ready(function(){
+
+				try{
+					toastr.options = {
+						"closeButton": false,
+						"debug": false,
+						"newestOnTop": false,
+						"progressBar": true,
+						"positionClass": "toast-bottom-left",
+						"preventDuplicates": false,
+						"onclick": null,
+						"showDuration": "300",
+						"hideDuration": "1000",
+						"timeOut": "5000",
+						"extendedTimeOut": "1000",
+						"showEasing": "swing",
+						"hideEasing": "linear",
+						"showMethod": "fadeIn",
+						"hideMethod": "fadeOut"
+					};
+
+					for (var i = 0; i < toastrArray.length; i++) {
+						setTimeout(function(toast){
+							switch(toast.level){
+								case "info":
+									toastr.info(toast.message);
+									break;
+								case "success":
+									toastr.success(toast.message);
+									break;
+								case "warning":
+									toastr.warning(toast.message);
+									break;
+								case "error":
+									toastr.error(toast.message);
+									break;
+							}
+						}(toastrArray[i]), (1000*i));
+					}
+				} catch(e){
+					console.log(e);
+					toastr = {success: function(){return true;}, info: function(){return true;}, error: function(){return true;}, warning: function(){return true;}};
+				}
+
+				/* Loading generation */
+				$(document).on("click", ".generate-button", function(){
+
+					$(this).parents('form').submit();
+
+					$(this).prop("disabled", true);
+					var pourcent = 0;
+
+					$(this).next(".progress_generate").css("display", "block");
+					$(this).css("display", "none");
+
+					var that = $(this);
+
+					function getPourcent(){
+						$.ajax({
+							url : '/live/get_pourcent_generation',
+							type : 'GET',
+							dataType : 'json',
+							contentType: "application/json",
+							context: this,
+							success: function (data) {
+								if(!isNaN(data.pourcent)){
+									that.next(".progress_generate").children("#pourcent_generation").attr("aria-valuenow", data.pourcent);
+									that.next(".progress_generate").children("#pourcent_generation").css("width", data.pourcent + "%");
+									that.next(".progress_generate").children("#pourcent_generation").text(data.pourcent + "%");
+								}
+							},
+							error: function (error) {
+								console.log(error);
+							}
+						});
+					}
+
+					setInterval(getPourcent, 1000);
+				});
+			});
+
+		block custom_js

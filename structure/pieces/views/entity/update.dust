@@ -1,0 +1,45 @@
+{>"layout_custom_module"/}
+{<header}
+    <h1>{@__ key="module.custom_module"/}<small>{@__ key="module.module"/}</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
+        <li class="active">{@__ key="module.custom_module"/}</li>
+    </ol>
+{/header}
+{<content}
+    <legend>{@__ key="operation.update"/} {@__ key="entity.custom_data_entity.name_entity"/}</legend>
+    <div class="row">
+        <div class="col-xs-12 connectedSortable">
+            <form action="/custom_data_entity/update" method="post">
+                <div class="box-body">
+                    <div class="form-group">
+                        <label for="id">{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}</label>
+                        <input name="id" type="hidden" placeholder="{custom_data_entity.id_entity}" value="{custom_data_entity.id}" class="form-control input"/>
+                        <input name="id_display" type="text" placeholder="{custom_data_entity.id_entity}" value="{custom_data_entity.id}" disabled="" class="form-control input"/>
+                    </div>
+                    {#custom_data_entity}
+                        {>"custom_data_entity/update_fields"/}
+                    {/custom_data_entity}
+                    <div class="form-group">
+                        <input name="version" value="{custom_data_entity.version}" type="hidden" placeholder="version" class="form-control input"/>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                </div>
+                {#associationFlag}
+                    <input type="hidden" name='associationFlag' value="{.}">
+                {/associationFlag}
+                {#associationSource}
+                    <input type="hidden" name='associationSource' value="{.}">
+                {/associationSource}
+                {#associationForeignKey}
+                    <input type="hidden" name='associationForeignKey' value="{.}">
+                {/associationForeignKey}
+                {#associationAlias}
+                    <input type="hidden" name='associationAlias' value="{.}">
+                {/associationAlias}
+            </form>
+        </div>
+    </div>
+{/content}

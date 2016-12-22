@@ -1,0 +1,43 @@
+extends ../main_layout
+block header
+	h1
+		| #{__("module.import")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='#')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.import")}
+block content
+	.row
+		.col-xs-12
+			a.btn.btn-default.pull-right(href='/default/home')
+				i.fa.fa-arrow-left.fa-md &nbsp;&nbsp;
+				span #{__("button.backtohome")}
+			br
+			br
+			section.col-lg-offset-3.col-lg-6
+				.box.box-solid.box-default
+					.box-header.bg-newmips
+						h3.box-title(style="color: #fff") Import
+					.box-body
+						.row
+							.col-lg-12
+								form(action='/import/execute', method='post', enctype="multipart/form-data")
+									.form-group
+										label(for='AppID') Select Application
+										select.form-control.select(name="appID", style="width: 100%;", required)
+											each app in applications
+												option(value="#{app.id}")
+													| #{app.id} - #{app.name}
+									.form-group
+										label(for='configFile') Configuration File
+										input(id='configFile', name='configFile', type='file', required)
+									.form-group
+										label(for='contentFile') XLSX or CSV File
+										input(id='contentFile', name='contentFile', type='file', required)
+									br
+									.form-group
+										input.btn.btn-primary(type="submit", value="Importer !")
+block custom_js

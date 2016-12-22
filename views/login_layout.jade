@@ -1,0 +1,26 @@
+doctype html
+html.bg-newmips
+    head
+        meta(charset='UTF-8')
+        title #{__("app.name")} | #{__("login.log_in")}
+        meta(content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no', name='viewport')
+        // bootstrap 3.0.2
+        link(href='/css/Bootstrap/bootstrap.min.css', rel='stylesheet', type='text/css')
+        // font Awesome
+        link(href='/css/Fonts/font-awesome.min.css', rel='stylesheet', type='text/css')
+        // Theme style
+        link(href='/css/AdminLTE/AdminLTE.css', rel='stylesheet', type='text/css')
+        // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+        // WARNING: Respond.js doesn't work if you view the page via file://
+        //if lt IE 9
+            script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
+            script(src='https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js')
+        block custom_css
+    body.bg-newmips
+        #login-box.form-box
+            block content
+        // jQuery 2.0.2
+        script(src='/js/jQuery/jquery.min.js')
+        // Bootstrap
+        script(src='/js/Bootstrap/bootstrap.min.js', type='text/javascript')
+        block custom_js

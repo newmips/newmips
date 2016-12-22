@@ -1,0 +1,192 @@
+extends ../main_layout
+block header
+	h1
+		| #{__("module.home")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='#')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.workspace")}
+block content
+	.row
+		.col-xs-12
+			section.col-lg-offset-3.col-lg-6
+				.box.box-solid.box-default
+					.box-header.bg-newmips
+						h3.box-title(style="color: #fff") #{__("tour_tip.home_1.header")}
+					.box-body
+						.row
+							.col-lg-12
+								- var display1 = nb_application>0?"block":"none";
+								- var display2 = nb_application>0?"none":"block";
+								form#existing_project(action='/live/initiate', method='post', style="display: #{display1};")
+									p
+										h4
+											| #{__('tour_tip.home_2.body1')}
+									p
+										| #{__('tour_tip.home_2.body2')}
+									.form-group
+										label(for='project') #{M_("entity.project.name")}
+										select.form-control.select#select_project(name="selectProject", style="width: 100%;")
+											option(value="", default)
+												| #{__('tour_tip.home_2.select_project')}
+											each project in projects
+												option(value="#{project.id}")
+													| #{project.name}
+										a#create_new_project(href="#")
+											i.fa.fa-plus.fa-md &nbsp;
+											| #{__('tour_tip.home_2.create_new_project_application')}
+									.form-group#select_application_form(style="display: none;")
+										label(for='application') #{M_("entity.application.name")}
+										select.form-control.select#select_application(name="selectApplication", style="width: 100%;")
+										a#create_new_application(href="#")
+											i.fa.fa-plus.fa-md &nbsp;
+											| #{__('tour_tip.home_2.create_new_application')}
+										br
+										br
+										a.btn.btn-info#btn-preview(href='#')
+											i.fa.fa-pencil-square-o.fa-md &nbsp;&nbsp;
+											span #{__("button.preview")}
+									.form-group#create_new_application_input(style="display: none;")
+										label(for='application') #{M_("entity.application.name")}
+										input.form-control.input(id='application', name='application', type='text')
+										a#select_existing_application(href="#")
+											i.fa.fa-plus.fa-md &nbsp;
+											| #{__('tour_tip.home_2.select_existing_application')}
+										br
+										br
+										button.generate-button(id="step2Discover1", type="submit", class="btn btn-primary")
+											| #{__('tour_tip.home_2.generate')}
+										.progress.active.progress_generate(style="display: none;")
+											.progress-bar.progress-bar-striped.active#pourcent_generation(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width:0%')
+								form#new_project(action='/live/initiate', method='post', style="display: #{display2};")
+									.form-group
+										label(for='project') #{M_("entity.project.name")}
+										input.form-control.input(id='project', name='project', type='text', tabindex="1", autofocus)
+										a#select_existing_project(href="#")
+											i.fa.fa-plus.fa-md &nbsp;
+											| #{__('tour_tip.home_2.select_existing_project')}
+									.form-group
+										label(for='application') #{M_("entity.application.name")}
+										input.form-control.input(id='application', name='application', tabindex="2", type='text')
+										br
+										button.generate-button(id="step2Discover2", type="submit", class="btn btn-primary")
+											| #{__('tour_tip.home_2.generate')}
+										.progress.active.progress_generate(style="display: none;")
+											.progress-bar.progress-bar-striped.active#pourcent_generation(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width:0%')
+	.row
+		.col-xs-12
+			section.col-lg-offset-3.col-lg-6
+				.box.box-solid.box-default
+					.box-header
+						h4.box-title #{__('tour_tip.home_1.shortcuts')}
+					.box-body
+						center
+							a.btn.btn-app(href='/application/list')
+								span.badge.bg-purple #{nb_application}
+								i.fa.fa-briefcase
+								| #{M_("entity.application.plural")}
+
+							a.btn.btn-app(href='/instruction_script/index')
+								i.fa.fa-list-ol
+								| #{__("entity.script.label")}
+
+							a.btn.btn-app(href='/live/index')
+								i.fa.fa-microphone
+								| #{__("entity.live.label")}
+
+							a.btn.btn-app(href='/import')
+								i.fa.fa-hdd-o
+								| #{__("entity.import.label")}
+
+							a.btn.btn-app(href='/settings/index')
+								i.fa.fa-bars
+								| #{__("entity.settings.label")}
+
+block custom_js
+	script.
+		$(function() {
+			$("#project, #application").keyup(function(e) {
+				var reg = new RegExp("[^A-Za-z ]");
+				while (reg.test($(this).val()))
+				      $(this).val($(this).val().substring(0, $(this).val().length-1))
+			});
+			/* --------------- Initialisation des select --------------- */
+			$("select").select2();
+
+			$(document).on("change", "#select_project", function(){
+
+				if($(this).val() != ""){
+					$(this).prop("disabled", true);
+
+					var ajaxData = {
+						idProject: $(this).val()
+					}
+
+					$.ajax({
+						url : '/default/get_applications_by_project',
+						type : 'POST',
+						data: JSON.stringify(ajaxData),
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (data) {
+
+							if(data.applications.length > 0 ){
+								var dataForSelect2 = [];
+								for(var i=0; i<data.applications.length; i++){
+									var application = data.applications[i];
+									dataForSelect2.push({
+										id: application.id,
+										text: application.name
+									});
+								}
+								$("#btn-preview").attr("href", "/application/preview?id_application="+data.applications[0].id);
+								$("#select_application").empty();
+								$("#select_application").select2({
+									data: dataForSelect2
+								});
+								$("#select_application_form").slideDown();
+								$("#create_new_application_input").css("display", "none");
+								$(this).removeAttr("disabled");
+							}
+							else{
+								$("#select_application_form").slideDown();
+								$(this).removeAttr("disabled");
+							}
+						},
+						error: function (error) {
+							console.log(error);
+							toastr.error("Sorry, an error occured :/");
+						}
+					});
+				}
+			});
+
+			$(document).on("change", "#select_application", function(){
+				$("#btn-preview").attr("href", "/application/preview?id_application="+$(this).val());
+			});
+
+			$(document).on("click", "#create_new_application", function(){
+				$(this).parents(".form-group").slideUp();
+				$("#create_new_application_input").slideDown();
+			});
+
+			$(document).on("click", "#select_existing_application", function(){
+				$(this).parents(".form-group").slideUp();
+				$("#select_application_form").slideDown();
+			});
+
+			$(document).on("click", "#create_new_project", function(){
+				$("#existing_project").slideUp();
+				$("#new_project").slideDown();
+			});
+
+			$(document).on("click", "#select_existing_project", function(){
+				$("#new_project").slideUp();
+				$("#existing_project").slideDown();
+			});
+
+		});

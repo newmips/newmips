@@ -1,0 +1,32 @@
+<div id='fields'></div>
+<div class='actions'>
+    <form action="/custom_data_entity/delete" method="post">
+        <div class="quicklinks">
+            <span>
+                <button class="btn btn-danger">
+                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.delete"/}</span>
+                </button>
+                <input name="id" type="hidden" value="{custom_data_entity.id}" class="form-control"/>
+            </span>
+            <span>
+                <a href="/custom_data_entity/update_form?id={custom_data_entity.id}" class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update"/}</span>
+                </a>
+            </span>
+            <span>
+                <a href="/custom_data_entity/create_form" class="btn btn-success">
+                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.create"/}</span>
+                </a>
+            </span>
+            <span>
+                <a href="/custom_data_entity/list" type="submit" class="btn btn-primary">
+                    <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.list"/}</span>
+                </a>
+            </span>
+        </div>
+    </form>
+</div>

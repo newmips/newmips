@@ -1,0 +1,35 @@
+extends ../../main_layout
+block header
+	h1
+		| Mon espace
+		small R&eacute;serv&eacute;
+	ol.breadcrumb
+		li
+			a(href='#')
+				i.fa.fa-home
+				| Accueil
+		li.active Mon espace
+block content
+	legend Afficher un Utilisateur
+	.row
+		.col-xs-12.connectedSortable
+			.box-body
+				.form-group
+					label(for='id_user') Identifiant
+					input.form-control(type='text', placeholder='#{user.id}', disabled)
+				.form-group
+					label(for='login_user') Login
+					input.form-control(type='text', placeholder='#{user.login}', disabled)
+				.form-group
+					label(for='password_user') Mot de passe
+					input.form-control(type='password', placeholder='#{user.password}', disabled)
+				.form-group
+					label(for='libelle_profil') Role
+					input.form-control(type='text', placeholder='#{user.Role.name}', disabled)
+				br
+			.box-footer
+				div.quicklinks
+					span
+						a.btn.btn-primary(href='/user/list', type='submit')
+							i.fa.fa-list.fa-md &nbsp;&nbsp;
+							span Lister

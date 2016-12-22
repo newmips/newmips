@@ -1,0 +1,88 @@
+{
+  "app": {
+    "name": "Application"
+  },
+  "login": {
+    "log_in": "Log in",
+    "reset_password": "Mot de passe oublié",
+    "first_connection": "Première connexion",
+    "authentication": "Connexion",
+    "login": "Login",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmation du mot de passe",
+    "mail": "Mail",
+    "remember_me": "Se souvenir de moi",
+    "submit": "Soumettre"
+  },
+  "settings":{
+    "title": "Paramètres",
+    "legend": "Modifier vos paramètres",
+    "lang": "Langue",
+    "login": "Login",
+    "email": "Email",
+    "firstname": "Prénom",
+    "lastname": "Nom",
+    "phone": "Téléphone"
+  },
+  "navbar": {
+    "about": "A propos",
+    "help": "Aide",
+    "support": "Support"
+  },
+  "module": {
+    "home": "Accueil",
+    "module": "Module",
+    "administration": "Administration",
+    "workspace": "Espace de travail"
+  },
+  "role": {
+    "administrator": "Administrateur",
+    "developer": "Développeur"
+  },
+  "button": {
+    "profile": "Profil",
+    "disconnect": "Se déconnecter",
+    "show": "Afficher",
+    "update": "Modifier",
+    "delete": "Supprimer",
+    "create": "Créer",
+    "list": "Lister",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "save": "Sauvegarder",
+    "preview": "Prévisualiser",
+    "record": "Enregistrer",
+    "execute": "Exécuter",
+    "settings": "Paramètres",
+    "download": "Télécharger",
+    "search": "Rechercher"
+  },
+  "operation": {
+    "show": "Afficher une entité ",
+    "update": "Modifier une entité ",
+    "create": "Créer une entité ",
+    "delete": "Supprimer une entité ",
+    "list": "Lister toutes les entités ",
+    "add": "Ajouter une entité "
+  },
+  "message": {
+    "create": {
+      "success": "Succès ! L'enregistrement a été créé en base de données.",
+      "failure": "Erreur ! L'enregistrement n'a pas été créé en base de données. Veuillez contacter votre administrateur."
+    },
+    "update": {
+      "success": "Succès ! L'enregistrement a été modifié en base de données.",
+      "failure": "Erreur ! L'enregistrement n'a pas été modifié en base de données. Veuillez contacter votre administrateur."
+    },
+    "delete": {
+      "success": "Succès ! L'enregistrement a été supprimé en base de données.",
+      "failure": "Erreur ! L'enregistrement n'a pas été supprimé en base de données. Veuillez contacter votre administrateur.",
+      "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
+    },
+    "empty": "Aucune donnée à afficher"
+  },
+  "entity": {
+  },
+  "component": {
+  }
+}
