@@ -295,12 +295,12 @@ exports.setupDataField = function(attr, callback) {
 	var toSyncFile = fs.readFileSync(toSyncFileName);
 	toSyncObject = JSON.parse(toSyncFile);
 
-	if(typeof toSyncObject[name_data_entity.toLowerCase()] === "undefined"){
-		toSyncObject[name_data_entity.toLowerCase()] = {};
-		toSyncObject[name_data_entity.toLowerCase()].attributes = {};
+	if(typeof toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] === "undefined"){
+		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] = {};
+		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes = {};
 	}
-	else if(typeof toSyncObject[name_data_entity.toLowerCase()].attributes === "undefined"){
-		toSyncObject[name_data_entity.toLowerCase()].attributes = {};
+	else if(typeof toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes === "undefined"){
+		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes = {};
 	}
 
 	var typeForModel = "STRING";
@@ -362,14 +362,14 @@ exports.setupDataField = function(attr, callback) {
 			"type": typeForModel,
 			"values": values_data_field
 		}
-		toSyncObject[name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
+		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
 			"type": typeForModel,
 			"values": values_data_field
 		}
 	}
 	else{
 		attributesObject[name_data_field.toLowerCase()] = typeForModel;
-		toSyncObject[name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
+		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
 	}
 
 	fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
