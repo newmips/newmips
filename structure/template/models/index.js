@@ -70,7 +70,10 @@ sequelize.customAfterSync = function() {
                         promises.push(new Promise(function(resolve0, reject0) {
 
                             /* Check if field already exist - New version */
-                            if(typeof toSyncObject[sourceAttr] !== "undefined" && typeof toSyncObject[sourceAttr].attributes[itemAttr] !== "undefined"){
+                            if(typeof toSyncObject[sourceAttr] !== "undefined" &&
+                                typeof toSyncObject[sourceAttr].attributes !== "undefined" &&
+                                typeof toSyncObject[sourceAttr].attributes[itemAttr] !== "undefined"){
+
                                 var type = "";
                                 switch (attributObject[itemAttr]) {
                                     case "STRING":
@@ -110,10 +113,13 @@ sequelize.customAfterSync = function() {
                                     writeStream.on('finish', function() {
                                         resolve0();
                                     });
+                                }).catch(function(err) {
+                                    console.log(err);
+                                    reject0();
                                 });
                             }
                             else{
-                                    resolve0();
+                                resolve0();
                             }
 
                             /* Check if field already exist */
@@ -169,7 +175,7 @@ sequelize.customAfterSync = function() {
                 optionsFile = fs.readFileSync(optionsFileName);
                 optionsObject = JSON.parse(optionsFile);
 
-                for (var j = 0; j < optionsObject.length; j++) {
+                for (var j=0; j < optionsObject.length; j++) {
                     if (optionsObject[j].relation == "belongsTo") {
 
                         var targetName = db[optionsObject[j].target.charAt(0).toUpperCase() + optionsObject[j].target.slice(1)].getTableName();
@@ -183,12 +189,50 @@ sequelize.customAfterSync = function() {
                         (function(sourceBelongsTo, targetBelongsTo, foreignBelongsTo) {
 
                             promises.push(new Promise(function(resolve2, reject2) {
+
+                                var toSync = false;
+                                var indexToRemove = -1;
+
+                                if(typeof toSyncObject[sourceBelongsTo] !== "undefined" && typeof toSyncObject[sourceBelongsTo].options !== "undefined"){
+
+                                    /* Check if field already exist - New version */
+                                    for(var k=0; k < toSyncObject[sourceBelongsTo].options.length; k++){
+                                        var currentItem = toSyncObject[sourceBelongsTo].options[k];
+                                        if(currentItem.foreignKey == foreignBelongsTo){
+                                            toSync = true;
+                                            indexToRemove = k;
+                                        }
+                                    }
+                                }
+
+                                if(toSync){
+                                    request = "ALTER TABLE ";
+                                    request += sourceBelongsTo;
+                                    request += " ADD COLUMN `" +foreignBelongsTo+ "` INT DEFAULT NULL;";
+                                    request2 = "ALTER TABLE `" +sourceBelongsTo+ "` ADD FOREIGN KEY (" +foreignBelongsTo+ ") REFERENCES `" +targetBelongsTo+ "` (id);";
+                                    sequelize.query(request).then(function() {
+                                        sequelize.query(request2).then(function() {
+                                            var writeStream = fs.createWriteStream(toSyncFileName);
+                                            toSyncObject[sourceBelongsTo].options.splice(indexToRemove, 1);
+                                            writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                            writeStream.end();
+                                            writeStream.on('finish', function() {
+                                                resolve2();
+                                            });
+                                        });
+                                    }).catch(function(err) {
+                                        console.log(err);
+                                        reject2();
+                                    });
+                                }
+                                else{
+                                    resolve2();
+                                }
+
                                 /* Check if foreign key already exist */
-                                sequelize.query("SHOW COLUMNS FROM `" + sourceBelongsTo + "` LIKE '" + foreignBelongsTo + "';", {
+                                /*sequelize.query("SHOW COLUMNS FROM `" + sourceBelongsTo + "` LIKE '" + foreignBelongsTo + "';", {
                                     type: sequelize.QueryTypes.SELECT
                                 }).then(function(answerBelongsTo) {
-
-                                    /* La reference n'a pas été générée par Sequelize avec le sync */
                                     if (answerBelongsTo.length == 0) {
                                         request = "ALTER TABLE ";
                                         request += sourceBelongsTo;
@@ -206,7 +250,7 @@ sequelize.customAfterSync = function() {
                                     else{
                                         resolve2();
                                     }
-                                });
+                                });*/
                             }));
                         })(sourceName, targetName, foreignKey);
                     } else if (optionsObject[j].relation == "hasMany") {
