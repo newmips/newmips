@@ -1,0 +1,32 @@
+{
+  "name": "node-authentication",
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./server"
+  },
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "~1.15.2",
+    "connect-flash": "~0.1.1",
+    "consolidate": "~0.14.1",
+    "cookie-parser": "~1.4.3",
+    "dustjs-helpers": "~1.7.3",
+    "dustjs-linkedin": "~2.7.4",
+    "express": "~4.14.0",
+    "express-mysql-session": "~1.1.1",
+    "express-session": "~1.14.1",
+    "jade": "~1.11.0",
+    "moment": "~2.14.1",
+    "moment-timezone": "^0.5.6",
+    "morgan": "~1.7.0",
+    "multer": "^1.2.0",
+    "mysql": "~2.11.1",
+    "nodemailer": "~2.6.0",
+    "passport": "~0.3.2",
+    "passport-local": "~1.0.0",
+    "sequelize": "~3.24.2",
+    "sequelize-cli": "~2.4.0",
+    "validator": "~5.6.0",
+    "webdav-fs": "^1.0.0-rc1"
+  }
+}

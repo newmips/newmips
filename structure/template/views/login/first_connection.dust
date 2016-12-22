@@ -1,0 +1,44 @@
+{>"login_layout"/}
+{<content}
+    <div class="header">{@__ key="login.first_connection"/}</div>
+    <form action="/first_connection" method="post">
+        <div class="body bg-white">
+            <center><img src="/img/logo_newmips.png" width="50%" height="50%"/></center>
+        </div>
+        {#message}
+            <div class="body bg-orange">{message}</div>
+        {/message}
+        <div class="body bg-gray">
+            <div class="form-group">
+                <label for="login_user">{@__ key="login.login"/}</label>
+                <input type="text" name="login_user" placeholder='{@__ key="login.login"/}' required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="password">{@__ key="login.password"/}</label>
+                <input type="password" name="password_user" id="password" placeholder='{@__ key="login.password"/}' required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="password2">{@__ key="login.confirm_password"/}</label>
+                <input type="password" name="password_user2" id="confirm_password" placeholder='{@__ key="login.password"/}' required="required" class="form-control"/>
+            </div>
+        </div>
+        <div class="footer">
+            <button type="submit" class="btn btn-primary btn-block">{@__ key="login.submit"/}</button>
+        </div>
+    </form>
+{/content}
+{<custom_js}
+    <script type="text/javascript">
+        var password = document.getElementById("password"), confirm_password = document.getElementById("confirm_password");
+        function validatePassword(){
+            if(password.value != confirm_password.value) {
+                confirm_password.setCustomValidity("Les mots de passe ne correspondent pas");
+            }
+            else{
+                confirm_password.setCustomValidity('');
+            }
+        };
+        password.onchange = validatePassword;
+        confirm_password.onkeyup = validatePassword;
+    </script>
+{/custom_js}

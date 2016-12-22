@@ -1,0 +1,225 @@
+extends ../main_layout
+
+block custom_css
+	// CodeMirror
+	link(href='/css/codemirror/codemirror.css', rel='stylesheet', type='text/css')
+	// Addons CSS
+	link(href='/js/plugins/codemirror/addon/dialog.css', rel='stylesheet', type='text/css')
+	link(href='/js/plugins/codemirror/addon/fullscreen.css', rel='stylesheet', type='text/css')
+	link(href='/js/plugins/codemirror/addon/simplescrollbars.css', rel='stylesheet', type='text/css')
+	//Custom css
+	style.
+		.CodeMirror {
+			border: 1px solid #d5d5d5;
+			height: 600px;
+		}
+		.cm-trailingspace {
+			background-color: red;
+		}
+		.cm-dust {
+			color: #0ca;
+		}
+		.CodeMirror-fullscreen {
+			z-index: 1050;
+		}
+		.close-tab{
+			visibility: hidden;
+		}
+		.close-tab:hover{
+			color: red;
+			cursor: pointer;
+		}
+		li.load-file:hover a .close-tab{
+			visibility: visible;
+		}
+
+block header
+	h1
+		| #{__("module.editor")}
+		small #{__("module.editor")}
+	ol.breadcrumb
+		li
+			a(href='/default/home')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.editor")}
+block content
+	legend #{__("operation.editor")}
+	.row
+		.col-xs-12.connectedSortable
+			.box-body
+				a.btn.btn-default.pull-right(href='/default/home')
+					i.fa.fa-arrow-left.fa-md &nbsp;&nbsp;
+					span #{__("button.backtohome")}
+				br
+				br
+				.row
+					#codemirror-menu.col-xs-12.col-sm-2.sidebar
+						h4
+							| #{__("module.editor_content.folders")} :
+						ul#sortable.sidebar-menu
+							mixin parseObject(array)
+								each file, key in array
+									if (typeof file.path !== "undefined")
+										li
+											a.load-file(href='#', data-path="#{file.path}", data-filename="#{file.title}")
+												i.fa.fa-file
+												|  #{file.title}
+									else if (typeof file.under !== "undefined")
+										li.ui-state-default.treeview(style='display:block;')
+											a(href='#')
+												i.fa.fa-folder
+												span #{file.title}
+												i.fa.fa-angle-left.pull-right
+											ul.treeview-menu
+												mixin parseObject(file.under)
+							mixin parseObject(workspaceFolder)
+					#codemirror-editor.col-xs-12.col-sm-10
+						h4
+							| #{__("module.editor_content.editor")} :
+						#tabs.nav-tabs-custom(style="margin-bottom:0px;")
+							ul.nav.nav-tabs#editor-navtabs
+				br
+				.row
+					.col-xs-5.col-sm-offset-2
+						button#update-file.btn.btn-primary(disabled="true") #{__("button.save")}
+						a.btn.btn-info(style="margin-left:10px;", target="_blank", href="/application/preview?id_application=#{idApplication}") #{__("button.preview")}
+					.col-xs-5
+						span.pull-right(style="margin-right:50px;")
+							b
+								| #{__("module.editor_content.change_theme")} :
+						br
+						select#select-theme.pull-right
+							option(value="default") default
+							option(value="3024-day") 3024-day
+							option(value="3024-night") 3024-night
+							option(value="abcdef") abcdef
+							option(value="ambiance-mobile") ambiance-mobile
+							option(value="ambiance") ambiance
+							option(value="base16-dark") base16-dark
+							option(value="base16-light") base16-light
+							option(value="bespin") bespin
+							option(value="blackboard") blackboard
+							option(value="cobalt") cobalt
+							option(value="colorforth") colorforth
+							option(value="dracula") dracula
+							option(value="duotone-dark") duotone-dark
+							option(value="duotone-light") duotone-light
+							option(value="eclipse") eclipse
+							option(value="elegant") elegant
+							option(value="erlang-dark") erlang-dark
+							option(value="hopscotch") hopscotch
+							option(value="icecoder") icecoder
+							option(value="isotope") isotope
+							option(value="lesser-dark") lesser-dark
+							option(value="liquibyte") liquibyte
+							option(value="material") material
+							option(value="mbo") mbo
+							option(value="mdn-like") mdn-like
+							option(value="midnight") midnight
+							option(value="monokai") monokai
+							option(value="neat") neat
+							option(value="neo") neo
+							option(value="night") night
+							option(value="panda-syntax") panda-syntax
+							option(value="paraiso-dark") paraiso-dark
+							option(value="paraiso-light") paraiso-light
+							option(value="pastel-on-dark") pastel-on-dark
+							option(value="railscasts") railscasts
+							option(value="rubyblue") rubyblue
+							option(value="seti") seti
+							option(value="solarized") solarized
+							option(value="the-matrix") the-matrix
+							option(value="tomorrow-night-bright") tomorrow-night-bright
+							option(value="tomorrow-night-eighties") tomorrow-night-eighties
+							option(value="ttcn") ttcn
+							option(value="twilight") twilight
+							option(value="vibrant-ink") vibrant-ink
+							option(value="xq-dark") xq-dark
+							option(value="xq-light") xq-light
+							option(value="yeti") yeti
+							option(value="zenburn") zenburn
+
+block custom_js
+	// appJS
+	script(src='/js/AdminLTE/sidebar.js', type='text/javascript')
+	// CodeMirror
+	script(src='/js/plugins/codemirror/codemirror.js', type='text/javascript')
+	// Addon
+	script(src='/js/plugins/codemirror/addon/multiplex.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/search.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/searchcursor.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/dialog.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/matchbrackets.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/closebrackets.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/trailingspace.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/closetag.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/overlay.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/fullscreen.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/addon/simplescrollbars.js', type='text/javascript')
+	// Keymap
+	script(src='/js/plugins/codemirror/keymap/sublime.js', type='text/javascript')
+	//
+		"Alt-Left": "goSubwordLeft",
+		"Alt-Right": "goSubwordRight",
+		"Ctrl-Up": "scrollLineUp",
+		"Ctrl-Down": "scrollLineDown",
+		"Shift-Ctrl-L": "splitSelectionByLine",
+		"Shift-Tab": "indentLess",
+		"Esc": "singleSelectionTop",
+		"Ctrl-L": "selectLine",
+		"Shift-Ctrl-K": "deleteLine",
+		"Ctrl-Enter": "insertLineAfter",
+		"Shift-Ctrl-Enter": "insertLineBefore",
+		"Ctrl-D": "selectNextOccurrence",
+		"Shift-Ctrl-Space": "selectScope",
+		"Shift-Ctrl-M": "selectBetweenBrackets",
+		"Ctrl-M": "goToBracket",
+		"Shift-Ctrl-Up": "swapLineUp",
+		"Shift-Ctrl-Down": "swapLineDown",
+		"Ctrl-/": "toggleCommentIndented",
+		"Ctrl-J": "joinLines",
+		"Shift-Ctrl-D": "duplicateLine",
+		"Ctrl-T": "transposeChars",
+		"F9": "sortLines",
+		"Ctrl-F9": "sortLinesInsensitive",
+		"F2": "nextBookmark",
+		"Shift-F2": "prevBookmark",
+		"Ctrl-F2": "toggleBookmark",
+		"Shift-Ctrl-F2": "clearBookmarks",
+		"Alt-F2": "selectBookmarks",
+		"Alt-Q": "wrapLines",
+		"Ctrl-K Ctrl-Backspace": "delLineLeft",
+		"Backspace": "smartBackspace",
+		"Ctrl-K Ctrl-K": "delLineRight",
+		"Ctrl-K Ctrl-U": "upcaseAtCursor",
+		"Ctrl-K Ctrl-L": "downcaseAtCursor",
+		"Ctrl-K Ctrl-Space": "setSublimeMark",
+		"Ctrl-K Ctrl-A": "selectToSublimeMark",
+		"Ctrl-K Ctrl-W": "deleteToSublimeMark",
+		"Ctrl-K Ctrl-X": "swapWithSublimeMark",
+		"Ctrl-K Ctrl-Y": "sublimeYank",
+		"Ctrl-K Ctrl-G": "clearBookmarks",
+		"Ctrl-K Ctrl-C": "showInCenter",
+		"Ctrl-Alt-Up": "selectLinesUpward",
+		"Ctrl-Alt-Down": "selectLinesDownward",
+		"Ctrl-F3": "findUnder",
+		"Shift-Ctrl-F3": "findUnderPrevious",
+		"Shift-Ctrl-[": "fold",
+		"Shift-Ctrl-]": "unfold",
+		"Ctrl-K Ctrl-J": "unfoldAll",
+		"Ctrl-K Ctrl-0": "unfoldAll",
+		"Ctrl-H": "replace"
+
+	// Modes
+	script(src='/js/plugins/codemirror/mode/xml/xml.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/mode/css/css.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/mode/javascript/javascript.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/mode/htmlmixed/htmlmixed.js', type='text/javascript')
+	script(src='/js/plugins/codemirror/mode/sql/sql.js', type='text/javascript')
+	script(type='text/javascript').
+		var intro2 = "#{__('module.editor_content.intro')}" + "\n";
+		intro2 += "#{__('module.editor_content.intro2')}" + "\n";
+		intro2 += "#{__('module.editor_content.intro3')}";
+	// Editor
+	script(src='/js/Newmips/editor.js', type='text/javascript')

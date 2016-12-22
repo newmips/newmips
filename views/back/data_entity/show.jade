@@ -1,0 +1,74 @@
+extends ../../main_layout
+block header
+	h1
+		| #{__("module.application")}
+		small #{__("module.module")}
+	ol.breadcrumb
+		li
+			a(href='#')
+				i.fa.fa-home
+				| #{__("module.home")}
+		li.active #{__("module.application")}
+block content
+	legend #{__("operation.show")} #{__("entity.data_entity.name")}
+	.row
+		.col-xs-12.connectedSortable
+			.nav-tabs-custom
+				ul.nav.nav-tabs(role='tablist')
+					li.active(role='presentation')
+						a(href='#data_entity', aria-controls='home', role='tab', data-toggle='tab') #{__("entity.data_entity.label")}
+					li(role='presentation')
+						a(href='#data_field', aria-controls='profile', role='tab', data-toggle='tab') #{__("entity.data_field.plural")}
+				.tab-content
+					#data_entity.tab-pane.active(role='tabpanel')
+						.box.box-primary
+							.box-body
+								h3
+									| #{__("entity.data_entity.label")}
+								.form-group
+									label(for='id_data_entity') #{__("entity.data_entity.id_data_entity")} #{__("entity.data_entity.name")}
+									input.form-control(type='text', placeholder='#{data_entity.id_data_entity}', value='#{data_entity.id}', disabled)
+								.form-group
+									label(for='name_data_entity') #{__("entity.data_entity.name_data_entity")}
+									input.form-control(type='text', placeholder='#{data_entity.name_data_entity}', value='#{data_entity.name}', disabled)
+								.form-group
+									label(for='description_data_entity') #{__("entity.data_entity.description_data_entity")}
+									input.form-control.input(name='description_data_entity', type='text', placeholder='#{data_entity.description}', value='#{data_entity.description}', disabled)
+								.form-group
+									label(for='icon_data_entity') #{__("entity.data_entity.icon_data_entity")}
+									|&nbsp; &nbsp;
+									i(class='fa '+data_entity.icon)
+								.form-group
+									label(for='listable_data_entity') #{__("entity.data_entity.listable_data_entity")}
+									br
+									input.input(name='listable_data_entity', type='checkbox', checked=data_entity.listable?true:false, disabled)
+								.form-group
+									label(for='id_module') #{__("entity.data_entity.id_module")}
+									input.form-control(type='text', placeholder='#{data_entity.Module.id}', disabled)
+								br
+							.box-footer
+								div.quicklinks
+									span
+										a.btn.btn-primary(href='/data_entity/list', type='submit')
+											i.fa.fa-list.fa-md &nbsp;&nbsp;
+											span #{__("button.list")}
+
+					#data_field.tab-pane(role='tabpanel')
+							// Datafields
+							.box.box-primary
+								.box-body.table-responsive
+									h3
+										| #{__("entity.data_field.plural")}
+
+									table#list-data-field.table.table-bordered.table-striped
+										thead
+											tr
+												th #{__("entity.data_field.id_data_field")} #{__("entity.data_field.name")}
+												th #{__("entity.data_field.name_data_field")}
+												th #{__("entity.data_field.type_data_field")}
+										tbody
+											each data_field in data_entity.DataFields
+												tr
+													td #{data_field.id}
+													td #{data_field.name}
+													td #{data_field.type}

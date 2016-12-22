@@ -1,0 +1,62 @@
+{>"main_layout"/}
+{<header}
+    <h1>Mon espace
+    <small>R&eacute;serv&eacute;</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-home"></i>Accueil</a>
+        </li>
+        <li class="active">Mon espace</li>
+    </ol>
+{/header}
+{<content}
+    <legend>Cr&eacute;er un Utilisateur</legend>
+    <div class="row">
+        <div class="col-xs-12 connectedSortable"></div><br/>
+        <div class="box-body">
+        </div>
+    </div>
+    <form action="/user/create" method="post">
+        <div class="box-body">
+            <div class="form-group">
+                <label for="email">{@__ key="settings.email"/}</label>
+                <input type="text" name="email" placeholder="Email" required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="first_name">{@__ key="settings.firstname"/}</label>
+                <input type="text" name="first_name" placeholder="Firstname" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="last_name">{@__ key="settings.lastname"/}</label>
+                <input type="text" name="last_name" placeholder="Lastname" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="phone">{@__ key="settings.phone"/}</label>
+                <input type="text" name="phone" placeholder="phone" class="form-control"/>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="form-group">
+                <label for="login">Login (*)</label>
+                <input name="login" type="text" placeholder="Login" required="required" class="form-control input"/>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe (*)</label>
+                <input name="password" type="password" placeholder="Mot de passe" required="required" class="form-control input"/>
+            </div>
+            <div class="form-group">
+                <label for="id_role">Role (*)</label>
+                <select name="id_role" required="required" class="form-control select">
+                    <option value="" selected="selected">-- CHOISIR --</option>
+                    {#roles}
+                        <option value="{id}">{name}</option>
+                    {/roles}
+                </select>
+            </div>
+        </div>
+        <div class="box-footer">
+            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+        </div>
+    </form>
+{/content}
