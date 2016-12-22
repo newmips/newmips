@@ -43,9 +43,17 @@ sequelize.customAfterSync = function() {
         var attributFileName;
         var attributFile;
         var attributObject;
+        var toSyncFileName;
+        var toSyncFile;
+        var toSyncObject;
         var promises = [];
         var request = "";
         var request2 = "";
+
+        /* ----------------- Récupération du toSync.json -----------------*/
+        toSyncFileName = __dirname + '/toSync.json';
+        toSyncFile = fs.readFileSync(toSyncFileName);
+        toSyncObject = JSON.parse(toSyncFile);
 
         for (var i = 0; i < allModels.length; i++) {
             if (allModels[i] != "User" && allModels[i] != "Role") {
@@ -59,17 +67,60 @@ sequelize.customAfterSync = function() {
 
                 for (var item in attributObject) {
                     (function(sourceAttr, itemAttr) {
-
                         promises.push(new Promise(function(resolve0, reject0) {
+
+                            /* Check if field already exist - New version */
+                            if(typeof toSyncObject[sourceAttr] !== "undefined" && typeof toSyncObject[sourceAttr].attributes[itemAttr] !== "undefined"){
+                                var type = "";
+                                switch (attributObject[itemAttr]) {
+                                    case "STRING":
+                                        type = "VARCHAR(255)";
+                                        break;
+                                    case "TEXT":
+                                        type = "TEXT";
+                                        break;
+                                    case "INTEGER":
+                                        type = "INT";
+                                        break;
+                                    case "BOOLEAN":
+                                        type = "BOOLEAN";
+                                        break;
+                                    case "TIME":
+                                        type = "TIME";
+                                        break;
+                                    case "DATE":
+                                        type = "DATETIME";
+                                        break;
+                                    case "DECIMAL":
+                                        type = "VARCHAR(255)";
+                                        break;
+                                    default:
+                                        type = "VARCHAR(255)";
+                                        break;
+                                }
+                                request = "ALTER TABLE ";
+                                request += sourceAttr;
+                                request += " ADD COLUMN `" + itemAttr + "` " + type + " DEFAULT NULL;";
+
+                                sequelize.query(request).then(function() {
+                                    var writeStream = fs.createWriteStream(toSyncFileName);
+                                    delete toSyncObject[sourceAttr].attributes[itemAttr];
+                                    writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                    writeStream.end();
+                                    writeStream.on('finish', function() {
+                                        resolve0();
+                                    });
+                                });
+                            }
+                            else{
+                                    resolve0();
+                            }
+
                             /* Check if field already exist */
-                            sequelize.query("SHOW COLUMNS FROM `" + sourceAttr + "` LIKE '" + itemAttr + "';", {
+                            /*sequelize.query("SHOW COLUMNS FROM `" + sourceAttr + "` LIKE '" + itemAttr + "';", {
                                 type: sequelize.QueryTypes.SELECT
                             }).then(function(answerAttr) {
-                                /* Le champ n'a pas été générée par Sequelize avec le sync */
                                 if (answerAttr.length == 0) {
-                                    /*console.log("----- ADD ATTRIBUTE ------");
-                                    console.log(item);
-                                    console.log("----- FIN ADD ATTRIBUTE ------");*/
                                     var type = "";
                                     switch (attributObject[itemAttr]) {
                                         case "STRING":
@@ -104,15 +155,11 @@ sequelize.customAfterSync = function() {
                                     sequelize.query(request).then(function() {
                                         resolve0();
                                     });
-
-                                    /*sequelize.query(request).catch(function(err){
-                                        console.log(err);
-                                    });*/
                                 }
                                 else{
                                     resolve0();
                                 }
-                            });
+                            });*/
                         }));
                     })(sourceName, item);
                 }

@@ -15,12 +15,12 @@ exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataE
 	var toSyncFile = fs.readFileSync(toSyncFileName);
 	var toSyncObject = JSON.parse(toSyncFile);
 
-	if(typeof toSyncObject[sourceDataEntity.toLowerCase()] === "undefined"){
-		toSyncObject[sourceDataEntity.toLowerCase()] = {};
-		toSyncObject[sourceDataEntity.toLowerCase()].options = [];
+	if(typeof toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()] === "undefined"){
+		toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()] = {};
+		toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options = [];
 	}
-	else if(typeof toSyncObject[sourceDataEntity.toLowerCase()].options === "undefined"){
-		toSyncObject[sourceDataEntity.toLowerCase()].options = [];
+	else if(typeof toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options === "undefined"){
+		toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options = [];
 	}
 
 	var baseOptions = {target: targetDataEntity.toLowerCase(), relation: relation};
@@ -34,7 +34,7 @@ exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataE
 	}
 
 	optionsObject.push(baseOptions);
-	toSyncObject[sourceDataEntity.toLowerCase()].options.push(baseOptions);
+	toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options.push(baseOptions);
 
 	var writeStream = fs.createWriteStream(optionsFileName);
 	writeStream.write(JSON.stringify(optionsObject, null, 4));
