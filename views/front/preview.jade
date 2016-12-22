@@ -129,20 +129,21 @@ block content
 							| #{__("module.editor_content.folders")} :
 						ul#sortable.sidebar-menu
 							mixin parseObject(array)
-								each file, key in array
-									if (typeof file.path !== "undefined")
-										li
-											a.load-file(href='#', data-path="#{file.path}", data-filename="#{file.title}")
-												i.fa.fa-file
-												|  #{file.title}
-									else if (typeof file.under !== "undefined")
-										li.ui-state-default.treeview(style='display:block;')
-											a(href='#')
-												i.fa.fa-folder
-												span #{file.title}
-												i.fa.fa-angle-left.pull-right
-											ul.treeview-menu
-												mixin parseObject(file.under)
+								if array
+									each file, key in array
+										if (typeof file.path !== "undefined")
+											li
+												a.load-file(href='#', data-path="#{file.path}", data-filename="#{file.title}")
+													i.fa.fa-file
+													|  #{file.title}
+										else if (typeof file.under !== "undefined")
+											li.ui-state-default.treeview(style='display:block;')
+												a(href='#')
+													i.fa.fa-folder
+													span #{file.title}
+													i.fa.fa-angle-left.pull-right
+												ul.treeview-menu
+													mixin parseObject(file.under)
 							mixin parseObject(workspaceFolder)
 					#codemirror-editor.col-xs-12.col-sm-10
 						h4
