@@ -39,7 +39,7 @@ structure/template/node_modules
 config/database.js
 # Config Files
 config/global.js
+config/mail.js
 structure/template/config/global.js
 structure/template/config/mail.js
 structure/template/config/webdav.js
-config/mail.js
