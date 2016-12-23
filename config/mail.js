@@ -3,47 +3,47 @@ var globalConf = require('./global');
 var mailConf = {
   develop: {
     transport: {
-      host : '',
-      port : ,
+      host : 'ssl0.ovh.net',
+      port : 465,
       secure : true,
       auth: {
         user: '',
         pass: ''
       }
     },
-    expediteur: '',
-    administrateur: '',
-    host: ""
+    expediteur: 'NoReply <no-reply@newmips.com>',
+    administrateur: 'Responsable Newmips <contact@newmips.com>',
+    host: 'http://127.0.0.1:'+globalConf.port
   },
 
   production: {
     transport: {
-      host : '',
-      port : ,
+      host : 'ssl0.ovh.net',
+      port : 465,
       secure : true,
       auth: {
         user: '',
         pass: ''
       }
     },
-    expediteur: '',
-    administrateur: '',
-    host: ''
+    expediteur: 'NoReply <no-reply@newmips.com>',
+    administrateur: 'Responsable Newmips <contact@newmips.com>',
+    host: 'https://cloud.newmips.com:'+globalConf.port
   },
 
   recette: {
     transport: {
-      host : '',
-      port : ,
+      host : 'ssl0.ovh.net',
+      port : 465,
       secure : true,
       auth: {
         user: '',
         pass: ''
       }
     },
-    expediteur: '',
-    administrateur: '',
-    host: ""
+    expediteur: 'NoReply <no-reply@newmips.com>',
+    administrateur: 'Responsable Newmips <contact@newmips.com>',
+    host: 'https://cloud.newmips.com:'
   }
 }
 
