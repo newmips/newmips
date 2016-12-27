@@ -1,7 +1,6 @@
 // router/routes.js
 var express = require('express');
 var router = express.Router();
-var connection = require('../utils/db_utils');
 var block_access = require('../utils/block_access');
 var message = "";
 var multer = require('multer');
@@ -141,10 +140,12 @@ function execute(req, instruction) {
             // Instruction to be executed
             var attr = parser.parse(instruction);
 
-            attr["id_project"] = req.session.id_project;
-            attr["id_application"] = req.session.id_application;
-            attr["id_module"] = req.session.id_module;
-            attr["id_data_entity"] = req.session.id_data_entity;
+            attr.id_project = req.session.id_project;
+            attr.id_application = req.session.id_application;
+            attr.id_module = req.session.id_module;
+            attr.id_data_entity = req.session.id_data_entity;
+            attr.googleTranslate = req.session.toTranslate || false;
+            attr.lang_user = req.session.lang_user;
 
             pourcent_generation[req.session.data.id] += Math.floor((Math.random() * 15) + 1);
 

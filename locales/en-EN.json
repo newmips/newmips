@@ -71,7 +71,9 @@
 		"preview": "Preview",
 		"record": "Record",
 		"execute": "Execute",
-		"backtohome": "Back to Home"
+		"backtohome": "Back to Home",
+		"yes": "Yes",
+		"no": "No"
 	},
 	"operation": {
 		"show": "Show entity ",
@@ -164,7 +166,8 @@
 			"label": "Settings",
 			"name": "settings",
 			"plural": "settings",
-			"display_language": "Diplaying language"
+			"display_language": "Diplaying language",
+			"activate_translation": "Activate automatic translation (Internet connection required)"
 		},
 		"project": {
 			"label": "Project",

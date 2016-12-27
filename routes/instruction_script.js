@@ -1,7 +1,6 @@
 // router/routes.js
 var express = require('express');
 var router = express.Router();
-var connection = require('../utils/db_utils');
 var block_access = require('../utils/block_access');
 var message = "";
 var multer = require('multer');
@@ -23,10 +22,12 @@ function execute(req, instruction) {
         try {
             var attr = parser.parse(instruction);
 
-            attr["id_project"] = scriptData[userId].ids.id_project;
-            attr["id_application"] = scriptData[userId].ids.id_application;
-            attr["id_module"] = scriptData[userId].ids.id_module;
-            attr["id_data_entity"] = scriptData[userId].ids.id_data_entity;
+            attr.id_project = scriptData[userId].ids.id_project;
+            attr.id_application = scriptData[userId].ids.id_application;
+            attr.id_module = scriptData[userId].ids.id_module;
+            attr.id_data_entity = scriptData[userId].ids.id_data_entity;
+            attr.googleTranslate = req.session.toTranslate || false;
+            attr.lang_user = req.session.lang_user;
 
             return designer[attr["function"]](attr, function(err, info) {
 

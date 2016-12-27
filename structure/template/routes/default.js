@@ -1,8 +1,8 @@
 // router/routes.js
 var express = require('express');
 var router = express.Router();
-var connection = require('../utils/db_utils');
 var block_access = require('../utils/block_access');
+var languageConfig = require('../config/language');
 var message = "";
 
 var multer = require('multer');
@@ -51,8 +51,10 @@ router.get('/unauthorized', function(req, res) {
 router.post('/change_language', function(req, res) {
 	req.session.lang_user = req.body.lang;
 	res.locals.lang_user = req.body.lang;
+      languageConfig.lang = req.body.lang;
+      fs.writeFileSync(__dirname+"/../config/language.json", JSON.stringify(languageConfig, null, 2));
 	res.json({
-		success: true
+            success: true
 	});
 });
 

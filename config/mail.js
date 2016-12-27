@@ -1,50 +1,50 @@
 var globalConf = require('./global');
 
 var mailConf = {
-  develop: {
-    transport: {
-      host : 'ssl0.ovh.net',
-      port : 465,
-      secure : true,
-      auth: {
-        user: '',
-        pass: ''
-      }
+    develop: {
+        transport: {
+            host: 'ssl0.ovh.net',
+            port: 465,
+            secure: true,
+            auth: {
+                user: '',
+                pass: ''
+            }
+        },
+        expediteur: 'NoReply <no-reply@newmips.com>',
+        administrateur: 'Responsable Newmips <contact@newmips.com>',
+        host: 'http://127.0.0.1:' + globalConf.port
     },
-    expediteur: 'NoReply <no-reply@newmips.com>',
-    administrateur: 'Responsable Newmips <contact@newmips.com>',
-    host: 'http://127.0.0.1:'+globalConf.port
-  },
 
-  production: {
-    transport: {
-      host : 'ssl0.ovh.net',
-      port : 465,
-      secure : true,
-      auth: {
-        user: '',
-        pass: ''
-      }
+    production: {
+        transport: {
+            host: 'ssl0.ovh.net',
+            port: 465,
+            secure: true,
+            auth: {
+                user: '',
+                pass: ''
+            }
+        },
+        expediteur: 'NoReply <no-reply@newmips.com>',
+        administrateur: 'Responsable Newmips <contact@newmips.com>',
+        host: 'https://cloud.newmips.com:' + globalConf.port
     },
-    expediteur: 'NoReply <no-reply@newmips.com>',
-    administrateur: 'Responsable Newmips <contact@newmips.com>',
-    host: 'https://cloud.newmips.com:'+globalConf.port
-  },
 
-  recette: {
-    transport: {
-      host : 'ssl0.ovh.net',
-      port : 465,
-      secure : true,
-      auth: {
-        user: '',
-        pass: ''
-      }
-    },
-    expediteur: 'NoReply <no-reply@newmips.com>',
-    administrateur: 'Responsable Newmips <contact@newmips.com>',
-    host: 'https://cloud.newmips.com:'
-  }
+    recette: {
+        transport: {
+            host: 'ssl0.ovh.net',
+            port: 465,
+            secure: true,
+            auth: {
+                user: '',
+                pass: ''
+            }
+        },
+        expediteur: 'NoReply <no-reply@newmips.com>',
+        administrateur: 'Responsable Newmips <contact@newmips.com>',
+        host: 'https://cloud.newmips.com:'
+    }
 }
 
 module.exports = mailConf[globalConf.env];
