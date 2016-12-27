@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var connection = require('../utils/db_utils');
 var block_access = require('../utils/block_access');
 var auth = require('../utils/authStrategies');
 var bcrypt = require('bcrypt-nodejs');

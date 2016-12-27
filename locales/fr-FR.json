@@ -71,7 +71,9 @@
 		"preview": "Prévisualiser",
 		"record": "Enregistrer",
 		"execute": "Exécuter",
-		"backtohome": "Retourner à l'accueil"
+		"backtohome": "Retourner à l'accueil",
+		"yes": "Oui",
+		"no": "Non"
 	},
 	"operation": {
 		"show": "Afficher une entité ",
@@ -164,7 +166,8 @@
 			"label": "Paramètres",
 			"name": "paramètre",
 			"plural": "paramètres",
-			"display_language": "Langue d'affichage"
+			"display_language": "Langue d'affichage",
+			"activate_translation": "Activer la traduction automatique (Connexion internet requise)"
 		},
 		"project": {
 			"label": "Projet",

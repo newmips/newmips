@@ -1,18 +1,4 @@
 // Global configuration file
-// {
-// 		env: 'develop'|'production'|'recette',
-// 		port: 1337
-// }
-
-/*module.exports = {
-	env: 'develop',
-	protocol: 'http',
-	host: '127.0.0.1',
-	port: process.env.PORT || 1337
-}*/
-
-
-// Global configuration file
 
 var fs = require('fs');
 

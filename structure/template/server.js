@@ -17,6 +17,7 @@ var port = globalConf.port;
 var passport = require('passport');
 var flash    = require('connect-flash');
 var language = require('./services/language');
+var languageConfig = require('./config/language');
 var extend = require('util')._extend;
 var https = require('https');
 var http = require('http');
@@ -88,12 +89,14 @@ app.locals.moment = require('moment');
 
 //------------------------------ LANGUAGE ------------------------------ //
 app.use(function(req, res, next) {
-    var lang = 'fr-FR';
+    var lang = languageConfig.lang;
 
-    if (req.session.lang_user)
+    if (req.session.lang_user){
         lang = req.session.lang_user;
-    else
+    }
+    else{
     	req.session.lang_user = lang;
+    }
 
     res.locals.lang_user = lang;
 

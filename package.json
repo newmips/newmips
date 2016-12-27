@@ -17,6 +17,7 @@
     "express-session": "~1.14.1",
     "formidable": "^1.0.17",
     "fs-extra": "~0.30.0",
+    "google-translate": "^1.0.7",
     "html": "^1.0.0",
     "jade": "~1.11.0",
     "jison": "~0.4.17",

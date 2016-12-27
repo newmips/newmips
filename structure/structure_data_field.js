@@ -1,5 +1,6 @@
 var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
+var translateHelper = require("../utils/translate");
 
 function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values){
 	var dataField = nameDataField.toLowerCase();
@@ -418,32 +419,37 @@ exports.setupDataField = function(attr, callback) {
 				/* Update the list_fields.dust file */
 				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, name_data_entity, false);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
-					/* ----------------- 5 - Update the fr-FR translation file  ----------------- */
-					var fileTranslation = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
+
+					/* --------------- New translation --------------- */
+					translateHelper.writeLocales(id_application, "field", [name_data_entity, name_data_field], attr.googleTranslate, function(){
+						callback(null, "Data field succesfuly created");
+					});
+
+					/* ----------------- 5 - Update the translation file  ----------------- */
+					/*var fileTranslation = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
 					var data = require(fileTranslation);
 					var key = name_data_field.toLowerCase();
-					data.entity[name_data_entity.toLowerCase()][key] = name_data_field; // .push(JSON.parse(tns));
+					data.entity[name_data_entity.toLowerCase()][key] = name_data_field;
 
 					// Write Translation file
 					var stream_fileTranslation = fs.createWriteStream(fileTranslation);
 					stream_fileTranslation.write(JSON.stringify(data, null, 2));
 					stream_fileTranslation.end();
 					stream_fileTranslation.on('finish', function () {
-						/* ----------------- 6 - Update the en-EN translation file  ----------------- */
 						fileTranslation = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
 						data = require(fileTranslation);
 						key = name_data_field.toLowerCase();
-						data.entity[name_data_entity.toLowerCase()][key] = name_data_field; // .push(JSON.parse(tns));
+						data.entity[name_data_entity.toLowerCase()][key] = name_data_field;
 
 						// Write Translation file
 						var stream_fileTranslation = fs.createWriteStream(fileTranslation);
 						stream_fileTranslation.write(JSON.stringify(data, null, 2));
 						stream_fileTranslation.end();
-						stream_fileTranslation.on('finish', function () {
+						stream_fileTranslation.on('finish', function(){
 							console.log('File Translation has been written');
 							callback(null, "Data field succesfuly created");
 						});
-					});
+					});*/
 				});
 			});
 		});
@@ -797,6 +803,12 @@ exports.setupRelatedToField = function(attr, callback){
 				$("#fields").append(str);
 
 				domHelper.write(file, $).then(function() {
+
+					/* --------------- New translation --------------- */
+					translateHelper.writeLocales(attr.id_application, "aliasfield", [source, alias, attr.options.as], attr.googleTranslate, function(){
+						callback(null, "Data field succesfuly created");
+					});
+
 					// Update the fr-FR translation file
 					var fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
 					var data = require(fileTranslation);

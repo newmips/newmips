@@ -414,6 +414,8 @@ body > .header .logo {
   font-weight: 500;
   height: 50px;
   display: block;
+  text-decoration: none;
+  color: #FFF !important;
 }
 body > .header .logo .icon {
   margin-right: 10px;

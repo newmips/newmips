@@ -1,9 +1,7 @@
 // router/routes.js
 var express = require('express');
 var router = express.Router();
-var connection = require('../utils/db_utils');
 var block_access = require('../utils/block_access');
-var message = "";
 
 //Sequelize
 var models = require('../models/');

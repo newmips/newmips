@@ -1,7 +1,6 @@
 // router/routes.js
 var express = require('express');
 var router = express.Router();
-var connection = require('../utils/db_utils');
 var block_access = require('../utils/block_access');
 var language = require('../services/language');
 var extend = require('util')._extend;
@@ -17,25 +16,38 @@ router.get('/index', block_access.isLoggedIn, function(req, res) {
     data.toastr = req.session.toastr;
     // Nettoyage de la session
     req.session.toastr = [];
+    data.toTranslate = req.session.toTranslate || false;
     res.render('front/settings', data);
 });
 
-// Index
-router.post('/index', block_access.isLoggedIn, function(req, res) {
-
-    var data = {};
-    if (typeof req.body !== 'undefined' && typeof req.body.display_language != 'undefined') {
-        req.session.lang_user = req.body.display_language;
-        res.locals = extend(res.locals, language(req.body.display_language));
+/* Fonction de changement du language */
+router.post('/change_language', function(req, res) {
+    if (typeof req.body !== 'undefined' && typeof req.body.lang !== 'undefined') {
+        req.session.lang_user = req.body.lang;
+        res.locals = extend(res.locals, language(req.body.lang));
+        res.json({
+            success: true
+        });
     }
     else{
-        req.session.toastr = [{
-            message: "Une erreur est survenue.",
-            level: "error"
-        }];
+        res.json({
+            success: false
+        });
     }
+});
 
-    res.redirect("/settings/index");
+router.post('/activate_translation', function(req, res) {
+    if (typeof req.body !== 'undefined' && typeof req.body.activate !== 'undefined') {
+        req.session.toTranslate = req.body.activate;
+        res.json({
+            success: true
+        });
+    }
+    else{
+        res.json({
+            success: false
+        });
+    }
 });
 
 module.exports = router;

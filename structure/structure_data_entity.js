@@ -2,6 +2,7 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var structure_field = require('./structure_data_field');
 var helpers = require('../utils/helpers');
+var translateHelper = require("../utils/translate");
 
 //Create association between the models
 exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataEntity, foreignKey, as, relation, through, callback){
@@ -247,17 +248,24 @@ exports.setupDataEntity = function(attr, callback) {
 																replaceCustomDataEntity(fileBase, "list.dust", name_data_entity, function(){
 																	/* Replace all variables 'custom_data_entity' in list_fields.dust */
 																	replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, function(){
+
+																		/* --------------- New translation --------------- */
+																		translateHelper.writeLocales(id_application, "entity", name_data_entity, attr.googleTranslate, function(){
+																			callback();
+																		});
+
+																		/* ---------- OLD VERSION ---------- */
 																		/* *** 6 - Update translation file *** */
-																		fileTranslationFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-																		fileTranslationEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
+																		/*fileTranslationFR = __dirname+'/../workspace/'+ id_application +'/locales/fr-FR.json';
+																		fileTranslationEN = __dirname+'/../workspace/'+ id_application +'/locales/en-EN.json';
 																		dataFR = require(fileTranslationFR);
 																		dataEN = require(fileTranslationEN);
 
 																		// On place par defaut la traduction dans le EN et le FR
-																		str_id_data_entity = "id_" + name_data_entity;
-																		tns = '  { \n\t\t\t"label_entity" : "' + name_data_entity + '",\n';
-																		tns = tns + '\t\t\t"name_entity" : "' + name_data_entity + '",\n';
-																		tns = tns + '\t\t\t"plural_entity" : "' + name_data_entity + 's",\n';
+																		str_id_data_entity = "id_"+name_data_entity;
+																		tns = '  { \n\t\t\t"label_entity": "'+ name_data_entity +'",\n';
+																		tns = tns + '\t\t\t"name_entity": "'+ name_data_entity +'",\n';
+																		tns = tns + '\t\t\t"plural_entity": "'+ name_data_entity +'s",\n';
 																		tns = tns + '\t\t\t"id_entity": "ID"\n';
 																		tns = tns + '\t\t}\n';
 
@@ -269,15 +277,15 @@ exports.setupDataEntity = function(attr, callback) {
 
 																		stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
 																		stream_fileTranslationFR.end();
-																		stream_fileTranslationFR.on('finish', function () {
+																		stream_fileTranslationFR.on('finish', function(){
 																			console.log('File => Translation FR ------------------ WRITTEN');
 																			stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
 																			stream_fileTranslationEN.end();
-																			stream_fileTranslationEN.on('finish', function () {
+																			stream_fileTranslationEN.on('finish', function(){
 																				console.log('File => Translation EN ------------------ WRITTEN');
 																				callback();
 																			});
-																		});
+																		});*/
 																	});
 																});
 															});

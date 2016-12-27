@@ -12,9 +12,7 @@
 	<legend>{@__ key="settings.legend"/}</legend>
 	<div class="row">
 		<div class="col-xs-12 connectedSortable">
-			<div class="box-body">
-			</div>
-			<br/>
+			<br>
 			<div class="box-body">
 				<div class="form-group">
 					<label>{@__ key="settings.lang"/}</label><br/>
