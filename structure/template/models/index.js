@@ -15,7 +15,7 @@ var moment_timezone = require('moment-timezone');
 
 var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
     host: config.connection.host,
-    logging: false,
+    logging: console.log(),
     port: config.connection.port,
     dialectOptions: {
         multipleStatements: true
@@ -198,7 +198,7 @@ sequelize.customAfterSync = function() {
                                     /* Check if field already exist - New version */
                                     for(var k=0; k < toSyncObject[sourceBelongsTo].options.length; k++){
                                         var currentItem = toSyncObject[sourceBelongsTo].options[k];
-                                        if(currentItem.foreignKey == foreignBelongsTo){
+                                        if(currentItem.foreignKey.toLowerCase() == foreignBelongsTo.toLowerCase()){
                                             toSync = true;
                                             indexToRemove = k;
                                         }
@@ -267,14 +267,48 @@ sequelize.customAfterSync = function() {
 
                             promises.push(new Promise(function(resolve3, reject3) {
 
-                                /* Check if foreign key already exist */
-                                sequelize.query("SHOW COLUMNS FROM `" + targetHasMany + "` LIKE '" + foreignHasMany + "';", {
+                                var toSync = false;
+                                var indexToRemove = -1;
+
+                                if(typeof toSyncObject[sourceHasMany] !== "undefined" && typeof toSyncObject[sourceHasMany].options !== "undefined"){
+
+                                    /* Check if field already exist - New version */
+                                    for(var k=0; k < toSyncObject[sourceHasMany].options.length; k++){
+                                        var currentItem = toSyncObject[sourceHasMany].options[k];
+                                        if(currentItem.foreignKey.toLowerCase() == foreignHasMany.toLowerCase()){
+                                            toSync = true;
+                                            indexToRemove = k;
+                                        }
+                                    }
+                                }
+
+                                if(toSync){
+                                    request = "ALTER TABLE ";
+                                    request += targetHasMany;
+                                    request += " ADD COLUMN `"+foreignHasMany+"` INT DEFAULT NULL;";
+                                    request2 = "ALTER TABLE `"+targetHasMany+"` ADD FOREIGN KEY ("+foreignHasMany+") REFERENCES `"+sourceHasMany+"` (id);";
+                                    sequelize.query(request).then(function() {
+                                        sequelize.query(request2).then(function() {
+                                            var writeStream = fs.createWriteStream(toSyncFileName);
+                                            toSyncObject[sourceHasMany].options.splice(indexToRemove, 1);
+                                            writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                            writeStream.end();
+                                            writeStream.on('finish', function() {
+                                                resolve3();
+                                            });
+                                        })
+                                    }).catch(function(err) {
+                                        console.log(err);
+                                        reject3();
+                                    });
+                                }
+                                else{
+                                    resolve3();
+                                }
+
+                                /*sequelize.query("SHOW COLUMNS FROM `" + targetHasMany + "` LIKE '" + foreignHasMany + "';", {
                                     type: sequelize.QueryTypes.SELECT
                                 }).then(function(answerHasMany) {
-
-                                    /*console.log("answerHasMany");
-                                    console.log(answerHasMany);*/
-                                    /* La reference n'a pas été générée par Sequelize avec le sync */
                                     if (answerHasMany.length == 0) {
                                         request = "ALTER TABLE ";
                                         request += targetHasMany;
@@ -292,7 +326,7 @@ sequelize.customAfterSync = function() {
                                     else{
                                         resolve3();
                                     }
-                                });
+                                });*/
                             }));
                         })(sourceName, targetName, foreignKey);
                     }
