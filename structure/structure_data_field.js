@@ -738,6 +738,7 @@ exports.setupRelatedToField = function(attr, callback){
 
 	// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
     var usingField = "id";
+    var usingFieldDisplay = "id";
 
     if(typeof attr.options.usingField !== "undefined"){
     	usingField = attr.options.usingField.toLowerCase();
@@ -810,7 +811,7 @@ exports.setupRelatedToField = function(attr, callback){
 					});
 
 					// Update the fr-FR translation file
-					var fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
+					/*var fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
 					var data = require(fileTranslation);
 					data.entity[source][alias] = attr.options.as;
 
@@ -819,7 +820,7 @@ exports.setupRelatedToField = function(attr, callback){
 					stream_fileTranslation.write(JSON.stringify(data, null, 2));
 					stream_fileTranslation.end();
 					stream_fileTranslation.on('finish', function () {
-						// Update the en-EN translation file  ----------------- */
+						// Update the en-EN translation file
 						fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
 						data = require(fileTranslation);
 						data.entity[source][alias] = attr.options.as;
@@ -829,7 +830,7 @@ exports.setupRelatedToField = function(attr, callback){
 						stream_fileTranslation.write(JSON.stringify(data, null, 2));
 						stream_fileTranslation.end();
 						stream_fileTranslation.on('finish', callback);
-					});
+					});*/
 				});
 			});
 		});
