@@ -1,11 +1,26 @@
 var enums = require('../locales/enum.json');
 
-exports.translated = function(entity, lang) {
+// OLD
+/*exports.translated = function(entity, lang) {
 	var data = {};
 	for (var fieldName in enums[entity]) {
 		data[fieldName] = [];
 		for (var i = 0; i < enums[entity][fieldName].length; i++)
 			data[fieldName].push(enums[entity][fieldName][i].translations[lang]);
+	}
+	return data;
+}*/
+
+exports.translated = function(entity, lang) {
+	var data = {};
+	for (var fieldName in enums[entity]) {
+		data[fieldName] = [];
+		for (var i = 0; i < enums[entity][fieldName].length; i++){
+			data[fieldName].push({
+				translation: enums[entity][fieldName][i].translations[lang],
+				value: enums[entity][fieldName][i].value
+			});
+		}
 	}
 	return data;
 }
