@@ -108,7 +108,22 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
             data.error = 404;
             return res.render('common/error', data);
         }
+
+        /* Modify ENTITY_NAME value with the translated enum value in show result */
+        for(var item in data.enum){
+            for(var field in ENTITY_NAME.dataValues){
+                if(item == field){
+                    for(var value in data.enum[item]){
+                        if(data.enum[item][value].value == ENTITY_NAME[field]){
+                            ENTITY_NAME[field] = data.enum[item][value].translation;
+                        }
+                    }
+                }
+            }
+        }
+
         data.ENTITY_NAME = ENTITY_NAME;
+
         var associationsFinder = model_builder.associationsFinder(models, options);
 
         Promise.all(associationsFinder).then(function(found) {
