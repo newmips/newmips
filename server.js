@@ -84,6 +84,8 @@ app.use(function(req, res, next) {
 	var lang = 'fr-FR';
 	if (req.session.lang_user)
         lang = req.session.lang_user;
+    else
+    	req.session.lang_user = lang;
 	// Pass translate function to jade templates
 	res.locals = extend(res.locals, language(lang));
 	next();

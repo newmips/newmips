@@ -1,13 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
-var filterDataTable = require('../utils/filterDataTable');
 
 var models = require('../models/');
 var attributes = require('../models/attributes/COMPONENT_NAME_LOWER');
 var options = require('../models/options/COMPONENT_NAME_LOWER');
 var model_builder = require('../utils/model_builder');
-var enums = require('../utils/enum.js');
 
 var multer = require('multer');
 var fs = require('fs');

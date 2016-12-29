@@ -55,7 +55,8 @@
 		"execute": "Execute",
     	"settings": "Settings",
     	"download": "Download",
-    	"search": "Search"
+    	"search": "Search",
+    	"send": "Send"
 	},
 	"operation": {
 		"show": "Show entity ",
@@ -63,7 +64,7 @@
 		"create": "Create entity ",
 		"delete": "Delete entity ",
 		"list": "List all entities ",
-    "add": "Add entity "
+    	"add": "Add entity "
 	},
 	"message": {
 		"create": {
@@ -82,6 +83,16 @@
 		"empty": "No data to display"
 	},
 	"entity": {
+	},
+	"global_component": {
+		"contact_us": {
+			"main_title": "Contact Us",
+			"firstname": "Firstname",
+			"lastname": "Lastname",
+			"email": "Email",
+			"title": "Title",
+			"content": "Content"
+		}
 	},
 	"component": {
 	}

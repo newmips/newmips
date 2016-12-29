@@ -1109,14 +1109,14 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
 /* -------------------- COMPONENT ------------------- */
 /* -------------------------------------------------- */
 
-// Componant that we can add on an entity that let to store local documents
+// Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = function(attr, callback) {
 
     // Check if component with this name is already created on this entity
-    api_component.getComponentByName(attr, function(err, component){
+    api_component.getComponentByNameInEntity(attr, function(err, component){
         if(component){
             err = new Error();
-            err.message = "Sorry, a component with this name is already associate to this entity.";
+            err.message = "Sorry, a component with this name is already associate to this entity in this module.";
             return callback(err, null);
         }
         else{
@@ -1124,12 +1124,12 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
             api_data_entity.getDataEntityByName(attr, function(err, dataEntity) {
                 if(dataEntity){
                     err = new Error();
-                    err.message = "Sorry, a table with this component name already exist in this application.";
+                    err.message = "Sorry, an other entity with this component name already exist in this application.";
                     return callback(err, null);
                 }
                 else{
                     // Create the component in newmips database
-                    api_component.createNewComponent(attr, function(err, info){
+                    api_component.createNewComponentOnEntity(attr, function(err, info){
                         // Get Data Entity Name needed for structure
                         api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, dataEntityName){
                             attr.options.source = dataEntityName;
@@ -1150,4 +1150,42 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
     });
 }
 
+// Componant to create a contact us in a module
+exports.createNewComponentContactUs = function(attr, callback) {
+
+    console.log(attr);
+    // Check if component with this name is already created on this entity
+    api_component.getComponentByNameInModule(attr, function(err, component){
+        if(component){
+            err = new Error();
+            err.message = "Sorry, a component with this name is already associate to this module.";
+            return callback(err, null);
+        }
+        else{
+            // Check if a table as already the composant name
+            api_data_entity.getDataEntityByName(attr, function(err, dataEntity) {
+                if(dataEntity){
+                    err = new Error();
+                    err.message = "Sorry, a other entity with this component name already exist in this application.";
+                    return callback(err, null);
+                }
+                else{
+                    // Create the component in newmips database
+                    api_component.createNewComponentOnModule(attr, function(err, info){
+                        // Get Data Entity Name needed for structure
+                        api_module.getNameModuleById(attr.id_module, function(err, moduleName){
+                            attr.options.moduleName = moduleName;
+                            structure_component.newContactUs(attr, function(err){
+                                if(err){
+                                    callback(err, null);
+                                }
+                                callback(null, info);
+                            });
+                        });
+                    });
+                }
+            });
+        }
+    });
+}
 return designer;

@@ -58,6 +58,20 @@ module.exports = {
                 content += '\t\t}\n';
                 data.entity[value.toLowerCase()] = JSON.parse(content);
             }
+            else if(type == "component"){
+                var content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
+                content += '\t\t\t"name_entity": "'+ value2 +'",\n';
+                content += '\t\t\t"plural_entity": "'+ value2 +'s",\n';
+                content += '\t\t\t"id_entity": "ID"\n';
+                content += '\t\t}\n';
+                data.entity[value.toLowerCase()] = JSON.parse(content);
+
+                var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
+                content += '\t\t\t"name_component" : "'+value2+'",\n';
+                content += '\t\t\t"plural_component" : "'+value2+'s"\n';
+                content += '\t\t}\n';
+                data.component[value.toLowerCase()] = JSON.parse(content);
+            }
             else if(type == "field"){
                 data.entity[dataEntity.toLowerCase()][value.toLowerCase()] = value2;
             }

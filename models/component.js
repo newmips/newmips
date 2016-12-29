@@ -18,6 +18,11 @@ module.exports = function(sequelize, DataTypes) {
                         name: 'id_data_entity'
                     }
                 });
+                Component.belongsTo(models.Module, {
+                    foreignKey: {
+                        name: 'id_module'
+                    }
+                });
 			}
 		},
 		instanceMethods: {
