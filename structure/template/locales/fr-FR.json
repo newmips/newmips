@@ -55,7 +55,8 @@
     "execute": "Exécuter",
     "settings": "Paramètres",
     "download": "Télécharger",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "send": "Envoyer"
   },
   "operation": {
     "show": "Afficher une entité ",
@@ -82,6 +83,16 @@
     "empty": "Aucune donnée à afficher"
   },
   "entity": {
+  },
+  "global_component": {
+    "contact_us": {
+      "main_title": "Contactez-nous",
+      "firstname": "Prénom",
+      "lastname": "Nom",
+      "email": "Email",
+      "title": "Titre",
+      "content": "Contenu"
+    }
   },
   "component": {
   }

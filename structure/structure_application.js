@@ -38,10 +38,13 @@ exports.setupApplication = function(attr, callback) {
                 // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
                 var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
                 languageConfig.lang = attr.lang_user;
-                fs.writeFileSync(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2));
-
-                // Direct callback as application has been installed in template folder
-                callback();
+                fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
+                    if(err){
+                        return console.log(err);
+                    }
+                    // Direct callback as application has been installed in template folder
+                    callback();
+                });
             });
         });
     });

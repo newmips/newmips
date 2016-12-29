@@ -1,9 +1,10 @@
 var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
+var translateHelper = require("../utils/translate");
 
-function setupComponentModel(idApplication, nameComponent, filename, source, callback){
+function setupComponentModel(idApplication, nameComponent, filename, callback){
 	// CREATE MODEL FILE
-	var modelTemplate = fs.readFileSync('./structure/pieces/component/models/'+filename+'.js', 'utf8');
+	var modelTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/models/model_'+filename+'.js', 'utf8');
 	modelTemplate = modelTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent.toLowerCase());
 	modelTemplate = modelTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase() + nameComponent.toLowerCase().slice(1));
 	modelTemplate = modelTemplate.replace(/TABLE_NAME/g, idApplication +'_'+ nameComponent.toLowerCase());
@@ -18,14 +19,14 @@ function setupComponentModel(idApplication, nameComponent, filename, source, cal
 
 function createComponentAttributesAndOptionsFiles(idApplication, nameComponent, filename, source, callback){
 	// CREATE MODEL ATTRIBUTES FILE
-	var attributesTemplate = fs.readFileSync('./structure/pieces/component/models/attributes/'+filename+'.json', 'utf8');
+	var attributesTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/models/attributes/attributes_'+filename+'.json', 'utf8');
 	var writeStream = fs.createWriteStream('./workspace/'+ idApplication +'/models/attributes/'+nameComponent.toLowerCase()+'.json');
 	writeStream.write(attributesTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
 		console.log("Model => Component attributes ------------------ CREATED");
 		// CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
-		var optionsTemplate = fs.readFileSync('./structure/pieces/component/models/options/'+filename+'.json', 'utf8');
+		var optionsTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/models/options/options_'+filename+'.json', 'utf8');
 		optionsTemplate = optionsTemplate.replace(/SOURCE_ENTITY_LOWER/g, source.toLowerCase());
 		var writeStreamOption = fs.createWriteStream('./workspace/'+ idApplication +'/models/options/'+nameComponent.toLowerCase()+'.json');
 
@@ -40,7 +41,7 @@ function createComponentAttributesAndOptionsFiles(idApplication, nameComponent, 
 
 function setupComponentRoute(idApplication, nameComponent, filename, source, callback){
 	// CREATE ROUTE FILE
-	var routeTemplate = fs.readFileSync('./structure/pieces/component/routes/'+filename+'.js', 'utf8');
+	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/routes/route_'+filename+'.js', 'utf8');
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent.toLowerCase());
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase() + nameComponent.toLowerCase().slice(1));
 	routeTemplate = routeTemplate.replace(/SOURCE_ENTITY_LOWER/g, source.toLowerCase());
@@ -50,6 +51,26 @@ function setupComponentRoute(idApplication, nameComponent, filename, source, cal
 	writeStream.on('finish', function() {
 		console.log('File => Component Route file ------------------ CREATED')
 		callback();
+	});
+}
+
+function setupComponentView(idApplication, nameComponent, filename, nameModule, callback){
+
+	// CREATE VIEW FILE
+	fs.copySync(__dirname+'/pieces/component/'+filename+'/views', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase());
+
+	fs.rename(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/view_'+filename+'.dust', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', function(){
+		var viewTemplate = fs.readFileSync(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', 'utf8');
+		viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());
+		viewTemplate = viewTemplate.replace(/name_component/g, nameComponent.toLowerCase());
+
+		var writeStream = fs.createWriteStream(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust');
+		writeStream.write(viewTemplate);
+		writeStream.end();
+		writeStream.on('finish', function() {
+			console.log('File => Component View file ------------------ CREATED')
+			callback();
+		});
 	});
 }
 
@@ -99,20 +120,37 @@ exports.newLocalFileStorage = function(attr, callback){
 
 	switch(component){
 		case "localfilestorage" :
-		filename = "local_file_storage";
+			filename = "local_file_storage";
 		break;
 		default:
-		var err = new Error();
-		err.message = "Component file doesn't exist.";
-		callback(err);
+			var err = new Error();
+			err.message = "Component files doesn't exist.";
+			callback(err);
 		break;
 	}
 
-	setupComponentModel(attr.id_application, nameComponent, filename, source, function(){
+	setupComponentModel(attr.id_application, nameComponent, filename, function(){
 		createComponentAttributesAndOptionsFiles(attr.id_application, nameComponent, filename, source, function(){
 			setupComponentRoute(attr.id_application, nameComponent, filename, source, function(){
+
+				/* --------------- New translation --------------- */
+				translateHelper.writeLocales(attr.id_application, "component", nameComponent, attr.googleTranslate, function(){
+					// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
+					var componentPiece = fs.readFileSync('./structure/pieces/component/'+filename+'/views/view_'+filename+'.dust', 'utf8');
+					var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, nameComponentLower);
+					var componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
+
+					var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
+
+					var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
+					var file = fileBase + '/show_fields.dust';
+
+					// CREATE THE TAB IN SHOW FIELDS
+					addTab(attr, file, newLi, componentContent).then(callback);
+				});
+
 				// Update translations files
-				var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
+				/*var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
 				var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
 				var dataFR = require(fileTranslationFR);
 				var dataEN = require(fileTranslationEN);
@@ -138,7 +176,7 @@ exports.newLocalFileStorage = function(attr, callback){
 						console.log('File => Component Translation EN ------------------ WRITTEN');
 
 						// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
-						var componentPiece = fs.readFileSync('./structure/pieces/component/views/'+filename+'.dust', 'utf8');
+						var componentPiece = fs.readFileSync('./structure/pieces/component/'+filename+'/views/view_'+filename+'.dust', 'utf8');
 						var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, nameComponentLower);
 						var componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
 
@@ -150,8 +188,56 @@ exports.newLocalFileStorage = function(attr, callback){
 						// CREATE THE TAB IN SHOW FIELDS
 						addTab(attr, file, newLi, componentContent).then(callback);
 					});
+				});*/
+			});
+		});
+	});
+}
+
+exports.newContactUs = function(attr, callback){
+	var component = attr.options.component;
+	var nameComponent = attr.options.name || "ContactUs";
+	var nameComponentLower = nameComponent.toLowerCase();
+	var filename = "";
+
+	switch(component){
+		case "contactus" :
+			filename = "contact_us";
+		break;
+		default:
+			var err = new Error();
+			err.message = "Component files doesn't exist.";
+			callback(err);
+		break;
+	}
+
+	setupComponentView(attr.id_application, nameComponent, filename, attr.options.moduleName, function(){
+		setupComponentRoute(attr.id_application, nameComponent, filename, "", function(){
+			translateHelper.writeLocales(attr.id_application, "component", nameComponent, attr.googleTranslate, function(){
+				var layoutFileName = __dirname+'/../workspace/'+attr.id_application+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
+				domHelper.read(layoutFileName).then(function($) {
+					var li = '';
+					// Create new html
+					li += "<li id='"+nameComponent.toLowerCase()+"_menu_item' class='ui-state-default'>\n";
+						li += '<a href="/'+nameComponent.toLowerCase()+'">\n';
+							li += '<i class="fa fa-envelope"></i>\n';
+							li += '<span>{@__ key="global_component.contact_us.main_title" /}</span>\n';
+						li += '</a>\n';
+					li += '</li>\n';
+
+					// Add new html to document
+					$('#sortable').append(li);
+
+					// Write back to file
+					domHelper.write(layoutFileName, $).then(function() {
+						callback();
+					});
+				}).catch(function(err) {
+					console.error(err);
+					callback(err, null);
 				});
 			});
 		});
 	});
+
 }

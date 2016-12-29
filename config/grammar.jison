@@ -251,6 +251,25 @@ instr :
           break;
       }
   %}
+  | CREATE COMPONENT STRING
+  %{
+      // Set component
+      component = $3;
+
+      // Preparing Options
+      options = {
+        component: component
+      }
+
+      switch ($3) {
+        case "localfilestorage":
+          return createNewComponentLocalFileStorage(options);
+        case "contactus":
+          return createNewComponentContactUs(options);
+        default :
+          break;
+      }
+  %}
   | CREATE COMPONENT STRING WITH_NAME STRING
   %{
       // Set component
@@ -265,7 +284,14 @@ instr :
         name: name
       }
 
-      return createNewComponentLocalFileStorage(options);
+      switch ($3) {
+        case "localfilestorage":
+          return createNewComponentLocalFileStorage(options);
+        case "contactus":
+          return createNewComponentContactUs(options);
+        default :
+          break;
+      }
   %}
   | CREATE ENTITY STRING RELATED_TO STRING
   %{
@@ -324,7 +350,6 @@ instr :
       }
 
       return createNewFieldRelatedTo(options);
-
   %}
   | CREATE ENTITY STRING RELATED_TO STRING USING STRING
   %{
@@ -990,3 +1015,4 @@ function createNewFieldRelatedTo(options) {  return { "function": "createNewFiel
 function createNewFieldset(options) {  return { "function": "createNewFieldset", "options": options }; }
 
 function createNewComponentLocalFileStorage(options) {  return { "function": "createNewComponentLocalFileStorage", "options": options }; }
+function createNewComponentContactUs(options) {  return { "function": "createNewComponentContactUs", "options": options }; }
