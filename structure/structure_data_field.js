@@ -37,33 +37,66 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 			str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 		break;
 		case "date" :
-			str += "	<div class='input-group'>\n";
-			str += "		<div class='input-group-addon'>\n";
-			str += "			<i class='fa fa-calendar'></i>\n";
-			str += "		</div>\n";
-			str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
-			str += "	</div>\n";
+			if(file == "show"){
+				str += "	<div class='input-group'>\n";
+				str += "		<div class='input-group-addon'>\n";
+				str += "			<i class='fa fa-calendar'></i>\n";
+				str += "		</div>\n";
+				str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "	</div>\n";
+			}
+			else if(file == "update"){
+				str += "	<div class='input-group'>\n";
+				str += "		<div class='input-group-addon'>\n";
+				str += "			<i class='fa fa-calendar'></i>\n";
+				str += "		</div>\n";
+				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "	</div>\n";
+			}
+			else if(file == "create"){
+				str += "	<div class='input-group'>\n";
+				str += "		<div class='input-group-addon'>\n";
+				str += "			<i class='fa fa-calendar'></i>\n";
+				str += "		</div>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
+				str += "	</div>\n";
+			}
 		break;
 		case "time" :
-			str += "	<div class='bootstrap-timepicker'>\n";
-			str += "		<div class='input-group'>\n";
-			str += "			<div class='input-group-addon'>\n";
-			str += "				<i class='fa fa-clock-o'></i>\n";
-			str += "			</div>\n";
-			str += "			<input class='form-control input timepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
-			str += "		</div>\n";
-			str += "	</div>\n";
+			if(file == "show"){
+				str += "	<div class='bootstrap-timepicker'>\n";
+				str += "		<div class='input-group'>\n";
+				str += "			<div class='input-group-addon'>\n";
+				str += "				<i class='fa fa-clock-o'></i>\n";
+				str += "			</div>\n";
+				str += "			<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "		</div>\n";
+				str += "	</div>\n";
+			}
+			else{
+				str += "	<div class='bootstrap-timepicker'>\n";
+				str += "		<div class='input-group'>\n";
+				str += "			<div class='input-group-addon'>\n";
+				str += "				<i class='fa fa-clock-o'></i>\n";
+				str += "			</div>\n";
+				str += "			<input class='form-control input timepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "		</div>\n";
+				str += "	</div>\n";
+			}
 		break;
 		case "datetime" :
 			str += "	<div class='input-group'>\n";
 			str += "		<div class='input-group-addon'>\n";
 			str += "			<i class='fa fa-calendar'></i> + <i class='fa fa-clock-o'></i>\n";
 			str += "		</div>\n";
-			if(file != "create"){
-				str += "		<input class='form-control input datetimepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+			if(file == "show"){
+				str += "		<input class='form-control input datetimepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
 			}
-			else{
-				str += "		<input class='form-control input datetimepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+			else if(file == "update"){
+				str += "		<input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+			}
+			else if(file == "create"){
+				str += "		<input class='form-control input datetimepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
 			}
 			str += "	</div>\n";
 		break;
