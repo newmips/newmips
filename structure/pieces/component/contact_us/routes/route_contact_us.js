@@ -26,12 +26,14 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 
 router.post('/', block_access.isLoggedIn, function(req, res) {
 
+    var from = req.body.lastname+" "+req.body.firstname+"<"+req.body.email+">";
     var mailOptions = {
-        from: req.body.email,
+        from: from,
         to: mailer_helper.config.administrateur,
         subject: req.body.title,
         html: req.body.content
     };
+
     mailer_helper.sendMailAsync(mailOptions).then(function(success) {
         req.session.toastr = [{
             message: "Le mail à bien été envoyé.",

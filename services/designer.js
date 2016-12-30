@@ -1153,7 +1153,6 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
 // Componant to create a contact us in a module
 exports.createNewComponentContactUs = function(attr, callback) {
 
-    console.log(attr);
     // Check if component with this name is already created on this entity
     api_component.getComponentByNameInModule(attr, function(err, component){
         if(component){
@@ -1188,4 +1187,5 @@ exports.createNewComponentContactUs = function(attr, callback) {
         }
     });
 }
+
 return designer;
