@@ -77,7 +77,8 @@ $(document).ready(function(){
 
     /* --------------- Initialisation des timepicker --------------- */
     $(".timepicker").timepicker({
-		showInputs: false
+		showInputs: false,
+		showMeridian: false
 	});
 
 	/* --------------- Regex on decimal input --------------- */
@@ -96,44 +97,25 @@ $(document).ready(function(){
 	/* Uncomment if you want to apply a mask on tel input */
 	/*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
 
-	if(lang_user == "fr-FR"){
-		$('.datepicker').datepicker({
-			format: "dd/mm/yyyy",
-			language: lang_user,
-			autoclose: true,
-			clearBtn: true
-		});
-
-		$(".datepicker").inputmask({"alias": "dd/mm/yyyy"});
-
-		$('.datetimepicker').datetimepicker({
-			format: "DD/MM/YYYY HH:mm:ss",
-			sideBySide: true
-		});
-	}
-	else{
-		$('.datepicker').datepicker({
-			format: "yyyy-mm-dd",
-			language: lang_user,
-			autoclose: true,
-			clearBtn: true
-		});
-
-		$(".datepicker").inputmask({"alias": "yyyy-mm-dd"});
-
-		$('.datetimepicker').datetimepicker({
-			format: "YYYY-MM-DD HH:mm:ss",
-			sideBySide: true
-		});
-	}
-
 	/* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
-    $('.datepicker').each(function(){
+    $('.datepicker-toconvert').each(function(){
 		if($(this).val() != "" && $(this).val() != "Invalid date" && $(this).val() != "Invalid Date"){
 			if(lang_user == "fr-FR")
 				$(this).val(moment(new Date($(this).val())).format("DD/MM/YYYY"));
 			else
 				$(this).val(moment(new Date($(this).val())).format("YYYY-MM-DD"));
+		}
+		else{
+			$(this).val("");
+		}
+	});
+
+	$('.datetimepicker-toconvert').each(function(){
+		if($(this).attr("value") != "" && $(this).attr("value") != "Invalid date" && $(this).attr("value") != "Invalid Date"){
+			if(lang_user == "fr-FR")
+				$(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm:ss")).change();
+			else
+				$(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm:ss")).change();
 		}
 		else{
 			$(this).val("");
@@ -152,17 +134,6 @@ $(document).ready(function(){
 		}
 	});
 
-	$('.datetimepicker').each(function(){
-		if($(this).attr("value") != "" && $(this).attr("value") != "Invalid date" && $(this).attr("value") != "Invalid Date"){
-			if(lang_user == "fr-FR")
-				$(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm:ss")).change();
-			else
-				$(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm:ss")).change();
-		}
-		else{
-			$(this).val("");
-		}
-	});
 
 	$("td[data-type='datetime']").each(function(){
 		if($(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date"){
@@ -176,6 +147,8 @@ $(document).ready(function(){
 		}
 	});
 
+	/* Show boolean with a square in datalist */
+
 	$('td[data-type="boolean"]').each(function() {
 		var val = $(this).html();
 		if (val == 'true' || val == '1')
@@ -183,6 +156,54 @@ $(document).ready(function(){
 		else
 			$(this).html('<i class="fa fa-square-o fa-lg"></i>"');
 	});
+
+	/* After good format -> Date / Datetime instanciation */
+
+	if(lang_user == "fr-FR"){
+		$('.datepicker').datepicker({
+			format: "dd/mm/yyyy",
+			language: lang_user,
+			autoclose: true,
+			clearBtn: true
+		});
+
+		$(".datepicker").inputmask({"alias": "dd/mm/yyyy"});
+
+		$('.datetimepicker').datetimepicker({
+			format: "DD/MM/YYYY HH:mm:ss",
+			sideBySide: true
+		});
+
+		$(".datetimepicker").inputmask({
+	        mask: "1/2/y h:s:s",
+	        placeholder: "dd/mm/yyyy hh:mm:ss",
+	        alias: "datetime",
+	        timeseparator: ":",
+	        hourFormat: "24"
+	    });
+	}
+	else{
+		$('.datepicker').datepicker({
+			format: "yyyy-mm-dd",
+			language: lang_user,
+			autoclose: true,
+			clearBtn: true
+		});
+
+		$(".datepicker").inputmask({"alias": "yyyy-mm-dd"});
+
+		$('.datetimepicker').datetimepicker({
+			format: "YYYY-MM-DD HH:mm:ss",
+			sideBySide: true
+		});
+
+		$(".datetimepicker").inputmask({
+			mask: "y-1-2 h:s:s",
+			placeholder: "yyyy-mm-dd hh:mm:ss",
+			separator: "-",
+			alias: "yyyy/mm/dd"
+		});
+	}
 
 	/* 1er Tentative */
 	/* Decimal input, remove . and insert a , */
@@ -441,6 +462,10 @@ $(document).ready(function(){
 					var date = $(this).val().split("/");
 					var yearDate = date[2].split(" ");
 					var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
+
+					// Remove mask to enable to transform the date
+					$(this).inputmask('remove');
+
 					$(this).val(newDate);
 				}
 			});
