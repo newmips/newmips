@@ -1150,8 +1150,8 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
     });
 }
 
-// Componant to create a contact us in a module
-exports.createNewComponentContactUs = function(attr, callback) {
+// Componant to create a contact form in a module
+exports.createNewComponentContactForm = function(attr, callback) {
 
     // Check if component with this name is already created on this entity
     api_component.getComponentByNameInModule(attr, function(err, component){
@@ -1174,7 +1174,7 @@ exports.createNewComponentContactUs = function(attr, callback) {
                         // Get Data Entity Name needed for structure
                         api_module.getNameModuleById(attr.id_module, function(err, moduleName){
                             attr.options.moduleName = moduleName;
-                            structure_component.newContactUs(attr, function(err){
+                            structure_component.newContactForm(attr, function(err){
                                 if(err){
                                     callback(err, null);
                                 }

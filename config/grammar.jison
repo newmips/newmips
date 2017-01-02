@@ -264,8 +264,8 @@ instr :
       switch ($3) {
         case "localfilestorage":
           return createNewComponentLocalFileStorage(options);
-        case "contactus":
-          return createNewComponentContactUs(options);
+        case "contactform":
+          return createNewComponentContactForm(options);
         default :
           break;
       }
@@ -1015,4 +1015,4 @@ function createNewFieldRelatedTo(options) {  return { "function": "createNewFiel
 function createNewFieldset(options) {  return { "function": "createNewFieldset", "options": options }; }
 
 function createNewComponentLocalFileStorage(options) {  return { "function": "createNewComponentLocalFileStorage", "options": options }; }
-function createNewComponentContactUs(options) {  return { "function": "createNewComponentContactUs", "options": options }; }
+function createNewComponentContactForm(options) {  return { "function": "createNewComponentContactForm", "options": options }; }
