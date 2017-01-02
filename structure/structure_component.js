@@ -194,15 +194,15 @@ exports.newLocalFileStorage = function(attr, callback){
 	});
 }
 
-exports.newContactUs = function(attr, callback){
+exports.newContactForm = function(attr, callback){
 	var component = attr.options.component;
-	var nameComponent = attr.options.name || "ContactUs";
+	var nameComponent = attr.options.name || "ContactForm";
 	var nameComponentLower = nameComponent.toLowerCase();
 	var filename = "";
 
 	switch(component){
-		case "contactus" :
-			filename = "contact_us";
+		case "contactform" :
+			filename = "contact_form";
 		break;
 		default:
 			var err = new Error();
@@ -221,7 +221,7 @@ exports.newContactUs = function(attr, callback){
 					li += "<li id='"+nameComponent.toLowerCase()+"_menu_item' class='ui-state-default'>\n";
 						li += '<a href="/'+nameComponent.toLowerCase()+'">\n';
 							li += '<i class="fa fa-envelope"></i>\n';
-							li += '<span>{@__ key="global_component.contact_us.main_title" /}</span>\n';
+							li += '<span>{@__ key="global_component.contact_form.main_title" /}</span>\n';
 						li += '</a>\n';
 					li += '</li>\n';
 

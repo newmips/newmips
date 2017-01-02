@@ -85,7 +85,7 @@
 	"entity": {
 	},
 	"global_component": {
-		"contact_us": {
+		"contact_form": {
 			"main_title": "Contact Us",
 			"firstname": "Firstname",
 			"lastname": "Lastname",
