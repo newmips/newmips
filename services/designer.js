@@ -657,7 +657,7 @@ exports.createNewEntityWithBelongsTo = function(attr, callback) {
                             // Création de l'entité source dans le workspace
                             structure_data_entity.setupDataEntity(attr, function(err, data) {
                                 // Créer le lien belongsTo en la source et la target
-                                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, function(){
+                                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function(){
                                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                                     structure_data_field.setupAssociationField(attr, 'belongsTo', function(err, data){
                                         callback(null, created_dataEntity);
@@ -710,7 +710,7 @@ exports.createNewEntityWithHasMany = function(attr, callback) {
                             // Création de l'entité source dans le workspace
                             structure_data_entity.setupDataEntity(attr, function(err, data) {
                                 // Créer le lien belongsTo en la source et la target
-                                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, function(){
+                                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function(){
                                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                                     structure_data_field.setupAssociationField(attr, 'hasMany', function(err, data){
                                         callback(null, created_dataEntity);
@@ -763,7 +763,7 @@ exports.createNewBelongsTo = function(attr, callback) {
                 callback(err, null);
             }
             // Créer le lien belongsTo en la source et la target
-            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, function(){
+            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function(){
                 // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                 structure_data_field.setupBelongsToTab(attr, function(err, data){
                     if(err){
@@ -871,7 +871,7 @@ exports.createNewHasMany = function(attr, callback) {
 
         api_data_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
             // Créer le lien belongsTo en la source et la target
-            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, function(){
+            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function(){
                 // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                 structure_data_field.setupHasManyTab(attr, function(err, data){
                     callback(null, info);
@@ -956,8 +956,8 @@ exports.createNewBelongsToMany = function(attr, callback) {
             // Create the through table name, which must be the same for the two tables
             var through = attr.id_application + "_" + attr.options.source.toLowerCase() + "_" + attr.options.target.toLowerCase();
             // Créer le lien belongsToMany entre la source et la target
-            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsToMany", through, function(){
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.target, attr.options.source, attr.options.foreignKey, attr.options.as, "belongsToMany", through, function(){
+            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsToMany", through, true, function(){
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.target, attr.options.source, attr.options.foreignKey, attr.options.as, "belongsToMany", through, true, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupAssociationField(attr, 'belongsToMany', function(err, data){
                         var tmp = attr.options.source;
@@ -1024,7 +1024,7 @@ exports.createNewFieldset = function(attr, callback) {
 
                 api_data_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey) {
                     // Créer le lien belongsTo en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, function() {
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupFieldsetTab(attr, function(err, data) {
 
@@ -1085,7 +1085,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                         callback(err, null);
                     }
                     // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, function() {
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupRelatedToField(attr, function(err, data) {
                             if (err) {
@@ -1134,7 +1134,7 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                         api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, dataEntityName){
                             attr.options.source = dataEntityName;
                             // setup the hasMany association in the source entity
-                            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.name.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.name.toLowerCase(), "hasMany", null, function(){
+                            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.name.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.name.toLowerCase(), "hasMany", null, false, function(){
                                 structure_component.newLocalFileStorage(attr, function(err){
                                     if(err){
                                         callback(err, null);

@@ -5,28 +5,16 @@ var helpers = require('../utils/helpers');
 var translateHelper = require("../utils/translate");
 
 //Create association between the models
-exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataEntity, foreignKey, as, relation, through, callback){
+exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataEntity, foreignKey, as, relation, through, toSync, callback){
 	// SETUP MODEL OPTIONS FILE
 	var optionsFileName = './workspace/'+idApplication+'/models/options/'+sourceDataEntity.toLowerCase()+'.json';
 	var optionsFile = fs.readFileSync(optionsFileName);
 	var optionsObject = JSON.parse(optionsFile);
 
-	// SETUP toSync.json
-	var toSyncFileName = './workspace/'+idApplication+'/models/toSync.json';
-	var toSyncFile = fs.readFileSync(toSyncFileName);
-	var toSyncObject = JSON.parse(toSyncFile);
-
-	if(typeof toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()] === "undefined"){
-		toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()] = {};
-		toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options = [];
-	}
-	else if(typeof toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options === "undefined"){
-		toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options = [];
-	}
-
 	var baseOptions = {target: targetDataEntity.toLowerCase(), relation: relation};
 	baseOptions.foreignKey = foreignKey;
 	baseOptions.as = as;
+
 	// Maintenant cela est fait directement dans la grammar
 	/*baseOptions.foreignKey = "id_" + sourceDataEntity + "_" + as;*/
 
@@ -35,19 +23,40 @@ exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataE
 	}
 
 	optionsObject.push(baseOptions);
-	toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options.push(baseOptions);
+
+	if(toSync){
+		// SETUP toSync.json
+		var toSyncFileName = './workspace/'+idApplication+'/models/toSync.json';
+		var toSyncFile = fs.readFileSync(toSyncFileName);
+		var toSyncObject = JSON.parse(toSyncFile);
+
+		if(typeof toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()] === "undefined"){
+			toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()] = {};
+			toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options = [];
+		}
+		else if(typeof toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options === "undefined"){
+			toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options = [];
+		}
+		toSyncObject[idApplication +"_"+ sourceDataEntity.toLowerCase()].options.push(baseOptions);
+	}
 
 	var writeStream = fs.createWriteStream(optionsFileName);
 	writeStream.write(JSON.stringify(optionsObject, null, 4));
 	writeStream.end();
 	writeStream.on('finish', function() {
-		var writeStream2 = fs.createWriteStream(toSyncFileName);
-		writeStream2.write(JSON.stringify(toSyncObject, null, 4));
-		writeStream2.end();
-		writeStream2.on('finish', function() {
+		if(toSync){
+			var writeStream2 = fs.createWriteStream(toSyncFileName);
+			writeStream2.write(JSON.stringify(toSyncObject, null, 4));
+			writeStream2.end();
+			writeStream2.on('finish', function() {
+				console.log("Model => Options/Associations ------------------ COMPLETED");
+				callback();
+			});
+		}
+		else{
 			console.log("Model => Options/Associations ------------------ COMPLETED");
 			callback();
-		});
+		}
 	});
 }
 
