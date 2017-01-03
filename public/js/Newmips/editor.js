@@ -132,8 +132,11 @@ $(document).ready(function() {
     $(document).on("click", ".load-file", function() {
 
         var ajaxData = {
-            path: $(this).data("path")
+            path: $(this).attr("data-path")
         }
+
+        // Security
+        $("#update-file").prop("disabled", true);
 
         $.ajax({
             url: '/editor/load_file',
@@ -185,9 +188,11 @@ $(document).ready(function() {
     /* -------- Update the current file -------- */
     $(document).on("click", "#update-file", function() {
         var ajaxData = {
-            path: $(this).data("path"),
+            path: $(this).attr("data-path"),
             content: myEditor.getValue()
         }
+
+        $("#update-file").prop("disabled", true);
 
         $.ajax({
             url: '/editor/update_file',
@@ -198,6 +203,7 @@ $(document).ready(function() {
             context: this,
             success: function(data) {
                 toastr.success("Le fichier à bien été mis à jour !");
+                $("#update-file").removeAttr("disabled");
             },
             error: function(error) {
                 console.log(error);
@@ -211,10 +217,13 @@ $(document).ready(function() {
         e.stopPropagation();
         e.preventDefault();
         $(this).parents("li").remove();
-        if ($(".nav-tabs li").length == 0) {
+        if ($(".nav-tabs#editor-navtabs li").length == 0) {
             myEditor.setValue("\n\n" + intro1 + intro2);
+            /* Update the save button */
+            $("#update-file").attr("data-path", "");
+            $("#update-file").prop("disabled", true);
         } else {
-            $(".nav-tabs li").first().trigger("click");
+            $(".nav-tabs#editor-navtabs li").first().trigger("click");
         }
     });
 });
