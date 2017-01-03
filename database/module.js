@@ -1,4 +1,4 @@
-// **** API Module ****
+// **** Database Generator Module ****
 
 //Sequelize
 var models = require('../models/');
@@ -11,13 +11,14 @@ exports.selectModule = function(attr, callback) {
     if (typeof attr !== 'undefined' && attr) {
 
         // Set options variable using the attribute array
-        options = attr['options'];
+        var options = attr['options'];
+        var type_option = "";
 
         if (typeof options !== 'undefined' && options) {
 
             if (isNaN(options[0].value)) {
                 // Value is the name of module
-                name_module = options[0].value;
+                var name_module = options[0].value;
                 where = {
                     where: {
                         name: name_module
@@ -32,7 +33,7 @@ exports.selectModule = function(attr, callback) {
                 type_option = "name"
             } else {
                 // Value is the ID of module
-                id_module = options[0].value;
+                var id_module = options[0].value;
                 where = {
                     where: {
                         id: id_module
@@ -51,7 +52,7 @@ exports.selectModule = function(attr, callback) {
             models.Module.findOne(where).then(function(module) {
                 if (!module) {
                     err = new Error();
-                    err.message = "Sorry, but there is no application module with this " + type_option;
+                    err.message = "Sorry, but there is no application module with this " + type_option + ".";
                     return callback(err, null);
                 }
 
@@ -64,14 +65,12 @@ exports.selectModule = function(attr, callback) {
 
             }).catch(function(err) {
                 callback(err, null);
-            })
-
+            });
         } else {
             err = new Error();
-            err.message = "Please indicate the name of the application module you would like to select";
+            err.message = "Please indicate the name/ID of the module you would like to select.";
             callback(err, null);
         }
-
     }
 }
 
@@ -79,20 +78,19 @@ exports.createNewModule = function(attr, callback) {
 
     var name_module = "";
     var id_application = 0;
-    var version = 1;
 
-    if (typeof attr !== 'undefined' && attr) {
+    if(typeof attr !== 'undefined' && attr) {
 
         // Set id_information_system of future application_module according to session value transmitted in attributes
         id_application = attr['id_application'];
 
         // Set options variable using the attribute array
-        options = attr['options'];
+        var options = attr['options'];
 
-        if (typeof options !== 'undefined' && options && id_application != 0) {
+        if(typeof options !== 'undefined' && options && id_application != 0){
 
             // Check each options variable to set properties
-            i = 0;
+            var i = 0;
             while (i < options.length) {
                 if (typeof options[i] !== 'undefined' && options[i]) {
                     if (options[i].property == "entity") name_module = options[i].value;
@@ -103,11 +101,11 @@ exports.createNewModule = function(attr, callback) {
             models.Module.create({
                 name: name_module,
                 id_application: id_application,
-                version: version
+                version: 1
             }).then(function(created_module) {
-                if (!created_module) {
-                    err = new Error();
-                    err.message = "Sorry, an error occured.";
+                if(!created_module){
+                    var err = new Error();
+                    err.message = "Sorry, an error occured during the createNewModule in the Database.";
                     return callback(err, null);
                 }
                 var info = {
@@ -115,7 +113,6 @@ exports.createNewModule = function(attr, callback) {
                     message: "New module " + created_module.id + " | " + name_module + " created."
                 }
                 callback(null, info);
-
             }).catch(function(err) {
                 callback(err, null);
             });
@@ -127,9 +124,9 @@ exports.createNewModule = function(attr, callback) {
 exports.listModule = function(attr, callback) {
 
     if(typeof attr.id_application == "undefined" || attr.id_application == null){
-        err = new Error();
+        var err = new Error();
         err.message = "Please select a Application before.";
-        callback(err,null);
+        return callback(err, null);
     }
     else{
         models.Module.findAll({
@@ -166,7 +163,7 @@ exports.listModuleByApplication = function(attr, callback) {
 
     var id_application = 0;
 
-    if (typeof attr !== 'undefined' && attr) {
+    if(typeof attr !== 'undefined' && attr){
 
         // Set filter on id_application
         id_application = attr.id_application;
@@ -178,12 +175,11 @@ exports.listModuleByApplication = function(attr, callback) {
             order: "id ASC"
         }).then(function(modules) {
             if (!modules) {
-                err = new Error();
-                err.message = "Sorry, an error occured while executing the request";
+                var err = new Error();
+                err.message = "Sorry, an error occured while executing listModuleByApplication in the Database.";
                 return callback(err, null);
             }
             callback(null, modules);
-
         }).catch(function(err) {
             callback(err, null);
         });
@@ -194,15 +190,15 @@ exports.listModuleByApplication = function(attr, callback) {
 exports.getNameModuleById = function(id_module, callback) {
 
     if (typeof id_module == 'undefined') {
-        err = new Error();
-        err.message = "Id module is not defined";
+        var err = new Error();
+        err.message = "ID module is not defined.";
         return callback(err, null);
     }
 
     models.Module.findById(id_module).then(function(module) {
         if (!module) {
-            err = new Error();
-            err.message = "No module found";
+            var err = new Error();
+            err.message = "No module with ID "+id_module+" found.";
             return callback(err, null);
         }
         callback(null, module.name);
@@ -213,14 +209,24 @@ exports.getNameModuleById = function(id_module, callback) {
 
 exports.getEntityListByModuleName = function(id_application, module_name, callback) {
     models.Module.findOne({where: {name: module_name, id_application: id_application}, include: [models.DataEntity]}).then(function(module){
-        if (!module)
-            return callback("Unable to find module "+module_name);
+        if (!module){
+            var err = new Error();
+            err.message = "Unable to find module "+module_name+".";
+            return callback(err, null);
+        }
         callback(null, module.DataEntities);
-    }).catch(callback);
+    }).catch(function(err){
+        callback(err, null);
+    });
 }
 
 exports.deleteModule = function(module_name, callback) {
-    models.Module.destroy({where: {name: module_name}}).then(function() {
-        callback();
-    }).catch(callback);
+    models.Module.destroy({where: {name: module_name}}).then(function(){
+        var info = {
+            message: "Module '"+module_name+"' deleted."
+        }
+        callback(null, info);
+    }).catch(function(err){
+        callback(err, null);
+    });
 }

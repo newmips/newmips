@@ -1,4 +1,4 @@
-// **** API Project ****
+// **** Database Generator Project ****
 
 //Sequelize
 var models = require('../models/');
@@ -37,7 +37,7 @@ exports.selectProject = function(attr, callback) {
 
             models.Project.findOne(where).then(function(project) {
                 if (!project) {
-                    err = new Error();
+                    var err = new Error();
                     err.message = "Sorry, but there is no project with this " + type_option;
                     return callback(err, null);
                 }
@@ -50,9 +50,9 @@ exports.selectProject = function(attr, callback) {
 
             }).catch(function(err) {
                 callback(err, null);
-            })
+            });
         } else {
-            err = new Error();
+            var err = new Error();
             err.message = "Please indicate the ID of the project you would like to select";
             callback(err, null);
         }
@@ -103,8 +103,8 @@ exports.createNewProject = function(attr, callback) {
             });
 
         } else {
-            err = new Error();
-            err.message = "Sorry, an error occured.";
+            var err = new Error();
+            err.message = "Sorry, an error occured with the project creation.";
             callback(err, null);
         }
     }
@@ -116,7 +116,7 @@ exports.listProject = function(attr, callback) {
     models.Project.findAll({
         order: "id DESC"
     }).then(function(projects) {
-        info = new Array();
+        var info = new Array();
         info.message = "List of projects (id | name): <br><ul>";
 
         if (projects.length == 0) {
@@ -140,53 +140,59 @@ exports.listProject = function(attr, callback) {
 // Delete
 exports.deleteProject = function(attr, callback) {
 
-try {
-    var options = attr['options'];
-    // Check each options variable to set properties
-    var project;
-    var i = 0;
-    for (var i = 0; i < options.length; i++)
-        if (typeof options[i] !== 'undefined' && options[i])
-            if (options[i].property == "entity")
-                project = options[i].value;
+    try {
+        var options = attr['options'];
+        // Check each options variable to set properties
+        var project;
+        var i = 0;
+        for (var i = 0; i < options.length; i++)
+            if (typeof options[i] !== 'undefined' && options[i])
+                if (options[i].property == "entity")
+                    project = options[i].value;
 
-    var where = {where: {}};
-    if (isNaN(project))
-        where.where = {name: project};
-    else
-        where.where = {id: project};
-
-    models.Project.destroy(where).then(function(){
-        var info = {
-            message: "Project " + project + " deleted."
+        var where = {
+            where: {}
+        };
+        if(isNaN(project)){
+            where.where = {
+                name: project
+            };
         }
-        callback(null, info);
-    }).catch(function(err){
+        else{
+            where.where = {
+                id: project
+            };
+        }
+
+        models.Project.destroy(where).then(function() {
+            var info = {
+                message: "Project " + project + " deleted."
+            }
+            callback(null, info);
+        }).catch(function(err) {
+            callback(err, null);
+        });
+    } catch(err) {
         callback(err, null);
-    });
-} catch(e) {
-    console.error(e);
-}
+    }
 }
 
 // GetById
 exports.getNameProjectById = function(id_project, callback) {
 
     if (typeof id_project == "undefined") {
-        err = new Error();
-        err.message = "Id project is not defined";
+        var err = new Error();
+        err.message = "ID project is not defined";
         return callback(err, null);
     }
 
     models.Project.findById(id_project).then(function(project){
         if(!project){
-            err = new Error();
+            var err = new Error();
             err.message = "No project found";
             return callback(err, null);
         }
-
         callback(null, project.name);
-
     }).catch(function(err){
         callback(err, null);
     });
@@ -194,19 +200,20 @@ exports.getNameProjectById = function(id_project, callback) {
 
 exports.getProjectApplications = function(project, callback){
     var where = {where: {}, include: [models.Application]};
-    if (isNaN(project))
+    if (isNaN(project)){
         where.where = {name: project};
-    else
+    }
+    else{
         where.where = {id: project};
+    }
     models.Project.findOne(where).then(function(project){
         if(!project){
-            err = new Error();
+            var err = new Error();
             err.message = "No project found";
             return callback(err, null);
         }
 
         callback(null, project.Applications);
-
     }).catch(function(err){
         callback(err, null);
     });

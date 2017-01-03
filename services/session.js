@@ -1,7 +1,7 @@
-var api_project = require("../api/project");
-var api_application = require("../api/application");
-var api_module = require("../api/module");
-var api_data_entity = require("../api/data_entity");
+var db_project = require("../database/project");
+var db_application = require("../database/application");
+var db_module = require("../database/module");
+var db_entity = require("../database/data_entity");
 var global = require("../config/global.js");
 
 //Sequelize
@@ -10,17 +10,17 @@ var models = require('../models/');
 // Help
 exports.help = function(attr, callback) {
 
-    id_project = null;
-    id_application = null;
-    id_module = null;
-    id_data_entity = null;
+    var id_project = null;
+    var id_application = null;
+    var id_module = null;
+    var id_data_entity = null;
 
-    if (typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
-    if (typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
-    if (typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
-    if (typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
+    if(typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
+    if(typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
+    if(typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
+    if(typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
 
-    info = new Array();
+    var info = new Array();
 
     if (id_data_entity == null) {
         info.message = "You are not yet working on any entity... Please select one or create a new data entity using instruction: 'select data entity NameOrIdOfYourEntity' or 'create data entity NameOfYourEntity'";
@@ -34,55 +34,44 @@ exports.help = function(attr, callback) {
 // Show
 exports.showSession = function(attr, callback) {
 
-    id_project = null;
-    id_application = null;
-    id_module = null;
-    id_data_entity = null;
+    var id_project = null;
+    var id_application = null;
+    var id_module = null;
+    var id_data_entity = null;
+
+    var name_project = "None";
+    var name_application = "None";
+    var name_module = "None";
+    var name_data_entity = "None";
 
     if (typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
     if (typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
     if (typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
     if (typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
 
-    api_project.getNameProjectById(id_project, function(err, info) {
-
-        if (err) {
-            name_project = "None";
-        } else {
+    db_project.getNameProjectById(id_project, function(err, info) {
+        if (!err) {
             name_project = info;
         }
-
-        api_application.getNameApplicationById(id_application, function(err, info) {
-
-            if (err) {
-                name_application = "None";
-            } else {
+        db_application.getNameApplicationById(id_application, function(err, info) {
+            if (!err) {
                 name_application = info;
             }
-            console.log("getNameApplicationById : " + name_application);
-
-            api_module.getNameModuleById(id_module, function(err, info) {
-
-                if (err) {
-                    name_module = "None";
-                } else {
+            db_module.getNameModuleById(id_module, function(err, info) {
+                if (!err) {
                     name_module = info;
                 }
-
-                api_data_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-
-                    if (err) {
-                        name_data_entity = "None";
-                    } else {
+                db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
+                    if (!err) {
                         name_data_entity = info;
                     }
 
-                    info = new Array();
+                    var info = new Array();
                     info.message = "Session values (entity | id) :<br><ul>";
-                    info.message = info.message + "<li>Project : " + id_project + " | " + name_project + "</li>";
-                    info.message = info.message + "<li>Application : " + id_application + " | " + name_application + "</li>";
-                    info.message = info.message + "<li>Module : " + id_module + " | " + name_module + "</li>";
-                    info.message = info.message + "<li>Data entity : " + id_data_entity + " | " + name_data_entity + "</li></ul>";
+                    info.message += "<li>Project : " + id_project + " | " + name_project + "</li>";
+                    info.message += "<li>Application : " + id_application + " | " + name_application + "</li>";
+                    info.message += "<li>Module : " + id_module + " | " + name_module + "</li>";
+                    info.message += "<li>Data entity : " + id_data_entity + " | " + name_data_entity + "</li></ul>";
 
                     callback(null, info);
                 });
@@ -103,7 +92,7 @@ exports.deploy = function(attr, callback) {
   var port = math.add(9000, id_application);
   var url = protocol + "://" + host + ":" + port;
 
-  info = new Array();
+  var info = new Array();
   info.message = "Application is now available on: <br>";
   info.message = info.message + "<a href='" + url + "'  target='_blank'>" + url + "</a>";
 
@@ -113,46 +102,35 @@ exports.deploy = function(attr, callback) {
 // Get
 exports.getSession = function(attr, callback) {
 
-    id_project = null;
-    id_application = null;
-    id_module = null;
-    id_data_entity = null;
+    var id_project = null;
+    var id_application = null;
+    var id_module = null;
+    var id_data_entity = null;
 
-    if (typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
-    if (typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
-    if (typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
-    if (typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
+    var name_project = "None";
+    var name_application = "None";
+    var name_module = "None";
+    var name_data_entity = "None";
 
-    api_project.getNameProjectById(id_project, function(err, info) {
+    if(typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
+    if(typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
+    if(typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
+    if(typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
 
-        if (err) {
-            name_project = "None";
-        } else {
+    db_project.getNameProjectById(id_project, function(err, info) {
+        if (!err) {
             name_project = info;
         }
-
-        api_application.getNameApplicationById(id_application, function(err, info) {
-
-            if (err) {
-                name_application = "None";
-            } else {
+        db_application.getNameApplicationById(id_application, function(err, info) {
+            if (!err) {
                 name_application  = info;
             }
-            // console.log("getNameApplicationById : " + name_application);
-
-            api_module.getNameModuleById(id_module, function(err, info) {
-
-                if (err) {
-                    name_module = "None";
-                } else {
+            db_module.getNameModuleById(id_module, function(err, info) {
+                if(!err){
                     name_module = info;
                 }
-
-                api_data_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-
-                    if (err) {
-                        name_data_entity = "None";
-                    } else {
+                db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
+                    if(!err){
                         name_data_entity = info;
                     }
 

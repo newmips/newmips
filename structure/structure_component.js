@@ -233,7 +233,6 @@ exports.newContactForm = function(attr, callback){
 						callback();
 					});
 				}).catch(function(err) {
-					console.error(err);
 					callback(err, null);
 				});
 			});
