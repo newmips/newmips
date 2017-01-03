@@ -330,6 +330,8 @@ exports.deleteDataEntity = function(id_application, name_module, name_data_entit
 	// Delete attributes
 	fs.unlinkSync(baseFolder+'/models/attributes/'+name_data_entity+'.json');
 
+	name_module = name_module.toLowerCase();
+
 	var filePath = __dirname+'/../workspace/'+id_application+'/views/layout_'+name_module+'.dust';
 	domHelper.read(filePath).then(function($){
 		$("#"+name_data_entity+'_menu_item').remove();

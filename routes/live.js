@@ -56,7 +56,7 @@ router.post('/index', block_access.isLoggedIn, function(req, res) {
 
 router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
-    pourcent_generation[req.session.data.id] = 10;
+    pourcent_generation[req.session.data.id] = 5;
 
     // var instruction = req.body.instruction || '';
     var name_project = req.body.project || '';
@@ -109,7 +109,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
             setInterval(function(){
                 if (cpt < 2){
-                    pourcent_generation[req.session.data.id] += Math.floor((Math.random() * 15) + 1);
+                    pourcent_generation[req.session.data.id] += Math.floor((Math.random() * 5) + 1);
                     cpt++;
                 }
             }, 1000);
