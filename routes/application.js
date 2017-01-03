@@ -376,7 +376,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                             }
 
                             //All is good. Print the body
-                            console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
+                            console.log("Server status is OK");
 
                             // Load session values
                             var attr = new Array();
@@ -411,7 +411,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         console.log(e.message);
 
         // Analyze instruction more deeply
-
         answer = "Sorry, your instruction has not been executed properly.<br><br>";
         answer = answer + "Machine said: " + e.message + "<br><br>";
         chat["items"].push({
@@ -432,11 +431,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             res.render('front/preview', data);
         });
     }
-});
-
-router.get('/get_iframe_url', block_access.isLoggedIn, function(req, res){
-    console.log(req.session.iframe_url);
-    res.json(req.session.iframe_url);
 });
 
 // ====================================================
