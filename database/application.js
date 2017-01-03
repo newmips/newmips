@@ -1,4 +1,4 @@
-// **** API Application ****
+// **** Database Generator Application ****
 
 //Sequelize
 var models = require('../models/');
@@ -11,7 +11,7 @@ exports.selectApplication = function(attr, callback) {
     if (typeof attr !== 'undefined' && attr) {
 
         // Set options variable using the attribute array
-        options = attr['options'];
+        var options = attr['options'];
         var where = {};
         var type_option;
 
@@ -25,22 +25,22 @@ exports.selectApplication = function(attr, callback) {
                         name: name_application
                     }
                 }
-                type_option = "name"
+                type_option = "name";
             }
             else{
                 // Value is the ID of application
-                id_application = options[0].value;
+                var id_application = options[0].value;
                 where = {
                     where: {
                         id: id_application
                     }
                 }
-                type_option = "ID"
+                type_option = "ID";
             }
 
             models.Application.findOne(where).then(function(application){
                 if(!application){
-                    err = new Error();
+                    var err = new Error();
                     err.message = "Sorry, but there is no application with this " + type_option;
                     return callback(err, null);
                 }
@@ -56,7 +56,7 @@ exports.selectApplication = function(attr, callback) {
             });
 
         } else {
-            err = new Error();
+            var err = new Error();
             err.message = "Please indicate the name of the application you would like to select";
             callback(err, null);
         }
@@ -76,7 +76,7 @@ exports.createNewApplication = function(attr, callback) {
         id_project = attr['id_project'];
 
         // Set options variable using the attribute array
-        options = attr['options'];
+        var options = attr['options'];
 
         if (typeof options !== 'undefined' && options && id_project != "") {
 
@@ -104,8 +104,8 @@ exports.createNewApplication = function(attr, callback) {
             });
 
         } else {
-            err = new Error();
-            err.message = "Issue when creating application : Project seems not to be yet set";
+            var err = new Error();
+            err.message = "Project seems not to be yet set.";
             callback(err, null);
         }
     }
@@ -114,10 +114,12 @@ exports.createNewApplication = function(attr, callback) {
 // Delete
 exports.deleteApplication = function(id_application, callback) {
     models.Application.destroy({where: {id: id_application}}).then(function() {
-        callback(null);
+        var info = {
+            "message": "Application "+id_application+" deleted."
+        };
+        callback(null, info);
     }).catch(function(err) {
-        console.error(err);
-        callback(err);
+        callback(err, null);
     });
 }
 
@@ -153,27 +155,26 @@ exports.getNameApplicationById = function(id_application, callback) {
 
     models.Application.findById(id_application).then(function(application){
         if(!application){
-            err = new Error();
+            var err = new Error();
             err.message = "No application module found";
             return callback(err, null);
         }
         callback(null, application.name);
     }).catch(function(err){
         callback(err, null);
-    })
+    });
 }
 
 // GetByName
 exports.getIdApplicationByName = function(name, callback) {
     models.Application.findOne({where: {name: name}}).then(function(application){
         if(!application){
-            err = new Error();
-            err.message = "No application with name "+name+" found";
+            var err = new Error();
+            err.message = "No application with name "+name+" found.";
             return callback(err, null);
         }
         callback(null, application.id);
     }).catch(function(err){
-        console.log(err);
         callback(err, null);
-    })
+    });
 }

@@ -1,18 +1,25 @@
 var designer = {};
 
-var api_project = require("../api/project");
-var api_application = require("../api/application");
-var api_module = require("../api/module");
-var api_data_entity = require("../api/data_entity");
-var api_data_field = require("../api/data_field");
-var api_component = require("../api/component");
+// Database Generator
+var db_project = require("../database/project");
+var db_application = require("../database/application");
+var db_module = require("../database/module");
+var db_entity = require("../database/data_entity");
+var db_field = require("../database/data_field");
+var db_component = require("../database/component");
+var database = require("../database/database");
+
+// Session
 var session = require("./session");
+
+// Structure
 var structure_application = require("../structure/structure_application");
 var structure_module = require("../structure/structure_module");
 var structure_data_entity = require("../structure/structure_data_entity");
 var structure_data_field = require("../structure/structure_data_field");
 var structure_component = require("../structure/structure_component");
-var database = require("./database");
+
+// Other
 var helpers = require("../utils/helpers");
 var fs = require('fs');
 var sequelize = require('../models/').sequelize;
@@ -60,7 +67,7 @@ exports.deploy = function(attr, callback) {
 /* ------------------------- Project ----------------------------- */
 /* --------------------------------------------------------------- */
 exports.selectProject = function(attr, callback) {
-    api_project.selectProject(attr, function(err, info) {
+    db_project.selectProject(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -70,7 +77,7 @@ exports.selectProject = function(attr, callback) {
 }
 
 exports.createNewProject = function(attr, callback) {
-    api_project.createNewProject(attr, function(err, info) {
+    db_project.createNewProject(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -80,7 +87,7 @@ exports.createNewProject = function(attr, callback) {
 }
 
 exports.listProject = function(attr, callback) {
-    api_project.listProject(attr, function(err, info) {
+    db_project.listProject(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -90,14 +97,14 @@ exports.listProject = function(attr, callback) {
 }
 
 exports.deleteProject = function(attr, callback) {
-    api_project.getProjectApplications(attr.options[0].value, function(err, applications) {
+    db_project.getProjectApplications(attr.options[0].value, function(err, applications) {
         if (err)
             return callback(err, null);
         var appIds = [];
         for (var i = 0; i < applications.length; i++)
             appIds.push(applications[i].id);
         deleteApplicationRecursive(appIds, 0).then(function() {
-            api_project.deleteProject(attr, function(err, info) {
+            db_project.deleteProject(attr, function(err, info) {
                 if (err)
                     return callback(err, null);
                 callback(null, info);
@@ -110,7 +117,7 @@ exports.deleteProject = function(attr, callback) {
 /* ----------------------- Application --------------------------- */
 /* --------------------------------------------------------------- */
 exports.selectApplication = function(attr, callback) {
-    api_application.selectApplication(attr, function(err, info) {
+    db_application.selectApplication(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -121,7 +128,7 @@ exports.selectApplication = function(attr, callback) {
 
 exports.createNewApplication = function(attr, callback) {
     // Data
-    api_application.createNewApplication(attr, function(err, info) {
+    db_application.createNewApplication(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -135,7 +142,7 @@ exports.createNewApplication = function(attr, callback) {
 }
 
 exports.listApplication = function(attr, callback) {
-    api_application.listApplication(attr, function(err, info) {
+    db_application.listApplication(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -147,11 +154,11 @@ exports.listApplication = function(attr, callback) {
 // Declare this function not directly within exports to be able to use it from deleteApplicationRecursive()
 function deleteApplication(attr, callback) {
     function doDelete(id_application){
-        structure_application.deleteApplication(id_application, function(err, info) {
+        structure_application.deleteApplication(id_application, function(err, infoStructure) {
             if (err)
                 return callback(err, null);
             sequelize.query("SHOW TABLES LIKE '"+id_application+"_%'").spread(function(results, metada){
-                api_application.deleteApplication(id_application, function(err) {
+                db_application.deleteApplication(id_application, function(err, infoDBG) {
                     if (err)
                         return callback(err, null);
                     for (var i = 0; i < results.length; i++) {
@@ -161,13 +168,13 @@ function deleteApplication(attr, callback) {
                             sequelize.query("SET FOREIGN_KEY_CHECKS = 0; DROP TABLE "+results[i][prop]);
                         }
                     }
-                    callback(null, {message: "Application "+id_application+" | "+attr.options[0].value+" deleted"});
+                    callback(null, info);
                 });
             });
         });
     }
     if (isNaN(attr.options[0].value))
-        api_application.getIdApplicationByName(attr.options[0].value, function(err, id_application){
+        db_application.getIdApplicationByName(attr.options[0].value, function(err, id_application){
             if (!id_application)
                 return callback(err, null);
             doDelete(id_application);
@@ -194,7 +201,7 @@ function deleteApplicationRecursive(appIds, idx) {
 /* ------------------------- Module ------------------------------ */
 /* --------------------------------------------------------------- */
 exports.selectModule = function(attr, callback) {
-    api_module.selectModule(attr, function(err, info) {
+    db_module.selectModule(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -204,13 +211,13 @@ exports.selectModule = function(attr, callback) {
 }
 
 exports.createNewModule = function(attr, callback) {
-    api_module.createNewModule(attr, function(err, info_create) {
+    db_module.createNewModule(attr, function(err, info_create) {
         if (err) {
             callback(err, null);
         } else {
             info_create.moduleName = attr.options[0].value;
             // Retrieve list of application modules to update them all
-            api_module.listModuleByApplication(attr, function(err, modules) {
+            db_module.listModuleByApplication(attr, function(err, modules) {
                 if (err) {
                     callback(err, null);
                 } else {
@@ -229,7 +236,7 @@ exports.createNewModule = function(attr, callback) {
 }
 
 exports.listModule = function(attr, callback) {
-    api_module.listModule(attr, function(err, info) {
+    db_module.listModule(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -240,12 +247,15 @@ exports.listModule = function(attr, callback) {
 
 exports.deleteModule = function(attr, callback) {
     var moduleName = attr.options[0].value;
-    if (moduleName.toLowerCase() == 'home')
-        return callback("You can't delete home module");
+    if (moduleName.toLowerCase() == 'home'){
+        var err = new Error();
+        err.message = "You can't delete the home module.";
+        return callback(err, null);
+    }
 
-    api_module.getEntityListByModuleName(attr.id_application, moduleName, function(err, entities) {
+    db_module.getEntityListByModuleName(attr.id_application, moduleName, function(err, entities) {
         if (err)
-            return callback(err);
+            return callback(err, null);
         var promises = [];
         for (var i = 0; i < entities.length; i++) {
             var tmpAttr = {
@@ -258,9 +268,9 @@ exports.deleteModule = function(attr, callback) {
             promises.push(new Promise(function(resolve, reject) {
                 (function(tmpAttrIn){
                     deleteDataEntity(tmpAttrIn, function(err) {
-                        console.log()
-                        if (err)
+                        if (err){
                             return reject(err);
+                        }
                         resolve();
                     })
                 })(tmpAttr);
@@ -271,14 +281,16 @@ exports.deleteModule = function(attr, callback) {
             attr.module_name = moduleName;
             structure_module.deleteModule(attr, function(err) {
                 if (err)
-                    return callback(err);
-                api_module.deleteModule(moduleName, function(err) {
+                    return callback(err, null);
+                db_module.deleteModule(moduleName, function(err, info) {
                     if (err)
-                        return callback(err);
-                    callback(null, {message: "Module deleted"});
+                        return callback(err, null);
+                    callback(null, info);
                 });
             });
-        }).catch(callback);
+        }).catch(function(err){
+            callback(err, null);
+        });
     });
 }
 
@@ -286,7 +298,7 @@ exports.deleteModule = function(attr, callback) {
 /* ------------------------- DataEntity -------------------------- */
 /* --------------------------------------------------------------- */
 exports.selectDataEntity = function(attr, callback) {
-    api_data_entity.selectDataEntity(attr, function(err, info) {
+    db_entity.selectDataEntity(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -298,22 +310,21 @@ exports.selectDataEntity = function(attr, callback) {
 exports.createNewDataEntity = function(attr, callback) {
 
     // Get active application module name
-    api_module.getNameModuleById(attr['id_module'], function(err, name_module) {
+    db_module.getNameModuleById(attr['id_module'], function(err, name_module) {
         if (err) {
             callback(err, null);
         } else {
-            json = {
+            var json = {
                 "property": "name_module",
                 "value": name_module
             };
             attr['options'].push(json);
 
             // API
-            api_data_entity.createNewDataEntity(attr, function(err, info) {
-                if (err) {
+            db_entity.createNewDataEntity(attr, function(err, info) {
+                if(err){
                     callback(err, null);
                 } else {
-                    // Structure
                     structure_data_entity.setupDataEntity(attr, function(err, data) {
                         callback(null, info);
                     });
@@ -324,7 +335,7 @@ exports.createNewDataEntity = function(attr, callback) {
 }
 
 exports.listDataEntity = function(attr, callback) {
-    api_data_entity.listDataEntity(attr, function(err, info) {
+    db_entity.listDataEntity(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -339,95 +350,108 @@ function deleteDataEntity(attr, callback) {
     var name_module = "";
 
     var promises = [];
-    var workspacePath = __dirname + '/../workspace/'+id_application;
+    var workspacePath = __dirname + '/../workspace/' + id_application;
 
-    api_data_entity.getIdDataEntityByName(name_data_entity, function(err, entityId) {
-        var entityOptions = require(workspacePath+'/models/options/'+name_data_entity+'.json');
-        for (var i = 0; i < entityOptions.length; i++) {
-            if (entityOptions[i].relation == 'hasMany') {
-                var tmpAttr = {
-                    options: [{property: 'entity', value: entityOptions[i].as}],
-                    id_project: attr.id_project,
-                    id_application: attr.id_application,
-                    id_module: attr.id_module,
-                    id_data_entity: entityId
-                }
-                promises.push(new Promise(function(resolve, reject){
-                    (function(tmpAttrIn){
-                        deleteTab(tmpAttrIn, function() {
-                            resolve();
-                        })
-                    })(tmpAttr);
-                }));
-            }
+    db_entity.getIdDataEntityByName(name_data_entity, function(err, entityId){
+        if(err){
+            callback(err.message, null);
         }
-
-        fs.readdirSync(workspacePath+'/models/options/').filter(function(file){
-            return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
-        }).forEach(function(file) {
-            var source = file.slice(0,-5);
-            var options = require(workspacePath+'/models/options/'+file);
-            for (var i = 0; i < options.length; i++){
-                if (options[i].target != name_data_entity)
-                    continue;
-                if (options[i].relation == 'hasMany') {
+        else{
+            var entityOptions = require(workspacePath + '/models/options/' + name_data_entity + '.json');
+            for (var i = 0; i < entityOptions.length; i++) {
+                if (entityOptions[i].relation == 'hasMany') {
                     var tmpAttr = {
-                        options: [{property: 'entity', value: options[i].as}],
+                        options: [{
+                            property: 'entity',
+                            value: entityOptions[i].as
+                        }],
                         id_project: attr.id_project,
                         id_application: attr.id_application,
-                        id_module: attr.id_module
+                        id_module: attr.id_module,
+                        id_data_entity: entityId
                     }
-                    promises.push(new Promise(function(resolve, reject){
+                    promises.push(new Promise(function(resolve, reject) {
                         (function(tmpAttrIn) {
-                            api_data_entity.getIdDataEntityByName(source, function(err, sourceID) {
-                                tmpAttrIn.id_data_entity = sourceID;
-                                deleteTab(tmpAttrIn, function(){
-                                    resolve();
-                                });
-                            });
-                        })(tmpAttr)
-                    }));
-                }
-                else if (options[i].relation == 'belongsTo') {
-                    var tmpAttr = {
-                        options: [{property: 'entity', value: options[i].as}],
-                        id_project: attr.id_project,
-                        id_application: attr.id_application,
-                        id_module: attr.id_module
-                    }
-                    promises.push(new Promise(function(resolve, reject){
-                        (function(tmpAttrIn) {
-                            api_data_entity.getIdDataEntityByName(source, function(err, sourceID) {
-                                tmpAttrIn.id_data_entity = sourceID;
-                                deleteDataField(tmpAttrIn, function(){
-                                    resolve();
-                                });
-                            });
-                        })(tmpAttr)
+                            deleteTab(tmpAttrIn, function() {
+                                resolve();
+                            })
+                        })(tmpAttr);
                     }));
                 }
             }
-        });
 
-        Promise.all(promises).then(function() {
-            api_data_entity.getModuleNameByEntityName(name_data_entity, function(err, name_module) {
-                if (err)
-                    return callback(err, null);
-                database.dropDataEntity(id_application, name_data_entity, function(err) {
+            fs.readdirSync(workspacePath + '/models/options/').filter(function(file) {
+                return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
+            }).forEach(function(file) {
+                var source = file.slice(0, -5);
+                var options = require(workspacePath + '/models/options/' + file);
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].target != name_data_entity)
+                        continue;
+                    if (options[i].relation == 'hasMany') {
+                        var tmpAttr = {
+                            options: [{
+                                property: 'entity',
+                                value: options[i].as
+                            }],
+                            id_project: attr.id_project,
+                            id_application: attr.id_application,
+                            id_module: attr.id_module
+                        }
+                        promises.push(new Promise(function(resolve, reject) {
+                            (function(tmpAttrIn) {
+                                db_entity.getIdDataEntityByName(source, function(err, sourceID) {
+                                    tmpAttrIn.id_data_entity = sourceID;
+                                    deleteTab(tmpAttrIn, function() {
+                                        resolve();
+                                    });
+                                });
+                            })(tmpAttr)
+                        }));
+                    } else if (options[i].relation == 'belongsTo') {
+                        var tmpAttr = {
+                            options: [{
+                                property: 'entity',
+                                value: options[i].as
+                            }],
+                            id_project: attr.id_project,
+                            id_application: attr.id_application,
+                            id_module: attr.id_module
+                        }
+                        promises.push(new Promise(function(resolve, reject) {
+                            (function(tmpAttrIn) {
+                                db_entity.getIdDataEntityByName(source, function(err, sourceID) {
+                                    tmpAttrIn.id_data_entity = sourceID;
+                                    deleteDataField(tmpAttrIn, function() {
+                                        resolve();
+                                    });
+                                });
+                            })(tmpAttr)
+                        }));
+                    }
+                }
+            });
+
+            Promise.all(promises).then(function() {
+                db_entity.getModuleNameByEntityName(name_data_entity, function(err, name_module) {
                     if (err)
-                        return callback(err);
-                    attr.name_data_entity = name_data_entity;
-                    api_data_entity.deleteDataEntity(attr, function(err) {
+                        return callback(err, null);
+                    database.dropDataEntity(id_application, name_data_entity, function(err) {
                         if (err)
                             return callback(err);
-                        structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, function() {
-                            callback(null, {message: "Data Entity deleted"});
+                        attr.name_data_entity = name_data_entity;
+                        db_entity.deleteDataEntity(attr, function(err, info) {
+                            if (err)
+                                return callback(err);
+                            structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, function() {
+                                callback(null, info);
+                            });
                         });
                     });
                 });
             });
-        });
-    })
+        }
+    });
 }
 exports.deleteDataEntity = deleteDataEntity;
 
@@ -435,13 +459,13 @@ exports.deleteDataEntity = deleteDataEntity;
 /* ------------------------- DataField -------------------------- */
 /* --------------------------------------------------------------- */
 exports.createNewDataField = function(attr, callback) {
-    api_data_field.createNewDataField(attr, function(err, info) {
+    db_field.createNewDataField(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
 
             // Get active application module name
-            api_module.getNameModuleById(attr['id_module'], function(err, name_module) {
+            db_module.getNameModuleById(attr['id_module'], function(err, name_module) {
                 if (err) {
                     callback(err, null);
                 } else {
@@ -452,7 +476,7 @@ exports.createNewDataField = function(attr, callback) {
                     attr['options'].push(json);
 
                     // Get active data entity name
-                    api_data_entity.getNameDataEntityById(attr['id_data_entity'], function(err, name_data_entity) {
+                    db_entity.getNameDataEntityById(attr['id_data_entity'], function(err, name_data_entity) {
                         if (err) {
                             callback(err, null);
                         } else {
@@ -494,7 +518,7 @@ exports.askNameOfDataField = function(attr, callback) {
 }
 
 function deleteTab(attr, callback) {
-    api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
         if (err)
             return callback(err, null);
 
@@ -512,7 +536,7 @@ function deleteTab(attr, callback) {
                 if (err)
                     return callback(err, null);
 
-                api_data_field.deleteDataField(attr, function(err, info) {
+                db_field.deleteDataField(attr, function(err, info) {
                     if (err)
                         return callback(err, null);
                     callback(null, info);
@@ -527,7 +551,7 @@ exports.deleteTab = deleteTab;
 function deleteDataField(attr, callback) {
 
     // Get Entity or Type Id
-    api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
         if (err)
             return callback(err, null);
 
@@ -565,10 +589,10 @@ function deleteDataField(attr, callback) {
                     if (err)
                         return callback(err, null);
 
-                    console.log("START - api_data_field.deleteDataField");
+                    console.log("START - db_field.deleteDataField");
 
                     // Delete record from software
-                    api_data_field.deleteDataField(attr, function(err, info) {
+                    db_field.deleteDataField(attr, function(err, info) {
                         if (err)
                             return callback(err, null);
                         callback(null, info);
@@ -584,7 +608,7 @@ function deleteDataField(attr, callback) {
 exports.deleteDataField = deleteDataField;
 
 exports.listDataField = function(attr, callback) {
-    api_data_field.listDataField(attr, function(err, info) {
+    db_field.listDataField(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
@@ -594,7 +618,7 @@ exports.listDataField = function(attr, callback) {
 }
 
 exports.setRequiredAttribute = function(attr, callback) {
-    api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
         if (err)
             return callback(err);
 
@@ -609,7 +633,7 @@ exports.setRequiredAttribute = function(attr, callback) {
 }
 
 exports.setColumnVisibility = function(attr, callback) {
-    api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
         if (err)
             return callback(err);
 
@@ -638,21 +662,21 @@ exports.createNewEntityWithBelongsTo = function(attr, callback) {
     }
 
     // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-    api_data_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+    db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
         if (err) {
             console.log(err);
             callback(err, null);
         } else {
             // Ajout de l'entité source dans la BDD Newmips
-            api_data_entity.createNewDataEntitySource(attr, function(err, created_dataEntity) {
+            db_entity.createNewDataEntitySource(attr, function(err, created_dataEntity) {
                 if (err) {
                     console.log(err);
                     callback(err, null);
                 } else {
                     // Ajout de la foreign key dans la BDD Newmips
-                    api_data_field.createNewForeignKey(attr, function(err, created_foreignKey){
+                    db_field.createNewForeignKey(attr, function(err, created_foreignKey){
                         // Récupère le nom du module, necessaire au bon fonctionnement des fichiers structures
-                        api_module.getNameModuleById(attr.id_module, function(err, name_module) {
+                        db_module.getNameModuleById(attr.id_module, function(err, name_module) {
                             attr.name_module = name_module;
                             // Création de l'entité source dans le workspace
                             structure_data_entity.setupDataEntity(attr, function(err, data) {
@@ -683,13 +707,13 @@ exports.createNewEntityWithHasMany = function(attr, callback) {
     }
 
     // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-    api_data_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+    db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
         if (err) {
             console.log(err);
             callback(err, null);
         } else {
             // Ajout de l'entité source dans la BDD Newmips
-            api_data_entity.createNewDataEntitySource(attr, function(err, created_dataEntity) {
+            db_entity.createNewDataEntitySource(attr, function(err, created_dataEntity) {
                 if (err) {
                     console.log(err);
                     callback(err, null);
@@ -703,9 +727,9 @@ exports.createNewEntityWithHasMany = function(attr, callback) {
                         id_module: attr.id_module,
                         id_application: attr.id_application
                     };
-                    api_data_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
+                    db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
                         // Récupère le nom du module, necessaire au bon fonctionnement des fichiers structures
-                        api_module.getNameModuleById(attr.id_module, function(err, name_module) {
+                        db_module.getNameModuleById(attr.id_module, function(err, name_module) {
                             attr.name_module = name_module;
                             // Création de l'entité source dans le workspace
                             structure_data_entity.setupDataEntity(attr, function(err, data) {
@@ -757,7 +781,7 @@ exports.createNewBelongsTo = function(attr, callback) {
 
 
         // Ajout de la foreign key dans la BDD Newmips
-        api_data_field.createNewForeignKey(attr, function(err, created_foreignKey){
+        db_field.createNewForeignKey(attr, function(err, created_foreignKey){
             if(err){
                 console.log(err);
                 callback(err, null);
@@ -778,12 +802,12 @@ exports.createNewBelongsTo = function(attr, callback) {
 
     // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
     // CREATION DE SOUS ENTITE OU NON
-    api_data_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+    db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
         if (err) {
             //Si c'est bien l'error de data entity qui n'existe pas
             if(err.level == 0){
                 // Si l'entité target n'existe pas, on la crée
-                api_data_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
+                db_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
                     // On se dirige en sessions vers l'entité crée
                     //info = created_dataEntity;
                     // Stay on the source entity, even if the target has been created
@@ -794,7 +818,7 @@ exports.createNewBelongsTo = function(attr, callback) {
                         callback(err, null);
                     }
 
-                    api_module.getNameModuleById(attr.id_module, function(err, name_module) {
+                    db_module.getNameModuleById(attr.id_module, function(err, name_module) {
                         if (err) {
                             console.log(err);
                             callback(err, null);
@@ -869,7 +893,7 @@ exports.createNewHasMany = function(attr, callback) {
             id_application: attr.id_application
         };
 
-        api_data_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
+        db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
             // Créer le lien belongsTo en la source et la target
             structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function(){
                 // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
@@ -881,12 +905,12 @@ exports.createNewHasMany = function(attr, callback) {
     }
 
     // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-    api_data_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+    db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
         // Si l'entité target n'existe pas, on la crée
         if (err) {
             //Si c'est bien l'error de data entity qui n'existe pas
             if(err.level == 0){
-                api_data_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
+                db_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
                     // On se dirige en sessions vers l'entité crée
                     //info = created_dataEntity;
                     // Stay on the source entity, even if the target has been created
@@ -897,7 +921,7 @@ exports.createNewHasMany = function(attr, callback) {
                         callback(err, null);
                     }
 
-                    api_module.getNameModuleById(attr.id_module, function(err, name_module) {
+                    db_module.getNameModuleById(attr.id_module, function(err, name_module) {
                         if (err) {
                             console.log(err);
                             callback(err, null);
@@ -948,7 +972,7 @@ exports.createNewBelongsToMany = function(attr, callback) {
             return callback('Association already exists between these entities', null);
     }
     // Vérifie que la target existe bien avant de creer la source et la table fonctionnelle contenant les 2 clées étrangères
-    api_data_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+    db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
         if (err) {
             console.log(err);
             callback(err, null);
@@ -977,11 +1001,11 @@ exports.createNewBelongsToMany = function(attr, callback) {
 exports.createNewFieldset = function(attr, callback) {
 
     // Instruction is add fieldset _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
-    api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_entity_source) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_entity_source) {
         attr.options.source = name_entity_source;
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        api_data_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+        db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
             // Si l'entité target n'existe pas ou autre
             if (err) {
                 console.log(err);
@@ -1022,7 +1046,7 @@ exports.createNewFieldset = function(attr, callback) {
                     id_application: attr.id_application
                 };
 
-                api_data_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey) {
+                db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey) {
                     // Créer le lien belongsTo en la source et la target
                     structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
@@ -1045,11 +1069,11 @@ exports.createNewFieldset = function(attr, callback) {
 exports.createNewFieldRelatedTo = function(attr, callback) {
 
     // Instruction is add field _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
-    api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_entity_source) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_entity_source) {
         attr.options.source = name_entity_source;
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        api_data_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+        db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
             if (err) {
                 // Si l'entité target n'existe pas, on remonte une erreur
                 console.log(err);
@@ -1079,7 +1103,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                 }
 
                 // Ajout de la foreign key dans la BDD Newmips
-                api_data_field.createNewForeignKey(attr, function(err, created_foreignKey) {
+                db_field.createNewForeignKey(attr, function(err, created_foreignKey) {
                     if (err) {
                         console.log(err);
                         callback(err, null);
@@ -1113,7 +1137,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
 exports.createNewComponentLocalFileStorage = function(attr, callback) {
 
     // Check if component with this name is already created on this entity
-    api_component.getComponentByNameInEntity(attr, function(err, component){
+    db_component.getComponentByNameInEntity(attr, function(err, component){
         if(component){
             err = new Error();
             err.message = "Sorry, a component with this name is already associate to this entity in this module.";
@@ -1121,7 +1145,7 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
         }
         else{
             // Check if a table as already the composant name
-            api_data_entity.getDataEntityByName(attr, function(err, dataEntity) {
+            db_entity.getDataEntityByName(attr, function(err, dataEntity) {
                 if(dataEntity){
                     err = new Error();
                     err.message = "Sorry, an other entity with this component name already exist in this application.";
@@ -1129,9 +1153,9 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                 }
                 else{
                     // Create the component in newmips database
-                    api_component.createNewComponentOnEntity(attr, function(err, info){
+                    db_component.createNewComponentOnEntity(attr, function(err, info){
                         // Get Data Entity Name needed for structure
-                        api_data_entity.getNameDataEntityById(attr.id_data_entity, function(err, dataEntityName){
+                        db_entity.getNameDataEntityById(attr.id_data_entity, function(err, dataEntityName){
                             attr.options.source = dataEntityName;
                             // setup the hasMany association in the source entity
                             structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.name.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.name.toLowerCase(), "hasMany", null, false, function(){
@@ -1154,7 +1178,7 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
 exports.createNewComponentContactForm = function(attr, callback) {
 
     // Check if component with this name is already created on this entity
-    api_component.getComponentByNameInModule(attr, function(err, component){
+    db_component.getComponentByNameInModule(attr, function(err, component){
         if(component){
             err = new Error();
             err.message = "Sorry, a component with this name is already associate to this module.";
@@ -1162,7 +1186,7 @@ exports.createNewComponentContactForm = function(attr, callback) {
         }
         else{
             // Check if a table as already the composant name
-            api_data_entity.getDataEntityByName(attr, function(err, dataEntity) {
+            db_entity.getDataEntityByName(attr, function(err, dataEntity) {
                 if(dataEntity){
                     err = new Error();
                     err.message = "Sorry, a other entity with this component name already exist in this application.";
@@ -1170,9 +1194,9 @@ exports.createNewComponentContactForm = function(attr, callback) {
                 }
                 else{
                     // Create the component in newmips database
-                    api_component.createNewComponentOnModule(attr, function(err, info){
+                    db_component.createNewComponentOnModule(attr, function(err, info){
                         // Get Data Entity Name needed for structure
-                        api_module.getNameModuleById(attr.id_module, function(err, moduleName){
+                        db_module.getNameModuleById(attr.id_module, function(err, moduleName){
                             attr.options.moduleName = moduleName;
                             structure_component.newContactForm(attr, function(err){
                                 if(err){

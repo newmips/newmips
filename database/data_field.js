@@ -1,12 +1,12 @@
-// **** API Data Field ****
+// **** Database Generator Field ****
 var models = require('../models/');
 
 // Create new Data Field in Data Entity
 exports.createNewDataField = function(attr, callback) {
 
 	if(attr.id_data_entity == null){
-		err = new Error();
-		err.message = "You need to select or create a Data Entity before.";
+		var err = new Error();
+		err.message = "You have to select or create a data entity before.";
 		return callback(err, null);
 	}
 
@@ -19,7 +19,7 @@ exports.createNewDataField = function(attr, callback) {
 	var id = -1;
 	var version = 1;
 
-	if (typeof attr !== 'undefined' && attr) {
+	if(typeof attr !== 'undefined' && attr){
 
         // Set id_data_entity of future data_field according to session value transmitted in attributes
         id_data_entity = attr['id_data_entity'];
@@ -51,7 +51,7 @@ exports.createNewDataField = function(attr, callback) {
             	}
             }).then(function(dataField) {
             	if (dataField) {
-            		err = new Error();
+            		var err = new Error();
             		err.message = "Field already exists";
             		return callback(err, null);
             	}
@@ -74,19 +74,17 @@ exports.createNewDataField = function(attr, callback) {
             	}).catch(function(err) {
             		callback(err, null);
             	})
-            }).catch(function() {
-            	err = new Error();
-            	err.message = "Issue when creating data field : Data Entity seems not to exist in database";
+            }).catch(function(err){
             	callback(err, null);
             })
         } else {
-        	err = new Error();
-        	err.message = "Issue when creating data field : Attributes are not properly defined";
+        	var err = new Error();
+        	err.message = "Attributes are not properly defined.";
         	callback(err, null);
         }
     } else {
-    	err = new Error();
-    	err.message = "Issue when creating data field : Attributes are not properly defined";
+    	var err = new Error();
+    	err.message = "Attributes are not properly defined.";
     	callback(err, null);
     }
 }
@@ -95,7 +93,7 @@ exports.createNewDataField = function(attr, callback) {
 exports.createNewForeignKey = function(attr, callback) {
 
 	if(attr.id_data_entity == null){
-		err = new Error();
+		var err = new Error();
 		err.message = "You need to select or create a Data Entity before.";
 		return callback(err, null);
 	}
@@ -137,7 +135,6 @@ exports.createNewForeignKey = function(attr, callback) {
 			callback(null, info);
 		});
 	}).catch(function(err) {
-		console.log(err);
 		callback(err, null);
 	})
 }
@@ -146,14 +143,14 @@ exports.createNewForeignKey = function(attr, callback) {
 exports.deleteDataField = function(attr, callback) {
 
 	if(attr.id_data_entity == null){
-		err = new Error();
-		err.message = "You need to select or create a Data Entity before.";
+		var err = new Error();
+		err.message = "You have to select or create a Data Entity before.";
 		return callback(err, null);
 	}
 
 	var id_data_entity = attr['id_data_entity'];
-
 	options = attr['options'];
+
 	for (var i = 0; i < options.length; i++)
 		if (options[i].property == 'entity')
 			name_data_field = options[i].value;
@@ -175,9 +172,9 @@ exports.deleteDataField = function(attr, callback) {
 // List
 exports.listDataField = function(attr, callback) {
 
-	if (typeof attr.id_data_entity == "undefined" || attr.id_data_entity == null) {
-		err = new Error();
-		err.message = "Please select a Data Entity before.";
+	if(typeof attr.id_data_entity == "undefined" || attr.id_data_entity == null) {
+		var err = new Error();
+		err.message = "Please select a data entity before.";
 		callback(err, null);
 	} else {
 
@@ -190,7 +187,7 @@ exports.listDataField = function(attr, callback) {
 				}
 			}]
 		}).then(function(dataFields) {
-			info = new Array();
+			var info = new Array();
 			info.message = "List of data fields (id | name): \n";
 			if (!dataFields)
 				info.message = info.message + "None\n";
@@ -199,19 +196,16 @@ exports.listDataField = function(attr, callback) {
 					info.message += dataFields[i].id + " | " + dataFields[i].name + "\n";
 				info.rows = dataFields;
 				callback(null, info);
-			}).catch(function() {
-				err = new Error();
-				err.message = "Sorry, an error occured while executing the request";
+			}).catch(function(err){
 				callback(err, null);
 			});
 		}
-
 	}
 
 // GetById
 exports.getNameDataFieldById = function(id_data_field, callback) {
 	if (typeof(id_data_field) !== 'number') {
-		err = new Error();
+		var err = new Error();
 		err.message = "Id data field is not defined";
 		return callback(err, null);
 	}
@@ -222,25 +216,22 @@ exports.getNameDataFieldById = function(id_data_field, callback) {
 		}
 	}).then(function(dataField) {
 		if (!dataField) {
-			err = new Error();
+			var err = new Error();
 			err.message = "No data field found";
 			return callback(err, null);
 		}
-
 		callback(null, dataField.name);
 	}).catch(function(err) {
-		err = new Error();
-		err.message = "No data field found";
 		callback(err, null);
-	})
+	});
 }
 
 // GetTypeById
 exports.getTypeDataFieldByEntityIdAndFieldName = function(id_data_entity, name_data_field, callback) {
 
 	if (typeof(id_data_entity) !== 'number') {
-		err = new Error();
-		err.message = "Id data field is not defined";
+		var err = new Error();
+		err.message = "ID data field is not defined";
 		return callback(err, null);
 	}
 
@@ -251,24 +242,22 @@ exports.getTypeDataFieldByEntityIdAndFieldName = function(id_data_entity, name_d
 		}
 	}).then(function(dataField) {
 		if (!dataField) {
-			err = new Error();
+			var err = new Error();
 			err.message = "No data field found";
 			return callback(err, null);
 		}
 
 		callback(null, dataField.type);
-	}).catch(function() {
-		err = new Error();
-		err.message = "No data field found";
+	}).catch(function(err){
 		callback(err, null);
-	})
+	});
 }
 
 // GetByName
 exports.getIdDataFieldByName = function(name_data_field, callback) {
 
 	if (typeof(name_data_field) !== 'string') {
-		err = new Error();
+		varerr = new Error();
 		err.message = "Name of data field is not defined";
 		return callback(err, null);
 	}
@@ -279,14 +268,12 @@ exports.getIdDataFieldByName = function(name_data_field, callback) {
 		}
 	}).then(function(dataField) {
 		if (!dataField) {
-			err = new Error();
+			var err = new Error();
 			err.message = "No data field found";
 			return callback(err, null);
 		}
 		callback(null, dataField.id);
-	}).catch(function() {
-		err = new Error();
-		err.message = "No data field found";
+	}).catch(function(err){
 		callback(err, null);
-	})
+	});
 }

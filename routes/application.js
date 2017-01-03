@@ -233,7 +233,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             if (err) {
                 // error handling code goes here
                 console.log("ERROR : ", err);
-                answer = err;
+                answer = "Error: " + err.message;
                 data.answers = answer + "\n\n" + answers + "\n\n";
 
                 chat.items.push({
@@ -248,8 +248,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     data.session = info;
                     res.render('front/preview', data);
                 });
-
-
             } else {
 
                 // Store key entities in session for future instruction
@@ -352,7 +350,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
 
                     // Launch a new server instance to reload resources
-                    process_server[id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                    process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
                     function checkServer() {
 

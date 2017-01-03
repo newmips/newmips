@@ -1,4 +1,4 @@
-// **** API Component ****
+// **** Database Generator Component ****
 
 //Sequelize
 var models = require('../models/');
@@ -15,7 +15,7 @@ exports.createNewComponentOnEntity = function(attr, callback) {
 
         id_data_entity = attr.id_data_entity;
         id_module = attr.id_module;
-        options = attr.options;
+        var options = attr.options;
 
         if (typeof options !== 'undefined' && options && id_data_entity != 0 && id_module != 0) {
 
@@ -26,8 +26,8 @@ exports.createNewComponentOnEntity = function(attr, callback) {
                 version: version
             }).then(function(created_component) {
                 if (!created_component) {
-                    err = new Error();
-                    err.message = "Sorry, an error occured.";
+                    var err = new Error();
+                    err.message = "Sorry, an error occured while creation the component.";
                     return callback(err, null);
                 }
                 var info = {
@@ -35,7 +35,6 @@ exports.createNewComponentOnEntity = function(attr, callback) {
                     message: "New component " + created_component.id + " | "+created_component.name+" created."
                 }
                 callback(null, info);
-
             }).catch(function(err) {
                 callback(err, null);
             });
@@ -53,7 +52,7 @@ exports.createNewComponentOnModule = function(attr, callback) {
     if (typeof attr !== 'undefined' && attr) {
 
         id_module = attr.id_module;
-        options = attr.options;
+        var options = attr.options;
 
         if (typeof options !== 'undefined' && options && id_module != 0) {
 
@@ -63,8 +62,8 @@ exports.createNewComponentOnModule = function(attr, callback) {
                 version: version
             }).then(function(created_component) {
                 if (!created_component) {
-                    err = new Error();
-                    err.message = "Sorry, an error occured.";
+                    var err = new Error();
+                    err.message = "Sorry, an error occured while creating the component.";
                     return callback(err, null);
                 }
                 var info = {
@@ -72,7 +71,6 @@ exports.createNewComponentOnModule = function(attr, callback) {
                     message: "New component " + created_component.id + " | "+created_component.name+" created."
                 }
                 callback(null, info);
-
             }).catch(function(err) {
                 callback(err, null);
             });
@@ -91,7 +89,7 @@ exports.getComponentByNameInEntity = function(attr, callback) {
     if (typeof attr !== 'undefined' && attr) {
         id_data_entity = attr.id_data_entity;
         id_module = attr.id_module;
-        options = attr.options;
+        var options = attr.options;
 
         if (typeof options !== 'undefined' && options && id_data_entity != 0 && id_module != 0) {
 
@@ -103,12 +101,11 @@ exports.getComponentByNameInEntity = function(attr, callback) {
                 }
             }).then(function(component) {
                 if (!component) {
-                    err = new Error();
+                    var err = new Error();
                     err.message = "Sorry, no component with this name exist.";
                     return callback(err, null);
                 }
                 callback(null, component);
-
             }).catch(function(err) {
                 callback(err, null);
             });
@@ -141,7 +138,6 @@ exports.getComponentByNameInModule = function(attr, callback) {
                     return callback(err, null);
                 }
                 callback(null, component);
-
             }).catch(function(err) {
                 callback(err, null);
             });
