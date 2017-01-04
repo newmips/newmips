@@ -7,7 +7,7 @@ exports.setupModule = function(attr, callback) {
     var name_module = "";
 
     // Initialize variables according to options
-    options = attr.options;
+    var options = attr.options;
     i = 0;
     while (i < options.length) {
         if (options[i].property == 'entity') {
@@ -20,48 +20,54 @@ exports.setupModule = function(attr, callback) {
     var file = __dirname + '/../workspace/' + id_application + '/routes/default.js';
     fs.readFile(file, 'utf8', function(err, data) {
         if (err) {
-            return console.log(err);
+            return callback(err, null);
         }
 
         // Add new module route to routes/default.js file
-        str = '// *** Dynamic Module | Do not remove ***\n\n';
-        str = str + '\t// ' + name_module + '\n';
-        str = str + '\trouter.get(\'/' + name_module.toLowerCase() + '\', block_access.isLoggedIn, function(req, res) {\n';
-        str = str + '\t\tvar data = {\n';
-        str = str + '\t\t\t"profile":req.session.data\n';
-        str = str + '\t\t};\n';
-        str = str + '\t\tres.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
-        str = str + '\t});\n';
+        var str = '// *** Dynamic Module | Do not remove ***\n\n';
+        str += '\t// ' + name_module + '\n';
+        str += '\trouter.get(\'/' + name_module.toLowerCase() + '\', block_access.isLoggedIn, function(req, res) {\n';
+        str += '\t\tvar data = {\n';
+        str += '\t\t\t"profile":req.session.data\n';
+        str += '\t\t};\n';
+        str += '\t\tres.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
+        str += '\t});\n';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
         fs.writeFile(file, result, 'utf8', function(err) {
-            if (err) return console.log(err);
+            if (err){
+                return callback(err, null);
+            }
             console.log('File => routes/default.js ------------------ UPDATED');
 
             // Create views/default/MODULE_NAME.dust file
-            fileToCreate = __dirname + '/../workspace/'+ id_application +'/views/default/' + name_module.toLowerCase() + '.dust';
+            var fileToCreate = __dirname + '/../workspace/'+ id_application +'/views/default/' + name_module.toLowerCase() + '.dust';
             fs.copy(__dirname + '/pieces/views/default/custom_module.dust', fileToCreate, function(err) {
                 if (err) {
-                    return console.error(err);
+                    return callback(err, null);
                 }
 
                 //Replace all variables 'custom_module' in new created file
                 fs.readFile(fileToCreate, 'utf8', function(err, dataDust) {
                     if (err) {
-                        return console.log(err);
+                        return callback(err, null);
                     }
 
                     // Replace custom_module occurence and write to file
                     var resultDust = dataDust.replace(/custom_module/g, name_module.toLowerCase());
                     fs.writeFile(fileToCreate, resultDust, 'utf8', function(err) {
-                        if (err) return console.log(err);
+                        if(err){
+                            return callback(err, null);
+                        }
                         console.log('File => views/default/'+ name_module.toLowerCase() +'.dust ------------------ CREATED');
 
                         translateHelper.writeLocales(id_application, "module", name_module, attr.googleTranslate, function(){
                             // Create module's layout file
-                            file = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module.toLowerCase() + '.dust';
-                            fs.copy(__dirname + '/pieces/views/layout_custom_module.dust', file, function(err) {
-                                if (err) return console.error(err);
+                            file = __dirname+'/../workspace/'+id_application+'/views/layout_'+name_module.toLowerCase()+'.dust';
+                            fs.copy(__dirname+'/pieces/views/layout_custom_module.dust', file, function(err) {
+                                if(err){
+                                    return callback(err, null);
+                                }
                                 console.log("File => layout_" + name_module.toLowerCase() + '.dust ------------------ CREATED');
 
                                 // Loop over module list to add new module's <option> tag in all modules <select> tags
@@ -97,7 +103,7 @@ exports.setupModule = function(attr, callback) {
                                 Promise.all(promises).then(function() {
                                     callback();
                                 }).catch(function(err) {
-                                    console.log(err);
+                                    callback(err, null);
                                 });
                             });
                         });
@@ -195,6 +201,8 @@ exports.deleteModule = function(attr, callback) {
             domHelper.write(layoutsPath+file, $).then(function(){
                 callback();
             });
+        }).catch(function(err){
+            callback(err, null);
         });
     });
 }
