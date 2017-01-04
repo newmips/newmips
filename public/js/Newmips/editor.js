@@ -1,5 +1,8 @@
 $(document).ready(function() {
 
+    var editorContent = {};
+    var editorSaveContent = {};
+
     /* -------- Editor Initialisation -------- */
     var intro1 = "	───▄▀▀▀▄▄▄▄▄▄▄▀▀▀▄───\n" +
 		        "	───█▒▒░░░░░░░░░▒▒█───\n" +
@@ -49,6 +52,17 @@ $(document).ready(function() {
         showTrailingSpace: true,
         autoCloseTags: true,
         scrollbarStyle: "simple"
+    });
+
+    /* Event change on editor to highlight the unsave work */
+    myEditor.on("keyup", function(instance, changeObj){
+        if(typeof editorSaveContent[$("#update-file").attr("data-path")] !== "undefined" &&
+            editorSaveContent[$("#update-file").attr("data-path")] != myEditor.getValue()){
+            $("ul.nav.nav-tabs#editor-navtabs li.active").addClass("modified");
+        }
+        else{
+            $("ul.nav.nav-tabs#editor-navtabs li.active").removeClass("modified");
+        }
     });
 
     /* -------- Switch Editor Theme -------- */
@@ -146,6 +160,9 @@ $(document).ready(function() {
             contentType: "application/json",
             context: this,
             success: function(data) {
+                /* Save the current editor content in the OLD tab */
+                editorContent[$("#update-file").attr("data-path")] = myEditor.getValue();
+
                 /* Color select file in folders */
                 $(".load-file").each(function() {
                     $(this).css("color", "#777", "important");
@@ -167,16 +184,21 @@ $(document).ready(function() {
                 if (!$("li[data-path='" + data.path + "']").length) {
                     /* Add tab */
                     var tab = "<li role='fileTab' class='load-file active' data-path='" + data.path + "'>" +
-                        "<a href='#' data-toggle='tab'>" + $(this).data("filename") +
+                        "<a href='#' data-toggle='tab'>" + $(this).attr("data-filename") +
                         "  <i class='fa fa-times close-tab' aria-hidden='true'></i>" +
                         "</a></li>";
                     $("ul.nav.nav-tabs#editor-navtabs").append(tab);
-                } else {
-                    $("li[data-path='" + data.path + "']").addClass("active");
-                }
 
-                /* Add content in editor */
-                myEditor.setValue(data.html);
+                    /* Add content from server side in editor */
+                    editorContent[data.path] = data.html;
+                    editorSaveContent[data.path] = data.html;
+                    myEditor.setValue(data.html);
+                } else {
+                    /* Tab already exist */
+                    $("li[data-path='" + data.path + "']").addClass("active");
+                    /* Get the old content */
+                    myEditor.setValue(editorContent[data.path]);
+                }
             },
             error: function(error) {
                 console.log(error);
@@ -202,6 +224,9 @@ $(document).ready(function() {
             contentType: "application/json",
             context: this,
             success: function(data) {
+                editorContent[ajaxData.path] = ajaxData.content;
+                editorSaveContent[ajaxData.path] = ajaxData.content;
+                $("ul.nav.nav-tabs#editor-navtabs li.active").removeClass("modified");
                 toastr.success("Le fichier à bien été mis à jour !");
                 $("#update-file").removeAttr("disabled");
             },
