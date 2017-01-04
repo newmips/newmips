@@ -16,7 +16,11 @@ exports.setupApplication = function(attr, callback) {
 
     // *** Copy template folder to new workspace ***
     fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {
-        if (err) return console.error(err)
+        if(err){
+            var err = new Error();
+            err.message = "An error occurred while copying template folder.";
+            return callback(err, null);
+        }
 
         // *** Update translation fileFR ***
         fileFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
@@ -24,7 +28,11 @@ exports.setupApplication = function(attr, callback) {
         dataFR.app.name = name_application;
 
         fs.writeFile(fileFR, JSON.stringify(dataFR, null, 2), function(err) {
-            if (err) return console.log(err);
+            if(err){
+                var err = new Error();
+                err.message = "An error occurred while updating fr-FR translation file.";
+                return callback(err, null);
+            }
 
             fileEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
             dataEN = require(fileEN);
@@ -32,7 +40,9 @@ exports.setupApplication = function(attr, callback) {
 
             fs.writeFile(fileEN, JSON.stringify(dataEN, null, 2), function(err) {
                 if(err){
-                    return console.log(err);
+                    var err = new Error();
+                    err.message = "An error occurred while updating en-EN translation file.";
+                    return callback(err, null);
                 }
 
                 // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
@@ -40,7 +50,9 @@ exports.setupApplication = function(attr, callback) {
                 languageConfig.lang = attr.lang_user;
                 fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
                     if(err){
-                        return console.log(err);
+                        var err = new Error();
+                        err.message = "An error occurred while creating language.json.";
+                        return callback(err, null);
                     }
                     // Direct callback as application has been installed in template folder
                     callback();
@@ -61,10 +73,16 @@ exports.deleteApplication = function(id_application, callback) {
         process_server = process_manager.killChildProcess(process_server.pid, function() {
             helpers.rmdirSyncRecursive(path);
             callback();
+        }).catch(function(err){
+            callback(err, null);
         });
     }
     else {
-        helpers.rmdirSyncRecursive(path);
-        callback();
+        try{
+            helpers.rmdirSyncRecursive(path);
+            callback();
+        } catch(err){
+            callback(err, null);
+        }
     }
 }
