@@ -181,7 +181,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
     // Parse instruction and set results
     try {
 
-        instructions = instruction.split(' ');
+        var instructions = instruction.split(' ');
         instructions[0] = instructions[0].toLowerCase();
         instruction = instructions.join(' ');
 
@@ -204,6 +204,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             "id_data_entity": req.session.id_data_entity
         };
 
+        /* Save an instruction history in the history script in workspace folder */
+        var historyScriptPath = __dirname + '/../workspace/' + req.session.id_application + '/history_script.nps';
+        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+        historyScript += "\n"+instruction;
+        fs.writeFileSync(historyScriptPath, historyScript);
 
         // Todo : Resolve instruction using bot
         // parser = require('../services/bot.js');
