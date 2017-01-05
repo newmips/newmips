@@ -1026,7 +1026,7 @@ exports.deleteDataField = function(attr, callback) {
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var dataToWrite = require(jsonPath);
     for (var i = 0; i < dataToWrite.length; i++) {
-        if (dataToWrite[i].as == name_data_field) {
+        if (dataToWrite[i].as.toLowerCase() == name_data_field) {
             if (dataToWrite[i].relation != 'belongsTo')
                 return callback(name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction', null);
 		    // Modify the options.json file
@@ -1080,7 +1080,6 @@ exports.deleteDataField = function(attr, callback) {
 
 		// Wait for all promises execution
 		Promise.all(promises).then(function() {
-			console.log("Field deleted from 'create_fields', 'update_fields', 'show_fields', 'list_fields' files");
 			callback(null, info);
 		});
 	});
