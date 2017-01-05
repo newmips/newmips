@@ -35,7 +35,10 @@ var exclude = ["node_modules", "config", "sql", "services", "models", "api", "ut
 
 // Preview
 router.get('/preview', block_access.isLoggedIn, function(req, res) {
+
     var id_application = req.query.id_application;
+    req.session.id_application = id_application;
+
     var data = {
         "error": 1,
         "profile": req.session.data,
@@ -55,8 +58,6 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         "iframe_url": "",
         "session": ""
     };
-
-    req.session.id_application = id_application;
 
     models.Application.findOne({where: {id: id_application}}).then(function(application) {
         req.session.id_project = application.id_project;
