@@ -575,8 +575,6 @@ function deleteDataField(attr, callback) {
                 if (err)
                     return callback(err, null);
 
-                console.log("START - database.dropDataField");
-
                 // Alter database
                 attr.fieldToDrop = infoStructure.fieldToDrop;
                 attr.options.push({
@@ -588,8 +586,6 @@ function deleteDataField(attr, callback) {
                     if (err)
                         return callback(err, null);
 
-                    console.log("START - db_field.deleteDataField");
-
                     // Delete record from software
                     db_field.deleteDataField(attr, function(err, infoDB) {
                         if (err)
@@ -598,9 +594,8 @@ function deleteDataField(attr, callback) {
                     });
                 });
             });
-        } catch(e){
-            console.error(e);
-            callback(e, null);
+        } catch(err){
+            callback(err, null);
         }
     });
 }
