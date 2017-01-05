@@ -585,7 +585,6 @@ function deleteDataField(attr, callback) {
                     "value": name_data_entity
                 });
                 var dropFunction = infoStructure.isConstraint ? 'dropFKDataField' : 'dropDataField';
-                console.log(dropFunction);
                 database[dropFunction](attr, function(err, info) {
                     if (err)
                         return callback(err, null);
