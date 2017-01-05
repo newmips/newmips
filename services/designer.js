@@ -857,6 +857,7 @@ exports.createNewBelongsTo = function(attr, callback) {
 exports.createNewHasMany = function(attr, callback) {
 
     var info = {};
+    var toSync = true;
     function structureCreation(attr, callback){
 
         var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
@@ -902,7 +903,7 @@ exports.createNewHasMany = function(attr, callback) {
 
         db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
             // Créer le lien belongsTo en la source et la target
-            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function(){
+            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, function(){
                 // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                 structure_data_field.setupHasManyTab(attr, function(){
                     callback(null, info);
@@ -938,6 +939,8 @@ exports.createNewHasMany = function(attr, callback) {
                             if (err) {
                                 return callback(err, null);
                             }
+                            // There is no need to custom sync the foreign key field because it will be created with the new data entity with Sequelize.sync()
+                            toSync = false;
                             structureCreation(attr, callback);
                         });
                     });
