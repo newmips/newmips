@@ -531,14 +531,17 @@ function deleteTab(attr, callback) {
                 "property": "name_data_entity",
                 "value": target
             });
-            database.dropFKDataField(attr, function(err, info){
+            database.dropFKDataField(attr, function(err, infoDatabase){
                 if (err)
                     return callback(err, null);
 
-                db_field.deleteDataField(attr, function(err, info) {
+                db_field.deleteDataField(attr, function(err, infoDB) {
                     if (err)
                         return callback(err, null);
-                    callback(null, info);
+
+                    var infoDesigner = {};
+                    infoDesigner.message = "Tab "+attr.options[0].value+" deleted.";
+                    callback(null, infoDesigner);
                 });
             });
         });
@@ -582,6 +585,7 @@ function deleteDataField(attr, callback) {
                     "value": name_data_entity
                 });
                 var dropFunction = infoStructure.isConstraint ? 'dropFKDataField' : 'dropDataField';
+                console.log(dropFunction);
                 database[dropFunction](attr, function(err, info) {
                     if (err)
                         return callback(err, null);

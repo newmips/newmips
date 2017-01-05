@@ -227,7 +227,7 @@ $(document).ready(function() {
                 editorContent[ajaxData.path] = ajaxData.content;
                 editorSaveContent[ajaxData.path] = ajaxData.content;
                 $("ul.nav.nav-tabs#editor-navtabs li.active").removeClass("modified");
-                toastr.success("Le fichier à bien été mis à jour !");
+                toastr.success("Le fichier a bien été mis à jour !");
                 $("#update-file").removeAttr("disabled");
             },
             error: function(error) {
