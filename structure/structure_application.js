@@ -22,9 +22,16 @@ exports.setupApplication = function(attr, callback) {
             return callback(err, null);
         }
 
+        /* Save an instruction history in the history script in workspace folder */
+        var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
+        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+        historyScript += "create application "+name_application;
+        historyScript += "\ncreate module home\n";
+        fs.writeFileSync(historyScriptPath, historyScript);
+
         // *** Update translation fileFR ***
-        fileFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-        dataFR = require(fileFR);
+        var fileFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
+        var dataFR = require(fileFR);
         dataFR.app.name = name_application;
 
         fs.writeFile(fileFR, JSON.stringify(dataFR, null, 2), function(err) {
@@ -34,8 +41,8 @@ exports.setupApplication = function(attr, callback) {
                 return callback(err, null);
             }
 
-            fileEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
-            dataEN = require(fileEN);
+            var fileEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
+            var dataEN = require(fileEN);
             dataEN.app.name = name_application;
 
             fs.writeFile(fileEN, JSON.stringify(dataEN, null, 2), function(err) {
