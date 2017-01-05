@@ -1025,14 +1025,17 @@ exports.deleteDataField = function(attr, callback) {
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var dataToWrite = require(jsonPath);
+    console.log(dataToWrite);
     for (var i = 0; i < dataToWrite.length; i++) {
+    	console.log(dataToWrite[i].as);
+    	console.log(name_data_field);
         if (dataToWrite[i].as.toLowerCase() == name_data_field) {
             if (dataToWrite[i].relation != 'belongsTo')
                 return callback(name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction', null);
 		    // Modify the options.json file
 		    info.fieldToDrop = dataToWrite[i].foreignKey;
 		    info.isConstraint = true;
-            dataToWrite = dataToWrite.splice(i+1, 1);
+            dataToWrite = dataToWrite.splice(i, 1);
             isInOptions = true;
             break;
         }
@@ -1086,8 +1089,8 @@ exports.deleteDataField = function(attr, callback) {
 }
 
 exports.deleteTab = function(attr, callback) {
-    var tabName = attr.options[0].value;
-    var name_data_entity = attr.name_data_entity;
+    var tabName = attr.options[0].value.toLowerCase();
+    var name_data_entity = attr.name_data_entity.toLowerCase();
     var id_data_entity = attr.id_data_entity;
     var id_application = attr.id_application;
 
@@ -1095,22 +1098,28 @@ exports.deleteTab = function(attr, callback) {
     var options = require(jsonPath);
     var found = false; var option;
     for (var i = 0; i < options.length; i++) {
-    	if (options[i].as !== tabName)
+    	if (options[i].as.toLowerCase() !== tabName)
     		continue;
-    	if (options[i].relation !== 'hasMany')
-    		return callback(tabName+ " isn't a `tab`. You might want to use `delete field` instruction", null);
+    	if (options[i].relation !== 'hasMany'){
+    		var err = new Error();
+    		err.message = tabName+ " isn't a `tab`. You might want to use `delete field` instruction";
+    		return callback(err, null);
+    	}
     	option = options[i];
     	options = options.splice(i+1, 1);
     	found = true;
     	break;
     }
-    if (!found)
-    	return callback("Unable to find "+tabName+" tab", null);
+    if (!found){
+    	var err = new Error();
+    	err.message = "Unable to find "+tabName+" tab";
+    	return callback(err, null);
+    }
     var writeStream = fs.createWriteStream(jsonPath);
 	writeStream.write(JSON.stringify(options, null, 4));
 	writeStream.end();
 	writeStream.on('finish', function() {
-		var showFile = __dirname+'/../workspace/'+attr.id_application+'/views/'+name_data_entity.toLowerCase()+'/show_fields.dust';
+		var showFile = __dirname+'/../workspace/'+attr.id_application+'/views/'+name_data_entity+'/show_fields.dust';
 		domHelper.read(showFile).then(function($) {
 			// Remove tab (<li>)
 			$("#"+tabName+"-click").parents('li').remove();
