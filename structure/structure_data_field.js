@@ -1025,24 +1025,24 @@ exports.deleteDataField = function(attr, callback) {
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var dataToWrite = require(jsonPath);
-    console.log(dataToWrite);
     for (var i = 0; i < dataToWrite.length; i++) {
-    	console.log(dataToWrite[i].as);
-    	console.log(name_data_field);
         if (dataToWrite[i].as.toLowerCase() == name_data_field) {
-            if (dataToWrite[i].relation != 'belongsTo')
-                return callback(name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction', null);
+            if (dataToWrite[i].relation != 'belongsTo'){
+            	var err = new Error();
+            	err.message = name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction.';
+                return callback(err, null);
+            }
 		    // Modify the options.json file
 		    info.fieldToDrop = dataToWrite[i].foreignKey;
 		    info.isConstraint = true;
-            dataToWrite = dataToWrite.splice(i, 1);
+            dataToWrite.splice(i, 1);
             isInOptions = true;
             break;
         }
     }
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
-	    jsonPath = __dirname + '/../workspace/' + id_application + '/models/attributes/'+name_data_entity+'.json';
+	    jsonPath = __dirname+'/../workspace/'+id_application+'/models/attributes/'+name_data_entity+'.json';
 	    dataToWrite = require(jsonPath);
 	    dataToWrite[name_data_field] = undefined;
 	    info.fieldToDrop = name_data_field;
@@ -1055,7 +1055,7 @@ exports.deleteDataField = function(attr, callback) {
 	writeStream.end();
 	writeStream.on('finish', function() {
 		// Remove field from create/update/show views files
-		var viewsPath = __dirname + '/../workspace/' + id_application + '/views/'+name_data_entity+'/';
+		var viewsPath = __dirname+'/../workspace/'+id_application+'/views/'+name_data_entity+'/';
 		var fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
 		var promises = [];
 		for (var i = 0; i < fieldsFiles.length; i++)
@@ -1093,20 +1093,27 @@ exports.deleteTab = function(attr, callback) {
     var name_data_entity = attr.name_data_entity.toLowerCase();
     var id_data_entity = attr.id_data_entity;
     var id_application = attr.id_application;
+    var target;
 
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var options = require(jsonPath);
-    var found = false; var option;
+    var found = false;
+    var option;
+
     for (var i = 0; i < options.length; i++) {
     	if (options[i].as.toLowerCase() !== tabName)
     		continue;
-    	if (options[i].relation !== 'hasMany'){
+    	/*if (options[i].relation !== 'hasMany'){
     		var err = new Error();
-    		err.message = tabName+ " isn't a `tab`. You might want to use `delete field` instruction";
+    		err.message = tabName+ " isn't a `tab`. You might want to use `delete field` instruction.";
     		return callback(err, null);
-    	}
+    	}*/
     	option = options[i];
-    	options = options.splice(i+1, 1);
+    	if (options[i].relation == 'hasMany')
+    		target = option.target;
+    	else
+    		target = name_data_entity;
+    	options.splice(i, 1);
     	found = true;
     	break;
     }
@@ -1127,8 +1134,12 @@ exports.deleteTab = function(attr, callback) {
 			$("#"+tabName).remove();
 
 			domHelper.write(showFile, $).then(function() {
-				callback(null, option.foreignKey, option.target);
-			})
-		})
+				callback(null, option.foreignKey, target);
+			}).catch(function(err){
+				callback(err, null);
+			});
+		}).catch(function(err){
+			callback(err, null);
+		});
 	});
 }
