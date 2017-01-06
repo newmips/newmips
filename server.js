@@ -20,6 +20,7 @@ var language = require('./services/language');
 var extend = require('util')._extend;
 var https = require('https');
 var fs = require('fs');
+var helper = require('./utils/helpers');
 
 
 // configuration ===============================================================
@@ -99,7 +100,15 @@ app.use(function(req, res, next) {
 	        locals.toastr = req.session.toastr;
 	        req.session.toastr = [];
         }
-        render.call(res, view, locals, cb);
+        helper.getNbInstruction(function(totalInstruction){
+        	// Get nbInstruction
+            locals.cptInstruction = totalInstruction;
+            // Get limit instruction
+            locals.limitInstruction = globalConf.limitInstruction;
+            // Pourcent for progress bar
+            locals.pourcentInstruction = (locals.cptInstruction*100)/locals.limitInstruction;
+			render.call(res, view, locals, cb);
+		});
     };
     next();
 });

@@ -309,7 +309,7 @@ exports.getNameDataEntityById = function(id_data_entity, callback) {
 
 	if (typeof(id_data_entity) !== 'number') {
 		var err = new Error();
-		err.message = "ID data entity is not defined.";
+		err.message = "ID data entity is not defined. You should select or create a data entity before.";
 		return callback(err, null);
 	}
 

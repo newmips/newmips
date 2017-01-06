@@ -1,4 +1,23 @@
 var fs = require('fs');
+//Sequelize
+var models = require('../models/');
+
+function getNbInstruction(callback) {
+    models.Project.findAndCountAll().then(function(projects) {
+        models.Application.findAndCountAll().then(function(applications) {
+            models.Module.findAndCountAll().then(function(modules) {
+                models.DataEntity.findAndCountAll().then(function(dataEntities) {
+                    models.Component.findAndCountAll().then(function(components) {
+                        models.DataField.findAndCountAll().then(function(dataFields) {
+                            var totalInstruction = projects.count + applications.count + modules.count + dataEntities.count + components.count + dataFields.count;
+                            callback(totalInstruction);
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
 
 function rmdirSyncRecursive(path) {
     if( fs.existsSync(path) ) {
@@ -67,5 +86,6 @@ module.exports = {
         }
     },
     rmdirSyncRecursive: rmdirSyncRecursive,
-    readdirSyncRecursive: readdirSyncRecursive
+    readdirSyncRecursive: readdirSyncRecursive,
+    getNbInstruction: getNbInstruction
 }

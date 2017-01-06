@@ -57,7 +57,7 @@ exports.createNewComponentOnModule = function(attr, callback) {
         if (typeof options !== 'undefined' && options && id_module != 0) {
 
             models.Component.create({
-                name: options.name,
+                name: options.component,
                 id_module: id_module,
                 version: version
             }).then(function(created_component) {

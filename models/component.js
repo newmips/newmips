@@ -16,12 +16,14 @@ module.exports = function(sequelize, DataTypes) {
 				Component.belongsTo(models.DataEntity, {
                     foreignKey: {
                         name: 'id_data_entity'
-                    }
+                    },
+                    onDelete: 'cascade'
                 });
                 Component.belongsTo(models.Module, {
                     foreignKey: {
                         name: 'id_module'
-                    }
+                    },
+                    onDelete: 'cascade'
                 });
 			}
 		},

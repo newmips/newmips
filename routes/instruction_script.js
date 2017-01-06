@@ -35,6 +35,7 @@ function execute(req, instruction) {
                     scriptData[userId].answers.unshift(instruction + " :<br>" + err + "<br><br>");
                     reject();
                 } else {
+
                     if ((attr["function"] == "createNewProject") || (attr["function"] == "selectProject")) {
                         scriptData[userId].ids.id_project = info.insertId;
                         scriptData[userId].ids.id_application = null;

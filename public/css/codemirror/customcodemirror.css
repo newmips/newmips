@@ -1,0 +1,32 @@
+.CodeMirror {
+	border: 1px solid #d5d5d5;
+	height: 600px;
+}
+.cm-trailingspace {
+	background-color: red;
+}
+.cm-dust {
+	color: #0ca;
+}
+.CodeMirror-fullscreen {
+	z-index: 1050;
+}
+.close-tab{
+	visibility: hidden;
+}
+.close-tab:hover{
+	color: red;
+	cursor: pointer;
+}
+li.load-file:hover a .close-tab{
+	visibility: visible;
+}
+#editor-navtabs li.active{
+	border-top-color: #555;
+}
+#editor-navtabs li.modified{
+	border-top-color: #F5900E;
+}
+#editor-navtabs li a{
+	color: #555;
+}

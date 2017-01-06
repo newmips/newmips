@@ -107,6 +107,7 @@ exports.deleteProject = function(attr, callback) {
             db_project.deleteProject(attr, function(err, info) {
                 if (err)
                     return callback(err, null);
+
                 callback(null, info);
             });
         });
@@ -444,7 +445,7 @@ function deleteDataEntity(attr, callback) {
                         db_entity.deleteDataEntity(attr, function(err, infoDB) {
                             if (err)
                                 return callback(err);
-                            structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, function() {
+                            structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, function(){
                                 callback(null, infoDB);
                             });
                         });
@@ -460,7 +461,8 @@ exports.deleteDataEntity = deleteDataEntity;
 /* ------------------------- DataField -------------------------- */
 /* --------------------------------------------------------------- */
 exports.createNewDataField = function(attr, callback) {
-    db_field.createNewDataField(attr, function(err, info) {
+    // Get active data entity name
+    db_entity.getNameDataEntityById(attr['id_data_entity'], function(err, name_data_entity) {
         if (err) {
             callback(err, null);
         } else {
@@ -470,22 +472,21 @@ exports.createNewDataField = function(attr, callback) {
                 if (err) {
                     callback(err, null);
                 } else {
-                    json = {
+                    var jsonModule = {
                         "property": "name_module",
                         "value": name_module
                     };
-                    attr['options'].push(json);
+                    attr['options'].push(jsonModule);
 
-                    // Get active data entity name
-                    db_entity.getNameDataEntityById(attr['id_data_entity'], function(err, name_data_entity) {
+                    db_field.createNewDataField(attr, function(err, info) {
                         if (err) {
                             callback(err, null);
                         } else {
-                            json = {
+                            var jsonEntity = {
                                 "property": "name_data_entity",
                                 "value": name_data_entity
                             };
-                            attr['options'].push(json);
+                            attr['options'].push(jsonEntity);
 
                             // *** 1 - Initialize variables according to options ***
                             options = attr['options'];
@@ -593,6 +594,7 @@ function deleteDataField(attr, callback) {
                     db_field.deleteDataField(attr, function(err, infoDB) {
                         if (err)
                             return callback(err, null);
+
                         callback(null, infoDB);
                     });
                 });
@@ -1182,6 +1184,7 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                                 structure_component.newLocalFileStorage(attr, function(err){
                                     if(err)
                                         return callback(err, null);
+
                                     callback(null, info);
                                 });
                             });
@@ -1220,6 +1223,7 @@ exports.createNewComponentContactForm = function(attr, callback) {
                             structure_component.newContactForm(attr, function(err){
                                 if(err)
                                     return callback(err, null);
+
                                 callback(null, info);
                             });
                         });
