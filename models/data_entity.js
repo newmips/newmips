@@ -19,7 +19,8 @@ module.exports = function(sequelize, DataTypes) {
 				DataEntity.belongsTo(models.Module, {
                     foreignKey: {
                         name: 'id_module'
-                    }
+                    },
+                    onDelete: 'cascade'
                 });
                 DataEntity.hasMany(models.DataField, {
                     foreignKey: {

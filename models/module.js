@@ -16,9 +16,15 @@ module.exports = function(sequelize, DataTypes) {
 				Module.belongsTo(models.Application, {
                     foreignKey: {
                         name: 'id_application'
-                    }
+                    },
+                    onDelete: 'cascade'
                 });
                 Module.hasMany(models.DataEntity, {
+                    foreignKey: {
+                        name: 'id_module'
+                    }
+                });
+                Module.hasMany(models.Component, {
                     foreignKey: {
                         name: 'id_module'
                     }

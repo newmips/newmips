@@ -4089,3 +4089,54 @@ fieldset[disabled] .btn-vk.active {
   margin-right: 15px;
   border: 2px solid black;
 }
+
+.cptInsctruction{
+  margin-top: 6px;
+  margin-left:-17px;
+}
+
+.right-side > .content-header > .row > .col-header > h1 {
+  margin: 0;
+  font-size: 24px;
+}
+.right-side > .content-header > .row > .col-header > h1 > small {
+  font-size: 15px;
+  display: inline-block;
+  padding-left: 4px;
+  font-weight: 300;
+}
+.right-side > .content-header > .row > .col-header > .breadcrumb {
+  float: right;
+  background: transparent;
+  margin-top: 0px;
+  margin-bottom: 0;
+  font-size: 12px;
+  padding: 7px 5px;
+  top: 15px;
+  right: 10px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.right-side > .content-header > .row > .col-header > .breadcrumb > li > a {
+  color: #444;
+  text-decoration: none;
+}
+.right-side > .content-header > .row > .col-header > .breadcrumb > li > a > .fa,
+.right-side > .content-header > .row > .col-header > .breadcrumb > li > a > .glyphicon,
+.right-side > .content-header > .row > .col-header > .breadcrumb > li > a > .ion {
+  margin-right: 5px;
+}
+.right-side > .content-header > .row > .col-header > .breadcrumb > li + li:before {
+  content: '>\00a0';
+}
+@media screen and (max-width: 767px) {
+  .right-side > .content-header > .row > .col-header > .breadcrumb {
+    position: relative;
+    margin-top: 5px;
+    top: 0;
+    right: 0;
+    float: none;
+    background: #efefef;
+  }
+}

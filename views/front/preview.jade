@@ -1,55 +1,39 @@
 extends ../main_layout
 block header
-	h1
-		| #{__("module.manager")}
-		small #{__("module.module")}
-	ol.breadcrumb
-		li
-			a(href='/default/home')
-				i.fa.fa-home
-				| #{__("module.home")}
-		li.active #{__("module.manager")}
+	.row
+		.col-header.col-xs-4.col-sm-7
+			h1
+				| #{__("module.manager")}
+				small #{__("module.module")}
+		.col-header.col-xs-4.col-sm-3
+			.cptInsctruction
+				if limitInstruction == 0
+					.progress.text-center.active.progress_generate(style="margin-bottom:0px;")
+						.progress-bar.progress-bar-striped.active(role='progressbar', aria-valuenow='100', aria-valuemin='0', aria-valuemax='100', style='width:100%')
+						div(style="font-size: 25px;margin-top:-2px;")
+							b
+								| ∞
+				else
+					.progress.text-center.active.progress_generate(style="margin-bottom:0px;")
+						.progress-bar.progress-bar-striped.active(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
+						div(style="position:absolute;left:45%")
+							b
+								| #{cptInstruction}/#{limitInstruction}
+		.col-header.col-xs-4.col-sm-2
+			ol.breadcrumb
+				li
+					a(href='/default/home')
+						i.fa.fa-home
+						| #{__("module.home")}
+				li.active #{__("module.manager")}
 block custom_css
 	// CodeMirror
 	link(href='/css/codemirror/codemirror.css', rel='stylesheet', type='text/css')
+	link(href='/css/codemirror/customcodemirror.css', rel='stylesheet', type='text/css')
 	// Addons CSS
 	link(href='/js/plugins/codemirror/addon/dialog.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/fullscreen.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/simplescrollbars.css', rel='stylesheet', type='text/css')
-	//Custom css
-	style.
-		.CodeMirror {
-			border: 1px solid #d5d5d5;
-			height: 600px;
-		}
-		.cm-trailingspace {
-			background-color: red;
-		}
-		.cm-dust {
-			color: #0ca;
-		}
-		.CodeMirror-fullscreen {
-			z-index: 1050;
-		}
-		.close-tab{
-			visibility: hidden;
-		}
-		.close-tab:hover{
-			color: red;
-			cursor: pointer;
-		}
-		li.load-file:hover a .close-tab{
-			visibility: visible;
-		}
-		#editor-navtabs li.active{
-			border-top-color: #555;
-		}
-		#editor-navtabs li.modified{
-			border-top-color: #F5900E;
-		}
-		#editor-navtabs li a{
-			color: #555;
-		}
 block content
 	#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 		ul.nav.nav-tabs#primary-navtabs(role="tablist")
@@ -60,7 +44,7 @@ block content
 		.tab-content
 			#preview.tab-pane.fade.in.active
 				.row
-					.col-xs-12.col-md-9
+					.col-xs-12.col-md-8.col-lg-9
 						.row
 							.col-xs-12.connectedSortable
 								.box-body
@@ -68,7 +52,7 @@ block content
 										img.iframe-ratio(src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7")
 										iframe(id="iframe", name="iframe", height="800px", width="600px", src="#{iframe_url}", webkitAllowFullScreen, mozallowfullscreen, allowFullScreen)
 									br
-					.col-xs-12.col-md-3
+					.col-xs-12.col-md-4.col-lg-3
 						// Chat box
 						form(action='/application/preview', method='post')
 							.box.box-solid

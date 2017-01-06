@@ -16,7 +16,8 @@ module.exports = function(sequelize, DataTypes) {
                 Application.belongsTo(models.Project, {
                     foreignKey: {
                         name: 'id_project'
-                    }
+                    },
+                    onDelete: 'cascade'
                 });
                 Application.hasMany(models.Module, {
                     foreignKey: {
