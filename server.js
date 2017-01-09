@@ -21,10 +21,11 @@ var extend = require('util')._extend;
 var https = require('https');
 var fs = require('fs');
 var helper = require('./utils/helpers');
+var logger = require('./utils/logger');
 
+logger.silly("Uesh");
 
 // configuration ===============================================================
-// connect to our database
 
 // pass passport for configuration
 require('./utils/authStrategies');
