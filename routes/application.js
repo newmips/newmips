@@ -5,6 +5,9 @@ var block_access = require('../utils/block_access');
 var multer = require('multer');
 var moment = require('moment');
 
+// Winston logger
+var logger = require('../utils/logger');
+
 // Process spawn
 // var spawn = require('cross-spawn');
 var process_server = new Array();
@@ -237,10 +240,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         designer[attr.function](attr, function(err, info) {
 
             if (err) {
-                // error handling code goes here
+                // Error handling code goes here
                 console.log("ERROR : ", err);
-                answer = "Error: " + err.message;
+                var answer = "Error: " + err.message;
                 data.answers = answer + "\n\n" + answers + "\n\n";
+
+                // Winton log file
+                logger.debug(err.message);
 
                 chat.items.push({
                     user: "Newmips",

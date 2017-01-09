@@ -33,6 +33,7 @@
     "passport-local": "~1.0.0",
     "ps-tree": "~1.1.0",
     "request": "~2.74.0",
-    "sequelize": "~3.24.2"
+    "sequelize": "~3.24.2",
+    "winston": "^2.3.0"
   }
 }
