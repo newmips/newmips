@@ -38,8 +38,9 @@
 		"technology": "Environment",
 		"editor": "Editor",
 		"live": "Live",
-		"instruction": "Instructions Script",
+		"instruction": "Instructions",
 		"import": "Import",
+		"settings": "Settings",
 		"editor_content": {
 			"folders": "Folders",
 			"editor": "Editor",
