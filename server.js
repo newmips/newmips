@@ -104,9 +104,9 @@ app.use(function(req, res, next) {
         	// Get nbInstruction
             locals.cptInstruction = totalInstruction;
             // Get limit instruction
-            locals.limitInstruction = globalConf.limitInstruction;
+            //locals.limitInstruction = globalConf.limitInstruction;
             // Pourcent for progress bar
-            locals.pourcentInstruction = (locals.cptInstruction*100)/locals.limitInstruction;
+            locals.pourcentInstruction = (locals.cptInstruction*100)/500;
 			render.call(res, view, locals, cb);
 		});
     };

@@ -7,18 +7,15 @@ block header
 				small #{__("module.module")}
 		.col-header.col-xs-4.col-sm-3
 			.cptInsctruction
-				if limitInstruction == 0
-					.progress.text-center.active.progress_generate(style="margin-bottom:0px;")
-						.progress-bar.progress-bar-striped.active(role='progressbar', aria-valuenow='100', aria-valuemin='0', aria-valuemax='100', style='width:100%')
-						div(style="font-size: 25px;margin-top:-2px;")
-							b
-								| ∞
-				else
 					.progress.text-center.active.progress_generate(style="margin-bottom:0px;")
 						.progress-bar.progress-bar-striped.active(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
 						div(style="position:absolute;left:45%")
-							b
-								| #{cptInstruction}/#{limitInstruction}
+							if cptInstruction > 500
+								b
+									| 500+
+							else
+								b
+									| #{cptInstruction}
 		.col-header.col-xs-4.col-sm-2
 			ol.breadcrumb
 				li
