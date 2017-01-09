@@ -22,7 +22,8 @@ var parser = new jison.Parser(bnf);
 
 // Index
 router.get('/index', block_access.isLoggedIn, function(req, res) {
-    res.render('front/live');
+    var data = {};
+    res.render('front/live', data);
 });
 
 // Index

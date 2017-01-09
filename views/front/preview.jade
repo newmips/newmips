@@ -1,28 +1,33 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-4.col-sm-7
+		.col-header.col-xs-4.col-sm-9
 			h1
 				| #{__("module.manager")}
 				small #{__("module.module")}
-		.col-header.col-xs-4.col-sm-3
-			.cptInsctruction
-					.progress.text-center.active.progress_generate(style="margin-bottom:0px;")
-						.progress-bar.progress-bar-striped.active(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-						div(style="position:absolute;left:45%")
-							if cptInstruction > 500
-								b
-									| 500+
-							else
-								b
-									| #{cptInstruction}
-		.col-header.col-xs-4.col-sm-2
+		.col-header.col-xs-4.col-sm-1
+			.clearfix
+				span.pull-left Instructions
+				small.pull-right
+					if cptInstruction > 300
+						b
+							| 300+
+					else
+						b
+							| #{cptInstruction}
+			.progress.xs(style="margin-bottom:0px;")
+				.progress-bar.progress-bar-striped(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
+		.col-header.col-xs-4.col-sm-1(style="padding:0px;")
 			ol.breadcrumb
 				li
 					a(href='/default/home')
 						i.fa.fa-home
 						| #{__("module.home")}
 				li.active #{__("module.manager")}
+		.col-header.col-xs-4.col-sm-1
+			a.btn.btn-default.pull-right(href='/default/home')
+				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
+				span #{__("button.disconnect")}
 block custom_css
 	// CodeMirror
 	link(href='/css/codemirror/codemirror.css', rel='stylesheet', type='text/css')

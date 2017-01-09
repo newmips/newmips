@@ -18,7 +18,8 @@ module.exports = function(sequelize, DataTypes) {
 				Project.hasMany(models.Application, {
                     foreignKey: {
                         name: 'id_project'
-                    }
+                    },
+                    onDelete: 'cascade'
                 });
 			}
 		},

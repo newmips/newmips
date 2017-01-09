@@ -38,8 +38,9 @@
 		"technology": "Environnement",
 		"editor": "Éditeur",
 		"live": "Live",
-		"instruction": "Instructions Script",
+		"instruction": "Instructions",
 		"import": "Importer",
+		"settings": "Paramètres",
 		"editor_content": {
 			"folders": "Dossiers",
 			"editor": "Éditeur",
@@ -61,7 +62,7 @@
 	},
 	"button": {
 		"profile": "Profil",
-		"disconnect": "Se déconnecter",
+		"disconnect": "Déconnexion",
 		"show": "Afficher",
 		"update": "Modifier",
 		"delete": "Supprimer",
