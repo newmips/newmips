@@ -1,13 +1,21 @@
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
+
+// Datalist
 var filterDataTable = require('../utils/filterDataTable');
 
+// Sequelize
 var models = require('../models/');
 var attributes = require('../models/attributes/ENTITY_NAME');
 var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
+
+// ENUM managment
 var enums = require('../utils/enum.js');
+
+// Winston logger
+var logger = require('../utils/logger');
 
 function error500(err, res) {
     console.error(err);
@@ -37,7 +45,8 @@ router.post('/datalist', block_access.isLoggedIn, function(req, res) {
     filterDataTable("MODEL_NAME", req.body).then(function(data) {
         res.send(data).end();
     }).catch(function(err) {
-        console.error(err);
+        console.log(err);
+        logger.debug(err);
         res.end();
     });
 });
@@ -75,6 +84,7 @@ router.post('/fieldset/:alias/add', block_access.isLoggedIn, function(req, res) 
     models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             var data = {error: 404};
+            logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
@@ -106,6 +116,7 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: [{all: true}]}).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
+            logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
@@ -165,6 +176,7 @@ router.get('/create_form', block_access.isLoggedIn, function(req, res) {
         req.session.toastr = [];
         res.render('ENTITY_NAME/create', data);
     }).catch(function(err){
+        logger.debug(err);
         error500(err, res);
     });
 });
@@ -187,6 +199,7 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
             models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function(association){
                 if (!association) {
                     ENTITY_NAME.destroy();
+                    logger.debug("Not found - create");
                     return error500("Not found", res);
                 }
 
@@ -234,6 +247,7 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
 
         res.redirect(redirect);
     }).catch(function(err){
+        logger.debug(err);
         error500(err, res);
     });
 });
@@ -292,9 +306,11 @@ router.get('/update_form', block_access.isLoggedIn, function(req, res) {
             req.session.toastr = [];
             res.render('ENTITY_NAME/update', data);
         }).catch(function(err){
+            logger.debug(err);
             error500(err, res);
         });
     }).catch(function(err){
+        logger.debug(err);
         error500(err, res);
     });
 });
@@ -308,6 +324,7 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
+            logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
 
@@ -324,9 +341,11 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
 
             res.redirect(redirect);
         }).catch(function(err){
+            logger.debug(err);
             error500(err, res);
         });
     }).catch(function(err){
+        logger.debug(err);
         error500(err, res);
     });
 });
@@ -348,6 +367,7 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
             redirect = '/'+req.body.associationSource+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
         res.redirect(redirect);
     }).catch(function(err){
+        logger.debug(err);
         error500(err, res);
     });
 });
