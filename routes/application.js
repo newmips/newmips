@@ -133,13 +133,6 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
                         data.workspaceFolder = folder;
 
-                        // Get nbInstruction
-                        data.cptInstruction = req.session.cptInstruction;
-                        // Get limit instruction
-                        data.limitInstruction = global.limitInstruction;
-                        // Pourcent for progress bar
-                        data.pourcentInstruction = (data.cptInstruction*100)/data.limitInstruction;
-
                         res.render('front/preview', data);
                     });
                 });
