@@ -23,8 +23,6 @@ var fs = require('fs');
 var helper = require('./utils/helpers');
 var logger = require('./utils/logger');
 
-logger.silly("Uesh");
-
 // configuration ===============================================================
 
 // pass passport for configuration
