@@ -19,6 +19,7 @@ var logger = require('../utils/logger');
 
 function error500(err, res) {
     console.error(err);
+    logger.debug(err);
     var data = {};
     data.error = 500;
     res.render('common/error', data);
@@ -176,7 +177,6 @@ router.get('/create_form', block_access.isLoggedIn, function(req, res) {
         req.session.toastr = [];
         res.render('ENTITY_NAME/create', data);
     }).catch(function(err){
-        logger.debug(err);
         error500(err, res);
     });
 });
@@ -199,7 +199,6 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
             models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function(association){
                 if (!association) {
                     ENTITY_NAME.destroy();
-                    logger.debug("Not found - create");
                     return error500("Not found", res);
                 }
 
@@ -247,7 +246,6 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
 
         res.redirect(redirect);
     }).catch(function(err){
-        logger.debug(err);
         error500(err, res);
     });
 });
@@ -306,11 +304,9 @@ router.get('/update_form', block_access.isLoggedIn, function(req, res) {
             req.session.toastr = [];
             res.render('ENTITY_NAME/update', data);
         }).catch(function(err){
-            logger.debug(err);
             error500(err, res);
         });
     }).catch(function(err){
-        logger.debug(err);
         error500(err, res);
     });
 });
@@ -341,11 +337,9 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
 
             res.redirect(redirect);
         }).catch(function(err){
-            logger.debug(err);
             error500(err, res);
         });
     }).catch(function(err){
-        logger.debug(err);
         error500(err, res);
     });
 });
@@ -367,7 +361,6 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
             redirect = '/'+req.body.associationSource+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
         res.redirect(redirect);
     }).catch(function(err){
-        logger.debug(err);
         error500(err, res);
     });
 });
