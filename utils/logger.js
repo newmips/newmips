@@ -1,7 +1,7 @@
 var winston = require('winston');
 var moment = require('moment');
 
-var tsFormat = () => (moment().format("YYYY-MM-DD HH:mm:ss"));
+var tsFormat = moment().format("YYYY-MM-DD HH:mm:ss");
 
 // Winston logging configuration
 var logger = new (winston.Logger)({
