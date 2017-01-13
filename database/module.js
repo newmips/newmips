@@ -11,14 +11,15 @@ exports.selectModule = function(attr, callback) {
     if (typeof attr !== 'undefined' && attr) {
 
         // Set options variable using the attribute array
-        var options = attr['options'];
+        var options = attr.options;
         var type_option = "";
+        var where = {};
 
         if (typeof options !== 'undefined' && options) {
 
-            if (isNaN(options[0].value)) {
+            if (isNaN(options.value)) {
                 // Value is the name of module
-                var name_module = options[0].value;
+                var name_module = options.value;
                 where = {
                     where: {
                         name: name_module
@@ -33,7 +34,7 @@ exports.selectModule = function(attr, callback) {
                 type_option = "name"
             } else {
                 // Value is the ID of module
-                var id_module = options[0].value;
+                var id_module = options.value;
                 where = {
                     where: {
                         id: id_module
@@ -77,26 +78,18 @@ exports.selectModule = function(attr, callback) {
 exports.createNewModule = function(attr, callback) {
 
     var name_module = "";
-    var id_application = 0;
+    var id_application = -1;
 
-    if(typeof attr !== 'undefined' && attr) {
+    if(typeof attr !== 'undefined' && typeof attr.options !== "undefined" ) {
 
         // Set id_information_system of future application_module according to session value transmitted in attributes
-        id_application = attr['id_application'];
+        id_application = attr.id_application;
 
         // Set options variable using the attribute array
-        var options = attr['options'];
+        var options = attr.options;
+        name_module = options.value;
 
-        if(typeof options !== 'undefined' && options && id_application != 0){
-
-            // Check each options variable to set properties
-            var i = 0;
-            while (i < options.length) {
-                if (typeof options[i] !== 'undefined' && options[i]) {
-                    if (options[i].property == "entity") name_module = options[i].value;
-                }
-                i++;
-            }
+        if(typeof options !== 'undefined' && id_application > 0){
 
             models.Module.create({
                 name: name_module,
@@ -141,15 +134,15 @@ exports.listModule = function(attr, callback) {
             var info = new Array();
             info.message = "List of modules (id | name): <br><ul>";
             if (!modules) {
-                info.message = info.message + "None<br>";
+                info.message += "None<br>";
             } else {
                 i = 0;
                 while (i < modules.length) {
-                    info.message = info.message + "<li>" + modules[i].id + " | " + modules[i].name + "</li>";
+                    info.message += "<li>" + modules[i].id + " | " + modules[i].name + "</li>";
                     i++;
                 }
             }
-            info.message = info.message + "</ul>";
+            info.message += "</ul>";
             info.rows = modules;
             callback(null, info);
         }).catch(function(err) {

@@ -10,44 +10,28 @@ exports.createNewDataField = function(attr, callback) {
 		return callback(err, null);
 	}
 
-	var name = "";
-	var type = "string";
-	var nillable = 0;
-	var min_length = -1;
-	var max_length = -1;
-	var class_object = "";
-	var id = -1;
+	var name_field = "";
+	var type_field = "string";
 	var version = 1;
 
-	if(typeof attr !== 'undefined' && attr){
+	if(typeof attr !== 'undefined' && typeof attr.options !== "undefined"){
 
         // Set id_data_entity of future data_field according to session value transmitted in attributes
-        id_data_entity = attr['id_data_entity'];
+        var id_data_entity = attr.id_data_entity;
 
         // Set options variable using the attribute array
-        options = attr['options'];
+        var options = attr.options;
+        name_field = options.value;
 
-        if (typeof options !== 'undefined' && options && id_data_entity != "") {
+        if(typeof options.type !== "undefined")
+        	type_field = options.type
 
-            // Check each options variable to set properties
-            i = 0;
-            while (i < options.length) {
-            	if (typeof options[i] !== 'undefined' && options[i]) {
-            		if (options[i].property == "entity") name = options[i].value;
-            		if (options[i].property == "name") name = options[i].value;
-            		if (options[i].property == "type") type = options[i].value;
-            		if (options[i].property == "nillable") nillable = options[i].value;
-            		if (options[i].property == "minimum length") min_length = options[i].value;
-            		if (options[i].property == "maximum length") max_length = options[i].value;
-            		if (options[i].property == "class") class_object = options[i].value;
-            	}
-            	i++;
-            }
+        if (typeof options !== 'undefined' && name_field != "" && id_data_entity != "") {
 
             models.DataField.findOne({
             	where: {
             		id_data_entity: id_data_entity,
-            		name: name
+            		name: name_field
             	}
             }).then(function(dataField) {
             	if (dataField) {
@@ -57,18 +41,14 @@ exports.createNewDataField = function(attr, callback) {
             	}
 
             	models.DataField.create({
-            		name: name,
-            		type: type,
-            		nillable: nillable,
-            		min_length: min_length,
-            		max_length: max_length,
-            		class_object: class_object,
+            		name: name_field,
+            		type: type_field,
             		id_data_entity: id_data_entity,
             		version: version
             	}).then(function(dataField) {
             		var info = {
             			insertId: dataField.id,
-            			message: "New data field " + dataField.id + " | " + name + " created."
+            			message: "New data field "+dataField.id+" | "+name_field+" created."
             		};
             		callback(null, info);
             	}).catch(function(err) {
@@ -99,10 +79,6 @@ exports.createNewForeignKey = function(attr, callback) {
 	}
 
 	var name = attr.options.foreignKey;
-	var nillable = 0;
-	var min_length = -1;
-	var max_length = -1;
-	var class_object = "";
 	var version = 1;
 
 	models.DataEntity.findOne({
@@ -122,10 +98,6 @@ exports.createNewForeignKey = function(attr, callback) {
 		models.DataField.create({
 			name: name,
 			type: "INTEGER",
-			nillable: nillable,
-			min_length: min_length,
-			max_length: max_length,
-			class_object: class_object,
 			version: version,
 			id_data_entity: dataEntity.id
 		}).then(function(created_foreignKey) {
@@ -148,12 +120,9 @@ exports.deleteDataField = function(attr, callback) {
 		return callback(err, null);
 	}
 
-	var id_data_entity = attr['id_data_entity'];
-	options = attr['options'];
-
-	for (var i = 0; i < options.length; i++)
-		if (options[i].property == 'entity')
-			name_data_field = options[i].value;
+	var id_data_entity = attr.id_data_entity;
+	var options = attr.options;
+	var name_data_field = options.value;
 
 		models.DataField.destroy({
 			where: {
@@ -182,18 +151,26 @@ exports.listDataField = function(attr, callback) {
 			order: 'id DESC',
 			include: [{
 				model: models.DataEntity,
-				where: {
-					id: attr.id_data_entity
-				}
+				include: [{
+					model: models.Module,
+					include: [{
+						model: models.Application,
+						where: {
+							id: attr.id_application
+						}
+					}]
+				}]
 			}]
 		}).then(function(dataFields) {
-			var info = new Array();
-			info.message = "List of data fields (id | name): \n";
+
+			var info = {};
+			info.message = "List of data fields (module | entity | id field | name field): <br><ul>";
 			if (!dataFields)
 				info.message = info.message + "None\n";
 			else
-				for (var i = 0; i < dataFields.length; i++)
-					info.message += dataFields[i].id + " | " + dataFields[i].name + "\n";
+				for (var i=0; i<dataFields.length; i++)
+					info.message += "<li>" + dataFields[i].DataEntity.Module.name + " | " + dataFields[i].DataEntity.name + " | " + dataFields[i].id + " | " + dataFields[i].name + "</li>";
+				info.message += "</ul>";
 				info.rows = dataFields;
 				callback(null, info);
 			}).catch(function(err){
@@ -246,7 +223,6 @@ exports.getTypeDataFieldByEntityIdAndFieldName = function(id_data_entity, name_d
 			err.message = "No data field found";
 			return callback(err, null);
 		}
-
 		callback(null, dataField.type);
 	}).catch(function(err){
 		callback(err, null);

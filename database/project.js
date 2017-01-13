@@ -11,13 +11,14 @@ exports.selectProject = function(attr, callback) {
     if (typeof attr !== 'undefined' && attr) {
 
         // Set options variable using the attribute array
-        options = attr['options'];
+        var options = attr.options;
+        var type_option;
 
         if (typeof options !== 'undefined' && options) {
 
-            if (isNaN(options[0].value)) {
+            if (isNaN(options.value)) {
                 // Value is the name of project
-                name_project = options[0].value;
+                var name_project = options.value;
                 where = {
                     where: {
                         name: name_project
@@ -26,7 +27,7 @@ exports.selectProject = function(attr, callback) {
                 type_option = "name"
             } else {
                 // Value is the ID of project
-                id_project = options[0].value;
+                var id_project = options.value;
                 where = {
                     where: {
                         id: id_project
@@ -42,7 +43,7 @@ exports.selectProject = function(attr, callback) {
                     return callback(err, null);
                 }
 
-                info = {
+                var info = {
                     "insertId": project.id,
                     "message": "Project " + project.id + " - " + project.name + " selected."
                 };
@@ -64,27 +65,16 @@ exports.createNewProject = function(attr, callback) {
 
     var name_project = "";
     var description_project = "";
-    var type_project = "TARGET";
+    var type_project = "";
     var version = 1;
 
-    if (typeof attr !== 'undefined' && attr) {
+    if (typeof attr !== 'undefined' && typeof attr.options !== "undefined") {
 
         // Set options variable using the attribute array
-        options = attr['options'];
+        var options = attr.options;
+        name_project = options.value;
 
-        if (typeof options !== 'undefined' && options) {
-
-            // Check each options variable to set properties
-            i = 0;
-            while (i < options.length) {
-
-                if (typeof options[i] !== 'undefined' && options[i]) {
-                    if (options[i].property == "entity") name_project = options[i].value;
-                    if (options[i].property == "description") description_project = options[i].value;
-                    if (options[i].property == "type") type_project = options[i].value;
-                }
-                i++;
-            }
+        if (typeof name_project !== 'undefined' && name_project != "") {
 
             models.Project.create({
                 name: name_project,
@@ -96,7 +86,6 @@ exports.createNewProject = function(attr, callback) {
                     insertId: created_project.id,
                     message: "New project " + created_project.id + " created."
                 }
-
                 callback(null, info);
             }).catch(function(err) {
                 callback(err, null);
@@ -128,7 +117,7 @@ exports.listProject = function(attr, callback) {
                 i++;
             }
         }
-        info.message = info.message + "</ul>";
+        info.message += "</ul>";
         info.rows = projects;
         callback(null, info);
 
@@ -141,18 +130,13 @@ exports.listProject = function(attr, callback) {
 exports.deleteProject = function(attr, callback) {
 
     try {
-        var options = attr['options'];
-        // Check each options variable to set properties
-        var project;
-        var i = 0;
-        for (var i = 0; i < options.length; i++)
-            if (typeof options[i] !== 'undefined' && options[i])
-                if (options[i].property == "entity")
-                    project = options[i].value;
+        var options = attr.options;
+        var project = attr.options.value;
 
         var where = {
             where: {}
         };
+
         if(isNaN(project)){
             where.where = {
                 name: project

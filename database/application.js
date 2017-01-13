@@ -11,15 +11,15 @@ exports.selectApplication = function(attr, callback) {
     if (typeof attr !== 'undefined' && attr) {
 
         // Set options variable using the attribute array
-        var options = attr['options'];
+        var options = attr.options;
         var where = {};
         var type_option;
 
         if (typeof options !== 'undefined' && options) {
 
-            if (isNaN(options[0].value)) {
+            if (isNaN(options.value)) {
                 // Value is the name of application
-                name_application = options[0].value;
+                var name_application = options.value;
                 where = {
                     where: {
                         name: name_application
@@ -29,7 +29,7 @@ exports.selectApplication = function(attr, callback) {
             }
             else{
                 // Value is the ID of application
-                var id_application = options[0].value;
+                var id_application = options.value;
                 where = {
                     where: {
                         id: id_application
@@ -70,24 +70,16 @@ exports.createNewApplication = function(attr, callback) {
     var id_project = -1;
     var version = 1;
 
-    if (typeof attr !== 'undefined' && attr) {
+    if (typeof attr !== 'undefined' && typeof attr.options !== "undefined") {
 
         // Set id_project of future application according to session value transmitted in attributes
-        id_project = attr['id_project'];
+        id_project = attr.id_project;
 
         // Set options variable using the attribute array
-        var options = attr['options'];
+        var options = attr.options;
+        name_application = options.value;
 
-        if (typeof options !== 'undefined' && options && id_project != "") {
-
-            // Check each options variable to set properties
-            i = 0;
-            while (i < options.length) {
-                if (typeof options[i] !== 'undefined' && options[i]) {
-                    if (options[i].property == "entity") name_application = options[i].value;
-                }
-                i++;
-            }
+        if (typeof name_application !== 'undefined' && name_application != "" && id_project != "") {
 
             models.Application.create({
                 name: name_application,
@@ -142,7 +134,7 @@ exports.listApplication = function(attr, callback) {
                 i++;
             }
         }
-        info.message = info.message + "</ul>";
+        info.message += "</ul>";
         info.rows = applications;
         callback(null, info);
     }).catch(function(err){

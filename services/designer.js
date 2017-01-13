@@ -97,7 +97,7 @@ exports.listProject = function(attr, callback) {
 }
 
 exports.deleteProject = function(attr, callback) {
-    db_project.getProjectApplications(attr.options[0].value, function(err, applications) {
+    db_project.getProjectApplications(attr.options.value, function(err, applications) {
         if (err)
             return callback(err, null);
         var appIds = [];
@@ -134,7 +134,7 @@ exports.createNewApplication = function(attr, callback) {
             callback(err, null);
         } else {
             // Structure application
-            attr['id_application'] = info.insertId;
+            attr.id_application = info.insertId;
             structure_application.setupApplication(attr, function() {
                 callback(null, info);
             });
@@ -174,14 +174,14 @@ function deleteApplication(attr, callback) {
             });
         });
     }
-    if (isNaN(attr.options[0].value))
-        db_application.getIdApplicationByName(attr.options[0].value, function(err, id_application){
+    if (isNaN(attr.options.value))
+        db_application.getIdApplicationByName(attr.options.value, function(err, id_application){
             if(err)
                 return callback(err, null);
             doDelete(id_application);
         });
     else{
-        doDelete(attr.options[0].value);
+        doDelete(attr.options.value);
     }
 }
 exports.deleteApplication = deleteApplication;
@@ -190,9 +190,10 @@ function deleteApplicationRecursive(appIds, idx) {
     return new Promise(function(resolve, reject) {
         if (!appIds[idx])
             return resolve();
-        var attr = {
+        /*var attr = {
             options: [{property: 'entity', value: appIds[idx]}]
-        }
+        }*/
+        attr.options.value = appIds[idx];
         deleteApplication(attr, function() {
             return (appIds[++idx]) ? resolve(deleteApplicationRecursive(appIds, idx)) : resolve();
         });
@@ -217,7 +218,7 @@ exports.createNewModule = function(attr, callback) {
         if (err) {
             callback(err, null);
         } else {
-            infoDB.moduleName = attr.options[0].value;
+            infoDB.moduleName = attr.options.value;
             // Retrieve list of application modules to update them all
             db_module.listModuleByApplication(attr, function(err, modules) {
                 if (err) {
@@ -248,7 +249,7 @@ exports.listModule = function(attr, callback) {
 }
 
 exports.deleteModule = function(attr, callback) {
-    var moduleName = attr.options[0].value;
+    var moduleName = attr.options.value;
     if (moduleName.toLowerCase() == 'home'){
         var err = new Error();
         err.message = "You can't delete the home module.";
@@ -264,7 +265,9 @@ exports.deleteModule = function(attr, callback) {
                 id_application: attr.id_application,
                 id_module: attr.id_module,
                 id_project: attr.id_project,
-                options: [{value: entities[i].name}]
+                options: {
+                    value: entities[i].name
+                }
             }
 
             promises.push(new Promise(function(resolve, reject) {
@@ -312,16 +315,12 @@ exports.selectDataEntity = function(attr, callback) {
 exports.createNewDataEntity = function(attr, callback) {
 
     // Get active application module name
-    db_module.getNameModuleById(attr['id_module'], function(err, name_module) {
+    db_module.getNameModuleById(attr.id_module, function(err, name_module) {
         if(err){
             callback(err, null);
         } else {
-            var json = {
-                "property": "name_module",
-                "value": name_module
-            };
-            attr['options'].push(json);
 
+            attr.name_module = name_module;
             // Generator database
             db_entity.createNewDataEntity(attr, function(err, infoDB) {
                 if(err){
@@ -348,7 +347,8 @@ exports.listDataEntity = function(attr, callback) {
 
 function deleteDataEntity(attr, callback) {
     var id_application = attr.id_application;
-    var name_data_entity = attr.options[0].value.toLowerCase();
+    var name_data_entity = attr.options.value.toLowerCase();
+
     var name_module = "";
 
     var promises = [];
@@ -363,10 +363,9 @@ function deleteDataEntity(attr, callback) {
             for (var i = 0; i < entityOptions.length; i++) {
                 if (entityOptions[i].relation == 'hasMany') {
                     var tmpAttr = {
-                        options: [{
-                            property: 'entity',
+                        options: {
                             value: entityOptions[i].as
-                        }],
+                        },
                         id_project: attr.id_project,
                         id_application: attr.id_application,
                         id_module: attr.id_module,
@@ -392,10 +391,9 @@ function deleteDataEntity(attr, callback) {
                         continue;
                     if (options[i].relation == 'hasMany') {
                         var tmpAttr = {
-                            options: [{
-                                property: 'entity',
+                            options: {
                                 value: options[i].as
-                            }],
+                            },
                             id_project: attr.id_project,
                             id_application: attr.id_application,
                             id_module: attr.id_module
@@ -412,10 +410,9 @@ function deleteDataEntity(attr, callback) {
                         }));
                     } else if (options[i].relation == 'belongsTo') {
                         var tmpAttr = {
-                            options: [{
-                                property: 'entity',
+                            options: {
                                 value: options[i].as
-                            }],
+                            },
                             id_project: attr.id_project,
                             id_application: attr.id_application,
                             id_module: attr.id_module
@@ -462,43 +459,24 @@ exports.deleteDataEntity = deleteDataEntity;
 /* --------------------------------------------------------------- */
 exports.createNewDataField = function(attr, callback) {
     // Get active data entity name
-    db_entity.getNameDataEntityById(attr['id_data_entity'], function(err, name_data_entity) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
         if (err) {
             callback(err, null);
         } else {
 
             // Get active application module name
-            db_module.getNameModuleById(attr['id_module'], function(err, name_module) {
+            db_module.getNameModuleById(attr.id_module, function(err, name_module) {
                 if (err) {
                     callback(err, null);
                 } else {
-                    var jsonModule = {
-                        "property": "name_module",
-                        "value": name_module
-                    };
-                    attr['options'].push(jsonModule);
 
+                    attr.name_module = name_module;
                     db_field.createNewDataField(attr, function(err, info) {
                         if (err) {
                             callback(err, null);
                         } else {
-                            var jsonEntity = {
-                                "property": "name_data_entity",
-                                "value": name_data_entity
-                            };
-                            attr['options'].push(jsonEntity);
 
-                            // *** 1 - Initialize variables according to options ***
-                            options = attr['options'];
-                            i = 0;
-                            type_data_field = "";
-                            while (i < options.length) {
-                                if (options[i].property == "type") type_data_field = options[i].value;
-                                i++;
-                            }
-
-                            attr.options.push({property: 'type', value: type_data_field});
-
+                            attr.name_data_entity = name_data_entity;
                             structure_data_field.setupDataField(attr, function(err, data) {
                                 callback(null, info);
                             });
@@ -528,10 +506,7 @@ function deleteTab(attr, callback) {
                 return callback(err, null);
 
             attr.fieldToDrop = fk;
-            attr.options.push({
-                "property": "name_data_entity",
-                "value": target
-            });
+            attr.name_data_entity = target;
             database.dropFKDataField(attr, function(err, infoDatabase){
                 if (err)
                     return callback(err, null);
@@ -541,7 +516,7 @@ function deleteTab(attr, callback) {
                         return callback(err, null);
 
                     var infoDesigner = {};
-                    infoDesigner.message = "Tab "+attr.options[0].value+" deleted.";
+                    infoDesigner.message = "Tab "+attr.options.value+" deleted.";
                     callback(null, infoDesigner);
                 });
             });
@@ -559,19 +534,11 @@ function deleteDataField(attr, callback) {
             return callback(err, null);
 
         // Set name of data entity in attributes
-        var property = "name_data_entity";
-        var value = name_data_entity;
-        var json = {
-            "property": property,
-            "value": value
-        };
-        attr.options.push(json);
+        attr.name_data_entity = name_data_entity;
 
         // Get field name
         var options = attr.options;
-        var name_data_field = "";
-        for (var i = 0; i < options.length; i++)
-            if (options[i].property == "entity") name_data_field = options[i].value;
+        var name_data_field = options.value;
 
         try {
             // Delete field from views and models
@@ -581,10 +548,7 @@ function deleteDataField(attr, callback) {
 
                 // Alter database
                 attr.fieldToDrop = infoStructure.fieldToDrop;
-                attr.options.push({
-                    "property": "name_data_entity",
-                    "value": name_data_entity
-                });
+                attr.name_data_entity = name_data_entity;
                 var dropFunction = infoStructure.isConstraint ? 'dropFKDataField' : 'dropDataField';
                 database[dropFunction](attr, function(err, info) {
                     if (err)
@@ -1103,7 +1067,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                 var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
                 var optionsSourceObject = JSON.parse(optionsSourceFile);
 
-                for (var i = 0; i < optionsSourceObject.length; i++) {
+                for (var i=0; i < optionsSourceObject.length; i++) {
                     if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                         if (optionsSourceObject[i].relation == "hasMany") {
                             var err = new Error();
@@ -1120,7 +1084,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                 // Vérification si une relation existe déjà de la target VERS la source
                 var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
                 var optionsObject = JSON.parse(optionsFile);
-                for (var i = 0; i < optionsObject.length; i++) {
+                for (var i=0; i < optionsObject.length; i++) {
                     if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany"){
                         var err = new Error();
                         err.message = 'Bad Entity association, you can\'t set circular \'belongs to\'';

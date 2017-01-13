@@ -1,1 +1,7 @@
 
+{"level":"debug","message":"ID data entity is not defined. You should select or create a data entity before.","timestamp":"2017-01-12T10:04:55.050Z"}
+{"level":"debug","message":"Entity 'éçàù' already exists","timestamp":"2017-01-12T10:51:03.210Z"}
+{"level":"debug","message":"Entity 'éçàù' already exists","timestamp":"2017-01-12T10:53:54.101Z"}
+{"level":"debug","message":"Entity 'éçàù' already exists","timestamp":"2017-01-12T10:54:18.786Z"}
+{"level":"debug","message":"Entity 'éçàù' already exists","timestamp":"2017-01-12T12:24:45.112Z"}
+{"level":"debug","message":"type is not defined","timestamp":"2017-01-12T14:54:37.066Z"}

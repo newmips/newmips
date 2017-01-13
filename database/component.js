@@ -122,7 +122,7 @@ exports.getComponentByNameInModule = function(attr, callback) {
 
     if (typeof attr !== 'undefined' && attr) {
         id_module = attr.id_module;
-        options = attr.options;
+        var options = attr.options;
 
         if (typeof options !== 'undefined' && options && id_module != 0) {
 

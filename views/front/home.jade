@@ -105,7 +105,9 @@ block content
 						center
 							a.btn.btn-app(href='/application/list')
 								span.badge.bg-purple #{nb_application}
-								i.fa.fa-briefcase
+								//
+									i.fa.fa-briefcase
+								i.fa.fa-desktop
 								| #{M_("entity.application.plural")}
 
 							a.btn.btn-app(href='/instruction_script/index')
@@ -127,11 +129,15 @@ block content
 block custom_js
 	script.
 		$(function() {
+
+			/* Unable complex caractere for project and application*/
 			$("#project, #application").keyup(function(e) {
-				var reg = new RegExp("[^A-Za-z ]");
+				/*var reg = new RegExp("[^A-Za-z ]");*/
+				var reg = new RegExp("[^A-zÀ-ú]");
 				while (reg.test($(this).val()))
-				      $(this).val($(this).val().substring(0, $(this).val().length-1))
+					$(this).val($(this).val().substring(0, $(this).val().length-1))
 			});
+
 			/* --------------- Initialisation des select --------------- */
 			$("select").select2();
 
@@ -207,5 +213,4 @@ block custom_js
 				$("#new_project").slideUp();
 				$("#existing_project").slideDown();
 			});
-
 		});

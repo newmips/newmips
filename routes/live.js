@@ -79,7 +79,6 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             level: "error"
         }];
         res.redirect('/default/home');
-
     }
     else{
         var data = {
@@ -138,6 +137,7 @@ function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
         req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
         try {
+
             // Instruction to be executed
             var attr = parser.parse(instruction);
 

@@ -23,7 +23,7 @@ exports.help = function(attr, callback) {
     var info = new Array();
 
     if (id_data_entity == null) {
-        info.message = "You are not yet working on any entity... Please select one or create a new data entity using instruction: 'select data entity NameOrIdOfYourEntity' or 'create data entity NameOfYourEntity'";
+        info.message = "You are not yet working on any entity. Please select one or create a new data entity using instruction: 'select data entity NameOrIdOfYourEntity' or 'create data entity NameOfYourEntity'";
     } else {
         info.message = "Please refer to documentation: <a href='http://docs.newmips.com/' target='_blank'>http://docs.newmips.com/</a> to know more about basic instructions";
     }
