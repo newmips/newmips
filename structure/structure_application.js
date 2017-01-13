@@ -5,14 +5,16 @@ var helpers = require('../utils/helpers');
 // Application
 exports.setupApplication = function(attr, callback) {
 
-    var id_application = attr['id_application'];
+    var id_application = attr.id_application;
     var name_application = "";
 
     // Check each options variable to set properties
     var options = attr.options;
-    for (var i = 0;i < options.length; i++)
+    name_application = options.value;
+
+    /*for (var i = 0;i < options.length; i++)
         if (typeof options[i] !== 'undefined' && options[i])
-            if (options[i].property == "entity") name_application = options[i].value;
+            if (options[i].property == "entity") name_application = options[i].value;*/
 
     // *** Copy template folder to new workspace ***
     fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {

@@ -15,8 +15,6 @@
 "select"                return 'SELECT';
 "create"                return 'CREATE';
 "add"                   return 'CREATE';
-// "Create"                return 'CREATE';
-// "Add"                   return 'CREATE';
 "delete"                return 'DELETE';
 "remove"                return 'DELETE';
 "list"                  return 'LIST';
@@ -24,19 +22,31 @@
 
 "project"               return 'ENTITY';
 "projects"              return 'ENTITY';
+"PROJECT"               return 'ENTITY';
+"PROJECTS"              return 'ENTITY';
 
 "module"                return 'ENTITY';
 "modules"               return 'ENTITY';
+"MODULE"                return 'ENTITY';
+"MODULES"               return 'ENTITY';
 
 "application"           return 'ENTITY';
 "applications"          return 'ENTITY';
+"APPLICATION"           return 'ENTITY';
+"APPLICATIONS"          return 'ENTITY';
 
 "tab"                   return 'ENTITY';
+"TAB"                   return 'ENTITY';
 
 "data entity"           return 'ENTITY';
 "data entities"         return 'ENTITY';
 "entity"                return 'ENTITY';
 "entities"              return 'ENTITY';
+
+"DATA ENTITY"           return 'ENTITY';
+"DATA ENTITIES"         return 'ENTITY';
+"ENTITY"                return 'ENTITY';
+"ENTITIES"              return 'ENTITY';
 
 "data field"            return 'ENTITY';
 "datafield"             return 'ENTITY';
@@ -44,8 +54,17 @@
 "field"                 return 'ENTITY';
 "fields"                return 'ENTITY';
 
+"DATA FIELD"            return 'ENTITY';
+"DATAFIELD"             return 'ENTITY';
+"DATA FIELDS"           return 'ENTITY';
+"FIELD"                 return 'ENTITY';
+"FIELDS"                return 'ENTITY';
+
 "component"             return 'COMPONENT';
 "column"                return 'COLUMN';
+
+"COMPONENT"             return 'COMPONENT';
+"COLUMN"                return 'COLUMN';
 
 "with name"             return 'WITH_NAME';
 "with"                  return 'WITH';
@@ -64,6 +83,17 @@
 "has many"              return 'HAS_MANY';
 "preset"                return 'PRESET';
 
+"WITH NAME"             return 'WITH_NAME';
+"WITH"                  return 'WITH';
+"RELATED TO"            return 'RELATED_TO';
+"CALLED"                return 'CALLED';
+"USING"                 return 'USING';
+"AND VALUES"            return 'PROPERTY';
+"FIELDSET"              return 'FIELDSET';
+"SET"                   return 'SET';
+"BELONGS TO"            return 'HAS_ONE';
+"HAS ONE"               return 'HAS_ONE';
+"HAS MANY"              return 'HAS_MANY';
 
 
 /* ---------------------------------------------------- */
@@ -171,74 +201,99 @@ expressions
 instr :
   | CREATE ENTITY STRING
   %{
-      // Preparing Options
-      options = new Array();
 
-      // Set entity name as the first option in options array
-      property = "entity";
       value = $3;
-      // TEST DBL
+      // Supprime les retours à la ligne
       value = value.replace(/\s+/g, '');
-      json = { "property" : property, "value" : value };
-      options.push(json);
 
-      switch ($2) {
+      // Preparing Options
+      options = {
+        value: value
+      };
+
+      switch ($2.toLowerCase()) {
         case "project":
+        case "projet":
         case "un projet":
           return createNewProject(options);
+          break;
 
-        case 'application' :
-        case 'une application' :
+        case 'application':
+        case 'une application':
           return createNewApplication(options);
+          break;
 
-        case 'module' :
-        case 'un module' :
+        case 'module':
+        case 'un module':
           return createNewModule(options);
+          break;
 
-        case 'data entity' :
-        case 'entity' :
+        case 'data entity':
+        case 'entity':
         case 'entité':
         case 'une entité':
         case "entité de données":
         case "une entité de données":
           return createNewDataEntity(options);
+          break;
 
-        case 'data field' :
-        case 'field' :
+        case 'data field':
+        case 'field':
         case "champ de données":
         case "un champ de données":
         case "champ":
         case "un champ":
         case "le champ":
           return createNewDataField(options);
-        default :
+          break;
+
+        default:
           break;
       }
   %}
   | CREATE ENTITY STRING WITH PROPERTY STRING
   %{
-      // Preparing Options
-      options = new Array();
 
-      // Set entity name as the first option in options array
-      property = "entity";
-      value = $6;
-      json = { "property" : property, "value" : value };
-      options.push(json);
-
-      // Set entity name as the first option in options array
-      property = "name";
       value = $3;
-      json = { "property" : property, "value" : value };
-      options.push(json);
+      type = $6;
 
-      property = $5;
-      value = $6;
-      json = { "property" : property, "value" : value };
-      options.push(json);
+      // Preparing Options
+      options = {
+        value: value,
+        type: type
+      };
 
       // Creating entity
-      switch ($2) {
+      switch ($2.toLowerCase()) {
+        case 'data field':
+        case 'field':
+        case "champ de données":
+        case "un champ de données":
+        case "champ":
+        case "un champ":
+        case "le champ":
+          return createNewDataField(options);
+          break;
+        default :
+          break;
+      }
+  %}
+   | CREATE ENTITY STRING WITH PROPERTY STRING PROPERTY plus
+  %{
+
+      value = $3;
+      type = $6;
+
+      // Preparing Options
+      options = {
+        value: value,
+        type: type,
+        allValues: chaine
+      };
+
+      chaine = "";
+
+      switch ($2.toLowerCase()) {
         case 'data field' :
         case 'field' :
         case "champ de données":
@@ -247,6 +302,7 @@ instr :
         case "un champ":
         case "le champ":
           return createNewDataField(options);
+          break;
         default :
           break;
       }
@@ -261,7 +317,7 @@ instr :
         component: component
       }
 
-      switch ($3) {
+      switch ($3.toLowerCase()) {
         case "localfilestorage":
           return createNewComponentLocalFileStorage(options);
         case "contactform":
@@ -284,7 +340,7 @@ instr :
         name: name
       }
 
-      switch ($3) {
+      switch ($3.toLowerCase()) {
         case "localfilestorage":
           return createNewComponentLocalFileStorage(options);
         case "contactus":
@@ -311,7 +367,7 @@ instr :
       }
 
       // Creating entity
-      switch($2) {
+      switch($2.toLowerCase()) {
         case 'data field' :
         case 'field' :
         case "champ de données":
@@ -372,8 +428,7 @@ instr :
         usingField: usingField
       }
 
-      // Creating entity
-      switch($2) {
+      switch($2.toLowerCase()) {
         case 'data field' :
         case 'field' :
         case "champ de données":
@@ -386,51 +441,6 @@ instr :
           break;
       }
   %}
-  // | CREATE ENTITY STRING SET_OF STRING
-  // %{
-  //
-  //     // **** Relationship One to Many ***
-  //
-  //     // Preparing Options
-  //     options = new Array();
-  //
-  //     // Set entity name (same as type) as the first option in options array
-  //     property = "entity";
-  //     value = $5;
-  //     json = { "property" : property, "value" : value };
-  //     options.push(json);
-  //
-  //     // Set name of field
-  //     property = "name";
-  //     value = $3;
-  //     json = { "property" : property, "value" : value };
-  //     options.push(json);
-  //
-  //     // Set type of field
-  //     property = "type";
-  //     value = $5;
-  //     json = { "property" : property, "value" : value };
-  //     options.push(json);
-  //
-  //     property = "cardinality";
-  //     value = "n";
-  //     json = { "property" : property, "value" : value };
-  //     options.push(json);
-  //
-  //    // Creating entity
-  //    switch ($2) {
-  //     case 'data field' :
-  //     case 'field' :
-  //     case "champ de données":
-  //     case "un champ de données":
-  //     case "champ":
-  //     case "un champ":
-  //     case "le champ":
-  //       return createNewDataField(options);
-  //     default :
-  //       break;
-  //     }
-  // %}
   | CREATE ENTITY STRING HAS_ONE STRING
   %{
       // **** Relationship One to One ***
@@ -447,8 +457,7 @@ instr :
         source: source
       }
 
-      // Creating entity
-      switch ($2) {
+      switch ($2.toLowerCase()) {
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -478,8 +487,7 @@ instr :
         as: target
       }
 
-      // Creating entity
-      switch ($1) {
+      switch ($1.toLowerCase()) {
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -513,8 +521,7 @@ instr :
         as: as
       }
 
-      // Creating entity
-      switch($1) {
+      switch($1.toLowerCase()) {
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -557,8 +564,8 @@ instr :
           source: source
         }
       }
-      // Creating entity
-      switch ($2) {
+
+      switch ($2.toLowerCase()) {
         case 'data field' :
         case 'field' :
         case "champ de données":
@@ -595,10 +602,10 @@ instr :
         source: source,
         foreignKey: "id_"+source.toLowerCase(),
         as: target
-      }
+      };
 
       // Creating entity
-      switch ($1) {
+      switch ($1.toLowerCase()) {
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -631,8 +638,7 @@ instr :
         as: as
       }
 
-      // Creating entity
-      switch ($1) {
+      switch ($1.toLowerCase()) {
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -660,8 +666,7 @@ instr :
         source: source
       }
 
-      // Creating entity
-      switch ($1) {
+      switch ($1.toLowerCase()) {
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -690,8 +695,7 @@ instr :
         as: as
       }
 
-      // Creating entity
-      switch ($2) {
+      switch ($2.toLowerCase()) {
         case 'fieldset' :
         case "liste de":
         case "une liste de":
@@ -721,8 +725,7 @@ instr :
         usingField: usingField
       }
 
-      // Creating entity
-      switch ($2) {
+      switch ($2.toLowerCase()) {
         case 'fieldset' :
         case "liste de":
         case "une liste de":
@@ -731,84 +734,25 @@ instr :
           break;
       }
   %}
-  | CREATE ENTITY STRING WITH PROPERTY STRING PROPERTY plus
-  %{
-      // Preparing Options
-      options = new Array();
-
-      // Set entity name as the first option in options array
-      property = "entity";
-      value = $3;
-      json = { "property" : property, "value" : value };
-      options.push(json);
-
-      property = $5;
-      value = $6;
-      json = { "property" : property, "value" : value };
-      options.push(json);
-
-      property = $7;
-      value = chaine;
-      json = { "property" : property, "value" : value };
-      options.push(json);
-
-      // Reinitialize variable for future use
-      chaine = "";
-
-      // Creating entity
-      switch ($2) {
-        case 'project' :
-        case 'un projet' :
-          return createNewProject(options);
-
-        case "application" :
-        case "une application" :
-          return createNewApplication(options);
-
-        case 'module' :
-        case 'un module' :
-          return createNewModule(options);
-
-        case 'data entity' :
-        case 'entity' :
-        case 'entité':
-        case 'une entité':
-        case "entité de données":
-        case 'une entité de données':
-          return createNewDataEntity(options);
-
-        case 'data field' :
-        case 'field' :
-        case "champ de données":
-        case "un champ de données":
-        case "champ":
-        case "un champ":
-        case "le champ":
-          return createNewDataField(options);
-        default :
-          break;
-      }
-  %}
   | DELETE ENTITY STRING
   %{
-      // Preparing Options
-      options = new Array();
 
-      // Set entity name as the first option in options array
-      property = "entity";
       value = $3;
-      json = { "property" : property, "value" : value };
-      options.push(json);
 
-      switch ($2) {
+      // Preparing Options
+      options = {
+        value: value
+      };
+
+      switch($2.toLowerCase()){
         case 'project' :
         case 'un projet' :
           return deleteProject(options);
-
+          break;
         case "application" :
         case "une application" :
           return deleteApplication(options);
-
+          break;
         case 'data field' :
         case 'field' :
         case "champ de données":
@@ -817,7 +761,7 @@ instr :
         case "un champ":
         case "le champ":
           return deleteDataField(options);
-
+          break;
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -825,48 +769,46 @@ instr :
         case "entité de données":
         case "l'entité de données":
           return deleteDataEntity(options);
-
+          break;
         case 'tab':
         case 'onglet':
           return deleteTab(options);
-
+          break;
         case "module":
         case "un module":
         case "le module":
         case 'module':
           return deleteModule(options);
-
+          break;
         default :
           break;
       }
   %}
   | SELECT ENTITY STRING
   %{
-      // Preparing Options
-      options = new Array();
 
-      // Set entity name as the first option in options array
-      property = "entity";
       value = $3;
-      json = { "property" : property, "value" : value };
-      options.push(json);
 
-      // Creating entity
-      switch ($2) {
+      // Preparing Options
+      options = {
+        value: value
+      };
+
+      switch ($2.toLowerCase()) {
         case 'project' :
           return selectProject(options);
-
+          break;
         case "application" :
         case "une application" :
           return selectApplication(options);
-
+          break;
         case 'module' :
         case 'le module' :
           return selectModule(options);
-
+          break;
         case 'data entity' :
           return selectDataEntity(options);
-
+          break;
         case 'data entity':
         case 'entity' :
         case 'entité':
@@ -874,6 +816,7 @@ instr :
         case "entité de données":
         case "l'entité de données":
           return selectDataEntity(options);
+          break;
         default :
           break;
       }
@@ -881,16 +824,9 @@ instr :
   | LIST ENTITY
   %{
      // Preparing Options
-     options = new Array();
+     options = {};
 
-     // Set entity name as the first option in options array
-     //  property = "entity";
-     //  value = $3;
-     //  json = { "property" : property, "value" : value };
-     //  options.push(json);
-
-     // Creating entity
-     switch ($2) {
+     switch ($2.toLowerCase()) {
       case 'project' :
       case 'les projets' :
          return listProject(options);

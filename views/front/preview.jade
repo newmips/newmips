@@ -255,7 +255,7 @@ block custom_js
 			chat_instr = d.textContent;
 			chat_instr = JSON.parse(chat_instr);
 
-			j = 0;
+			var j = 0;
 			for(var i in chat_instr)	{
 				if (chat_instr[i].user == "User") {
 					tab_instr[j] = chat_instr[i].content;
@@ -266,7 +266,7 @@ block custom_js
 			$("#instruction").keyup(function(e) {
 				var reg = new RegExp("[^a-zA-Z0-9àâçéèêëîïôûùüÿñ, ']");
 				while (reg.test($(this).val()))
-				      $(this).val($(this).val().substring(0, $(this).val().length-1))
+					$(this).val($(this).val().substring(0, $(this).val().length-1))
 			});
 
 			$("#instruction").keydown(function(e) {

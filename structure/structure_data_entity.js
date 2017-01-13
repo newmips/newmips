@@ -64,26 +64,25 @@ exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataE
 exports.setupDataEntity = function(attr, callback) {
 	var id_application = attr['id_application'];
 	var name_data_entity = "";
-	var name_module = "";
+	var name_module = attr.name_module;
 	var displaySidebar = "block";
 
 	// Selon la fonction du designer, on sait qu'elle entité on souhaite créer.
 	if(attr.function === "createNewEntityWithBelongsTo" || attr.function === 'createNewEntityWithHasMany'){
 		name_data_entity = attr.options.source;
-		name_module = attr.name_module;
 	}
 	// Creation d'entité dans le cas d'un related to, si l'entité target n'existe pas
 	else if(attr.function === "createNewBelongsTo" || attr.function === 'createNewHasMany'){
 		name_data_entity = attr.options.target;
-		name_module = attr.name_module;
 		displaySidebar = "none";
 	}
-	// Creation simple d'entité
+	// Creation d'une simple d'entité
 	else{
-		for (var i = 0; i < attr['options'].length; i++) {
+		name_data_entity = attr.options.value;
+		/*for (var i = 0; i < attr['options'].length; i++) {
 			if (attr['options'][i].property == 'entity') { name_data_entity = attr['options'][i].value; }
 			if (attr['options'][i].property == 'name_module') { name_module = attr['options'][i].value; }
-		}
+		}*/
 	}
 
 	function createModelFile(idApplication, nameDataEntity, callback){

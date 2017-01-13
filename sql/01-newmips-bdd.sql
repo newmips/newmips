@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `application` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_project` (`id_project`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
 
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `data_entity` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_module` (`id_module`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
 
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `data_field` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_data_entity` (`id_data_entity`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
 
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `module` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_application` (`id_application`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
 
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `project` (
   `type` varchar(255) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
 
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `role` (
   `name` varchar(255) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
 
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_role` (`id_role`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
 
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `component` (
   PRIMARY KEY (`id`),
   KEY `id_data_entity` (`id_data_entity`),
   KEY `id_module` (`id_module`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 --
 -- Constraints for dumped tables

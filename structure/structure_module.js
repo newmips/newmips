@@ -8,13 +8,15 @@ exports.setupModule = function(attr, callback) {
 
     // Initialize variables according to options
     var options = attr.options;
-    i = 0;
+    name_module = options.value;
+
+    /*i = 0;
     while (i < options.length) {
         if (options[i].property == 'entity') {
             name_module = options[i].value;
         }
         i++;
-    }
+    }*/
 
     // Read routes/default.js file
     var file = __dirname + '/../workspace/' + id_application + '/routes/default.js';

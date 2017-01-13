@@ -26,6 +26,10 @@ var parser = new jison.Parser(bnf);
 var global = require('../config/global.js');
 var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
+
+// Basic bot jison
+var basicbot = require('../utils/basicbot');
+
 //Sequelize
 var models = require('../models/');
 
@@ -176,7 +180,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         "menu": "live",
         "answers": "",
         "chat": "",
-        "instruction": "",
+        "instruction": instruction,
         "iframe_url": req.session.iframe_url,
         "session": ""
     };
@@ -184,20 +188,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
     // Parse instruction and set results
     try {
 
-        var instructions = instruction.split(' ');
-        instructions[0] = instructions[0].toLowerCase();
-        instruction = instructions.join(' ');
-
-        // Instruction to be executed
-        data.instruction = instruction;
-
+        /* Add instruction in chat */
         chat.items.push({
             user: "User",
             dateEmission: moment().format("DD MMM HH:mm"),
             content: instruction
         });
         data.chat = chat;
-
 
         // Enable session values display
         data.session = {
@@ -213,21 +210,19 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         historyScript += "\n"+instruction;
         fs.writeFileSync(historyScriptPath, historyScript);
 
-        // Todo : Resolve instruction using bot
+        // Todo : Resolve instruction using bot talkify
         // parser = require('../services/bot.js');
         // End of Todo
 
-        // Retrieve the array containing ;
-        // - A string representing the name of the function to be execute
-        // - An array of options useful for this function
-        //
-        attr = parser.parse(instruction);
+        /* Lower the first word for the basic parser jison */
+        instruction = basicbot.lowerFirstWord(instruction);
 
-        // Store last instruction in session
-        attr.instruction = instruction;
+        /* Parse the instruction to get an object for the designer */
+        var attr = parser.parse(instruction);
 
         // Newly created sub-objects (like a company for instance) needs to be set to a superclass (like a plateau)
         // We simply add session values in attributes array
+        attr.instruction = instruction;
         attr.id_project = req.session.id_project;
         attr.id_application = req.session.id_application;
         attr.id_module = req.session.id_module;
@@ -238,11 +233,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         // Function is finally executed as "global()" using the static dialog designer
         // "Options" and "Session values" are sent using the attr attribute
         designer[attr.function](attr, function(err, info) {
-
+            var answer;
             if (err) {
                 // Error handling code goes here
                 console.log("ERROR : ", err);
-                var answer = "Error: " + err.message;
+                answer = "Error: " + err.message;
                 data.answers = answer + "\n\n" + answers + "\n\n";
 
                 // Winton log file

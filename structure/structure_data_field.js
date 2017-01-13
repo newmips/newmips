@@ -271,48 +271,34 @@ exports.setupDataField = function(attr, callback) {
 
 	var id_application = attr.id_application;
 
-	var name_module,
-	name_data_entity,
-	name_data_field,
-	type_data_field,
-	values_data_field,
-	nillable_data_field,
-	min_length_data_field,
-	max_length_data_field,
-	class_object_data_field;
+	var name_module = attr.name_module;
+	var name_data_entity = attr.name_data_entity;
+
+	var name_data_field;
+	var type_data_field;
+	var values_data_field;
 
 	/* ----------------- 1 - Initialize variables according to options ----------------- */
 	console.log("STEP 1 - Initializing variables");
-	options = attr.options;
-	for(var i=0; i < attr.options.length; i++){
-		switch(options[i].property){
-			case "name_data_entity":
-				name_data_entity = options[i].value;break;
-			case "entity":
-				name_data_field = options[i].value;break;
-			case "name":
-				name_data_field = options[i].value;break;
-			case "type":
-				type_data_field = options[i].value;break;
-			case "and values":
-				if(options[i].value.indexOf(",") != -1){
-					values_data_field = options[i].value.split(",");
-					for(var j=0; j<values_data_field.length; j++){
-						values_data_field[j] = values_data_field[j].trim();
-					}
-				}
-				else{
-					values_data_field = options[i].value.split(" ");
-				}
-				break;
-			case "nillable":
-				nillable_data_field = options[i].value;break;
-			case "minimum length":
-				min_length_data_field = options[i].value;break;
-			case "maximum length":
-				max_length_data_field = options[i].value;break;
-			case "class":
-				class_object_data_field = options[i].value;break;
+	var options = attr.options;
+
+	name_data_field = options.value;
+
+	// If there is a WITH TYPE in the instruction
+	if(typeof options.type !== "undefined")
+		type_data_field = options.type;
+
+	// Cut allValues for ENUM or other type
+	if(typeof options.allValues !== "undefined"){
+		var values = options.allValues;
+		if(values.indexOf(",") != -1){
+			values_data_field = values.split(",");
+			for(var j=0; j<values_data_field.length; j++){
+				values_data_field[j] = values_data_field[j].trim();
+			}
+		}
+		else{
+			values_data_field = values.split(" ");
 		}
 	}
 
@@ -322,12 +308,12 @@ exports.setupDataField = function(attr, callback) {
 	// attributes.json
 	var attributesFileName = './workspace/'+id_application+'/models/attributes/'+name_data_entity.toLowerCase()+'.json';
 	var attributesFile = fs.readFileSync(attributesFileName);
-	attributesObject = JSON.parse(attributesFile);
+	var attributesObject = JSON.parse(attributesFile);
 
 	// toSync.json
 	var toSyncFileName = './workspace/'+id_application+'/models/toSync.json';
 	var toSyncFile = fs.readFileSync(toSyncFileName);
-	toSyncObject = JSON.parse(toSyncFile);
+	var toSyncObject = JSON.parse(toSyncFile);
 
 	if(typeof toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] === "undefined"){
 		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] = {};
@@ -1008,15 +994,10 @@ exports.setupFieldsetTab = function(attr, callback) {
 
 exports.deleteDataField = function(attr, callback) {
     var id_application = attr.id_application;
-    var name_data_entity = "";
-    var name_data_field = "";
+    var name_data_entity = attr.name_data_entity.toLowerCase();
+    var name_data_field =  attr.options.value.toLowerCase();
 
     var options = attr.options;
-    for (var i = 0; i < options.length; i++) {
-        if (options[i].property == "name_data_entity") name_data_entity = options[i].value.toLowerCase();
-        if (options[i].property == "entity") name_data_field = options[i].value.toLowerCase();
-        if (options[i].property == "name") name_data_field = options[i].value.toLowerCase();
-    }
 
     var dataToWrite;
     var isInOptions = false;
@@ -1089,7 +1070,7 @@ exports.deleteDataField = function(attr, callback) {
 }
 
 exports.deleteTab = function(attr, callback) {
-    var tabName = attr.options[0].value.toLowerCase();
+    var tabName = attr.options.value.toLowerCase();
     var name_data_entity = attr.name_data_entity.toLowerCase();
     var id_data_entity = attr.id_data_entity;
     var id_application = attr.id_application;

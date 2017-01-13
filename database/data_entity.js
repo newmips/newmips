@@ -9,15 +9,17 @@ exports.selectDataEntity = function(attr, callback) {
 	if ( typeof attr !== 'undefined' && attr ) {
 
 		// Set options variable using the attribute array
-		options = attr['options'];
+		var options = attr.options;
+		var type_option;
 
 		if ( typeof options !== 'undefined' && options ) {
 
-			var where, message = '';
-			if (!isNaN(options[0].value)){
+			var where = {};
+			var message = '';
+			if (!isNaN(options.value)){
 				where = {
 					where: {
-						id: options[0].value
+						id: options.value
 					},
 					include: [{
 						model: models.Module,
@@ -34,7 +36,7 @@ exports.selectDataEntity = function(attr, callback) {
 			else {
 				where = {
 					where: {
-						name: options[0].value
+						name: options.value
 					},
 					include: [{
 						model: models.Module,
@@ -56,7 +58,7 @@ exports.selectDataEntity = function(attr, callback) {
 					return callback(err,null);
 				}
 
-				info = { "insertId" : model.id, "message" : "Data entity " + model.id + " - " + model.name + " selected." };
+				var info = { "insertId" : model.id, "message" : "Data entity " + model.id + " - " + model.name + " selected." };
 				callback(null,info);
 			}).catch(function(err) {
 				callback(err, null);
@@ -101,37 +103,23 @@ exports.selectDataEntityTarget = function(attr, callback) {
 
 exports.createNewDataEntity = function(attr, callback) {
 
-	var name_= "";
-	var description = "";
-	var icon = "";
-	var listable = 0;
+	var name_entity = "";
 	var id_module = -1;
 
-	if(typeof attr !== 'undefined' && attr){
+	if(typeof attr !== 'undefined' && typeof attr.options !== "undefined"){
 
 		// Set id_information_system of future data_entity according to session value transmitted in attributes
-		id_module = attr['id_module'];
+		id_module = attr.id_module;
 
 		// Set options variable using the attribute array
-		options = attr['options'];
+		var options = attr.options;
+		name_entity = options.value;
 
-		if(typeof options !== 'undefined' && options && id_module != ""){
-
-			// Check each options variable to set properties
-			i = 0;
-			while (i < options.length) {
-				if ( typeof options[i] !== 'undefined' && options[i] ) {
-					if ( options[i].property == "entity" ) name = options[i].value;
-					if ( options[i].property == "description" ) description = options[i].value;
-					if ( options[i].property == "icon" ) icon = options[i].value;
-					if ( options[i].property == "listable" ) listable = options[i].value;
-				}
-				i++;
-			}
+		if(typeof options !== 'undefined' && name_entity != "" && id_module > 0){
 
 			models.DataEntity.findOne({
 				where: {
-					name: name
+					name: name_entity
 				},
 				include: [{
 					model: models.Module,
@@ -145,21 +133,18 @@ exports.createNewDataEntity = function(attr, callback) {
 			}).then(function(dataEntity) {
 				if(dataEntity) {
 					var err = new Error();
-					err.message = "Entity '"+name+"' already exists";
+					err.message = "Entity '"+name_entity+"' already exists";
 					return callback(err, null);
 				}
 
 				models.DataEntity.create({
-					name: name,
-					description: description,
-					icon: icon,
-					listable: listable,
+					name: name_entity,
 					id_module: id_module,
 					version: 1
-				}).then(function(newModel) {
+				}).then(function(newEntity) {
 					var info = {};
-					info.insertId = newModel.id;
-					info.message = "New data entity "+ newModel.id +" | "+ newModel.name +" created.";
+					info.insertId = newEntity.id;
+					info.message = "New data entity "+ newEntity.id +" | "+ newEntity.name +" created.";
 					callback(null,info);
 				});
 			}).catch(function(err){
@@ -272,15 +257,15 @@ exports.listDataEntity = function(attr, callback) {
 				}]
 			}]
 		}).then(function(dataEntities) {
-			info = new Array();
-			info.message = "List of data entities (:module | id entity | name entity): <br><ul>";
+			var info = {};
+			info.message = "List of data entities (module | id entity | name entity): <br><ul>";
 			if (!dataEntities || dataEntities.length == 0)
 				info.message += 'None<br>';
 			else
 				for (var i = 0; i < dataEntities.length; i++)
-					info.message = info.message + "<li>:"+ dataEntities[i].Module.name + " | " + dataEntities[i].id + " | " + dataEntities[i].name + "</li>";
+					info.message += "<li>"+ dataEntities[i].Module.name + " | " + dataEntities[i].id + " | " + dataEntities[i].name + "</li>";
 
-			info.message = info.message + "</ul>";
+			info.message += "</ul>";
 			info.rows = dataEntities;
 			callback(null, info);
 		}).catch(function(err) {
@@ -343,35 +328,20 @@ exports.getIdDataEntityByName = function(name_data_entity, callback) {
 exports.createNewAssociation = function(attr, callback) {
 
 	var name_data_entity = "";
-	var description_data_entity = "";
-	var icon_data_entity = "";
-	var listable_data_entity = 0;
-	var type_data_entity = "";
+	var type_data_entity = "string";
 	var id_module = -1;
 	var version = 1;
 
-	if(typeof attr !== 'undefined' && attr){
+	if(typeof attr !== 'undefined' && typeof attr.options !== "undefined"){
 
 		// Set id_information_system of future data_entity according to session value transmitted in attributes
-		id_module = attr['id_module'];
+		id_module = attr.id_module;
 
 		// Set options variable using the attribute array
-		options = attr['options'];
+		var options = attr.options;
+		name_data_entity = options.value;
 
 		if(typeof options !== 'undefined' && options && id_module != ""){
-
-			// Check each options variable to set properties
-			i = 0;
-			while (i < options.length) {
-				if(typeof options[i] !== 'undefined' && options[i]){
-					if(options[i].property == "name_data_entity") name_data_entity = options[i].value;
-					if(options[i].property == "description") description_data_entity = options[i].value;
-					if(options[i].property == "icon") icon_data_entity = options[i].value;
-					if(options[i].property == "listable") listable_data_entity = options[i].value;
-					if(options[i].property == "type") type_data_entity = options[i].value;
-				}
-				i++;
-			}
 
 			// Set Association name variables
 			var association = name_data_entity + "_" + type_data_entity;
@@ -385,9 +355,6 @@ exports.createNewAssociation = function(attr, callback) {
 
 				models.DataEntity.create({
 					name: association,
-					description: description_data_entity,
-					icon: icon_data_entity,
-					listable: listable_data_entity,
 					id_module: id_module,
 					version: version
 				}).then(function(newEntity) {
@@ -436,9 +403,9 @@ exports.getDataEntityByName = function(attr, callback) {
     var id_application = 0;
     var version = 1;
 
-    if (typeof attr !== 'undefined' && attr) {
+    if (typeof attr !== 'undefined' && typeof attr.options != "undefined") {
         id_application = attr.id_application;
-        options = attr.options;
+        var options = attr.options;
 
         if (typeof options !== 'undefined' && options && id_application != 0) {
 
