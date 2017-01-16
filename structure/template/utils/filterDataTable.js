@@ -12,11 +12,25 @@ module.exports = function(modelName, params, speInclude, speWhere) {
 		var search = {$or: []};
 		for (var i = 0; i < params.columns.length; i++){
 			var column = params.columns[i];
+			var descriptor;
+			if (column.search.value != '') {
+				descriptor = JSON.parse(column.search.value);
+				column.search.value = descriptor.value;
+			}
 			var orRow = {};
 			if (column.searchable == 'true') {
 				// Column search
 				if (column.search.value != '') {
-					orRow[column.data] = {$like: '%'+column.search.value+'%'};
+					if (descriptor && descriptor.type == 'datetime') {
+						if (column.search.value.indexOf(' ') != -1)
+							orRow[column.data] = {$between: [column.search.value, column.search.value]};
+						else
+							orRow[column.data] = {$between: [column.search.value+' 00:00:00', column.search.value+' 23:59:59']};
+					}
+					else if (descriptor && descriptor.type == 'date')
+						orRow[column.data] = {$between: [column.search.value+' 00:00:00', column.search.value+' 23:59:59']};
+					else
+						orRow[column.data] = {$like: '%'+column.search.value+'%'};
 					search.$or.push(orRow);
 				}
 				// Global search

@@ -32,25 +32,135 @@
 // 		input(name='id', type='hidden', value='1') lors de la generation du bouton
 //
 
-function frenchDate(date) {
-	if (!date)
-		return '';
-	date = date.split('-');
-	date = date[2] + '/' + date[1] + '/' + date[0];
-	return date;
+function formatDateTimeFR(value) {
+	if (value == '')
+		return value;
+
+	var dateBuild = '';
+
+	// Day provided
+	if (value.length <= 2)
+		return '-'+value;
+	dateBuild = '-'+value.substring(0, 2);
+
+	// Month provided
+	if (value.length <= 4)
+		return '-'+value.substring(2, 4)+dateBuild;
+	dateBuild = '-'+value.substring(2, 4)+dateBuild;
+
+	// Year prodived
+	if (value.length <= 8)
+		return value.substring(4, 8)+dateBuild;
+	dateBuild = value.substring(4, 8)+dateBuild+' ';
+
+	// Hour provided
+	if (value.length <= 10)
+		return dateBuild+value.substring(8, 10)+':';
+	dateBuild = dateBuild+value.substring(8, 10)+':';
+
+	// Minutes provided
+	if (value.length <= 12)
+		return dateBuild+value.substring(10, 12)+':';
+	dateBuild = dateBuild+value.substring(10, 12)+':';
+
+	// Seconds provided
+	if (value.length <= 14)
+		return dateBuild+value.substring(12, 14);
+	dateBuild = dateBuild+value.substring(12, 14);
+
+	// Seconds provided
+	return dateBuild+value.substring(14, 16);
 }
 
-function englishDate(date) {
-	if (!date)
-		return '';
-	var parts = date.split('/');
-	date = '';
-	for (var j = parts.length-1; j >= 0; j--) {
-		if (j != parts.length-1)
-			date += '-'
-		date += parts[j];
-	}
-	return date;
+function formatDateTimeEN(value) {
+	if (value == '')
+		return value;
+
+	var dateBuild = '';
+
+	// Day provided
+	if (value.length <= 4)
+		return value+'-';
+	dateBuild = value.substring(0, 4)+'-';
+
+	// Month provided
+	if (value.length <= 6)
+		return dateBuild+value.substring(4, 6)+'-';
+	dateBuild = dateBuild+value.substring(4, 6)+'-';
+
+	// Year prodived
+	if (value.length <= 8)
+		return dateBuild+value.substring(6, 8);
+	dateBuild = dateBuild+value.substring(6, 8)+' ';
+
+	// Hour provided
+	if (value.length <= 10)
+		return dateBuild+value.substring(8, 10)+':';
+	dateBuild = dateBuild+value.substring(8, 10)+':';
+
+	// Minutes provided
+	if (value.length <= 12)
+		return dateBuild+value.substring(10, 12)+':';
+	dateBuild = dateBuild+value.substring(10, 12)+':';
+
+	// Seconds provided
+	if (value.length <= 14)
+		return dateBuild+value.substring(12, 14);
+	dateBuild = dateBuild+value.substring(12, 14);
+
+	// Seconds provided
+	return dateBuild+value.substring(14, 16);
+}
+
+function formatTime(value) {
+	if (value == '')
+		return value;
+
+	var timeBuild = '';
+
+	if (value.length <= 2)
+		return value;
+	timeBuild = value.substr(0, 2)+':';
+
+	if (value.length <= 4)
+		return timeBuild+value.substring(2, 4);
+	timeBuild = timeBuild+value.substring(2, 4)+':';
+
+	return timeBuild+value.substring(4, 6);
+}
+
+function formatDateFR(value) {
+	if (value == '')
+		return value;
+
+	var timeBuild = '';
+
+	if (value.length <= 2)
+		return '-'+value;
+	timeBuild = value.substr(0, 2);
+
+	if (value.length <= 4)
+		return timeBuild+value.substring(2, 4);
+	timeBuild = value.substring(2, 4)+'-'+timeBuild;
+
+	return value.substring(4, 8)+'-'+timeBuild;
+}
+
+function formatDateEN(value) {
+	if (value == '')
+		return value;
+
+	var timeBuild = '';
+
+	if (value.length <= 4)
+		return value+'-';
+	timeBuild = value.substr(0, 4)+'-';
+
+	if (value.length <= 4)
+		return timeBuild+value.substring(4, 6)+'-';
+	timeBuild = timeBuild+value.substring(4, 6)+'-';
+
+	return timeBuild+value.substring(6, 8);
 }
 
 function init_datatable(tableID){
@@ -293,22 +403,67 @@ function init_datatable(tableID){
 	$(tableID+' .filters th').each(function (i) {
 		var title = $(tableID+' thead th').eq(i).text();
 		var search = '<input type="text" placeholder="' + title + '" />';
+		var mainTh = $(tableID+' .main th').eq(i);
 		if (title != '') {
 			$(this).html('');
 			$(search).appendTo(this).keyup(function(){
-				var mainTh = $(tableID+' .main th').eq(i);
 				var searchValue = this.value;
+				var valueObject = {type: '', value: ''};
 				// Special data types re-formating for search
 				if (typeof mainTh.data('type') !== 'undefined') {
 					// Date
-					if (mainTh.data('type') == 'date')
-						searchValue = englishDate(this.value);
+					if (mainTh.data('type') == 'date') {
+						valueObject.type = 'date';
+						searchValue = lang_user == 'fr-FR' ? formatDateFR($(tableID+" .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateEN($(tableID+" .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+					}
+					// Date
+					else if (mainTh.data('type') == 'time') {
+						valueObject.type = 'time';
+						searchValue = formatTime($(tableID+" .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+					}
+					// DateTime
+					else if (mainTh.data('type') == 'datetime') {
+						valueObject.type = 'datetime';
+						searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(tableID+" .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(tableID+" .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+					}
 				}
-				table
-				.columns(i)
-				.search(searchValue)
-				.draw();
+				valueObject.value = searchValue;
+				table.columns(i).search(JSON.stringify(valueObject)).draw();
 			});
+
+			// Initialize masks on filters inputs
+			if (typeof mainTh.data('type') !== 'undefined') {
+				if (lang_user == 'fr-FR') {
+					if (mainTh.data('type') == 'datetime')
+						$(tableID+" .filters th").eq(i).find("input").inputmask({
+					        mask: "d/m/y h:s:s",
+					        placeholder: "dd/mm/yyyy hh:mm:ss",
+					        alias: "datetime",
+					        timeseparator: ":",
+					        hourFormat: "24"
+						});
+					if (mainTh.data('type') == 'date')
+						$(tableID+" .filters th").eq(i).find("input").inputmask({"alias": "dd/mm/yyyy"});
+				}
+				else if (lang_user == 'en-EN') {
+					if (mainTh.data('type') == 'datetime')
+						$(tableID+" .filters th").eq(i).find("input").inputmask({
+					        mask: "y-m-d h:s:s",
+					        placeholder: "yyyy-mm-dd hh:mm:ss",
+					        alias: "datetime",
+					        timeseparator: ":",
+					        hourFormat: "24"
+						});
+					if (mainTh.data('type') == 'date')
+						$(tableID+" .filters th").eq(i).find("input").inputmask({"alias": "yyyy-mm-dd"});
+				}
+				if (mainTh.data('type') == 'time')
+					$(tableID+" .filters th").eq(i).find("input").inputmask({
+						mask: "h:s:s",
+						placeholder: "hh:mm:ss",
+						separator: "-"
+					});
+			}
 		}
 	});
 	//Les butons exports
