@@ -97,11 +97,11 @@ exports.listProject = function(attr, callback) {
 }
 
 exports.deleteProject = function(attr, callback) {
-    db_project.getProjectApplications(attr.options.value, function(err, applications) {
+    db_project.getProjectApplications(attr.options.showValue, function(err, applications) {
         if (err)
             return callback(err, null);
         var appIds = [];
-        for (var i = 0; i < applications.length; i++)
+        for (var i=0; i<applications.length; i++)
             appIds.push(applications[i].id);
         deleteApplicationRecursive(appIds, 0).then(function() {
             db_project.deleteProject(attr, function(err, info) {
@@ -174,14 +174,14 @@ function deleteApplication(attr, callback) {
             });
         });
     }
-    if (isNaN(attr.options.value))
-        db_application.getIdApplicationByName(attr.options.value, function(err, id_application){
+    if (isNaN(attr.options.showValue))
+        db_application.getIdApplicationByName(attr.options.showValue, function(err, id_application){
             if(err)
                 return callback(err, null);
             doDelete(id_application);
         });
     else{
-        doDelete(attr.options.value);
+        doDelete(attr.options.showValue);
     }
 }
 exports.deleteApplication = deleteApplication;
@@ -190,10 +190,7 @@ function deleteApplicationRecursive(appIds, idx) {
     return new Promise(function(resolve, reject) {
         if (!appIds[idx])
             return resolve();
-        /*var attr = {
-            options: [{property: 'entity', value: appIds[idx]}]
-        }*/
-        attr.options.value = appIds[idx];
+        attr.options.showValue = appIds[idx];
         deleteApplication(attr, function() {
             return (appIds[++idx]) ? resolve(deleteApplicationRecursive(appIds, idx)) : resolve();
         });
@@ -250,7 +247,7 @@ exports.listModule = function(attr, callback) {
 }
 
 exports.deleteModule = function(attr, callback) {
-    var moduleName = attr.options.value;
+    var moduleName = attr.options.showValue;
     if (moduleName.toLowerCase() == 'home'){
         var err = new Error();
         err.message = "You can't delete the home module.";
@@ -284,7 +281,7 @@ exports.deleteModule = function(attr, callback) {
         }
 
         Promise.all(promises).then(function() {
-            attr.module_name = moduleName;
+            attr.module_name = attr.options.value;
             structure_module.deleteModule(attr, function(err) {
                 if(err)
                     return callback(err, null);
@@ -354,7 +351,7 @@ function deleteDataEntity(attr, callback) {
     var name_module = "";
 
     var promises = [];
-    var workspacePath = __dirname + '/../workspace/' + id_application;
+    var workspacePath = __dirname+'/../workspace/'+id_application;
 
     db_entity.getIdDataEntityByName(name_data_entity, function(err, entityId){
         if(err){
@@ -383,11 +380,11 @@ function deleteDataEntity(attr, callback) {
                 }
             }
 
-            fs.readdirSync(workspacePath + '/models/options/').filter(function(file) {
+            fs.readdirSync(workspacePath+'/models/options/').filter(function(file) {
                 return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
             }).forEach(function(file) {
                 var source = file.slice(0, -5);
-                var options = require(workspacePath + '/models/options/' + file);
+                var options = require(workspacePath+'/models/options/'+file);
                 for (var i = 0; i < options.length; i++) {
                     if (options[i].target != name_data_entity)
                         continue;

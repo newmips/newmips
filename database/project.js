@@ -129,7 +129,7 @@ exports.deleteProject = function(attr, callback) {
 
     try {
         var options = attr.options;
-        var project = attr.options.value;
+        var project = attr.options.showValue;
 
         var where = {
             where: {}
@@ -148,7 +148,7 @@ exports.deleteProject = function(attr, callback) {
 
         models.Project.destroy(where).then(function() {
             var info = {
-                message: "Project " + project + " deleted."
+                message: "Project "+project+" deleted."
             }
             callback(null, info);
         }).catch(function(err) {
