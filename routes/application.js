@@ -28,7 +28,7 @@ var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
 
 // Basic bot jison
-var basicbot = require('../utils/basicbot');
+var attrHelper = require('../utils/attr_helper');
 
 //Sequelize
 var models = require('../models/');
@@ -215,7 +215,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         // End of Todo
 
         /* Lower the first word for the basic parser jison */
-        instruction = basicbot.lowerFirstWord(instruction);
+        instruction = attrHelper.lowerFirstWord(instruction);
 
         /* Parse the instruction to get an object for the designer */
         var attr = parser.parse(instruction);
@@ -227,11 +227,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             /* Keep the value for the trad file */
             attr.options.showValue = attr.options.value;
             /* Clean the name of the value */
-            attr.options.value = basicbot.clearString(attr.options.value);
+            attr.options.value = attrHelper.clearString(attr.options.value);
             /* Value that will be used in url */
             attr.options.urlValue = attr.options.value;
             /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
-            attr.options.value = basicbot.addPrefix(attr.options.value, attr.function);
+            attr.options.value = attrHelper.addPrefix(attr.options.value, attr.function);
         }
 
         console.log(attr);
