@@ -218,7 +218,7 @@ exports.createNewModule = function(attr, callback) {
         if (err) {
             callback(err, null);
         } else {
-            infoDB.moduleName = attr.options.value;
+            infoDB.moduleName = attr.options.urlValue;
             // Retrieve list of application modules to update them all
             db_module.listModuleByApplication(attr, function(err, modules) {
                 if (err) {
@@ -226,6 +226,7 @@ exports.createNewModule = function(attr, callback) {
                 } else {
 
                     // Assign list of existing application modules
+                    // Needed to recreate the dropdown list of modules in the interface
                     attr.modules = modules;
 
                     // Structure
@@ -315,12 +316,13 @@ exports.selectDataEntity = function(attr, callback) {
 exports.createNewDataEntity = function(attr, callback) {
 
     // Get active application module name
-    db_module.getNameModuleById(attr.id_module, function(err, name_module) {
+    db_module.getModuleById(attr.id_module, function(err, module) {
         if(err){
             callback(err, null);
         } else {
 
-            attr.name_module = name_module;
+            attr.show_name_module = module.name;
+            attr.name_module = module.codeName;
             // Generator database
             db_entity.createNewDataEntity(attr, function(err, infoDB) {
                 if(err){
@@ -1122,6 +1124,12 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
 // Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = function(attr, callback) {
 
+    /* If there is no defined name for the module */
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "local_file_storage"
+        attr.options.showValue = "Local File Storage"
+    }
+
     // Check if component with this name is already created on this entity
     db_component.getComponentByNameInEntity(attr, function(err, component){
         if(component){
@@ -1144,7 +1152,7 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                         db_entity.getNameDataEntityById(attr.id_data_entity, function(err, dataEntityName){
                             attr.options.source = dataEntityName;
                             // setup the hasMany association in the source entity
-                            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.name.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.name.toLowerCase(), "hasMany", null, false, function(){
+                            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
                                 structure_component.newLocalFileStorage(attr, function(err){
                                     if(err)
                                         return callback(err, null);
@@ -1162,6 +1170,12 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
 
 // Componant to create a contact form in a module
 exports.createNewComponentContactForm = function(attr, callback) {
+
+    /* If there is no defined name for the module */
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "contact_form"
+        attr.options.showValue = "Contact Form"
+    }
 
     // Check if component with this name is already created on this entity
     db_component.getComponentByNameInModule(attr, function(err, component){

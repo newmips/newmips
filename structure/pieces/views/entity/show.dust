@@ -4,21 +4,21 @@
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
 {/custom_css}
 {<header}
-    <h1>{@__ key="module.custom_module"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{@__ key="module.custom_show_module"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.custom_module"/}</li>
+        <li class="active">{@__ key="module.custom_show_module"/}</li>
     </ol>
 {/header}
 {<content}
-    <legend>{@__ key="operation.show"/} {@__ key="entity.custom_data_entity.name_entity" /}</legend>
+    <legend>{@__ key="operation.show"/} {@__ key="entity.custom_show_data_entity.name_entity" /}</legend>
     <div class="row">
         <div class="col-xs-12 connectedSortable">
             <div class="box-body"></div>
             <div class="box-body">
                 <div>
                     <div class="form-group">
-                        <label for="id">{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}</label>
+                        <label for="id">{@__ key="entity.custom_show_data_entity.id_entity"/} {@__ key="entity.custom_show_data_entity.name_entity"/}</label>
                         <input type="text" value="{custom_data_entity.id}" disabled="" class="form-control"/>
                     </div>
                 </div>

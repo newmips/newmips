@@ -134,14 +134,7 @@ exports.getSession = function(attr, callback) {
                         name_data_entity = info;
                     }
 
-                    // info = new Array();
-                    // info.message = "Session values (entity | id):\n";
-                    // info.message = info.message + "> Project | " + id_project + " | " + name_project + "\n";
-                    // info.message = info.message + "> Application | " + id_application + " | " + name_application + "\n";
-                    // info.message = info.message + "> Module | " + id_module + " | " + name_module + "\n";
-                    // info.message = info.message + "> Data entity | " + id_data_entity + " | " + name_data_entity + "\n";
-
-                    info = {
+                    var returnInfo = {
                         "project": {
                             "id_project": id_project,
                             "name_project": name_project
@@ -160,7 +153,7 @@ exports.getSession = function(attr, callback) {
                         }
                     };
                     // console.log(info);
-                    callback(null, info);
+                    callback(null, returnInfo);
                 });
             });
         });

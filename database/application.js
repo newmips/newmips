@@ -66,7 +66,7 @@ exports.selectApplication = function(attr, callback) {
 // Create
 exports.createNewApplication = function(attr, callback) {
 
-    var name_application = "";
+    var name_application;
     var id_project = -1;
     var version = 1;
 
@@ -78,11 +78,13 @@ exports.createNewApplication = function(attr, callback) {
         // Set options variable using the attribute array
         var options = attr.options;
         name_application = options.value;
+        var show_name_application = options.showValue;
 
         if (typeof name_application !== 'undefined' && name_application != "" && id_project != "") {
 
             models.Application.create({
-                name: name_application,
+                name: show_name_application,
+                codeName: name_application,
                 id_project: id_project,
                 version: version
             }).then(function(created_application){

@@ -16,6 +16,9 @@ var jison = require("jison");
 var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
 var parser = new jison.Parser(bnf);
 
+// Basic bot jison
+var basicbot = require('../utils/basicbot');
+
 // ===========================================
 // Redirection Live =====================
 // ===========================================
@@ -140,6 +143,22 @@ function execute(req, instruction) {
 
             // Instruction to be executed
             var attr = parser.parse(instruction);
+
+            console.log(attr);
+
+            /* if the instruction create something there is obligatory a value. We have to clean this value for the code */
+            if(typeof attr.options.value !== "undefined" && attr.options.processValue){
+                /* Keep the value for the trad file */
+                attr.options.showValue = attr.options.value;
+                /* Clean the name of the value */
+                attr.options.value = basicbot.clearString(attr.options.value);
+                /* Value that will be used in url */
+                attr.options.urlValue = attr.options.value;
+                /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
+                attr.options.value = basicbot.addPrefix(attr.options.value, attr.function);
+            }
+
+            console.log(attr);
 
             attr.id_project = req.session.id_project;
             attr.id_application = req.session.id_application;

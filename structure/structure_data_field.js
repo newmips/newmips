@@ -283,6 +283,7 @@ exports.setupDataField = function(attr, callback) {
 	var options = attr.options;
 
 	name_data_field = options.value;
+	var show_name_data_entity = attr.options.showValue;
 
 	// If there is a WITH TYPE in the instruction
 	if(typeof options.type !== "undefined")

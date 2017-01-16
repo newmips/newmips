@@ -5,3 +5,8 @@
 {"level":"debug","message":"Entity 'éçàù' already exists","timestamp":"2017-01-12T10:54:18.786Z"}
 {"level":"debug","message":"Entity 'éçàù' already exists","timestamp":"2017-01-12T12:24:45.112Z"}
 {"level":"debug","message":"type is not defined","timestamp":"2017-01-12T14:54:37.066Z"}
+{"level":"debug","message":"Entity 'ecau' already exists","timestamp":"2017-01-13T11:05:24.199Z"}
+{"level":"debug","message":"Entity '65465ZER546' already exists","timestamp":"2017-01-13T13:50:44.115Z"}
+{"level":"debug","message":"Field already exists","timestamp":"2017-01-13T14:41:18.656Z"}
+{"level":"debug","message":"Sorry, an existing module with the same or similar name already exist.","timestamp":"2017-01-16T10:01:41.005Z"}
+{"level":"debug","message":"Sorry, an existing module with the same or similar name already exist.","timestamp":"2017-01-16T10:32:10.947Z"}

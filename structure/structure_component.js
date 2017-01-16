@@ -54,7 +54,7 @@ function setupComponentRoute(idApplication, nameComponent, filename, source, cal
 	});
 }
 
-function setupComponentView(idApplication, nameComponent, filename, nameModule, callback){
+function setupComponentView(idApplication, nameComponent, showNameComponent, filename, nameModule, callback){
 
 	// CREATE VIEW FILE
 	fs.copySync(__dirname+'/pieces/component/'+filename+'/views', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase());
@@ -63,6 +63,7 @@ function setupComponentView(idApplication, nameComponent, filename, nameModule, 
 		var viewTemplate = fs.readFileSync(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', 'utf8');
 		viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());
 		viewTemplate = viewTemplate.replace(/name_component/g, nameComponent.toLowerCase());
+		viewTemplate = viewTemplate.replace(/show_name_component/g, showNameComponent.toLowerCase());
 
 		var writeStream = fs.createWriteStream(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust');
 		writeStream.write(viewTemplate);
@@ -111,36 +112,31 @@ function addTab(attr, file, newLi, newTabContent) {
 }
 
 exports.newLocalFileStorage = function(attr, callback){
-	var component = attr.options.component;
-	var nameComponent = attr.options.name;
+
+	var nameComponent = attr.options.value;
 	var nameComponentLower = nameComponent.toLowerCase();
+
+	var showComponentName = attr.options.showValue;
+	var showComponentNameLower = showComponentName.toLowerCase();
+
 	var source = attr.options.source;
 	var sourceLower = source.toLowerCase();
-	var filename = "";
 
-	switch(component){
-		case "localfilestorage" :
-			filename = "local_file_storage";
-		break;
-		default:
-			var err = new Error();
-			err.message = "Component files doesn't exist.";
-			callback(err);
-		break;
-	}
+	var filename = "local_file_storage";
 
 	setupComponentModel(attr.id_application, nameComponent, filename, function(){
 		createComponentAttributesAndOptionsFiles(attr.id_application, nameComponent, filename, source, function(){
 			setupComponentRoute(attr.id_application, nameComponent, filename, source, function(){
 
 				/* --------------- New translation --------------- */
-				translateHelper.writeLocales(attr.id_application, "component", nameComponent, attr.googleTranslate, function(){
+				translateHelper.writeLocales(attr.id_application, "component", showComponentName, attr.googleTranslate, function(){
 					// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
 					var componentPiece = fs.readFileSync('./structure/pieces/component/'+filename+'/views/view_'+filename+'.dust', 'utf8');
 					var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, nameComponentLower);
-					var componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
+					componentContent = componentContent.replace(/SHOW_COMPONENT_NAME_LOWER/g, showComponentNameLower);
+					componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
 
-					var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
+					var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+showComponentNameLower+'.label_component" /}</a></li>';
 
 					var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
 					var file = fileBase + '/show_fields.dust';
@@ -148,72 +144,24 @@ exports.newLocalFileStorage = function(attr, callback){
 					// CREATE THE TAB IN SHOW FIELDS
 					addTab(attr, file, newLi, componentContent).then(callback);
 				});
-
-				// Update translations files
-				/*var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-				var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-				var dataFR = require(fileTranslationFR);
-				var dataEN = require(fileTranslationEN);
-
-				var tns = '  { \n\t\t\t"label_component" : "' + nameComponent + '",\n';
-				tns = tns + '\t\t\t"name_component" : "' + nameComponent + '",\n';
-				tns = tns + '\t\t\t"plural_component" : "' + nameComponent + 's"\n';
-				tns = tns + '\t\t}\n';
-
-				dataFR.component[nameComponent.toLowerCase()] = JSON.parse(tns);
-				dataEN.component[nameComponent.toLowerCase()] = JSON.parse(tns);
-
-				var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
-				var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
-
-				stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
-				stream_fileTranslationFR.end();
-				stream_fileTranslationFR.on('finish', function () {
-					console.log('File => Component Translation FR ------------------ WRITTEN');
-					stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
-					stream_fileTranslationEN.end();
-					stream_fileTranslationEN.on('finish', function () {
-						console.log('File => Component Translation EN ------------------ WRITTEN');
-
-						// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
-						var componentPiece = fs.readFileSync('./structure/pieces/component/'+filename+'/views/view_'+filename+'.dust', 'utf8');
-						var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, nameComponentLower);
-						var componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
-
-						var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
-
-						var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
-						var file = fileBase + '/show_fields.dust';
-
-						// CREATE THE TAB IN SHOW FIELDS
-						addTab(attr, file, newLi, componentContent).then(callback);
-					});
-				});*/
 			});
 		});
 	});
 }
 
 exports.newContactForm = function(attr, callback){
-	var component = attr.options.component;
-	var nameComponent = attr.options.name || "ContactForm";
+
+	var nameComponent = attr.options.value;
 	var nameComponentLower = nameComponent.toLowerCase();
-	var filename = "";
 
-	switch(component){
-		case "contactform" :
-			filename = "contact_form";
-		break;
-		default:
-			var err = new Error();
-			err.message = "Component files doesn't exist.";
-			callback(err);
-		break;
-	}
+	var showComponentName = attr.options.showValue;
+	var showComponentNameLower = showNameComponent.toLowerCase();
 
-	setupComponentView(attr.id_application, nameComponent, filename, attr.options.moduleName, function(){
+	var filename = "contact_form";
+
+	setupComponentView(attr.id_application, nameComponent, showComponentName, filename, attr.options.moduleName, function(){
 		setupComponentRoute(attr.id_application, nameComponent, filename, "", function(){
-			translateHelper.writeLocales(attr.id_application, "component", nameComponent, attr.googleTranslate, function(){
+			translateHelper.writeLocales(attr.id_application, "component", showComponentName, attr.googleTranslate, function(){
 				var layoutFileName = __dirname+'/../workspace/'+attr.id_application+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
 				domHelper.read(layoutFileName).then(function($) {
 					var li = '';
@@ -221,7 +169,7 @@ exports.newContactForm = function(attr, callback){
 					li += "<li id='"+nameComponent.toLowerCase()+"_menu_item' class='ui-state-default'>\n";
 						li += '<a href="/'+nameComponent.toLowerCase()+'">\n';
 							li += '<i class="fa fa-envelope"></i>\n';
-							li += '<span>{@__ key="global_component.contact_form.main_title" /}</span>\n';
+							li += '<span>{@__ key="component.'+showComponentNameLower+'.label_component" /}</span>\n';
 						li += '</a>\n';
 					li += '</li>\n';
 

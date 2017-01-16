@@ -8,11 +8,8 @@ module.exports = function(sequelize, DataTypes) {
 			primaryKey: true
 		},
 		name: DataTypes.STRING,
+		codeName: DataTypes.STRING,
 		type: DataTypes.STRING,
-		nillable: DataTypes.BOOLEAN,
-		min_length: DataTypes.INTEGER,
-		max_length: DataTypes.INTEGER,
-		class_object: DataTypes.STRING,
 		version: DataTypes.INTEGER
 	}, {
 		tableName: "data_field",

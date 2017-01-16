@@ -20,7 +20,7 @@ exports.createNewComponentOnEntity = function(attr, callback) {
         if (typeof options !== 'undefined' && options && id_data_entity != 0 && id_module != 0) {
 
             models.Component.create({
-                name: options.name,
+                name: options.showValue,
                 id_data_entity: id_data_entity,
                 id_module: id_module,
                 version: version
@@ -57,7 +57,7 @@ exports.createNewComponentOnModule = function(attr, callback) {
         if (typeof options !== 'undefined' && options && id_module != 0) {
 
             models.Component.create({
-                name: options.component,
+                name: options.showValue,
                 id_module: id_module,
                 version: version
             }).then(function(created_component) {
@@ -95,7 +95,7 @@ exports.getComponentByNameInEntity = function(attr, callback) {
 
             models.Component.findOne({
                 where:{
-                    name: options.name,
+                    name: options.showValue,
                     id_data_entity: id_data_entity,
                     id_module: id_module
                 }
@@ -128,7 +128,7 @@ exports.getComponentByNameInModule = function(attr, callback) {
 
             models.Component.findOne({
                 where:{
-                    name: options.name,
+                    name: options.showValue,
                     id_module: id_module
                 }
             }).then(function(component) {
