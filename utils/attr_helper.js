@@ -17,9 +17,11 @@ module.exports = {
     addPrefix: function(string, instructionFunction){
         switch(instructionFunction){
             case 'createNewProject':
+            case 'deleteProject':
                 return "P_"+string;
                 break;
             case 'createNewApplication':
+            case 'deleteApplication':
                 return "A_"+string;
                 break;
             case 'createNewModule':
@@ -27,9 +29,11 @@ module.exports = {
                 return "M_"+string;
                 break;
             case 'createNewDataEntity':
+            case 'deleteDataEntity':
                 return "E_"+string;
                 break;
             case 'createNewDataField':
+            case 'deleteDataField':
                 return "F_"+string;
                 break;
             case 'createNewComponentLocalFileStorage':
