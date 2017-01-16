@@ -7,7 +7,7 @@
     </ol>
 {/header}
 {<content}
-    <legend>{@__ key="global_component.contact_form.main_title"/}</legend>
+    <legend>{@__ key="component.show_name_component.label_component" /}</legend>
     <div class="row">
         <div class="col-xs-12 connectedSortable">
             <form action="/name_component" method="post">

@@ -95,11 +95,11 @@ router.post('/fieldset/:alias/add', block_access.isLoggedIn, function(req, res) 
                 message: 'message.create.failure',
                 level: "error"
             });
-            return res.redirect('/ENTITY_NAME/show?id='+idEntity+"#"+alias);
+            return res.redirect('/ENTITY_URL_NAME/show?id='+idEntity+"#"+alias);
         }
 
         ENTITY_NAME['add'+capitalizeFirstLetter(alias)](toAdd).then(function(){
-            res.redirect('/ENTITY_NAME/show?id='+idEntity+"#"+alias);
+            res.redirect('/ENTITY_URL_NAME/show?id='+idEntity+"#"+alias);
         });
     });
 });
@@ -188,7 +188,7 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
     createObject = enums.values("ENTITY_NAME", createObject, req.body)
 
     models.MODEL_NAME.create(createObject).then(function(ENTITY_NAME) {
-        var redirect = '/ENTITY_NAME/list';
+        var redirect = '/ENTITY_URL_NAME/list';
         req.session.toastr = [{
             message: 'message.create.success',
             level: "success"
@@ -326,7 +326,7 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
 
         ENTITY_NAME.update(updateObject, {where: {id: id_ENTITY_NAME}}).then(function() {
 
-            var redirect = '/ENTITY_NAME/show?id=' + id_ENTITY_NAME;
+            var redirect = '/ENTITY_URL_NAME/show?id=' + id_ENTITY_NAME;
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/'+req.body.associationSource+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
 
@@ -356,7 +356,7 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
             message: 'message.delete.success',
             level: "success"
         }];
-        var redirect = '/ENTITY_NAME/list';
+        var redirect = '/ENTITY_URL_NAME/list';
         if (typeof req.body.associationFlag !== 'undefined')
             redirect = '/'+req.body.associationSource+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
         res.redirect(redirect);

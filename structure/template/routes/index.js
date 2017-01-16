@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var basename = path.basename(module.filename);
+var basicbot = require('../../../utils/basicbot');
 
 module.exports = function(app) {
 	fs.readdirSync(__dirname).filter(function(file){
@@ -10,6 +11,6 @@ module.exports = function(app) {
 		if (file === 'routes')
 			app.use('/', require('./'+file));
 		else
-			app.use('/'+file, require('./'+file));
+			app.use('/'+basicbot.removePrefix(file, "entity"), require('./'+file));
 	});
 }

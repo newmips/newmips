@@ -1,5 +1,5 @@
 <div id="COMPONENT_NAME_LOWER" class="tab-pane fade">
-	<legend> {@__ key="button.add"/}&nbsp;{@__ key="component.COMPONENT_NAME_LOWER.label_component"/} </legend>
+	<legend> {@__ key="button.add"/}&nbsp;{@__ key="component.SHOW_COMPONENT_NAME_LOWER.label_component"/} </legend>
 	<form action="/COMPONENT_NAME_LOWER/create" class="component-form" data-component="COMPONENT_NAME_LOWER" method="post">
 		<div class='dropzone dropzone_local_file_component' style="width:100%;" id='COMPONENT_NAME_LOWER_dropzone_component' data-source="SOURCE_LOWER" data-sourceId="{SOURCE_LOWER.id}" data-storage='local' data-component='COMPONENT_NAME_LOWER' ></div>
 		<input type='hidden' name='name' id='COMPONENT_NAME_LOWER_dropzone_component_hidden_name'/>
@@ -11,7 +11,7 @@
 	</form>
 	<br>
 	<br>
-	<legend>{@__ key="operation.list"/} {@__ key="component.COMPONENT_NAME_LOWER.label_component"/}</legend>
+	<legend>{@__ key="operation.list"/} {@__ key="component.SHOW_COMPONENT_NAME_LOWER.label_component"/}</legend>
 	<table id="table_COMPONENT_NAME_LOWER" class="dataTable table table-bordered table-striped" style="margin-bottom: 50px;">
 		<thead class="main">
 			<tr class="fields">

@@ -220,7 +220,22 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         /* Parse the instruction to get an object for the designer */
         var attr = parser.parse(instruction);
 
-        // Newly created sub-objects (like a company for instance) needs to be set to a superclass (like a plateau)
+        console.log(attr);
+
+        /* if the instruction create something there is obligatory a value. We have to clean this value for the code */
+        if(typeof attr.options.value !== "undefined" && attr.options.processValue){
+            /* Keep the value for the trad file */
+            attr.options.showValue = attr.options.value;
+            /* Clean the name of the value */
+            attr.options.value = basicbot.clearString(attr.options.value);
+            /* Value that will be used in url */
+            attr.options.urlValue = attr.options.value;
+            /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
+            attr.options.value = basicbot.addPrefix(attr.options.value, attr.function);
+        }
+
+        console.log(attr);
+
         // We simply add session values in attributes array
         attr.instruction = instruction;
         attr.id_project = req.session.id_project;
@@ -410,14 +425,14 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             }
         });
 
-    } catch (e) {
+    } catch(e){
 
         data["answers"] = e.message + "\n\n" + answers;
         console.log(e.message);
 
         // Analyze instruction more deeply
-        answer = "Sorry, your instruction has not been executed properly.<br><br>";
-        answer = answer + "Machine said: " + e.message + "<br><br>";
+        var answer = "Sorry, your instruction has not been executed properly.<br><br>";
+        answer += "Machine said: " + e.message + "<br><br>";
         chat["items"].push({
             user: "Newmips",
             dateEmission: moment().format("DD MMM HH:mm"),
@@ -426,13 +441,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         data["chat"] = chat;
 
         // Load session values
-        var attr = new Array();
-        attr["id_project"] = req.session.id_project;
-        attr["id_application"] = req.session.id_application;
-        attr["id_module"] = req.session.id_module;
-        attr["id_data_entity"] = req.session.id_data_entity;
+        var attr = {};
+        attr.id_project = req.session.id_project;
+        attr.id_application = req.session.id_application;
+        attr.id_module = req.session.id_module;
+        attr.id_data_entity = req.session.id_data_entity;
         session_manager.getSession(attr, function(err, info) {
-            data["session"] = info;
+            data.session = info;
             res.render('front/preview', data);
         });
     }

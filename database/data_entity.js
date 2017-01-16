@@ -103,7 +103,7 @@ exports.selectDataEntityTarget = function(attr, callback) {
 
 exports.createNewDataEntity = function(attr, callback) {
 
-	var name_entity = "";
+	var name_entity;
 	var id_module = -1;
 
 	if(typeof attr !== 'undefined' && typeof attr.options !== "undefined"){
@@ -113,13 +113,17 @@ exports.createNewDataEntity = function(attr, callback) {
 
 		// Set options variable using the attribute array
 		var options = attr.options;
+
+		// Value is the value used in the code
 		name_entity = options.value;
+		// showValue is the value without cleaning function
+		var show_name_entity = options.showValue;
 
 		if(typeof options !== 'undefined' && name_entity != "" && id_module > 0){
 
 			models.DataEntity.findOne({
 				where: {
-					name: name_entity
+					name: show_name_entity
 				},
 				include: [{
 					model: models.Module,
@@ -138,7 +142,8 @@ exports.createNewDataEntity = function(attr, callback) {
 				}
 
 				models.DataEntity.create({
-					name: name_entity,
+					name: show_name_entity,
+					codeName: name_entity,
 					id_module: id_module,
 					version: 1
 				}).then(function(newEntity) {
@@ -399,7 +404,6 @@ exports.deleteDataEntity = function(attr, callback) {
 // Get a DataEntity with a given name
 exports.getDataEntityByName = function(attr, callback) {
 
-    var name = "";
     var id_application = 0;
     var version = 1;
 
@@ -411,7 +415,7 @@ exports.getDataEntityByName = function(attr, callback) {
 
             models.DataEntity.findOne({
             	where: {
-	                name: options.name,
+	                name: options.showValue,
 	                id_application: id_application
             	}
             }).then(function(dataEntity) {

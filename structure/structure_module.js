@@ -1,25 +1,19 @@
 var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
+var basicbot = require('../utils/basicbot');
 
 exports.setupModule = function(attr, callback) {
     var id_application = attr.id_application;
-    var name_module = "";
 
     // Initialize variables according to options
     var options = attr.options;
-    name_module = options.value;
-
-    /*i = 0;
-    while (i < options.length) {
-        if (options[i].property == 'entity') {
-            name_module = options[i].value;
-        }
-        i++;
-    }*/
+    var name_module = options.value;
+    var show_name_module = options.showValue;
+    var url_name_module = options.urlValue;
 
     // Read routes/default.js file
-    var file = __dirname + '/../workspace/' + id_application + '/routes/default.js';
+    var file = __dirname+'/../workspace/'+id_application+'/routes/default.js';
     fs.readFile(file, 'utf8', function(err, data) {
         if (err) {
             return callback(err, null);
@@ -28,7 +22,7 @@ exports.setupModule = function(attr, callback) {
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
         str += '\t// ' + name_module + '\n';
-        str += '\trouter.get(\'/' + name_module.toLowerCase() + '\', block_access.isLoggedIn, function(req, res) {\n';
+        str += '\trouter.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, function(req, res) {\n';
         str += '\t\tvar data = {\n';
         str += '\t\t\t"profile":req.session.data\n';
         str += '\t\t};\n';
@@ -43,7 +37,7 @@ exports.setupModule = function(attr, callback) {
             console.log('File => routes/default.js ------------------ UPDATED');
 
             // Create views/default/MODULE_NAME.dust file
-            var fileToCreate = __dirname + '/../workspace/'+ id_application +'/views/default/' + name_module.toLowerCase() + '.dust';
+            var fileToCreate = __dirname + '/../workspace/'+id_application+'/views/default/'+name_module.toLowerCase()+'.dust';
             fs.copy(__dirname + '/pieces/views/default/custom_module.dust', fileToCreate, function(err) {
                 if (err) {
                     return callback(err, null);
@@ -57,20 +51,21 @@ exports.setupModule = function(attr, callback) {
 
                     // Replace custom_module occurence and write to file
                     var resultDust = dataDust.replace(/custom_module/g, name_module.toLowerCase());
+                    resultDust = resultDust.replace(/custom_show_module/g, show_name_module.toLowerCase());
                     fs.writeFile(fileToCreate, resultDust, 'utf8', function(err) {
                         if(err){
                             return callback(err, null);
                         }
-                        console.log('File => views/default/'+ name_module.toLowerCase() +'.dust ------------------ CREATED');
+                        console.log('File => views/default/'+name_module.toLowerCase()+'.dust ------------------ CREATED');
 
-                        translateHelper.writeLocales(id_application, "module", name_module, attr.googleTranslate, function(){
+                        translateHelper.writeLocales(id_application, "module", show_name_module, attr.googleTranslate, function(){
                             // Create module's layout file
                             file = __dirname+'/../workspace/'+id_application+'/views/layout_'+name_module.toLowerCase()+'.dust';
                             fs.copy(__dirname+'/pieces/views/layout_custom_module.dust', file, function(err) {
                                 if(err){
                                     return callback(err, null);
                                 }
-                                console.log("File => layout_" + name_module.toLowerCase() + '.dust ------------------ CREATED');
+                                console.log("File => layout_"+name_module.toLowerCase()+'.dust ------------------ CREATED');
 
                                 // Loop over module list to add new module's <option> tag in all modules <select> tags
                                 var promises = [];
@@ -80,13 +75,13 @@ exports.setupModule = function(attr, callback) {
                                 for (var i=0; i < modules.length; i++) {
                                     promises.push(new Promise(function(resolve, reject) {
                                         (function(ibis){
-                                            var fileName = __dirname + '/../workspace/' + id_application + '/views/layout_' + modules[ibis].name.toLowerCase() + '.dust';
+                                            var fileName = __dirname+'/../workspace/'+id_application+'/views/layout_'+modules[ibis].codeName.toLowerCase()+'.dust';
                                             domHelper.read(fileName).then(function($) {
                                                 $("#dynamic_select").empty();
                                                 option = "";
                                                 for (var j=0; j<modules.length; j++) {
-                                                    option += '<option data-module="'+modules[j].name.toLowerCase()+'" value="/default/' + modules[j].name.toLowerCase() + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected':'') + '>';
-                                                    option += '{@__ key="module.' + modules[j].name.toLowerCase() + '" /}';
+                                                    option += '<option data-module="'+modules[j].name.toLowerCase()+'" value="/default/'+basicbot.removePrefix(modules[j].codeName, "module")+'" '+(modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected':'') + '>';
+                                                    option += '{@__ key="module.'+modules[j].name.toLowerCase()+'" /}';
                                                     option += '</option>';
                                                 }
 
@@ -109,79 +104,6 @@ exports.setupModule = function(attr, callback) {
                                 });
                             });
                         });
-
-                        /* ---------------- OLD ---------------- */
-
-                        // Update locales file
-                        /*fileLocalesFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-                        fileLocalesEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
-                        dataLocalesFR = require(fileLocalesFR);
-                        dataLocalesEN = require(fileLocalesEN);
-
-                        if(name_module.toLowerCase() == "home"){
-                            dataLocalesFR.module[name_module.toLowerCase()] = "Accueil";
-                            dataLocalesEN.module[name_module.toLowerCase()] = "Home";
-                        }
-                        else{
-                            dataLocalesFR.module[name_module.toLowerCase()] = name_module;
-                            dataLocalesEN.module[name_module.toLowerCase()] = name_module;
-                        }
-                        fs.writeFile(fileLocalesFR, JSON.stringify(dataLocalesFR, null, 2), function(err) {
-                            if (err){
-                                return console.log(err);
-                            }
-                            console.log('File => locales/fr-FR.json ------------------ UPDATED');
-
-                            fs.writeFile(fileLocalesEN, JSON.stringify(dataLocalesEN, null, 2), function(err) {
-                                if (err){
-                                    return console.log(err);
-                                }
-                                console.log('File => locales/en-EN.json ------------------ UPDATED');
-
-                                // Create module's layout file
-                                file = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module.toLowerCase() + '.dust';
-                                fs.copy(__dirname + '/pieces/views/layout_custom_module.dust', file, function(err) {
-                                    if (err) return console.error(err);
-                                    console.log("File => layout_" + name_module.toLowerCase() + '.dust ------------------ CREATED');
-
-                                    // Loop over module list to add new module's <option> tag in all modules <select> tags
-                                    var promises = [];
-                                    var modules = attr.modules;
-                                    var option;
-
-                                    for (var i=0; i < modules.length; i++) {
-                                        promises.push(new Promise(function(resolve, reject) {
-                                            (function(ibis){
-                                                var fileName = __dirname + '/../workspace/' + id_application + '/views/layout_' + modules[ibis].name.toLowerCase() + '.dust';
-                                                domHelper.read(fileName).then(function($) {
-                                                    $("#dynamic_select").empty();
-                                                    option = "";
-                                                    for (var j=0; j<modules.length; j++) {
-                                                        option += '<option data-module="'+modules[j].name.toLowerCase()+'" value="/default/' + modules[j].name.toLowerCase() + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected':'') + '>';
-                                                        option += '{@__ key="module.' + modules[j].name.toLowerCase() + '" /}';
-                                                        option += '</option>';
-                                                    }
-
-                                                    $("#dynamic_select").append(option);
-
-                                                    domHelper.write(fileName, $).then(function() {
-                                                        console.log('File => layout_' + modules[ibis].name.toLowerCase() + '.dust ------------------ UPDATED');
-                                                        resolve();
-                                                    });
-                                                });
-                                            })(i);
-                                        }));
-                                    }
-
-                                    // Wait for all the layouts to be modified before calling `callback()`
-                                    Promise.all(promises).then(function() {
-                                        callback();
-                                    }).catch(function(err) {
-                                        console.log(err);
-                                    });
-                                });
-                            });
-                        });*/
                     });
                 });
             });

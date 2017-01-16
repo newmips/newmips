@@ -208,7 +208,8 @@ instr :
 
       // Preparing Options
       options = {
-        value: value
+        value: value,
+        processValue: true
       };
 
       switch ($2.toLowerCase()) {
@@ -260,7 +261,8 @@ instr :
       // Preparing Options
       options = {
         value: value,
-        type: type
+        type: type,
+        processValue: true
       };
 
       // Creating entity
@@ -288,7 +290,8 @@ instr :
       options = {
         value: value,
         type: type,
-        allValues: chaine
+        allValues: chaine,
+        processValue: true
       };
 
       chaine = "";
@@ -309,13 +312,9 @@ instr :
   %}
   | CREATE COMPONENT STRING
   %{
-      // Set component
-      component = $3;
 
       // Preparing Options
-      options = {
-        component: component
-      }
+      options = {}
 
       switch ($3.toLowerCase()) {
         case "localfilestorage":
@@ -328,22 +327,19 @@ instr :
   %}
   | CREATE COMPONENT STRING WITH_NAME STRING
   %{
-      // Set component
-      component = $3;
-
       // Set name foreign key
       name = $5;
 
       // Preparing Options
       options = {
-        component: component,
-        name: name
+        value: name,
+        processValue: true
       }
 
       switch ($3.toLowerCase()) {
         case "localfilestorage":
           return createNewComponentLocalFileStorage(options);
-        case "contactus":
+        case "contactform":
           return createNewComponentContactUs(options);
         default :
           break;

@@ -10,7 +10,7 @@ exports.createNewDataField = function(attr, callback) {
 		return callback(err, null);
 	}
 
-	var name_field = "";
+	var name_field;
 	var type_field = "string";
 	var version = 1;
 
@@ -22,6 +22,7 @@ exports.createNewDataField = function(attr, callback) {
         // Set options variable using the attribute array
         var options = attr.options;
         name_field = options.value;
+        var show_name_field = options.showValue;
 
         if(typeof options.type !== "undefined")
         	type_field = options.type
@@ -31,17 +32,18 @@ exports.createNewDataField = function(attr, callback) {
             models.DataField.findOne({
             	where: {
             		id_data_entity: id_data_entity,
-            		name: name_field
+            		$or: [{name: show_name_field}, {codeName: name_field}]
             	}
             }).then(function(dataField) {
             	if (dataField) {
             		var err = new Error();
-            		err.message = "Field already exists";
+            		err.message = "Sorry, a field with the same or similar name already exists.";
             		return callback(err, null);
             	}
 
             	models.DataField.create({
-            		name: name_field,
+            		name: show_name_field,
+            		codeName: name_field,
             		type: type_field,
             		id_data_entity: id_data_entity,
             		version: version
