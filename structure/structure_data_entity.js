@@ -158,7 +158,7 @@ exports.setupDataEntity = function(attr, callback) {
 		domHelper.read(fileName).then(function($) {
 			var li = '';
 			// Create new html
-			li += "<li id='"+nameDataEntity.toLowerCase()+"_menu_item' style='display:"+displaySidebar+";' class='ui-state-default treeview'>\n";
+			li += "<li id='"+urlDataEntity.toLowerCase()+"_menu_item' style='display:"+displaySidebar+";' class='ui-state-default treeview'>\n";
 				li += '<a href="#">\n';
 					li += '<i class="fa fa-folder"></i>\n';
 					li += '<span>{@__ key="entity.'+show_name_data_entity.toLowerCase()+'.label_entity" /}</span>\n';

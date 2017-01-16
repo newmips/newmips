@@ -17,7 +17,7 @@ var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
 var parser = new jison.Parser(bnf);
 
 // Basic bot jison
-var basicbot = require('../utils/basicbot');
+var attrHelper = require('../utils/attr_helper');
 
 // ===========================================
 // Redirection Live =====================
@@ -151,11 +151,11 @@ function execute(req, instruction) {
                 /* Keep the value for the trad file */
                 attr.options.showValue = attr.options.value;
                 /* Clean the name of the value */
-                attr.options.value = basicbot.clearString(attr.options.value);
+                attr.options.value = attrHelper.clearString(attr.options.value);
                 /* Value that will be used in url */
                 attr.options.urlValue = attr.options.value;
                 /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
-                attr.options.value = basicbot.addPrefix(attr.options.value, attr.function);
+                attr.options.value = attrHelper.addPrefix(attr.options.value, attr.function);
             }
 
             console.log(attr);
