@@ -23,6 +23,7 @@ module.exports = {
                 return "A_"+string;
                 break;
             case 'createNewModule':
+            case 'deleteModule':
                 return "M_"+string;
                 break;
             case 'createNewDataEntity':

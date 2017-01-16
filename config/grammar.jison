@@ -737,7 +737,8 @@ instr :
 
       // Preparing Options
       options = {
-        value: value
+        value: value,
+        processValue: true
       };
 
       switch($2.toLowerCase()){

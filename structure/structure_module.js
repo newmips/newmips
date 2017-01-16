@@ -80,7 +80,7 @@ exports.setupModule = function(attr, callback) {
                                                 $("#dynamic_select").empty();
                                                 option = "";
                                                 for (var j=0; j<modules.length; j++) {
-                                                    option += '<option data-module="'+modules[j].name.toLowerCase()+'" value="/default/'+attrHelper.removePrefix(modules[j].codeName, "module")+'" '+(modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected':'') + '>';
+                                                    option += '<option data-module="'+modules[j].codeName.toLowerCase()+'" value="/default/'+attrHelper.removePrefix(modules[j].codeName, "module")+'" '+(modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected':'') + '>';
                                                     option += '{@__ key="module.'+modules[j].name.toLowerCase()+'" /}';
                                                     option += '</option>';
                                                 }

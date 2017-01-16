@@ -10,3 +10,10 @@
 {"level":"debug","message":"Field already exists","timestamp":"2017-01-13T14:41:18.656Z"}
 {"level":"debug","message":"Sorry, an existing module with the same or similar name already exist.","timestamp":"2017-01-16T10:01:41.005Z"}
 {"level":"debug","message":"Sorry, an existing module with the same or similar name already exist.","timestamp":"2017-01-16T10:32:10.947Z"}
+{"level":"debug","message":"ENOENT: no such file or directory, unlink '/home/newmips-linux/newmips/structure/../workspace/28/views/layout_é'è''è.dust'","timestamp":"2017-01-16T14:44:13.759Z"}
+{"level":"debug","message":"Unable to find module U_e_e__e.","timestamp":"2017-01-16T14:45:46.692Z"}
+{"level":"debug","message":"ENOENT: no such file or directory, unlink '/home/newmips-linux/newmips/structure/../workspace/29/views/layout_u_e_e__e.dust'","timestamp":"2017-01-16T15:03:07.257Z"}
+{"level":"debug","message":"ENOENT: no such file or directory, unlink '/home/newmips-linux/newmips/structure/../workspace/30/views/layout_u_e_e__e.dust'","timestamp":"2017-01-16T15:04:10.168Z"}
+{"level":"debug","message":"Sorry, an existing module with the same or similar name already exist.","timestamp":"2017-01-16T15:12:23.668Z"}
+{"level":"debug","message":"Cannot find module '/home/newmips-linux/newmips/services/../workspace/32/models/options/éçàù'èçà.json'","timestamp":"2017-01-16T15:15:04.725Z"}
+{"level":"debug","message":"ENOENT: no such file or directory, unlink '/home/newmips-linux/newmips/structure/../workspace/35/views/layout_é'è''è.dust'","timestamp":"2017-01-16T15:42:22.311Z"}
