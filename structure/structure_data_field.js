@@ -203,12 +203,12 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
 	var str = '<th data-field="'+dataField+'" data-col="' +dataField + '"';
-	if (type == "date") {
+	if (type == "date")
 		str += ' data-type="date"';
-	}
-	else if (type == "datetime") {
+	else if (type == "datetime")
 		str += ' data-type=\'datetime\'';
-	}
+	else if (type == "time")
+		str += ' data-type=\'time\'';
 	else if (type == "boolean")
 		str += ' data-type=\'boolean\'';
 	str += '>\n';
@@ -222,6 +222,8 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 		str += ' data-type=\'date\'';
 	else if (type == "datetime")
 		str += ' data-type=\'datetime\'';
+	else if (type == "time")
+		str += ' data-type=\'time\'';
 	else if (type == "boolean")
 		str += ' data-type=\'boolean\'';
 	str += ' >{'+dataField+'}</td>';
