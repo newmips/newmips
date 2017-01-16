@@ -347,13 +347,14 @@ exports.listDataEntity = function(attr, callback) {
 function deleteDataEntity(attr, callback) {
     var id_application = attr.id_application;
     var name_data_entity = attr.options.value.toLowerCase();
+    var show_name_data_entity = attr.options.showValue.toLowerCase();
 
     var name_module = "";
 
     var promises = [];
     var workspacePath = __dirname+'/../workspace/'+id_application;
 
-    db_entity.getIdDataEntityByName(name_data_entity, function(err, entityId){
+    db_entity.getIdDataEntityByName(show_name_data_entity, function(err, entityId){
         if(err){
             callback(err, null);
         }
