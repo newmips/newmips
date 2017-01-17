@@ -487,7 +487,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       switch($1.toLowerCase()) {
@@ -517,7 +518,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+source.toLowerCase(),
-        as: target
+        as: target,
+        processValue: true
       };
 
       // Creating entity

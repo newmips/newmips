@@ -769,7 +769,11 @@ exports.createNewHasMany = function(attr, callback) {
         var reversedAttr = {
             options: {
                 source: attr.options.target,
-                target: attr.options.source
+                showSource: attr.options.showTarget,
+                urlSource: attr.options.urlTarget,
+                target: attr.options.source,
+                showTarget: attr.options.showSource,
+                urlTarget: attr.options.urlSource
             },
             id_module: attr.id_module,
             id_application: attr.id_application
@@ -793,20 +797,21 @@ exports.createNewHasMany = function(attr, callback) {
             //Si c'est bien l'error de data entity qui n'existe pas
             if(err.level == 0){
                 db_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
+                    if (err) {
+                        return callback(err, null);
+                    }
                     // On se dirige en sessions vers l'entité crée
                     //info = created_dataEntity;
                     // Stay on the source entity, even if the target has been created
                     info.insertId = attr.id_data_entity;
                     info.message = "New relation has many with subEntity "+created_dataEntity.name+" created.";
-                    if (err) {
-                        return callback(err, null);
-                    }
 
-                    db_module.getNameModuleById(attr.id_module, function(err, name_module) {
+                    db_module.getModuleById(attr.id_module, function(err, module) {
                         if (err) {
                             return callback(err, null);
                         }
-                        attr.name_module = name_module;
+                        attr.show_name_module = module.name;
+                        attr.name_module = module.codeName;
 
                         // Création de l'entité target dans le workspace
                         structure_data_entity.setupDataEntity(attr, function(err, data) {
