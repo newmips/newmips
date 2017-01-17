@@ -311,6 +311,28 @@ exports.getNameDataEntityById = function(id_data_entity, callback) {
 			return callback(err, null);
 		}
 
+		callback(null, dataEntity.name);
+	}).catch(function(err){
+		return callback(err, null);
+	});
+}
+
+// GetById
+exports.getDataEntityById = function(id_data_entity, callback) {
+
+	if (typeof(id_data_entity) !== 'number') {
+		var err = new Error();
+		err.message = "ID data entity is not defined. You should select or create a data entity before.";
+		return callback(err, null);
+	}
+
+	models.DataEntity.findOne({where: {id: id_data_entity}}).then(function(dataEntity) {
+		if (!dataEntity) {
+			var err = new Error();
+			err.message = "No data entity with ID "+id_data_entity+" found.";
+			return callback(err, null);
+		}
+
 		callback(null, dataEntity);
 	}).catch(function(err){
 		return callback(err, null);
