@@ -670,18 +670,24 @@ function addTab(attr, file, newLi, newTabContent) {
 
 exports.setupHasManyTab = function(attr, callback) {
     var target = attr.options.target.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
     var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
     var foreignKey = attr.options.foreignKey.toLowerCase();
     var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
-	fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-	fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-	dataFR = require(fileTranslationFR);
-	dataEN = require(fileTranslationEN);
+	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
+	var fileTranslationEN = __dirname+'/../workspace/'+attr.id_application+'/locales/en-EN.json';
+	var dataFR = require(fileTranslationFR);
+	var dataEN = require(fileTranslationEN);
 
-	dataFR.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
-	dataEN.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
+	dataFR.entity[target]["as_"+alias] = showAlias;
+	dataEN.entity[target]["as_"+alias] = showAlias;
 
 	var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
 	var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -696,25 +702,25 @@ exports.setupHasManyTab = function(attr, callback) {
 			console.log('File => Translation EN ------------------ UPDATED');
 
 			// Setup association tab for show_fields.dust
-		    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-		    var file = fileBase + '/show_fields.dust';
+		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
+		    var file = fileBase+'/show_fields.dust';
 
 		    // Create new tab button
-		    var newLi = '<li><a id="'+ alias +'-click" data-toggle="tab" href="#'+ alias +'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
+		    var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
 
 		    // Create new tab content
 		    var newTab = '';
-		    newTab += '	<div id="'+ alias +'" class="tab-pane fade">';
+		    newTab += '	<div id="'+alias+'" class="tab-pane fade">';
 		    newTab += '		<!--{#'+alias+' '+target+'='+alias+'}-->';
 			newTab += '			<!--{@eq key=id value='+target+'[0].id}-->';
-		    newTab += '				{>"' + target + '/list_fields" associationAlias="'+alias+'" associationForeignKey="'+foreignKey+'" associationFlag="{'+source+'.id}" associationSource="'+source+'" for="hasMany" /}';
+		    newTab += '				{>"'+target+'/list_fields" associationAlias="'+alias+'" associationForeignKey="'+foreignKey+'" associationFlag="{'+source+'.id}" associationSource="'+source+'" associationUrl="'+urlSource+'" for="hasMany" /}';
 		    newTab += '			<!--{/eq}-->';
 			newTab += '		<!--{:else}-->';
 			newTab += '				{>"'+target+'/list_fields" /}';
 			newTab += '		<!--{/'+alias+'}-->';
 
 		   	// Create button to directly associate created object to relation
-			newTab += '		<a href="/'+target+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
+			newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">';
 			newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
 			newTab += '		</a>';
 		    newTab += '</div>';
@@ -843,7 +849,7 @@ exports.setupHasOneTab = function(attr, callback) {
     var foreignKey = attr.options.foreignKey.toLowerCase();
     var alias = attr.options.as.toLowerCase();
     var showAlias = attr.options.showAs;
-    var urlAs = attr.options.urlAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
 	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
