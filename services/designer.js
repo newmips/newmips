@@ -298,7 +298,7 @@ exports.deleteModule = function(attr, callback) {
 }
 
 /* --------------------------------------------------------------- */
-/* ------------------------- DataEntity -------------------------- */
+/* --------------------------- Entity ---------------------------- */
 /* --------------------------------------------------------------- */
 exports.selectDataEntity = function(attr, callback) {
     db_entity.selectDataEntity(attr, function(err, info) {
@@ -458,7 +458,7 @@ function deleteDataEntity(attr, callback) {
 exports.deleteDataEntity = deleteDataEntity;
 
 /* --------------------------------------------------------------- */
-/* ------------------------- DataField -------------------------- */
+/* --------------------------- Field ----------------------------- */
 /* --------------------------------------------------------------- */
 exports.createNewDataField = function(attr, callback) {
     // Get active data entity name
@@ -583,6 +583,10 @@ exports.listDataField = function(attr, callback) {
     });
 }
 
+/* --------------------------------------------------------------- */
+/* ---------------------- Field Attributes ----------------------- */
+/* --------------------------------------------------------------- */
+
 exports.setRequiredAttribute = function(attr, callback) {
     db_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
         if (err)
@@ -617,7 +621,7 @@ exports.setColumnVisibility = function(attr, callback) {
 /* -------------------- ASSOCIATION / RELATION ------------------- */
 /* --------------------------------------------------------------- */
 
-// Belongs To
+// Create a tab with an add button to create one new object associated to source entity
 exports.createNewBelongsTo = function(attr, callback) {
 
     var info = {};
@@ -720,7 +724,7 @@ exports.createNewBelongsTo = function(attr, callback) {
     });
 }
 
-// Create a tab with a add button
+// Create a tab with an add button to create multiple new object associated to source entity
 exports.createNewHasMany = function(attr, callback) {
 
     var info = {};
@@ -827,7 +831,7 @@ exports.createNewHasMany = function(attr, callback) {
     });
 }
 
-// Create a tab with a select and a list
+// Create a tab with a select of existing object and a list associated to it
 exports.createNewFieldset = function(attr, callback) {
 
     // Instruction is add fieldset _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
@@ -919,7 +923,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
             } else {
 
                 // Vérification si une relation existe déjà de la source VERS la target
-                var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+                var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
                 var optionsSourceObject = JSON.parse(optionsSourceFile);
 
                 for (var i=0; i < optionsSourceObject.length; i++) {
@@ -970,9 +974,9 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
     });
 }
 
-/* -------------------------------------------------- */
-/* -------------------- COMPONENT ------------------- */
-/* -------------------------------------------------- */
+/* --------------------------------------------------------------- */
+/* -------------------------- COMPONENT -------------------------- */
+/* --------------------------------------------------------------- */
 
 // Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = function(attr, callback) {
