@@ -1,6 +1,0 @@
-{"level":"debug","message":"ENOENT: no such file or directory, open 'C:\\Users\\jerom\\OneDrive\\Documents\\Dev\\Git\\newmips\\workspace\\8\\models\\attributes\\éà'àé.json'","timestamp":"2017-01-17T10:48:58.678Z"}
-{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:28:24.410Z"}
-{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:41:05.685Z"}
-{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:42:00.208Z"}
-{"level":"debug","message":"Sorry, a field with the same or similar name already exists.","timestamp":"2017-01-17T13:48:24.107Z"}
-{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:48:40.322Z"}
