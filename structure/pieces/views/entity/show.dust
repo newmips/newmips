@@ -11,14 +11,14 @@
     </ol>
 {/header}
 {<content}
-    <legend>{@__ key="operation.show"/} {@__ key="entity.custom_show_data_entity.name_entity" /}</legend>
+    <legend>{@__ key="operation.show"/} {@__ key="entity.custom_data_entity.name_entity" /}</legend>
     <div class="row">
         <div class="col-xs-12 connectedSortable">
             <div class="box-body"></div>
             <div class="box-body">
                 <div>
                     <div class="form-group">
-                        <label for="id">{@__ key="entity.custom_show_data_entity.id_entity"/} {@__ key="entity.custom_show_data_entity.name_entity"/}</label>
+                        <label for="id">{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}</label>
                         <input type="text" value="{custom_data_entity.id}" disabled="" class="form-control"/>
                     </div>
                 </div>

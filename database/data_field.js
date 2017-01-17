@@ -80,12 +80,13 @@ exports.createNewForeignKey = function(attr, callback) {
 		return callback(err, null);
 	}
 
-	var name = attr.options.foreignKey;
+	var name = attr.options.showForeignKey;
+	var codeName = attr.options.foreignKey;
 	var version = 1;
 
 	models.DataEntity.findOne({
 		where: {
-			name: attr.options.source
+			name: attr.options.showSource
 		},
 		include: [{
 			model: models.Module,
@@ -99,13 +100,14 @@ exports.createNewForeignKey = function(attr, callback) {
 	}).then(function(dataEntity) {
 		models.DataField.create({
 			name: name,
+			codeName: codeName,
 			type: "INTEGER",
 			version: version,
 			id_data_entity: dataEntity.id
 		}).then(function(created_foreignKey) {
 			var info = {};
 			info.insertId = created_foreignKey.id;
-			info.message = "New foreign key " + created_foreignKey.id + " | " + created_foreignKey.name + " created.";
+			info.message = "New foreign key "+created_foreignKey.id+" | "+created_foreignKey.name+" created.";
 			callback(null, info);
 		});
 	}).catch(function(err) {

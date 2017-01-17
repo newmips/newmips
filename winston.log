@@ -1,0 +1,6 @@
+{"level":"debug","message":"Cannot read property 'toLowerCase' of undefined","timestamp":"2017-01-17T10:40:51.006Z"}
+{"level":"debug","message":"Unexpected token u","timestamp":"2017-01-17T10:43:37.826Z"}
+{"level":"debug","message":"Unexpected token u","timestamp":"2017-01-17T10:48:45.290Z"}
+{"level":"debug","message":"Cannot read property 'id' of null","timestamp":"2017-01-17T10:50:57.710Z"}
+{"level":"debug","message":"Cannot read property 'id' of null","timestamp":"2017-01-17T10:53:59.995Z"}
+{"level":"debug","message":"Cannot read property 'id' of null","timestamp":"2017-01-17T10:57:36.600Z"}

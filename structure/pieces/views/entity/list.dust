@@ -12,7 +12,7 @@
 {/header}
 {<content}
     <div class="table-responsive">
-        <legend>{@__ key="operation.list"/} {@__ key="entity.custom_show_data_entity.plural_entity"/}</legend>
+        <legend>{@__ key="operation.list"/} {@__ key="entity.custom_data_entity.plural_entity"/}</legend>
         <div class="col-xs-12 connectedSortable">
             <div class="box-body">
                 {>"custom_data_entity/list_fields"/}

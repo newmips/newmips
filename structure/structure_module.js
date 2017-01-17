@@ -21,12 +21,12 @@ exports.setupModule = function(attr, callback) {
 
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
-        str += '\t// ' + name_module + '\n';
-        str += '\trouter.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, function(req, res) {\n';
+        str += '\t// '+name_module+'\n';
+        str += '\trouter.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, function(req, res) {\n';
         str += '\t\tvar data = {\n';
         str += '\t\t\t"profile":req.session.data\n';
         str += '\t\t};\n';
-        str += '\t\tres.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
+        str += '\t\tres.render(\'default/'+name_module.toLowerCase()+'\', data);\n';
         str += '\t});\n';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
@@ -58,7 +58,7 @@ exports.setupModule = function(attr, callback) {
                         }
                         console.log('File => views/default/'+name_module.toLowerCase()+'.dust ------------------ CREATED');
 
-                        translateHelper.writeLocales(id_application, "module", show_name_module, attr.googleTranslate, function(){
+                        translateHelper.writeLocales(id_application, "module", name_module, show_name_module, attr.googleTranslate, function(){
                             // Create module's layout file
                             file = __dirname+'/../workspace/'+id_application+'/views/layout_'+name_module.toLowerCase()+'.dust';
                             fs.copy(__dirname+'/pieces/views/layout_custom_module.dust', file, function(err) {
@@ -81,7 +81,7 @@ exports.setupModule = function(attr, callback) {
                                                 option = "";
                                                 for (var j=0; j<modules.length; j++) {
                                                     option += '<option data-module="'+modules[j].codeName.toLowerCase()+'" value="/default/'+attrHelper.removePrefix(modules[j].codeName, "module")+'" '+(modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected':'') + '>';
-                                                    option += '{@__ key="module.'+modules[j].name.toLowerCase()+'" /}';
+                                                    option += '{@__ key="module.'+modules[j].codeName.toLowerCase()+'" /}';
                                                     option += '</option>';
                                                 }
 

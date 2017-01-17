@@ -15,9 +15,6 @@ exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataE
 	baseOptions.foreignKey = foreignKey;
 	baseOptions.as = as;
 
-	// Maintenant cela est fait directement dans la grammar
-	/*baseOptions.foreignKey = "id_" + sourceDataEntity + "_" + as;*/
-
 	if(relation == "belongsToMany"){
 		baseOptions.through = through;
 	}
@@ -161,20 +158,20 @@ exports.setupDataEntity = function(attr, callback) {
 			li += "<li id='"+urlDataEntity.toLowerCase()+"_menu_item' style='display:"+displaySidebar+";' class='ui-state-default treeview'>\n";
 				li += '<a href="#">\n';
 					li += '<i class="fa fa-folder"></i>\n';
-					li += '<span>{@__ key="entity.'+show_name_data_entity.toLowerCase()+'.label_entity" /}</span>\n';
+					li += '<span>{@__ key="entity.'+nameDataEntity.toLowerCase()+'.label_entity" /}</span>\n';
 					li += '<i class="fa fa-angle-left pull-right"></i>\n';
 				li += '</a>\n';
 				li += '<ul class="treeview-menu">\n';
 					li += '<li>\n';
 						li += "<a href='/"+urlDataEntity.toLowerCase()+"/create_form'>\n";
 							li += '<i class="fa fa-angle-double-right"></i>\n';
-							li += '{@__ key="operation.create" /} {@__ key="entity.'+show_name_data_entity.toLowerCase()+'.name_entity" /}\n';
+							li += '{@__ key="operation.create" /} {@__ key="entity.'+nameDataEntity.toLowerCase()+'.name_entity" /}\n';
 						li += '</a>';
 					li += '</li>';
 					li += '<li>';
 						li += "<a href='/"+urlDataEntity.toLowerCase()+"/list'>\n";
 							li += '<i class="fa fa-angle-double-right"></i>\n';
-							li += '{@__ key="operation.list" /} {@__ key="entity.'+show_name_data_entity.toLowerCase()+'.plural_entity" /}\n';
+							li += '{@__ key="operation.list" /} {@__ key="entity.'+nameDataEntity.toLowerCase()+'.plural_entity" /}\n';
 						li += '</a>\n';
 					li += '</li>\n';
 				li += '</ul>\n';
@@ -264,7 +261,7 @@ exports.setupDataEntity = function(attr, callback) {
 																	replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function(){
 
 																		/* --------------- New translation --------------- */
-																		translateHelper.writeLocales(id_application, "entity", show_name_data_entity, attr.googleTranslate, function(){
+																		translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function(){
 																			callback();
 																		});
 																	});

@@ -2,7 +2,7 @@
     <thead class="main">
 		<tr class='fields'>
 			<th data-field="id" data-col="id">
-				{@__ key="entity.custom_show_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_show_data_entity.label_entity"/}
+				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
 			</th>
 			<th></th>
 			<th></th>
@@ -12,7 +12,7 @@
     <thead class='filters'>
     	<tr class='fields'>
 			<th data-field="id" data-col="id">
-				{@__ key="entity.custom_show_data_entity.id_entity"/} {@__ key="entity.custom_show_data_entity.name_entity"/}
+				{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}
 			</th>
 			<th></th>
 			<th></th>
