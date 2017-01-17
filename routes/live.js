@@ -16,7 +16,7 @@ var jison = require("jison");
 var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
 var parser = new jison.Parser(bnf);
 
-// Basic bot jison
+// Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
 // ===========================================
@@ -146,7 +146,7 @@ function execute(req, instruction) {
 
             console.log(attr);
 
-            /* if the instruction create something there is obligatory a value. We have to clean this value for the code */
+            /* If the instruction create something there is obligatory a value. We have to clean this value for the code */
             if(typeof attr.options.value !== "undefined" && attr.options.processValue){
                 /* Keep the value for the trad file */
                 attr.options.showValue = attr.options.value;
@@ -158,6 +158,7 @@ function execute(req, instruction) {
                 attr.options.value = attrHelper.addPrefix(attr.options.value, attr.function);
             }
 
+            console.log("\n\n");
             console.log(attr);
 
             attr.id_project = req.session.id_project;

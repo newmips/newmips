@@ -27,7 +27,7 @@ var global = require('../config/global.js');
 var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
 
-// Basic bot jison
+// Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
 //Sequelize
@@ -222,7 +222,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
         console.log(attr);
 
-        /* if the instruction create something there is obligatory a value. We have to clean this value for the code */
+        /* If the instruction create something there is obligatory a value. We have to clean this value for the code */
         if(typeof attr.options.value !== "undefined" && attr.options.processValue){
             /* Keep the value for the trad file */
             attr.options.showValue = attr.options.value;
@@ -234,6 +234,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             attr.options.value = attrHelper.addPrefix(attr.options.value, attr.function);
         }
 
+        console.log("\n\n");
         console.log(attr);
 
         // We simply add session values in attributes array
