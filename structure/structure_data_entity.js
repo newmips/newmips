@@ -286,7 +286,7 @@ exports.setupDataEntity = function(attr, callback) {
 	});
 }
 
-exports.deleteDataEntity = function(id_application, name_module, name_data_entity, callback) {
+exports.deleteDataEntity = function(id_application, name_module, name_data_entity, url_name_data_entity, callback) {
 	var baseFolder = __dirname + '/../workspace/'+id_application;
 
 	// Delete views folder
@@ -306,7 +306,7 @@ exports.deleteDataEntity = function(id_application, name_module, name_data_entit
 
 	var filePath = __dirname+'/../workspace/'+id_application+'/views/layout_'+name_module+'.dust';
 	domHelper.read(filePath).then(function($){
-		$("#"+name_data_entity+'_menu_item').remove();
+		$("#"+url_name_data_entity+'_menu_item').remove();
 		domHelper.write(filePath, $).then(function() {
 			callback();
 		})

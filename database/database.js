@@ -3,7 +3,7 @@ var sequelize = require('../models/').sequelize;
 // DataEntity
 exports.dropDataEntity = function(id_application, name_data_entity, callback) {
 
-    query = "SET FOREIGN_KEY_CHECKS = 0;DROP TABLE "+id_application+"_" + name_data_entity.toLowerCase() + ";";
+    query = "SET FOREIGN_KEY_CHECKS = 0;DROP TABLE "+id_application+"_"+name_data_entity.toLowerCase()+";";
     sequelize.query(query).spread(function(result) {
         callback();
     });
