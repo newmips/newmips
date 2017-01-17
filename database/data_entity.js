@@ -77,7 +77,7 @@ exports.selectDataEntityTarget = function(attr, callback) {
 
 	models.DataEntity.findOne({
 		where: {
-			name: attr.options.target
+			name: attr.options.showTarget
 		},
 		include: [{
 			model: models.Module,
@@ -91,7 +91,6 @@ exports.selectDataEntityTarget = function(attr, callback) {
 	}).then(function(dataEntity) {
 		if (!dataEntity) {
 			var err = {};
-			err.message = "Sorry, but there is no data entity with the name " + attr.options.target;
 			err.level = 0;
 			return callback(err,null);
 		}
@@ -123,7 +122,7 @@ exports.createNewDataEntity = function(attr, callback) {
 
 			models.DataEntity.findOne({
 				where: {
-					name: show_name_entity
+					$or: [{name: show_name_entity}, {codeName: name_entity}]
 				},
 				include: [{
 					model: models.Module,
@@ -137,7 +136,7 @@ exports.createNewDataEntity = function(attr, callback) {
 			}).then(function(dataEntity) {
 				if(dataEntity) {
 					var err = new Error();
-					err.message = "Entity '"+name_entity+"' already exists";
+					err.message = "Entity with the same or similar name '"+name_entity+"' already exists";
 					return callback(err, null);
 				}
 

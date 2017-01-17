@@ -7,7 +7,7 @@
     </ol>
 {/header}
 {<content}
-    <legend>{@__ key="operation.create"/} {@__ key="entity.custom_show_data_entity.name_entity"/}</legend>
+    <legend>{@__ key="operation.create"/} {@__ key="entity.custom_data_entity.name_entity"/}</legend>
     <div class="row">
         <div class="col-xs-12 connectedSortable">
             <form action="/custom_url_data_entity/create" method="post">

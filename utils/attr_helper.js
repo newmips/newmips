@@ -30,11 +30,17 @@ module.exports = {
                 break;
             case 'createNewDataEntity':
             case 'deleteDataEntity':
+            case 'createNewHasOne':
                 return "E_"+string;
                 break;
             case 'createNewDataField':
             case 'deleteDataField':
+            case 'foreignKey':
                 return "F_"+string;
+                break;
+            case 'alias':
+                /* R for Relation */
+                return "R_"+string;
                 break;
             case 'createNewComponentLocalFileStorage':
             case 'createNewComponentContactForm':

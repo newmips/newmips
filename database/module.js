@@ -94,7 +94,8 @@ exports.createNewModule = function(attr, callback) {
 
             models.Module.findOne({
                 where: {
-                    $or: [{name: show_name_module}, {codeName: name_module}]
+                    $or: [{name: show_name_module}, {codeName: name_module}],
+                    id_application: id_application
                 }
             }).then(function(existingModule){
                 if(!existingModule){

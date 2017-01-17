@@ -452,7 +452,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+target,
-        as: target
+        as: target,
+        processValue: true
       }
 
       switch ($1.toLowerCase()) {
@@ -462,7 +463,7 @@ instr :
         case "l'entité":
         case "entité de données":
         case "l'entité de données":
-          return createNewBelongsTo(options);
+          return createNewHasOne(options);
         default :
           break;
       }
@@ -496,7 +497,7 @@ instr :
         case "l'entité":
         case "entité de données":
         case "l'entité de données":
-          return createNewBelongsTo(options);
+          return createNewHasOne(options);
         default :
           break;
       }
@@ -831,7 +832,7 @@ function listDataField(options) {  return { "function": "listDataField", "option
 
 function createNewEntityWithBelongsTo(options) {  return { "function": "createNewEntityWithBelongsTo", "options": options }; }
 function createNewEntityWithHasMany(options) {  return { "function": "createNewEntityWithHasMany", "options": options }; }
-function createNewBelongsTo(options) {  return { "function": "createNewBelongsTo", "options": options }; }
+function createNewHasOne(options) {  return { "function": "createNewHasOne", "options": options }; }
 function createNewHasMany(options) {  return { "function": "createNewHasMany", "options": options }; }
 function createNewBelongsToMany(options) {  return { "function": "createNewBelongsToMany", "options": options }; }
 

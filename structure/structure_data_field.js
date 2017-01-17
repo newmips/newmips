@@ -857,20 +857,22 @@ exports.setupRelatedToField = function(attr, callback){
 	});
 }
 
-exports.setupBelongsToTab = function(attr, callback) {
+exports.setupHasOneTab = function(attr, callback) {
     var target = attr.options.target.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
     var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
     var foreignKey = attr.options.foreignKey.toLowerCase();
     var alias = attr.options.as.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
-	fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-	fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-	dataFR = require(fileTranslationFR);
-	dataEN = require(fileTranslationEN);
+	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
+	var fileTranslationEN = __dirname+'/../workspace/'+attr.id_application+'/locales/en-EN.json';
+	var dataFR = require(fileTranslationFR);
+	var dataEN = require(fileTranslationEN);
 
-	dataFR.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
-	dataEN.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
+	dataFR.entity[showTarget]["as_"+alias] = attr.options.as;
+	dataEN.entity[showTarget]["as_"+alias] = attr.options.as;
 
 	var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
 	var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -885,22 +887,22 @@ exports.setupBelongsToTab = function(attr, callback) {
 			console.log('File => Translation EN ------------------ UPDATED');
 
 			// Setup association tab for show_fields.dust
-		    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-		    var file = fileBase + '/show_fields.dust';
+		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
+		    var file = fileBase+'/show_fields.dust';
 
 		    // Create new tab button
-		    var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#'+ alias +'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
+		    var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
 
 		    // Create new tab content
 		    var newTab = '';
-		    newTab += '<div id="' + alias + '" class="tab-pane fade">';
+		    newTab += '<div id="'+alias+'" class="tab-pane fade">';
 
 			    // Include association's fields
-			    newTab += '<!--{#' + alias + '}-->';
-			    newTab += '	{>"' + target + '/show_fields" /}';
+			    newTab += '<!--{#'+alias+'}-->';
+			    newTab += '	{>"'+target+'/show_fields" /}';
 			    newTab += '<!--{:else}-->';
 			    newTab += ' {@__ key="message.empty" /}<br><br>';
-			    newTab += '<!--{/' + alias + '}-->';
+			    newTab += '<!--{/'+alias+'}-->';
 
 			   	newTab += '<!--{#'+alias+'}-->';
 			    newTab += '		<a href="/'+target+'/update_form?id={id}&associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-warning">';

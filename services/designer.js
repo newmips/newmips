@@ -622,7 +622,7 @@ exports.setColumnVisibility = function(attr, callback) {
 /* --------------------------------------------------------------- */
 
 // Create a tab with an add button to create one new object associated to source entity
-exports.createNewBelongsTo = function(attr, callback) {
+exports.createNewHasOne = function(attr, callback) {
 
     var info = {};
     function structureCreation(attr, callback){
@@ -666,7 +666,7 @@ exports.createNewBelongsTo = function(attr, callback) {
             // Créer le lien belongsTo en la source et la target
             structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function(){
                 // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-                structure_data_field.setupBelongsToTab(attr, function(err, data){
+                structure_data_field.setupHasOneTab(attr, function(err, data){
                     if(err){
                         return callback(err, null);
                     }
@@ -682,6 +682,7 @@ exports.createNewBelongsTo = function(attr, callback) {
         if (err) {
             //Si c'est bien l'error de data entity qui n'existe pas
             if(err.level == 0){
+                console.log("Creation SUBENTITY");
                 // Si l'entité target n'existe pas, on la crée
                 db_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
                     // On se dirige en sessions vers l'entité crée
@@ -714,6 +715,7 @@ exports.createNewBelongsTo = function(attr, callback) {
                 callback(err, null);
             }
         } else {
+            console.log("ENTITY TARGET EXIST");
             // Select the target if it already exist
             //info.insertId = dataEntity.id;
             // Stay on the source entity

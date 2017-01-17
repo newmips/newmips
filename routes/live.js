@@ -141,6 +141,9 @@ function execute(req, instruction) {
         req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
         try {
 
+            /* Lower the first word for the basic parser jison */
+            instruction = attrHelper.lowerFirstWord(instruction);
+
             // Instruction to be executed
             var attr = parser.parse(instruction);
 
@@ -157,8 +160,16 @@ function execute(req, instruction) {
                 /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
                 attr.options.value = attrHelper.addPrefix(attr.options.value, attr.function);
             }
+            /* In case of instruction about Association / Relation there is a target instead of a value */
+            else if(typeof attr.options.target !== "undefined" && attr.options.processValue){
 
-            console.log("\n\n");
+                attr.options.showTarget = attr.options.target;
+                attr.options.target = attrHelper.clearString(attr.options.target);
+                attr.options.urlTarget = attr.options.target;
+                attr.options.target = attrHelper.addPrefix(attr.options.target, attr.function);
+            }
+
+            console.log("\n");
             console.log(attr);
 
             attr.id_project = req.session.id_project;

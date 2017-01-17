@@ -6,7 +6,7 @@ var translateKey = require("../config/googleAPI").translate;
 var googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
-    writeLocales: function(idApplication, type, value, toTranslate, callback) {
+    writeLocales: function(idApplication, type, keyValue, value, toTranslate, callback) {
 
         // If field value is an array
         if(type == "field"){
@@ -48,7 +48,7 @@ module.exports = {
 
         function addLocales(type, value, value2, data){
             if(type == "module"){
-                data.module[value.toLowerCase()] = value2;
+                data.module[keyValue.toLowerCase()] = value2;
             }
             else if(type == "entity"){
                 var content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
@@ -56,17 +56,17 @@ module.exports = {
                 content += '\t\t\t"plural_entity": "'+ value2 +'s",\n';
                 content += '\t\t\t"id_entity": "ID"\n';
                 content += '\t\t}\n';
-                data.entity[value.toLowerCase()] = JSON.parse(content);
+                data.entity[keyValue.toLowerCase()] = JSON.parse(content);
             }
             else if(type == "component"){
                 var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
                 content += '\t\t\t"plural_component" : "'+value2+'s"\n';
                 content += '\t\t}\n';
-                data.component[value.toLowerCase()] = JSON.parse(content);
+                data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
             else if(type == "field"){
-                data.entity[dataEntity.toLowerCase()][value.toLowerCase()] = value2;
+                data.entity[dataEntity.toLowerCase()][keyValue.toLowerCase()] = value2;
             }
             else if(type == "aliasfield"){
                 data.entity[dataEntity.toLowerCase()][alias.toLowerCase()] = value2;
@@ -102,9 +102,9 @@ module.exports = {
 
             if(type == "module" && value.toLowerCase() == "home"){
                 if(workingLocales == "fr-FR"){
-                    dataLocales[type][value.toLowerCase()] = "Accueil";
+                    dataLocales[type][keyValue.toLowerCase()] = "Accueil";
                 }else{
-                    dataLocales[type][value.toLowerCase()] = "Home";
+                    dataLocales[type][keyValue.toLowerCase()] = "Home";
                 }
                 pushLanguagePromise(urlFile, dataLocales, file);
                 localesCpt++;
