@@ -10,7 +10,6 @@ exports.createNewDataField = function(attr, callback) {
 		return callback(err, null);
 	}
 
-	var name_field;
 	var type_field = "string";
 	var version = 1;
 
@@ -21,7 +20,7 @@ exports.createNewDataField = function(attr, callback) {
 
         // Set options variable using the attribute array
         var options = attr.options;
-        name_field = options.value;
+        var name_field = options.value;
         var show_name_field = options.showValue;
 
         if(typeof options.type !== "undefined")
@@ -50,7 +49,7 @@ exports.createNewDataField = function(attr, callback) {
             	}).then(function(dataField) {
             		var info = {
             			insertId: dataField.id,
-            			message: "New data field "+dataField.id+" | "+name_field+" created."
+            			message: "New data field "+dataField.id+" | "+show_name_field+" created."
             		};
             		callback(null, info);
             	}).catch(function(err) {

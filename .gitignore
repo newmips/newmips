@@ -43,3 +43,4 @@ config/mail.js
 structure/template/config/global.js
 structure/template/config/mail.js
 structure/template/config/webdav.js
+winston.log

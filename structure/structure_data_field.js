@@ -2,8 +2,9 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 
-function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values){
+function getFieldHtml(type, nameDataField, codeNameDataField, nameDataEntity, readOnly, file, values){
 	var dataField = nameDataField.toLowerCase();
+	var codeDataField = codeNameDataField.toLowerCase();
 	var dataEntity = nameDataEntity.toLowerCase();
 
 	var value = "";
@@ -17,8 +18,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 
 	// Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
 	var disabled = readOnly?"disabled":"";
-	var str = "<div data-field='"+dataField+"' class='form-group'>\n";
-	str += "\t<label for='"+dataField+"'> {@__ key=\"entity."+dataEntity +"."+dataField  +"\"/} </label>\n";
+	var str = "<div data-field='"+codeDataField+"' class='form-group'>\n";
+	str += "\t<label for='"+codeDataField+"'> {@__ key=\"entity."+dataEntity +"."+codeDataField  +"\"/} </label>\n";
 
 	// Check type of field
 	switch (type) {
@@ -273,6 +274,7 @@ exports.setupDataField = function(attr, callback) {
 
 	var name_module = attr.name_module;
 	var name_data_entity = attr.name_data_entity;
+	var codeName_data_entity = attr.codeName_data_entity;
 
 	var name_data_field;
 	var type_data_field;
@@ -307,7 +309,7 @@ exports.setupDataField = function(attr, callback) {
 	console.log("STEP 2 - Update the entity model");
 
 	// attributes.json
-	var attributesFileName = './workspace/'+id_application+'/models/attributes/'+name_data_entity.toLowerCase()+'.json';
+	var attributesFileName = './workspace/'+id_application+'/models/attributes/'+codeName_data_entity.toLowerCase()+'.json';
 	var attributesFile = fs.readFileSync(attributesFileName);
 	var attributesObject = JSON.parse(attributesFile);
 
@@ -316,12 +318,12 @@ exports.setupDataField = function(attr, callback) {
 	var toSyncFile = fs.readFileSync(toSyncFileName);
 	var toSyncObject = JSON.parse(toSyncFile);
 
-	if(typeof toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] === "undefined"){
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] = {};
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes = {};
+	if(typeof toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()] === "undefined"){
+		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()] = {};
+		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()].attributes = {};
 	}
-	else if(typeof toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes === "undefined"){
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes = {};
+	else if(typeof toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()].attributes === "undefined"){
+		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()].attributes = {};
 	}
 
 	var typeForModel = "STRING";
@@ -383,14 +385,14 @@ exports.setupDataField = function(attr, callback) {
 			"type": typeForModel,
 			"values": values_data_field
 		}
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
+		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
 			"type": typeForModel,
 			"values": values_data_field
 		}
 	}
 	else{
 		attributesObject[name_data_field.toLowerCase()] = typeForModel;
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
+		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
 	}
 
 	fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
@@ -425,51 +427,25 @@ exports.setupDataField = function(attr, callback) {
 
 	/* ----------------- 4 - Add the fields in all the views  ----------------- */
 	console.log("STEP 4 - Starting views update");
-	var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity.toLowerCase();
+	var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + codeName_data_entity.toLowerCase();
 
 	/* Update the show_fields.dust file with a disabled input */
-	var stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, true, "show", values_data_field);
+	var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, true, "show", values_data_field);
 	updateFile(fileBase, "show_fields", stringToWrite, function(){
 		/* Update the create_fields.dust file */
-		stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "create", values_data_field);
+		stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, false, "create", values_data_field);
 		updateFile(fileBase, "create_fields", stringToWrite, function(){
 			/* Update the update_fields.dust file */
-			stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "update", values_data_field);
+			stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, false, "update", values_data_field);
 			updateFile(fileBase, "update_fields", stringToWrite, function(){
 				/* Update the list_fields.dust file */
-				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, name_data_entity, false);
+				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, false);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
 					translateHelper.writeLocales(id_application, "field", [name_data_entity, name_data_field], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
-
-					/* ----------------- 5 - Update the translation file  ----------------- */
-					/*var fileTranslation = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-					var data = require(fileTranslation);
-					var key = name_data_field.toLowerCase();
-					data.entity[name_data_entity.toLowerCase()][key] = name_data_field;
-
-					// Write Translation file
-					var stream_fileTranslation = fs.createWriteStream(fileTranslation);
-					stream_fileTranslation.write(JSON.stringify(data, null, 2));
-					stream_fileTranslation.end();
-					stream_fileTranslation.on('finish', function () {
-						fileTranslation = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
-						data = require(fileTranslation);
-						key = name_data_field.toLowerCase();
-						data.entity[name_data_entity.toLowerCase()][key] = name_data_field;
-
-						// Write Translation file
-						var stream_fileTranslation = fs.createWriteStream(fileTranslation);
-						stream_fileTranslation.write(JSON.stringify(data, null, 2));
-						stream_fileTranslation.end();
-						stream_fileTranslation.on('finish', function(){
-							console.log('File Translation has been written');
-							callback(null, "Data field succesfuly created");
-						});
-					});*/
 				});
 			});
 		});
