@@ -166,6 +166,7 @@ router.get('/create_form', block_access.isLoggedIn, function(req, res) {
         data.associationSource = req.query.associationSource;
         data.associationForeignKey = req.query.associationForeignKey;
         data.associationAlias = req.query.associationAlias;
+        data.associationUrl = req.query.associationUrl;
     }
 
     var associationsFinder = model_builder.associationsFinder(models, options);
@@ -195,7 +196,7 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
         }];
 
         if (typeof req.body.associationFlag !== 'undefined') {
-            redirect = '/'+req.body.associationSource+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
+            redirect = '/'+req.body.associationUrl+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
             models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function(association){
                 if (!association) {
                     ENTITY_NAME.destroy();
@@ -263,6 +264,7 @@ router.get('/update_form', block_access.isLoggedIn, function(req, res) {
         data.associationSource = req.query.associationSource;
         data.associationForeignKey = req.query.associationForeignKey;
         data.associationAlias = req.query.associationAlias;
+        data.associationUrl = req.query.associationUrl;
     }
 
     var associationsFinder = model_builder.associationsFinder(models, options);
@@ -328,7 +330,7 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
 
             var redirect = '/ENTITY_URL_NAME/show?id=' + id_ENTITY_NAME;
             if (typeof req.body.associationFlag !== 'undefined')
-                redirect = '/'+req.body.associationSource+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
+                redirect = '/'+req.body.associationUrl+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
 
             req.session.toastr = [{
                 message: 'message.update.success',
@@ -358,7 +360,7 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
         }];
         var redirect = '/ENTITY_URL_NAME/list';
         if (typeof req.body.associationFlag !== 'undefined')
-            redirect = '/'+req.body.associationSource+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
+            redirect = '/'+req.body.associationUrl+'/show?id='+req.body.associationFlag+'#'+req.body.associationAlias;
         res.redirect(redirect);
     }).catch(function(err){
         error500(err, res);
