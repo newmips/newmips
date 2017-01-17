@@ -66,7 +66,7 @@ module.exports = {
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
             else if(type == "field"){
-                data.entity[dataEntity.toLowerCase()][keyValue.toLowerCase()] = value2;
+                data.entity[keyValue.toLowerCase()][value.toLowerCase()] = value2;
             }
             else if(type == "aliasfield"){
                 data.entity[dataEntity.toLowerCase()][alias.toLowerCase()] = value2;
