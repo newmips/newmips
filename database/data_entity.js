@@ -390,11 +390,11 @@ exports.createNewAssociation = function(attr, callback) {
 // Delete
 exports.deleteDataEntity = function(attr, callback) {
 	var id_module = attr.id_module;
-	var name_data_entity = attr.name_data_entity;
+	var show_name_data_entity = attr.show_name_data_entity;
 
-	models.DataEntity.destroy({where: {name: name_data_entity, id_module: id_module}}).then(function(){
+	models.DataEntity.destroy({where: {name: show_name_data_entity, id_module: id_module}}).then(function(){
 		var info = {};
-		info.message = "Entity " + name_data_entity + " deleted.";
+		info.message = "Entity "+show_name_data_entity+" deleted.";
 		callback(null, info);
 	}).catch(function(err){
 		callback(err, null);
@@ -444,3 +444,17 @@ exports.getModuleNameByEntityName = function(entity_name, callback){
 		callback(err, null);
 	});
 }
+
+exports.getModuleCodeNameByEntityName = function(entity_name, callback){
+	models.DataEntity.findOne({where: {name: entity_name.toLowerCase()}, include: [models.Module]}).then(function(entity){
+		if (!entity){
+			var err = new Error();
+            err.message = "Sorry, no data entity with name '"+entity_name+"' exist.";
+			return callback(err, null);
+		}
+		callback(null, entity.Module.codeName);
+	}).catch(function(err){
+		callback(err, null);
+	});
+}
+

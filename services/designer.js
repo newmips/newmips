@@ -432,17 +432,20 @@ function deleteDataEntity(attr, callback) {
             });
 
             Promise.all(promises).then(function() {
-                db_entity.getModuleNameByEntityName(name_data_entity, function(err, name_module) {
-                    if (err)
+                db_entity.getModuleCodeNameByEntityName(show_name_data_entity, function(err, name_module) {
+                    if (err){
                         return callback(err, null);
+                    }
                     database.dropDataEntity(id_application, name_data_entity, function(err) {
                         if (err)
                             return callback(err);
                         attr.name_data_entity = name_data_entity;
+                        attr.show_name_data_entity = show_name_data_entity;
                         db_entity.deleteDataEntity(attr, function(err, infoDB) {
                             if (err)
                                 return callback(err);
-                            structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, function(){
+                            var url_name_data_entity = attr.options.urlValue;
+                            structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
                                 callback(null, infoDB);
                             });
                         });
