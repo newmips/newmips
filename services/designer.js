@@ -683,27 +683,28 @@ exports.createNewHasOne = function(attr, callback) {
         if (err) {
             //Si c'est bien l'error de data entity qui n'existe pas
             if(err.level == 0){
-                console.log("Creation SUBENTITY");
                 // Si l'entité target n'existe pas, on la crée
                 db_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
+                    if(err){
+                        return callback(err, null);
+                    }
+
                     // On se dirige en sessions vers l'entité crée
                     //info = created_dataEntity;
                     // Stay on the source entity, even if the target has been created
                     info.insertId = attr.id_data_entity;
                     info.message = "New relation has one / belongs to with subEntity "+created_dataEntity.name+" created.";
-                    if (err) {
-                        return callback(err, null);
-                    }
 
-                    db_module.getNameModuleById(attr.id_module, function(err, name_module) {
-                        if (err) {
+                    db_module.getModuleById(attr.id_module, function(err, module) {
+                        if(err){
                             return callback(err, null);
                         }
-                        attr.name_module = name_module;
+                        attr.show_name_module = module.name;
+                        attr.name_module = module.codeName;
 
                         // Création de l'entité target dans le workspace
                         structure_data_entity.setupDataEntity(attr, function(err, data) {
-                            if (err) {
+                            if(err){
                                 return callback(err, null);
                             }
                             structureCreation(attr, callback);
@@ -716,7 +717,6 @@ exports.createNewHasOne = function(attr, callback) {
                 callback(err, null);
             }
         } else {
-            console.log("ENTITY TARGET EXIST");
             // Select the target if it already exist
             //info.insertId = dataEntity.id;
             // Stay on the source entity

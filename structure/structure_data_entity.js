@@ -59,30 +59,28 @@ exports.setupAssociation = function(idApplication, sourceDataEntity, targetDataE
 
 // DataEntity
 exports.setupDataEntity = function(attr, callback) {
+
 	var id_application = attr.id_application;
-	var name_data_entity = "";
+
 	var name_module = attr.name_module;
 	var show_name_module = attr.show_name_module;
+
 	var displaySidebar = "block";
 
-	// Value that will be put in traduction file and show in application
-	var show_name_data_entity = attr.options.showValue;
-
-	// Value that will be put in traduction file and show in application
-	var url_name_data_entity = attr.options.urlValue;
-
-	// Selon la fonction du designer, on sait qu'elle entité on souhaite créer.
-	if(attr.function === "createNewEntityWithBelongsTo" || attr.function === 'createNewEntityWithHasMany'){
-		name_data_entity = attr.options.source;
-	}
-	// Creation d'entité dans le cas d'un related to, si l'entité target n'existe pas
-	else if(attr.function === "createNewBelongsTo" || attr.function === 'createNewHasMany'){
-		name_data_entity = attr.options.target;
+	// Creation d'entité dans le cas d'un related to, si l'entité target n'existe pas -> SubEntity
+	if(attr.function === "createNewHasOne" || attr.function === 'createNewHasMany'){
+		var name_data_entity = attr.options.target;
+		var show_name_data_entity = attr.options.showTarget;
+		var url_name_data_entity = attr.options.urlTarget;
 		displaySidebar = "none";
 	}
 	// Creation d'une simple d'entité
 	else{
-		name_data_entity = attr.options.value;
+		var name_data_entity = attr.options.value;
+		// Value that will be put in traduction file and show in application
+		var show_name_data_entity = attr.options.showValue;
+		// Value that will be put in url
+		var url_name_data_entity = attr.options.urlValue;
 	}
 
 	function createModelFile(idApplication, nameDataEntity, callback){
