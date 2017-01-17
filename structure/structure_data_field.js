@@ -2,9 +2,8 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 
-function getFieldHtml(type, nameDataField, codeNameDataField, nameDataEntity, readOnly, file, values){
+function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values){
 	var dataField = nameDataField.toLowerCase();
-	var codeDataField = codeNameDataField.toLowerCase();
 	var dataEntity = nameDataEntity.toLowerCase();
 
 	var value = "";
@@ -18,8 +17,8 @@ function getFieldHtml(type, nameDataField, codeNameDataField, nameDataEntity, re
 
 	// Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
 	var disabled = readOnly?"disabled":"";
-	var str = "<div data-field='"+codeDataField+"' class='form-group'>\n";
-	str += "\t<label for='"+codeDataField+"'> {@__ key=\"entity."+dataEntity +"."+codeDataField  +"\"/} </label>\n";
+	var str = "<div data-field='"+dataField+"' class='form-group'>\n";
+	str += "\t<label for='"+dataField+"'> {@__ key=\"entity."+dataEntity +"."+dataField  +"\"/} </label>\n";
 
 	// Check type of field
 	switch (type) {
@@ -428,22 +427,21 @@ exports.setupDataField = function(attr, callback) {
 	/* ----------------- 4 - Add the fields in all the views  ----------------- */
 	console.log("STEP 4 - Starting views update");
 	var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + codeName_data_entity.toLowerCase();
-
 	/* Update the show_fields.dust file with a disabled input */
-	var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, true, "show", values_data_field);
+	var stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, true, "show", values_data_field);
 	updateFile(fileBase, "show_fields", stringToWrite, function(){
 		/* Update the create_fields.dust file */
-		stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, false, "create", values_data_field);
+		stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "create", values_data_field);
 		updateFile(fileBase, "create_fields", stringToWrite, function(){
 			/* Update the update_fields.dust file */
-			stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, false, "update", values_data_field);
+			stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "update", values_data_field);
 			updateFile(fileBase, "update_fields", stringToWrite, function(){
 				/* Update the list_fields.dust file */
-				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity, name_data_entity, false);
+				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, name_data_entity, false);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(id_application, "field", [name_data_entity, name_data_field], attr.googleTranslate, function(){
+					translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_entity, name_data_field], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
 				});
