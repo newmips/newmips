@@ -206,7 +206,7 @@ exports.createNewDataEntitySource = function(attr, callback) {
 exports.createNewDataEntityTarget = function(attr, callback) {
 	models.DataEntity.findOne({
 		where: {
-			name: attr.options.target
+			$or: [{name: attr.options.showTarget}, {codeName: attr.options.target}]
 		},
 		include: [{
 			model: models.Module,
@@ -220,18 +220,20 @@ exports.createNewDataEntityTarget = function(attr, callback) {
 	}).then(function(dataEntity) {
 		if (dataEntity) {
 			var err = new Error();
-			err.message = "Entity "+ attr.options.target +" already exists.";
+			err.message = "Entity "+attr.options.target+" already exists.";
 			return callback(err, null);
 		}
 		models.DataEntity.create({
-			name: attr.options.target,
+			name: attr.options.showTarget,
+			codeName: attr.options.target,
 			id_module: attr.id_module,
 			version: 1
 		}).then(function(created_dataEntity) {
 			var info = {};
 			info.insertId = created_dataEntity.id;
 			info.name = created_dataEntity.name;
-			info.message = "New data entity "+ created_dataEntity.id +" | "+ created_dataEntity.name +" created.";
+			info.codeName = created_dataEntity.codeName;
+			info.message = "New data entity "+created_dataEntity.id+" | "+created_dataEntity.name+" created.";
 			callback(null, info);
 		});
 	}).catch(function(err){
