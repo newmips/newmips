@@ -257,6 +257,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             if(typeof attr.options.as !== "undefined"){
                 attr.options.showAs = attr.options.as;
                 attr.options.as = attrHelper.clearString(attr.options.as);
+                attr.options.urlAs = attr.options.as;
                 attr.options.as = attrHelper.addPrefix(attr.options.as, "alias");
             }
         }

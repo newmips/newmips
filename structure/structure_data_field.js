@@ -860,10 +860,14 @@ exports.setupRelatedToField = function(attr, callback){
 exports.setupHasOneTab = function(attr, callback) {
     var target = attr.options.target.toLowerCase();
     var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
     var source = attr.options.source.toLowerCase();
     var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
     var foreignKey = attr.options.foreignKey.toLowerCase();
     var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs;
 
     /* Add Alias in Translation file for tabs */
 	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
@@ -871,8 +875,8 @@ exports.setupHasOneTab = function(attr, callback) {
 	var dataFR = require(fileTranslationFR);
 	var dataEN = require(fileTranslationEN);
 
-	dataFR.entity[showTarget]["as_"+alias] = attr.options.as;
-	dataEN.entity[showTarget]["as_"+alias] = attr.options.as;
+	dataFR.entity[target]["as_"+alias] = showAlias;
+	dataEN.entity[target]["as_"+alias] = showAlias;
 
 	var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
 	var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -905,12 +909,12 @@ exports.setupHasOneTab = function(attr, callback) {
 			    newTab += '<!--{/'+alias+'}-->';
 
 			   	newTab += '<!--{#'+alias+'}-->';
-			    newTab += '		<a href="/'+target+'/update_form?id={id}&associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-warning">';
+			    newTab += '		<a href="/'+urlTarget+'/update_form?id={id}&associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-warning">';
 			    newTab += '			<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>';
 			    newTab += '		</a>';
 			    newTab += '<!--{:else}-->';
 				// Create button to directly associate created object to relation
-			    newTab += '		<a href="/'+target+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
+			    newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">';
 			    newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
 			    newTab += '		</a>';
 				newTab += '<!--{/'+alias+'}-->';

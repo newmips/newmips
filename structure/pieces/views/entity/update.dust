@@ -39,6 +39,9 @@
                 {#associationAlias}
                     <input type="hidden" name='associationAlias' value="{.}">
                 {/associationAlias}
+                {#associationUrl}
+                    <input type="hidden" name='associationUrl' value="{.}">
+                {/associationUrl}
             </form>
         </div>
     </div>
