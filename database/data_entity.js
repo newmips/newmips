@@ -309,7 +309,7 @@ exports.getNameDataEntityById = function(id_data_entity, callback) {
 			return callback(err, null);
 		}
 
-		callback(null, dataEntity.name);
+		callback(null, dataEntity);
 	}).catch(function(err){
 		return callback(err, null);
 	});

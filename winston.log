@@ -1,6 +1,6 @@
-{"level":"debug","message":"Cannot read property 'toLowerCase' of undefined","timestamp":"2017-01-17T10:40:51.006Z"}
-{"level":"debug","message":"Unexpected token u","timestamp":"2017-01-17T10:43:37.826Z"}
-{"level":"debug","message":"Unexpected token u","timestamp":"2017-01-17T10:48:45.290Z"}
-{"level":"debug","message":"Cannot read property 'id' of null","timestamp":"2017-01-17T10:50:57.710Z"}
-{"level":"debug","message":"Cannot read property 'id' of null","timestamp":"2017-01-17T10:53:59.995Z"}
-{"level":"debug","message":"Cannot read property 'id' of null","timestamp":"2017-01-17T10:57:36.600Z"}
+{"level":"debug","message":"ENOENT: no such file or directory, open 'C:\\Users\\jerom\\OneDrive\\Documents\\Dev\\Git\\newmips\\workspace\\8\\models\\attributes\\éà'àé.json'","timestamp":"2017-01-17T10:48:58.678Z"}
+{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:28:24.410Z"}
+{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:41:05.685Z"}
+{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:42:00.208Z"}
+{"level":"debug","message":"Sorry, a field with the same or similar name already exists.","timestamp":"2017-01-17T13:48:24.107Z"}
+{"level":"debug","message":"Cannot read property 'attributes' of undefined","timestamp":"2017-01-17T13:48:40.322Z"}

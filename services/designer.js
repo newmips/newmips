@@ -462,7 +462,7 @@ exports.deleteDataEntity = deleteDataEntity;
 /* --------------------------------------------------------------- */
 exports.createNewDataField = function(attr, callback) {
     // Get active data entity name
-    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
+    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, data_entity) {
         if (err) {
             callback(err, null);
         } else {
@@ -479,7 +479,8 @@ exports.createNewDataField = function(attr, callback) {
                             callback(err, null);
                         } else {
 
-                            attr.name_data_entity = name_data_entity;
+                            attr.name_data_entity = data_entity.name;
+                            attr.codeName_data_entity = data_entity.codeName;
                             structure_data_field.setupDataField(attr, function(err, data) {
                                 callback(null, info);
                             });
