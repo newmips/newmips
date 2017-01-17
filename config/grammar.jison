@@ -437,34 +437,6 @@ instr :
           break;
       }
   %}
-  | CREATE ENTITY STRING HAS_ONE STRING
-  %{
-      // **** Relationship One to One ***
-
-      // Set target entity
-      target = $5;
-
-      // Set source entity
-      source = $3;
-
-      // Preparing Options
-      options = {
-        target: target,
-        source: source
-      }
-
-      switch ($2.toLowerCase()) {
-        case 'data entity':
-        case 'entity' :
-        case 'entité':
-        case "l'entité":
-        case "entité de données":
-        case "l'entité de données":
-          return createNewEntityWithBelongsTo(options);
-        default :
-          break;
-      }
-  %}
   | ENTITY STRING HAS_ONE STRING
   %{
       // **** Relationship One to One ***
@@ -529,59 +501,6 @@ instr :
           break;
       }
   %}
-  | CREATE ENTITY STRING HAS_MANY STRING
-  %{
-
-      // **** Relationship One to Many ***
-
-      if($2 == "field"){
-        // Set target entity
-        target = $5;
-
-        // Set name alias
-        as = $3;
-
-        // Preparing Options
-        options = {
-          target: target,
-          as: as
-        }
-      }
-      else if($2 == "entity"){
-        // Set target entity
-        target = $5;
-
-        // Set source entity
-        source = $3;
-
-        // Preparing Options
-        options = {
-          target: target,
-          source: source
-        }
-      }
-
-      switch ($2.toLowerCase()) {
-        case 'data field' :
-        case 'field' :
-        case "champ de données":
-        case "un champ de données":
-        case "champ":
-        case "un champ":
-        case "le champ":
-          return createNewHasMany(options);
-
-        case 'data entity':
-        case 'entity' :
-        case 'entité':
-        case "l'entité":
-        case "entité de données":
-        case "l'entité de données":
-          return createNewEntityWithHasMany(options);
-        default :
-          break;
-      }
-  %}
   | ENTITY STRING HAS_MANY STRING
   %{
       // **** Relationship One to Many ***
@@ -642,34 +561,6 @@ instr :
         case "entité de données":
         case "l'entité de données":
           return createNewHasMany(options);
-        default :
-          break;
-      }
-  %}
-  | ENTITY STRING BELONGS_TO_MANY STRING
-  %{
-      // **** Association One to Many ***
-
-      // Set target entity
-      target = $4;
-
-      // Set source entity
-      source = $2;
-
-      // Preparing Options
-      options = {
-        target: target,
-        source: source
-      }
-
-      switch ($1.toLowerCase()) {
-        case 'data entity':
-        case 'entity' :
-        case 'entité':
-        case "l'entité":
-        case "entité de données":
-        case "l'entité de données":
-          return createNewBelongsToMany(options);
         default :
           break;
       }

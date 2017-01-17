@@ -40,9 +40,6 @@ module.exports = {
         return "U_"+string;
     },
     removePrefix: function(string, type){
-        console.log(string);
-        console.log(type);
-
         var stringLower = string.toLowerCase();
         switch(type){
             case 'project':

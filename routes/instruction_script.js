@@ -16,11 +16,31 @@ var parser = new jison.Parser(bnf);
 
 var scriptData = [];
 
+// Attr helper needed to format value in instuction
+var attrHelper = require('../utils/attr_helper');
+
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
         var userId = req.session.data.id_user;
         try {
             var attr = parser.parse(instruction);
+
+            console.log(attr);
+
+            /* If the instruction create something there is obligatory a value. We have to clean this value for the code */
+            if(typeof attr.options.value !== "undefined" && attr.options.processValue){
+                /* Keep the value for the trad file */
+                attr.options.showValue = attr.options.value;
+                /* Clean the name of the value */
+                attr.options.value = attrHelper.clearString(attr.options.value);
+                /* Value that will be used in url */
+                attr.options.urlValue = attr.options.value;
+                /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
+                attr.options.value = attrHelper.addPrefix(attr.options.value, attr.function);
+            }
+
+            console.log("\n\n");
+            console.log(attr);
 
             attr.id_project = scriptData[userId].ids.id_project;
             attr.id_application = scriptData[userId].ids.id_application;
