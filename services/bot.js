@@ -9,8 +9,7 @@ exports.showSessionAction = function(result) {
 
     console.log("ACTION : showSessionAction");
 
-    options = new Array();
-    attr = { "function": "showSession", "options": options };
+    attr = { "function": "showSession", "options": [] };
     return attr;
 };
 
@@ -18,8 +17,7 @@ exports.helpAction = function(result) {
 
     console.log("ACTION : helpAction");
 
-    options = new Array();
-    attr = { "function": "help", "options": options };
+    attr = { "function": "help", "options": [] };
     return attr;
 };
 
@@ -27,8 +25,7 @@ exports.deployAction = function(result) {
 
     console.log("ACTION : deployAction");
 
-    options = new Array();
-    attr = { "function": "deploy", "options": options };
+    attr = { "function": "deploy", "options": [] };
     return attr;
 };
 
@@ -41,8 +38,7 @@ exports.selectProjectAction = function(result) {
     // Set entity name as the first option in options array
     property = "entity";
     value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "selectProject", "options": options };
     return attr;
@@ -57,8 +53,7 @@ exports.selectApplicationAction = function(result) {
     // Set entity name as the first option in options array
     property = "entity";
     value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "selectApplication", "options": options };
     return attr;
@@ -74,8 +69,7 @@ exports.selectModuleAction = function(result) {
     // Set entity name as the first option in options array
     property = "entity";
     value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "selectModule", "options": options };
     return attr;
@@ -85,13 +79,10 @@ exports.selectDataEntityAction = function(result) {
 
     console.log("ACTION : selectDataEntityAction");
 
-    options = new Array();
-
     // Set entity name as the first option in options array
     property = "entity";
     value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "selectDataEntity", "options": options };
     return attr;
@@ -135,8 +126,7 @@ exports.createNewProjectAction = function(result) {
     // Set name of entity
     property = "entity";
     value = result[2];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "createNewProject", "options": options };
     return attr;
@@ -151,8 +141,7 @@ exports.createNewApplicationAction = function(result) {
     // Set name of entity
     property = "entity";
     value = result[2];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "createNewApplication", "options": options };
     return attr;
@@ -168,8 +157,7 @@ exports.createNewModuleAction = function(result) {
     // Set name of entity
     property = "entity";
     value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "createNewModule", "options": options };
     return attr;
@@ -188,8 +176,7 @@ exports.createNewDataEntityAction = function(result) {
     // Set name of entity
     property = "entity";
     value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
+    options = { "property": property, "value": value };
 
     attr = { "function": "createNewDataEntity", "options": options };
     return attr;
@@ -211,8 +198,7 @@ exports.createNewDataFieldAction = function(result) {
       // Set name of field
       property = "name";
       value = result[1];
-      json = { "property": property, "value": value };
-      options.push(json);
+      options = { "property": property, "value": value };
 
       attr = { "function": "createNewDataField", "options": options };
       return attr;
@@ -1014,38 +1000,21 @@ exports.parse = function (instruction) {
         ]
   };
 
-  // Assign instruction for a global visibility
-  attr.instruction = instruction;
+    // Assign instruction for a global visibility
+    attr.instruction = instruction;
 
-  var i = 0;
-  var l = 0;
-  var result = null;
-  var selected_key = "";
-  for (var key in training) {
+    for (var action in training) {
+        for (var i = 0; i < training[action].length; i++) {
+            var regStr = training[action][i];
+            var regExp = new RegExp(regStr, "ig");
 
-    elt = training[key];
-
-    i = 0;
-    l = elt.length;
-    while ((i < l) && (result == null)) {
-      var exp = new RegExp(elt[i], "ig");
-      result = exp.exec(attr.instruction);
-
-      if (result == null) {
-        i++;
-      }
-      else {
-        selected_key = key;
-        console.log(result);
-        console.log(key);
-      }
+            var result = regExp.exec(attr.instruction);
+            if (result !== null)
+                return this[action](result);
+        }
     }
-  }
 
-
-  return this[selected_key](result);
-
-
+    return {};
 }
 
 module.exports = exports;

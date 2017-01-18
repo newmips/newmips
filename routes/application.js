@@ -211,7 +211,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         fs.writeFileSync(historyScriptPath, historyScript);
 
         // Todo : Resolve instruction using bot talkify
-        // parser = require('../services/bot.js');
+        parser = require('../services/bot.js');
         // End of Todo
 
         /* Lower the first word for the basic parser jison */
@@ -229,6 +229,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         attr.id_data_entity = req.session.id_data_entity;
         attr.googleTranslate = req.session.toTranslate || false;
         attr.lang_user = req.session.lang_user;
+
+        if (typeof attr.function === 'undefined')
+            throw new Error("Unable to find a matching instruction.");
 
         // Function is finally executed as "global()" using the static dialog designer
         // "Options" and "Session values" are sent using the attr attribute
@@ -409,7 +412,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 });
             }
         });
-
     } catch (e) {
 
         data["answers"] = e.message + "\n\n" + answers;
