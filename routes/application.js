@@ -184,7 +184,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         "iframe_url": req.session.iframe_url,
         "session": ""
     };
-console.log('AAAAA11111111111');
+
     // Parse instruction and set results
     try {
 
@@ -204,7 +204,6 @@ console.log('AAAAA11111111111');
             "id_data_entity": req.session.id_data_entity
         };
 
-console.log('AAAAA222222222222');
         /* Save an instruction history in the history script in workspace folder */
         var historyScriptPath = __dirname + '/../workspace/' + req.session.id_application + '/history_script.nps';
         var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
@@ -219,15 +218,12 @@ console.log('AAAAA222222222222');
         instruction = attrHelper.lowerFirstWord(instruction);
 
         /* Parse the instruction to get an object for the designer */
-        console.log(instruction);
         var attr = parser.parse(instruction);
-console.log('AAAAA333333333333333');
 
         console.log(attr);
 
         /* If the instruction create something there is inevitably a value. We have to clean this value for the code */
         if(typeof attr.options.value !== "undefined" && attr.options.processValue){
-            console.log('AAAAA44444444444');
 
             /* Keep the value for the trad file */
             attr.options.showValue = attr.options.value;
@@ -240,7 +236,6 @@ console.log('AAAAA333333333333333');
         }
         /* In case of instruction about Association / Relation there is a target instead of a value */
         else if(typeof attr.options.target !== "undefined" && attr.options.processValue){
-console.log('AAAAA5555555555555');
 
             attr.options.showTarget = attr.options.target;
             attr.options.target = attrHelper.clearString(attr.options.target);
