@@ -38,6 +38,7 @@ module.exports = {
                 break;
             case 'createNewDataField':
             case 'deleteDataField':
+            case 'deleteTab':
             case 'foreignKey':
             case 'using':
                 return "f_"+string;

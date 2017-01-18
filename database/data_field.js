@@ -83,9 +83,11 @@ exports.createNewForeignKey = function(attr, callback) {
 	var codeName = attr.options.foreignKey;
 	var version = 1;
 
+	console.log(attr);
+
 	models.DataEntity.findOne({
 		where: {
-			name: attr.options.showSource
+			codeName: attr.options.source
 		},
 		include: [{
 			model: models.Module,
@@ -108,10 +110,12 @@ exports.createNewForeignKey = function(attr, callback) {
 			info.insertId = created_foreignKey.id;
 			info.message = "New foreign key "+created_foreignKey.id+" | "+created_foreignKey.name+" created.";
 			callback(null, info);
+		}).catch(function(err) {
+			callback(err, null);
 		});
 	}).catch(function(err) {
 		callback(err, null);
-	})
+	});
 }
 
 // Delete
@@ -127,19 +131,19 @@ exports.deleteDataField = function(attr, callback) {
 	var options = attr.options;
 	var name_data_field = options.value;
 
-		models.DataField.destroy({
-			where: {
-				name: name_data_field,
-				id_data_entity: id_data_entity
-			}
-		}).then(function() {
-			var info = {};
-			info.message = "Data field " + name_data_field + " deleted.";
-			callback(null, info);
-		}).catch(function(err) {
-			callback(err, null);
-		});
-	}
+	models.DataField.destroy({
+		where: {
+			codeName: name_data_field,
+			id_data_entity: id_data_entity
+		}
+	}).then(function() {
+		var info = {};
+		info.message = "Data field "+name_data_field+" deleted.";
+		callback(null, info);
+	}).catch(function(err) {
+		callback(err, null);
+	});
+}
 
 // List
 exports.listDataField = function(attr, callback) {

@@ -501,11 +501,12 @@ exports.askNameOfDataField = function(attr, callback) {
 }
 
 function deleteTab(attr, callback) {
-    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
             return callback(err, null);
 
-        attr.name_data_entity = name_data_entity;
+        attr.name_data_entity = dataEntity.codeName;
+        attr.show_name_data_entity = dataEntity.name;
         structure_data_field.deleteTab(attr, function(err, fk, target) {
             if (err)
                 return callback(err, null);
@@ -516,12 +517,14 @@ function deleteTab(attr, callback) {
                 if (err)
                     return callback(err, null);
 
+                // Missing id_ in attr.options.value, so we use fieldToDrop
+                attr.options.value = attr.fieldToDrop;
                 db_field.deleteDataField(attr, function(err, infoDB) {
                     if (err)
                         return callback(err, null);
 
                     var infoDesigner = {};
-                    infoDesigner.message = "Tab "+attr.options.value+" deleted.";
+                    infoDesigner.message = "Tab "+attr.options.showValue+" deleted.";
                     callback(null, infoDesigner);
                 });
             });
@@ -559,6 +562,8 @@ function deleteDataField(attr, callback) {
                     if (err)
                         return callback(err, null);
 
+                    // Missing id_ in attr.options.value, so we use fieldToDrop
+                    attr.options.value = attr.fieldToDrop;
                     // Delete record from software
                     db_field.deleteDataField(attr, function(err, infoDB) {
                         if (err)
@@ -852,8 +857,6 @@ exports.createNewFieldset = function(attr, callback) {
         attr.options.showSource = source_entity.name;
         attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
 
-        console.log(attr);
-
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
             // Si l'entité target n'existe pas ou autre
@@ -901,11 +904,15 @@ exports.createNewFieldset = function(attr, callback) {
                         foreignKey: attr.options.foreignKey,
                         showForeignKey: attr.options.showForeignKey
                     },
+                    id_data_entity: attr.id_data_entity,
                     id_module: attr.id_module,
                     id_application: attr.id_application
                 };
 
                 db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey) {
+                    if (err) {
+                        return callback(err, null);
+                    }
                     // Créer le lien belongsTo en la source et la target
                     structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
