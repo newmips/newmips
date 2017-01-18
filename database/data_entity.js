@@ -122,7 +122,7 @@ exports.createNewDataEntity = function(attr, callback) {
 
 			models.DataEntity.findOne({
 				where: {
-					$or: [{name: show_name_entity}, {codeName: name_entity}]
+					$or: [{name: show_name_entity}, {codeName: name_entity.toLowerCase()}]
 				},
 				include: [{
 					model: models.Module,
@@ -142,7 +142,7 @@ exports.createNewDataEntity = function(attr, callback) {
 
 				models.DataEntity.create({
 					name: show_name_entity,
-					codeName: name_entity,
+					codeName: name_entity.toLowerCase(),
 					id_module: id_module,
 					version: 1
 				}).then(function(newEntity) {
@@ -166,41 +166,6 @@ exports.createNewDataEntity = function(attr, callback) {
 		err.message = "Attributes are not properly defined";
 		callback(err, null);
 	}
-}
-
-exports.createNewDataEntitySource = function(attr, callback) {
-	models.DataEntity.findOne({
-		where: {
-			name: attr.options.source
-		},
-		include: [{
-			model: models.Module,
-			include: [{
-				model: models.Application,
-				where: {
-					id: attr.id_application
-				}
-			}]
-		}]
-	}).then(function(dataEntity) {
-		if (dataEntity) {
-			var err = new Error();
-			err.message = "Entity "+ attr.options.source +" already exists";
-			return callback(err, null);
-		}
-		models.DataEntity.create({
-			name: attr.options.source,
-			id_module: attr.id_module,
-			version: 1
-		}).then(function(created_dataEntity) {
-			var info = {};
-			info.insertId = created_dataEntity.id;
-			info.message = "New data entity "+ created_dataEntity.id +" | "+ created_dataEntity.name +" created.";
-			callback(null, info);
-		});
-	}).catch(function(err){
-		callback(err, null);
-	});
 }
 
 exports.createNewDataEntityTarget = function(attr, callback) {
@@ -339,8 +304,8 @@ exports.getDataEntityById = function(id_data_entity, callback) {
 	});
 }
 
-exports.getIdDataEntityByName = function(name_data_entity, callback) {
-	models.DataEntity.findOne({where: {name: name_data_entity}}).then(function(entity) {
+exports.getIdDataEntityByCodeName = function(idModule, name_data_entity, callback) {
+	models.DataEntity.findOne({where: {codeName: name_data_entity, id_module: idModule}}).then(function(entity) {
 		if (!entity) {
 			var err = new Error();
 			err.message = "No data entity with the name '"+name_data_entity+"' found.";
@@ -425,11 +390,11 @@ exports.deleteDataEntity = function(attr, callback) {
 }
 
 // Get a DataEntity with a given name
-exports.getDataEntityByName = function(idApplication, name_data_entity, callback) {
+exports.getDataEntityByCodeName = function(idApplication, name_data_entity, callback) {
 
     models.DataEntity.findOne({
     	where: {
-            name: name_data_entity,
+            codeName: name_data_entity,
             id_application: idApplication
     	}
     }).then(function(dataEntity) {
@@ -457,8 +422,8 @@ exports.getModuleNameByEntityName = function(entity_name, callback){
 	});
 }
 
-exports.getModuleCodeNameByEntityName = function(entity_name, callback){
-	models.DataEntity.findOne({where: {name: entity_name.toLowerCase()}, include: [models.Module]}).then(function(entity){
+exports.getModuleCodeNameByEntityCodeName = function(entity_name, callback){
+	models.DataEntity.findOne({where: {codeName: entity_name}, include: [models.Module]}).then(function(entity){
 		if (!entity){
 			var err = new Error();
             err.message = "Sorry, no data entity with name '"+entity_name+"' exist.";
