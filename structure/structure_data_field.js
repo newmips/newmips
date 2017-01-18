@@ -782,7 +782,7 @@ exports.setupFieldsetTab = function(attr, callback) {
 		    var usingField = "id";
 
 		    if(typeof attr.options.usingField !== "undefined")
-		    	usingField = attr.options.usingField;
+		    	usingField = attr.options.usingField.toLowerCase();
 
 			// Setup association tab for show_fields.dust
 		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
@@ -793,7 +793,6 @@ exports.setupFieldsetTab = function(attr, callback) {
 		    var newTabContent = '';
 		    // Create select to add elements
 		    newTabContent += '<div id="'+alias+'" class="tab-pane fade">';
-			// newTabContent += '	<label>{@__ key="operation.add"/} {@__ key="entity.'+target+'.label_entity" /}</label>';
 			newTabContent += '	<form action="/'+urlSource+'/fieldset/'+alias+'/add" method="post">'
 		    newTabContent += '		<select style="width:200px;" class="form-control" name="ids" multiple>';
 		    newTabContent += '			<!--{#'+alias+'_global_list}-->';

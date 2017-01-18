@@ -38,6 +38,7 @@ module.exports = {
             case 'createNewDataField':
             case 'deleteDataField':
             case 'foreignKey':
+            case 'using':
                 return "F_"+string;
                 break;
             case 'alias':
