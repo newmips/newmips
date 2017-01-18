@@ -355,7 +355,7 @@ function deleteDataEntity(attr, callback) {
     var promises = [];
     var workspacePath = __dirname+'/../workspace/'+id_application;
 
-    db_entity.getIdDataEntityByName(show_name_data_entity, function(err, entityId){
+    db_entity.getIdDataEntityByCodeName(attr.id_module, name_data_entity, function(err, entityId){
         if(err){
             callback(err, null);
         }
@@ -401,7 +401,7 @@ function deleteDataEntity(attr, callback) {
                         }
                         promises.push(new Promise(function(resolve, reject) {
                             (function(tmpAttrIn) {
-                                db_entity.getIdDataEntityByName(source, function(err, sourceID) {
+                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                     tmpAttrIn.id_data_entity = sourceID;
                                     deleteTab(tmpAttrIn, function() {
                                         resolve();
@@ -420,7 +420,7 @@ function deleteDataEntity(attr, callback) {
                         }
                         promises.push(new Promise(function(resolve, reject) {
                             (function(tmpAttrIn) {
-                                db_entity.getIdDataEntityByName(source, function(err, sourceID) {
+                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                     tmpAttrIn.id_data_entity = sourceID;
                                     deleteDataField(tmpAttrIn, function() {
                                         resolve();
@@ -433,7 +433,7 @@ function deleteDataEntity(attr, callback) {
             });
 
             Promise.all(promises).then(function() {
-                db_entity.getModuleCodeNameByEntityName(show_name_data_entity, function(err, name_module) {
+                db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
                     if (err){
                         return callback(err, null);
                     }
@@ -534,12 +534,13 @@ exports.deleteTab = deleteTab;
 function deleteDataField(attr, callback) {
 
     // Get Entity or Type Id
-    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_data_entity) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
             return callback(err, null);
 
         // Set name of data entity in attributes
-        attr.name_data_entity = name_data_entity;
+        attr.name_data_entity = dataEntity.codeName;
+        attr.show_name_data_entity = dataEntity.name;
 
         // Get field name
         var options = attr.options;
@@ -553,8 +554,7 @@ function deleteDataField(attr, callback) {
 
                 // Alter database
                 attr.fieldToDrop = infoStructure.fieldToDrop;
-                attr.name_data_entity = name_data_entity;
-                var dropFunction = infoStructure.isConstraint ? 'dropFKDataField' : 'dropDataField';
+                var dropFunction = infoStructure.isConstraint?'dropFKDataField':'dropDataField';
                 database[dropFunction](attr, function(err, info) {
                     if (err)
                         return callback(err, null);
@@ -590,11 +590,11 @@ exports.listDataField = function(attr, callback) {
 /* --------------------------------------------------------------- */
 
 exports.setRequiredAttribute = function(attr, callback) {
-    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
             return callback(err);
 
-        attr.name_data_entity = entityName;
+        attr.name_data_entity = dataEntity.codeName;
         structure_data_field.setRequiredAttribute(attr, function(err) {
             if (err)
                 return callback(err);
@@ -605,11 +605,11 @@ exports.setRequiredAttribute = function(attr, callback) {
 }
 
 exports.setColumnVisibility = function(attr, callback) {
-    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, entityName) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
             return callback(err);
 
-        attr.name_data_entity = entityName;
+        attr.name_data_entity = dataEntity.codeName;
         structure_data_field.setColumnVisibility(attr, function(err) {
             if (err)
                 return callback(err);
@@ -1013,7 +1013,7 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
         }
         else{
             // Check if a table as already the composant name
-            db_entity.getDataEntityByName(attr.id_application, attr.options.showValue, function(err, dataEntity) {
+            db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
                 if(dataEntity){
                     var err = new Error();
                     err.message = "Sorry, an other entity with this component name already exist in this application.";
@@ -1067,7 +1067,7 @@ exports.createNewComponentContactForm = function(attr, callback) {
         }
         else{
             // Check if a table as already the composant name
-            db_entity.getDataEntityByName(attr.id_application, attr.options.showValue, function(err, dataEntity) {
+            db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
                 if(dataEntity){
                     err = new Error();
                     err.message = "Sorry, a other entity with this component name already exist in this application.";

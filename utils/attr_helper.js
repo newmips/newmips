@@ -18,15 +18,15 @@ module.exports = {
         switch(instructionFunction){
             case 'createNewProject':
             case 'deleteProject':
-                return "P_"+string;
+                return "p_"+string;
                 break;
             case 'createNewApplication':
             case 'deleteApplication':
-                return "A_"+string;
+                return "a_"+string;
                 break;
             case 'createNewModule':
             case 'deleteModule':
-                return "M_"+string;
+                return "m_"+string;
                 break;
             case 'createNewDataEntity':
             case 'deleteDataEntity':
@@ -34,25 +34,25 @@ module.exports = {
             case 'createNewHasMany':
             case 'createNewFieldset':
             case 'createNewFieldRelatedTo':
-                return "E_"+string;
+                return "e_"+string;
                 break;
             case 'createNewDataField':
             case 'deleteDataField':
             case 'foreignKey':
             case 'using':
-                return "F_"+string;
+                return "f_"+string;
                 break;
             case 'alias':
                 /* R for Relation */
-                return "R_"+string;
+                return "r_"+string;
                 break;
             case 'createNewComponentLocalFileStorage':
             case 'createNewComponentContactForm':
-                return "C_"+string;
+                return "c_"+string;
                 break;
         }
 
-        return "U_"+string;
+        return "u_"+string;
     },
     removePrefix: function(string, type){
         var stringLower = string.toLowerCase();
