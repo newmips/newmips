@@ -261,6 +261,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 attr.options.urlAs = attr.options.as;
                 attr.options.as = attrHelper.addPrefix(attr.options.as, "alias");
             }
+
+            if(typeof attr.options.usingField !== "undefined"){
+                attr.options.showUsingField = attr.options.usingField;
+                attr.options.usingField = attrHelper.clearString(attr.options.usingField);
+                attr.options.usingField = attrHelper.addPrefix(attr.options.usingField, "using");
+            }
         }
 
         console.log("\n");
