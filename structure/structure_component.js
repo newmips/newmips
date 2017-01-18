@@ -39,12 +39,13 @@ function createComponentAttributesAndOptionsFiles(idApplication, nameComponent, 
 	});
 }
 
-function setupComponentRoute(idApplication, nameComponent, filename, source, callback){
+function setupComponentRoute(idApplication, nameComponent, urlSource, filename, source, callback){
 	// CREATE ROUTE FILE
 	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/routes/route_'+filename+'.js', 'utf8');
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent.toLowerCase());
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase() + nameComponent.toLowerCase().slice(1));
 	routeTemplate = routeTemplate.replace(/SOURCE_ENTITY_LOWER/g, source.toLowerCase());
+	routeTemplate = routeTemplate.replace(/SOURCE_URL_ENTITY_LOWER/g, urlSource.toLowerCase());
 	var writeStream = fs.createWriteStream('./workspace/'+idApplication+'/routes/'+nameComponent.toLowerCase()+'.js');
 	writeStream.write(routeTemplate);
 	writeStream.end();
@@ -77,7 +78,7 @@ function setupComponentView(idApplication, nameComponent, showNameComponent, fil
 
 function addTab(attr, file, newLi, newTabContent) {
 	return new Promise(function(resolve, reject) {
-		var source = attr.options.source.toLowerCase();
+		var source = attr.options.showSource;
 		domHelper.read(file).then(function($) {
 	        // Tabs structure doesn't exist, create it
 	        var tabs = '';
@@ -85,9 +86,8 @@ function addTab(attr, file, newLi, newTabContent) {
 	        if ($("#tabs").length == 0) {
 	        	tabs += '<div class="nav-tabs-custom" id="tabs">';
 	        	tabs += '	<ul class="nav nav-tabs">';
-	        	tabs += '		<li class="active"><a data-toggle="tab" href="#home">' + source + '</a></li>';
+	        	tabs += '		<li class="active"><a data-toggle="tab" href="#home">'+source+'</a></li>';
 	        	tabs += '	</ul>';
-
 	        	tabs += '	<div class="tab-content">';
 	        	tabs += '		<div id="home" class="tab-pane fade in active"></div>';
 	        	tabs += '	</div>';
@@ -115,31 +115,35 @@ exports.newLocalFileStorage = function(attr, callback){
 
 	var nameComponent = attr.options.value;
 	var nameComponentLower = nameComponent.toLowerCase();
+	var urlComponent = attr.options.urlValue.toLowerCase();
 
 	var showComponentName = attr.options.showValue;
 	var showComponentNameLower = showComponentName.toLowerCase();
 
 	var source = attr.options.source;
 	var sourceLower = source.toLowerCase();
+	var showSource = attr.options.showSource;
+	var urlSource = attr.options.urlSource;
 
 	var filename = "local_file_storage";
 
 	setupComponentModel(attr.id_application, nameComponent, filename, function(){
 		createComponentAttributesAndOptionsFiles(attr.id_application, nameComponent, filename, source, function(){
-			setupComponentRoute(attr.id_application, nameComponent, filename, source, function(){
+			setupComponentRoute(attr.id_application, nameComponent, urlSource, filename, source, function(){
 
 				/* --------------- New translation --------------- */
-				translateHelper.writeLocales(attr.id_application, "component", showComponentName, attr.googleTranslate, function(){
+				translateHelper.writeLocales(attr.id_application, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
 					// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
 					var componentPiece = fs.readFileSync('./structure/pieces/component/'+filename+'/views/view_'+filename+'.dust', 'utf8');
+
 					var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, nameComponentLower);
-					componentContent = componentContent.replace(/SHOW_COMPONENT_NAME_LOWER/g, showComponentNameLower);
+					componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
 					componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
 
-					var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+showComponentNameLower+'.label_component" /}</a></li>';
+					var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
 
-					var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
-					var file = fileBase + '/show_fields.dust';
+					var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+sourceLower;
+					var file = fileBase+'/show_fields.dust';
 
 					// CREATE THE TAB IN SHOW FIELDS
 					addTab(attr, file, newLi, componentContent).then(callback);
@@ -186,5 +190,4 @@ exports.newContactForm = function(attr, callback){
 			});
 		});
 	});
-
 }

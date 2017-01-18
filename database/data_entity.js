@@ -425,34 +425,23 @@ exports.deleteDataEntity = function(attr, callback) {
 }
 
 // Get a DataEntity with a given name
-exports.getDataEntityByName = function(attr, callback) {
+exports.getDataEntityByName = function(idApplication, name_data_entity, callback) {
 
-    var id_application = 0;
-    var version = 1;
-
-    if (typeof attr !== 'undefined' && typeof attr.options != "undefined") {
-        id_application = attr.id_application;
-        var options = attr.options;
-
-        if (typeof options !== 'undefined' && options && id_application != 0) {
-
-            models.DataEntity.findOne({
-            	where: {
-	                name: options.showValue,
-	                id_application: id_application
-            	}
-            }).then(function(dataEntity) {
-                if (!dataEntity) {
-                    var err = new Error();
-                    err.message = "Sorry, no data entity with this name exist.";
-                    return callback(err, null);
-                }
-                callback(null, dataEntity);
-            }).catch(function(err) {
-                callback(err, null);
-            });
+    models.DataEntity.findOne({
+    	where: {
+            name: name_data_entity,
+            id_application: idApplication
+    	}
+    }).then(function(dataEntity) {
+        if (!dataEntity) {
+            var err = new Error();
+            err.message = "Sorry, no data entity with the name '"+name_data_entity+"' exist.";
+            return callback(err, null);
         }
-    }
+        callback(null, dataEntity);
+    }).catch(function(err) {
+        callback(err, null);
+    });
 }
 
 exports.getModuleNameByEntityName = function(entity_name, callback){

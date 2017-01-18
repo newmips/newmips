@@ -66,6 +66,10 @@ module.exports = {
                 if(stringLower.substring(0,2) == "c_")
                     return string.substring(2);
                 break;
+            case 'entityOrComponent':
+                if(stringLower.substring(0,2) == "e_" || stringLower.substring(0,2) == "c_")
+                    return string.substring(2);
+                break;
         }
 
         return string;
