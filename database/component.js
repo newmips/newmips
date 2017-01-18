@@ -33,7 +33,7 @@ exports.createNewComponentOnEntity = function(attr, callback) {
                 }
                 var info = {
                     insertId: created_component.id,
-                    message: "New component " + created_component.id + " | "+created_component.name+" created."
+                    message: "New component "+created_component.id+" | "+created_component.name+" created."
                 }
                 callback(null, info);
             }).catch(function(err) {
@@ -59,6 +59,7 @@ exports.createNewComponentOnModule = function(attr, callback) {
 
             models.Component.create({
                 name: options.showValue,
+                codeName: options.value,
                 id_module: id_module,
                 version: version
             }).then(function(created_component) {
@@ -69,7 +70,7 @@ exports.createNewComponentOnModule = function(attr, callback) {
                 }
                 var info = {
                     insertId: created_component.id,
-                    message: "New component " + created_component.id + " | "+created_component.name+" created."
+                    message: "New component "+created_component.id+" | "+created_component.name+" created."
                 }
                 callback(null, info);
             }).catch(function(err) {
