@@ -491,145 +491,6 @@ exports.setColumnVisibility = function(attr, callback) {
 	}).catch(callback);
 }
 
-exports.setupAssociationField = function(attr, relation, callback){
-	var target = attr.options.target.toLowerCase();
-	var source = attr.options.source.toLowerCase();
-
-	//var targetLabel = attr.options.target.toLowerCase();
-	var alias = attr.options.as.toLowerCase();
-	var foreignKey = attr.options.foreignKey.toLowerCase();
-
-	// Setup association field for create_fields
-	var select = '';
-
-	// Creation d'entité dans le cas d'un related to, si l'entité target n'existe pas,
-	// il s'agit d'une sous entité donc on affiche pas le select dans le create
-	if(attr.function !== "createNewBelongsTo" && attr.function !== 'createNewHasMany'){
-		select += '<!--{^associationFlag}-->';
-			select += '<label for="'+alias+'">'+alias+'</label>';
-			select += '<select class="form-control" name="'+alias+'" '+(relation != 'belongsTo' ? 'multiple' : '')+'>';
-				select += '<!--{#'+alias+'}-->';
-					select += '<option value="{id}">{id}</option>';
-				select += '<!--{/'+alias+'}-->';
-			select += '</select>';
-		select += '<!--{/associationFlag}-->';
-	}
-
-	// Update create_fields file
-	var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-	var file = 'create_fields';
-	updateFile(fileBase, file, select, function(){
-
-		// Setup association field for update_fields
-		select = '<label for="'+alias+'">'+alias+'</label>';
-		select += '<select class="form-control" name="'+alias+'" '+(relation != 'belongsTo' ? 'multiple' : '')+'>';
-			select += '<!--{#'+alias+'_global_list}-->';
-			if (relation != 'belongsTo')
-				select += '{#dataValues.associated}';
-			else
-				select += '<!--{@eq key='+alias+'.id value=id}-->';
-					select += '<option value="{id}" selected>{id}</option>';
-				select += '<!--{:else}-->';
-					select += '<option value="{id}">{id}</option>';
-			if (relation != 'belongsTo')
-				select += '{/dataValues.associated}';
-			else
-				select += '<!--{/eq}-->';
-			select += '<!--{/'+alias+'_global_list}-->';
-		select += '</select>';
-		file = 'update_fields';
-
-		// Update update_fields file
-		updateFile(fileBase, file, select, function() {
-
-			// Setup association tab for show_fields.dust
-			file = fileBase +'/show_fields.dust';
-			domHelper.read(file).then(function($) {
-				// Tabs structure doesn't exist, create it
-				var tabs = '';var context;
-				if ($("#tabs").length == 0) {
-					tabs += '<div class="nav-tabs-custom" id="tabs">';
-						tabs += '<ul class="nav nav-tabs">';
-							tabs += '<li class="active"><a data-toggle="tab" href="#home">'+source+'</a></li>';
-						tabs += '</ul>';
-
-						tabs += '<div class="tab-content">';
-							tabs += '<div id="home" class="tab-pane fade in active"></div>';
-						tabs += '</div>';
-					tabs += '</div>';
-					context = $(tabs);
-					$("#home", context).append($("#fields"));
-					$("#home", context).append($(".actions"));
-				}
-				else{
-					context = $("#tabs");
-				}
-
-				// Create new tab button
-				var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">'+alias+'</a></li>';
-
-				// Create new tab content
-				var newTab = '';
-				newTab += '<div id="'+alias+'" class="tab-pane fade">';
-					// Regular context for hasMany
-					if(relation != 'belongsTo'){
-						newTab += '<!--{#'+alias+' '+target+'='+alias+'}-->';
-						newTab += '<!--{@eq key=id value='+target+'[0].id}-->';
-					}
-					// Regular context for belongsTo
-					else if (relation == 'belongsTo'){
-						newTab += '<!--{#'+alias+'}-->';
-					}
-
-					// Include association's fields
-					newTab += '{>"'+target+'/'+(relation == 'belongsTo' ? 'show' : 'list')+'_fields" /}';
-
-					// Close context the same way we opened it
-					if(relation != 'belongsTo'){
-						newTab += '<!--{/eq}-->';
-						newTab += '<!--{:else}-->';
-						newTab += '{>"'+target+'/list_fields" /}';
-						newTab += '<!--{/'+alias+'}-->';
-					}
-					else if (relation == 'belongsTo'){
-						newTab += '<!--{/'+alias+'}-->';
-					}
-
-	                // Show button for belongsTo association
-	                if (relation == 'belongsTo') {
-						newTab += '<!--{#'+alias+'}-->';
-			                newTab += '<a href="/'+target+'/update_form?id={id}" class="btn btn-warning" style="margin-left:20px;">';
-			                    newTab += '<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>';
-			                newTab += '</a>';
-			            newTab += '<!--{:else}-->';
-							// Create button to directly associate created object to relation
-			                newTab += '<a href="/'+target+'/create_form?associationAlias='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
-			                    newTab += '<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
-			                newTab += '</a>';
-						newTab += '<!--{/'+alias+'}-->';
-		            }
-		            else {
-    					// Create button to directly associate created object to relation
-		                newTab += '<a href="/'+target+'/create_form?associationAlias='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
-		                    newTab += '<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
-		                newTab += '</a>';
-		            }
-				newTab += '</div>';
-
-
-				// Append created elements to `context` to handle presence of tab or not
-				$(".nav-tabs", context).append(newLi);
-				$(".tab-content", context).append(newTab);
-
-				$('body').empty().append(context);
-				domHelper.write(file, $).then(function() {
-					callback();
-				});
-			});
-		});
-	});
-}
-
 function addTab(attr, file, newLi, newTabContent) {
 	return new Promise(function(resolve, reject) {
     	var source = attr.options.source.toLowerCase();
@@ -758,7 +619,7 @@ exports.setupRelatedToField = function(attr, callback){
 	select += '			<!--{/'+alias+'}-->';
 	select += '		</select>';
 	/*select += '<!--{/associationFlag}-->';*/
-	select += '</div>'
+	select += '</div>';
 
 	// Update create_fields file
 	var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -809,28 +670,6 @@ exports.setupRelatedToField = function(attr, callback){
 					translateHelper.writeLocales(attr.id_application, "aliasfield", [source, alias, attr.options.as], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
-
-					// Update the fr-FR translation file
-					/*var fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-					var data = require(fileTranslation);
-					data.entity[source][alias] = attr.options.as;
-
-					// Write Translation file
-					var stream_fileTranslation = fs.createWriteStream(fileTranslation);
-					stream_fileTranslation.write(JSON.stringify(data, null, 2));
-					stream_fileTranslation.end();
-					stream_fileTranslation.on('finish', function () {
-						// Update the en-EN translation file
-						fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-						data = require(fileTranslation);
-						data.entity[source][alias] = attr.options.as;
-
-						// Write Translation file
-						stream_fileTranslation = fs.createWriteStream(fileTranslation);
-						stream_fileTranslation.write(JSON.stringify(data, null, 2));
-						stream_fileTranslation.end();
-						stream_fileTranslation.on('finish', callback);
-					});*/
 				});
 			});
 		});

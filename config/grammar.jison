@@ -359,7 +359,8 @@ instr :
       options = {
         target: target,
         foreignKey: "id_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       // Creating entity
@@ -398,7 +399,8 @@ instr :
         source: source,
         foreignKey: "id_"+as,
         as: as,
-        usingField: usingField
+        usingField: usingField,
+        processValue: true
       }
 
       return createNewFieldRelatedTo(options);
