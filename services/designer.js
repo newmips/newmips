@@ -21,6 +21,7 @@ var structure_component = require("../structure/structure_component");
 
 // Other
 var helpers = require("../utils/helpers");
+var attrHelper = require("../utils/attr_helper");
 var fs = require('fs');
 var sequelize = require('../models/').sequelize;
 
@@ -843,10 +844,15 @@ exports.createNewHasMany = function(attr, callback) {
 exports.createNewFieldset = function(attr, callback) {
 
     // Instruction is add fieldset _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
-    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_entity_source) {
-        if (err)
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
+        if(err)
             return callback(err, null);
-        attr.options.source = name_entity_source;
+
+        attr.options.source = source_entity.codeName;
+        attr.options.showSource = source_entity.name;
+        attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
+
+        console.log(attr);
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
@@ -855,26 +861,26 @@ exports.createNewFieldset = function(attr, callback) {
                 return callback(err, null);
             } else {
 
-                var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+                var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
                 var optionsSourceObject = JSON.parse(optionsSourceFile);
 
                 // Vérification si une relation existe déjà de la source VERS la target
-                for (var i = 0; i < optionsSourceObject.length; i++) {
+                for (var i=0; i<optionsSourceObject.length; i++) {
                     if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
 
                         if (optionsSourceObject[i].relation == "belongsTo") {
                             var err = new Error();
-                            err.message = 'Source entity already belongs to target entity, impossible to create has many association';
+                            err.message = 'Source entity "'+attr.options.showSource+'" already belongs to target entity "'+attr.options.showTarget+'", impossible to create has many association';
                             return callback(err, null);
                         } else if (attr.options.as == optionsSourceObject[i].as) {
                             var err = new Error();
-                            err.message = 'Association already exists between these entities with this name';
+                            err.message = 'An association already exists between these entities with this name';
                             return callback(err, null);
                         }
                     }
                 }
 
-                var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+                var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase() + '.json');
                 var optionsObject = JSON.parse(optionsFile);
 
                 // Vérification si une relation existe déjà de la target VERS la source
@@ -889,8 +895,11 @@ exports.createNewFieldset = function(attr, callback) {
                 var reversedAttr = {
                     options: {
                         source: attr.options.target,
+                        showSource: attr.options.showTarget,
                         target: attr.options.source,
-                        foreignKey: attr.options.foreignKey
+                        showTarget: attr.options.showSource,
+                        foreignKey: attr.options.foreignKey,
+                        showForeignKey: attr.options.showForeignKey
                     },
                     id_module: attr.id_module,
                     id_application: attr.id_application
@@ -904,7 +913,7 @@ exports.createNewFieldset = function(attr, callback) {
 
                             var info = {};
                             info.insertId = attr.id_data_entity;
-                            info.message = "New fieldset created.";
+                            info.message = "New fieldset of existing "+attr.options.showTarget+" created on "+attr.options.showSource+".";
                             callback(null, info);
                         });
                     });

@@ -17,24 +17,25 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 
 	// Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
 	var disabled = readOnly?"disabled":"";
+
 	var str = "<div data-field='"+dataField+"' class='form-group'>\n";
-	str += "\t<label for='"+dataField+"'> {@__ key=\"entity."+dataEntity +"."+dataField  +"\"/} </label>\n";
+	str += "\t<label for='"+dataField+"'> {@__ key=\"entity."+dataEntity +"."+dataField+"\"/} </label>\n";
 
 	// Check type of field
 	switch (type) {
 		case "string" :
 		case "":
-			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 		break;
 		case "number" :
 		case "int" :
 		case "integer" :
-			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='number' "+readOnly+"/>\n";
+			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='number' "+readOnly+"/>\n";
 		break;
 		case "decimal" :
 		case "float" :
 		case "figures" :
-			str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+			str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 		break;
 		case "date" :
 			if(file == "show"){
@@ -42,7 +43,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<div class='input-group-addon'>\n";
 				str += "			<i class='fa fa-calendar'></i>\n";
 				str += "		</div>\n";
-				str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
 				str += "	</div>\n";
 			}
 			else if(file == "update"){
@@ -50,7 +51,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<div class='input-group-addon'>\n";
 				str += "			<i class='fa fa-calendar'></i>\n";
 				str += "		</div>\n";
-				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 				str += "	</div>\n";
 			}
 			else if(file == "create"){
@@ -58,7 +59,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<div class='input-group-addon'>\n";
 				str += "			<i class='fa fa-calendar'></i>\n";
 				str += "		</div>\n";
-				str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
 				str += "	</div>\n";
 			}
 		break;
@@ -69,7 +70,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "			<div class='input-group-addon'>\n";
 				str += "				<i class='fa fa-clock-o'></i>\n";
 				str += "			</div>\n";
-				str += "			<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "			<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
 				str += "		</div>\n";
 				str += "	</div>\n";
 			}
@@ -202,7 +203,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
-	var str = '<th data-field="'+dataField+'" data-col="' +dataField + '"';
+	var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
 	if (type == "date") {
 		str += ' data-type="date"';
 	}
@@ -212,7 +213,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	else if (type == "boolean")
 		str += ' data-type=\'boolean\'';
 	str += '>\n';
-	str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
+	str += '{@__ key="entity.'+dataEntity+'.'+dataField+'"/}\n';
 	str += '</th>\n';
 	ret.headers = str;
 
@@ -275,7 +276,6 @@ exports.setupDataField = function(attr, callback) {
 	var name_data_entity = attr.name_data_entity;
 	var codeName_data_entity = attr.codeName_data_entity;
 
-	var name_data_field;
 	var type_data_field;
 	var values_data_field;
 
@@ -283,8 +283,8 @@ exports.setupDataField = function(attr, callback) {
 	console.log("STEP 1 - Initializing variables");
 	var options = attr.options;
 
-	name_data_field = options.value;
-	var show_name_data_entity = attr.options.showValue;
+	var name_data_field = options.value;
+	var show_name_data_field = attr.options.showValue;
 
 	// If there is a WITH TYPE in the instruction
 	if(typeof options.type !== "undefined")
@@ -400,7 +400,7 @@ exports.setupDataField = function(attr, callback) {
 	/* ----------------- 3 - If it's a select/enum  ----------------- */
 	console.log("STEP 3 - Is it an enum ?");
 	if (typeForModel == "ENUM") {
-		var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum.json';
+		var fileEnum = __dirname+'/../workspace/'+id_application+'/locales/enum.json';
 		var enumData = require(fileEnum);
 		var key = name_data_field.toLowerCase();
 		var json = {};
@@ -426,22 +426,22 @@ exports.setupDataField = function(attr, callback) {
 
 	/* ----------------- 4 - Add the fields in all the views  ----------------- */
 	console.log("STEP 4 - Starting views update");
-	var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + codeName_data_entity.toLowerCase();
+	var fileBase = __dirname+'/../workspace/'+id_application+'/views/'+codeName_data_entity.toLowerCase();
 	/* Update the show_fields.dust file with a disabled input */
-	var stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, true, "show", values_data_field);
+	var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field);
 	updateFile(fileBase, "show_fields", stringToWrite, function(){
 		/* Update the create_fields.dust file */
-		stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "create", values_data_field);
+		stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field);
 		updateFile(fileBase, "create_fields", stringToWrite, function(){
 			/* Update the update_fields.dust file */
-			stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "update", values_data_field);
+			stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field);
 			updateFile(fileBase, "update_fields", stringToWrite, function(){
 				/* Update the list_fields.dust file */
-				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, name_data_entity, false);
+				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity, false);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_entity, name_data_field], attr.googleTranslate, function(){
+					translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_entity, name_data_field, show_name_data_field], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
 				});
@@ -908,18 +908,24 @@ exports.setupHasOneTab = function(attr, callback) {
 
 exports.setupFieldsetTab = function(attr, callback) {
 	var target = attr.options.target.toLowerCase();
-	var source = attr.options.source.toLowerCase();
-	var alias = attr.options.as.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
+    var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
     var foreignKey = attr.options.foreignKey.toLowerCase();
+    var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
-	fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-	fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-	dataFR = require(fileTranslationFR);
-	dataEN = require(fileTranslationEN);
+	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
+	var fileTranslationEN = __dirname+'/../workspace/'+attr.id_application+'/locales/en-EN.json';
+	var dataFR = require(fileTranslationFR);
+	var dataEN = require(fileTranslationEN);
 
-	dataFR.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
-	dataEN.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
+	dataFR.entity[target]["as_"+alias] = showAlias;
+	dataEN.entity[target]["as_"+alias] = showAlias;
 
 	var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
 	var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -940,17 +946,16 @@ exports.setupFieldsetTab = function(attr, callback) {
 		    	usingField = attr.options.usingField;
 
 			// Setup association tab for show_fields.dust
-		    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-		    var file = fileBase + '/show_fields.dust';
+		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
+		    var file = fileBase+'/show_fields.dust';
 
-		    // var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+source+'.'+alias+'" /}</a></li>';
 			var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
 
 		    var newTabContent = '';
 		    // Create select to add elements
-		    newTabContent += '<div id="' + alias + '" class="tab-pane fade">';
+		    newTabContent += '<div id="'+alias+'" class="tab-pane fade">';
 			// newTabContent += '	<label>{@__ key="operation.add"/} {@__ key="entity.'+target+'.label_entity" /}</label>';
-			newTabContent += '	<form action="/'+source+'/fieldset/'+alias+'/add" method="post">'
+			newTabContent += '	<form action="/'+urlSource+'/fieldset/'+alias+'/add" method="post">'
 		    newTabContent += '		<select style="width:200px;" class="form-control" name="ids" multiple>';
 		    newTabContent += '			<!--{#'+alias+'_global_list}-->';
 		    newTabContent += '				<!--{#.'+usingField+'}-->';
@@ -967,7 +972,7 @@ exports.setupFieldsetTab = function(attr, callback) {
 		    // Include association's fields
 			newTabContent += '	<!--{#'+alias+' '+target+'='+alias+'}-->';
 			newTabContent += '			<!--{@eq key=id value='+target+'[0].id}-->';
-		    newTabContent += '		{>"' + target + '/list_fields" for="fieldset" /}';
+		    newTabContent += '		{>"'+target+'/list_fields" for="fieldset" /}';
 			newTabContent += '			<!--{/eq}-->';
 			newTabContent += '	<!--{:else}-->';
 			newTabContent += '			{>"'+target+'/list_fields" /}';

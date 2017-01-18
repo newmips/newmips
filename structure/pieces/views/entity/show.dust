@@ -66,7 +66,7 @@
 
             $(".fieldsetform").submit(function() {
                 var alias = $(this).parents('.tab-pane').attr('id');
-                var url = '/custom_data_entity/fieldset/'+alias+'/remove';
+                var url = '/custom_url_data_entity/fieldset/'+alias+'/remove';
                 var data = $(this).serialize();
                 data += '&idEntity={custom_data_entity.id}';
                 var form = this;

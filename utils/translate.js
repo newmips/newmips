@@ -11,7 +11,8 @@ module.exports = {
         // If field value is an array
         if(type == "field"){
             var dataEntity = value[0];
-            value = value[1];
+            var keyValueField = value[1];
+            value = value[2];
         }
         else if(type == "aliasfield"){
             var dataEntity = value[0];
@@ -66,7 +67,7 @@ module.exports = {
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
             else if(type == "field"){
-                data.entity[keyValue.toLowerCase()][value.toLowerCase()] = value2;
+                data.entity[keyValue.toLowerCase()][keyValueField.toLowerCase()] = value2;
             }
             else if(type == "aliasfield"){
                 data.entity[dataEntity.toLowerCase()][alias.toLowerCase()] = value2;
