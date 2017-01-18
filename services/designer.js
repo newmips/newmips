@@ -1004,17 +1004,17 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
     }
 
     // Check if component with this name is already created on this entity
-    db_component.getComponentByNameInEntity(attr, function(err, component){
+    db_component.getComponentByNameInEntity(attr.id_module, attr.id_data_entity, attr.options.showValue, function(err, component){
         if(component){
-            err = new Error();
+            var err = new Error();
             err.message = "Sorry, a component with this name is already associate to this entity in this module.";
             return callback(err, null);
         }
         else{
             // Check if a table as already the composant name
-            db_entity.getDataEntityByName(attr, function(err, dataEntity) {
+            db_entity.getDataEntityByName(attr.id_application, attr.options.showValue, function(err, dataEntity) {
                 if(dataEntity){
-                    err = new Error();
+                    var err = new Error();
                     err.message = "Sorry, an other entity with this component name already exist in this application.";
                     return callback(err, null);
                 }
@@ -1022,17 +1022,23 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                     // Create the component in newmips database
                     db_component.createNewComponentOnEntity(attr, function(err, info){
                         // Get Data Entity Name needed for structure
-                        db_entity.getNameDataEntityById(attr.id_data_entity, function(err, dataEntityName){
-                            attr.options.source = dataEntityName;
-                            // setup the hasMany association in the source entity
-                            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
-                                structure_component.newLocalFileStorage(attr, function(err){
-                                    if(err)
-                                        return callback(err, null);
+                        db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                            attr.options.source = sourceEntity.codeName;
+                            attr.options.showSource = sourceEntity.name;
+                            attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                            // Setup the hasMany association in the source entity
+                            try{
+                                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
+                                    structure_component.newLocalFileStorage(attr, function(err){
+                                        if(err)
+                                            return callback(err, null);
 
-                                    callback(null, info);
+                                        callback(null, info);
+                                    });
                                 });
-                            });
+                            } catch(err){
+                                return callback(err, null);
+                            }
                         });
                     });
                 }
@@ -1051,15 +1057,15 @@ exports.createNewComponentContactForm = function(attr, callback) {
     }
 
     // Check if component with this name is already created on this entity
-    db_component.getComponentByNameInModule(attr, function(err, component){
+    db_component.getComponentByNameInModule(attr.id_module, attr.options.showValue, function(err, component){
         if(component){
-            err = new Error();
+            var err = new Error();
             err.message = "Sorry, a component with this name is already associate to this module.";
             return callback(err, null);
         }
         else{
             // Check if a table as already the composant name
-            db_entity.getDataEntityByName(attr, function(err, dataEntity) {
+            db_entity.getDataEntityByName(attr.id_application, attr.options.showValue, function(err, dataEntity) {
                 if(dataEntity){
                     err = new Error();
                     err.message = "Sorry, a other entity with this component name already exist in this application.";

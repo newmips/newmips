@@ -28,7 +28,7 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
 
     var version = parseInt(req.body.version) + 1;
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    var redirect = '/SOURCE_ENTITY_LOWER/show?id='+req.body.SOURCE_ENTITY_LOWER+'#COMPONENT_NAME_LOWER';
+    var redirect = '/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.SOURCE_ENTITY_LOWER+'#COMPONENT_NAME_LOWER';
 
     models.COMPONENT_NAME.create(createObject).then(function(COMPONENT_NAME_LOWER) {
         req.session.toastr = [{
@@ -86,8 +86,8 @@ router.post('/file_upload', block_access.isLoggedIn, function(req, res) {
                 /* ---------------------------------------------------------- */
                 /* ------------- Local Storage in upload folder ------------- */
                 /* ---------------------------------------------------------- */
-                fse.mkdirsSync(__dirname + "/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
-                var uploadPath = __dirname + "/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
+                fse.mkdirsSync(__dirname+"/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
+                var uploadPath = __dirname+"/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
                 var byte;
                 var outStream = fs.createWriteStream(uploadPath);
                 outStream.write(req.file.buffer);
@@ -134,7 +134,7 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
     }).then(function(toRemoveComponent){
         if(toRemoveComponent){
 
-            fs.unlinkSync(__dirname + "/../upload/SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/COMPONENT_NAME_LOWER/"+toRemoveComponent.filename);
+            fs.unlinkSync(__dirname + "/../upload/SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.filename);
             models.COMPONENT_NAME.destroy({
                 where: {
                     id: req.body.idRemove
@@ -144,7 +144,7 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
                     message: 'message.delete.success',
                     level: "success"
                 }];
-                res.redirect('/SOURCE_ENTITY_LOWER/show?id='+req.body.idEntity+'#COMPONENT_NAME_LOWER');
+                res.redirect('/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.idEntity+'#COMPONENT_NAME_LOWER');
             }).catch(function(err){
                 error500(err, res);
             });
@@ -153,7 +153,7 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
                 message: 'message.delete.failure',
                 level: "error"
             }];
-            res.redirect('/SOURCE_ENTITY_LOWER/show?id='+req.body.idEntity+'#COMPONENT_NAME_LOWER');
+            res.redirect('/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.idEntity+'#COMPONENT_NAME_LOWER');
         }
     })
 });
