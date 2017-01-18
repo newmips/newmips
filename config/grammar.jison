@@ -553,7 +553,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+source.toLowerCase()+"_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       switch ($1.toLowerCase()) {
@@ -582,7 +583,8 @@ instr :
       options = {
         target: target,
         foreignKey: "id_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       switch ($2.toLowerCase()) {
@@ -612,7 +614,8 @@ instr :
         target: target,
         foreignKey: "id_"+as,
         as: as,
-        usingField: usingField
+        usingField: usingField,
+        processValue: true
       }
 
       switch ($2.toLowerCase()) {

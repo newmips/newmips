@@ -32,6 +32,7 @@ module.exports = {
             case 'deleteDataEntity':
             case 'createNewHasOne':
             case 'createNewHasMany':
+            case 'createNewFieldset':
                 return "E_"+string;
                 break;
             case 'createNewDataField':
