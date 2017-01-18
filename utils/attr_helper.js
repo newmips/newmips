@@ -33,6 +33,7 @@ module.exports = {
             case 'createNewHasOne':
             case 'createNewHasMany':
             case 'createNewFieldset':
+            case 'createNewFieldRelatedTo':
                 return "E_"+string;
                 break;
             case 'createNewDataField':

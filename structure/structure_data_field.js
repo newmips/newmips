@@ -317,12 +317,12 @@ exports.setupDataField = function(attr, callback) {
 	var toSyncFile = fs.readFileSync(toSyncFileName);
 	var toSyncObject = JSON.parse(toSyncFile);
 
-	if(typeof toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()] === "undefined"){
-		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()] = {};
-		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()].attributes = {};
+	if(typeof toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()] === "undefined"){
+		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()] = {};
+		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()].attributes = {};
 	}
-	else if(typeof toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()].attributes === "undefined"){
-		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()].attributes = {};
+	else if(typeof toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()].attributes === "undefined"){
+		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()].attributes = {};
 	}
 
 	var typeForModel = "STRING";
@@ -441,7 +441,7 @@ exports.setupDataField = function(attr, callback) {
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_entity, name_data_field, show_name_data_field], attr.googleTranslate, function(){
+					translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
 				});
@@ -591,8 +591,15 @@ exports.setupHasManyTab = function(attr, callback) {
 
 exports.setupRelatedToField = function(attr, callback){
 	var target = attr.options.target.toLowerCase();
-	var source = attr.options.source.toLowerCase();
-	var alias = attr.options.as.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
+    var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
+    var foreignKey = attr.options.foreignKey.toLowerCase();
+    var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
 	// Setup association field for create_fields
 	var select = '';
@@ -622,7 +629,7 @@ exports.setupRelatedToField = function(attr, callback){
 	select += '</div>';
 
 	// Update create_fields file
-	var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
+	var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
 	var file = 'create_fields';
 	updateFile(fileBase, file, select, function(){
 
@@ -667,7 +674,7 @@ exports.setupRelatedToField = function(attr, callback){
 				domHelper.write(file, $).then(function() {
 
 					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(attr.id_application, "aliasfield", [source, alias, attr.options.as], attr.googleTranslate, function(){
+					translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
 				});
@@ -780,9 +787,12 @@ exports.setupFieldsetTab = function(attr, callback) {
 
 			// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
 		    var usingField = "id";
+		    var usingFieldDisplay = "id";
 
-		    if(typeof attr.options.usingField !== "undefined")
+		    if(typeof attr.options.usingField !== "undefined"){
 		    	usingField = attr.options.usingField.toLowerCase();
+		    	usingFieldDisplay = attr.options.usingField;
+		    }
 
 			// Setup association tab for show_fields.dust
 		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
@@ -799,7 +809,7 @@ exports.setupFieldsetTab = function(attr, callback) {
 		    newTabContent += '				<!--{#.'+usingField+'}-->';
 		    newTabContent += '						<option value="{id}">{'+usingField+'}</option>';
 		    newTabContent += '				<!--{:else}-->';
-		    newTabContent += '						<option value="{id}">{id} - '+usingField+' not defined</option>';
+		    newTabContent += '						<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>';
 		    newTabContent += '				<!--{/.'+usingField+'}-->';
 		    newTabContent += '			<!--{/'+alias+'_global_list}-->';
 		    newTabContent += '		</select>';
