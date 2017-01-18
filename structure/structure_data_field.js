@@ -835,6 +835,7 @@ exports.setupFieldsetTab = function(attr, callback) {
 exports.deleteDataField = function(attr, callback) {
     var id_application = attr.id_application;
     var name_data_entity = attr.name_data_entity.toLowerCase();
+    var show_name_data_field =  attr.options.showValue.toLowerCase();
     var name_data_field =  attr.options.value.toLowerCase();
 
     var options = attr.options;
@@ -847,7 +848,7 @@ exports.deleteDataField = function(attr, callback) {
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var dataToWrite = require(jsonPath);
     for (var i = 0; i < dataToWrite.length; i++) {
-        if (dataToWrite[i].as.toLowerCase() == name_data_field) {
+        if (dataToWrite[i].as.toLowerCase() == "r_"+show_name_data_field) {
             if (dataToWrite[i].relation != 'belongsTo'){
             	var err = new Error();
             	err.message = name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction.';
@@ -911,7 +912,9 @@ exports.deleteDataField = function(attr, callback) {
 
 exports.deleteTab = function(attr, callback) {
     var tabName = attr.options.value.toLowerCase();
+    var showTabName = attr.options.showValue.toLowerCase();
     var name_data_entity = attr.name_data_entity.toLowerCase();
+    var show_name_data_entity = attr.show_name_data_entity.toLowerCase();
     var id_data_entity = attr.id_data_entity;
     var id_application = attr.id_application;
     var target;
@@ -921,14 +924,12 @@ exports.deleteTab = function(attr, callback) {
     var found = false;
     var option;
 
+    console.log(options);
+    console.log(showTabName);
+
     for (var i = 0; i < options.length; i++) {
-    	if (options[i].as.toLowerCase() !== tabName)
+    	if (options[i].as.toLowerCase() !== "r_"+showTabName)
     		continue;
-    	/*if (options[i].relation !== 'hasMany'){
-    		var err = new Error();
-    		err.message = tabName+ " isn't a `tab`. You might want to use `delete field` instruction.";
-    		return callback(err, null);
-    	}*/
     	option = options[i];
     	if (options[i].relation == 'hasMany')
     		target = option.target;

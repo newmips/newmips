@@ -220,6 +220,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         /* Parse the instruction to get an object for the designer */
         var attr = parser.parse(instruction);
 
+        console.log(attr);
+
         /* If the instruction create something there is inevitably a value. We have to clean this value for the code */
         if(typeof attr.options.value !== "undefined" && attr.options.processValue){
 
@@ -273,6 +275,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 attr.options.usingField = attr.options.usingField.toLowerCase();
             }
         }
+
+        console.log("\n");
+        console.log(attr);
 
         // We simply add session values in attributes array
         attr.instruction = instruction;
