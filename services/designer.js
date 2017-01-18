@@ -925,10 +925,8 @@ exports.createNewFieldset = function(attr, callback) {
 
 // Create a field in create/show/update related to target entity
 exports.createNewFieldRelatedTo = function(attr, callback) {
-console.log('111111111111');
     // Instruction is add field _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
     db_entity.getDataEntityById(attr.id_data_entity, function(err, entity_source) {
-console.log('222222222222');
         if(err)
             return callback(err, null);
         attr.options.source = entity_source.name;
@@ -936,7 +934,6 @@ console.log('222222222222');
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
-console.log('333333333333');
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
@@ -945,7 +942,6 @@ console.log('333333333333');
             var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.codeNameSource.toLowerCase()+'.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
-console.log('3333334444444');
             for (var i=0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "hasMany") {
@@ -971,7 +967,6 @@ console.log('3333334444444');
                 }
             }
 
-console.log('444444444444444');
             // Add foreign key to newmips's DB
             db_field.createNewForeignKey(attr, function(err, created_foreignKey) {
                 if(err)
