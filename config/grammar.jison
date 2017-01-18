@@ -423,7 +423,8 @@ instr :
         target: target,
         foreignKey: "id_"+as,
         as: as,
-        usingField: usingField
+        usingField: usingField,
+        processValue: true
       }
 
       switch($2.toLowerCase()) {

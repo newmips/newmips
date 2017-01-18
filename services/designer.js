@@ -926,11 +926,12 @@ exports.createNewFieldset = function(attr, callback) {
 // Create a field in create/show/update related to target entity
 exports.createNewFieldRelatedTo = function(attr, callback) {
     // Instruction is add field _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
-    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity_source) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
         if(err)
             return callback(err, null);
-        attr.options.source = entity_source.name;
-        attr.options.codeNameSource = entity_source.codeName;
+        attr.options.source = source_entity.codeName;
+        attr.options.showSource = source_entity.name;
+        attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
@@ -939,7 +940,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                 return callback(err, null);
 
             // Check if an association already exists from source to target
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.codeNameSource.toLowerCase()+'.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
             for (var i=0; i < optionsSourceObject.length; i++) {
@@ -957,7 +958,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
             }
 
             // Check if an association already exists from target to source
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
             var optionsObject = JSON.parse(optionsFile);
             for (var i=0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany"){

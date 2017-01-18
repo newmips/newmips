@@ -10,14 +10,12 @@ module.exports = {
 
         // If field value is an array
         if(type == "field"){
-            var dataEntity = value[0];
-            var keyValueField = value[1];
-            value = value[2];
+            var keyValueField = value[0];
+            value = value[1];
         }
         else if(type == "aliasfield"){
-            var dataEntity = value[0];
-            var alias = value[1];
-            value = value[2];
+            var alias = value[0];
+            value = value[1];
         }
 
         // Current application language
@@ -70,7 +68,7 @@ module.exports = {
                 data.entity[keyValue.toLowerCase()][keyValueField.toLowerCase()] = value2;
             }
             else if(type == "aliasfield"){
-                data.entity[dataEntity.toLowerCase()][alias.toLowerCase()] = value2;
+                data.entity[keyValue.toLowerCase()][alias.toLowerCase()] = value2;
             }
 
             return data;
