@@ -916,68 +916,70 @@ exports.createNewFieldset = function(attr, callback) {
 
 // Create a field in create/show/update related to target entity
 exports.createNewFieldRelatedTo = function(attr, callback) {
-
+console.log('111111111111');
     // Instruction is add field _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
-    db_entity.getNameDataEntityById(attr.id_data_entity, function(err, name_entity_source) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity_source) {
+console.log('222222222222');
         if(err)
             return callback(err, null);
-        attr.options.source = name_entity_source;
+        attr.options.source = entity_source.name;
+        attr.options.codeNameSource = entity_source.codeName;
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
-            if (err) {
-                // Si l'entité target n'existe pas, on remonte une erreur
-                callback(err, null);
-            } else {
+console.log('333333333333');
+            // If target entity doesn't exists, send error
+            if (err)
+                return callback(err, null);
 
-                // Vérification si une relation existe déjà de la source VERS la target
-                var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
-                var optionsSourceObject = JSON.parse(optionsSourceFile);
+            // Check if an association already exists from source to target
+            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.codeNameSource.toLowerCase()+'.json');
+            var optionsSourceObject = JSON.parse(optionsSourceFile);
 
-                for (var i=0; i < optionsSourceObject.length; i++) {
-                    if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
-                        if (optionsSourceObject[i].relation == "hasMany") {
-                            var err = new Error();
-                            err.message = 'Source entity already has many target entity, impossible to create belongs to association';
-                            return callback(err, null);
-                        } else if (attr.options.as == optionsSourceObject[i].as) {
-                            var err = new Error();
-                            err.message = 'Association already exists between these entities with this alias';
-                            return callback(err, null);
-                        }
-                    }
-                }
-
-                // Vérification si une relation existe déjà de la target VERS la source
-                var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
-                var optionsObject = JSON.parse(optionsFile);
-                for (var i=0; i < optionsObject.length; i++) {
-                    if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany"){
+            for (var i=0; i < optionsSourceObject.length; i++) {
+                if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
+                    if (optionsSourceObject[i].relation == "hasMany") {
                         var err = new Error();
-                        err.message = 'Bad Entity association, you can\'t set circular \'belongs to\'';
+                        err.message = 'Source entity already has many target entity, impossible to create belongs to association';
+                        return callback(err, null);
+                    } else if (attr.options.as == optionsSourceObject[i].as) {
+                        var err = new Error();
+                        err.message = 'Association already exists between these entities with this alias';
                         return callback(err, null);
                     }
                 }
+            }
 
-                // Ajout de la foreign key dans la BDD Newmips
-                db_field.createNewForeignKey(attr, function(err, created_foreignKey) {
-                    if(err)
-                        return callback(err, null);
-                    // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function() {
-                        // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-                        structure_data_field.setupRelatedToField(attr, function(err, data) {
-                            if(err)
-                                return callback(err, null);
-                            // Stay on the source entity in session
-                            var info = {};
-                            info.insertId = attr.id_data_entity;
-                            info.message = "New field related to " + dataEntity.name + " created.";
-                            callback(null, info);
-                        });
+            // Check if an association already exists from target to source
+            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsObject = JSON.parse(optionsFile);
+            for (var i=0; i < optionsObject.length; i++) {
+                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany"){
+                    var err = new Error();
+                    err.message = 'Bad Entity association, you can\'t set circular \'belongs to\'';
+                    return callback(err, null);
+                }
+            }
+
+console.log('444444444444444');
+            // Add foreign key to newmips's DB
+            db_field.createNewForeignKey(attr, function(err, created_foreignKey) {
+                if(err)
+                    return callback(err, null);
+                // Créer le lien belongsTo en la source et la target dans models/options/source.json
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function() {
+                    // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
+                    structure_data_field.setupRelatedToField(attr, function(err, data) {
+                        if(err)
+                            return callback(err, null);
+                        // Stay on the source entity in session
+                        var info = {};
+                        info.insertId = attr.id_data_entity;
+                        info.message = "New field related to " + dataEntity.name + " created.";
+                        callback(null, info);
                     });
                 });
-            }
+            });
         });
     });
 }
