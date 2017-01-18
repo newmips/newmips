@@ -55,7 +55,7 @@ function setupComponentRoute(idApplication, nameComponent, urlSource, filename, 
 	});
 }
 
-function setupComponentView(idApplication, nameComponent, showNameComponent, filename, nameModule, callback){
+function setupComponentView(idApplication, nameComponent, urlComponent, filename, nameModule, callback){
 
 	// CREATE VIEW FILE
 	fs.copySync(__dirname+'/pieces/component/'+filename+'/views', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase());
@@ -63,8 +63,8 @@ function setupComponentView(idApplication, nameComponent, showNameComponent, fil
 	fs.rename(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/view_'+filename+'.dust', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', function(){
 		var viewTemplate = fs.readFileSync(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', 'utf8');
 		viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());
+		viewTemplate = viewTemplate.replace(/name_url_component/g, urlComponent.toLowerCase());
 		viewTemplate = viewTemplate.replace(/name_component/g, nameComponent.toLowerCase());
-		viewTemplate = viewTemplate.replace(/show_name_component/g, showNameComponent.toLowerCase());
 
 		var writeStream = fs.createWriteStream(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust');
 		writeStream.write(viewTemplate);
@@ -159,21 +159,22 @@ exports.newContactForm = function(attr, callback){
 	var nameComponentLower = nameComponent.toLowerCase();
 
 	var showComponentName = attr.options.showValue;
-	var showComponentNameLower = showNameComponent.toLowerCase();
+	var showComponentNameLower = showComponentName.toLowerCase();
+
+	var urlComponent = attr.options.urlValue.toLowerCase();
 
 	var filename = "contact_form";
 
-	setupComponentView(attr.id_application, nameComponent, showComponentName, filename, attr.options.moduleName, function(){
-		setupComponentRoute(attr.id_application, nameComponent, filename, "", function(){
-			translateHelper.writeLocales(attr.id_application, "component", showComponentName, attr.googleTranslate, function(){
+	setupComponentView(attr.id_application, nameComponent, urlComponent, filename, attr.options.moduleName, function(){
+		setupComponentRoute(attr.id_application, nameComponent, "", filename, "", function(){
+			translateHelper.writeLocales(attr.id_application, "component", nameComponentLower, showComponentName, attr.googleTranslate, function(){
 				var layoutFileName = __dirname+'/../workspace/'+attr.id_application+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
 				domHelper.read(layoutFileName).then(function($) {
 					var li = '';
-					// Create new html
-					li += "<li id='"+nameComponent.toLowerCase()+"_menu_item' class='ui-state-default'>\n";
-						li += '<a href="/'+nameComponent.toLowerCase()+'">\n';
+					li += "<li id='"+nameComponentLower+"_menu_item' class='ui-state-default'>\n";
+						li += '<a href="/'+urlComponent+'">\n';
 							li += '<i class="fa fa-envelope"></i>\n';
-							li += '<span>{@__ key="component.'+showComponentNameLower+'.label_component" /}</span>\n';
+							li += '<span>{@__ key="component.'+nameComponentLower+'.label_component" /}</span>\n';
 						li += '</a>\n';
 					li += '</li>\n';
 

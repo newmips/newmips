@@ -999,8 +999,9 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "local_file_storage"
-        attr.options.showValue = "Local File Storage"
+        attr.options.value = "c_local_file_storage";
+        attr.options.urlValue = "local_file_storage";
+        attr.options.showValue = "Local File Storage";
     }
 
     // Check if component with this name is already created on this entity
@@ -1052,8 +1053,9 @@ exports.createNewComponentContactForm = function(attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "contact_form"
-        attr.options.showValue = "Contact Form"
+        attr.options.value = "c_contact_form";
+        attr.options.urlValue = "contact_form"
+        attr.options.showValue = "Contact Form";
     }
 
     // Check if component with this name is already created on this entity
@@ -1075,8 +1077,8 @@ exports.createNewComponentContactForm = function(attr, callback) {
                     // Create the component in newmips database
                     db_component.createNewComponentOnModule(attr, function(err, info){
                         // Get Data Entity Name needed for structure
-                        db_module.getNameModuleById(attr.id_module, function(err, moduleName){
-                            attr.options.moduleName = moduleName;
+                        db_module.getModuleById(attr.id_module, function(err, module){
+                            attr.options.moduleName = module.codeName;
                             structure_component.newContactForm(attr, function(err){
                                 if(err)
                                     return callback(err, null);

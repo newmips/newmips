@@ -340,7 +340,7 @@ instr :
         case "localfilestorage":
           return createNewComponentLocalFileStorage(options);
         case "contactform":
-          return createNewComponentContactUs(options);
+          return createNewComponentContactForm(options);
         default :
           break;
       }
