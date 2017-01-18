@@ -945,6 +945,7 @@ console.log('333333333333');
             var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.codeNameSource.toLowerCase()+'.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
+console.log('3333334444444');
             for (var i=0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "hasMany") {
