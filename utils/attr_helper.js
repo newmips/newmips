@@ -6,6 +6,7 @@ function clearString(string){
     string = string.replace(new RegExp("ç", 'g'), "c");
     string = string.replace(new RegExp("'", 'g'), "_");
     string = string.replace(new RegExp(",", 'g'), "_");
+    string = string.replace(new RegExp(" ", 'g'), "_");
     return string;
 }
 
