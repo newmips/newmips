@@ -924,9 +924,6 @@ exports.deleteTab = function(attr, callback) {
     var found = false;
     var option;
 
-    console.log(options);
-    console.log(showTabName);
-
     for (var i = 0; i < options.length; i++) {
     	if (options[i].as.toLowerCase() !== "r_"+showTabName)
     		continue;

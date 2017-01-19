@@ -83,8 +83,6 @@ exports.createNewForeignKey = function(attr, callback) {
 	var codeName = attr.options.foreignKey;
 	var version = 1;
 
-	console.log(attr);
-
 	models.DataEntity.findOne({
 		where: {
 			codeName: attr.options.source

@@ -379,8 +379,9 @@ exports.createNewAssociation = function(attr, callback) {
 exports.deleteDataEntity = function(attr, callback) {
 	var id_module = attr.id_module;
 	var show_name_data_entity = attr.show_name_data_entity;
+	var name_data_entity = attr.name_data_entity;
 
-	models.DataEntity.destroy({where: {name: show_name_data_entity, id_module: id_module}}).then(function(){
+	models.DataEntity.destroy({where: {codeName: name_data_entity, id_module: id_module}}).then(function(){
 		var info = {};
 		info.message = "Entity "+show_name_data_entity+" deleted.";
 		callback(null, info);
