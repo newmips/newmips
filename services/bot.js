@@ -186,24 +186,21 @@ exports.createNewDataFieldAction = function(result) {
 
     console.log("ACTION : createNewDataFieldAction");
 
-    options = new Array();
-
-
     // Field name has not been defined
-    if (result == null) {
+    if (result[1] == '') {
       attr = { "function": "askNameOfDataField" };
     }
     else {
 
       // Set name of field
-      property = "name";
-      value = result[1];
-      options = { "property": property, "value": value };
+      var property = "name";
+      var value = result[1];
+      var options = { "property": property, "value": value };
 
       attr = { "function": "createNewDataField", "options": options };
-      return attr;
     }
 
+    return attr;
 };
 
 exports.createNewDataFieldWithTypeAction = function(result) {
@@ -803,7 +800,7 @@ exports.parse = function (instruction) {
           "ajouter un champ (.*) de type (.*)"
         ],
         "createNewDataFieldAction": [
-          "create field (.*)",
+          "create field ?(.*)",
           "create data field (.*)",
           "add field (.*)",
           "add data field (.*)",
