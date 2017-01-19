@@ -850,12 +850,16 @@ exports.createNewFieldset = function(attr, callback) {
 
     // Instruction is add fieldset _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
     db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
-        if(err)
+        if(err && typeof attr.options.source === "undefined")
             return callback(err, null);
 
-        attr.options.source = source_entity.codeName;
-        attr.options.showSource = source_entity.name;
-        attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
+        // With preset instruction with already know the source of the related to
+        // "entity (.*) has many preset (.*)"
+        if(typeof attr.options.source === "undefined"){
+            attr.options.source = source_entity.codeName;
+            attr.options.showSource = source_entity.name;
+            attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
+        }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
@@ -934,11 +938,16 @@ exports.createNewFieldset = function(attr, callback) {
 exports.createNewFieldRelatedTo = function(attr, callback) {
     // Instruction is add field _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
     db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
-        if(err)
+        if(err && typeof attr.options.source === "undefined")
             return callback(err, null);
-        attr.options.source = source_entity.codeName;
-        attr.options.showSource = source_entity.name;
-        attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
+
+        // With preset instruction with already know the source of the related to
+        // "entity (.*) has one preset (.*) called (.*) using (.*)"
+        if(typeof attr.options.source === "undefined"){
+            attr.options.source = source_entity.codeName;
+            attr.options.showSource = source_entity.name;
+            attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
+        }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {

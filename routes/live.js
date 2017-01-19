@@ -12,9 +12,12 @@ var pourcent_generation = {};
 var designer = require('../services/designer.js');
 
 var fs = require("fs");
+/* OLD PARSER
 var jison = require("jison");
 var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
-var parser = new jison.Parser(bnf);
+var parser = new jison.Parser(bnf); */
+
+var parser = require('../services/bot.js');
 
 // Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');

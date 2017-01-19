@@ -19,9 +19,13 @@ var session_manager = require('../services/session.js');
 // Parser
 var designer = require('../services/designer.js');
 var fs = require("fs");
+
+/* OLD PARSER
 var jison = require("jison");
 var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
-var parser = new jison.Parser(bnf);
+var parser = new jison.Parser(bnf); */
+
+var parser = require('../services/bot.js');
 
 var global = require('../config/global.js');
 var logoPath = './public/img/';
@@ -205,14 +209,10 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         };
 
         /* Save an instruction history in the history script in workspace folder */
-        var historyScriptPath = __dirname + '/../workspace/' + req.session.id_application + '/history_script.nps';
+        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
         var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
         historyScript += "\n"+instruction;
         fs.writeFileSync(historyScriptPath, historyScript);
-
-        // Todo : Resolve instruction using bot talkify
-        parser = require('../services/bot.js');
-        // End of Todo
 
         /* Lower the first word for the basic parser jison */
         instruction = attrHelper.lowerFirstWord(instruction);
