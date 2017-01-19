@@ -29,64 +29,8 @@ function execute(req, instruction) {
 
             var attr = parser.parse(instruction);
 
-            console.log(attr);
-
-            /* If the instruction create something there is inevitably a value. We have to clean this value for the code */
-            if(typeof attr.options.value !== "undefined" && attr.options.processValue){
-
-                /* Keep the value for the trad file */
-                attr.options.showValue = attr.options.value;
-                /* Clean the name of the value */
-                attr.options.value = attrHelper.clearString(attr.options.value);
-                /* Value that will be used in url */
-                attr.options.urlValue = attr.options.value.toLowerCase();
-                /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
-                attr.options.value = attrHelper.addPrefix(attr.options.value, attr.function);
-                /* Always lower the code value */
-                attr.options.value = attr.options.value.toLowerCase();
-            }
-            /* In case of instruction about Association / Relation there is a target instead of a value */
-            else if(typeof attr.options.target !== "undefined" && attr.options.processValue){
-
-                attr.options.showTarget = attr.options.target;
-                attr.options.target = attrHelper.clearString(attr.options.target);
-                attr.options.urlTarget = attr.options.target.toLowerCase();
-                attr.options.target = attrHelper.addPrefix(attr.options.target, attr.function);
-                attr.options.target = attr.options.target.toLowerCase();
-
-                if(typeof attr.options.source !== "undefined"){
-                    attr.options.showSource = attr.options.source;
-                    attr.options.source = attrHelper.clearString(attr.options.source);
-                    attr.options.urlSource = attr.options.source;
-                    attr.options.source = attrHelper.addPrefix(attr.options.source, attr.function);
-                    attr.options.source = attr.options.source.toLowerCase();
-                }
-
-                if(typeof attr.options.foreignKey !== "undefined"){
-                    attr.options.showForeignKey = attr.options.foreignKey;
-                    attr.options.foreignKey = attrHelper.clearString(attr.options.foreignKey);
-                    attr.options.foreignKey = attrHelper.addPrefix(attr.options.foreignKey, "foreignKey");
-                    attr.options.foreignKey = attr.options.foreignKey.toLowerCase();
-                }
-
-                if(typeof attr.options.as !== "undefined"){
-                    attr.options.showAs = attr.options.as;
-                    attr.options.as = attrHelper.clearString(attr.options.as);
-                    attr.options.urlAs = attr.options.as;
-                    attr.options.as = attrHelper.addPrefix(attr.options.as, "alias");
-                    attr.options.as = attr.options.as.toLowerCase();
-                }
-
-                if(typeof attr.options.usingField !== "undefined"){
-                    attr.options.showUsingField = attr.options.usingField;
-                    attr.options.usingField = attrHelper.clearString(attr.options.usingField);
-                    attr.options.usingField = attrHelper.addPrefix(attr.options.usingField, "using");
-                    attr.options.usingField = attr.options.usingField.toLowerCase();
-                }
-            }
-
-            console.log("\n");
-            console.log(attr);
+            /* Rework the attr to get value for the code / url / show */
+            attr = attrHelper.reworkAttr(attr);
 
             attr.id_project = scriptData[userId].ids.id_project;
             attr.id_application = scriptData[userId].ids.id_application;
