@@ -77,7 +77,7 @@ exports.selectModule = function(attr, callback) {
 
 exports.createNewModule = function(attr, callback) {
 
-    var name_module = "";
+    var name_module;
     var id_application = -1;
 
     if(typeof attr !== 'undefined' && typeof attr.options !== "undefined" ) {
@@ -88,24 +88,42 @@ exports.createNewModule = function(attr, callback) {
         // Set options variable using the attribute array
         var options = attr.options;
         name_module = options.value;
+        var show_name_module = options.showValue;
 
         if(typeof options !== 'undefined' && id_application > 0){
 
-            models.Module.create({
-                name: name_module,
-                id_application: id_application,
-                version: 1
-            }).then(function(created_module) {
-                if(!created_module){
+            models.Module.findOne({
+                where: {
+                    $or: [{name: show_name_module}, {codeName: name_module}],
+                    id_application: id_application
+                }
+            }).then(function(existingModule){
+                if(!existingModule){
+                    models.Module.create({
+                        name: show_name_module,
+                        codeName: name_module,
+                        id_application: id_application,
+                        version: 1
+                    }).then(function(created_module) {
+                        if(!created_module){
+                            var err = new Error();
+                            err.message = "Sorry, an error occured during the createNewModule in the Database.";
+                            return callback(err, null);
+                        }
+                        var info = {
+                            insertId: created_module.id,
+                            message: "New module " + created_module.id + " | " + name_module + " created."
+                        }
+                        callback(null, info);
+                    }).catch(function(err) {
+                        callback(err, null);
+                    });
+                }
+                else{
                     var err = new Error();
-                    err.message = "Sorry, an error occured during the createNewModule in the Database.";
+                    err.message = "Sorry, an existing module with the same or similar name already exist.";
                     return callback(err, null);
                 }
-                var info = {
-                    insertId: created_module.id,
-                    message: "New module " + created_module.id + " | " + name_module + " created."
-                }
-                callback(null, info);
             }).catch(function(err) {
                 callback(err, null);
             });
@@ -179,7 +197,7 @@ exports.listModuleByApplication = function(attr, callback) {
     }
 }
 
-// GetById
+// Get name
 exports.getNameModuleById = function(id_module, callback) {
 
     if (typeof id_module == 'undefined') {
@@ -195,6 +213,27 @@ exports.getNameModuleById = function(id_module, callback) {
             return callback(err, null);
         }
         callback(null, module.name);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+// Get code name
+exports.getModuleById = function(id_module, callback) {
+
+    if (typeof id_module == 'undefined') {
+        var err = new Error();
+        err.message = "ID module is not defined.";
+        return callback(err, null);
+    }
+
+    models.Module.findById(id_module).then(function(module) {
+        if (!module) {
+            var err = new Error();
+            err.message = "No module with ID "+id_module+" found.";
+            return callback(err, null);
+        }
+        callback(null, module);
     }).catch(function(err) {
         callback(err, null);
     });

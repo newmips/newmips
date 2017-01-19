@@ -1,16 +1,16 @@
 {>"layout_custom_module"/}
 {<header}
-    <h1>{@__ key="module.custom_module"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{@__ key="module.custom_show_module"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.custom_module"/}</li>
+        <li class="active">{@__ key="module.custom_show_module"/}</li>
     </ol>
 {/header}
 {<content}
     <legend>{@__ key="operation.update"/} {@__ key="entity.custom_data_entity.name_entity"/}</legend>
     <div class="row">
         <div class="col-xs-12 connectedSortable">
-            <form action="/custom_data_entity/update" method="post">
+            <form action="/custom_url_data_entity/update" method="post">
                 <div class="box-body">
                     <div class="form-group">
                         <label for="id">{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}</label>
@@ -39,6 +39,9 @@
                 {#associationAlias}
                     <input type="hidden" name='associationAlias' value="{.}">
                 {/associationAlias}
+                {#associationUrl}
+                    <input type="hidden" name='associationUrl' value="{.}">
+                {/associationUrl}
             </form>
         </div>
     </div>

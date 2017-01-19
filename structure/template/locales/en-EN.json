@@ -86,7 +86,6 @@
 	},
 	"global_component": {
 		"contact_form": {
-			"main_title": "Contact Us",
 			"firstname": "Firstname",
 			"lastname": "Lastname",
 			"email": "Email",

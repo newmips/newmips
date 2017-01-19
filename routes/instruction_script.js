@@ -16,11 +16,21 @@ var parser = new jison.Parser(bnf);
 
 var scriptData = [];
 
+// Attr helper needed to format value in instuction
+var attrHelper = require('../utils/attr_helper');
+
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
         var userId = req.session.data.id_user;
         try {
+
+            /* Lower the first word for the basic parser jison */
+            instruction = attrHelper.lowerFirstWord(instruction);
+
             var attr = parser.parse(instruction);
+
+            /* Rework the attr to get value for the code / url / show */
+            attr = attrHelper.reworkAttr(attr);
 
             attr.id_project = scriptData[userId].ids.id_project;
             attr.id_application = scriptData[userId].ids.id_application;

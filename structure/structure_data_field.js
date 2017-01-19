@@ -17,24 +17,25 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 
 	// Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
 	var disabled = readOnly?"disabled":"";
+
 	var str = "<div data-field='"+dataField+"' class='form-group'>\n";
-	str += "\t<label for='"+dataField+"'> {@__ key=\"entity."+dataEntity +"."+dataField  +"\"/} </label>\n";
+	str += "\t<label for='"+dataField+"'> {@__ key=\"entity."+dataEntity +"."+dataField+"\"/} </label>\n";
 
 	// Check type of field
 	switch (type) {
 		case "string" :
 		case "":
-			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 		break;
 		case "number" :
 		case "int" :
 		case "integer" :
-			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='number' "+readOnly+"/>\n";
+			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='number' "+readOnly+"/>\n";
 		break;
 		case "decimal" :
 		case "float" :
 		case "figures" :
-			str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+			str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 		break;
 		case "date" :
 			if(file == "show"){
@@ -42,7 +43,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<div class='input-group-addon'>\n";
 				str += "			<i class='fa fa-calendar'></i>\n";
 				str += "		</div>\n";
-				str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
 				str += "	</div>\n";
 			}
 			else if(file == "update"){
@@ -50,7 +51,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<div class='input-group-addon'>\n";
 				str += "			<i class='fa fa-calendar'></i>\n";
 				str += "		</div>\n";
-				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 				str += "	</div>\n";
 			}
 			else if(file == "create"){
@@ -58,7 +59,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<div class='input-group-addon'>\n";
 				str += "			<i class='fa fa-calendar'></i>\n";
 				str += "		</div>\n";
-				str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
 				str += "	</div>\n";
 			}
 		break;
@@ -69,7 +70,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "			<div class='input-group-addon'>\n";
 				str += "				<i class='fa fa-clock-o'></i>\n";
 				str += "			</div>\n";
-				str += "			<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
+				str += "			<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' value='"+value+"' type='text' "+readOnly+"/>\n";
 				str += "		</div>\n";
 				str += "	</div>\n";
 			}
@@ -202,8 +203,8 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
-	var str = '<th data-field="'+dataField+'" data-col="' +dataField + '"';
-	if (type == "date")
+	var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
+	if (type == "date") {
 		str += ' data-type="date"';
 	else if (type == "datetime")
 		str += ' data-type=\'datetime\'';
@@ -212,7 +213,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	else if (type == "boolean")
 		str += ' data-type=\'boolean\'';
 	str += '>\n';
-	str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
+	str += '{@__ key="entity.'+dataEntity+'.'+dataField+'"/}\n';
 	str += '</th>\n';
 	ret.headers = str;
 
@@ -275,8 +276,8 @@ exports.setupDataField = function(attr, callback) {
 
 	var name_module = attr.name_module;
 	var name_data_entity = attr.name_data_entity;
+	var codeName_data_entity = attr.codeName_data_entity;
 
-	var name_data_field;
 	var type_data_field;
 	var values_data_field;
 
@@ -284,7 +285,8 @@ exports.setupDataField = function(attr, callback) {
 	console.log("STEP 1 - Initializing variables");
 	var options = attr.options;
 
-	name_data_field = options.value;
+	var name_data_field = options.value;
+	var show_name_data_field = attr.options.showValue;
 
 	// If there is a WITH TYPE in the instruction
 	if(typeof options.type !== "undefined")
@@ -308,7 +310,7 @@ exports.setupDataField = function(attr, callback) {
 	console.log("STEP 2 - Update the entity model");
 
 	// attributes.json
-	var attributesFileName = './workspace/'+id_application+'/models/attributes/'+name_data_entity.toLowerCase()+'.json';
+	var attributesFileName = './workspace/'+id_application+'/models/attributes/'+codeName_data_entity.toLowerCase()+'.json';
 	var attributesFile = fs.readFileSync(attributesFileName);
 	var attributesObject = JSON.parse(attributesFile);
 
@@ -317,12 +319,12 @@ exports.setupDataField = function(attr, callback) {
 	var toSyncFile = fs.readFileSync(toSyncFileName);
 	var toSyncObject = JSON.parse(toSyncFile);
 
-	if(typeof toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] === "undefined"){
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()] = {};
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes = {};
+	if(typeof toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()] === "undefined"){
+		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()] = {};
+		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()].attributes = {};
 	}
-	else if(typeof toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes === "undefined"){
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()].attributes = {};
+	else if(typeof toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()].attributes === "undefined"){
+		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()].attributes = {};
 	}
 
 	var typeForModel = "STRING";
@@ -384,14 +386,14 @@ exports.setupDataField = function(attr, callback) {
 			"type": typeForModel,
 			"values": values_data_field
 		}
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
+		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
 			"type": typeForModel,
 			"values": values_data_field
 		}
 	}
 	else{
 		attributesObject[name_data_field.toLowerCase()] = typeForModel;
-		toSyncObject[id_application +"_"+ name_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
+		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
 	}
 
 	fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
@@ -400,7 +402,7 @@ exports.setupDataField = function(attr, callback) {
 	/* ----------------- 3 - If it's a select/enum  ----------------- */
 	console.log("STEP 3 - Is it an enum ?");
 	if (typeForModel == "ENUM") {
-		var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum.json';
+		var fileEnum = __dirname+'/../workspace/'+id_application+'/locales/enum.json';
 		var enumData = require(fileEnum);
 		var key = name_data_field.toLowerCase();
 		var json = {};
@@ -426,51 +428,24 @@ exports.setupDataField = function(attr, callback) {
 
 	/* ----------------- 4 - Add the fields in all the views  ----------------- */
 	console.log("STEP 4 - Starting views update");
-	var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity.toLowerCase();
-
+	var fileBase = __dirname+'/../workspace/'+id_application+'/views/'+codeName_data_entity.toLowerCase();
 	/* Update the show_fields.dust file with a disabled input */
-	var stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, true, "show", values_data_field);
+	var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field);
 	updateFile(fileBase, "show_fields", stringToWrite, function(){
 		/* Update the create_fields.dust file */
-		stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "create", values_data_field);
+		stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field);
 		updateFile(fileBase, "create_fields", stringToWrite, function(){
 			/* Update the update_fields.dust file */
-			stringToWrite = getFieldHtml(type_data_field, name_data_field, name_data_entity, false, "update", values_data_field);
+			stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field);
 			updateFile(fileBase, "update_fields", stringToWrite, function(){
 				/* Update the list_fields.dust file */
-				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, name_data_entity, false);
+				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity, false);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(id_application, "field", [name_data_entity, name_data_field], attr.googleTranslate, function(){
+					translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
-
-					/* ----------------- 5 - Update the translation file  ----------------- */
-					/*var fileTranslation = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-					var data = require(fileTranslation);
-					var key = name_data_field.toLowerCase();
-					data.entity[name_data_entity.toLowerCase()][key] = name_data_field;
-
-					// Write Translation file
-					var stream_fileTranslation = fs.createWriteStream(fileTranslation);
-					stream_fileTranslation.write(JSON.stringify(data, null, 2));
-					stream_fileTranslation.end();
-					stream_fileTranslation.on('finish', function () {
-						fileTranslation = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
-						data = require(fileTranslation);
-						key = name_data_field.toLowerCase();
-						data.entity[name_data_entity.toLowerCase()][key] = name_data_field;
-
-						// Write Translation file
-						var stream_fileTranslation = fs.createWriteStream(fileTranslation);
-						stream_fileTranslation.write(JSON.stringify(data, null, 2));
-						stream_fileTranslation.end();
-						stream_fileTranslation.on('finish', function(){
-							console.log('File Translation has been written');
-							callback(null, "Data field succesfuly created");
-						});
-					});*/
 				});
 			});
 		});
@@ -518,145 +493,6 @@ exports.setColumnVisibility = function(attr, callback) {
 	}).catch(callback);
 }
 
-exports.setupAssociationField = function(attr, relation, callback){
-	var target = attr.options.target.toLowerCase();
-	var source = attr.options.source.toLowerCase();
-
-	//var targetLabel = attr.options.target.toLowerCase();
-	var alias = attr.options.as.toLowerCase();
-	var foreignKey = attr.options.foreignKey.toLowerCase();
-
-	// Setup association field for create_fields
-	var select = '';
-
-	// Creation d'entité dans le cas d'un related to, si l'entité target n'existe pas,
-	// il s'agit d'une sous entité donc on affiche pas le select dans le create
-	if(attr.function !== "createNewBelongsTo" && attr.function !== 'createNewHasMany'){
-		select += '<!--{^associationFlag}-->';
-			select += '<label for="'+alias+'">'+alias+'</label>';
-			select += '<select class="form-control" name="'+alias+'" '+(relation != 'belongsTo' ? 'multiple' : '')+'>';
-				select += '<!--{#'+alias+'}-->';
-					select += '<option value="{id}">{id}</option>';
-				select += '<!--{/'+alias+'}-->';
-			select += '</select>';
-		select += '<!--{/associationFlag}-->';
-	}
-
-	// Update create_fields file
-	var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-	var file = 'create_fields';
-	updateFile(fileBase, file, select, function(){
-
-		// Setup association field for update_fields
-		select = '<label for="'+alias+'">'+alias+'</label>';
-		select += '<select class="form-control" name="'+alias+'" '+(relation != 'belongsTo' ? 'multiple' : '')+'>';
-			select += '<!--{#'+alias+'_global_list}-->';
-			if (relation != 'belongsTo')
-				select += '{#dataValues.associated}';
-			else
-				select += '<!--{@eq key='+alias+'.id value=id}-->';
-					select += '<option value="{id}" selected>{id}</option>';
-				select += '<!--{:else}-->';
-					select += '<option value="{id}">{id}</option>';
-			if (relation != 'belongsTo')
-				select += '{/dataValues.associated}';
-			else
-				select += '<!--{/eq}-->';
-			select += '<!--{/'+alias+'_global_list}-->';
-		select += '</select>';
-		file = 'update_fields';
-
-		// Update update_fields file
-		updateFile(fileBase, file, select, function() {
-
-			// Setup association tab for show_fields.dust
-			file = fileBase +'/show_fields.dust';
-			domHelper.read(file).then(function($) {
-				// Tabs structure doesn't exist, create it
-				var tabs = '';var context;
-				if ($("#tabs").length == 0) {
-					tabs += '<div class="nav-tabs-custom" id="tabs">';
-						tabs += '<ul class="nav nav-tabs">';
-							tabs += '<li class="active"><a data-toggle="tab" href="#home">'+source+'</a></li>';
-						tabs += '</ul>';
-
-						tabs += '<div class="tab-content">';
-							tabs += '<div id="home" class="tab-pane fade in active"></div>';
-						tabs += '</div>';
-					tabs += '</div>';
-					context = $(tabs);
-					$("#home", context).append($("#fields"));
-					$("#home", context).append($(".actions"));
-				}
-				else{
-					context = $("#tabs");
-				}
-
-				// Create new tab button
-				var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">'+alias+'</a></li>';
-
-				// Create new tab content
-				var newTab = '';
-				newTab += '<div id="'+alias+'" class="tab-pane fade">';
-					// Regular context for hasMany
-					if(relation != 'belongsTo'){
-						newTab += '<!--{#'+alias+' '+target+'='+alias+'}-->';
-						newTab += '<!--{@eq key=id value='+target+'[0].id}-->';
-					}
-					// Regular context for belongsTo
-					else if (relation == 'belongsTo'){
-						newTab += '<!--{#'+alias+'}-->';
-					}
-
-					// Include association's fields
-					newTab += '{>"'+target+'/'+(relation == 'belongsTo' ? 'show' : 'list')+'_fields" /}';
-
-					// Close context the same way we opened it
-					if(relation != 'belongsTo'){
-						newTab += '<!--{/eq}-->';
-						newTab += '<!--{:else}-->';
-						newTab += '{>"'+target+'/list_fields" /}';
-						newTab += '<!--{/'+alias+'}-->';
-					}
-					else if (relation == 'belongsTo'){
-						newTab += '<!--{/'+alias+'}-->';
-					}
-
-	                // Show button for belongsTo association
-	                if (relation == 'belongsTo') {
-						newTab += '<!--{#'+alias+'}-->';
-			                newTab += '<a href="/'+target+'/update_form?id={id}" class="btn btn-warning" style="margin-left:20px;">';
-			                    newTab += '<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>';
-			                newTab += '</a>';
-			            newTab += '<!--{:else}-->';
-							// Create button to directly associate created object to relation
-			                newTab += '<a href="/'+target+'/create_form?associationAlias='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
-			                    newTab += '<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
-			                newTab += '</a>';
-						newTab += '<!--{/'+alias+'}-->';
-		            }
-		            else {
-    					// Create button to directly associate created object to relation
-		                newTab += '<a href="/'+target+'/create_form?associationAlias='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
-		                    newTab += '<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
-		                newTab += '</a>';
-		            }
-				newTab += '</div>';
-
-
-				// Append created elements to `context` to handle presence of tab or not
-				$(".nav-tabs", context).append(newLi);
-				$(".tab-content", context).append(newTab);
-
-				$('body').empty().append(context);
-				domHelper.write(file, $).then(function() {
-					callback();
-				});
-			});
-		});
-	});
-}
-
 function addTab(attr, file, newLi, newTabContent) {
 	return new Promise(function(resolve, reject) {
     	var source = attr.options.source.toLowerCase();
@@ -695,18 +531,24 @@ function addTab(attr, file, newLi, newTabContent) {
 
 exports.setupHasManyTab = function(attr, callback) {
     var target = attr.options.target.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
     var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
     var foreignKey = attr.options.foreignKey.toLowerCase();
     var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
-	fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-	fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-	dataFR = require(fileTranslationFR);
-	dataEN = require(fileTranslationEN);
+	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
+	var fileTranslationEN = __dirname+'/../workspace/'+attr.id_application+'/locales/en-EN.json';
+	var dataFR = require(fileTranslationFR);
+	var dataEN = require(fileTranslationEN);
 
-	dataFR.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
-	dataEN.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
+	dataFR.entity[target]["as_"+alias] = showAlias;
+	dataEN.entity[target]["as_"+alias] = showAlias;
 
 	var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
 	var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -721,25 +563,25 @@ exports.setupHasManyTab = function(attr, callback) {
 			console.log('File => Translation EN ------------------ UPDATED');
 
 			// Setup association tab for show_fields.dust
-		    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-		    var file = fileBase + '/show_fields.dust';
+		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
+		    var file = fileBase+'/show_fields.dust';
 
 		    // Create new tab button
-		    var newLi = '<li><a id="'+ alias +'-click" data-toggle="tab" href="#'+ alias +'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
+		    var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
 
 		    // Create new tab content
 		    var newTab = '';
-		    newTab += '	<div id="'+ alias +'" class="tab-pane fade">';
+		    newTab += '	<div id="'+alias+'" class="tab-pane fade">';
 		    newTab += '		<!--{#'+alias+' '+target+'='+alias+'}-->';
 			newTab += '			<!--{@eq key=id value='+target+'[0].id}-->';
-		    newTab += '				{>"' + target + '/list_fields" associationAlias="'+alias+'" associationForeignKey="'+foreignKey+'" associationFlag="{'+source+'.id}" associationSource="'+source+'" for="hasMany" /}';
+		    newTab += '				{>"'+target+'/list_fields" associationAlias="'+alias+'" associationForeignKey="'+foreignKey+'" associationFlag="{'+source+'.id}" associationSource="'+source+'" associationUrl="'+urlSource+'" for="hasMany" /}';
 		    newTab += '			<!--{/eq}-->';
 			newTab += '		<!--{:else}-->';
 			newTab += '				{>"'+target+'/list_fields" /}';
 			newTab += '		<!--{/'+alias+'}-->';
 
 		   	// Create button to directly associate created object to relation
-			newTab += '		<a href="/'+target+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
+			newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">';
 			newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
 			newTab += '		</a>';
 		    newTab += '</div>';
@@ -751,8 +593,15 @@ exports.setupHasManyTab = function(attr, callback) {
 
 exports.setupRelatedToField = function(attr, callback){
 	var target = attr.options.target.toLowerCase();
-	var source = attr.options.source.toLowerCase();
-	var alias = attr.options.as.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
+    var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
+    var foreignKey = attr.options.foreignKey.toLowerCase();
+    var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
 	// Setup association field for create_fields
 	var select = '';
@@ -779,10 +628,10 @@ exports.setupRelatedToField = function(attr, callback){
 	select += '			<!--{/'+alias+'}-->';
 	select += '		</select>';
 	/*select += '<!--{/associationFlag}-->';*/
-	select += '</div>'
+	select += '</div>';
 
 	// Update create_fields file
-	var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
+	var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
 	var file = 'create_fields';
 	updateFile(fileBase, file, select, function(){
 
@@ -827,51 +676,35 @@ exports.setupRelatedToField = function(attr, callback){
 				domHelper.write(file, $).then(function() {
 
 					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(attr.id_application, "aliasfield", [source, alias, attr.options.as], attr.googleTranslate, function(){
+					translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function(){
 						callback(null, "Data field succesfuly created");
 					});
-
-					// Update the fr-FR translation file
-					/*var fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-					var data = require(fileTranslation);
-					data.entity[source][alias] = attr.options.as;
-
-					// Write Translation file
-					var stream_fileTranslation = fs.createWriteStream(fileTranslation);
-					stream_fileTranslation.write(JSON.stringify(data, null, 2));
-					stream_fileTranslation.end();
-					stream_fileTranslation.on('finish', function () {
-						// Update the en-EN translation file
-						fileTranslation = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-						data = require(fileTranslation);
-						data.entity[source][alias] = attr.options.as;
-
-						// Write Translation file
-						stream_fileTranslation = fs.createWriteStream(fileTranslation);
-						stream_fileTranslation.write(JSON.stringify(data, null, 2));
-						stream_fileTranslation.end();
-						stream_fileTranslation.on('finish', callback);
-					});*/
 				});
 			});
 		});
 	});
 }
 
-exports.setupBelongsToTab = function(attr, callback) {
+exports.setupHasOneTab = function(attr, callback) {
     var target = attr.options.target.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
     var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
     var foreignKey = attr.options.foreignKey.toLowerCase();
     var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
-	fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-	fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-	dataFR = require(fileTranslationFR);
-	dataEN = require(fileTranslationEN);
+	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
+	var fileTranslationEN = __dirname+'/../workspace/'+attr.id_application+'/locales/en-EN.json';
+	var dataFR = require(fileTranslationFR);
+	var dataEN = require(fileTranslationEN);
 
-	dataFR.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
-	dataEN.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
+	dataFR.entity[target]["as_"+alias] = showAlias;
+	dataEN.entity[target]["as_"+alias] = showAlias;
 
 	var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
 	var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -886,30 +719,30 @@ exports.setupBelongsToTab = function(attr, callback) {
 			console.log('File => Translation EN ------------------ UPDATED');
 
 			// Setup association tab for show_fields.dust
-		    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-		    var file = fileBase + '/show_fields.dust';
+		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
+		    var file = fileBase+'/show_fields.dust';
 
 		    // Create new tab button
-		    var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#'+ alias +'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
+		    var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
 
 		    // Create new tab content
 		    var newTab = '';
-		    newTab += '<div id="' + alias + '" class="tab-pane fade">';
+		    newTab += '<div id="'+alias+'" class="tab-pane fade">';
 
 			    // Include association's fields
-			    newTab += '<!--{#' + alias + '}-->';
-			    newTab += '	{>"' + target + '/show_fields" /}';
+			    newTab += '<!--{#'+alias+'}-->';
+			    newTab += '	{>"'+target+'/show_fields" /}';
 			    newTab += '<!--{:else}-->';
 			    newTab += ' {@__ key="message.empty" /}<br><br>';
-			    newTab += '<!--{/' + alias + '}-->';
+			    newTab += '<!--{/'+alias+'}-->';
 
 			   	newTab += '<!--{#'+alias+'}-->';
-			    newTab += '		<a href="/'+target+'/update_form?id={id}&associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-warning">';
+			    newTab += '		<a href="/'+urlTarget+'/update_form?id={id}&associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-warning">';
 			    newTab += '			<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>';
 			    newTab += '		</a>';
 			    newTab += '<!--{:else}-->';
 				// Create button to directly associate created object to relation
-			    newTab += '		<a href="/'+target+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'" class="btn btn-success">';
+			    newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">';
 			    newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
 			    newTab += '		</a>';
 				newTab += '<!--{/'+alias+'}-->';
@@ -923,18 +756,24 @@ exports.setupBelongsToTab = function(attr, callback) {
 
 exports.setupFieldsetTab = function(attr, callback) {
 	var target = attr.options.target.toLowerCase();
-	var source = attr.options.source.toLowerCase();
-	var alias = attr.options.as.toLowerCase();
+    var showTarget = attr.options.showTarget.toLowerCase();
+    var urlTarget = attr.options.urlTarget.toLowerCase();
+    var source = attr.options.source.toLowerCase();
+    var showSource = attr.options.showSource.toLowerCase();
+    var urlSource = attr.options.urlSource.toLowerCase();
     var foreignKey = attr.options.foreignKey.toLowerCase();
+    var alias = attr.options.as.toLowerCase();
+    var showAlias = attr.options.showAs;
+    var urlAs = attr.options.urlAs.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
-	fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-	fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-	dataFR = require(fileTranslationFR);
-	dataEN = require(fileTranslationEN);
+	var fileTranslationFR = __dirname+'/../workspace/'+attr.id_application+'/locales/fr-FR.json';
+	var fileTranslationEN = __dirname+'/../workspace/'+attr.id_application+'/locales/en-EN.json';
+	var dataFR = require(fileTranslationFR);
+	var dataEN = require(fileTranslationEN);
 
-	dataFR.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
-	dataEN.entity[target.toLowerCase()]["as_"+alias] = attr.options.as;
+	dataFR.entity[target]["as_"+alias] = showAlias;
+	dataEN.entity[target]["as_"+alias] = showAlias;
 
 	var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
 	var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -950,28 +789,29 @@ exports.setupFieldsetTab = function(attr, callback) {
 
 			// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
 		    var usingField = "id";
+		    var usingFieldDisplay = "id";
 
-		    if(typeof attr.options.usingField !== "undefined")
-		    	usingField = attr.options.usingField;
+		    if(typeof attr.options.usingField !== "undefined"){
+		    	usingField = attr.options.usingField.toLowerCase();
+		    	usingFieldDisplay = attr.options.usingField;
+		    }
 
 			// Setup association tab for show_fields.dust
-		    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-		    var file = fileBase + '/show_fields.dust';
+		    var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
+		    var file = fileBase+'/show_fields.dust';
 
-		    // var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+source+'.'+alias+'" /}</a></li>';
 			var newLi = '<li><a id="'+alias+'-click" data-toggle="tab" href="#'+alias+'">{@__ key="entity.'+target+'.as_'+alias+'" /}</a></li>';
 
 		    var newTabContent = '';
 		    // Create select to add elements
-		    newTabContent += '<div id="' + alias + '" class="tab-pane fade">';
-			// newTabContent += '	<label>{@__ key="operation.add"/} {@__ key="entity.'+target+'.label_entity" /}</label>';
-			newTabContent += '	<form action="/'+source+'/fieldset/'+alias+'/add" method="post">'
+		    newTabContent += '<div id="'+alias+'" class="tab-pane fade">';
+			newTabContent += '	<form action="/'+urlSource+'/fieldset/'+alias+'/add" method="post">'
 		    newTabContent += '		<select style="width:200px;" class="form-control" name="ids" multiple>';
 		    newTabContent += '			<!--{#'+alias+'_global_list}-->';
 		    newTabContent += '				<!--{#.'+usingField+'}-->';
 		    newTabContent += '						<option value="{id}">{'+usingField+'}</option>';
 		    newTabContent += '				<!--{:else}-->';
-		    newTabContent += '						<option value="{id}">{id} - '+usingField+' not defined</option>';
+		    newTabContent += '						<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>';
 		    newTabContent += '				<!--{/.'+usingField+'}-->';
 		    newTabContent += '			<!--{/'+alias+'_global_list}-->';
 		    newTabContent += '		</select>';
@@ -982,7 +822,7 @@ exports.setupFieldsetTab = function(attr, callback) {
 		    // Include association's fields
 			newTabContent += '	<!--{#'+alias+' '+target+'='+alias+'}-->';
 			newTabContent += '			<!--{@eq key=id value='+target+'[0].id}-->';
-		    newTabContent += '		{>"' + target + '/list_fields" for="fieldset" /}';
+		    newTabContent += '		{>"'+target+'/list_fields" for="fieldset" /}';
 			newTabContent += '			<!--{/eq}-->';
 			newTabContent += '	<!--{:else}-->';
 			newTabContent += '			{>"'+target+'/list_fields" /}';
@@ -997,6 +837,7 @@ exports.setupFieldsetTab = function(attr, callback) {
 exports.deleteDataField = function(attr, callback) {
     var id_application = attr.id_application;
     var name_data_entity = attr.name_data_entity.toLowerCase();
+    var show_name_data_field =  attr.options.showValue.toLowerCase();
     var name_data_field =  attr.options.value.toLowerCase();
 
     var options = attr.options;
@@ -1009,7 +850,7 @@ exports.deleteDataField = function(attr, callback) {
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var dataToWrite = require(jsonPath);
     for (var i = 0; i < dataToWrite.length; i++) {
-        if (dataToWrite[i].as.toLowerCase() == name_data_field) {
+        if (dataToWrite[i].as.toLowerCase() == "r_"+show_name_data_field) {
             if (dataToWrite[i].relation != 'belongsTo'){
             	var err = new Error();
             	err.message = name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction.';
@@ -1073,7 +914,9 @@ exports.deleteDataField = function(attr, callback) {
 
 exports.deleteTab = function(attr, callback) {
     var tabName = attr.options.value.toLowerCase();
+    var showTabName = attr.options.showValue.toLowerCase();
     var name_data_entity = attr.name_data_entity.toLowerCase();
+    var show_name_data_entity = attr.show_name_data_entity.toLowerCase();
     var id_data_entity = attr.id_data_entity;
     var id_application = attr.id_application;
     var target;
@@ -1084,13 +927,8 @@ exports.deleteTab = function(attr, callback) {
     var option;
 
     for (var i = 0; i < options.length; i++) {
-    	if (options[i].as.toLowerCase() !== tabName)
+    	if (options[i].as.toLowerCase() !== "r_"+showTabName)
     		continue;
-    	/*if (options[i].relation !== 'hasMany'){
-    		var err = new Error();
-    		err.message = tabName+ " isn't a `tab`. You might want to use `delete field` instruction.";
-    		return callback(err, null);
-    	}*/
     	option = options[i];
     	if (options[i].relation == 'hasMany')
     		target = option.target;

@@ -4,10 +4,10 @@
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
 {/custom_css}
 {<header}
-    <h1>{@__ key="module.custom_module"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{@__ key="module.custom_show_module"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.custom_module"/}</li>
+        <li class="active">{@__ key="module.custom_show_module"/}</li>
     </ol>
 {/header}
 {<content}
@@ -18,14 +18,14 @@
                 {>"custom_data_entity/list_fields"/}
             </div>
             <br/>
-            <a href="/custom_data_entity/create_form">
+            <a href="/custom_url_data_entity/create_form">
                 <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
                 </button>
             </a>
         </div>
     </div>
     <div id="table_custom_data_entity_show" style="display:none;">
-        <a href="/custom_data_entity/show?id=">
+        <a href="/custom_url_data_entity/show?id=">
             <button class="btn btn-primary">
                 <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
                 <span>{@__ key="button.show" /}</span>
@@ -33,7 +33,7 @@
         </a>
     </div>
     <div id="table_custom_data_entity_update" style="display:none;">
-        <a href="/custom_data_entity/update_form?id=">
+        <a href="/custom_url_data_entity/update_form?id=">
             <button class="btn btn-warning">
                 <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
                 <span>{@__ key="button.update" /}</span>
@@ -41,7 +41,7 @@
         </a>
     </div>
     <div id="table_custom_data_entity_delete" style="display:none;">
-        <form action="/custom_data_entity/delete" method="post">
+        <form action="/custom_url_data_entity/delete" method="post">
             <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
                 <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                 <span>{@__ key="button.delete" /}</span>

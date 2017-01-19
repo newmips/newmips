@@ -6,15 +6,11 @@ var helpers = require('../utils/helpers');
 exports.setupApplication = function(attr, callback) {
 
     var id_application = attr.id_application;
-    var name_application = "";
 
     // Check each options variable to set properties
     var options = attr.options;
-    name_application = options.value;
-
-    /*for (var i = 0;i < options.length; i++)
-        if (typeof options[i] !== 'undefined' && options[i])
-            if (options[i].property == "entity") name_application = options[i].value;*/
+    var name_application = options.value;
+    var show_name_application = options.showValue;
 
     // *** Copy template folder to new workspace ***
     fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {
@@ -27,14 +23,14 @@ exports.setupApplication = function(attr, callback) {
         /* Save an instruction history in the history script in workspace folder */
         var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
         var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-        historyScript += "create application "+name_application;
+        historyScript += "create application "+show_name_application;
         historyScript += "\ncreate module home\n";
         fs.writeFileSync(historyScriptPath, historyScript);
 
         // *** Update translation fileFR ***
         var fileFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
         var dataFR = require(fileFR);
-        dataFR.app.name = name_application;
+        dataFR.app.name = show_name_application;
 
         fs.writeFile(fileFR, JSON.stringify(dataFR, null, 2), function(err) {
             if(err){
@@ -45,7 +41,7 @@ exports.setupApplication = function(attr, callback) {
 
             var fileEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
             var dataEN = require(fileEN);
-            dataEN.app.name = name_application;
+            dataEN.app.name = show_name_application;
 
             fs.writeFile(fileEN, JSON.stringify(dataEN, null, 2), function(err) {
                 if(err){
