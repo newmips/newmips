@@ -63,9 +63,7 @@ exports.selectProject = function(attr, callback) {
 // Create
 exports.createNewProject = function(attr, callback) {
 
-    var name_project = "";
-    var description_project = "";
-    var type_project = "";
+    var name_project;
     var version = 1;
 
     if (typeof attr !== 'undefined' && typeof attr.options !== "undefined") {
@@ -73,13 +71,13 @@ exports.createNewProject = function(attr, callback) {
         // Set options variable using the attribute array
         var options = attr.options;
         name_project = options.value;
+        var show_name_project = options.showValue;
 
         if (typeof name_project !== 'undefined' && name_project != "") {
 
             models.Project.create({
-                name: name_project,
-                description: description_project,
-                type: type_project,
+                name: show_name_project,
+                codeName: name_project,
                 version: version
             }).then(function(created_project) {
                 var info = {
@@ -131,7 +129,7 @@ exports.deleteProject = function(attr, callback) {
 
     try {
         var options = attr.options;
-        var project = attr.options.value;
+        var project = attr.options.showValue;
 
         var where = {
             where: {}
@@ -150,7 +148,7 @@ exports.deleteProject = function(attr, callback) {
 
         models.Project.destroy(where).then(function() {
             var info = {
-                message: "Project " + project + " deleted."
+                message: "Project "+project+" deleted."
             }
             callback(null, info);
         }).catch(function(err) {

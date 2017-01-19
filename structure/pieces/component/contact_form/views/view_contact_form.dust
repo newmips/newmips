@@ -7,10 +7,10 @@
     </ol>
 {/header}
 {<content}
-    <legend>{@__ key="global_component.contact_form.main_title"/}</legend>
+    <legend>{@__ key="component.name_component.label_component" /}</legend>
     <div class="row">
         <div class="col-xs-12 connectedSortable">
-            <form action="/name_component" method="post">
+            <form action="/name_url_component" method="post">
                 <div class="box-body">
                     <div class="form-group">
 	                    <div id="fields">

@@ -16,6 +16,9 @@ var jison = require("jison");
 var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
 var parser = new jison.Parser(bnf);
 
+// Attr helper needed to format value in instuction
+var attrHelper = require('../utils/attr_helper');
+
 // ===========================================
 // Redirection Live =====================
 // ===========================================
@@ -138,8 +141,14 @@ function execute(req, instruction) {
         req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
         try {
 
+            /* Lower the first word for the basic parser jison */
+            instruction = attrHelper.lowerFirstWord(instruction);
+
             // Instruction to be executed
             var attr = parser.parse(instruction);
+
+            /* Rework the attr to get value for the code / url / show */
+            attr = attrHelper.reworkAttr(attr);
 
             attr.id_project = req.session.id_project;
             attr.id_application = req.session.id_application;

@@ -8,9 +8,7 @@ module.exports = function(sequelize, DataTypes) {
 			primaryKey: true
 		},
 		name: DataTypes.STRING,
-		description: DataTypes.STRING,
-		icon: DataTypes.STRING,
-		listable: DataTypes.BOOLEAN,
+		codeName: DataTypes.STRING,
 		version: DataTypes.INTEGER
 	}, {
 		tableName: "data_entity",

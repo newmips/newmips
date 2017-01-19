@@ -10,7 +10,6 @@ exports.createNewDataField = function(attr, callback) {
 		return callback(err, null);
 	}
 
-	var name_field = "";
 	var type_field = "string";
 	var version = 1;
 
@@ -21,7 +20,8 @@ exports.createNewDataField = function(attr, callback) {
 
         // Set options variable using the attribute array
         var options = attr.options;
-        name_field = options.value;
+        var name_field = options.value;
+        var show_name_field = options.showValue;
 
         if(typeof options.type !== "undefined")
         	type_field = options.type
@@ -31,24 +31,25 @@ exports.createNewDataField = function(attr, callback) {
             models.DataField.findOne({
             	where: {
             		id_data_entity: id_data_entity,
-            		name: name_field
+            		$or: [{name: show_name_field}, {codeName: name_field}]
             	}
             }).then(function(dataField) {
             	if (dataField) {
             		var err = new Error();
-            		err.message = "Field already exists";
+            		err.message = "Sorry, a field with the same or similar name already exists.";
             		return callback(err, null);
             	}
 
             	models.DataField.create({
-            		name: name_field,
+            		name: show_name_field,
+            		codeName: name_field,
             		type: type_field,
             		id_data_entity: id_data_entity,
             		version: version
             	}).then(function(dataField) {
             		var info = {
             			insertId: dataField.id,
-            			message: "New data field "+dataField.id+" | "+name_field+" created."
+            			message: "New data field "+dataField.id+" | "+show_name_field+" created."
             		};
             		callback(null, info);
             	}).catch(function(err) {
@@ -78,12 +79,13 @@ exports.createNewForeignKey = function(attr, callback) {
 		return callback(err, null);
 	}
 
-	var name = attr.options.foreignKey;
+	var name = attr.options.showForeignKey;
+	var codeName = attr.options.foreignKey;
 	var version = 1;
 
 	models.DataEntity.findOne({
 		where: {
-			name: attr.options.source
+			codeName: attr.options.source
 		},
 		include: [{
 			model: models.Module,
@@ -97,18 +99,21 @@ exports.createNewForeignKey = function(attr, callback) {
 	}).then(function(dataEntity) {
 		models.DataField.create({
 			name: name,
+			codeName: codeName,
 			type: "INTEGER",
 			version: version,
 			id_data_entity: dataEntity.id
 		}).then(function(created_foreignKey) {
 			var info = {};
 			info.insertId = created_foreignKey.id;
-			info.message = "New foreign key " + created_foreignKey.id + " | " + created_foreignKey.name + " created.";
+			info.message = "New foreign key "+created_foreignKey.id+" | "+created_foreignKey.name+" created.";
 			callback(null, info);
+		}).catch(function(err) {
+			callback(err, null);
 		});
 	}).catch(function(err) {
 		callback(err, null);
-	})
+	});
 }
 
 // Delete
@@ -124,19 +129,19 @@ exports.deleteDataField = function(attr, callback) {
 	var options = attr.options;
 	var name_data_field = options.value;
 
-		models.DataField.destroy({
-			where: {
-				name: name_data_field,
-				id_data_entity: id_data_entity
-			}
-		}).then(function() {
-			var info = {};
-			info.message = "Data field " + name_data_field + " deleted.";
-			callback(null, info);
-		}).catch(function(err) {
-			callback(err, null);
-		});
-	}
+	models.DataField.destroy({
+		where: {
+			codeName: name_data_field,
+			id_data_entity: id_data_entity
+		}
+	}).then(function() {
+		var info = {};
+		info.message = "Data field "+name_data_field+" deleted.";
+		callback(null, info);
+	}).catch(function(err) {
+		callback(err, null);
+	});
+}
 
 // List
 exports.listDataField = function(attr, callback) {

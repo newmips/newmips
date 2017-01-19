@@ -27,8 +27,8 @@ var global = require('../config/global.js');
 var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
 
-// Basic bot jison
-var basicbot = require('../utils/basicbot');
+// Attr helper needed to format value in instuction
+var attrHelper = require('../utils/attr_helper');
 
 //Sequelize
 var models = require('../models/');
@@ -215,12 +215,14 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         // End of Todo
 
         /* Lower the first word for the basic parser jison */
-        instruction = basicbot.lowerFirstWord(instruction);
+        instruction = attrHelper.lowerFirstWord(instruction);
 
         /* Parse the instruction to get an object for the designer */
         var attr = parser.parse(instruction);
 
-        // Newly created sub-objects (like a company for instance) needs to be set to a superclass (like a plateau)
+        /* Rework the attr to get value for the code / url / show */
+        attr = attrHelper.reworkAttr(attr);
+
         // We simply add session values in attributes array
         attr.instruction = instruction;
         attr.id_project = req.session.id_project;
@@ -412,14 +414,14 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 });
             }
         });
-    } catch (e) {
+    } catch(e){
 
         data["answers"] = e.message + "\n\n" + answers;
         console.log(e.message);
 
         // Analyze instruction more deeply
-        answer = "Sorry, your instruction has not been executed properly.<br><br>";
-        answer = answer + "Machine said: " + e.message + "<br><br>";
+        var answer = "Sorry, your instruction has not been executed properly.<br><br>";
+        answer += "Machine said: " + e.message + "<br><br>";
         chat["items"].push({
             user: "Newmips",
             dateEmission: moment().format("DD MMM HH:mm"),
@@ -428,13 +430,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         data["chat"] = chat;
 
         // Load session values
-        var attr = new Array();
-        attr["id_project"] = req.session.id_project;
-        attr["id_application"] = req.session.id_application;
-        attr["id_module"] = req.session.id_module;
-        attr["id_data_entity"] = req.session.id_data_entity;
+        var attr = {};
+        attr.id_project = req.session.id_project;
+        attr.id_application = req.session.id_application;
+        attr.id_module = req.session.id_module;
+        attr.id_data_entity = req.session.id_data_entity;
         session_manager.getSession(attr, function(err, info) {
-            data["session"] = info;
+            data.session = info;
             res.render('front/preview', data);
         });
     }

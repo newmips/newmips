@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `application` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `codeName` varchar(255) DEFAULT NULL,
   `id_project` bigint(20) NOT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -44,9 +45,7 @@ CREATE TABLE IF NOT EXISTS `application` (
 CREATE TABLE IF NOT EXISTS `data_entity` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `icon` varchar(255) DEFAULT NULL,
-  `listable` tinyint(1) DEFAULT NULL,
+  `codeName` varchar(255) DEFAULT NULL,
   `id_module` bigint(20) NOT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -62,11 +61,8 @@ CREATE TABLE IF NOT EXISTS `data_entity` (
 CREATE TABLE IF NOT EXISTS `data_field` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `codeName` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
-  `nillable` tinyint(1) DEFAULT NULL,
-  `min_length` int(11) DEFAULT NULL,
-  `max_length` int(11) DEFAULT NULL,
-  `class_object` varchar(255) DEFAULT NULL,
   `id_data_entity` bigint(20) NOT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -82,6 +78,7 @@ CREATE TABLE IF NOT EXISTS `data_field` (
 CREATE TABLE IF NOT EXISTS `module` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `codeName` varchar(255) DEFAULT NULL,
   `id_application` bigint(20) NOT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -97,8 +94,7 @@ CREATE TABLE IF NOT EXISTS `module` (
 CREATE TABLE IF NOT EXISTS `project` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `type` varchar(255) DEFAULT NULL,
+  `codeName` varchar(255) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
@@ -160,6 +156,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 CREATE TABLE IF NOT EXISTS `component` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `codeName` varchar(255) DEFAULT NULL,
   `id_data_entity` bigint(20) DEFAULT NULL,
   `id_module` bigint(20) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,

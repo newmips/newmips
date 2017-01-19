@@ -20,7 +20,8 @@ exports.createNewComponentOnEntity = function(attr, callback) {
         if (typeof options !== 'undefined' && options && id_data_entity != 0 && id_module != 0) {
 
             models.Component.create({
-                name: options.name,
+                name: options.showValue,
+                codeName: options.value,
                 id_data_entity: id_data_entity,
                 id_module: id_module,
                 version: version
@@ -32,7 +33,7 @@ exports.createNewComponentOnEntity = function(attr, callback) {
                 }
                 var info = {
                     insertId: created_component.id,
-                    message: "New component " + created_component.id + " | "+created_component.name+" created."
+                    message: "New component "+created_component.id+" | "+created_component.name+" created."
                 }
                 callback(null, info);
             }).catch(function(err) {
@@ -57,7 +58,8 @@ exports.createNewComponentOnModule = function(attr, callback) {
         if (typeof options !== 'undefined' && options && id_module != 0) {
 
             models.Component.create({
-                name: options.component,
+                name: options.showValue,
+                codeName: options.value,
                 id_module: id_module,
                 version: version
             }).then(function(created_component) {
@@ -68,7 +70,7 @@ exports.createNewComponentOnModule = function(attr, callback) {
                 }
                 var info = {
                     insertId: created_component.id,
-                    message: "New component " + created_component.id + " | "+created_component.name+" created."
+                    message: "New component "+created_component.id+" | "+created_component.name+" created."
                 }
                 callback(null, info);
             }).catch(function(err) {
@@ -79,69 +81,43 @@ exports.createNewComponentOnModule = function(attr, callback) {
 }
 
 // Get a component with a given name in an entity
-exports.getComponentByNameInEntity = function(attr, callback) {
+exports.getComponentByNameInEntity = function(idModule, idEntity, name_component, callback) {
 
-    var name = "";
-    var id_data_entity = 0;
-    var id_module = 0;
-    var version = 1;
-
-    if (typeof attr !== 'undefined' && attr) {
-        id_data_entity = attr.id_data_entity;
-        id_module = attr.id_module;
-        var options = attr.options;
-
-        if (typeof options !== 'undefined' && options && id_data_entity != 0 && id_module != 0) {
-
-            models.Component.findOne({
-                where:{
-                    name: options.name,
-                    id_data_entity: id_data_entity,
-                    id_module: id_module
-                }
-            }).then(function(component) {
-                if (!component) {
-                    var err = new Error();
-                    err.message = "Sorry, no component with this name exist.";
-                    return callback(err, null);
-                }
-                callback(null, component);
-            }).catch(function(err) {
-                callback(err, null);
-            });
+    models.Component.findOne({
+        where:{
+            name: name_component,
+            id_data_entity: idEntity,
+            id_module: idModule
         }
-    }
+    }).then(function(component) {
+        if (!component) {
+            var err = new Error();
+            err.message = "Sorry, no component with the name '"+name_component+"' exist in the entity with ID "+idEntity+".";
+            return callback(err, null);
+        }
+        callback(null, component);
+    }).catch(function(err) {
+        callback(err, null);
+    });
 }
 
 // Get a component with a given name in a module
-exports.getComponentByNameInModule = function(attr, callback) {
+exports.getComponentByNameInModule = function(idModule, name_component, callback) {
 
-    var name = "";
-    var id_module = 0;
-    var version = 1;
-
-    if (typeof attr !== 'undefined' && attr) {
-        id_module = attr.id_module;
-        var options = attr.options;
-
-        if (typeof options !== 'undefined' && options && id_module != 0) {
-
-            models.Component.findOne({
-                where:{
-                    name: options.name,
-                    id_module: id_module
-                }
-            }).then(function(component) {
-                if (!component) {
-                    err = new Error();
-                    err.message = "Sorry, no component with this name exist.";
-                    return callback(err, null);
-                }
-                callback(null, component);
-            }).catch(function(err) {
-                callback(err, null);
-            });
+    models.Component.findOne({
+        where:{
+            name: name_component,
+            id_module: idModule
         }
-    }
+    }).then(function(component) {
+        if (!component) {
+            err = new Error();
+            err.message = "Sorry, no component with the name '"+name_component+"' exist in the module with id "+idModule+".";
+            return callback(err, null);
+        }
+        callback(null, component);
+    }).catch(function(err) {
+        callback(err, null);
+    });
 }
 

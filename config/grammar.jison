@@ -208,7 +208,8 @@ instr :
 
       // Preparing Options
       options = {
-        value: value
+        value: value,
+        processValue: true
       };
 
       switch ($2.toLowerCase()) {
@@ -260,7 +261,8 @@ instr :
       // Preparing Options
       options = {
         value: value,
-        type: type
+        type: type,
+        processValue: true
       };
 
       // Creating entity
@@ -288,7 +290,8 @@ instr :
       options = {
         value: value,
         type: type,
-        allValues: chaine
+        allValues: chaine,
+        processValue: true
       };
 
       chaine = "";
@@ -309,13 +312,9 @@ instr :
   %}
   | CREATE COMPONENT STRING
   %{
-      // Set component
-      component = $3;
 
       // Preparing Options
-      options = {
-        component: component
-      }
+      options = {}
 
       switch ($3.toLowerCase()) {
         case "localfilestorage":
@@ -328,23 +327,20 @@ instr :
   %}
   | CREATE COMPONENT STRING WITH_NAME STRING
   %{
-      // Set component
-      component = $3;
-
       // Set name foreign key
       name = $5;
 
       // Preparing Options
       options = {
-        component: component,
-        name: name
+        value: name,
+        processValue: true
       }
 
       switch ($3.toLowerCase()) {
         case "localfilestorage":
           return createNewComponentLocalFileStorage(options);
-        case "contactus":
-          return createNewComponentContactUs(options);
+        case "contactform":
+          return createNewComponentContactForm(options);
         default :
           break;
       }
@@ -363,7 +359,8 @@ instr :
       options = {
         target: target,
         foreignKey: "id_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       // Creating entity
@@ -402,7 +399,8 @@ instr :
         source: source,
         foreignKey: "id_"+as,
         as: as,
-        usingField: usingField
+        usingField: usingField,
+        processValue: true
       }
 
       return createNewFieldRelatedTo(options);
@@ -425,7 +423,8 @@ instr :
         target: target,
         foreignKey: "id_"+as,
         as: as,
-        usingField: usingField
+        usingField: usingField,
+        processValue: true
       }
 
       switch($2.toLowerCase()) {
@@ -437,34 +436,6 @@ instr :
         case "un champ":
         case "le champ":
           return createNewFieldRelatedTo(options);
-        default :
-          break;
-      }
-  %}
-  | CREATE ENTITY STRING HAS_ONE STRING
-  %{
-      // **** Relationship One to One ***
-
-      // Set target entity
-      target = $5;
-
-      // Set source entity
-      source = $3;
-
-      // Preparing Options
-      options = {
-        target: target,
-        source: source
-      }
-
-      switch ($2.toLowerCase()) {
-        case 'data entity':
-        case 'entity' :
-        case 'entité':
-        case "l'entité":
-        case "entité de données":
-        case "l'entité de données":
-          return createNewEntityWithBelongsTo(options);
         default :
           break;
       }
@@ -484,7 +455,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+target,
-        as: target
+        as: target,
+        processValue: true
       }
 
       switch ($1.toLowerCase()) {
@@ -494,7 +466,7 @@ instr :
         case "l'entité":
         case "entité de données":
         case "l'entité de données":
-          return createNewBelongsTo(options);
+          return createNewHasOne(options);
         default :
           break;
       }
@@ -518,7 +490,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       switch($1.toLowerCase()) {
@@ -528,60 +501,7 @@ instr :
         case "l'entité":
         case "entité de données":
         case "l'entité de données":
-          return createNewBelongsTo(options);
-        default :
-          break;
-      }
-  %}
-  | CREATE ENTITY STRING HAS_MANY STRING
-  %{
-
-      // **** Relationship One to Many ***
-
-      if($2 == "field"){
-        // Set target entity
-        target = $5;
-
-        // Set name alias
-        as = $3;
-
-        // Preparing Options
-        options = {
-          target: target,
-          as: as
-        }
-      }
-      else if($2 == "entity"){
-        // Set target entity
-        target = $5;
-
-        // Set source entity
-        source = $3;
-
-        // Preparing Options
-        options = {
-          target: target,
-          source: source
-        }
-      }
-
-      switch ($2.toLowerCase()) {
-        case 'data field' :
-        case 'field' :
-        case "champ de données":
-        case "un champ de données":
-        case "champ":
-        case "un champ":
-        case "le champ":
-          return createNewHasMany(options);
-
-        case 'data entity':
-        case 'entity' :
-        case 'entité':
-        case "l'entité":
-        case "entité de données":
-        case "l'entité de données":
-          return createNewEntityWithHasMany(options);
+          return createNewHasOne(options);
         default :
           break;
       }
@@ -601,7 +521,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+source.toLowerCase(),
-        as: target
+        as: target,
+        processValue: true
       };
 
       // Creating entity
@@ -635,7 +556,8 @@ instr :
         target: target,
         source: source,
         foreignKey: "id_"+source.toLowerCase()+"_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       switch ($1.toLowerCase()) {
@@ -646,34 +568,6 @@ instr :
         case "entité de données":
         case "l'entité de données":
           return createNewHasMany(options);
-        default :
-          break;
-      }
-  %}
-  | ENTITY STRING BELONGS_TO_MANY STRING
-  %{
-      // **** Association One to Many ***
-
-      // Set target entity
-      target = $4;
-
-      // Set source entity
-      source = $2;
-
-      // Preparing Options
-      options = {
-        target: target,
-        source: source
-      }
-
-      switch ($1.toLowerCase()) {
-        case 'data entity':
-        case 'entity' :
-        case 'entité':
-        case "l'entité":
-        case "entité de données":
-        case "l'entité de données":
-          return createNewBelongsToMany(options);
         default :
           break;
       }
@@ -692,7 +586,8 @@ instr :
       options = {
         target: target,
         foreignKey: "id_"+as,
-        as: as
+        as: as,
+        processValue: true
       }
 
       switch ($2.toLowerCase()) {
@@ -722,7 +617,8 @@ instr :
         target: target,
         foreignKey: "id_"+as,
         as: as,
-        usingField: usingField
+        usingField: usingField,
+        processValue: true
       }
 
       switch ($2.toLowerCase()) {
@@ -741,7 +637,8 @@ instr :
 
       // Preparing Options
       options = {
-        value: value
+        value: value,
+        processValue: true
       };
 
       switch($2.toLowerCase()){
@@ -943,7 +840,7 @@ function listDataField(options) {  return { "function": "listDataField", "option
 
 function createNewEntityWithBelongsTo(options) {  return { "function": "createNewEntityWithBelongsTo", "options": options }; }
 function createNewEntityWithHasMany(options) {  return { "function": "createNewEntityWithHasMany", "options": options }; }
-function createNewBelongsTo(options) {  return { "function": "createNewBelongsTo", "options": options }; }
+function createNewHasOne(options) {  return { "function": "createNewHasOne", "options": options }; }
 function createNewHasMany(options) {  return { "function": "createNewHasMany", "options": options }; }
 function createNewBelongsToMany(options) {  return { "function": "createNewBelongsToMany", "options": options }; }
 

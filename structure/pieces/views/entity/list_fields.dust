@@ -1,4 +1,4 @@
-<table id="table_custom_data_entity" data-url="/custom_data_entity/datalist" class="dataTable table table-bordered table-striped">
+<table id="table_custom_data_entity" data-url="/custom_url_data_entity/datalist" class="dataTable table table-bordered table-striped">
     <thead class="main">
 		<tr class='fields'>
 			<th data-field="id" data-col="id">
@@ -34,7 +34,7 @@
 				</form>
 				{/eq}
 		    	{@eq key=for value="hasMany"}
-					<a class="btn btn-primary" href="/custom_data_entity/show?id={id}">
+					<a class="btn btn-primary" href="/custom_url_data_entity/show?id={id}">
 						<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
 						<span>{@__ key="button.show" /}</span>
 					</a>
@@ -42,7 +42,7 @@
 			</td>
 			<td>
 				{@eq key=for value="hasMany"}
-					<a class="btn btn-warning" href="/custom_data_entity/update_form?id={id}&associationAlias={associationAlias}&associationForeignKey={associationForeignKey}&associationFlag={associationFlag}&associationSource={associationSource}">
+					<a class="btn btn-warning" href="/custom_url_data_entity/update_form?id={id}&associationAlias={associationAlias}&associationForeignKey={associationForeignKey}&associationFlag={associationFlag}&associationSource={associationSource}&associationUrl={associationUrl}">
 						<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
 						<span>{@__ key="button.update" /}</span>
 					</a>
@@ -50,7 +50,7 @@
 			</td>
 			<td>
 				{@eq key=for value="hasMany"}
-					<form action="/custom_data_entity/delete" method="post">
+					<form action="/custom_url_data_entity/delete" method="post">
 			            <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
 			                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
 			                <span>{@__ key="button.delete" /}</span>
@@ -59,6 +59,7 @@
 			                <input name="associationForeignKey" value="{associationForeignKey}" type="hidden"/>
 			                <input name="associationFlag" value="{associationFlag}" type="hidden"/>
 			                <input name="associationSource" value="{associationSource}" type="hidden"/>
+			                <input name="associationUrl" value="{associationUrl}" type="hidden"/>
 			            </button>
 			        </form>
 				{/eq}
