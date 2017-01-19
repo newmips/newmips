@@ -204,7 +204,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
 	var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
-	if (type == "date") {
+	if (type == "date")
 		str += ' data-type="date"';
 	else if (type == "datetime")
 		str += ' data-type=\'datetime\'';
