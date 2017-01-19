@@ -1,1013 +1,1083 @@
+// ******* BASIC Actions ******* //
+exports.showSession = function(result) {
 
-// Attributes for response
-var attr = new Array();
+    console.log("ACTION : showSession");
 
-
-
-// ******* Add Actions *******
-exports.showSessionAction = function(result) {
-
-    console.log("ACTION : showSessionAction");
-
-    attr = { "function": "showSession", "options": [] };
+    var attr = {};
+    attr.function = "showSession";
     return attr;
 };
 
-exports.helpAction = function(result) {
+exports.help = function(result) {
 
-    console.log("ACTION : helpAction");
+    console.log("ACTION : help");
 
-    attr = { "function": "help", "options": [] };
+    var attr = {};
+    attr.function = "help";
     return attr;
 };
 
-exports.deployAction = function(result) {
+exports.deploy = function(result) {
 
-    console.log("ACTION : deployAction");
+    console.log("ACTION : deploy");
 
-    attr = { "function": "deploy", "options": [] };
+    var attr = {};
+    attr.function = "deploy";
     return attr;
 };
 
-exports.selectProjectAction = function(result) {
+// ******* SELECT Actions ******* //
+exports.selectProject = function(result) {
 
-    console.log("ACTION : selectProjectAction");
+    console.log("ACTION : selectProject");
 
-    options = new Array();
+    var value = result[1];
+    var options = {
+        "value": value
+    };
 
-    // Set entity name as the first option in options array
-    property = "entity";
-    value = result[1];
-    options = { "property": property, "value": value };
-
-    attr = { "function": "selectProject", "options": options };
+    var attr = {
+        function: "selectProject",
+        options: options
+    };
     return attr;
 };
 
-exports.selectApplicationAction = function(result) {
+exports.selectApplication = function(result) {
 
-    console.log("ACTION : selectApplicationAction");
+    console.log("ACTION : selectApplication");
 
-    options = new Array();
+    var value = result[1];
+    var options = {
+        value: value
+    };
 
-    // Set entity name as the first option in options array
-    property = "entity";
-    value = result[1];
-    options = { "property": property, "value": value };
-
-    attr = { "function": "selectApplication", "options": options };
+    var attr = {
+        function: "selectApplication",
+        options: options
+    };
     return attr;
 };
 
+exports.selectModule = function(result) {
 
-exports.selectModuleAction = function(result) {
+    console.log("ACTION : selectModule");
 
-    console.log("ACTION : selectModuleAction");
+    var value = result[1];
+    var options = {
+        value: value
+    };
 
-    options = new Array();
-
-    // Set entity name as the first option in options array
-    property = "entity";
-    value = result[1];
-    options = { "property": property, "value": value };
-
-    attr = { "function": "selectModule", "options": options };
+    var attr = {
+        function: "selectModule",
+        options: options
+    };
     return attr;
 };
 
-exports.selectDataEntityAction = function(result) {
+exports.selectDataEntity = function(result) {
 
-    console.log("ACTION : selectDataEntityAction");
+    console.log("ACTION : selectDataEntity");
 
-    // Set entity name as the first option in options array
-    property = "entity";
-    value = result[1];
-    options = { "property": property, "value": value };
+    var value = result[1];
+    var options = {
+        value: value
+    };
 
-    attr = { "function": "selectDataEntity", "options": options };
+    var attr = {
+        function: "selectDataEntity",
+        options: options
+    };
     return attr;
 };
 
-exports.setRequiredAttributeAction = function(result) {
+// ******* FIELD ATTRIBUTES Actions ******* //
+exports.setRequiredAttribute = function(result) {
 
-    console.log("ACTION : setRequiredAttributeAction");
+    console.log("ACTION : setRequiredAttribute");
 
     // Set entity name as the first option in options array
     var options = {
-      field_name: result[1],
-      word: result[2]
+        field_name: result[1],
+        word: result[2]
     };
 
-    attr = { "function": "setRequiredAttribute", "options": options };
+    var attr = {
+        function: "setRequiredAttribute",
+        options: options
+    };
     return attr;
 };
 
-exports.setColumnVisibilityAction = function(result) {
+exports.setColumnVisibility = function(result) {
 
-    console.log("ACTION : setColumnVisibilityAction");
+    console.log("ACTION : setColumnVisibility");
 
     // Set entity name as the first option in options array
     var options = {
-      field_name: result[1],
-      word: result[2]
+        field_name: result[1],
+        word: result[2]
     };
 
-    attr = { "function": "setColumnVisibility", "options": options };
+    var attr = {
+        function: "setColumnVisibility",
+        options: options
+    };
     return attr;
 };
 
+// ******* CREATE Actions ******* //
+exports.createNewProject = function(result) {
 
-exports.createNewProjectAction = function(result) {
+    console.log("ACTION : createNewProject");
 
-    console.log("ACTION : createNewProjectAction");
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
 
-    options = new Array();
-
-    // Set name of entity
-    property = "entity";
-    value = result[2];
-    options = { "property": property, "value": value };
-
-    attr = { "function": "createNewProject", "options": options };
+    var attr = {
+        function: "createNewProject",
+        options: options
+    };
     return attr;
 };
 
-exports.createNewApplicationAction = function(result) {
+exports.createNewApplication = function(result) {
 
-    console.log("ACTION : createNewApplicationAction");
+    console.log("ACTION : createNewApplication");
 
-    options = new Array();
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
 
-    // Set name of entity
-    property = "entity";
-    value = result[2];
-    options = { "property": property, "value": value };
-
-    attr = { "function": "createNewApplication", "options": options };
+    var attr = {
+        function: "createNewApplication",
+        options: options
+    };
     return attr;
 };
 
+exports.createNewModule = function(result) {
 
-exports.createNewModuleAction = function(result) {
+    console.log("ACTION : createNewModule");
 
-    console.log("ACTION : createNewModuleAction");
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
 
-    options = new Array();
-
-    // Set name of entity
-    property = "entity";
-    value = result[1];
-    options = { "property": property, "value": value };
-
-    attr = { "function": "createNewModule", "options": options };
+    var attr = {
+        function: "createNewModule",
+        options: options
+    };
     return attr;
 };
 
+exports.createNewDataEntity = function(result) {
 
+    console.log("ACTION : createNewDataEntity");
 
-exports.createNewDataEntityAction = function(result) {
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
 
-    console.log("ACTION : createNewDataEntityAction");
-
-    options = new Array();
-
-    console.log(result);
-
-    // Set name of entity
-    property = "entity";
-    value = result[1];
-    options = { "property": property, "value": value };
-
-    attr = { "function": "createNewDataEntity", "options": options };
+    var attr = {
+        function: "createNewDataEntity",
+        options: options
+    };
     return attr;
 };
 
-exports.createNewDataFieldAction = function(result) {
+exports.createNewDataField = function(result) {
 
-    console.log("ACTION : createNewDataFieldAction");
+    console.log("ACTION : createNewDataField");
 
     // Field name has not been defined
     if (result[1] == '') {
-      attr = { "function": "askNameOfDataField" };
+        var attr = {
+            function: "askNameOfDataField"
+        };
+    } else {
+
+        var value = result[1];
+        var options = {
+            value: value,
+            processValue: true
+        };
+
+        var attr = {
+            function: "createNewDataField",
+            options: options
+        };
     }
-    else {
-
-      // Set name of field
-      var property = "name";
-      var value = result[1];
-      var options = { "property": property, "value": value };
-
-      attr = { "function": "createNewDataField", "options": options };
-    }
 
     return attr;
 };
 
-exports.createNewDataFieldWithTypeAction = function(result) {
+exports.createNewDataFieldWithType = function(result) {
 
-    console.log("ACTION : createNewDataFieldWithTypeAction");
+    console.log("ACTION : createNewDataFieldWithType");
 
-    options = new Array();
+    var value = result[1];
+    var type = result[2];
 
-
-    // Set name of field
-    property = "name";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    // Set type of field
-    property = "type";
-    value = result[2];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "createNewDataField", "options": options };
-    return attr;
-};
-
-
-exports.createNewDataFieldWithTypeEnumAction = function(result) {
-
-    console.log("ACTION : createNewDataFieldWithTypeEnumAction");
-
-    options = new Array();
-
-    // Set name of field
-    property = "name";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    // Set type of field
-    property = "type";
-    value = "enum";
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    // Set values
-    property = "and values";
-    value = result[2];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "createNewDataField", "options": options };
-    return attr;
-};
-
-
-exports.createNewDataFieldWithTypeRadioAction = function(result) {
-
-    console.log("ACTION : createNewDataFieldWithTypeRadioAction");
-
-    options = new Array();
-
-    // Set name of field
-    property = "name";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    // Set type of field
-    property = "type";
-    value = "radio";
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    // Set values
-    property = "values";
-    value = result[2];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "createNewDataField", "options": options };
-    return attr;
-};
-
-
-exports.deleteProjectAction = function(result) {
-
-    console.log("ACTION : deleteProjectAction");
-
-    options = new Array();
-
-    // Set name of entity
-    property = "entity";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "deleteProject", "options": options };
-    return attr;
-};
-
-exports.deleteApplicationAction = function(result) {
-
-    console.log("ACTION : deleteApplicationAction");
-
-    options = new Array();
-
-    // Set name of entity
-    property = "entity";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "deleteApplication", "options": options };
-    return attr;
-};
-
-
-exports.deleteModuleAction = function(result) {
-
-    console.log("ACTION : deleteModuleAction");
-
-    options = new Array();
-
-    // Set name of entity
-    property = "entity";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "deleteModule", "options": options };
-    return attr;
-};
-
-
-
-exports.deleteDataEntityAction = function(result) {
-
-    console.log("ACTION : deleteDataEntityAction");
-
-    options = new Array();
-
-    // Set name of entity
-    property = "entity";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "deleteDataEntity", "options": options };
-    return attr;
-};
-
-exports.deleteDataFieldAction = function(result) {
-
-    console.log("ACTION : deleteDataFieldAction");
-
-    options = new Array();
-
-    // Set name of field
-    property = "entity";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "deleteDataField", "options": options };
-    return attr;
-};
-
-exports.deleteTabAction = function(result) {
-
-    console.log("ACTION : deleteTabAction");
-
-    options = new Array();
-
-    // Set name of field
-    property = "name";
-    value = result[1];
-    json = { "property": property, "value": value };
-    options.push(json);
-
-    attr = { "function": "deleteTab", "options": options };
-    return attr;
-};
-
-
-exports.listProjectAction = function(result) {
-
-    console.log("ACTION : listProjectAction");
-
-    options = new Array();
-
-    attr = { "function": "listProject", "options": options };
-    return attr;
-};
-
-exports.listApplicationAction = function(result) {
-
-    console.log("ACTION : listApplicationAction");
-
-    options = new Array();
-
-    attr = { "function": "listApplication", "options": options };
-    return attr;
-};
-
-
-exports.listModuleAction = function(result) {
-
-    console.log("ACTION : listModuleAction");
-
-    options = new Array();
-
-    attr = { "function": "listModule", "options": options };
-    return attr;
-};
-
-exports.listDataEntityAction = function(result) {
-
-    console.log("ACTION : listDataEntityAction");
-
-    options = new Array();
-
-    attr = { "function": "listDataEntity", "options": options };
-    return attr;
-};
-
-
-exports.listDataFieldAction = function(result) {
-
-    console.log("ACTION : listDataFieldAction");
-
-    options = new Array();
-
-    attr = { "function": "listDataField", "options": options };
-    return attr;
-};
-
-exports.relationshipHasOneAction = function(result) {
-
-    console.log("ACTION : relationshipHasOneAction");
-
-    source = result[1];
-    target = result[2];
-    as = target;
-
-    options = {
-      source: source,
-      target: target,
-      foreignKey: "id_"+target,
-      as: as
+    // Preparing Options
+    var options = {
+        value: value,
+        type: type,
+        processValue: true
     };
 
-    attr = { "function": "createNewBelongsTo", "options": options };
-    return attr;
-};
-
-exports.relationshipHasOneWithNameAction = function(result) {
-
-    console.log("ACTION : relationshipHasOneWithNameAction");
-
-    // Set options
-    source = result[1];
-    target = result[2];
-    as = result[3];
-
-    options = {
-      target: target,
-      source: source,
-      foreignKey: "id_"+target,
-      as: as
+    var attr = {
+        function: "createNewDataField",
+        options: options
     };
-
-    attr = { "function": "createNewBelongsTo", "options": options };
     return attr;
 };
 
+exports.createNewDataFieldWithTypeEnum = function(result) {
 
-exports.relationshipHasManyAction = function(result) {
+    console.log("ACTION : createNewDataFieldWithTypeEnum");
 
-    console.log("ACTION : relationshipHasManyAction");
-
-    source = result[1];
-    target = result[2];
-    as = target;
-
-    options = {
-      target: target,
-      source: source,
-      foreignKey: "id_"+source.toLowerCase(),
-      as: as
-    };
-
-    attr = { "function": "createNewHasMany", "options": options };
-    return attr;
-};
-
-
-
-exports.relationshipHasManyWithNameAction = function(result) {
-
-    console.log("ACTION : relationshipHasManyWithNameAction");
-
-    // Set options
-    source = result[1];
-    target = result[2];
-    as = result[3];
-
-    options = {
-      target: target,
-      source: source,
-      foreignKey: "id_"+source.toLowerCase(),
-      as: as
-    };
-
-    attr = { "function": "createNewHasMany", "options": options };
-    return attr;
-};
-
-
-exports.associationHasOneAction = function(result) {
-
-    console.log("ACTION : associationHasOneAction");
-
-    as = result[1];
-    target = result[2];
-
-    options = {
-      target: target,
-      foreignKey: "id_"+as,
-      as: as
-    }
-
-    attr = { "function": "createNewFieldRelatedTo", "options": options };
-    return attr;
-};
-
-exports.associationHasOneUsingAction = function(result) {
-
-    console.log("ACTION : associationHasOneAction");
-
-    as = result[1];
-    target = result[2];
-    usingField = result[3];
-
-    options = {
-      target: target,
-      foreignKey: "id_"+as,
-      as: as,
-      usingField: usingField
-    }
-
-    attr = { "function": "createNewFieldRelatedTo", "options": options };
-    return attr;
-};
-
-exports.associationHasOnePresetAction = function(result) {
-
-    console.log("ACTION : associationHasOnePresetAction");
-
-    // Set options
-    source = result[1];
-    target = result[2];
-    as = result[3];
-    usingField = result[4];
-
-    options = {
-      target: target,
-      source: source,
-      foreignKey: "id_"+as,
-      as: as,
-      usingField: usingField
-    };
-
-    attr = { "function": "createNewFieldRelatedTo", "options": options };
-    return attr;
-};
-
-
-exports.associationHasManyAction = function(result) {
-
-    console.log("ACTION : associationHasManyAction");
-
-    // Set options
-    source = result[1];
-    target = result[2];
-    as = target;
-
-    options = {
-      source: source,
-      target: target,
-      foreignKey: "id_"+as,
-      as: as
-    }
-
-    attr = { "function": "createNewFieldset", "options": options };
-    return attr;
-};
-
-exports.associationHasManyUsingAction = function(result) {
-
-    console.log("ACTION : associationHasManyUsingAction");
-
-    // Set options
-    source = result[1];
-    target = result[2];
-    as = result[3];
-
-    options = {
-      source: source,
-      target: target,
-      foreignKey: "id_"+as,
-      as: as
-    }
-
-    attr = { "function": "createNewFieldset", "options": options };
-    return attr;
-};
-
-exports.associationHasManyPresetAction = function(result) {
-
-    console.log("ACTION : associationHasManyPresetAction");
-
-    // Set options
-    source = result[1];
-    target = result[2];
-    as = result[3];
-
-    options = {
-      source: source,
-      target: target,
-      foreignKey: "id_"+as,
-      as: as
-    }
-
-    attr = { "function": "createNewFieldset", "options": options };
-    return attr;
-};
-
-exports.createNewComponentLocalFileStorageAction = function(result) {
-
-    console.log("ACTION : createNewComponentLocalFileStorageAction");
+    var value = result[1];
+    var type = "enum";
+    var allValues = result[2];
 
     var options = {
-      component: "localfilestorage",
-      name: result[1]
+        value: value,
+        type: type,
+        allValues: allValues,
+        processValue: true
     };
 
-    attr = { "function": "createNewComponentLocalFileStorage", "options": options };
+    var attr = {
+        function: "createNewDataField",
+        options: options
+    };
     return attr;
 };
 
-exports.createNewComponentContactFormAction = function(result) {
+exports.createNewDataFieldWithTypeRadio = function(result) {
 
-    console.log("ACTION : createNewComponentContactFormAction");
+    console.log("ACTION : createNewDataFieldWithTypeRadio");
+
+    var value = result[1];
+    var type = "radio";
+    var allValues = result[2];
 
     var options = {
-      component: "contactform"
+        value: value,
+        type: type,
+        allValues: allValues,
+        processValue: true
     };
 
-    attr = { "function": "createNewComponentContactForm", "options": options };
+    var attr = {
+        function: "createNewDataField",
+        options: options
+    };
     return attr;
 };
 
-exports.createNewComponentContactFormWithNameAction = function(result) {
+// ******* DELETE Actions ******* //
+exports.deleteProject = function(result) {
 
-    console.log("ACTION : createNewComponentContactFormWithNameAction");
+    console.log("ACTION : deleteProject");
+
+    var value = result[1];
 
     var options = {
-      component: "contactform",
-      name: result[1]
+        value: value,
+        processValue: true
     };
 
-    attr = { "function": "createNewComponentContactForm", "options": options };
+    var attr = {
+        function: "deleteProject",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteApplication = function(result) {
+
+    console.log("ACTION : deleteApplication");
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "deleteApplication",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteModule = function(result) {
+
+    console.log("ACTION : deleteModule");
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "deleteModule",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteDataEntity = function(result) {
+
+    console.log("ACTION : deleteDataEntity");
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "deleteDataEntity",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteDataField = function(result) {
+
+    console.log("ACTION : deleteDataFiel");
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "deleteDataField",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteTab = function(result) {
+
+    console.log("ACTION : deleteTab");
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "deleteTab",
+        options: options
+    };
+    return attr;
+};
+
+// ******* LIST Actions ******* //
+exports.listProject = function(result) {
+
+    console.log("ACTION : listProject");
+
+    var attr = {
+        function: "listProject"
+    };
+    return attr;
+};
+
+exports.listApplication = function(result) {
+
+    console.log("ACTION : listApplication");
+
+    var attr = {
+        function: "listApplication"
+    };
+    return attr;
+};
+
+exports.listModule = function(result) {
+
+    console.log("ACTION : listModule");
+
+    var attr = {
+        function: "listModule"
+    };
+    return attr;
+};
+
+exports.listDataEntity = function(result) {
+
+    console.log("ACTION : listDataEntity");
+
+    var attr = {
+        function: "listDataEntity"
+    };
+    return attr;
+};
+
+exports.listDataField = function(result) {
+
+    console.log("ACTION : listDataFiel");
+
+    var attr = {
+        function: "listDataField"
+    };
+    return attr;
+};
+
+// ******* ASSOCIATION Actions ******* //
+exports.relationshipHasOne = function(result) {
+
+    console.log("ACTION : relationshipHasOne");
+
+    var source = result[1];
+    var target = result[2];
+
+    var options = {
+        target: target,
+        source: source,
+        foreignKey: "id_"+target,
+        as: target,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewHasOne",
+        options: options
+    };
+    return attr;
+};
+
+exports.relationshipHasOneWithName = function(result) {
+
+    console.log("ACTION : relationshipHasOneWithName");
+
+    var source = result[1];
+    var target = result[2];
+    var as = result[3];
+
+    var options = {
+        target: target,
+        source: source,
+        foreignKey: "id_"+target,
+        as: as,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewHasOne",
+        options: options
+    };
+    return attr;
+};
+
+exports.relationshipHasMany = function(result) {
+
+    console.log("ACTION : relationshipHasMany");
+
+    var source = result[1];
+    var target = result[2];
+
+    var options = {
+        target: target,
+        source: source,
+        foreignKey: "id_"+source.toLowerCase(),
+        as: target,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewHasMany",
+        options: options
+    };
+    return attr;
+};
+
+exports.relationshipHasManyWithName = function(result) {
+
+    console.log("ACTION : relationshipHasManyWithName");
+
+    var source = result[1];
+    var target = result[2];
+    var as = result[3];
+
+    var options = {
+        target: target,
+        source: source,
+        foreignKey: "id_"+source.toLowerCase(),
+        as: as,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewHasMany",
+        options: options
+    };
+    return attr;
+};
+
+exports.createFieldRelatedTo = function(result) {
+
+    console.log("ACTION : createFieldRelatedTo");
+
+    var as = result[1];
+    var target = result[2];
+
+    var options = {
+        target: target,
+        foreignKey: "id_"+as,
+        as: as,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewFieldRelatedTo",
+        options: options
+    };
+    return attr;
+};
+
+exports.createFieldRelatedToUsing = function(result) {
+
+    console.log("ACTION : createFieldRelatedTo");
+
+    var as = result[1];
+    var target = result[2];
+    var usingField = result[3];
+
+    var options = {
+        target: target,
+        foreignKey: "id_"+as,
+        as: as,
+        usingField: usingField,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewFieldRelatedTo",
+        options: options
+    };
+    return attr;
+};
+
+exports.createFieldRelatedToPreset = function(result) {
+
+    console.log("ACTION : createFieldRelatedToPreset");
+
+    var source = result[1];
+    var target = result[2];
+    var as = result[3];
+    var usingField = result[4];
+
+    var options = {
+        source: source,
+        target: target,
+        foreignKey: "id_"+as,
+        as: as,
+        usingField: usingField,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewFieldRelatedTo",
+        options: options
+    };
+    return attr;
+};
+
+exports.createFieldset = function(result) {
+
+    console.log("ACTION : createFieldset");
+
+    var as = result[1];
+    var target = result[2];
+
+    // Preparing Options
+    var options = {
+        target: target,
+        foreignKey: "id_"+as,
+        as: as,
+        processValue: true
+    };
+
+    var attr = {
+        "function": "createNewFieldset",
+        "options": options
+    };
+    return attr;
+};
+
+exports.createFieldsetUsing = function(result) {
+
+    console.log("ACTION : createFieldsetUsing");
+
+    var as = result[1];
+    var target = result[2];
+    var usingField = result[3];
+
+    var options = {
+        target: target,
+        foreignKey: "id_"+as,
+        as: as,
+        usingField: usingField,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewFieldset",
+        options: options
+    };
+    return attr;
+};
+
+exports.createFieldsetPreset = function(result) {
+
+    console.log("ACTION : createFieldsetPreset");
+
+    var source = result[1];
+    var target = result[2];
+
+    var options = {
+        source: source,
+        target: target,
+        foreignKey: "id_"+target,
+        as: target,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewFieldset",
+        options: options
+    };
+    return attr;
+};
+
+// ******* COMPONENT Actions ******* //
+exports.createNewComponentLocalFileStorage = function(result) {
+
+    console.log("ACTION : createNewComponentLocalFileStorage");
+
+    var options = {};
+
+    var attr = {
+        function: "createNewComponentLocalFileStorage",
+        options: options
+    };
+    return attr;
+};
+
+exports.createNewComponentLocalFileStorageWithName = function(result) {
+
+    console.log("ACTION : createNewComponentLocalFileStorageWithName");
+
+    var options = {
+        value: result[1],
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewComponentLocalFileStorage",
+        options: options
+    };
+    return attr;
+};
+
+exports.createNewComponentContactForm = function(result) {
+
+    console.log("ACTION : createNewComponentContactForm");
+
+    var options = {};
+
+    var attr = {
+        function: "createNewComponentContactForm",
+        options: options
+    };
+    return attr;
+};
+
+exports.createNewComponentContactFormWithName = function(result) {
+
+    console.log("ACTION : createNewComponentContactFormWithName");
+
+    var options = {
+        value: result[1],
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewComponentContactForm",
+        options: options
+    };
     return attr;
 };
 
 
 // ******* Parse *******
-exports.parse = function (instruction) {
+exports.parse = function(instruction) {
 
-  var training = {
-        "showSessionAction": [
-          "show session",
-          "show the session",
-          "show session values",
-          "afficher la session",
-          "afficher session"
+    var training = {
+        "showSession": [
+            "show session",
+            "show the session",
+            "show session values",
+            "afficher la session",
+            "afficher session"
         ],
-        "helpAction": [
-          "how could you assist me",
-          "help",
-          "à l'aide",
-          "aidez-moi",
-          "aide",
-          "au secours"
+        "help": [
+            "how could you assist me",
+            "help",
+            "à l'aide",
+            "aidez-moi",
+            "aide",
+            "au secours"
         ],
-        "deployAction": [
-          "deploy",
-          "déploy"
+        "deploy": [
+            "deploy",
+            "déploy"
         ],
-        "selectProjectAction": [
-          "select project (.*)",
-          "select the project (.*)",
-          "sélectionner le projet (.*)",
-          "sélectionner projet (.*)"
+        "selectProject": [
+            "select project (.*)",
+            "select the project (.*)",
+            "sélectionner le projet (.*)",
+            "sélectionner projet (.*)"
         ],
-        "selectApplicationAction": [
-          "select application (.*)",
-          "select the application (.*)",
-          "sélectionner l'application (.*)",
-          "sélectionner application (.*)"
+        "selectApplication": [
+            "select application (.*)",
+            "select the application (.*)",
+            "sélectionner l'application (.*)",
+            "sélectionner application (.*)"
         ],
-        "selectModuleAction": [
-          "select module (.*)",
-          "select the module (.*)",
-          "sélectionner le module (.*)",
-          "sélectionner module (.*)"
+        "selectModule": [
+            "select module (.*)",
+            "select the module (.*)",
+            "sélectionner le module (.*)",
+            "sélectionner module (.*)"
         ],
-        "selectDataEntityAction": [
-          "select entity (.*)",
-          "select data entity (.*)",
-          "sélectionner l'entité (.*)",
-          "sélectionner entité (.*)"
+        "selectDataEntity": [
+            "select entity (.*)",
+            "select data entity (.*)",
+            "sélectionner l'entité (.*)",
+            "sélectionner entité (.*)"
         ],
-        "setRequiredAttributeAction": [
-          "set field (.*) (.*)",
-          "set the field (.*) (.*)",
-          "mettre champ (.*) (.*)",
-          "mettre le champ (.*) (.*)",
-          "mettre le champ (.*) en (.*)"
+        "setRequiredAttribute": [
+            "set field (.*) (.*)",
+            "set the field (.*) (.*)",
+            "mettre champ (.*) (.*)",
+            "mettre le champ (.*) (.*)",
+            "mettre le champ (.*) en (.*)"
         ],
-        "setColumnVisibilityAction": [
-          "set column (.*) (.*)",
-          "mettre la colonne (.*) en (.*)"
+        "setColumnVisibility": [
+            "set column (.*) (.*)",
+            "mettre la colonne (.*) en (.*)"
         ],
-        "createNewProjectAction": [
-          "create project (.*)",
-          "add project (.*)",
-          "créer projet (.*)",
-          "créer un projet (.*)",
-          "ajouter projet (.*)",
-          "ajouter un projet (.*)"
+        "createNewProject": [
+            "create project (.*)",
+            "add project (.*)",
+            "créer projet (.*)",
+            "créer un projet (.*)",
+            "ajouter projet (.*)",
+            "ajouter un projet (.*)"
         ],
-        "createNewApplicationAction": [
-          "create application (.*)",
-          "add application (.*)",
-          "créer application (.*)",
-          "créer une application (.*)",
-          "ajouter application (.*)",
-          "ajouter une application (.*)"
+        "createNewApplication": [
+            "create application (.*)",
+            "add application (.*)",
+            "créer application (.*)",
+            "créer une application (.*)",
+            "ajouter application (.*)",
+            "ajouter une application (.*)"
         ],
-        "createNewModuleAction": [
-          "create module (.*)",
-          "add module (.*)",
-          "créer module (.*)",
-          "créer un module (.*)",
-          "ajouter module (.*)",
-          "ajouter un module (.*)"
+        "createNewModule": [
+            "create module (.*)",
+            "add module (.*)",
+            "créer module (.*)",
+            "créer un module (.*)",
+            "ajouter module (.*)",
+            "ajouter un module (.*)"
         ],
-        "createNewDataEntityAction": [
-          "create entity (.*)",
-          "create data entity (.*)",
-          "add entity (.*)",
-          "add data entity (.*)",
-          "créer entité (.*)",
-          "créer une entité (.*)",
-          "ajouter entité (.*)",
-          "ajouter une entité (.*)"
+        "createNewDataEntity": [
+            "create entity (.*)",
+            "create data entity (.*)",
+            "add entity (.*)",
+            "add data entity (.*)",
+            "créer entité (.*)",
+            "créer une entité (.*)",
+            "ajouter entité (.*)",
+            "ajouter une entité (.*)"
         ],
-        "createNewDataFieldWithTypeEnumAction": [
-          "create field (.*) with type enum and values (.*)",
-          "create data field (.*) with type enum and values (.*)",
-          "add field (.*) with type enum and values (.*)",
-          "add data field (.*) with type enum and values (.*)",
-          "créer champ (.*) de type enum avec les valeurs (.*)",
-          "créer un champ (.*) de type enum avec les valeurs (.*)",
-          "ajouter champ (.*) de type enum avec les valeurs (.*)",
-          "ajouter un champ (.*) de type enum avec les valeurs (.*)"
+        "createNewDataFieldWithTypeEnum": [
+            "create field (.*) with type enum and values (.*)",
+            "create data field (.*) with type enum and values (.*)",
+            "add field (.*) with type enum and values (.*)",
+            "add data field (.*) with type enum and values (.*)",
+            "créer champ (.*) de type enum avec les valeurs (.*)",
+            "créer un champ (.*) de type enum avec les valeurs (.*)",
+            "ajouter champ (.*) de type enum avec les valeurs (.*)",
+            "ajouter un champ (.*) de type enum avec les valeurs (.*)"
         ],
-        "createNewDataFieldWithTypeRadioAction": [
-          "create field (.*) with type radio and values (.*)",
-          "create data field (.*) with type radio and values (.*)",
-          "add field (.*) with type radio and values (.*)",
-          "add data field (.*) with type radio and values (.*)",
-          "créer champ (.*) de type radio avec les valeurs (.*)",
-          "créer un champ (.*) de type radio avec les valeurs (.*)",
-          "ajouter champ (.*) de type radio avec les valeurs (.*)",
-          "ajouter un champ (.*) de type radio avec les valeurs (.*)"
+        "createNewDataFieldWithTypeRadio": [
+            "create field (.*) with type radio and values (.*)",
+            "create data field (.*) with type radio and values (.*)",
+            "add field (.*) with type radio and values (.*)",
+            "add data field (.*) with type radio and values (.*)",
+            "créer champ (.*) de type radio avec les valeurs (.*)",
+            "créer un champ (.*) de type radio avec les valeurs (.*)",
+            "ajouter champ (.*) de type radio avec les valeurs (.*)",
+            "ajouter un champ (.*) de type radio avec les valeurs (.*)"
         ],
-        "createNewDataFieldWithTypeAction": [
-          "create field (.*) with type (.*)",
-          "create data field (.*) with type (.*)",
-          "add field (.*) with type (.*)",
-          "add data field (.*) with type (.*)",
-          "créer champ (.*) de type (.*)",
-          "créer un champ (.*) de type (.*)",
-          "ajouter champ (.*) de type (.*)",
-          "ajouter un champ (.*) de type (.*)"
+        "createNewDataFieldWithType": [
+            "create field (.*) with type (.*)",
+            "create data field (.*) with type (.*)",
+            "add field (.*) with type (.*)",
+            "add data field (.*) with type (.*)",
+            "créer champ (.*) de type (.*)",
+            "créer un champ (.*) de type (.*)",
+            "ajouter champ (.*) de type (.*)",
+            "ajouter un champ (.*) de type (.*)"
         ],
-        "createNewDataFieldAction": [
-          "create field ?(.*)",
-          "create data field (.*)",
-          "add field (.*)",
-          "add data field (.*)",
-          "créer champ (.*)",
-          "créer un champ (.*)",
-          "ajouter champ (.*)",
-          "ajouter un champ (.*)"
+        "createNewDataField": [
+            "create field ?(.*)",
+            "create data field (.*)",
+            "add field (.*)",
+            "add data field (.*)",
+            "créer champ (.*)",
+            "créer un champ (.*)",
+            "ajouter champ (.*)",
+            "ajouter un champ (.*)"
         ],
-        "deleteProjectAction": [
-          "delete project (.*)",
-          "drop project (.*)",
-          "remove project (.*)",
-          "supprimer projet (.*)",
-          "supprimer le projet (.*)"
+        "deleteProject": [
+            "delete project (.*)",
+            "drop project (.*)",
+            "remove project (.*)",
+            "supprimer projet (.*)",
+            "supprimer le projet (.*)"
         ],
-        "deleteApplicationAction": [
-          "delete application (.*)",
-          "drop application (.*)",
-          "remove application (.*)",
-          "supprimer application (.*)",
-          "supprimer l'application (.*)"
+        "deleteApplication": [
+            "delete application (.*)",
+            "drop application (.*)",
+            "remove application (.*)",
+            "supprimer application (.*)",
+            "supprimer l'application (.*)"
         ],
-        "deleteModuleAction": [
-          "delete module (.*)",
-          "drop module (.*)",
-          "remove module (.*)",
-          "supprimer module (.*)",
-          "supprimer le module (.*)"
+        "deleteModule": [
+            "delete module (.*)",
+            "drop module (.*)",
+            "remove module (.*)",
+            "supprimer module (.*)",
+            "supprimer le module (.*)"
         ],
-        "deleteDataEntityAction": [
-          "delete entity (.*)",
-          "drop entity (.*)",
-          "remove entity (.*)",
-          "delete data entity (.*)",
-          "drop data entity (.*)",
-          "remove data entity (.*)",
-          "supprimer entité (.*)",
-          "supprimer l'entité (.*)"
+        "deleteDataEntity": [
+            "delete entity (.*)",
+            "drop entity (.*)",
+            "remove entity (.*)",
+            "delete data entity (.*)",
+            "drop data entity (.*)",
+            "remove data entity (.*)",
+            "supprimer entité (.*)",
+            "supprimer l'entité (.*)"
         ],
-        "deleteDataFieldAction": [
-          "delete field (.*)",
-          "drop field (.*)",
-          "remove field (.*)",
-          "delete data field (.*)",
-          "drop data field (.*)",
-          "remove data field (.*)",
-          "supprimer champ (.*)",
-          "supprimer le champ (.*)"
+        "deleteDataField": [
+            "delete field (.*)",
+            "drop field (.*)",
+            "remove field (.*)",
+            "delete data field (.*)",
+            "drop data field (.*)",
+            "remove data field (.*)",
+            "supprimer champ (.*)",
+            "supprimer le champ (.*)"
         ],
         "deleteTab": [
-          "delete tab (.*)",
-          "drop tab (.*)",
-          "remove tab (.*)",
-          "supprimer onglet (.*)",
-          "supprimer l'onglet (.*)"
+            "delete tab (.*)",
+            "drop tab (.*)",
+            "remove tab (.*)",
+            "supprimer onglet (.*)",
+            "supprimer l'onglet (.*)"
         ],
-        "listProjectAction": [
-          "list project",
-          "list projects",
-          "lister projet",
-          "lister projets",
-          "lister les projets"
+        "listProject": [
+            "list project",
+            "list projects",
+            "lister projet",
+            "lister projets",
+            "lister les projets"
         ],
-        "listApplicationAction": [
-          "list application",
-          "list applications",
-          "lister application",
-          "lister applications",
-          "lister les applications"
+        "listApplication": [
+            "list application",
+            "list applications",
+            "lister application",
+            "lister applications",
+            "lister les applications"
         ],
-        "listModuleAction": [
-          "list module",
-          "list modules",
-          "lister module",
-          "lister modules",
-          "lister les modules"
+        "listModule": [
+            "list module",
+            "list modules",
+            "lister module",
+            "lister modules",
+            "lister les modules"
         ],
-        "listDataEntityAction": [
-          "list data entity",
-          "list data entities",
-          "list entity",
-          "list entities",
-          "lister entité",
-          "lister entités",
-          "lister les entités"
+        "listDataEntity": [
+            "list data entity",
+            "list data entities",
+            "list entity",
+            "list entities",
+            "lister entité",
+            "lister entités",
+            "lister les entités"
         ],
-        "listDataFieldAction": [
-          "list data field",
-          "list data fields",
-          "list field",
-          "list fields",
-          "lister champ",
-          "lister champs",
-          "lister les champs"
+        "listDataField": [
+            "list data field",
+            "list data fields",
+            "list field",
+            "list fields",
+            "lister champ",
+            "lister champs",
+            "lister les champs"
         ],
-        "relationshipHasOneWithNameAction": [
-          "entity (.*) has one (.*) called (.*)",
-          "entité (.*) possède un (.*) appelé (.*)",
-          "entité (.*) possède une (.*) appelée (.*)",
-          "entité (.*) a un (.*) appelé (.*)",
-          "entité (.*) a une (.*) appelée (.*)"
+        "relationshipHasOneWithName": [
+            "entity (.*) has one (.*) called (.*)",
+            "entité (.*) possède un (.*) appelé (.*)",
+            "entité (.*) possède une (.*) appelée (.*)",
+            "entité (.*) a un (.*) appelé (.*)",
+            "entité (.*) a une (.*) appelée (.*)"
         ],
-        "relationshipHasOneAction": [
-          "entity (.*) has one (.*)",
-          "entité (.*) possède un (.*)",
-          "entité (.*) possède une (.*)",
-          "entité (.*) a un (.*)",
-          "entité (.*) a une (.*)"
+        "relationshipHasOne": [
+            "entity (.*) has one (.*)",
+            "entité (.*) possède un (.*)",
+            "entité (.*) possède une (.*)",
+            "entité (.*) a un (.*)",
+            "entité (.*) a une (.*)"
         ],
-        "relationshipHasManyWithNameAction": [
-          "entity (.*) has many (.*) called (.*)",
-          "entité (.*) possède plusieurs (.*) appelés (.*)",
-          "entité (.*) a plusieurs (.*) appelés (.*)"
+        "relationshipHasManyWithName": [
+            "entity (.*) has many (.*) called (.*)",
+            "entité (.*) possède plusieurs (.*) appelés (.*)",
+            "entité (.*) a plusieurs (.*) appelés (.*)"
         ],
-        "relationshipHasManyAction": [
-          "entity (.*) has many (.*)",
-          "entité (.*) possède plusieurs (.*)",
-          "entité (.*) a plusieurs (.*)"
+        "relationshipHasMany": [
+            "entity (.*) has many (.*)",
+            "entité (.*) possède plusieurs (.*)",
+            "entité (.*) a plusieurs (.*)"
         ],
-        "associationHasOneUsingAction": [
-          "create field (.*) related to (.*) using (.*)",
-          "add field (.*) related to (.*) using (.*)",
-          "create data field (.*) related to (.*) using (.*)",
-          "add data field (.*) related to (.*) using (.*)",
-          "créer un champ (.*) relié à (.*) en utilisant (.*)",
-          "créer un champ (.*) relié à (.*) en affichant (.*)",
-          "ajouter un champ (.*) relié à (.*) en utilisant (.*)",
-          "ajouter un champ (.*) relié à (.*) en affichant (.*)"
+        "createFieldRelatedToUsing": [
+            "create field (.*) related to (.*) using (.*)",
+            "add field (.*) related to (.*) using (.*)",
+            "create data field (.*) related to (.*) using (.*)",
+            "add data field (.*) related to (.*) using (.*)",
+            "créer un champ (.*) relié à (.*) en utilisant (.*)",
+            "créer un champ (.*) relié à (.*) en affichant (.*)",
+            "ajouter un champ (.*) relié à (.*) en utilisant (.*)",
+            "ajouter un champ (.*) relié à (.*) en affichant (.*)"
         ],
-        "associationHasOnePresetAction": [
-          "entity (.*) has one preset (.*) called (.*) using (.*)"
+        "createFieldRelatedToPreset": [
+            "entity (.*) has one preset (.*) called (.*) using (.*)"
         ],
-        "associationHasOneAction": [
-          "create field (.*) related to (.*)",
-          "add field (.*) related to (.*)",
-          "create data field (.*) related to (.*)",
-          "add data field (.*) related to (.*)",
-          "créer un champ (.*) relié à (.*)",
-          "ajouter un champ (.*) relié à (.*)"
+        "createFieldRelatedTo": [
+            "create field (.*) related to (.*)",
+            "add field (.*) related to (.*)",
+            "create data field (.*) related to (.*)",
+            "add data field (.*) related to (.*)",
+            "créer un champ (.*) relié à (.*)",
+            "ajouter un champ (.*) relié à (.*)"
         ],
-        "associationHasManyUsingAction": [
-          "create fieldset (.*) related to (.*) using (.*)",
-          "add fieldset (.*) related to (.*) using (.*)",
-          "créer une liste de (.*) reliée à (.*) en affichant (.*)",
-          "créer une liste de (.*) liée à (.*) en affichant (.*)",
-          "ajouter une liste de (.*) reliée à (.*) en affichant (.*)",
-          "ajouter une liste de (.*) liée à (.*) en affichant (.*)"
+        "createFieldsetUsing": [
+            "create fieldset (.*) related to (.*) using (.*)",
+            "add fieldset (.*) related to (.*) using (.*)",
+            "créer une liste de (.*) reliée à (.*) en affichant (.*)",
+            "créer une liste de (.*) liée à (.*) en affichant (.*)",
+            "ajouter une liste de (.*) reliée à (.*) en affichant (.*)",
+            "ajouter une liste de (.*) liée à (.*) en affichant (.*)"
         ],
-        "associationHasManyPresetAction": [
-          "entity (.*) has many preset (.*)"
+        "createFieldsetPreset": [
+            "entity (.*) has many preset (.*)"
         ],
-        "associationHasManyAction": [
-          "create fieldset (.*) related to (.*)",
-          "add fieldset (.*) related to (.*)",
-          "créer une liste de (.*) reliée à (.*)",
-          "créer une liste de (.*) liée à (.*)",
-          "ajouter une liste de (.*) reliée à (.*)",
-          "ajouter une liste de (.*) liée à (.*)"
+        "createFieldset": [
+            "create fieldset (.*) related to (.*)",
+            "add fieldset (.*) related to (.*)",
+            "créer une liste de (.*) reliée à (.*)",
+            "créer une liste de (.*) liée à (.*)",
+            "ajouter une liste de (.*) reliée à (.*)",
+            "ajouter une liste de (.*) liée à (.*)"
         ],
-        "createNewComponentLocalFileStorageAction": [
-          "create component local file storage with name (.*)",
-          "create component localfilestorage with name (.*)",
-          "add component local file storage with name (.*)",
-          "add component localfilestorage with name (.*)",
-          "créer composant localfilestorage appelé (.*)",
-          "ajouter composant localfilestorage appelé (.*)",
-          "créer un composant localfilestorage appelé (.*)",
-          "ajouter un composant localfilestorage appelé (.*)",
-          "créer composant de stockage de fichier appelé (.*)",
-          "ajouter composant de stockage de fichier appelé (.*)",
-          "créer composant de stockage appelé (.*)",
-          "ajouter composant de stockage appelé (.*)"
+        "createNewComponentLocalFileStorageWithName": [
+            "create component local file storage with name (.*)",
+            "create component localfilestorage with name (.*)",
+            "add component local file storage with name (.*)",
+            "add component localfilestorage with name (.*)",
+            "créer composant localfilestorage appelé (.*)",
+            "ajouter composant localfilestorage appelé (.*)",
+            "créer un composant localfilestorage appelé (.*)",
+            "ajouter un composant localfilestorage appelé (.*)",
+            "créer composant de stockage de fichier appelé (.*)",
+            "ajouter composant de stockage de fichier appelé (.*)",
+            "créer composant de stockage appelé (.*)",
+            "ajouter composant de stockage appelé (.*)"
         ],
-        "createNewComponentContactFormAction": [
-          "create component contactform",
-          "create component contact form",
-          "add component contactform",
-          "add component contact form",
-          "créer un composant formulaire de contact",
-          "ajouter un composant formulaire de contact",
-          "créer un formulaire de contact",
-          "ajouter un formulaire de contact",
-
+        "createNewComponentLocalFileStorage": [
+            "create component local file storage",
+            "create component localfilestorage",
+            "add component local file storage",
+            "add component localfilestorage",
+            "créer composant localfilestorage",
+            "ajouter composant localfilestorage",
+            "créer un composant localfilestorage",
+            "ajouter un composant localfilestorage",
+            "créer composant de stockage de fichier local",
+            "ajouter composant de stockage de fichier local",
+            "créer composant de stockage local",
+            "ajouter composant de stockage local"
         ],
-        "createNewComponentContactFormWithNameAction": [
-          "create component contactform with name (.*)",
-          "create component contact form with name (.*)",
-          "add component contactform with name (.*)",
-          "add component contact form with name (.*)",
-          "créer un composant formulaire de contact nommé (.*)",
-          "ajouter un composant formulaire de contact nommé (.*)",
-          "créer un formulaire de contact nommé (.*)",
-          "ajouter un formulaire de contact nommé (.*)"
+        "createNewComponentContactFormWithName": [
+            "create component contactform with name (.*)",
+            "create component contact form with name (.*)",
+            "add component contactform with name (.*)",
+            "add component contact form with name (.*)",
+            "créer un composant formulaire de contact nommé (.*)",
+            "ajouter un composant formulaire de contact nommé (.*)",
+            "créer un formulaire de contact nommé (.*)",
+            "ajouter un formulaire de contact nommé (.*)"
+        ],
+        "createNewComponentContactForm": [
+            "create component contactform",
+            "create component contact form",
+            "add component contactform",
+            "add component contact form",
+            "créer un composant formulaire de contact",
+            "ajouter un composant formulaire de contact",
+            "créer un formulaire de contact",
+            "ajouter un formulaire de contact",
         ]
-  };
-
-    // Assign instruction for a global visibility
-    attr.instruction = instruction;
+    };
 
     for (var action in training) {
         for (var i = 0; i < training[action].length; i++) {
             var regStr = training[action][i];
             var regExp = new RegExp(regStr, "ig");
 
-            var result = regExp.exec(attr.instruction);
-            if (result !== null)
-                return this[action](result);
+            var result = regExp.exec(instruction);
+            if (result !== null){
+                var resultInstruction = this[action](result);
+                resultInstruction.instruction = instruction;
+                console.log(resultInstruction);
+                return resultInstruction;
+            }
         }
     }
 
