@@ -172,3 +172,16 @@ exports.getIdApplicationByName = function(name, callback) {
         callback(err, null);
     });
 }
+
+exports.getIdApplicationByCodeName = function(codeName, showName, callback) {
+    models.Application.findOne({where: {codeName: codeName}}).then(function(application){
+        if(!application){
+            var err = new Error();
+            err.message = "No application with name "+showName+" found.";
+            return callback(err, null);
+        }
+        callback(null, application.id);
+    }).catch(function(err){
+        callback(err, null);
+    });
+}

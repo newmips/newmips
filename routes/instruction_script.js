@@ -42,9 +42,14 @@ function execute(req, instruction) {
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
 
+            if (typeof attr.error !== 'undefined')
+                throw new Error(attr.error);
+
             return designer[attr["function"]](attr, function(err, info) {
 
                 if (err) {
+                    // Error handling code goes here
+                    console.log("ERROR : ", err);
                     scriptData[userId].answers.unshift(instruction + " :<br>" + err + "<br><br>");
                     reject();
                 } else {

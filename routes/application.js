@@ -232,8 +232,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         attr.googleTranslate = req.session.toTranslate || false;
         attr.lang_user = req.session.lang_user;
 
-        if (typeof attr.function === 'undefined')
-            throw new Error("Unable to find a matching instruction.");
+        if (typeof attr.error !== 'undefined')
+            throw new Error(attr.error);
 
         // Function is finally executed as "global()" using the static dialog designer
         // "Options" and "Session values" are sent using the attr attribute

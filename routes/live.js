@@ -162,11 +162,16 @@ function execute(req, instruction) {
 
             pourcent_generation[req.session.data.id] += Math.floor((Math.random() * 15) + 1);
 
+            if (typeof attr.error !== 'undefined')
+                throw new Error(attr.error);
+
             // Function is finally executed as "global()" using the static dialog designer
             // "Options" and "Session values" are sent using the attr attribute
             return designer[attr["function"]](attr, function(err, info) {
 
                 if (err) {
+                    // Error handling code goes here
+                    console.log("ERROR : ", err);
                     req.session.answers.unshift(instruction + " :<br>" + err);
                     reject();
                 } else {

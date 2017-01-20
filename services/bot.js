@@ -1,3 +1,21 @@
+function checkAndCreateAttr(instructionsFunction, options, valueToCheck){
+
+    var attr = {
+        function: instructionsFunction,
+        options: options
+    };
+
+    if(!isNaN(valueToCheck)){
+        attr.error = "There must be at least one letter in the name."
+    }
+
+    if(valueToCheck.length > 30){
+        attr.error = "Sorry, the given value is too long (>30)."
+    }
+
+    return attr;
+}
+
 // ******* BASIC Actions ******* //
 exports.showSession = function(result) {
 
@@ -137,11 +155,7 @@ exports.createNewProject = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewProject",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewProject", options, value);
 };
 
 exports.createNewApplication = function(result) {
@@ -154,11 +168,7 @@ exports.createNewApplication = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewApplication",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewApplication", options, value);
 };
 
 exports.createNewModule = function(result) {
@@ -171,11 +181,7 @@ exports.createNewModule = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewModule",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewModule", options, value);
 };
 
 exports.createNewDataEntity = function(result) {
@@ -188,11 +194,7 @@ exports.createNewDataEntity = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewDataEntity",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewDataEntity", options, value);
 };
 
 exports.createNewDataField = function(result) {
@@ -204,6 +206,8 @@ exports.createNewDataField = function(result) {
         var attr = {
             function: "askNameOfDataField"
         };
+
+        return attr;
     } else {
 
         var value = result[1];
@@ -212,13 +216,8 @@ exports.createNewDataField = function(result) {
             processValue: true
         };
 
-        var attr = {
-            function: "createNewDataField",
-            options: options
-        };
+        return checkAndCreateAttr("createNewDataField", options, value);
     }
-
-    return attr;
 };
 
 exports.createNewDataFieldWithType = function(result) {
@@ -235,11 +234,7 @@ exports.createNewDataFieldWithType = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewDataField",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewDataField", options, value);
 };
 
 exports.createNewDataFieldWithTypeEnum = function(result) {
@@ -257,11 +252,7 @@ exports.createNewDataFieldWithTypeEnum = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewDataField",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewDataField", options, value);
 };
 
 exports.createNewDataFieldWithTypeRadio = function(result) {
@@ -279,11 +270,7 @@ exports.createNewDataFieldWithTypeRadio = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewDataField",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewDataField", options, value);
 };
 
 // ******* DELETE Actions ******* //
@@ -462,11 +449,7 @@ exports.relationshipHasOne = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewHasOne",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewHasOne", options, target);
 };
 
 exports.relationshipHasOneWithName = function(result) {
@@ -485,11 +468,7 @@ exports.relationshipHasOneWithName = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewHasOne",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewHasOne", options, as);
 };
 
 exports.relationshipHasMany = function(result) {
@@ -507,11 +486,7 @@ exports.relationshipHasMany = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewHasMany",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewHasMany", options, target);
 };
 
 exports.relationshipHasManyWithName = function(result) {
@@ -530,11 +505,7 @@ exports.relationshipHasManyWithName = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewHasMany",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewHasMany", options, as);
 };
 
 exports.createFieldRelatedTo = function(result) {
@@ -551,11 +522,7 @@ exports.createFieldRelatedTo = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewFieldRelatedTo",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
 exports.createFieldRelatedToUsing = function(result) {
@@ -574,11 +541,7 @@ exports.createFieldRelatedToUsing = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewFieldRelatedTo",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
 exports.createFieldRelatedToPreset = function(result) {
@@ -599,11 +562,7 @@ exports.createFieldRelatedToPreset = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewFieldRelatedTo",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
 exports.createFieldset = function(result) {
@@ -621,11 +580,7 @@ exports.createFieldset = function(result) {
         processValue: true
     };
 
-    var attr = {
-        "function": "createNewFieldset",
-        "options": options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewFieldset", options, as);
 };
 
 exports.createFieldsetUsing = function(result) {
@@ -644,11 +599,7 @@ exports.createFieldsetUsing = function(result) {
         processValue: true
     };
 
-    var attr = {
-        function: "createNewFieldset",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewFieldset", options, as);
 };
 
 exports.createFieldsetPreset = function(result) {
@@ -691,16 +642,13 @@ exports.createNewComponentLocalFileStorageWithName = function(result) {
 
     console.log("ACTION : createNewComponentLocalFileStorageWithName");
 
+    var value = result[1];
     var options = {
-        value: result[1],
+        value: value,
         processValue: true
     };
 
-    var attr = {
-        function: "createNewComponentLocalFileStorage",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewComponentLocalFileStorage", options, value);
 };
 
 exports.createNewComponentContactForm = function(result) {
@@ -720,16 +668,13 @@ exports.createNewComponentContactFormWithName = function(result) {
 
     console.log("ACTION : createNewComponentContactFormWithName");
 
+    var value = result[1];
     var options = {
-        value: result[1],
+        value: value,
         processValue: true
     };
 
-    var attr = {
-        function: "createNewComponentContactForm",
-        options: options
-    };
-    return attr;
+    return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
 
@@ -1066,22 +1011,41 @@ exports.parse = function(instruction) {
         ]
     };
 
+    var instructionResult = {
+        insctructionLength: 0
+    };
+
     for (var action in training) {
-        for (var i = 0; i < training[action].length; i++) {
+        for (var i=0; i<training[action].length; i++) {
             var regStr = training[action][i];
             var regExp = new RegExp(regStr, "ig");
 
             var result = regExp.exec(instruction);
             if (result !== null){
-                var resultInstruction = this[action](result);
-                resultInstruction.instruction = instruction;
-                console.log(resultInstruction);
-                return resultInstruction;
+
+                /* Get the most complicated instruction found */
+                if(instructionResult.insctructionLength < regStr.length){
+                    instructionResult = {
+                        action: action,
+                        result: result,
+                        insctructionLength: regStr.length
+                    };
+                }
             }
         }
     }
 
-    return {};
+    var attr = {};
+
+    if(typeof instructionResult.action !== "undefined"){
+        attr = this[instructionResult.action](instructionResult.result);
+        attr.instruction = instruction;
+    }
+    else{
+        attr.error = "Unable to find a matching instruction.";
+    }
+
+    return attr;
 }
 
 module.exports = exports;

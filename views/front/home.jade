@@ -132,8 +132,9 @@ block custom_js
 
 			/* Unable complex caractere for project and application*/
 			$("#project, #application").keyup(function(e) {
-				/*var reg = new RegExp("[^A-Za-z ]");*/
-				var reg = new RegExp("[^A-zÀ-ú]");
+				/* var reg = new RegExp("[^A-Za-z ]"); */
+				/* var reg = new RegExp("[^A-zÀ-ú]"); */
+				var reg = new RegExp("[^a-zA-Z0-9àâçéèêëîïôûùüÿñ, ']");
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
 			});
