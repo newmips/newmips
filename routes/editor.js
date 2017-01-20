@@ -23,6 +23,8 @@ router.get('/:id_application', block_access.isLoggedIn, function(req, res) {
     var workspacePath = __dirname + "/../workspace/" + id_application + "/";
     var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload", "public"];
     var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+    /* Sort folder first, file after */
+    folder = helpers.sortEditorFolder(folder);
     data.workspaceFolder = folder;
     data.idApplication = id_application;
     res.render("front/editor", data);

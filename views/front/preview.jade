@@ -238,7 +238,7 @@ block custom_js
 
 			$(document).on("click", "#start-editor", function(){
 				if(!isEditorStarted){
-					// Tabs display need to be completely finished
+					// Tabs display/animation need to be completely finished to instanciate the editor
 					setTimeout(function(){
 						$("body").append("<script type='text/javascript' src='/js/Newmips/editor.js'/>");
 						isEditorStarted = true;
@@ -269,7 +269,7 @@ block custom_js
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
 			});
 
-			$("#instruction").keydown(function(e) {
+			/*$("#instruction").keydown(function(e) {
 				e = e || window.event;
 				l = tab_instr.length;
 				if (e.keyCode == '38') {
@@ -283,7 +283,7 @@ block custom_js
 						if (current_instr < l) current_instr = current_instr +1;
 						$("#instruction").val(tab_instr[current_instr]);
 				}
-			});
+			});*/
 
 			$(document).on("click", "#execute_instruction", function(e){
 				if($("#instruction").val() == ""){
