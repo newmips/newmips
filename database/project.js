@@ -125,30 +125,27 @@ exports.listProject = function(attr, callback) {
 }
 
 // Delete
-exports.deleteProject = function(attr, callback) {
+exports.deleteProject = function(value, callback) {
 
     try {
-        var options = attr.options;
-        var project = attr.options.showValue;
-
         var where = {
             where: {}
         };
 
-        if(isNaN(project)){
+        if(isNaN(value)){
             where.where = {
-                name: project
+                codeName: value
             };
         }
         else{
             where.where = {
-                id: project
+                id: value
             };
         }
 
         models.Project.destroy(where).then(function() {
             var info = {
-                message: "Project "+project+" deleted."
+                message: "Project "+value+" deleted."
             }
             callback(null, info);
         }).catch(function(err) {
@@ -183,7 +180,7 @@ exports.getNameProjectById = function(id_project, callback) {
 exports.getProjectApplications = function(project, callback){
     var where = {where: {}, include: [models.Application]};
     if (isNaN(project)){
-        where.where = {name: project};
+        where.where = {codeName: project};
     }
     else{
         where.where = {id: project};

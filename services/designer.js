@@ -98,14 +98,14 @@ exports.listProject = function(attr, callback) {
 }
 
 exports.deleteProject = function(attr, callback) {
-    db_project.getProjectApplications(attr.options.showValue, function(err, applications) {
+    db_project.getProjectApplications(attr.options.value, function(err, applications) {
         if (err)
             return callback(err, null);
         var appIds = [];
         for (var i=0; i<applications.length; i++)
             appIds.push(applications[i].id);
         deleteApplicationRecursive(appIds, 0).then(function() {
-            db_project.deleteProject(attr, function(err, info) {
+            db_project.deleteProject(attr.options.value, function(err, info) {
                 if (err)
                     return callback(err, null);
 
@@ -176,7 +176,7 @@ function deleteApplication(attr, callback) {
         });
     }
     if (isNaN(attr.options.showValue))
-        db_application.getIdApplicationByName(attr.options.showValue, function(err, id_application){
+        db_application.getIdApplicationByCodeName(attr.options.value, attr.options.showValue, function(err, id_application){
             if(err)
                 return callback(err, null);
             doDelete(id_application);
