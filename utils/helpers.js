@@ -35,6 +35,37 @@ function rmdirSyncRecursive(path) {
     }
 }
 
+function compare(a, b) {
+    if (a.title < b.title)
+        return -1;
+    if (a.title > b.title)
+        return 1;
+    return 0;
+}
+
+function sortEditorFolder(workspaceFolder){
+    //console.log(workspaceFolder);
+
+    var underArray = [];
+    var fileArray = [];
+    var answer = [];
+
+    workspaceFolder.forEach(function(file, index){
+        if(typeof file.under !== "undefined"){
+            file.under = sortEditorFolder(file.under);
+            underArray.push(file);
+        }
+        else{
+            fileArray.push(file);
+        }
+    });
+
+    underArray.sort(compare);
+    fileArray.sort(compare);
+
+    return underArray.concat(fileArray);
+}
+
 function readdirSyncRecursive(path, exclude) {
     var workspace = [];
     if(fs.existsSync(path)){
@@ -60,6 +91,7 @@ function readdirSyncRecursive(path, exclude) {
                 }
             }
         });
+
         return workspace;
     }
 }
@@ -87,5 +119,6 @@ module.exports = {
     },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,
-    getNbInstruction: getNbInstruction
+    getNbInstruction: getNbInstruction,
+    sortEditorFolder: sortEditorFolder
 }

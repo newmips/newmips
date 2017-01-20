@@ -142,6 +142,8 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         // Editor
                         var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
                         var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+                        /* Sort folder first, file after */
+                        folder = helpers.sortEditorFolder(folder);
                         data.workspaceFolder = folder;
 
                         res.render('front/preview', data);
@@ -399,6 +401,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 // Editor
                                 var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
                                 var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+                                /* Sort folder first, file after */
+                                folder = helpers.sortEditorFolder(folder);
                                 data.workspaceFolder = folder;
 
                                 // Call preview page
