@@ -175,13 +175,14 @@ $(document).ready(function() {
                 });
 
                 /* Update the save button */
+                data.path = data.path.replace(/\\/gi, '/');
                 $("#update-file").attr("data-path", data.path);
                 $("#update-file").removeAttr("disabled");
 
                 /* Set good file editor mode */
                 setMode(data.extension);
 
-                if (!$("li[data-path='" + data.path + "']").length) {
+                if (!$("li[data-path='"+data.path+"']").length || $("li[data-path='"+data.path+"']").length < 1) {
                     /* Add tab */
                     var tab = "<li role='fileTab' class='load-file active' data-path='" + data.path + "'>" +
                         "<a href='#' data-toggle='tab'>" + $(this).attr("data-filename") +
@@ -195,7 +196,7 @@ $(document).ready(function() {
                     myEditor.setValue(data.html);
                 } else {
                     /* Tab already exist */
-                    $("li[data-path='" + data.path + "']").addClass("active");
+                    $("li[data-path='"+data.path+"']").addClass("active");
                     /* Get the old content */
                     myEditor.setValue(editorContent[data.path]);
                 }
