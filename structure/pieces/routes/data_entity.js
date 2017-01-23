@@ -183,7 +183,6 @@ router.get('/create_form', block_access.isLoggedIn, function(req, res) {
 });
 
 router.post('/create', block_access.isLoggedIn, function(req, res) {
-    var version = parseInt(req.body.version) + 1;
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("ENTITY_NAME", createObject, req.body)
@@ -315,7 +314,10 @@ router.get('/update_form', block_access.isLoggedIn, function(req, res) {
 
 router.post('/update', block_access.isLoggedIn, function(req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
-    var version = parseInt(req.body.version) + 1;
+
+    if(typeof req.body.version !== "undefined")
+        req.body.version = parseInt(req.body.version) + 1;
+
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
     updateObject = enums.values("ENTITY_NAME", updateObject, req.body);
 

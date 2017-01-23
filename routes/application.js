@@ -40,11 +40,13 @@ var models = require('../models/');
 // Exclude from Editor
 var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload", "public"];
 
+var timeOut = require('connect-timeout')(1000000);
+
 // ====================================================
 // Redirection application =====================
 // ====================================================
 
-// Preview
+// Preview Get
 router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
     var id_application = req.query.id_application;
@@ -162,9 +164,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-var timeOut = require('connect-timeout')(1000000);
-
-// Preview
+// Preview Post
 router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
     var instruction = "";
