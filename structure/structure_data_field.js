@@ -334,51 +334,53 @@ exports.setupDataField = function(attr, callback) {
 		case "int" :
 		case "integer" :
 			typeForModel = "INTEGER"
+			break;
 		case "float" :
 		case "double" :
 		case "decimal" :
 		case "figures" :
 			typeForModel = "STRING"
-		break;
+			break;
 		case "date" :
 		case "datetime" :
 			typeForModel = "DATE"
-		break;
+			break;
 		case "time" :
 			typeForModel = "TIME"
-		break;
+			break;
 		case "email" :
 			typeForModel = "STRING"
-		break;
+			break;
 		case "phone" :
 		case "tel" :
 		case "téléphone" :
 		case "portable" :
 			typeForModel = "STRING"
-		break;
+			break;
 		case "fax" :
 			typeForModel = "STRING"
-		break;
+			break;
 		case "boolean" :
 			typeForModel = "BOOLEAN"
-		break;
+			break;
 		case "radio" :
 			typeForModel = "STRING"
-		break;
+			break;
 		case "enum" :
 			typeForModel = "ENUM"
-		break;
+			break;
 		case "text" :
 			typeForModel = "TEXT"
-		break;
+			break;
 		case "localfile" :
 			typeForModel = "STRING"
-		break;
+			break;
 		case "cloudfile" :
 			typeForModel = "STRING"
-		break;
+			break;
 		default :
-		break;
+			typeForModel = "STRING"
+			break;
 	}
 
 	if(typeForModel == "ENUM"){
