@@ -300,7 +300,7 @@ exports.setupDataField = function(attr, callback) {
 
 	// If there is a WITH TYPE in the instruction
 	if(typeof options.type !== "undefined")
-		type_data_field = options.type;
+		type_data_field = options.type.toLowerCase();
 
 	// Cut allValues for ENUM or other type
 	if(typeof options.allValues !== "undefined"){
