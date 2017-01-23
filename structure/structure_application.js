@@ -72,15 +72,17 @@ exports.deleteApplication = function(id_application, callback) {
     // Kill spawned child process by preview
     var process_manager = require('../services/process_manager.js');
     var process_server = process_manager.process_server;
-    var path = __dirname + '/../workspace/' + id_application;
+    var path = __dirname+'/../workspace/'+id_application;
 
     if (process_server != null) {
-        process_server = process_manager.killChildProcess(process_server.pid, function() {
-            helpers.rmdirSyncRecursive(path);
-            callback();
-        }).catch(function(err){
+        try{
+            process_server = process_manager.killChildProcess(process_server.pid, function() {
+                helpers.rmdirSyncRecursive(path);
+                callback();
+            });
+        } catch(err){
             callback(err, null);
-        });
+        }
     }
     else {
         try{
