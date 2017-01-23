@@ -26,17 +26,19 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 		case "string" :
 		case "":
 			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
-		break;
+			break;
 		case "number" :
+		case "nombre" :
 		case "int" :
 		case "integer" :
 			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='number' "+readOnly+"/>\n";
-		break;
+			break;
 		case "decimal" :
+		case "double" :
 		case "float" :
 		case "figures" :
 			str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
-		break;
+			break;
 		case "date" :
 			if(file == "show"){
 				str += "	<div class='input-group'>\n";
@@ -62,8 +64,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
 				str += "	</div>\n";
 			}
-		break;
+			break;
 		case "time" :
+		case "heure" :
 			if(file == "show"){
 				str += "	<div class='bootstrap-timepicker'>\n";
 				str += "		<div class='input-group'>\n";
@@ -84,7 +87,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		</div>\n";
 				str += "	</div>\n";
 			}
-		break;
+			break;
 		case "datetime" :
 			str += "	<div class='input-group'>\n";
 			str += "		<div class='input-group-addon'>\n";
@@ -100,15 +103,18 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		<input class='form-control input datetimepicker' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' type='text' "+readOnly+"/>\n";
 			}
 			str += "	</div>\n";
-		break;
+			break;
 		case "email" :
+		case "mail" :
+		case "e-mail" :
+		case "mel" :
 			str += "	<div class='input-group'>\n";
 			str += "		<div class='input-group-addon'>\n";
 			str += "			<i class='fa fa-envelope'></i>\n";
 			str += "		</div>\n";
 			str += "		<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' data-type='email' "+readOnly+"/>\n";
 			str += "	</div>\n";
-		break;
+			break;
 		case "tel" :
 		case "téléphone" :
 		case "portable" :
@@ -119,7 +125,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 			str += "		</div>\n";
 			str += "		<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='tel' "+readOnly+"/>\n";
 			str += "	</div>\n";
-		break;
+			break;
 		case "fax" :
 			str += "	<div class='input-group'>\n";
 			str += "		<div class='input-group-addon'>\n";
@@ -127,16 +133,19 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 			str += "		</div>\n";
 			str += "		<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='tel' "+readOnly+"/>\n";
 			str += "	</div>\n";
-		break;
+			break;
 		case "boolean" :
+		case "checkbox" :
+		case "case à cocher" :
 			str += "	&nbsp;\n<br>\n";
 			str += "	{#"+dataField+"}";
 			str += "		<input class='form-control input' name='"+dataField+"' value='"+value+"' type='checkbox' checked "+disabled+"/>\n";
 			str += "	{:else}";
 			str += "		<input class='form-control input' name='"+dataField+"' value='"+value+"' type='checkbox' "+disabled+"/>\n";
 			str += "	{/"+dataField+"}";
-		break;
+			break;
 		case "radio" :
+		case "case à sélectionner" :
 			if(file != "create"){
 				for(var i=0; i<values.length;i++){
 					str += "	&nbsp;\n<br>\n";
@@ -153,7 +162,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 					str += "	<input class='form-control input' name='"+dataField+"' value='"+values[i]+"' type='radio' "+disabled+"/>&nbsp;"+values[i]+"\n";
 				}
 			}
-		break;
+			break;
 		case "enum" :
 			if(file == "show"){
 				str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
@@ -176,21 +185,22 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 				str += "		{/enum."+dataField+"}\n";
 				str += "	</select>";
 			}
-		break;
+			break;
 		case "text" :
+		case "texte" :
 			str += "	<textarea class='form-control textarea' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' id='"+dataField+"_textareaid' value='"+value+"' type='text' "+readOnly+">"+value+"</textarea>\n";
-		break;
+			break;
 		case "localfile" :
 			str += "	<div class='dropzone dropzone-field' id='"+dataField+"_dropzone' data-storage='local' data-entity='"+dataEntity+"' ></div>\n";
 			str += "	<input type='hidden' name='"+dataField+"' id='"+dataField+"_dropzone_hidden'/>";
-		break;
+			break;
 		case "cloudfile" :
 			str += "	<div class='dropzone dropzone-field' id='"+dataField+"_dropzone' data-storage='cloud' data-entity='"+dataEntity+"' ></div>\n";
 			str += "	<input type='hidden' name='"+dataField+"' id='"+dataField+"_dropzone_hidden'/>";
-		break;
+			break;
 		default :
 			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity +"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
-		break;
+			break;
 	}
 
 	str += "</div>";
@@ -333,6 +343,7 @@ exports.setupDataField = function(attr, callback) {
 		case "number" :
 		case "int" :
 		case "integer" :
+		case "nombre" :
 			typeForModel = "INTEGER"
 			break;
 		case "float" :
@@ -346,9 +357,13 @@ exports.setupDataField = function(attr, callback) {
 			typeForModel = "DATE"
 			break;
 		case "time" :
+		case "heure" :
 			typeForModel = "TIME"
 			break;
 		case "email" :
+		case "mail" :
+		case "e-mail" :
+		case "mel" :
 			typeForModel = "STRING"
 			break;
 		case "phone" :
@@ -360,16 +375,20 @@ exports.setupDataField = function(attr, callback) {
 		case "fax" :
 			typeForModel = "STRING"
 			break;
+		case "checkbox" :
 		case "boolean" :
+		case "case à cocher" :
 			typeForModel = "BOOLEAN"
 			break;
 		case "radio" :
+		case "case à sélectionner" :
 			typeForModel = "STRING"
 			break;
 		case "enum" :
 			typeForModel = "ENUM"
 			break;
 		case "text" :
+		case "texte" :
 			typeForModel = "TEXT"
 			break;
 		case "localfile" :
