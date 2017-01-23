@@ -742,7 +742,8 @@ exports.parse = function(instruction) {
             "créer projet (.*)",
             "créer un projet (.*)",
             "ajouter projet (.*)",
-            "ajouter un projet (.*)"
+            "ajouter un projet (.*)",
+            "ajouter le projet (.*)"
         ],
         "createNewApplication": [
             "create application (.*)",
@@ -750,6 +751,7 @@ exports.parse = function(instruction) {
             "créer application (.*)",
             "créer une application (.*)",
             "ajouter application (.*)",
+            "ajouter l'application (.*)",
             "ajouter une application (.*)"
         ],
         "createNewModule": [
@@ -768,7 +770,8 @@ exports.parse = function(instruction) {
             "créer entité (.*)",
             "créer une entité (.*)",
             "ajouter entité (.*)",
-            "ajouter une entité (.*)"
+            "ajouter une entité (.*)",
+            "ajouter l'entité (.*)"
         ],
         "createNewDataFieldWithTypeEnum": [
             "create field (.*) with type enum and values (.*)",
@@ -778,7 +781,8 @@ exports.parse = function(instruction) {
             "créer champ (.*) de type enum avec les valeurs (.*)",
             "créer un champ (.*) de type enum avec les valeurs (.*)",
             "ajouter champ (.*) de type enum avec les valeurs (.*)",
-            "ajouter un champ (.*) de type enum avec les valeurs (.*)"
+            "ajouter un champ (.*) de type enum avec les valeurs (.*)",
+            "ajouter le champ (.*) de type enum avec les valeurs (.*)"
         ],
         "createNewDataFieldWithTypeRadio": [
             "create field (.*) with type radio and values (.*)",
@@ -788,7 +792,8 @@ exports.parse = function(instruction) {
             "créer champ (.*) de type radio avec les valeurs (.*)",
             "créer un champ (.*) de type radio avec les valeurs (.*)",
             "ajouter champ (.*) de type radio avec les valeurs (.*)",
-            "ajouter un champ (.*) de type radio avec les valeurs (.*)"
+            "ajouter un champ (.*) de type radio avec les valeurs (.*)",
+            "ajouter le champ (.*) de type radio avec les valeurs (.*)"
         ],
         "createNewDataFieldWithType": [
             "create field (.*) with type (.*)",
@@ -798,7 +803,8 @@ exports.parse = function(instruction) {
             "créer champ (.*) de type (.*)",
             "créer un champ (.*) de type (.*)",
             "ajouter champ (.*) de type (.*)",
-            "ajouter un champ (.*) de type (.*)"
+            "ajouter un champ (.*) de type (.*)",
+            "ajouter le champ (.*) de type (.*)"
         ],
         "createNewDataField": [
             "create field ?(.*)",
@@ -808,7 +814,8 @@ exports.parse = function(instruction) {
             "créer champ (.*)",
             "créer un champ (.*)",
             "ajouter champ (.*)",
-            "ajouter un champ (.*)"
+            "ajouter un champ (.*)",
+            "ajouter le champ (.*)"
         ],
         "deleteProject": [
             "delete project (.*)",
