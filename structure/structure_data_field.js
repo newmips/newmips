@@ -476,24 +476,41 @@ exports.setupDataField = function(attr, callback) {
 exports.setRequiredAttribute = function(attr, callback) {
 	var pathToViews = __dirname+'/../workspace/'+attr.id_application+'/views/'+attr.name_data_entity.toLowerCase();
 
-	var set = attr.options.word.toLowerCase() == 'mandatory' || attr.options.word.toLowerCase() == 'required' || attr.options.word.toLowerCase() == 'obligatoire' ? true : false;
+	var possibilityRequired = ["mandatory", "required", "obligatoire"];
+	var possibilityOptionnal = ["optionnel", "non obligatoire", "optional"];
+
+	var attributes = attr.options.word.toLowerCase();
+	var set;
+
+	if(possibilityRequired.indexOf(attributes) != -1){
+		set = true;
+	}
+	else if(possibilityOptionnal.indexOf(attributes) != -1){
+		set = false;
+	}
+	else{
+		var err = new Error();
+		err.message = "Unable to understand the given attribute.";
+		return callback(err);
+	}
+
 	// Update create_fields.dust file
 	domHelper.read(pathToViews+'/create_fields.dust').then(function($){
 		if (set == true)
-			$("*[data-field='"+attr.options.field_name+"']").find('label').addClass('required');
+			$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
 		else
-			$("*[data-field='"+attr.options.field_name+"']").find('label').removeClass('required');
-		$("*[data-field='"+attr.options.field_name+"']").find('input').prop('required', set);
+			$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
+		$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
 
 		domHelper.write(pathToViews+'/create_fields.dust', $).then(function(){
 
 			// Update update_fields.dust file
 			domHelper.read(pathToViews+'/update_fields.dust').then(function($){
 				if (set == true)
-					$("*[data-field='"+attr.options.field_name+"']").find('label').addClass('required');
+					$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
 				else
-					$("*[data-field='"+attr.options.field_name+"']").find('label').removeClass('required');
-				$("*[data-field='"+attr.options.field_name+"']").find('input').prop('required', set);
+					$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
+				$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
 				domHelper.write(pathToViews+'/update_fields.dust', $).then(function(){
 					callback();
 				});
