@@ -1,6 +1,6 @@
 {!{>"main_layout"/}!}
 {! Home module needed !}
-{>"layout_home"/}
+{>"layout_m_home"/}
 {<header}
 <h1>{@__ key="settings.title"/}</h1>
 <ol class="breadcrumb">
