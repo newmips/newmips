@@ -28,7 +28,11 @@
 		"home": "Accueil",
 		"preview": {
 			"title": "Prévisualisation",
-			"reload": "Recharger la page"
+			"reload": "Recharger la page",
+			"trello-modal-title": "Soumettre un bug",
+			"trello-modal-content": "Vous pouvez décrire le bug ci-dessous:",
+			"trello-modal-email": "Vous pouvez ajouter votre email:",
+			"trello-button": "Soumettre un bug"
 		},
 		"module": "Module",
 		"workspace": "Mon espace",
@@ -74,7 +78,9 @@
 		"execute": "Exécuter",
 		"backtohome": "Retourner à l'accueil",
 		"yes": "Oui",
-		"no": "Non"
+		"no": "Non",
+		"close": "Fermer",
+		"send": "Envoyer"
 	},
 	"operation": {
 		"show": "Afficher une entité ",
