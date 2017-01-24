@@ -111,6 +111,9 @@ block content
 									| #{__("entity.data_entity.label")} : #{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
 								a.btn.btn-info(href="/application/preview?id_application=#{session.application.id_application}")
 									| #{__("module.preview.reload")}
+								|&nbsp;&nbsp;
+								button.btn.btn-warning#trello-report(data-toggle="modal", data-target="#trello-modal")
+									| #{__("module.preview.trello-button")}
 			#editor.tab-pane.fade.in
 				.row
 					#codemirror-menu.col-xs-12.col-sm-2.sidebar
@@ -198,11 +201,31 @@ block content
 							option(value="xq-light") xq-light
 							option(value="yeti") yeti
 							option(value="zenburn") zenburn
+	.modal#trello-modal.fade(tabindex='-1', role='dialog')
+		.modal-dialog(role='document')
+			.modal-content
+				.modal-header
+					button.close(type='button', data-dismiss='modal', aria-label='Close')
+						span(aria-hidden='true') ×
+					h4.modal-title #{__("module.preview.trello-modal-title")}
+				.modal-body
+					p #{__("module.preview.trello-modal-email")}
+					input#trello-email
+					br
+					br
+					p #{__("module.preview.trello-modal-content")}
+					textarea#trello-content(style="width:100%;height:100px;")
+				.modal-footer
+					button.btn.btn-default(type='button', data-dismiss='modal') #{__("button.close")}
+					button.btn.btn-primary#trello-send(type='button') #{__("button.send")}
 block custom_js
 	// AdminLTE App
 	script(src='/js/AdminLTE/app.min.js', type='text/javascript')
 	// Speech Recognition
 	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
+
+	// Trello API
+	script(src="https://api.trello.com/1/client.js?key=868b7912b167ebf46c7743f2e86514be", type='text/javascript')
 
 	// CodeMirror
 	script(src='/js/plugins/codemirror/codemirror.js', type='text/javascript')
@@ -233,6 +256,38 @@ block custom_js
 		intro2 += "#{__('module.editor_content.intro3')}";
 	script(type='text/javascript').
 		$(function() {
+
+			var authenticationSuccess = function() { console.log('Successful Trello authentication'); };
+			var authenticationFailure = function() { console.log('Failed Trello authentication'); };
+
+			Trello.authorize({
+				type: 'popup',
+				name: 'Newmips-Generator',
+				scope: {
+					read: 'true',
+					write: 'true'
+				},
+				expiration: 'never',
+				success: authenticationSuccess,
+				error: authenticationFailure
+			});
+
+			$(document).on("click", "#trello-send", function(){
+				var myList = '58874b548448fade3118c141';
+				var creationSuccess = function(data) {
+				  console.log('Card created successfully. Data returned:' + JSON.stringify(data));
+				  toastr.success("Thank you for your help, we appreciate it!");
+				  $("#trello-modal").modal('hide');
+				};
+				var newCard = {
+				  name: $("#trello-content").val(),
+				  desc: $("#trello-email").val(),
+				  idList: myList,
+				  pos: 'top'
+				};
+				Trello.post('/cards/', newCard, creationSuccess);
+
+			});
 
 			var isEditorStarted = false;
 
