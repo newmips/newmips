@@ -192,3 +192,108 @@ exports.newContactForm = function(attr, callback){
 		});
 	});
 }
+
+exports.newAuthentication = function(attr, callback) {
+    var id_application = attr.id_application;
+
+    // Initialize variables according to options
+    var options = attr.options;
+    var name_module = options.value;
+    var url_name_module = options.urlValue;
+
+    function copyAndreplaceInView(path) {
+    	return new Promise(function(resolve, reject) {
+		    var basePiecesPath = __dirname + '/pieces/component/authentication/views/';
+		    var baseWorkspacePath = __dirname + '/../workspace/'+id_application+'/views/';
+	    	var piecesFilename = basePiecesPath+path+'.dust';
+	    	var workspaceFilename = baseWorkspacePath+path+'.dust';
+			fs.copy(piecesFilename, workspaceFilename, function(err) {
+				if (err)
+					return reject(err);
+		    	fs.readFile(workspaceFilename, 'utf8', function(err, filecontent) {
+		    		if (err)
+		    			return reject(err);
+			    	filecontent = filecontent.replace(/MODULE_NAME/g, url_name_module);
+		    		fs.writeFile(workspaceFilename, filecontent, 'utf8', function(err) {
+		    			if (err)
+		    				return reject(err);
+		    			fs.copy(basePiecesPath+path+'_fields.dust', baseWorkspacePath+path+'_fields.dust', function(err) {
+		    				if (err)
+		    					return reject(err);
+			    			console.log('Authentication component view file '+path+'.dust and '+path+'_fields.dust imported to workspace and updated');
+		    				resolve();
+		    			})
+		    		});
+		    	});
+			})
+    	});
+    }
+
+    function copyAndReplaceInModel(path) {
+    	return new Promise(function(resolve, reject) {
+		    var basePiecesPath = __dirname + '/pieces/component/authentication/models/';
+		    var baseWorkspacePath = __dirname + '/../workspace/'+id_application+'/models/';
+	    	var piecesFilename = basePiecesPath+path+'.js';
+	    	var workspaceFilename = baseWorkspacePath+path+'.js';
+	    	fs.copy(piecesFilename, workspaceFilename, function(err) {
+	    		if (err)
+	    			return reject(err);
+		    	fs.readFile(, 'utf8', function(err, filecontent) {
+		    		if (err)
+		    			return reject(err);
+			    	filecontent = filecontent.replace(/TABLE_NAME/g, id_application+'_'+path.split('/')[0]);
+		    		fs.writeFile(filename, filecontent, 'utf8', function(err) {
+		    			if (err)
+		    				return reject(err);
+		    			console.log('Authentication component model file '+path+'.js imported to workspace and updated');
+		    			resolve();
+		    		});
+		    	});
+	    	});
+    	});
+    }
+
+    function copyRoute(path) {
+    	return new Promise(function(resolve, reject) {
+		    var basePiecesPath = __dirname + '/pieces/component/authentication/routes/';
+		    var baseWorkspacePath = __dirname + '/../workspace/'+id_application+'/routes/';
+	    	var piecesFilename = basePiecesPath+path+'.js';
+	    	var workspaceFilename = baseWorkspacePath+path+'.js';
+	    	fs.copy(piecesFilename, workspaceFilename, function(err) {
+	    		if (err)
+	    			return reject(err);
+	    		console.log('Authentication component route file '+path+'.js imported to workspace');
+	    		resolve();
+	    	});
+    	});
+    }
+
+    var promises = [];
+
+    var files = ['e_group/create', 'e_group/list', 'e_group/update', 'e_group/show', 'e_user/create', 'e_user/list', 'e_user/update', 'e_user/show', 'e_role/create', 'e_role/list', 'e_role/update', 'e_role/show']
+    for (var i = 0; i < files.length; i++)
+    	promises.push(copyAndreplaceInView(files[i]));
+
+    var files = ['e_group', 'e_role', 'e_user'];
+    for (var i = 0; i < files.length; i++) {
+    	promises.push(copyAndReplaceInModel(files[i]));
+    	promises.push(copyRoute(files[i]));
+    }
+
+    Promise.all(promises).then(function() {
+    	var piecesPath = __dirname +'/pieces/component/authentication';
+    	var workspacePath = __dirname +'/../workspace/'+id_application+'/models';
+    	fs.copy(piecesPath+'/attributes/*', workspacePath+'/attributes/', function(err) {
+    		if (err)
+    			return callback(err);
+	    	fs.copy(piecesPath+'/options/*', workspacePath+'/options/', function(err) {
+	    		if (err)
+	    			return callback(err);
+	    		// TODO : INSERT ADMIN/ADMIN INTO NEW TABLE (SYNC AND SHIT)
+		    	callback();
+		    });
+    	});
+    }).catch(function(err) {
+    	callback(err);
+    })
+}

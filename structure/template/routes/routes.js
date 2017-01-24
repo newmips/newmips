@@ -8,6 +8,7 @@ var crypto = require('crypto');
 var mail = require('../utils/mailer');
 var menu_manager = require('../services/menu');
 var valid = require('validator');
+var authModel = require('../config/authentication.json').userModel;
 
 //Sequelize
 var models = require('../models/');
@@ -67,7 +68,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
     var login_user = req.body.login_user;
     var password = bcrypt.hashSync(req.body.password_user2, null, null);
 
-    models.User.findOne({
+    models[userModel].findOne({
         where: {
             login: login_user,
             password: "",
@@ -82,7 +83,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             req.flash('loginMessage', 'Mise à jour impossible. Cet utilisateur possède déjà un mot de passe. Contactez votre Administrateur.');
             return res.redirect('/login');
         }
-        models.User.update({
+        models[userModel].update({
             password: password
         }, {
             where: {
@@ -115,7 +116,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         // Create unique token and insert into user
         var token = crypto.randomBytes(64).toString('hex');
 
-        models.User.update({
+        models[userModel].update({
             token_password_reset: token
         }, {
             where: {
@@ -132,7 +133,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                 });
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
-                models.User.update({
+                models[userModel].update({
                     token_password_reset: null
                 }, {
                     where: {
@@ -151,7 +152,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         });
     }
 
-    models.User.findOne({
+    models[userModel].findOne({
         where: {
             login: login_user,
             email: given_mail
@@ -175,7 +176,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 // Trigger password reset
 router.get('/reset_password/:token', block_access.loginAccess, function(req, res) {
 
-    models.User.findOne({
+    models[userModel].findOne({
         where: {
             token_password_reset: req.params.token
         }
@@ -186,7 +187,7 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
             });
         }
         else{
-            models.User.update({
+            models[userModel].update({
                 password: "",
                 token_password_reset: ""
             }, {
