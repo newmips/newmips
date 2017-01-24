@@ -28,13 +28,12 @@ exports.isLoggedIn = function(req, res, next) {
 			if (req.params.iframe != 'true') {
 				if (req.headers["x-requested-with"] != 'XMLHttpRequest') {
 				    //is not ajax request
-						req.session.iframe_url = req.protocol + '://' + req.get('host') + req.originalUrl;
+					req.session.iframe_url = req.protocol + '://' + req.get('host') + req.originalUrl;
 				}
 			}
 			return next();
 		});
 	});
-
 };
 
 //If the user is already identified, he can't access the login page
