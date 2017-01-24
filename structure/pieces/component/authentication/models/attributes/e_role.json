@@ -1,0 +1,9 @@
+{
+    "id": {
+        "type": "INTEGER",
+        "autoIncrement": true,
+        "primaryKey": true
+    },
+    "version": "INTEGER",
+    "f_label": "STRING"
+}
