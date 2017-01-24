@@ -1,0 +1,14 @@
+[
+    {
+        "target": "e_role",
+        "relation": "belongsTo",
+        "foreignKey": "f_id_role",
+        "as": "r_role"
+    },
+    {
+        "target": "e_group",
+        "relation": "belongsTo",
+        "foreignKey": "f_id_group",
+        "as": "r_group"
+    }
+]

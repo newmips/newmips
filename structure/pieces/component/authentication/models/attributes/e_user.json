@@ -1,0 +1,10 @@
+{
+    "id": {
+        "type": "INTEGER",
+        "autoIncrement": true,
+        "primaryKey": true
+    },
+    "version": "INTEGER",
+    "f_login": "STRING",
+    "f_password": "STRING"
+}
