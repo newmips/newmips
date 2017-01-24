@@ -28,7 +28,11 @@
 		"home": "Home",
 		"preview": {
 			"title": "Preview",
-			"reload": "Reload Preview"
+			"reload": "Reload Preview",
+			"trello-modal-title": "Report an issue",
+			"trello-modal-content": "You can explain your issue just here:",
+			"trello-modal-email": "You can add your email:",
+			"trello-button": "Report an issue"
 		},
 		"module": "Module",
 		"workspace": "My workspace",
@@ -74,7 +78,9 @@
 		"execute": "Execute",
 		"backtohome": "Back to Home",
 		"yes": "Yes",
-		"no": "No"
+		"no": "No",
+		"close": "Close",
+		"send": "Send"
 	},
 	"operation": {
 		"show": "Show entity ",

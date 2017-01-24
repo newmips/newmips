@@ -600,8 +600,6 @@ exports.setRequiredAttribute = function(attr, callback) {
             return callback(err);
 
         attr.name_data_entity = dataEntity.codeName;
-        console.log("REQUIRED");
-        console.log(attr);
         structure_data_field.setRequiredAttribute(attr, function(err) {
             if (err)
                 return callback(err);
