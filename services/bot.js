@@ -994,7 +994,8 @@ exports.parse = function(instruction) {
             "créer composant de stockage de fichier local",
             "ajouter composant de stockage de fichier local",
             "créer composant de stockage local",
-            "ajouter composant de stockage local"
+            "ajouter composant de stockage local",
+            "ajouter un stockage de documents"
         ],
         "createNewComponentContactFormWithName": [
             "create component contactform with name (.*)",
