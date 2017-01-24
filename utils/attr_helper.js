@@ -44,6 +44,7 @@ function addPrefix(string, instructionFunction){
         case 'deleteTab':
         case 'foreignKey':
         case 'using':
+        case 'setRequiredAttribute':
             return "f_"+string;
             break;
         case 'alias':
