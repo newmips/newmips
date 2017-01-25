@@ -37,8 +37,10 @@ exports.write = function(fileName, $) {
 		newFileData = newFileData.replace('<script class="jsdom" src="http://code.jquery.com/jquery.js"></script>', '');
 
 		// Indent generated html
-		newFileData = html.prettyPrint(newFileData, {indent_size: 4});
 		newFileData = beautify_html(newFileData, {indent_size: 4});
+
+		/* Remove this beautify because it cut the code and it is no doing well its job */
+		/*newFileData = html.prettyPrint(newFileData, {indent_size: 4});*/
 
 		// Uncomment dust tags
 		newFileData = newFileData.replace(/<!--({[<>@^:#\/].+?})-->/g, '$1');
