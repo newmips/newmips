@@ -20,7 +20,9 @@ var models = require('../models/');
 router.get('/', block_access.loginAccess, function(req, res) {
     res.redirect('/login');
 });
-
+router.get('/test',  function(req, res) {
+    res.send({error:false,responseCode:300})
+});
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
     res.render('login/first_connection', {
         message: ""
