@@ -1123,4 +1123,56 @@ exports.createNewComponentContactForm = function(attr, callback) {
     });
 }
 
+exports.createNewComponentAuthentication = function(attr, callback) {
+    function error(err) {
+        if (typeof err !== 'string')
+            return err;
+        var err = new Error();
+        err.message = err;
+        return err;
+    }
+
+    db_module.getModuleById(attr.id_module, function(err, currentModule) {
+        if (err)
+            return callback(error("Sorry, unable to find a module to add authentication's entities. Try to 'select module'"));
+
+        // Create entities in Database (and check if already exists)
+        attr.options.value = 'e_group';
+        attr.options.showValue = "group";
+        db_entity.createNewDataEntity(attr, function(err) {
+            if (err)
+                return callback(error("Group entity already exists but is required for Authentication component."));
+            attr.options.value = 'e_user';
+            attr.options.showValue = "user";
+            db_entity.createNewDataEntity(attr, function(err) {
+                if (err)
+                    return callback(error("User entity already exists but is required for Authentication component."));
+                attr.options.value = 'e_role';
+                attr.options.showValue = "role";
+                db_entity.createNewDataEntity(attr, function(err) {
+                    if (err)
+                        return callback(error("Role entity already exists but is required for Authentication component."));
+
+                    // Create component in Database
+                    attr.options.showValue = 'Autentication';
+                    attr.options.value = 'authentication';
+                    db_component.createNewComponentOnModule(attr, function(err) {
+                        if (err)
+                            return callback(error(err));
+
+                        // Import and update entities pieces
+                        attr.module = currentModule;
+                        structure_component.newAuthentication(attr, function(err) {
+                            if (err)
+                                return callback(error(err));
+
+                            callback(null, {message: 'Authentication component successfully added'});
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
 return designer;

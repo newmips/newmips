@@ -58,22 +58,23 @@ app.engine('dust', cons.dust);
 cons.dust.debugLevel = "DEBUG";
 app.set('view engine', 'dust');
 
-// Required for passport
-var options = {
-	host: dbconfig.connection.host,
-	port: dbconfig.connection.port,
-	user: dbconfig.connection.user,
-	password: dbconfig.connection.password,
-	database: dbconfig.connection.database
-};
-var sessionStore = new SessionStore(options);
+// // Required for passport
+// var options = {
+// 	host: dbconfig.connection.host,
+// 	port: dbconfig.connection.port,
+// 	user: dbconfig.connection.user,
+// 	password: dbconfig.connection.password,
+// 	database: dbconfig.connection.database
+// };
+// var sessionStore = new SessionStore(options);
 
 app.use(session({
-	store: sessionStore,
-	secret: 'newmipsmakeyourlifebetter',
+	cookieName: 'workspaceCookie',
+	secret: 'newmipsWorkspaceMakeyourlifebetter',
 	resave: true,
 	saveUninitialized: true,
-	maxAge: 360*5
+	maxAge: 360*5,
+	key: 'workspaceCookie'
  } )); // session secret
  app.use(passport.initialize());
 

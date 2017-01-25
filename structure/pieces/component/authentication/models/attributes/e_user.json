@@ -6,5 +6,8 @@
     },
     "version": "INTEGER",
     "f_login": "STRING",
-    "f_password": "STRING"
+    "f_email": "STRING",
+    "f_password": "STRING",
+    "f_enabled": "INTEGER",
+    "f_token_password_reset": "TEXT"
 }

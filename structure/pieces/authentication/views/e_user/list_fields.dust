@@ -1,0 +1,85 @@
+<table id="table_e_user" data-url="/user/datalist" class="dataTable table table-bordered table-striped">
+    <thead class="main">
+        <tr class="fields">
+            <th data-field="id" data-col="id">
+                {@__ key="entity.e_user.id_entity"/}&nbsp;
+                {@__ key="entity.e_user.label_entity"/}
+            </th>
+            <th data-field="f_login" data-col="f_login">
+                {@__ key="entity.e_user.f_login"/}
+            </th>
+            <th data-field="f_email" data-col="f_email">{@__ key="entity.e_user.f_email"/}</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="fields">
+            <th data-field="id" data-col="id">
+                {@__ key="entity.e_user.id_entity"/}
+                {@__ key="entity.e_user.name_entity"/}
+            </th>
+            <th data-field="f_login" data-col="f_login">
+                {@__ key="entity.e_user.f_login"/}
+            </th>
+            <th data-field="f_email" data-col="f_email">{@__ key="entity.e_user.f_email"/}</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {#e_user}
+        <tr id="bodyTR">
+            <td data-field="id">{id}</td>
+            <td data-field="f_login">{f_login}</td>
+            <td data-field="f_email">{f_email}</td>
+            <td>
+                {@eq key=for value="fieldset"}
+                <form class="fieldsetform">
+                    <input type="hidden" value="{id}" name="idRemove">
+                    <button type="submit" class="btn btn-danger">   <i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
+    <span>{@__ key="button.remove" /}</span>
+
+                    </button>
+                </form>
+                {/eq}
+                {@eq key=for value="hasMany"}
+                <a class="btn btn-primary" href="/user/show?id={id}">
+                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.show" /}</span>
+                </a>
+
+                {/eq}
+            </td>
+            <td>
+                {@eq key=for value="hasMany"}
+                <a class="btn btn-warning" href="/user/update_form?id={id}&amp;associationAlias={associationAlias}&amp;associationForeignKey={associationForeignKey}&amp;associationFlag={associationFlag}&amp;associationSource={associationSource}&amp;associationUrl={associationUrl}">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update" /}</span>
+                </a>
+
+                {/eq}
+            </td>
+            <td>
+                {@eq key=for value="hasMany"}
+                <form action="/user/delete" method="post">
+                    <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"> <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+ <span>{@__ key="button.delete" /}</span>
+
+                        <input
+                        name="id" value="{id}" type="hidden">
+                            <input name="associationAlias" value="{associationAlias}" type="hidden">
+                            <input name="associationForeignKey" value="{associationForeignKey}" type="hidden">
+                            <input name="associationFlag" value="{associationFlag}" type="hidden">
+                            <input name="associationSource" value="{associationSource}" type="hidden">
+                            <input name="associationUrl" value="{associationUrl}" type="hidden">
+                    </button>
+                </form>
+                {/eq}
+            </td>
+        </tr>
+        {/e_user}
+    </tbody>
+</table>
