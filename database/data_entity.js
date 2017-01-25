@@ -90,9 +90,10 @@ exports.selectDataEntityTarget = function(attr, callback) {
 		}]
 	}).then(function(dataEntity) {
 		if (!dataEntity) {
-			var err = {};
+			var err = new Error();
 			err.level = 0;
-			return callback(err,null);
+			err.message = "Data entity target doesn't exist.";
+			return callback(err, null);
 		}
 		callback(null, dataEntity);
 	}).catch(function(err) {
