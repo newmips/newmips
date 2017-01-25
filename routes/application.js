@@ -4,12 +4,12 @@ var router = express.Router();
 var block_access = require('../utils/block_access');
 var multer = require('multer');
 var moment = require('moment');
+var request = require('request');
 
 // Winston logger
 var logger = require('../utils/logger');
 
 // Process spawn
-// var spawn = require('cross-spawn');
 var process_server = new Array();
 var process_manager = require('../services/process_manager.js');
 
@@ -19,15 +19,9 @@ var session_manager = require('../services/session.js');
 // Parser
 var designer = require('../services/designer.js');
 var fs = require("fs");
-
-/* OLD PARSER
-var jison = require("jison");
-var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
-var parser = new jison.Parser(bnf); */
-
 var parser = require('../services/bot.js');
 
-var global = require('../config/global.js');
+var globalConf = require('../config/global.js');
 var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
 
@@ -58,7 +52,6 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         "menu": "project",
         "sub_menu": "list_project",
         "application": "",
-        "sessionID": req.sessionID,
         "answers": "",
         "chat": {
             items: [{
@@ -90,14 +83,9 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 timer = 2000;
             }
 
-            //Load the request module
-            var request = require('request');
-
-            // var protocol = global.protocol;
-            var protocol_iframe = global.protocol_iframe;
-            var host = global.host;
-
-            var sessionID = req.sessionID;
+            // var protocol = globalConf.protocol;
+            var protocol_iframe = globalConf.protocol_iframe;
+            var host = globalConf.host;
 
             function checkServer() {
 
@@ -110,13 +98,8 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     "url": protocol_iframe + "://" + host + ":" + port + "/status",
                     "method": "GET"
                 }, function(error, response, body) {
-                    //Check for error
-                    if (error) {
-                        //console.log('Waiting for server to start');
-                        //console.log(protocol + "://" + host + ":" + port + "/status");
-                        //console.log(error);
+                    if (error)
                         return checkServer();
-                    }
 
                     //Check for right status code
                     if (response.statusCode !== 200) {
@@ -128,27 +111,36 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
 
                     var attr = new Array();
-                    attr['id_project'] = req.session.id_project;
-                    attr['id_application'] = req.session.id_application;
-                    attr['id_module'] = req.session.id_module;
-                    attr['id_data_entity'] = req.session.id_data_entity;
+                    attr.id_project = req.session.id_project;
+                    attr.id_application = req.session.id_application;
+                    attr.id_module = req.session.id_module;
+                    attr.id_data_entity = req.session.id_data_entity;
                     session_manager.getSession(attr, function(err, info) {
 
-                        data["session"] = info;
-
+                        data.session = info;
                         // Call preview page
-                        data["error"] = 0;
-                        data["application"] = module;
-                        data["iframe_url"] = protocol_iframe + "://" + host + ":" + port + "/default/home?sessionID=" + sessionID;
+                        data.error = 0;
+                        data.application = module;
+                        var iframe_url = protocol_iframe + "://" + host + ":" + port;
+                        data.iframe_url = iframe_url + "/default/home";
 
-                        // Editor
-                        var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
-                        var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
-                        /* Sort folder first, file after */
-                        folder = helpers.sortEditorFolder(folder);
-                        data.workspaceFolder = folder;
+                        request.post({
+                            url: iframe_url+'/login',
+                            form: {
+                                login_user: 'adminWorkspace',
+                                password_user: 'admin',
+                                remember_me: true
+                            }
+                        }, function(err, response, body) {
+                            // Editor
+                            var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
+                            var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+                            /* Sort folder first, file after */
+                            folder = helpers.sortEditorFolder(folder);
+                            data.workspaceFolder = folder;
 
-                        res.render('front/preview', data);
+                            res.render('front/preview', data);
+                        });
                     });
                 });
             }
@@ -237,7 +229,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         if (typeof attr.error !== 'undefined')
             throw new Error(attr.error);
 
-        // Function is finally executed as "global()" using the static dialog designer
+        // Function is finally executed as "globalConf()" using the static dialog designer
         // "Options" and "Session values" are sent using the attr attribute
         designer[attr.function](attr, function(err, info) {
             var answer;
@@ -290,9 +282,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     var port = math.add(9000, req.session.id_application);
                     var env = Object.create(process.env);
                     env.PORT = port;
-                    // var protocol = global.protocol;
-                    var protocol_iframe = global.protocol_iframe;
-                    var host = global.host;
+                    // var protocol = globalConf.protocol;
+                    var protocol_iframe = globalConf.protocol_iframe;
+                    var host = globalConf.host;
                     data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/"+info.moduleName.toLowerCase();
                     req.session.iframe_url = data.iframe_url;
                 }
@@ -329,9 +321,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     var port = math.add(9000, req.session.id_application);
                     var env = Object.create(process.env);
                     env.PORT = port;
-                    // var protocol = global.protocol;
-                    var protocol_iframe = global.protocol_iframe;
-                    var host = global.host;
+                    // var protocol = globalConf.protocol;
+                    var protocol_iframe = globalConf.protocol_iframe;
+                    var host = globalConf.host;
                     data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/home";
                     req.session.iframe_url = data.iframe_url;
                 }
@@ -347,10 +339,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 data.chat = chat;
 
                 //Load the request module
-                var request = require('request');
-                // var protocol = global.protocol;
-                var protocol_iframe = global.protocol_iframe;
-                var host = global.host;
+                // var protocol = globalConf.protocol;
+                var protocol_iframe = globalConf.protocol_iframe;
+                var host = globalConf.host;
                 var math = require('math');
                 var port = math.add(9000, req.session.id_application);
                 var sessionID = req.sessionID;

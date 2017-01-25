@@ -76,21 +76,4 @@ exports.killChildProcess = function(pid, callback) {
     }
 }
 
-
-// exports.terminate = function(pid, callback) {
-//   if(!pid) {
-//     throw new Error("No pid supplied to Terminate!")
-//   }
-//   psTree(pid, function (err, children) {
-//     var cp = require('child_process');
-//     cp.spawn('kill', ['-9'].concat(children.map(function (p) { return p.PID })))
-//     if(callback && typeof callback === 'function') {
-//       callback(err, true);
-//     } else { // do nothing
-//       console.log(children.length + " Processes Terminated!");
-//     }
-//   });
-// }
-
-
 module.exports = exports;

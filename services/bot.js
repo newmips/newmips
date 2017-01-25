@@ -678,6 +678,19 @@ exports.createNewComponentContactFormWithName = function(result) {
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
+exports.createNewComponentAuthentication = function(result) {
+
+    console.log("ACTION : createNewComponentAuthentication");
+
+    var options = {};
+
+    var attr = {
+        function: "createNewComponentAuthentication",
+        options: options
+    };
+    return attr;
+}
+
 
 // ******* Parse *******
 exports.parse = function(instruction) {
@@ -1017,6 +1030,9 @@ exports.parse = function(instruction) {
             "ajouter un composant formulaire de contact",
             "créer un formulaire de contact",
             "ajouter un formulaire de contact",
+        ],
+        "createNewComponentAuthentication": [
+            "create component authentication"
         ]
     };
 
