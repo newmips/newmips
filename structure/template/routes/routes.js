@@ -206,6 +206,7 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
 // LOGOUT ==============================
 // =====================================
 router.get('/logout', function(req, res) {
+    req.session.autologin = false;
     req.logout();
     res.redirect('/login');
 });

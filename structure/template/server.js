@@ -58,17 +58,18 @@ app.engine('dust', cons.dust);
 cons.dust.debugLevel = "DEBUG";
 app.set('view engine', 'dust');
 
-// // Required for passport
-// var options = {
-// 	host: dbconfig.connection.host,
-// 	port: dbconfig.connection.port,
-// 	user: dbconfig.connection.user,
-// 	password: dbconfig.connection.password,
-// 	database: dbconfig.connection.database
-// };
-// var sessionStore = new SessionStore(options);
+// Required for passport
+var options = {
+	host: dbconfig.connection.host,
+	port: dbconfig.connection.port,
+	user: dbconfig.connection.user,
+	password: dbconfig.connection.password,
+	database: dbconfig.connection.database
+};
+var sessionStore = new SessionStore(options);
 
 app.use(session({
+	store: sessionStore,
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
 	resave: true,
@@ -87,8 +88,14 @@ app.use(session({
 // Locals global ======================================================================
 app.locals.moment = require('moment');
 
+var autologin = false;
+console.log(process.argv);
+if (process.argv[2] == 'autologin')
+	autologin = true;
+
 //------------------------------ LANGUAGE ------------------------------ //
 app.use(function(req, res, next) {
+	req.session.autologin = autologin;
     var lang = languageConfig.lang;
 
     if (req.session.lang_user){
