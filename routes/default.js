@@ -1,7 +1,9 @@
 // router/routes.js
 var express = require('express');
+var request = require('request');
 var router = express.Router();
 var block_access = require('../utils/block_access');
+var auth = require('../utils/authStrategies');
 
 //Sequelize
 var models = require('../models/');
