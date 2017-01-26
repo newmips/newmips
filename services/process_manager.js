@@ -7,7 +7,7 @@ exports.launchChildProcess = function(id_information_system, env) {
     // process_server = spawn('nodemon', [__dirname + '/../workspace/' + id_information_system + '/server.js'], {CREATE_NO_WINDOW: true, env: env});
     // process_server = spawn('nodemon', [__dirname + '/../workspace/' + id_information_system + '/server.js'], {detached: true, env: env});
 
-    process_server = spawn('node', [__dirname + "/../workspace/" + id_information_system + "/server.js"], {
+    process_server = spawn('node', [__dirname + "/../workspace/" + id_information_system + "/server.js", 'autologin'], {
         CREATE_NO_WINDOW: true,
         env: env
     });
