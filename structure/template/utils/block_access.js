@@ -3,6 +3,8 @@ var dbconfig = require('../config/database');
 
 // route middleware to make sure
 exports.isLoggedIn = function(req, res, next) {
+	if (req.session.autologin == true)
+		return next();
 
 	if (req.isAuthenticated()) {
 		if (req.params.iframe != 'true')
