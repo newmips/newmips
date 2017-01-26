@@ -118,6 +118,29 @@ app.use(function(req, res, next) {
 	dust.helpers.M_ = function(ch, con, bo, params) {
 		return language(lang).M_(params.key);
 	}
+	dust.helpers.findValueInGivenContext = function(chunk, context, bodies, params) {
+
+		var obj = dust.helpers.tap(params.ofContext, chunk, context);
+		/*var prop = dust.helpers.tap(params.key, chunk, context);*/
+
+		var idx = 0;
+
+		for(var i=0; i<obj.length; i++){
+			if(obj[i].id == params.idx){
+				idx = i;
+			}
+		}
+
+		if(typeof params.entity !== "undefined"){
+			if(typeof obj[idx][params.entity] !== "undefined" && obj[idx][params.entity] != null)
+				return chunk.write(obj[idx][params.entity][params.key]);
+			else
+				return chunk.write("-");
+		}
+		else{
+			return chunk.write(obj[idx][params.key]);
+		}
+	}
     next();
 });
 

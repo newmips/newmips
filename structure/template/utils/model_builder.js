@@ -74,19 +74,19 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
 
 // Find list of associations to display into list on create_form and update_form
 exports.associationsFinder = function associationsFinder(models, options) {
-	var foundAssociations = []
+	var foundAssociations = [];
     for (var i = 0; i < options.length; i++) {
         foundAssociations.push(new Promise(function(resolve, reject) {
             var asso = options[i];
             (function(option) {
-            	var modelName = option.target.charAt(0).toUpperCase() + option.target.slice(1).toLowerCase();
+            	var modelName = option.target.charAt(0).toUpperCase()+option.target.slice(1).toLowerCase();
             	var target = option.target;
 
             	if(typeof option.as != "undefined"){
             		target = option.as.toLowerCase();
             	}
 
-                models[modelName].findAll().then(function(entities) {
+                models[modelName].findAll({include: [{all: true}]}).then(function(entities) {
                     resolve({model: target, rows: entities || []});
                 }).catch(function(err) {
                     reject(err);
@@ -97,3 +97,83 @@ exports.associationsFinder = function associationsFinder(models, options) {
     return foundAssociations;
 }
 
+// Find list of associations to create the datalist structure
+exports.getDatalistStructure = function getDatalistStructure(options, attributes, mainEntity) {
+	var structureDatalist = [];
+
+	/* Get first attributes from the main entity */
+	for(var attr in attributes){
+		if(attributes[attr].showValueInList){
+			structureDatalist.push({
+				field: attr,
+				type: attributes[attr].newmipsType,
+				traductionKey: "entity."+mainEntity+"."+attr,
+				associated: false
+			});
+		}
+	}
+
+	/* Then get attributes from other entity associated to main entity */
+    for(var j=0; j<options.length; j++) {
+    	if(options[j].relation.toLowerCase() == "hasone" || options[j].relation.toLowerCase() == "belongsto"){
+	    	var currentAttributes = require('../models/attributes/'+options[j].target);
+	    	for(var currentAttr in currentAttributes){
+				if(currentAttributes[currentAttr].showValueInList){
+					structureDatalist.push({
+						field: currentAttr,
+						type: currentAttributes[currentAttr].newmipsType,
+						entity: options[j].as,
+						traductionKey: "entity."+options[j].target+"."+currentAttr,
+						associated: true
+					});
+				}
+			}
+		}
+    }
+    return structureDatalist;
+}
+
+exports.getDatalistInclude = function getDatalistInclude(models, options) {
+	var structureDatalist = [];
+
+	/* Then get attributes from other entity associated to main entity */
+    for(var i=0; i<options.length; i++) {
+    	if(options[i].relation.toLowerCase() == "hasone" || options[i].relation.toLowerCase() == "belongsto"){
+	    	var target = capitalizeFirstLetter(options[i].target.toLowerCase());
+	    	structureDatalist.push({
+	    		model: models[target],
+	    		as: options[i].as
+	    	});
+	    }
+    }
+    return structureDatalist;
+}
+
+exports.getTwoLevelIncludeAll = function getDatalistInclude(models, options) {
+	var structureDatalist = [];
+
+	/* Two level of all inclusion */
+    for(var i=0; i<options.length; i++) {
+    	var target = capitalizeFirstLetter(options[i].target.toLowerCase());
+
+    	var toPush = {
+    		model: models[target],
+    		as: options[i].as
+    	};
+
+    	/* Go deeper in second level include */
+    	var optionsSecondLevel = require('../models/options/'+options[i].target.toLowerCase());
+    	var includeSecondLevel = [];
+    	for(var j=0; j<optionsSecondLevel.length; j++) {
+    		var targetSecondLevel = capitalizeFirstLetter(optionsSecondLevel[j].target.toLowerCase());
+    		includeSecondLevel.push({
+	    		model: models[targetSecondLevel],
+	    		as: optionsSecondLevel[j].as
+	    	});
+    	}
+
+    	toPush.include = includeSecondLevel;
+    	structureDatalist.push(toPush);
+    }
+    return structureDatalist;
+}
