@@ -121,6 +121,11 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
         enum: enums.translated("ENTITY_NAME", req.session.lang_user)
     };
 
+    /* If we arrive from an associated tab, hide the create and the list button */
+    if (typeof req.query.hideButton !== 'undefined') {
+        data.hideButton = req.query.hideButton;
+    }
+
     /* Looking for two level of include to get all associated data in show tab list */
     var include = model_builder.getTwoLevelIncludeAll(models, options);
 
