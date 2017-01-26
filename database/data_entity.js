@@ -309,7 +309,7 @@ exports.getIdDataEntityByCodeName = function(idModule, name_data_entity, callbac
 	models.DataEntity.findOne({where: {codeName: name_data_entity, id_module: idModule}}).then(function(entity) {
 		if (!entity) {
 			var err = new Error();
-			err.message = "No data entity with the name '"+name_data_entity+"' found.";
+			err.message = "No data entity with the name '"+name_data_entity+"' found in the module with the ID "+idModule+".";
 			return callback(err, null);
 		}
 		callback(null, entity.id);
