@@ -1,9 +1,17 @@
 <table id="table_custom_data_entity" data-url="/custom_url_data_entity/datalist" class="dataTable table table-bordered table-striped">
     <thead class="main">
 		<tr class='fields'>
-			<th data-field="id" data-col="id">
-				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
-			</th>
+			{#custom_data_entityNewmipsStructureDatalist}
+                {#associated}
+                    <th data-field="{entity}.{field}" data-col="{entity}.{field}" data-type="{type}">
+                        {@__ key=traductionKey /}
+                    </th>
+                {:else}
+                    <th data-field="{field}" data-col="{field}" data-type="{type}">
+                        {@__ key=traductionKey /}
+                    </th>
+                {/associated}
+            {/custom_data_entityNewmipsStructureDatalist}
 			<th></th>
 			<th></th>
 			<th></th>
@@ -11,9 +19,17 @@
     </thead>
     <thead class='filters'>
     	<tr class='fields'>
-			<th data-field="id" data-col="id">
-				{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}
-			</th>
+			{#custom_data_entityNewmipsStructureDatalist}
+                {#associated}
+                    <th data-field="{entity}.{field}" data-col="{entity}.{field}" data-type="{type}">
+                        {@__ key=traductionKey /}
+                    </th>
+                {:else}
+                    <th data-field="{field}" data-col="{field}" data-type="{type}">
+                        {@__ key=traductionKey /}
+                    </th>
+                {/associated}
+            {/custom_data_entityNewmipsStructureDatalist}
 			<th></th>
 			<th></th>
 			<th></th>
@@ -22,37 +38,37 @@
     <tbody>
 		{#custom_data_entity}
 		<tr id='bodyTR'>
-			<td data-field="id">{id}</td>
+			{#custom_data_entityNewmipsStructureDatalist}
+                {#associated}
+                    <td data-field="{entity}.{field}" data-type="{type}">
+                    	{@findValueInGivenContext entity=entity key=field idx=id ofContext=custom_data_entity /}
+                    </td>
+                {:else}
+                    <td data-field="{field}" data-type="{type}">
+                        {@findValueInGivenContext key=field idx=id ofContext=custom_data_entity /}
+                    </td>
+                {/associated}
+            {/custom_data_entityNewmipsStructureDatalist}
 			<td>
 				{@eq key=for value="fieldset"}
 				<form class='fieldsetform'>
 					<input type='hidden' value='{id}' name='idRemove'>
-					<button type="submit" class="btn btn-danger">
-						<i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
-						<span>{@__ key="button.remove" /}</span>
-					</button>
+					<button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
 				</form>
 				{/eq}
 		    	{@eq key=for value="hasMany"}
-					<a class="btn btn-primary" href="/custom_url_data_entity/show?id={id}">
-						<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-						<span>{@__ key="button.show" /}</span>
-					</a>
+					<a class="btn btn-primary" href="/custom_url_data_entity/show?id={id}"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}</span></a>
 				{/eq}
 			</td>
 			<td>
 				{@eq key=for value="hasMany"}
-					<a class="btn btn-warning" href="/custom_url_data_entity/update_form?id={id}&associationAlias={associationAlias}&associationForeignKey={associationForeignKey}&associationFlag={associationFlag}&associationSource={associationSource}&associationUrl={associationUrl}">
-						<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-						<span>{@__ key="button.update" /}</span>
-					</a>
+					<a class="btn btn-warning" href="/custom_url_data_entity/update_form?id={id}&associationAlias={associationAlias}&associationForeignKey={associationForeignKey}&associationFlag={associationFlag}&associationSource={associationSource}&associationUrl={associationUrl}"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update" /}</span></a>
 				{/eq}
 			</td>
 			<td>
 				{@eq key=for value="hasMany"}
 					<form action="/custom_url_data_entity/delete" method="post">
-			            <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
-			                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+			            <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
 			                <span>{@__ key="button.delete" /}</span>
 			                <input name="id" value="{id}" type="hidden"/>
 			                <input name="associationAlias" value="{associationAlias}" type="hidden"/>

@@ -213,7 +213,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
-	var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
+	/*var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
 	if (type == "date")
 		str += ' data-type="date"';
 	else if (type == "datetime")
@@ -225,10 +225,10 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	str += '>\n';
 	str += '{@__ key="entity.'+dataEntity+'.'+dataField+'"/}\n';
 	str += '</th>\n';
-	ret.headers = str;
+	ret.headers = str;*/
 
 	/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-	str = '<td data-field="'+dataField+'"';
+	/*str = '<td data-field="'+dataField+'"';
 	if (type == "date")
 		str += ' data-type=\'date\'';
 	else if (type == "datetime")
@@ -238,7 +238,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	else if (type == "boolean")
 		str += ' data-type=\'boolean\'';
 	str += ' >{'+dataField+'}</td>';
-	ret.body = str;
+	ret.body = str;*/
 	return ret;
 }
 
@@ -301,6 +301,8 @@ exports.setupDataField = function(attr, callback) {
 	// If there is a WITH TYPE in the instruction
 	if(typeof options.type !== "undefined")
 		type_data_field = options.type.toLowerCase();
+	else
+		type_data_field = "string"
 
 	// Cut allValues for ENUM or other type
 	if(typeof options.allValues !== "undefined"){
@@ -406,15 +408,19 @@ exports.setupDataField = function(attr, callback) {
 		attributesObject[name_data_field.toLowerCase()] = {
 			"type": typeForModel,
 			"values": values_data_field
-		}
+		};
 		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
 			"type": typeForModel,
 			"values": values_data_field
-		}
+		};
 	}
 	else{
-		attributesObject[name_data_field.toLowerCase()] = typeForModel;
-		toSyncObject[id_application +"_"+ codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
+		attributesObject[name_data_field.toLowerCase()] = {
+			type: typeForModel,
+			newmipsType: type_data_field,
+			showValueInList: true
+		};
+		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
 	}
 
 	fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));

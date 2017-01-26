@@ -35,6 +35,10 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
         "sub_menu": "list_ENTITY_NAME"
     };
 
+    /* Get datalist <th> structure, including all association */
+    var datalistStructure = model_builder.getDatalistStructure(options, attributes, "ENTITY_NAME");
+    data.ENTITY_NAMENewmipsStructureDatalist = datalistStructure;
+
     data.toastr = req.session.toastr;
     req.session.toastr = [];
 
@@ -43,7 +47,10 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
 
 router.post('/datalist', block_access.isLoggedIn, function(req, res) {
 
-    filterDataTable("MODEL_NAME", req.body).then(function(data) {
+    /* Looking for include to get all associated data for the datalist ajax loading */
+    var include = model_builder.getDatalistInclude(models, options);
+
+    filterDataTable("MODEL_NAME", req.body, include).then(function(data) {
         res.send(data).end();
     }).catch(function(err) {
         console.log(err);
@@ -114,7 +121,10 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
         enum: enums.translated("ENTITY_NAME", req.session.lang_user)
     };
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: [{all: true}]}).then(function(ENTITY_NAME) {
+    /* Looking for two level of include to get all associated data in show tab list */
+    var include = model_builder.getTwoLevelIncludeAll(models, options);
+
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: include}).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -135,6 +145,21 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
         }
 
         data.ENTITY_NAME = ENTITY_NAME;
+
+        /* Loop on option to get datalist structure in hasMany or Fieldset tab */
+        for(var j=0; j<options.length; j++){
+
+            var targetEntityAssociated = options[j].target.toLowerCase();
+
+            var associatedAttributes = require('../models/attributes/'+targetEntityAssociated);
+            var associatedOptions = require('../models/options/'+targetEntityAssociated);
+
+            /* Get datalist <th> structure, including all association of list in show tab */
+            var datalistStructure = model_builder.getDatalistStructure(associatedOptions, associatedAttributes, targetEntityAssociated);
+
+            var nameStructureTh = targetEntityAssociated + "NewmipsStructureDatalist";
+            data[nameStructureTh] = datalistStructure;
+        }
 
         var associationsFinder = model_builder.associationsFinder(models, options);
 
