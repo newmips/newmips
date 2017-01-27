@@ -45,6 +45,7 @@ function addPrefix(string, instructionFunction){
         case 'foreignKey':
         case 'using':
         case 'setRequiredAttribute':
+        case 'setColumnVisibility':
             return "f_"+string;
             break;
         case 'alias':
