@@ -609,17 +609,22 @@ exports.setRequiredAttribute = function(attr, callback) {
     });
 }
 
+/* --------------------------------------------------------------- */
+/* -------------------------- Datalist --------------------------- */
+/* --------------------------------------------------------------- */
+
 exports.setColumnVisibility = function(attr, callback) {
+
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
             return callback(err);
 
         attr.name_data_entity = dataEntity.codeName;
-        structure_data_field.setColumnVisibility(attr, function(err) {
+        structure_data_field.setColumnVisibility(attr, function(err, infoStructure) {
             if (err)
                 return callback(err);
 
-            return callback(null, {message: 'Column visibility modified.'});
+            return callback(null, infoStructure);
         });
     });
 }
