@@ -128,14 +128,17 @@ exports.setRequiredAttribute = function(result) {
     return attr;
 };
 
+// ******* DATALIST Actions ******* //
+
 exports.setColumnVisibility = function(result) {
 
     console.log("ACTION : setColumnVisibility");
 
     // Set entity name as the first option in options array
     var options = {
-        field_name: result[1],
-        word: result[2]
+        value: result[1],
+        word: result[2],
+        processValue: true
     };
 
     var attr = {

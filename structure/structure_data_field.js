@@ -1,6 +1,7 @@
 var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
+var helpers = require("../utils/helpers");
 
 function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values){
 	var dataField = nameDataField.toLowerCase();
@@ -526,15 +527,57 @@ exports.setRequiredAttribute = function(attr, callback) {
 }
 
 exports.setColumnVisibility = function(attr, callback) {
-	var pathToViews = __dirname+'/../workspace/'+attr.id_application+'/views/'+attr.name_data_entity;
 
-	var hide = attr.options.word.toLowerCase() == 'hidden' ? true : false;
-	domHelper.read(pathToViews+'/list_fields.dust').then(function($) {
-		$("*[data-field='"+attr.options.field_name+"']")[hide ? 'hide' : 'show']();
-		domHelper.write(pathToViews+'/list_fields.dust', $).then(function() {
-			callback();
-		})
-	}).catch(callback);
+	var possibilityShow = ["show", "visible"];
+	var possibilityHide = ["hide", "hidden", "non visible", "caché"];
+
+	var attributes = attr.options.word.toLowerCase();
+	var hide;
+
+	if(possibilityHide.indexOf(attributes) != -1){
+		hide = true;
+	}
+	else if(possibilityShow.indexOf(attributes) != -1){
+		hide = false;
+	}
+	else{
+		var err = new Error();
+		err.message = "Unable to understand the given attribute. (You should use hide or show)";
+		return callback(err);
+	}
+
+	var attributesFile = require(__dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+attr.name_data_entity);
+	var optionsFile = require(__dirname+'/../workspace/'+attr.id_application+'/models/options/'+attr.name_data_entity);
+
+	var structure = helpers.getDatalistStructure(optionsFile, attributesFile, attr.name_data_entity, attr.id_application);
+
+	var possibilityField = [];
+
+	for(var i=0; i<structure.length; i++){
+		if(structure[i].field == attr.options.value)
+			possibilityField.push(structure[i]);
+	}
+
+	if(possibilityField.length > 1){
+		var err = new Error();
+		var choice = hide?"hide":"show";
+		err.message = "Cannot determine which field "+attr.options.showValue+" you want to "+choice+".";
+		callback(err, null);
+	}else if(possibilityField.length < 1){
+		var err = new Error();
+		err.message = "Cannot find the field "+attr.options.showValue;
+		callback(err, null);
+	}else{
+
+		var pathFileToUpdate = __dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+possibilityField[0].entityCode;
+		var attributesFileToUpdate = require(pathFileToUpdate);
+		attributesFileToUpdate[possibilityField[0].field].showValueInList = hide?false:true;
+		fs.writeFileSync(pathFileToUpdate + ".json", JSON.stringify(attributesFileToUpdate, null, 4));
+
+		var info = {};
+		info.message = "Set column "+attr.options.showValue+" visibility to "+attributes;
+		callback(null, info);
+	}
 }
 
 function addTab(attr, file, newLi, newTabContent) {

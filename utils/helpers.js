@@ -117,6 +117,38 @@ module.exports = {
 			error.message = "Sorry, file not found";
         }
     },
+    getDatalistStructure: function(options, attributes, mainEntity, idApplication) {
+        var structureDatalist = [];
+
+        /* Get first attributes from the main entity */
+        for(var attr in attributes){
+            structureDatalist.push({
+                field: attr,
+                type: attributes[attr].newmipsType,
+                entityCode: mainEntity,
+                traductionKey: "entity."+mainEntity+"."+attr,
+                associated: false
+            });
+        }
+
+        /* Then get attributes from other entity associated to main entity */
+        for(var j=0; j<options.length; j++) {
+            if(options[j].relation.toLowerCase() == "hasone" || options[j].relation.toLowerCase() == "belongsto"){
+                var currentAttributes = require(__dirname+'/../workspace/'+idApplication+'/models/attributes/'+options[j].target);
+                for(var currentAttr in currentAttributes){
+                    structureDatalist.push({
+                        field: currentAttr,
+                        type: currentAttributes[currentAttr].newmipsType,
+                        entity: options[j].as,
+                        entityCode: options[j].target,
+                        traductionKey: "entity."+options[j].target+"."+currentAttr,
+                        associated: true
+                    });
+                }
+            }
+        }
+        return structureDatalist;
+    },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,
     getNbInstruction: getNbInstruction,
