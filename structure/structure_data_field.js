@@ -549,6 +549,8 @@ exports.setRequiredAttribute = function(attr, callback) {
 
 exports.setColumnVisibility = function(attr, callback) {
 
+	var pathToViews = __dirname+'/../workspace/'+attr.id_application+'/views/'+attr.name_data_entity;
+
 	var possibilityShow = ["show", "visible"];
 	var possibilityHide = ["hide", "hidden", "non visible", "caché"];
 
@@ -567,38 +569,16 @@ exports.setColumnVisibility = function(attr, callback) {
 		return callback(err);
 	}
 
-	var attributesFile = require(__dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+attr.name_data_entity);
-	var optionsFile = require(__dirname+'/../workspace/'+attr.id_application+'/models/options/'+attr.name_data_entity);
-
-	var structure = helpers.getDatalistStructure(optionsFile, attributesFile, attr.name_data_entity, attr.id_application);
-
-	var possibilityField = [];
-
-	for(var i=0; i<structure.length; i++){
-		if(structure[i].field == attr.options.value)
-			possibilityField.push(structure[i]);
-	}
-
-	if(possibilityField.length > 1){
-		var err = new Error();
-		var choice = hide?"hide":"show";
-		err.message = "Cannot determine which field "+attr.options.showValue+" you want to "+choice+".";
+	domHelper.read(pathToViews+'/list_fields.dust').then(function($) {
+		$("*[data-field='"+attr.options.value+"']")[hide?'hide':'show']();
+		domHelper.write(pathToViews+'/list_fields.dust', $).then(function() {
+			var info = {};
+			info.message = "Set column "+attr.options.showValue+" visibility to "+attributes;
+			callback(null, info);
+		});
+	}).catch(function(err){
 		callback(err, null);
-	}else if(possibilityField.length < 1){
-		var err = new Error();
-		err.message = "Cannot find the field "+attr.options.showValue;
-		callback(err, null);
-	}else{
-
-		var pathFileToUpdate = __dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+possibilityField[0].entityCode;
-		var attributesFileToUpdate = require(pathFileToUpdate);
-		attributesFileToUpdate[possibilityField[0].field].showValueInList = hide?false:true;
-		fs.writeFileSync(pathFileToUpdate + ".json", JSON.stringify(attributesFileToUpdate, null, 4));
-
-		var info = {};
-		info.message = "Set column "+attr.options.showValue+" visibility to "+attributes;
-		callback(null, info);
-	}
+	});
 }
 
 function addTab(attr, file, newLi, newTabContent) {
@@ -798,7 +778,7 @@ exports.setupRelatedToField = function(attr, callback){
 					// Add <th> in list_field
 					var toAddInList = {headers: '', body: ''};
 					/* ------------- Add new FIELD in headers ------------- */
-					var str = '<th data-field="'+alias+'.'+usingField+'" data-col="'+alias+'.'+usingField+'"';
+					var str = '<th data-field="f_'+alias.substring(2)+'" data-col="'+alias+'.'+usingField+'"';
 					if (typeField == "date")
 						str += ' data-type="date"';
 					else if (typeField == "datetime")
@@ -813,7 +793,7 @@ exports.setupRelatedToField = function(attr, callback){
 					toAddInList.headers = str;
 
 					/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-					str = '<td data-field="'+alias+'.'+usingField+'"';
+					str = '<td data-field="f_'+alias.substring(2)+'"';
 					if (typeField == "date")
 						str += ' data-type=\'date\'';
 					else if (typeField == "datetime")
