@@ -57,7 +57,7 @@
 								<i class="glyphicon glyphicon-user"></i>
 								<span>
 									{#session.passport.user}
-										{first_name} {last_name}
+										{login} {email}
 									{/session.passport.user}
 									<i class="caret"></i>
 								</span>
@@ -67,8 +67,8 @@
 								<li class="user-header">
 									<img src="/img/avatar.png" alt="" class="img-circle">
 									<p>
-										{session.passport.user.first_name} {session.passport.user.last_name}
-										<small>{session.passport.user.Role.name}</small>
+										{session.passport.user.login} {session.passport.user.email}
+										<small>{session.passport.user.r_role.label}</small>
 									</p>
 								</li>
 								{! Menu Body !}
