@@ -163,8 +163,6 @@ function execute(req, instruction) {
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
 
-            pourcent_generation[req.session.data.id] += Math.floor((Math.random() * 15) + 1);
-
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);
 

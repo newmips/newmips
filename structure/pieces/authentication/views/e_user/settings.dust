@@ -1,5 +1,3 @@
-{!{>"main_layout"/}!}
-{! Home module needed !}
 {>"layout_m_home"/}
 {<header}
 <h1>{@__ key="settings.title"/}</h1>
@@ -26,32 +24,16 @@
                 </div>
                 <br>
                 <div class="form-group">
-                    <form action="/user/user_update" method="post">
+                    <form action="/user/update" method="post">
                         <div class="box-body">
-                            <div class="form-group">
-                                <label>{@__ key="settings.login"/}</label>
-                                <input type="text" value="{user.login}" disabled="disabled" class="form-control"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">{@__ key="settings.email"/}</label>
-                                <input type="text" name="email" value="{user.email}" required="required" class="form-control"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="first_name">{@__ key="settings.login"/}</label>
-                                <input type="text" name="first_name" value="{user.first_name}" class="form-control"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">{@__ key="settings.lastname"/}</label>
-                                <input type="text" name="last_name" value="{user.last_name}" class="form-control"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">{@__ key="settings.phone"/}</label>
-                                <input type="text" name="phone" value="{user.phone}" class="form-control"/>
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
-                            </div>
+                            {#e_user}
+                                {>"e_user/update_fields"/}
+                            {/e_user}
                         </div>
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                        </div>
+                        <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>
                     </form>
                 </div>
             </div>
