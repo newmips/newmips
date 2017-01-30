@@ -681,6 +681,22 @@ exports.createNewComponentContactFormWithName = function(result) {
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
+// ******* INTERFACE Actions ******* //
+exports.setSkin = function(result) {
+
+    console.log("ACTION : setSkin");
+
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setSkin",
+        options: options
+    };
+    return attr;
+};
 
 // ******* Parse *******
 exports.parse = function(instruction) {
@@ -1020,6 +1036,9 @@ exports.parse = function(instruction) {
             "ajouter un composant formulaire de contact",
             "créer un formulaire de contact",
             "ajouter un formulaire de contact",
+        ],
+        "setSkin": [
+            "set skin (.*)"
         ]
     };
 

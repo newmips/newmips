@@ -18,6 +18,7 @@ var structure_module = require("../structure/structure_module");
 var structure_data_entity = require("../structure/structure_data_entity");
 var structure_data_field = require("../structure/structure_data_field");
 var structure_component = require("../structure/structure_component");
+var structure_ui = require("../structure/structure_ui");
 
 // Other
 var helpers = require("../utils/helpers");
@@ -1125,6 +1126,20 @@ exports.createNewComponentContactForm = function(attr, callback) {
                 }
             });
         }
+    });
+}
+
+/* --------------------------------------------------------------- */
+/* -------------------------- INTERFACE -------------------------- */
+/* --------------------------------------------------------------- */
+
+// Set adminLTE skin
+exports.setSkin = function(attr, callback) {
+    structure_ui.setSkin(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+
+        callback(null, infoStructure);
     });
 }
 
