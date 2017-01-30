@@ -509,29 +509,39 @@ exports.setRequiredAttribute = function(attr, callback) {
 
 	// Update create_fields.dust file
 	domHelper.read(pathToViews+'/create_fields.dust').then(function($){
-		if (set == true)
-			$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
-		else
-			$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
 
-		$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
-		$("*[data-field='"+attr.options.value+"']").find('select').prop('required', set);
+		if($("*[data-field='"+attr.options.value+"']").length > 0){
+			if (set == true)
+				$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
+			else
+				$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
 
-		domHelper.write(pathToViews+'/create_fields.dust', $).then(function(){
+			$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
+			$("*[data-field='"+attr.options.value+"']").find('select').prop('required', set);
 
-			// Update update_fields.dust file
-			domHelper.read(pathToViews+'/update_fields.dust').then(function($){
-				if (set == true)
-					$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
-				else
-					$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
-				$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
-				domHelper.write(pathToViews+'/update_fields.dust', $).then(function(){
-					callback();
+			domHelper.write(pathToViews+'/create_fields.dust', $).then(function(){
+
+				// Update update_fields.dust file
+				domHelper.read(pathToViews+'/update_fields.dust').then(function($){
+					if (set == true)
+						$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
+					else
+						$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
+					$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
+					domHelper.write(pathToViews+'/update_fields.dust', $).then(function(){
+						callback();
+					});
 				});
 			});
-		})
-	}).catch(callback);
+		}
+		else{
+			var err = new Error();
+			err.message = "No field with name " + attr.options.showValue +" found in the current entity.";
+			callback(err, null);
+		}
+	}).catch(function(err){
+		callback(err, null);
+	});
 }
 
 exports.setColumnVisibility = function(attr, callback) {
