@@ -28,6 +28,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 		case "":
 			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 			break;
+		case "password" :
+		case "mot de passe":
+		case "secret":
+			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='password' "+readOnly+"/>\n";
+			break;
 		case "number" :
 		case "nombre" :
 		case "int" :
@@ -343,6 +348,11 @@ exports.setupDataField = function(attr, callback) {
 	var typeForModel = "STRING";
 
 	switch (type_data_field) {
+		case "password" :
+		case "mot de passe":
+		case "secret":
+			typeForModel = "STRING"
+			break;
 		case "number" :
 		case "int" :
 		case "integer" :
