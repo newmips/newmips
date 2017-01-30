@@ -129,7 +129,6 @@ exports.setRequiredAttribute = function(result) {
 };
 
 // ******* DATALIST Actions ******* //
-
 exports.setColumnVisibility = function(result) {
 
     console.log("ACTION : setColumnVisibility");
