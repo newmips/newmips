@@ -50,6 +50,7 @@
 					<span class="logo-mini"> - </span>
 					<span class="logo-lg">{@__ key="app.name"/}</span>
 				</a>
+
 				<nav role="navigation" class="navbar navbar-static-top">
 					{! Sidebar toggle button !}
 					<a href="#" data-toggle="offcanvas" role="button" class="sidebar-toggle">

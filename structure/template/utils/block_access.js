@@ -3,13 +3,11 @@ var dbconfig = require('../config/database');
 
 // route middleware to make sure
 exports.isLoggedIn = function(req, res, next) {
+	// Autologin for newmips's "iframe" live preview context
 	if (req.session.autologin == true)
 		return next();
 
 	if (req.isAuthenticated()) {
-		if (req.params.iframe != 'true')
-			if (req.headers["x-requested-with"] != 'XMLHttpRequest')
-				req.session.iframe_url = req.protocol + '://' + req.get('host') + req.originalUrl;
 		return next();
 	}
 	res.redirect('/login');

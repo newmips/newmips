@@ -78,7 +78,6 @@ app.use(session({
 	key: 'workspaceCookie'
  } )); // session secret
  app.use(passport.initialize());
-
  // Persistent login sessions
  app.use(passport.session());
 
@@ -88,14 +87,30 @@ app.use(session({
 // Locals global ======================================================================
 app.locals.moment = require('moment');
 
-var autologin = false;
-console.log(process.argv);
-if (process.argv[2] == 'autologin')
+// Autologin for newmips's "iframe" live preview context
+var autologin = false;var autologinInited = false;var startedFromGenerator = false;
+if (process.argv[2] == 'autologin') {
+	startedFromGenerator = true;
 	autologin = true;
+}
+
+// When application process is a child of generator process, log each routes for the generator
+// to keep track of it, and redirect after server restart
+if (startedFromGenerator) {
+	app.get('/*', function(req, res, next){
+		console.log("IFRAME_URL::"+req.protocol + '://' + req.get('host') + req.originalUrl);
+		next();
+	});
+}
 
 //------------------------------ LANGUAGE ------------------------------ //
 app.use(function(req, res, next) {
-	req.session.autologin = autologin;
+
+	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
+		autologinInited = true;
+		req.session.autologin = autologin;
+	}
+
     var lang = languageConfig.lang;
 
     if (req.session.lang_user){
