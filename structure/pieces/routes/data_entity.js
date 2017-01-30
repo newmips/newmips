@@ -43,7 +43,10 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
 
 router.post('/datalist', block_access.isLoggedIn, function(req, res) {
 
-    filterDataTable("MODEL_NAME", req.body).then(function(data) {
+    /* Looking for include to get all associated related to data for the datalist ajax loading */
+    var include = model_builder.getDatalistInclude(models, options);
+
+    filterDataTable("MODEL_NAME", req.body, include).then(function(data) {
         res.send(data).end();
     }).catch(function(err) {
         console.log(err);
@@ -119,7 +122,10 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
         data.hideButton = req.query.hideButton;
     }
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: [{all: true}]}).then(function(ENTITY_NAME) {
+    /* Looking for two level of include to get all associated data in show tab list */
+    var include = model_builder.getTwoLevelIncludeAll(models, options);
+
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: include}).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("No data entity found.");
