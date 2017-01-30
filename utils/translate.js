@@ -140,5 +140,27 @@ module.exports = {
                 doneLocales(localesCpt, nbLocales);
             }
         });
+    },
+    removeLocales: function(idApplication, type, value, callback){
+        // Get all the differents languages to handle
+        var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
+            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum.json");
+        });
+
+        console.log(type);
+        console.log(value);
+
+        localesDir.forEach(function(file){
+            var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
+            var dataLocales = require(urlFile);
+
+            if(type == "field"){
+                delete dataLocales.entity[value[0]][value[1]];
+            }
+
+            fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 2));
+        });
+
+        callback();
     }
 }

@@ -49,7 +49,6 @@ exports.selectModule = function(attr, callback) {
                 type_option = "ID"
             }
 
-
             models.Module.findOne(where).then(function(module) {
                 if (!module) {
                     err = new Error();
