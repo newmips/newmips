@@ -1015,6 +1015,19 @@ exports.deleteDataField = function(attr, callback) {
 
 		// Wait for all promises execution
 		Promise.all(promises).then(function() {
+
+			// Remove translation in enum locales
+			var enumsPath = __dirname+'/../workspace/'+id_application+'/locales/enum.json';
+	    	var enumJson = require(enumsPath);
+
+	    	if(typeof enumJson[name_data_entity]!== "undefined"){
+		    	if(typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined"){
+		    		delete enumJson[name_data_entity][info.fieldToDrop];
+		    		fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 2));
+		    	}
+		    }
+
+	    	// Remove translation in global locales
 			var fieldToDropInTranslate = info.isConstraint?"r_"+url_value:info.fieldToDrop;
 			translateHelper.removeLocales(id_application, "field", [name_data_entity, fieldToDropInTranslate], function(){
 				callback(null, info);

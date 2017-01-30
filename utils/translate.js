@@ -147,9 +147,6 @@ module.exports = {
             return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum.json");
         });
 
-        console.log(type);
-        console.log(value);
-
         localesDir.forEach(function(file){
             var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
             var dataLocales = require(urlFile);
