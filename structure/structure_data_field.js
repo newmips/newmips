@@ -1015,7 +1015,10 @@ exports.deleteDataField = function(attr, callback) {
 
 		// Wait for all promises execution
 		Promise.all(promises).then(function() {
-			callback(null, info);
+			var fieldToDropInTranslate = info.isConstraint?"r_"+url_value:info.fieldToDrop;
+			translateHelper.removeLocales(id_application, "field", [name_data_entity, fieldToDropInTranslate], function(){
+				callback(null, info);
+			});
 		});
 	});
 }
