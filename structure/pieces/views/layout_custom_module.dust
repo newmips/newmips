@@ -4,5 +4,5 @@
 {/modules}
 
 {<sidebar}
-	<ul id='sortable' class='sidebar-menu'></ul>
+	<ul id='sortable' class='sidebar-menu' style="white-space: pre-wrap;"></ul>
 {/sidebar}
