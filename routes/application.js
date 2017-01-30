@@ -121,26 +121,16 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         // Call preview page
                         data.error = 0;
                         data.application = module;
-                        var iframe_url = protocol_iframe + "://" + host + ":" + port;
-                        data.iframe_url = iframe_url + "/default/home";
+                        data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/home";
 
-                        request.post({
-                            url: iframe_url+'/login',
-                            form: {
-                                login_user: 'adminWorkspace',
-                                password_user: 'admin',
-                                remember_me: true
-                            }
-                        }, function(err, response, body) {
-                            // Editor
-                            var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
-                            var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
-                            /* Sort folder first, file after */
-                            folder = helpers.sortEditorFolder(folder);
-                            data.workspaceFolder = folder;
+                        // Editor
+                        var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
+                        var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+                        /* Sort folder first, file after */
+                        folder = helpers.sortEditorFolder(folder);
+                        data.workspaceFolder = folder;
 
-                            res.render('front/preview', data);
-                        });
+                        res.render('front/preview', data);
                     });
                 });
             }
@@ -171,7 +161,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         answers = req.body.answers;
     if (typeof req.body.chat !== 'undefined' && req.body.chat)
         chat = JSON.parse(req.body.chat);
-
     var data = {
         "error": 1,
         "profile": req.session.data,
@@ -179,7 +168,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         "answers": "",
         "chat": "",
         "instruction": instruction,
-        "iframe_url": req.session.iframe_url,
         "session": ""
     };
 
@@ -395,6 +383,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 /* Sort folder first, file after */
                                 folder = helpers.sortEditorFolder(folder);
                                 data.workspaceFolder = folder;
+                                data.iframe_url = process_manager.childUrl();
 
                                 // Call preview page
                                 res.render('front/preview.jade', data);

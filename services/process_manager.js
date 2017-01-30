@@ -2,31 +2,38 @@ var process_server = null;
 var spawn = require('cross-spawn');
 var psTree = require('ps-tree');
 
-exports.launchChildProcess = function(id_information_system, env) {
+var child_url = '';
+exports.launchChildProcess = function(id_application, env) {
 
-    // process_server = spawn('nodemon', [__dirname + '/../workspace/' + id_information_system + '/server.js'], {CREATE_NO_WINDOW: true, env: env});
-    // process_server = spawn('nodemon', [__dirname + '/../workspace/' + id_information_system + '/server.js'], {detached: true, env: env});
-
-    process_server = spawn('node', [__dirname + "/../workspace/" + id_information_system + "/server.js", 'autologin'], {
+    process_server = spawn('node', [__dirname + "/../workspace/" + id_application + "/server.js", 'autologin'], {
         CREATE_NO_WINDOW: true,
         env: env
     });
 
     process_server.stdout.on('data', function(data){
-      console.log('\x1b[36m%s\x1b[0m', 'App Log: ' + data);
+        // Check for child process log specifying current url. child_url will then be used to redirect
+        // child process after restart
+        if ((data+'').indexOf("IFRAME_URL") != -1) {
+            if ((data+'').indexOf("/status") == -1)
+                child_url = (data+'').split('::')[1];
+        }
+        else
+            console.log('\x1b[36m%s\x1b[0m', 'App Log: ' + data);
     });
 
     process_server.stderr.on('data', function(data){
-      console.log('\x1b[31m%s\x1b[0m', 'App Err: ' + data);
+        console.log('\x1b[31m%s\x1b[0m', 'App Err: ' + data);
     });
 
     process_server.on('close', function(code){
-      console.log('\x1b[31m%s\x1b[0m', 'Child process exited');
+        console.log('\x1b[31m%s\x1b[0m', 'Child process exited');
     });
 
-    // process_server = spawn('node', [__dirname + '/../workspace/' + id_information_system + '/server.js'], {detached: true, env: env});
     exports.process_server = process_server;
     return process_server;
+}
+exports.childUrl = function() {
+    return child_url;
 }
 
 exports.killChildProcess = function(pid, callback) {

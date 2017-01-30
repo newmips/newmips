@@ -32,9 +32,6 @@ require('./utils/authStrategies');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
 
-// log every request to the console
-/*app.use(morgan('dev'));*/
-
 // Empeche l'apparition de certain log polluant.
 app.use(morgan('dev', {
 	skip: function (req, res) {
