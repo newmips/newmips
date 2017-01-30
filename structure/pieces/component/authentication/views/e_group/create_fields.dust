@@ -1,6 +1,0 @@
-<div id="fields">
-    <div data-field="f_label" class="form-group">
-        <label for="f_label">{@__ key="entity.e_group.f_label"/}</label>
-        <input class="form-control input" placeholder='{@__ key="entity.e_group.f_label" /}' name="f_label" value="" type="text">
-    </div>
-</div>
