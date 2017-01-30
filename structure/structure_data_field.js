@@ -214,7 +214,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
-	/*var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
+	var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
 	if (type == "date")
 		str += ' data-type="date"';
 	else if (type == "datetime")
@@ -226,10 +226,10 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	str += '>\n';
 	str += '{@__ key="entity.'+dataEntity+'.'+dataField+'"/}\n';
 	str += '</th>\n';
-	ret.headers = str;*/
+	ret.headers = str;
 
 	/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-	/*str = '<td data-field="'+dataField+'"';
+	str = '<td data-field="'+dataField+'"';
 	if (type == "date")
 		str += ' data-type=\'date\'';
 	else if (type == "datetime")
@@ -239,7 +239,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	else if (type == "boolean")
 		str += ' data-type=\'boolean\'';
 	str += ' >{'+dataField+'}</td>';
-	ret.body = str;*/
+	ret.body = str;
 	return ret;
 }
 
@@ -416,11 +416,7 @@ exports.setupDataField = function(attr, callback) {
 		};
 	}
 	else{
-		attributesObject[name_data_field.toLowerCase()] = {
-			type: typeForModel,
-			newmipsType: type_data_field,
-			showValueInList: true
-		};
+		attributesObject[name_data_field.toLowerCase()] = typeForModel;
 		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
 	}
 
@@ -434,8 +430,8 @@ exports.setupDataField = function(attr, callback) {
 		var enumData = require(fileEnum);
 		var key = name_data_field.toLowerCase();
 		var json = {};
-		if (enumData[name_data_entity.toLowerCase()])
-			json = enumData[name_data_entity.toLowerCase()];
+		if (enumData[codeName_data_entity.toLowerCase()])
+			json = enumData[codeName_data_entity.toLowerCase()];
 		json[key] = [];
 		for (var i = 0; i < values_data_field.length; i++) {
 			json[key].push({
@@ -446,7 +442,7 @@ exports.setupDataField = function(attr, callback) {
 				}
 			});
 		}
-		enumData[name_data_entity.toLowerCase()] = json;
+		enumData[codeName_data_entity.toLowerCase()] = json;
 
 		// Write Enum file
 		var stream_fileEnum = fs.createWriteStream(fileEnum);

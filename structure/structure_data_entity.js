@@ -101,7 +101,7 @@ exports.setupDataEntity = function(attr, callback) {
 	function createModelAttributesFile(idApplication, nameDataEntity, callback){
 		// CREATE MODEL ATTRIBUTES FILE
 		var writeStream = fs.createWriteStream('./workspace/'+ idApplication +'/models/attributes/'+ nameDataEntity.toLowerCase() +'.json');
-		var baseAttributes = {"id": {"type": "INTEGER", "autoIncrement": true, "primaryKey": true, "showValueInList": false},"version": {"type": "INTEGER", "showValueInList": false}};
+		var baseAttributes = {"id": {"type": "INTEGER", "autoIncrement": true, "primaryKey": true},"version": {"type": "INTEGER"}};
 		writeStream.write(JSON.stringify(baseAttributes, null, 4));
 		writeStream.end();
 		writeStream.on('finish', function() {
