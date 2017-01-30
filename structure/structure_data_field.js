@@ -934,6 +934,7 @@ exports.deleteDataField = function(attr, callback) {
     var name_data_entity = attr.name_data_entity.toLowerCase();
     var show_name_data_field =  attr.options.showValue.toLowerCase();
     var name_data_field =  attr.options.value.toLowerCase();
+    var url_value = attr.options.urlValue.toLowerCase();
 
     var options = attr.options;
 
@@ -944,13 +945,15 @@ exports.deleteDataField = function(attr, callback) {
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var dataToWrite = require(jsonPath);
+
     for (var i = 0; i < dataToWrite.length; i++) {
-        if (dataToWrite[i].as.toLowerCase() == "r_"+show_name_data_field) {
+        if (dataToWrite[i].as.toLowerCase() == "r_"+url_value) {
             if (dataToWrite[i].relation != 'belongsTo'){
             	var err = new Error();
             	err.message = name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction.';
                 return callback(err, null);
             }
+
 		    // Modify the options.json file
 		    info.fieldToDrop = dataToWrite[i].foreignKey;
 		    info.isConstraint = true;

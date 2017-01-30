@@ -99,6 +99,7 @@ module.exports = {
     addPrefix: addPrefix,
     removePrefix: removePrefix,
     reworkAttr: function(attr){
+        console.log("FUNCTION   ------>   "+attr.function);
         if(typeof attr.options !== "undefined"){
             /* If the instruction create something there is inevitably a value. We have to clean this value for the code */
             if(typeof attr.options.value !== "undefined" && attr.options.processValue){
@@ -113,6 +114,10 @@ module.exports = {
                 attr.options.value = addPrefix(attr.options.value, attr.function);
                 /* Always lower the code value */
                 attr.options.value = attr.options.value.toLowerCase();
+
+                console.log("SHOW VALUE   ------>   "+attr.options.showValue);
+                console.log("CODE VALUE   ------>   "+attr.options.value);
+                console.log("URL VALUE   ------>   "+attr.options.urlValue);
             }
             /* In case of instruction about Association / Relation there is a target instead of a value */
             else if(typeof attr.options.target !== "undefined" && attr.options.processValue){
@@ -123,12 +128,20 @@ module.exports = {
                 attr.options.target = addPrefix(attr.options.target, attr.function);
                 attr.options.target = attr.options.target.toLowerCase();
 
+                console.log("SHOW TARGET   ------>   "+attr.options.showTarget);
+                console.log("CODE TARGET   ------>   "+attr.options.target);
+                console.log("URL TARGET   ------>   "+attr.options.urlTarget);
+
                 if(typeof attr.options.source !== "undefined"){
                     attr.options.showSource = attr.options.source;
                     attr.options.source = clearString(attr.options.source);
                     attr.options.urlSource = attr.options.source;
                     attr.options.source = addPrefix(attr.options.source, attr.function);
                     attr.options.source = attr.options.source.toLowerCase();
+
+                    console.log("SHOW SOURCE   ------>   "+attr.options.showSource);
+                    console.log("CODE SOURCE   ------>   "+attr.options.source);
+                    console.log("URL SOURCE   ------>   "+attr.options.urlSource);
                 }
 
                 if(typeof attr.options.foreignKey !== "undefined"){
@@ -136,6 +149,9 @@ module.exports = {
                     attr.options.foreignKey = clearString(attr.options.foreignKey);
                     attr.options.foreignKey = addPrefix(attr.options.foreignKey, "foreignKey");
                     attr.options.foreignKey = attr.options.foreignKey.toLowerCase();
+
+                    console.log("SHOW FOREIGNKEY   ------>   "+attr.options.showForeignKey);
+                    console.log("CODE FOREIGNKEY   ------>   "+attr.options.foreignKey);
                 }
 
                 if(typeof attr.options.as !== "undefined"){
@@ -144,6 +160,10 @@ module.exports = {
                     attr.options.urlAs = attr.options.as;
                     attr.options.as = addPrefix(attr.options.as, "alias");
                     attr.options.as = attr.options.as.toLowerCase();
+
+                    console.log("SHOW AS   ------>   "+attr.options.showAs);
+                    console.log("CODE AS   ------>   "+attr.options.as);
+                    console.log("URL AS   ------>   "+attr.options.urlAs);
                 }
 
                 if(typeof attr.options.usingField !== "undefined"){
@@ -151,11 +171,12 @@ module.exports = {
                     attr.options.usingField = clearString(attr.options.usingField);
                     attr.options.usingField = addPrefix(attr.options.usingField, "using");
                     attr.options.usingField = attr.options.usingField.toLowerCase();
+
+                    console.log("SHOW USINGFIELD   ------>   "+attr.options.showUsingField);
+                    console.log("CODE USINGFIELD   ------>   "+attr.options.usingField);
                 }
             }
         }
-
-        console.log(attr);
         return attr;
     }
 }
