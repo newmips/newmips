@@ -28,6 +28,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 		case "":
 			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 			break;
+		case "password" :
+		case "mot de passe":
+		case "secret":
+			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='password' "+readOnly+"/>\n";
+			break;
 		case "number" :
 		case "nombre" :
 		case "int" :
@@ -208,13 +213,13 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 	return str;
 }
 
-function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled){
+function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity){
 	var dataEntity = nameDataEntity.toLowerCase();
 	var dataField = nameDataField.toLowerCase();
 
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
-	/*var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
+	var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
 	if (type == "date")
 		str += ' data-type="date"';
 	else if (type == "datetime")
@@ -226,10 +231,10 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	str += '>\n';
 	str += '{@__ key="entity.'+dataEntity+'.'+dataField+'"/}\n';
 	str += '</th>\n';
-	ret.headers = str;*/
+	ret.headers = str;
 
 	/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-	/*str = '<td data-field="'+dataField+'"';
+	str = '<td data-field="'+dataField+'"';
 	if (type == "date")
 		str += ' data-type=\'date\'';
 	else if (type == "datetime")
@@ -239,7 +244,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled)
 	else if (type == "boolean")
 		str += ' data-type=\'boolean\'';
 	str += ' >{'+dataField+'}</td>';
-	ret.body = str;*/
+	ret.body = str;
 	return ret;
 }
 
@@ -343,6 +348,11 @@ exports.setupDataField = function(attr, callback) {
 	var typeForModel = "STRING";
 
 	switch (type_data_field) {
+		case "password" :
+		case "mot de passe":
+		case "secret":
+			typeForModel = "STRING"
+			break;
 		case "number" :
 		case "int" :
 		case "integer" :
@@ -417,9 +427,8 @@ exports.setupDataField = function(attr, callback) {
 	}
 	else{
 		attributesObject[name_data_field.toLowerCase()] = {
-			type: typeForModel,
-			newmipsType: type_data_field,
-			showValueInList: true
+			"type": typeForModel,
+			"newmipsType": type_data_field
 		};
 		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
 	}
@@ -434,8 +443,8 @@ exports.setupDataField = function(attr, callback) {
 		var enumData = require(fileEnum);
 		var key = name_data_field.toLowerCase();
 		var json = {};
-		if (enumData[name_data_entity.toLowerCase()])
-			json = enumData[name_data_entity.toLowerCase()];
+		if (enumData[codeName_data_entity.toLowerCase()])
+			json = enumData[codeName_data_entity.toLowerCase()];
 		json[key] = [];
 		for (var i = 0; i < values_data_field.length; i++) {
 			json[key].push({
@@ -446,7 +455,7 @@ exports.setupDataField = function(attr, callback) {
 				}
 			});
 		}
-		enumData[name_data_entity.toLowerCase()] = json;
+		enumData[codeName_data_entity.toLowerCase()] = json;
 
 		// Write Enum file
 		var stream_fileEnum = fs.createWriteStream(fileEnum);
@@ -467,7 +476,7 @@ exports.setupDataField = function(attr, callback) {
 			stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field);
 			updateFile(fileBase, "update_fields", stringToWrite, function(){
 				/* Update the list_fields.dust file */
-				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity, false);
+				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
@@ -503,30 +512,44 @@ exports.setRequiredAttribute = function(attr, callback) {
 
 	// Update create_fields.dust file
 	domHelper.read(pathToViews+'/create_fields.dust').then(function($){
-		if (set == true)
-			$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
-		else
-			$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
-		$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
 
-		domHelper.write(pathToViews+'/create_fields.dust', $).then(function(){
+		if($("*[data-field='"+attr.options.value+"']").length > 0){
+			if (set == true)
+				$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
+			else
+				$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
 
-			// Update update_fields.dust file
-			domHelper.read(pathToViews+'/update_fields.dust').then(function($){
-				if (set == true)
-					$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
-				else
-					$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
-				$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
-				domHelper.write(pathToViews+'/update_fields.dust', $).then(function(){
-					callback();
+			$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
+			$("*[data-field='"+attr.options.value+"']").find('select').prop('required', set);
+
+			domHelper.write(pathToViews+'/create_fields.dust', $).then(function(){
+
+				// Update update_fields.dust file
+				domHelper.read(pathToViews+'/update_fields.dust').then(function($){
+					if (set == true)
+						$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
+					else
+						$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
+					$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
+					domHelper.write(pathToViews+'/update_fields.dust', $).then(function(){
+						callback();
+					});
 				});
 			});
-		})
-	}).catch(callback);
+		}
+		else{
+			var err = new Error();
+			err.message = "No field with name " + attr.options.showValue +" found in the current entity.";
+			callback(err, null);
+		}
+	}).catch(function(err){
+		callback(err, null);
+	});
 }
 
 exports.setColumnVisibility = function(attr, callback) {
+
+	var pathToViews = __dirname+'/../workspace/'+attr.id_application+'/views/'+attr.name_data_entity;
 
 	var possibilityShow = ["show", "visible"];
 	var possibilityHide = ["hide", "hidden", "non visible", "caché"];
@@ -546,38 +569,16 @@ exports.setColumnVisibility = function(attr, callback) {
 		return callback(err);
 	}
 
-	var attributesFile = require(__dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+attr.name_data_entity);
-	var optionsFile = require(__dirname+'/../workspace/'+attr.id_application+'/models/options/'+attr.name_data_entity);
-
-	var structure = helpers.getDatalistStructure(optionsFile, attributesFile, attr.name_data_entity, attr.id_application);
-
-	var possibilityField = [];
-
-	for(var i=0; i<structure.length; i++){
-		if(structure[i].field == attr.options.value)
-			possibilityField.push(structure[i]);
-	}
-
-	if(possibilityField.length > 1){
-		var err = new Error();
-		var choice = hide?"hide":"show";
-		err.message = "Cannot determine which field "+attr.options.showValue+" you want to "+choice+".";
+	domHelper.read(pathToViews+'/list_fields.dust').then(function($) {
+		$("*[data-field='"+attr.options.value+"']")[hide?'hide':'show']();
+		domHelper.write(pathToViews+'/list_fields.dust', $).then(function() {
+			var info = {};
+			info.message = "Set column "+attr.options.showValue+" visibility to "+attributes;
+			callback(null, info);
+		});
+	}).catch(function(err){
 		callback(err, null);
-	}else if(possibilityField.length < 1){
-		var err = new Error();
-		err.message = "Cannot find the field "+attr.options.showValue;
-		callback(err, null);
-	}else{
-
-		var pathFileToUpdate = __dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+possibilityField[0].entityCode;
-		var attributesFileToUpdate = require(pathFileToUpdate);
-		attributesFileToUpdate[possibilityField[0].field].showValueInList = hide?false:true;
-		fs.writeFileSync(pathFileToUpdate + ".json", JSON.stringify(attributesFileToUpdate, null, 4));
-
-		var info = {};
-		info.message = "Set column "+attr.options.showValue+" visibility to "+attributes;
-		callback(null, info);
-	}
+	});
 }
 
 function addTab(attr, file, newLi, newTabContent) {
@@ -696,15 +697,23 @@ exports.setupRelatedToField = function(attr, callback){
 	// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
     var usingField = "id";
     var usingFieldDisplay = "id";
+    var typeField = "string";
+    var usingExist = true;
 
     if(typeof attr.options.usingField !== "undefined"){
+    	usingExist = false;
     	usingField = attr.options.usingField.toLowerCase();
-    	usingFieldDisplay = attr.options.usingField;
+    	usingFieldDisplay = attr.options.showUsingField;
+    	var attributeTarget = require(__dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+target);
+    	if(typeof attributeTarget[usingField] !== "undefined"){
+    		usingExist = true;
+    		typeField = attributeTarget[usingField].newmipsType;
+    	}
     }
 
-	select += "<div data-field='"+alias+"' class='form-group'>\n";
+	select += "<div data-field='f_"+urlAs+"' class='form-group'>\n";
 	/*select += '<!--{^associationFlag}-->';*/
-	select += '		<label for="'+alias+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
+	select += '		<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
 	select += '		<select class="form-control" name="'+alias+'">';
 	select += '			<!--{#'+alias+'}-->';
 	select += '				<!--{#.'+usingField+'}-->';
@@ -723,8 +732,8 @@ exports.setupRelatedToField = function(attr, callback){
 	updateFile(fileBase, file, select, function(){
 
 		// Setup association field for update_fields
-		select = "<div data-field='"+alias+"' class='form-group'>\n";
-		select += '<label for="'+alias+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
+		select = "<div data-field='f_"+urlAs+"' class='form-group'>\n";
+		select += '<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
 		select += '<select class="form-control" name="'+alias+'">';
 		select += '		<!--{#'+alias+'_global_list}-->';
 		select += '			<!--{#.'+usingField+'}-->';
@@ -752,6 +761,10 @@ exports.setupRelatedToField = function(attr, callback){
 			file = fileBase +'/show_fields.dust';
 			domHelper.read(file).then(function($) {
 
+				/* If the field in the target doesn't exist we use the id for show and list */
+				if(!usingExist)
+					usingField = "id";
+
 				// Add read only field in show file. No tab required
 				var str = "";
 				str = "<div data-field='"+alias+"' class='form-group'>\n";
@@ -762,10 +775,43 @@ exports.setupRelatedToField = function(attr, callback){
 
 				domHelper.write(file, $).then(function() {
 
-					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function(){
-						callback(null, "Data field succesfuly created");
+					// Add <th> in list_field
+					var toAddInList = {headers: '', body: ''};
+					/* ------------- Add new FIELD in headers ------------- */
+					var str = '<th data-field="f_'+alias.substring(2)+'" data-col="'+alias+'.'+usingField+'"';
+					if (typeField == "date")
+						str += ' data-type="date"';
+					else if (typeField == "datetime")
+						str += ' data-type=\'datetime\'';
+					else if (typeField == "time")
+						str += ' data-type=\'time\'';
+					else if (typeField == "boolean")
+						str += ' data-type=\'boolean\'';
+					str += '>\n';
+					str += '{@__ key="entity.'+source+'.'+alias+'"/}\n';
+					str += '</th>\n';
+					toAddInList.headers = str;
+
+					/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
+					str = '<td data-field="f_'+alias.substring(2)+'"';
+					if (typeField == "date")
+						str += ' data-type=\'date\'';
+					else if (typeField == "datetime")
+						str += ' data-type=\'datetime\'';
+					else if (typeField == "time")
+						str += ' data-type=\'time\'';
+					else if (typeField == "boolean")
+						str += ' data-type=\'boolean\'';
+					str += ' >{'+alias+'.'+usingField+'}</td>';
+					toAddInList.body = str;
+
+					updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function(){
+						/* --------------- New translation --------------- */
+						translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function(){
+							callback(null, "Data field succesfuly created");
+						});
 					});
+
 				});
 			});
 		});
@@ -926,6 +972,7 @@ exports.deleteDataField = function(attr, callback) {
     var name_data_entity = attr.name_data_entity.toLowerCase();
     var show_name_data_field =  attr.options.showValue.toLowerCase();
     var name_data_field =  attr.options.value.toLowerCase();
+    var url_value = attr.options.urlValue.toLowerCase();
 
     var options = attr.options;
 
@@ -936,13 +983,15 @@ exports.deleteDataField = function(attr, callback) {
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
     var jsonPath = __dirname+'/../workspace/'+attr.id_application+'/models/options/'+name_data_entity+'.json';
     var dataToWrite = require(jsonPath);
+
     for (var i = 0; i < dataToWrite.length; i++) {
-        if (dataToWrite[i].as.toLowerCase() == "r_"+show_name_data_field) {
+        if (dataToWrite[i].as.toLowerCase() == "r_"+url_value) {
             if (dataToWrite[i].relation != 'belongsTo'){
             	var err = new Error();
             	err.message = name_data_entity+' isn\'t a regular field. You might want to use `delete tab` instruction.';
                 return callback(err, null);
             }
+
 		    // Modify the options.json file
 		    info.fieldToDrop = dataToWrite[i].foreignKey;
 		    info.isConstraint = true;
@@ -994,7 +1043,23 @@ exports.deleteDataField = function(attr, callback) {
 
 		// Wait for all promises execution
 		Promise.all(promises).then(function() {
-			callback(null, info);
+
+			// Remove translation in enum locales
+			var enumsPath = __dirname+'/../workspace/'+id_application+'/locales/enum.json';
+	    	var enumJson = require(enumsPath);
+
+	    	if(typeof enumJson[name_data_entity]!== "undefined"){
+		    	if(typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined"){
+		    		delete enumJson[name_data_entity][info.fieldToDrop];
+		    		fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 2));
+		    	}
+		    }
+
+	    	// Remove translation in global locales
+			var fieldToDropInTranslate = info.isConstraint?"r_"+url_value:info.fieldToDrop;
+			translateHelper.removeLocales(id_application, "field", [name_data_entity, fieldToDropInTranslate], function(){
+				callback(null, info);
+			});
 		});
 	});
 }
