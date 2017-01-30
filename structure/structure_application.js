@@ -95,7 +95,6 @@ exports.initializeApplication = function(id_application) {
                             resolve();
                         });
                     });
-
                 });
             });
         });
