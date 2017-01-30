@@ -513,7 +513,9 @@ exports.setRequiredAttribute = function(attr, callback) {
 			$("*[data-field='"+attr.options.value+"']").find('label').addClass('required');
 		else
 			$("*[data-field='"+attr.options.value+"']").find('label').removeClass('required');
+
 		$("*[data-field='"+attr.options.value+"']").find('input').prop('required', set);
+		$("*[data-field='"+attr.options.value+"']").find('select').prop('required', set);
 
 		domHelper.write(pathToViews+'/create_fields.dust', $).then(function(){
 
@@ -708,9 +710,9 @@ exports.setupRelatedToField = function(attr, callback){
     	usingFieldDisplay = attr.options.usingField;
     }
 
-	select += "<div data-field='"+alias+"' class='form-group'>\n";
+	select += "<div data-field='f_"+urlAs+"' class='form-group'>\n";
 	/*select += '<!--{^associationFlag}-->';*/
-	select += '		<label for="'+alias+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
+	select += '		<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
 	select += '		<select class="form-control" name="'+alias+'">';
 	select += '			<!--{#'+alias+'}-->';
 	select += '				<!--{#.'+usingField+'}-->';
@@ -729,8 +731,8 @@ exports.setupRelatedToField = function(attr, callback){
 	updateFile(fileBase, file, select, function(){
 
 		// Setup association field for update_fields
-		select = "<div data-field='"+alias+"' class='form-group'>\n";
-		select += '<label for="'+alias+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
+		select = "<div data-field='f_"+urlAs+"' class='form-group'>\n";
+		select += '<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
 		select += '<select class="form-control" name="'+alias+'">';
 		select += '		<!--{#'+alias+'_global_list}-->';
 		select += '			<!--{#.'+usingField+'}-->';
