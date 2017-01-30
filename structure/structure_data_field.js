@@ -213,7 +213,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 	return str;
 }
 
-function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity, disabled){
+function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity){
 	var dataEntity = nameDataEntity.toLowerCase();
 	var dataField = nameDataField.toLowerCase();
 
@@ -426,7 +426,10 @@ exports.setupDataField = function(attr, callback) {
 		};
 	}
 	else{
-		attributesObject[name_data_field.toLowerCase()] = typeForModel;
+		attributesObject[name_data_field.toLowerCase()] = {
+			"type": typeForModel,
+			"newmipsType": type_data_field
+		};
 		toSyncObject[id_application+"_"+codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
 	}
 
@@ -473,7 +476,7 @@ exports.setupDataField = function(attr, callback) {
 			stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field);
 			updateFile(fileBase, "update_fields", stringToWrite, function(){
 				/* Update the list_fields.dust file */
-				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity, false);
+				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
@@ -714,10 +717,18 @@ exports.setupRelatedToField = function(attr, callback){
 	// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
     var usingField = "id";
     var usingFieldDisplay = "id";
+    var typeField = "string";
+    var usingExist = true;
 
     if(typeof attr.options.usingField !== "undefined"){
+    	usingExist = false;
     	usingField = attr.options.usingField.toLowerCase();
-    	usingFieldDisplay = attr.options.usingField;
+    	usingFieldDisplay = attr.options.showUsingField;
+    	var attributeTarget = require(__dirname+'/../workspace/'+attr.id_application+'/models/attributes/'+target);
+    	if(typeof attributeTarget[usingField] !== "undefined"){
+    		usingExist = true;
+    		typeField = attributeTarget[usingField].newmipsType;
+    	}
     }
 
 	select += "<div data-field='f_"+urlAs+"' class='form-group'>\n";
@@ -770,6 +781,10 @@ exports.setupRelatedToField = function(attr, callback){
 			file = fileBase +'/show_fields.dust';
 			domHelper.read(file).then(function($) {
 
+				/* If the field in the target doesn't exist we use the id for show and list */
+				if(!usingExist)
+					usingField = "id";
+
 				// Add read only field in show file. No tab required
 				var str = "";
 				str = "<div data-field='"+alias+"' class='form-group'>\n";
@@ -780,10 +795,43 @@ exports.setupRelatedToField = function(attr, callback){
 
 				domHelper.write(file, $).then(function() {
 
-					/* --------------- New translation --------------- */
-					translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function(){
-						callback(null, "Data field succesfuly created");
+					// Add <th> in list_field
+					var toAddInList = {headers: '', body: ''};
+					/* ------------- Add new FIELD in headers ------------- */
+					var str = '<th data-field="'+alias+'.'+usingField+'" data-col="'+alias+'.'+usingField+'"';
+					if (typeField == "date")
+						str += ' data-type="date"';
+					else if (typeField == "datetime")
+						str += ' data-type=\'datetime\'';
+					else if (typeField == "time")
+						str += ' data-type=\'time\'';
+					else if (typeField == "boolean")
+						str += ' data-type=\'boolean\'';
+					str += '>\n';
+					str += '{@__ key="entity.'+source+'.'+alias+'"/}\n';
+					str += '</th>\n';
+					toAddInList.headers = str;
+
+					/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
+					str = '<td data-field="'+alias+'.'+usingField+'"';
+					if (typeField == "date")
+						str += ' data-type=\'date\'';
+					else if (typeField == "datetime")
+						str += ' data-type=\'datetime\'';
+					else if (typeField == "time")
+						str += ' data-type=\'time\'';
+					else if (typeField == "boolean")
+						str += ' data-type=\'boolean\'';
+					str += ' >{'+alias+'.'+usingField+'}</td>';
+					toAddInList.body = str;
+
+					updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function(){
+						/* --------------- New translation --------------- */
+						translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function(){
+							callback(null, "Data field succesfuly created");
+						});
 					});
+
 				});
 			});
 		});
