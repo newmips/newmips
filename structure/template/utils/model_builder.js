@@ -86,7 +86,7 @@ exports.associationsFinder = function associationsFinder(models, options) {
             		target = option.as.toLowerCase();
             	}
 
-                models[modelName].findAll({include: [{all: true}]}).then(function(entities) {
+                models[modelName].findAll().then(function(entities) {
                     resolve({model: target, rows: entities || []});
                 }).catch(function(err) {
                     reject(err);

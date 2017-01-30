@@ -19,16 +19,12 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck){
 // ******* BASIC Actions ******* //
 exports.showSession = function(result) {
 
-    console.log("ACTION : showSession");
-
     var attr = {};
     attr.function = "showSession";
     return attr;
 };
 
 exports.help = function(result) {
-
-    console.log("ACTION : help");
 
     var attr = {};
     attr.function = "help";
@@ -37,8 +33,6 @@ exports.help = function(result) {
 
 exports.deploy = function(result) {
 
-    console.log("ACTION : deploy");
-
     var attr = {};
     attr.function = "deploy";
     return attr;
@@ -46,8 +40,6 @@ exports.deploy = function(result) {
 
 // ******* SELECT Actions ******* //
 exports.selectProject = function(result) {
-
-    console.log("ACTION : selectProject");
 
     var value = result[1];
     var options = {
@@ -63,8 +55,6 @@ exports.selectProject = function(result) {
 
 exports.selectApplication = function(result) {
 
-    console.log("ACTION : selectApplication");
-
     var value = result[1];
     var options = {
         value: value
@@ -79,8 +69,6 @@ exports.selectApplication = function(result) {
 
 exports.selectModule = function(result) {
 
-    console.log("ACTION : selectModule");
-
     var value = result[1];
     var options = {
         value: value
@@ -94,8 +82,6 @@ exports.selectModule = function(result) {
 };
 
 exports.selectDataEntity = function(result) {
-
-    console.log("ACTION : selectDataEntity");
 
     var value = result[1];
     var options = {
@@ -112,8 +98,6 @@ exports.selectDataEntity = function(result) {
 // ******* FIELD ATTRIBUTES Actions ******* //
 exports.setRequiredAttribute = function(result) {
 
-    console.log("ACTION : setRequiredAttribute");
-
     // Set entity name as the first option in options array
     var options = {
         value: result[1],
@@ -129,10 +113,7 @@ exports.setRequiredAttribute = function(result) {
 };
 
 // ******* DATALIST Actions ******* //
-
 exports.setColumnVisibility = function(result) {
-
-    console.log("ACTION : setColumnVisibility");
 
     // Set entity name as the first option in options array
     var options = {
@@ -151,8 +132,6 @@ exports.setColumnVisibility = function(result) {
 // ******* CREATE Actions ******* //
 exports.createNewProject = function(result) {
 
-    console.log("ACTION : createNewProject");
-
     var value = result[1];
     var options = {
         value: value,
@@ -163,8 +142,6 @@ exports.createNewProject = function(result) {
 };
 
 exports.createNewApplication = function(result) {
-
-    console.log("ACTION : createNewApplication");
 
     var value = result[1];
     var options = {
@@ -177,8 +154,6 @@ exports.createNewApplication = function(result) {
 
 exports.createNewModule = function(result) {
 
-    console.log("ACTION : createNewModule");
-
     var value = result[1];
     var options = {
         value: value,
@@ -190,8 +165,6 @@ exports.createNewModule = function(result) {
 
 exports.createNewDataEntity = function(result) {
 
-    console.log("ACTION : createNewDataEntity");
-
     var value = result[1];
     var options = {
         value: value,
@@ -202,8 +175,6 @@ exports.createNewDataEntity = function(result) {
 };
 
 exports.createNewDataField = function(result) {
-
-    console.log("ACTION : createNewDataField");
 
     // Field name has not been defined
     if (result[1] == '') {
@@ -226,8 +197,6 @@ exports.createNewDataField = function(result) {
 
 exports.createNewDataFieldWithType = function(result) {
 
-    console.log("ACTION : createNewDataFieldWithType");
-
     var value = result[1];
     var type = result[2];
 
@@ -242,8 +211,6 @@ exports.createNewDataFieldWithType = function(result) {
 };
 
 exports.createNewDataFieldWithTypeEnum = function(result) {
-
-    console.log("ACTION : createNewDataFieldWithTypeEnum");
 
     var value = result[1];
     var type = "enum";
@@ -260,8 +227,6 @@ exports.createNewDataFieldWithTypeEnum = function(result) {
 };
 
 exports.createNewDataFieldWithTypeRadio = function(result) {
-
-    console.log("ACTION : createNewDataFieldWithTypeRadio");
 
     var value = result[1];
     var type = "radio";
@@ -280,8 +245,6 @@ exports.createNewDataFieldWithTypeRadio = function(result) {
 // ******* DELETE Actions ******* //
 exports.deleteProject = function(result) {
 
-    console.log("ACTION : deleteProject");
-
     var value = result[1];
 
     var options = {
@@ -297,8 +260,6 @@ exports.deleteProject = function(result) {
 };
 
 exports.deleteApplication = function(result) {
-
-    console.log("ACTION : deleteApplication");
 
     var value = result[1];
 
@@ -316,8 +277,6 @@ exports.deleteApplication = function(result) {
 
 exports.deleteModule = function(result) {
 
-    console.log("ACTION : deleteModule");
-
     var value = result[1];
 
     var options = {
@@ -333,8 +292,6 @@ exports.deleteModule = function(result) {
 };
 
 exports.deleteDataEntity = function(result) {
-
-    console.log("ACTION : deleteDataEntity");
 
     var value = result[1];
 
@@ -352,8 +309,6 @@ exports.deleteDataEntity = function(result) {
 
 exports.deleteDataField = function(result) {
 
-    console.log("ACTION : deleteDataFiel");
-
     var value = result[1];
 
     var options = {
@@ -369,8 +324,6 @@ exports.deleteDataField = function(result) {
 };
 
 exports.deleteTab = function(result) {
-
-    console.log("ACTION : deleteTab");
 
     var value = result[1];
 
@@ -389,8 +342,6 @@ exports.deleteTab = function(result) {
 // ******* LIST Actions ******* //
 exports.listProject = function(result) {
 
-    console.log("ACTION : listProject");
-
     var attr = {
         function: "listProject"
     };
@@ -398,8 +349,6 @@ exports.listProject = function(result) {
 };
 
 exports.listApplication = function(result) {
-
-    console.log("ACTION : listApplication");
 
     var attr = {
         function: "listApplication"
@@ -409,8 +358,6 @@ exports.listApplication = function(result) {
 
 exports.listModule = function(result) {
 
-    console.log("ACTION : listModule");
-
     var attr = {
         function: "listModule"
     };
@@ -418,8 +365,6 @@ exports.listModule = function(result) {
 };
 
 exports.listDataEntity = function(result) {
-
-    console.log("ACTION : listDataEntity");
 
     var attr = {
         function: "listDataEntity"
@@ -429,8 +374,6 @@ exports.listDataEntity = function(result) {
 
 exports.listDataField = function(result) {
 
-    console.log("ACTION : listDataFiel");
-
     var attr = {
         function: "listDataField"
     };
@@ -439,8 +382,6 @@ exports.listDataField = function(result) {
 
 // ******* ASSOCIATION Actions ******* //
 exports.relationshipHasOne = function(result) {
-
-    console.log("ACTION : relationshipHasOne");
 
     var source = result[1];
     var target = result[2];
@@ -457,8 +398,6 @@ exports.relationshipHasOne = function(result) {
 };
 
 exports.relationshipHasOneWithName = function(result) {
-
-    console.log("ACTION : relationshipHasOneWithName");
 
     var source = result[1];
     var target = result[2];
@@ -477,8 +416,6 @@ exports.relationshipHasOneWithName = function(result) {
 
 exports.relationshipHasMany = function(result) {
 
-    console.log("ACTION : relationshipHasMany");
-
     var source = result[1];
     var target = result[2];
 
@@ -494,8 +431,6 @@ exports.relationshipHasMany = function(result) {
 };
 
 exports.relationshipHasManyWithName = function(result) {
-
-    console.log("ACTION : relationshipHasManyWithName");
 
     var source = result[1];
     var target = result[2];
@@ -514,8 +449,6 @@ exports.relationshipHasManyWithName = function(result) {
 
 exports.createFieldRelatedTo = function(result) {
 
-    console.log("ACTION : createFieldRelatedTo");
-
     var as = result[1];
     var target = result[2];
 
@@ -530,8 +463,6 @@ exports.createFieldRelatedTo = function(result) {
 };
 
 exports.createFieldRelatedToUsing = function(result) {
-
-    console.log("ACTION : createFieldRelatedTo");
 
     var as = result[1];
     var target = result[2];
@@ -549,8 +480,6 @@ exports.createFieldRelatedToUsing = function(result) {
 };
 
 exports.createFieldRelatedToPreset = function(result) {
-
-    console.log("ACTION : createFieldRelatedToPreset");
 
     var source = result[1];
     var target = result[2];
@@ -571,8 +500,6 @@ exports.createFieldRelatedToPreset = function(result) {
 
 exports.createFieldset = function(result) {
 
-    console.log("ACTION : createFieldset");
-
     var as = result[1];
     var target = result[2];
 
@@ -588,8 +515,6 @@ exports.createFieldset = function(result) {
 };
 
 exports.createFieldsetUsing = function(result) {
-
-    console.log("ACTION : createFieldsetUsing");
 
     var as = result[1];
     var target = result[2];
@@ -607,8 +532,6 @@ exports.createFieldsetUsing = function(result) {
 };
 
 exports.createFieldsetPreset = function(result) {
-
-    console.log("ACTION : createFieldsetPreset");
 
     var source = result[1];
     var target = result[2];
@@ -631,8 +554,6 @@ exports.createFieldsetPreset = function(result) {
 // ******* COMPONENT Actions ******* //
 exports.createNewComponentLocalFileStorage = function(result) {
 
-    console.log("ACTION : createNewComponentLocalFileStorage");
-
     var options = {};
 
     var attr = {
@@ -643,8 +564,6 @@ exports.createNewComponentLocalFileStorage = function(result) {
 };
 
 exports.createNewComponentLocalFileStorageWithName = function(result) {
-
-    console.log("ACTION : createNewComponentLocalFileStorageWithName");
 
     var value = result[1];
     var options = {
@@ -657,8 +576,6 @@ exports.createNewComponentLocalFileStorageWithName = function(result) {
 
 exports.createNewComponentContactForm = function(result) {
 
-    console.log("ACTION : createNewComponentContactForm");
-
     var options = {};
 
     var attr = {
@@ -669,8 +586,6 @@ exports.createNewComponentContactForm = function(result) {
 };
 
 exports.createNewComponentContactFormWithName = function(result) {
-
-    console.log("ACTION : createNewComponentContactFormWithName");
 
     var value = result[1];
     var options = {

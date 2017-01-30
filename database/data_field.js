@@ -136,7 +136,7 @@ exports.deleteDataField = function(attr, callback) {
 		}
 	}).then(function() {
 		var info = {};
-		info.message = "Data field "+name_data_field+" deleted.";
+		info.message = "Data field "+options.showValue+" deleted.";
 		callback(null, info);
 	}).catch(function(err) {
 		callback(err, null);
@@ -235,22 +235,22 @@ exports.getTypeDataFieldByEntityIdAndFieldName = function(id_data_entity, name_d
 }
 
 // GetByName
-exports.getIdDataFieldByName = function(name_data_field, callback) {
+exports.getIdDataFieldByName = function(attr, callback) {
 
-	if (typeof(name_data_field) !== 'string') {
-		varerr = new Error();
-		err.message = "Name of data field is not defined";
-		return callback(err, null);
-	}
+	var id_data_entity = attr.id_data_entity;
+	var options = attr.options;
+	var name_data_field = options.value;
+	var show_name_data_field = options.showValue;
 
 	models.DataField.findOne({
 		where: {
-			name: name_data_field
+			codeName: name_data_field,
+			id_data_entity: id_data_entity
 		}
 	}).then(function(dataField) {
 		if (!dataField) {
 			var err = new Error();
-			err.message = "No data field found";
+			err.message = "No data field with name "+show_name_data_field+" found in current entity.";
 			return callback(err, null);
 		}
 		callback(null, dataField.id);
