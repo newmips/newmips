@@ -64,12 +64,11 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
     var login_user = req.body.login_user;
-    var password = bcrypt.hashSync(req.body.password_user2, null, null);
 
     models.E_user.findOne({
         where: {
             f_login: login_user,
-            f_password: "",
+            f_password: null,
             f_enabled: 0
         }
     }).then(function(user){
@@ -77,11 +76,12 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             req.flash('loginMessage', "Erreur. Cet utilisateur n'éxiste pas ou ne réponds pas aux conditions pour définir un mot de passe.");
             return res.redirect('/login');
         }
-        if(user.f_password != ""){
+        if(user.f_password != "" && user.f_password != null){
             req.flash('loginMessage', 'Mise à jour impossible. Cet utilisateur possède déjà un mot de passe. Contactez votre Administrateur.');
             return res.redirect('/login');
         }
-        models.E_user.update({f_password: password}, {
+        var password = bcrypt.hashSync(req.body.password_user2, null, null);
+        models.E_user.update({f_password: password, enabled: 1}, {
             where: {id: user.id}
         }).then(function(){
             req.flash('loginMessage', 'Mise à jour faite. Vous pouvez désormais vous connecter.');
