@@ -57,9 +57,12 @@ exports.selectModule = function(attr, callback) {
                     return callback(err, null);
                 }
 
+                /* Need to remove the prefix to get the url value to redirect to default/MODULE */
+                var urlModule = module.codeName.substring(2);
+
                 var info = {
                     "insertId": module.id,
-                    "moduleName": module.name,
+                    "moduleName": urlModule,
                     "message": "Module " + module.id + " - " + module.name + " selected."
                 };
                 callback(null, info);
