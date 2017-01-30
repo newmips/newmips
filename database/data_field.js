@@ -136,7 +136,7 @@ exports.deleteDataField = function(attr, callback) {
 		}
 	}).then(function() {
 		var info = {};
-		info.message = "Data field "+name_data_field+" deleted.";
+		info.message = "Data field "+options.showValue+" deleted.";
 		callback(null, info);
 	}).catch(function(err) {
 		callback(err, null);
