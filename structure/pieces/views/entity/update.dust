@@ -1,9 +1,9 @@
 {>"layout_custom_module"/}
 {<header}
-    <h1>{@__ key="module.custom_show_module"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{@__ key="module.custom_module"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.custom_show_module"/}</li>
+        <li class="active">{@__ key="module.custom_module"/}</li>
     </ol>
 {/header}
 {<content}
