@@ -69,7 +69,6 @@ exports.deploy = function(attr, callback) {
 /* ------------------------- Restart ----------------------------- */
 /* --------------------------------------------------------------- */
 exports.restart = function(attr, callback) {
-
     var info = {};
     info.message = "Server restarted !";
     callback(null, info);

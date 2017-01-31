@@ -28,7 +28,7 @@
 		"home": "Accueil",
 		"preview": {
 			"title": "Prévisualisation",
-			"reload": "Recharger la page",
+			"reload": "Redémarrer le serveur",
 			"issue-button": "Soumettre un bug"
 		},
 		"module": "Module",

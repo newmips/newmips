@@ -13,6 +13,7 @@ function fetchStatus() {
 			if (!data.over)
 				setTimeout(fetchStatus, 50);
 			else {
+				window.location.href = "/application/preview?id_application="+data.id_application;
 				$("#goTo").attr('href', $("#goTo").attr('href')+data.id_application);
 				$("#goTo").show();
 				$("#scriptSubmit").prop('disabled', false);

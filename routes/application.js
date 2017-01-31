@@ -114,7 +114,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     if (error) {
                         //console.log('Waiting for server to start');
                         //console.log(protocol + "://" + host + ":" + port + "/status");
-                        console.log(error);
+                        //console.log(error);
                         return checkServer();
                     }
 
@@ -241,6 +241,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         // "Options" and "Session values" are sent using the attr attribute
         designer[attr.function](attr, function(err, info) {
             var answer;
+
+            /* If restart server then redirect to /application/preview?id_application=? */
+            var toRedirectRestart = false;
             if (err) {
                 // Error handling code goes here
                 console.log("ERROR : ", err);
@@ -335,6 +338,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/home";
                     req.session.iframe_url = data.iframe_url;
                 }
+                else if (attr.function == 'restart') {
+                    toRedirectRestart = true;
+                }
 
                 answer = info.message;
                 data.answers = answer + "\n\n" + answers + "\n\n";
@@ -405,8 +411,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 folder = helpers.sortEditorFolder(folder);
                                 data.workspaceFolder = folder;
 
-                                // Call preview page
-                                res.render('front/preview.jade', data);
+                                if(toRedirectRestart){
+                                    return res.redirect("/application/preview?id_application="+attr.id_application);
+                                }
+                                else{
+                                    // Call preview page
+                                    res.render('front/preview.jade', data);
+                                }
                             });
                         });
                     }
