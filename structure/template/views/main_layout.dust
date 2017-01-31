@@ -43,7 +43,7 @@
 			{! Get useful global var like the language and the current user !}
 			<script>
 			var lang_user = "{lang_user}";
-			var id_user = "{session.data.id}";
+			var id_user = "{session.passport.user.id}";
 			</script>
 			<header class="main-header">
 				<a href="/default/home" class="logo">
