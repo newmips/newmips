@@ -75,8 +75,9 @@ app.use(session({
 	resave: true,
 	saveUninitialized: true,
 	maxAge: 360*5,
-	key: 'workspaceCookie'
- } )); // session secret
+	// We concat port for a workspace specific session, instead of generator specific
+	key: 'workspaceCookie'+port
+ }));
  app.use(passport.initialize());
  // Persistent login sessions
  app.use(passport.session());
@@ -123,7 +124,7 @@ app.use(function(req, res, next) {
     res.locals.lang_user = lang;
 
     // When user is logged
-	if (req.isAuthenticated()) {
+	if (req.isAuthenticated() || autologin) {
 		// Session
 		res.locals.session = req.session;
 	}
