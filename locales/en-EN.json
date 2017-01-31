@@ -28,7 +28,7 @@
 		"home": "Home",
 		"preview": {
 			"title": "Preview",
-			"reload": "Reload Preview",
+			"reload": "Restart server",
 			"issue-button": "Report an issue"
 		},
 		"module": "Module",
