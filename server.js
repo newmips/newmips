@@ -52,23 +52,25 @@ app.use(bodyParser.json());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade'); // set up jade for templating
 
-// required for passport
-var options = {
-	host: dbconfig.connection.host,
-	port: dbconfig.connection.port,
-	user: dbconfig.connection.user,
-	password: dbconfig.connection.password,
-	database: dbconfig.connection.database
-};
+// // required for passport
+// var options = {
+// 	host: dbconfig.connection.host,
+// 	port: dbconfig.connection.port,
+// 	user: dbconfig.connection.user,
+// 	password: dbconfig.connection.password,
+// 	database: dbconfig.connection.database
+// };
 
-var sessionStore = new SessionStore(options);
+// var sessionStore = new SessionStore(options);
 
 app.use(session({
-	store: sessionStore,
+	// store: sessionStore,
+	cookieName: 'newmipsCookie',
 	secret: 'newmipsmakeyourlifebetter',
 	resave: true,
 	saveUninitialized: true,
-	maxAge: 360*5
+	maxAge: 360*5,
+	key: 'newmipsCookie'
  } )); // session secret
  app.use(passport.initialize());
  app.use(passport.session()); // persistent login sessions
