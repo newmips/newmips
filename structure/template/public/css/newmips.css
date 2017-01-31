@@ -1,0 +1,43 @@
+/*!
+ *   Newmips CSS V0.1
+ *   Author: Newmips
+!*/
+
+/*
+    Core: General style
+----------------------------
+*/
+
+/* required field */
+label.required:after {
+  color: #e32;
+  content: ' *';
+  display:inline;
+}
+.connectedSortable {
+    padding-bottom: 10px;
+}
+.quicklinks span{
+	margin-right: 6px;
+}
+.dataTable thead{
+	background-color: #FFF;
+}
+div.dataTables_filter input {
+	margin-left: 7px;
+	border-radius: 5px;
+}
+div.dataTables_length select {
+    border-radius: 5px;
+}
+.dt-button{
+	border-radius: 5px !important;
+}
+.content-header{
+	background: #fbfbfb none repeat scroll 0 0 !important;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+.skin-black .main-header > .logo {
+    color: #333 !important;
+}

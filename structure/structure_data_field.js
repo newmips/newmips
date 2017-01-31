@@ -714,7 +714,7 @@ exports.setupRelatedToField = function(attr, callback){
 	select += "<div data-field='f_"+urlAs+"' class='form-group'>\n";
 	/*select += '<!--{^associationFlag}-->';*/
 	select += '		<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
-	select += '		<select class="form-control" name="'+alias+'">';
+	select += '		<select style="width:100%;" class="form-control" name="'+alias+'">';
 	select += '			<!--{#'+alias+'}-->';
 	select += '				<!--{#.'+usingField+'}-->';
 	select += '						<option value="{id}">{'+usingField+'}</option>';
@@ -734,7 +734,7 @@ exports.setupRelatedToField = function(attr, callback){
 		// Setup association field for update_fields
 		select = "<div data-field='f_"+urlAs+"' class='form-group'>\n";
 		select += '<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
-		select += '<select class="form-control" name="'+alias+'">';
+		select += '<select style="width:100%;" class="form-control" name="'+alias+'">';
 		select += '		<!--{#'+alias+'_global_list}-->';
 		select += '			<!--{#.'+usingField+'}-->';
 		select += '				<!--{@eq key='+alias+'.id value=id}-->';
