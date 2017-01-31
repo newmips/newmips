@@ -114,7 +114,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     if (error) {
                         //console.log('Waiting for server to start');
                         //console.log(protocol + "://" + host + ":" + port + "/status");
-                        //console.log(error);
+                        console.log(error);
                         return checkServer();
                     }
 

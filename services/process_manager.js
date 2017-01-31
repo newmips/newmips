@@ -50,7 +50,7 @@ exports.killChildProcess = function(pid, callback) {
     } else {
 
         // **** Commands that works fine on UNIX ***
-        signal = 'SIGKILL';
+        var signal = 'SIGKILL';
         var killTree = true;
         if (killTree) {
             psTree(pid, function(err, children) {
@@ -62,17 +62,20 @@ exports.killChildProcess = function(pid, callback) {
                     try {
                         process.kill(tpid, signal);
                         console.log("TPID : " + tpid)
-                    } catch (ex) {}
+                    } catch (err) {
+                        return callback(err);
+                    }
                 });
                 callback();
             });
         } else {
             try {
                 process.kill(pid, signal)
-            } catch (ex) {}
+            } catch (err) {
+                return callback(err);
+            }
             callback();
         }
-
     }
 }
 
