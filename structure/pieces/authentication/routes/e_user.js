@@ -247,7 +247,18 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
 
         res.redirect(redirect);
     }).catch(function(err){
-        error500(err, res);
+        var isKnownError = false;
+        try {
+            // Unique value constraint
+            if (err.parent.errno == 1062) {
+                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                isKnownError = true;
+            }
+        } finally {
+            if (isKnownError)
+                return res.redirect('/user/create_form');
+            error500(err, res);
+        }
     });
 });
 
@@ -346,7 +357,18 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
 
             res.redirect(redirect);
         }).catch(function(err){
-            error500(err, res);
+            var isKnownError = false;
+            try {
+                // Unique value constraint
+                if (err.parent.errno == 1062) {
+                    req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                    isKnownError = true;
+                }
+            } finally {
+                if (isKnownError)
+                    return res.redirect('/user/update_form?id='+id_e_user);
+                error500(err, res);
+            }
         });
     }).catch(function(err){
         error500(err, res);
@@ -431,7 +453,18 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
             error500(err, res);
         });
     }).catch(function(err){
-        error500(err, res);
+        var isKnownError = false;
+        try {
+            // Unique value constraint
+            if (err.parent.errno == 1062) {
+                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                isKnownError = true;
+            }
+        } finally {
+            if (isKnownError)
+                return res.render('e_user/settings', data);
+            error500(err, res);
+        }
     });
 });
 

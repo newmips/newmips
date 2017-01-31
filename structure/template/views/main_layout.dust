@@ -38,8 +38,7 @@
 		{! Get useful global var like the language and the current user !}
 		<script>
 		var lang_user = "{lang_user}";
-		var id_user = "{session.passport.user.id}";
-		</script>
+		var id_user = "{session.passport.user.id}";		</script>
 		<header class="header">
 			<a href="/default/home" class="logo">{@__ key="app.name"/}</a>
 			<nav role="navigation" class="navbar navbar-static-top">
@@ -57,7 +56,7 @@
 								<i class="glyphicon glyphicon-user"></i>
 								<span>
 									{#session.passport.user}
-										{login} {email}
+										{f_login} {f_email}
 									{/session.passport.user}
 									<i class="caret"></i>
 								</span>
@@ -67,7 +66,7 @@
 								<li class="user-header">
 									<img src="/img/avatar.png" alt="" class="img-circle">
 									<p>
-										{session.passport.user.login} {session.passport.user.email}
+										{session.passport.user.f_login} {session.passport.user.f_email}
 										<small>{session.passport.user.r_role.label}</small>
 									</p>
 								</li>
