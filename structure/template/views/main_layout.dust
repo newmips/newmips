@@ -12,7 +12,7 @@
 		{! Admin LTE style !}
 		<link href="/css/AdminLteV2/AdminLTE.css" rel="stylesheet" type="text/css">
 		{! Admin LTE Skin !}
-		<link href='/css/AdminLteV2/skins/skin-blue.min.css' rel='stylesheet' type='text/css'>
+		<link href='/css/AdminLteV2/skins/skin-blue.min.css' rel='stylesheet' type='text/css' data-type="skin" data-skin="blue">
 		{! Toastr !}
 		<link href="/css/toastr/toastr.min.css" rel="stylesheet" type="text/css">
 		{! Bootstrap Datepicker !}
@@ -27,6 +27,8 @@
 		<link href='/css/select2/css/select2.min.css' rel='stylesheet' type='text/css'>
 		{! Dropzone !}
 		<link href='/css/dropzone/dropzone.min.css' rel='stylesheet' type='text/css'>
+		{! Newmips !}
+		<link href='/css/newmips.css' rel='stylesheet' type='text/css'>
 		{! Custom Css  !}
 		{+custom_css /}
 		{! HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries !}
@@ -44,7 +46,7 @@
 			var id_user = "{session.data.id}";
 			</script>
 			<header class="main-header">
-				<a href="/default/home" style="text-decoration: none!important;" class="logo">
+				<a href="/default/home" class="logo">
 					<span class="logo-mini"> - </span>
 					<span class="logo-lg">{@__ key="app.name"/}</span>
 				</a>
