@@ -61,9 +61,9 @@
 								<a href="#" data-toggle="dropdown" class="dropdown-toggle">
 									<i class="glyphicon glyphicon-user"></i>
 									<span>
-										{#session.data}
-											{first_name} {last_name}
-										{/session.data}
+										{#session.passport.user}
+											{f_login} {f_email}
+										{/session.passport.user}
 										<i class="caret"></i>
 									</span>
 								</a>
@@ -72,8 +72,8 @@
 									<li class="user-header">
 										<img src="/img/avatar.png" alt="" class="img-circle">
 										<p>
-											{session.data.first_name} {session.data.last_name}
-											<small>{session.data.Role.name}</small>
+											{session.passport.user.f_login} {session.passport.user.f_email}
+											<small>{session.passport.user.r_role.f_label}</small>
 										</p>
 									</li>
 									{! Menu Body !}

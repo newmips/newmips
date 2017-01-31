@@ -4,7 +4,7 @@ var bcrypt = require('bcrypt-nodejs');
 
 //Sequelize
 var models = require('../models/');
-var userModel = require('../config/authentication.json').userModel;
+
 // Default authentication strategy : passport.authenticate('local')
 // =========================================================================
 // IS LOGGED IN ============================================================
@@ -16,20 +16,19 @@ passport.use(new LocalStrategy({
     },
     function(req, login_user, password_user, done) {
 
-        models[userModel].findOne({where: {login: login_user}}).then(function(user) {
+        models.E_user.findOne({where: {f_login: login_user}}).then(function(user) {
             // if the user doesn't exist
             if (!user)
                 return done(null, false, req.flash('loginMessage', 'Nom d\'utilisateur inexistant.'));
 
             // if the user has no password
-            if (user.password == "")
+            if (user.f_password == "")
                 return done(null, false, req.flash('loginMessage', 'Compte non activé'));
 
             // if the user is found but the password is wrong
-            if (!bcrypt.compareSync(password_user, user.password))
+            if (!bcrypt.compareSync(password_user, user.f_password))
                 return done(null, false, req.flash('loginMessage', 'Mauvais mot de passe.'));
             else {
-                req.session.data = user;
                 return done(null, user);
             }
         });
@@ -50,4 +49,3 @@ exports.isLoggedIn = passport.authenticate('local', {
 });
 
 exports.passport = passport;
-//exports.googleStrategy = googleStrategy;

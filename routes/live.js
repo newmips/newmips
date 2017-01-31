@@ -76,7 +76,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             message: "Une erreur est survenue. Projet et/ou application non renseigné.",
             level: "error"
         }];
-        res.redirect('/default/home');
+        return res.redirect('/default/home');
     }
     else if(name_application == ""){
         console.log("Une erreur est survenue. Nom d'application non renseigné.");
@@ -84,59 +84,62 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             message: "Une erreur est survenue. Nom d'application non renseigné.",
             level: "error"
         }];
-        res.redirect('/default/home');
+        return res.redirect('/default/home');
     }
-    else{
-        var data = {
-            "error": 1,
-            "profile": req.session.data,
-            "menu": "live",
-            "msg": message,
-            "answers": "",
-            "instruction": instruction
-        };
+    var data = {
+        "error": 1,
+        "profile": req.session.data,
+        "menu": "live",
+        "msg": message,
+        "answers": "",
+        "instruction": instructions
+    };
 
-        var done = 0;
+    var done = 0;
 
-        var instruction = [];
-        if(select_project != ""){
-            instruction[0] = "select project " + select_project;
-        }
-        else{
-            instruction[0] = "create project " + name_project;
-        }
-        instruction[1] = "create application " + name_application;
-        instruction[2] = "create module home";
+    var instructions = [];
+    if(select_project != "")
+        instructions.push("select project " + select_project);
+    else
+        instructions.push("create project " + name_project);
 
-        execute(req, instruction[0]).then(function() {
+    instructions.push("create application " + name_application);
+    instructions.push("create module home");
+
+    instructions.push("create module Authentication");
+    instructions.push("create entity User");
+    instructions.push("add field login");
+    instructions.push("add field password");
+    instructions.push("add field email with type email");
+    instructions.push("add field token_password_reset");
+    instructions.push("add field enabled with type number");
+    instructions.push("create entity Role");
+    instructions.push("add field label");
+    instructions.push("create entity Group");
+    instructions.push("add field label");
+    instructions.push("select entity User");
+    instructions.push("add field role related to Role using label");
+    instructions.push("add field group related to Group using label");
+    instructions.push("select module home");
+
+    function finishApplicationInitialization() {
+        require(__dirname+'/../structure/structure_application').initializeApplication(req.session.id_application).then(function() {
             data.answers = req.session.answers.join('<br><br>');
-
-            var cpt = 0;
-
-            setInterval(function(){
-                if (cpt < 2){
-                    pourcent_generation[req.session.data.id] += Math.floor((Math.random() * 5) + 1);
-                    cpt++;
-                }
-            }, 1000);
-
-            execute(req, instruction[1]).then(function() {
-                data.answers = req.session.answers.join('<br><br>');
-                pourcent_generation[req.session.data.id] = 75;
-
-                execute(req, instruction[2]).then(function() {
-                    data.answers = req.session.answers.join('<br><br>');
-                    pourcent_generation[req.session.data.id] = 99;
-                    res.redirect('/application/preview?id_application=' + req.session.id_application);
-                });
-            });
-        }).catch(function(e) {
-            console.log("ERROR");
-            console.log(e);
-            data.answers = req.session.answers.join('<br><br>');
-            res.render('front/live', data);
+            return res.redirect('/application/preview?id_application=' + req.session.id_application);
         });
     }
+
+    function recursiveExecute(recurInstructions, idx) {
+        // All instructions executed
+        if (recurInstructions.length == idx)
+            return finishApplicationInitialization();
+
+        execute(req, recurInstructions[idx]).then(function(){
+            pourcent_generation[req.session.data.id] += 5;
+            recursiveExecute(recurInstructions, ++idx);
+        });
+    }
+    recursiveExecute(instructions, 0);
 });
 
 function execute(req, instruction) {

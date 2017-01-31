@@ -67,6 +67,41 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
+exports.initializeApplication = function(id_application) {
+    return new Promise(function(resolve, reject) {
+        // Copy authentication entities views
+        var piecesPath = __dirname+'/pieces/authentication/';
+        var workspacePath = __dirname+'/../workspace/'+id_application+'/';
+        fs.copy(piecesPath+'/views/e_user', workspacePath+'/views/e_user', function(err) {
+            if (err)
+                console.log(err);
+
+            // Copy authentication user entity route
+            fs.copy(piecesPath+'/routes/e_user.js', workspacePath+'/routes/e_user.js', function(err) {
+                if (err)
+                    console.log(err);
+
+                // Reset toSync to avoid double alter table
+                var toSyncFileName = __dirname+'/../workspace/'+id_application+'/models/toSync.json';
+                var writeStream = fs.createWriteStream(toSyncFileName)
+                writeStream.write(JSON.stringify({}), null, 4);
+                writeStream.end();
+                writeStream.on('finish', function(){
+
+                    // Sync workspace's database and insert admin user
+                    var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
+                    workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+                        workspaceSequelize.E_user.create({f_login: 'adminWorkspace', f_password: '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.', f_enabled: 1}).then(function() {
+                            resolve();
+                        });
+                    });
+
+                });
+            });
+        });
+    });
+}
+
 exports.deleteApplication = function(id_application, callback) {
 
     // Kill spawned child process by preview
