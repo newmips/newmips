@@ -1128,10 +1128,10 @@ exports.createNewComponentContactForm = function(attr, callback) {
     });
 }
 
+
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */
-
 // Set adminLTE skin
 exports.setSkin = function(attr, callback) {
     structure_ui.setSkin(attr, function(err, infoStructure){
