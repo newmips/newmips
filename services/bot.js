@@ -596,7 +596,6 @@ exports.createNewComponentContactFormWithName = function(result) {
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
-<<<<<<< HEAD
 // ******* INTERFACE Actions ******* //
 exports.setSkin = function(result) {
 
@@ -613,21 +612,6 @@ exports.setSkin = function(result) {
     };
     return attr;
 };
-=======
-exports.createNewComponentAuthentication = function(result) {
-
-    console.log("ACTION : createNewComponentAuthentication");
-
-    var options = {};
-
-    var attr = {
-        function: "createNewComponentAuthentication",
-        options: options
-    };
-    return attr;
-}
-
->>>>>>> f89898875c7b77f8ba3ef0ef72d46be35798007e
 
 // ******* Parse *******
 exports.parse = function(instruction) {
