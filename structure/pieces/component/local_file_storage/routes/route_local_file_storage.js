@@ -13,6 +13,8 @@ var fse = require('fs-extra');
 var moment = require("moment");
 var upload = multer().single('file');
 
+var config = require('../config/global');
+
 function error500(err, res) {
     console.error(err);
     var data = {};
@@ -86,8 +88,8 @@ router.post('/file_upload', block_access.isLoggedIn, function(req, res) {
                 /* ---------------------------------------------------------- */
                 /* ------------- Local Storage in upload folder ------------- */
                 /* ---------------------------------------------------------- */
-                fse.mkdirsSync(__dirname+"/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
-                var uploadPath = __dirname+"/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
+                fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
+                var uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
                 var byte;
                 var outStream = fs.createWriteStream(uploadPath);
                 outStream.write(req.file.buffer);
@@ -116,7 +118,7 @@ router.post('/file_download', block_access.isLoggedIn, function(req, res) {
         /* ---------------------------------------------------------- */
         /* ----------------- Download a local file ----------------- */
         /* ---------------------------------------------------------- */
-        var downloadPath = __dirname + "/../upload/"+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
+        var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
         var fileName = req.body.originalname;
 
         res.download(downloadPath, fileName, function(err) {
@@ -134,7 +136,7 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
     }).then(function(toRemoveComponent){
         if(toRemoveComponent){
 
-            fs.unlinkSync(__dirname + "/../upload/SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.filename);
+            fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.filename);
             models.COMPONENT_NAME.destroy({
                 where: {
                     id: req.body.idRemove
