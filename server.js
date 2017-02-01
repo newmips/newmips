@@ -32,9 +32,6 @@ require('./utils/authStrategies');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
 
-// log every request to the console
-/*app.use(morgan('dev'));*/
-
 // Empeche l'apparition de certain log polluant.
 app.use(morgan('dev', {
 	skip: function (req, res) {
@@ -65,10 +62,12 @@ var sessionStore = new SessionStore(options);
 
 app.use(session({
 	store: sessionStore,
+	cookieName: 'newmipsCookie',
 	secret: 'newmipsmakeyourlifebetter',
 	resave: true,
 	saveUninitialized: true,
-	maxAge: 360*5
+	maxAge: 360*5,
+	key: 'newmipsCookie'
  } )); // session secret
  app.use(passport.initialize());
  app.use(passport.session()); // persistent login sessions

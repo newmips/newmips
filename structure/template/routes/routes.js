@@ -42,7 +42,6 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 });
 
 router.post('/login', auth.isLoggedIn, function(req, res) {
-    req.session.data = req.session.passport.user;
     var redirect_to = req.session.redirect_to ? req.session.redirect_to : '/default/home';
     delete req.session.redirect_to;
 
@@ -65,29 +64,25 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
     var login_user = req.body.login_user;
-    var password = bcrypt.hashSync(req.body.password_user2, null, null);
 
-    models.User.findOne({
+    models.E_user.findOne({
         where: {
-            login: login_user,
-            password: "",
-            enabled: 0
+            f_login: login_user,
+            f_password: null,
+            f_enabled: 0
         }
     }).then(function(user){
         if(!user){
             req.flash('loginMessage', "Erreur. Cet utilisateur n'éxiste pas ou ne réponds pas aux conditions pour définir un mot de passe.");
             return res.redirect('/login');
         }
-        if(user.password != ""){
+        if(user.f_password != "" && user.f_password != null){
             req.flash('loginMessage', 'Mise à jour impossible. Cet utilisateur possède déjà un mot de passe. Contactez votre Administrateur.');
             return res.redirect('/login');
         }
-        models.User.update({
-            password: password
-        }, {
-            where: {
-                id: user.id
-            }
+        var password = bcrypt.hashSync(req.body.password_user2, null, null);
+        models.E_user.update({f_password: password, enabled: 1}, {
+            where: {id: user.id}
         }).then(function(){
             req.flash('loginMessage', 'Mise à jour faite. Vous pouvez désormais vous connecter.');
             res.redirect('/login');
@@ -115,8 +110,8 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         // Create unique token and insert into user
         var token = crypto.randomBytes(64).toString('hex');
 
-        models.User.update({
-            token_password_reset: token
+        models.E_user.update({
+            f_token_password_reset: token
         }, {
             where: {
                 id: idUser
@@ -132,8 +127,8 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                 });
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
-                models.User.update({
-                    token_password_reset: null
+                models.E_user.update({
+                    f_token_password_reset: null
                 }, {
                     where: {
                         id: idUser
@@ -151,10 +146,10 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         });
     }
 
-    models.User.findOne({
+    models.E_user.findOne({
         where: {
-            login: login_user,
-            email: given_mail
+            f_login: login_user,
+            f_email: given_mail
         }
     }).then(function(user){
         if(user){
@@ -175,9 +170,9 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 // Trigger password reset
 router.get('/reset_password/:token', block_access.loginAccess, function(req, res) {
 
-    models.User.findOne({
+    models.E_user.findOne({
         where: {
-            token_password_reset: req.params.token
+            f_token_password_reset: req.params.token
         }
     }).then(function(user){
         if(!user){
@@ -186,9 +181,9 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
             });
         }
         else{
-            models.User.update({
-                password: "",
-                token_password_reset: ""
+            models.E_user.update({
+                f_password: "",
+                f_token_password_reset: ""
             }, {
                 where: {
                     id: user.id
@@ -211,6 +206,7 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
 // LOGOUT ==============================
 // =====================================
 router.get('/logout', function(req, res) {
+    req.session.autologin = false;
     req.logout();
     res.redirect('/login');
 });

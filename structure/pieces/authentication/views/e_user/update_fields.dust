@@ -1,0 +1,63 @@
+<div id="fields">
+    <div data-field="f_login" class="form-group">
+        <label for="f_login">
+            {@__ key="entity.e_user.f_login"/}
+        </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text">
+    </div>
+    <div data-field="f_email" class="form-group">
+        <label for="f_email">
+            {@__ key="entity.e_user.f_email"/}
+        </label>
+        <div class="input-group">
+            <div class="input-group-addon"> <i class="fa fa-envelope"></i>
+
+            </div>
+            <input class="form-control input" placeholder='{@__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email">
+        </div>
+    </div>
+    {^isSettings}
+        <div data-field="r_role" class="form-group">
+            <label for="r_role">
+                {@__ key="entity.e_user.r_role" /}
+            </label>
+            <select class="form-control" name="r_role">
+                {#r_role_global_list}
+                {#.f_label}
+                {@eq key=r_role.id value=id}
+                <option value="{id}" selected="">{f_label}</option>
+                {:else}
+                <option value="{id}">{f_label}</option>
+                {/eq}
+                {:else}
+                {@eq key=r_role.id value=id}
+                <option value="{id}" selected="">{id} - f_label not defined</option>
+                {:else}
+                <option value="{id}">{id} - f_label not defined</option>
+                {/eq}
+                {/.f_label}
+                {/r_role_global_list}
+            </select>
+        </div>
+        <div data-field="r_group" class="form-group">
+            <label for="r_group">{@__ key="entity.e_user.r_group" /}</label>
+            <select class="form-control" name="r_group">
+                {#r_group_global_list}
+                {#.f_label}
+                {@eq key=r_group.id value=id}
+                <option value="{id}" selected="">{f_label}</option>
+                {:else}
+                <option value="{id}">{f_label}</option>
+                {/eq}
+                {:else}
+                {@eq key=r_group.id value=id}
+                <option value="{id}" selected="">{id} - f_label not defined</option>
+                {:else}
+                <option value="{id}">{id} - f_label not defined</option>
+                {/eq}
+                {/.f_label}
+                {/r_group_global_list}
+            </select>
+        </div>
+    {/isSettings}
+</div>

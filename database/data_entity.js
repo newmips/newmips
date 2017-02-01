@@ -376,4 +376,3 @@ exports.getModuleCodeNameByEntityCodeName = function(entity_name, callback){
 		callback(err, null);
 	});
 }
-
