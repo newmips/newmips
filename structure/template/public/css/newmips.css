@@ -41,3 +41,6 @@ div.dataTables_length select {
 .skin-black .main-header > .logo {
     color: #333 !important;
 }
+.box-header {
+  padding: 18px;
+}
