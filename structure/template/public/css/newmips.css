@@ -34,9 +34,9 @@ div.dataTables_length select {
 	border-radius: 5px !important;
 }
 .content-header{
-	background: #fbfbfb none repeat scroll 0 0 !important;
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    padding: 15px;
+  background: #F9FAFC none repeat scroll 0 0 !important;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  padding: 15px;
 }
 .skin-black .main-header > .logo {
     color: #333 !important;
