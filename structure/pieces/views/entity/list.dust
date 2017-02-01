@@ -11,17 +11,21 @@
     </ol>
 {/header}
 {<content}
-    <div class="table-responsive">
-        <legend>{@__ key="operation.list"/} {@__ key="entity.custom_data_entity.plural_entity"/}</legend>
-        <div class="col-xs-12 connectedSortable">
-            <div class="box-body">
-                {>"custom_data_entity/list_fields"/}
+    <legend>{@__ key="operation.list"/} {@__ key="entity.custom_data_entity.plural_entity"/}</legend>
+    <div class="box">
+        <div class="table-responsive">
+            <div class="row">
+                <div class="col-xs-12 connectedSortable">
+                    <div class="box-body">
+                        {>"custom_data_entity/list_fields"/}
+                    </div>
+                    <br/>
+                    <a href="/custom_url_data_entity/create_form">
+                        <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+                        </button>
+                    </a>
+                </div>
             </div>
-            <br/>
-            <a href="/custom_url_data_entity/create_form">
-                <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
-                </button>
-            </a>
         </div>
     </div>
     <div id="table_custom_data_entity_show" style="display:none;">

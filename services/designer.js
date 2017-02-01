@@ -108,14 +108,14 @@ exports.listProject = function(attr, callback) {
 }
 
 exports.deleteProject = function(attr, callback) {
-    db_project.getProjectApplications(attr.options.value, function(err, applications) {
+    db_project.getProjectApplications(attr.options.showValue, function(err, applications) {
         if (err)
             return callback(err, null);
         var appIds = [];
         for (var i=0; i<applications.length; i++)
             appIds.push(applications[i].id);
         deleteApplicationRecursive(appIds, 0).then(function() {
-            db_project.deleteProject(attr.options.value, function(err, info) {
+            db_project.deleteProject(attr.options.showValue, function(err, info) {
                 if (err)
                     return callback(err, null);
 

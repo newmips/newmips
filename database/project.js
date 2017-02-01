@@ -134,7 +134,7 @@ exports.deleteProject = function(value, callback) {
 
         if(isNaN(value)){
             where.where = {
-                codeName: value
+                name: value
             };
         }
         else{
@@ -179,16 +179,19 @@ exports.getNameProjectById = function(id_project, callback) {
 
 exports.getProjectApplications = function(project, callback){
     var where = {where: {}, include: [models.Application]};
+    var type = "";
     if (isNaN(project)){
-        where.where = {codeName: project};
+        where.where = {name: project};
+        type = "Name";
     }
     else{
         where.where = {id: project};
+        type = "ID";
     }
     models.Project.findOne(where).then(function(project){
         if(!project){
             var err = new Error();
-            err.message = "No project found";
+            err.message = "No project found with "+type+" "+project;
             return callback(err, null);
         }
 
