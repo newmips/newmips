@@ -258,10 +258,24 @@ exports.setupDataEntity = function(attr, callback) {
 																	/* Replace all variables 'custom_data_entity' in list_fields.dust */
 																	replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function(){
 
-																		/* --------------- New translation --------------- */
-																		translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function(){
-																			callback();
-																		});
+																		// Write new data entity to access.json file, within module's context
+									                                    var accessPath = __dirname + '/../workspace/'+id_application+'/config/access.json';
+									                                    var accessObject = require(accessPath);
+									                                    accessObject[name_module.substring(2).toLowerCase()].entities.push({
+									                                    	name: url_name_data_entity,
+									                                    	groups: [],
+									                                    	actions: {
+									                                    		read: [],
+									                                    		write: [],
+									                                    		delete: []
+									                                    	}
+									                                    });
+									                                    fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function(err) {
+																			/* --------------- New translation --------------- */
+																			translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function(){
+																				callback();
+																			});
+									                                    })
 																	});
 																});
 															});

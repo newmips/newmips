@@ -98,7 +98,12 @@ exports.setupModule = function(attr, callback) {
 
                                 // Wait for all the layouts to be modified before calling `callback()`
                                 Promise.all(promises).then(function() {
-                                    callback();
+                                    var accessPath = __dirname + '/../workspace/'+id_application+'/config/access.json';
+                                    var accessObject = require(accessPath);
+                                    accessObject[url_name_module.toLowerCase()] = {groups: [], entities: []};
+                                    fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function(err) {
+                                        callback();
+                                    })
                                 }).catch(function(err) {
                                     callback(err, null);
                                 });
