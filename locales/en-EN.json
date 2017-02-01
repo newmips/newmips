@@ -31,6 +31,9 @@
 			"reload": "Restart server",
 			"issue-button": "Report an issue"
 		},
+		"access_config": {
+			"tab_name": "Access configuration"
+		},
 		"module": "Module",
 		"workspace": "My workspace",
 		"manager": "Manager",

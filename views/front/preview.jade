@@ -43,6 +43,8 @@ block content
 				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("module.preview.title")}
 			li
 				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("module.editor")}
+			li
+				a(role="primaryTab", data-toggle='tab', href='#access-config') #{__("module.access_config.tab_name")}
 		.tab-content
 			#preview.tab-pane.fade.in.active
 				.row
@@ -203,6 +205,58 @@ block content
 							option(value="xq-light") xq-light
 							option(value="yeti") yeti
 							option(value="zenburn") zenburn
+
+			#access-config.tab-pane.fade.in
+				.row
+					.col-lg-12
+						table.table.table-striped
+							thead
+								th(colspan="2")
+									| Element
+								each group in groups
+									th
+										| #{M_(group.f_label)}
+							tbody
+								each module in modules
+									tr
+										td(colspan="2")
+											| #{M_(module.name)}
+										each group in groups
+											td
+												input.form-control.input(type='checkbox')
+									each entity in module.DataEntities
+										tr
+											td
+											td
+												| #{entity.name}
+											each group in groups
+												td
+													input.form-control.input(type='checkbox', style='margin-left: 30px;')
+
+			//- #access-config.tab-pane.fade.in
+			//- 	.row
+			//- 		.col-lg-12
+			//- 			.row
+			//- 				.col-lg-2
+			//- 					| Element
+			//- 				each group in groups
+			//- 					.col-lg-1
+			//- 						| #{M_(group.f_label)}
+			//- 			each module in modules
+			//- 				.row
+			//- 					.col-lg-2
+			//- 						| #{M_(module.name)}
+			//- 					each group in groups
+			//- 						.col-lg-1
+			//- 							input(type='checkbox')
+			//- 				each entity in module.DataEntities
+			//- 					.row
+			//- 						.col-lg-offset-1.col-lg-1
+			//- 							| #{entity.name}
+			//- 						each group in groups
+			//- 							.col-lg-1
+			//- 								input(type='checkbox')
+
 block custom_js
 	// AdminLTE App
 	script(src='/js/AdminLTE/app.min.js', type='text/javascript')
@@ -286,6 +340,12 @@ block custom_js
 					$(this).parents('form').submit();
 				}
 			});
+
+		    $("input[type='checkbox'], input[type='radio']").iCheck({
+		        checkboxClass: 'icheckbox_flat-blue',
+		        radioClass: 'iradio_flat-blue',
+		        disabledClass: ''
+		    });
 
 			$(document).on("click", "#restart-server", function(e){
 				$("#instruction").val("restart server");

@@ -24,6 +24,7 @@ var parser = require('../services/bot.js');
 var globalConf = require('../config/global.js');
 var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
+var access_helper = require('../utils/access_helper');
 
 // Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
@@ -130,7 +131,12 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         folder = helpers.sortEditorFolder(folder);
                         data.workspaceFolder = folder;
 
-                        res.render('front/preview', data);
+                        access_helper.getPreviewData(req.session.id_application).then(function(values) {
+                            data.groups = values.groups;
+                            data.roles = values.roles;
+                            data.modules = values.modules;
+                            res.render('front/preview', data);
+                        });
                     });
                 });
             }
@@ -391,13 +397,16 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 data.workspaceFolder = folder;
                                 data.iframe_url = process_manager.childUrl();
 
-                                if(toRedirectRestart){
-                                    return res.redirect("/application/preview?id_application="+attr.id_application);
-                                }
-                                else{
-                                    // Call preview page
-                                    res.render('front/preview.jade', data);
-                                }
+                                access_helper.getPreviewData(attr.id_application).then(function(values) {
+                                    data.groups = values.groups;
+                                    data.roles = values.roles;
+                                    data.modules = values.modules;
+                                    if(toRedirectRestart)
+                                        return res.redirect("/application/preview?id_application="+attr.id_application);
+                                    else
+                                        // Call preview page
+                                        return res.render('front/preview.jade', data);
+                                });
                             });
                         });
                     }
