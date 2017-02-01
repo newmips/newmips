@@ -83,13 +83,13 @@ block content
 																	button.btn.btn-danger
 																		i.fa.fa-trash-o.fa-md &nbsp;&nbsp;
 																		span #{__("button.delete")}
-																	input(type='hidden', name='instruction', value="delete application #{application.name}")
+																	input(type='hidden', name='instruction', value="delete application #{application.id}")
 							.box-footer
 								form.deleteProjectForm
 									button.btn.btn-danger
 										i.fa.fa-trash-o.fa-md &nbsp;&nbsp;
 										span #{__("button.delete")}
-									input(type="hidden", name="instruction", value="delete project #{project.name}")
+									input(type="hidden", name="instruction", value="delete project #{project.id}")
 block custom_js
 	// AdminLTE App
 	script(src='/js/AdminLTE/app.js', type='text/javascript')
