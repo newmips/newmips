@@ -9,11 +9,8 @@ var fs = require('fs');
 
 // Parser
 var designer = require('../services/designer.js');
+var structure_application = require('../structure/structure_application');
 var fs = require("fs");
-/* OLD PARSER
-var jison = require("jison");
-var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
-var parser = new jison.Parser(bnf); */
 
 var parser = require('../services/bot.js');
 
@@ -116,8 +113,28 @@ function execute(req, instruction) {
     });
 }
 
+var mandatoryInstructions = [
+    "create module home",
+    "create module Authentication",
+    "create entity User",
+    "add field login",
+    "add field password",
+    "add field email with type email",
+    "add field token_password_reset",
+    "add field enabled with type number",
+    "create entity Role",
+    "add field label",
+    "create entity Group",
+    "add field label",
+    "select entity User",
+    "add field role related to Role using label",
+    "add field group related to Group using label",
+    "select module home"
+];
+var idxAtMandatoryInstructionStart = -1;
 function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
+        // All instructions executed
         if (instructions.length == idx){
             /* Reset toSync.json because in this situation it's the sequelize sync() that will do the job, not our custom sync */
             var idApplication = scriptData[req.session.data.id_user].ids.id_application;
@@ -132,12 +149,33 @@ function recursiveExecute(req, instructions, idx) {
             });
         }
         else {
-            execute(req, instructions[idx]).then(function() {
-                scriptData[req.session.data.id_user].doneInstruction++;
-                resolve(recursiveExecute(req, instructions, idx + 1));
-            }).catch(function() {
-                reject();
-            });
+            // If project and application are created and we're at the instruction that
+            // follows create application, insert mandatory instructions to instruction array
+            if (scriptData[req.session.data.id_user].ids.id_project > 0 && scriptData[req.session.data.id_user].ids.id_application > 0 && instructions[idx-1].toLowerCase().indexOf('application') != -1) {
+                instructions.splice.apply(instructions, [idx, 0].concat(mandatoryInstructions));
+                idxAtMandatoryInstructionStart = idx;
+                scriptData[req.session.data.id_user].totalInstruction += mandatoryInstructions.length;
+            }
+            // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
+            if (idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
+                structure_application.initializeApplication(scriptData[req.session.data.id_user].ids.id_application).then(function(){
+                    execute(req, instructions[idx]).then(function() {
+                        scriptData[req.session.data.id_user].doneInstruction++;
+                        resolve(recursiveExecute(req, instructions, idx + 1));
+                    }).catch(function() {
+                        reject();
+                    });
+                });
+            }
+            // Nothing specific to do, execute instruction
+            else {
+                execute(req, instructions[idx]).then(function() {
+                    scriptData[req.session.data.id_user].doneInstruction++;
+                    resolve(recursiveExecute(req, instructions, idx + 1));
+                }).catch(function() {
+                    reject();
+                });
+            }
         }
     });
 }

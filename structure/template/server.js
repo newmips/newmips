@@ -70,13 +70,15 @@ var sessionStore = new SessionStore(options);
 
 app.use(session({
 	store: sessionStore,
-	secret: 'newmipsmakeyourlifebetter',
+	cookieName: 'workspaceCookie',
+	secret: 'newmipsWorkspaceMakeyourlifebetter',
 	resave: true,
 	saveUninitialized: true,
-	maxAge: 360*5
- } )); // session secret
+	maxAge: 360*5,
+	// We concat port for a workspace specific session, instead of generator specific
+	key: 'workspaceCookie'+port
+ }));
  app.use(passport.initialize());
-
  // Persistent login sessions
  app.use(passport.session());
 
@@ -86,8 +88,30 @@ app.use(session({
 // Locals global ======================================================================
 app.locals.moment = require('moment');
 
+// Autologin for newmips's "iframe" live preview context
+var autologin = false;var autologinInited = false;var startedFromGenerator = false;
+if (process.argv[2] == 'autologin') {
+	startedFromGenerator = true;
+	autologin = true;
+}
+
+// When application process is a child of generator process, log each routes for the generator
+// to keep track of it, and redirect after server restart
+if (startedFromGenerator) {
+	app.get('/*', function(req, res, next){
+		console.log("IFRAME_URL::"+req.protocol + '://' + req.get('host') + req.originalUrl);
+		next();
+	});
+}
+
 //------------------------------ LANGUAGE ------------------------------ //
 app.use(function(req, res, next) {
+
+	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
+		autologinInited = true;
+		req.session.autologin = autologin;
+	}
+
     var lang = languageConfig.lang;
 
     if (req.session.lang_user){
@@ -100,7 +124,7 @@ app.use(function(req, res, next) {
     res.locals.lang_user = lang;
 
     // When user is logged
-	if (req.isAuthenticated()) {
+	if (req.isAuthenticated() || autologin) {
 		// Session
 		res.locals.session = req.session;
 	}

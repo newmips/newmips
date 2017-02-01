@@ -48,32 +48,6 @@ passport.use(new LocalStrategy({
     }
 ));
 
-// Check if input password match DB password to allow modifications
-// =========================================================================
-// NEW PASSWORD CHECK ======================================================
-// =========================================================================
-/*passport.use('new-password-check', new LocalStrategy({
-    usernameField: 'password', // Unused. Passport need it though. (to avoid this, we should define our own Strategy. It's not worth it)
-    passwordField: 'password_user',
-    passReqToCallback: true
-}, function(req, login, newMdp, done) {
-    // TODO: error message
-    var idUser = req.session.data.id_user;
-    if (typeof idUser === 'undefined')
-        return done(null, false, req.flash('message', 'Une erreur est survenue'));
-
-    connection.query('SELECT password_user FROM user WHERE id_user=?', [idUser], function(err, row) {
-        if (err)
-            return done(null, false, req.flash('message', 'Une erreur est survenue'));
-
-        newMdp: bcrypt.hashSync(newMdp, null, null);
-        if (!bcrypt.compareSync(newMdp, row[0].password_user))
-            return done(null, false, req.flash('message', 'Mauvais mot de passe'));
-
-        return done(null, true);
-    })
-}));*/
-
 passport.serializeUser(function(user_id, done) {
     done(null, user_id);
 });
