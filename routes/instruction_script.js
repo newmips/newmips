@@ -145,7 +145,7 @@ function recursiveExecute(req, instructions, idx) {
             writeStream.write(JSON.stringify(toSyncObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
-                resolve();
+                resolve(idApplication);
             });
         }
         else {
@@ -249,7 +249,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     // All lines read, execute instructions
     rl.on('close', function() {
         scriptData[userId].totalInstruction = fileLines.length;
-        recursiveExecute(req, fileLines, 0).then(function() {
+        recursiveExecute(req, fileLines, 0).then(function(idApplication) {
             // Success
             scriptData[userId].over = true;
         }).catch(function() {

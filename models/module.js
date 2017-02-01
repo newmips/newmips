@@ -36,5 +36,25 @@ module.exports = function(sequelize, DataTypes) {
 		}
 	});
 
+	Module.hook('beforeFindAfterOptions', function(module, callback) {
+        if(typeof module.where !== "undefined"){
+            if(typeof module.where.name !== "undefined")
+                module.where.name = module.where.name.toLowerCase();
+            if(typeof module.where.codeName !== "undefined")
+                module.where.codeName = module.where.codeName.toLowerCase();
+        }
+        callback();
+    });
+
+    Module.hook('beforeCreate', function(module, callback) {
+        module.name = module.name?module.name.toLowerCase():null;
+        module.codeName = module.codeName?module.codeName.toLowerCase():null;
+    });
+
+    Module.hook('beforeUpdate', function(module, callback) {
+        module.name = module.name?module.name.toLowerCase():null;
+        module.codeName = module.codeName?module.codeName.toLowerCase():null;
+    });
+
 	return Module;
 };

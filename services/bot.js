@@ -38,6 +38,13 @@ exports.deploy = function(result) {
     return attr;
 };
 
+exports.restart = function(result) {
+
+    var attr = {};
+    attr.function = "restart";
+    return attr;
+};
+
 // ******* SELECT Actions ******* //
 exports.selectProject = function(result) {
 
@@ -634,7 +641,15 @@ exports.parse = function(instruction) {
         ],
         "deploy": [
             "deploy",
-            "déploy"
+            "déployer",
+            "déploiment"
+        ],
+        "restart": [
+            "restart server",
+            "restart",
+            "redémarrer",
+            "redémarrer serveur",
+            "redémarrer le serveur"
         ],
         "selectProject": [
             "select project (.*)",
