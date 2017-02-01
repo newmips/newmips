@@ -154,7 +154,6 @@ function recursiveExecute(req, instructions, idx) {
             if (scriptData[req.session.data.id_user].ids.id_project > 0 && scriptData[req.session.data.id_user].ids.id_application > 0 && instructions[idx-1].toLowerCase().indexOf('application') != -1) {
                 instructions.splice.apply(instructions, [idx, 0].concat(mandatoryInstructions));
                 idxAtMandatoryInstructionStart = idx;
-                scriptData[req.session.data.id_user].totalInstruction += mandatoryInstructions.length;
             }
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
             if (idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
@@ -223,7 +222,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
     // Read file line by line, check for empty line, line comment, scope comment
     var fileLines = [],
-        commenting = false;
+        commenting = false,
+        authInstructions = false;
     rl.on('line', function(line) {
         // Empty line || One line comment scope
         if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1))
@@ -242,13 +242,15 @@ router.post('/execute', block_access.isLoggedIn, multer({
             // Line comment after instruction
             if (pos != -1)
                 line = line.substring(0, line.indexOf('//'));
+            if (line.indexOf('application') != -1)
+                authInstructions = true;
             fileLines.push(line);
         }
     });
 
     // All lines read, execute instructions
     rl.on('close', function() {
-        scriptData[userId].totalInstruction = fileLines.length;
+        scriptData[userId].totalInstruction = authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
         recursiveExecute(req, fileLines, 0).then(function(idApplication) {
             // Success
             scriptData[userId].over = true;
