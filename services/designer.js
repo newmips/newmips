@@ -197,7 +197,6 @@ function deleteApplication(attr, callback) {
                         for (var prop in results[i]) {
                             // For each request disable foreign key checks, drop table. Foreign key check
                             // last only for the time of the request
-                            done(++cpt);
                             sequelize.query("SET FOREIGN_KEY_CHECKS=0; DROP TABLE "+results[i][prop]+";SET FOREIGN_KEY_CHECKS=1;").then(function(){
                                 done(++cpt);
                             });
