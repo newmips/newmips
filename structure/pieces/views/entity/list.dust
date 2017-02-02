@@ -11,19 +11,25 @@
     </ol>
 {/header}
 {<content}
-    <legend>{@__ key="operation.list"/} {@__ key="entity.custom_data_entity.plural_entity"/}</legend>
     <div class="box">
-        <div class="table-responsive">
-            <div class="row">
-                <div class="col-xs-12 connectedSortable">
-                    <div class="box-body">
+        <div class="box-header">
+            <h3 class="box-title">{@__ key="operation.list"/} {@__ key="entity.custom_data_entity.plural_entity"/}</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                <i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="table-responsive">
+                <div class="row">
+                    <div class="col-xs-12 connectedSortable">
                         {>"custom_data_entity/list_fields"/}
+                        <br>
+                        <a href="/custom_url_data_entity/create_form">
+                            <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+                            </button>
+                        </a>
                     </div>
-                    <br/>
-                    <a href="/custom_url_data_entity/create_form">
-                        <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
-                        </button>
-                    </a>
                 </div>
             </div>
         </div>
