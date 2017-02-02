@@ -45,3 +45,27 @@ exports.setSkin = function(attr, callback) {
     	callback(err, null);
     }
 }
+
+exports.listSkin = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+
+    var skinPath = __dirname + '/../workspace/' + idApplication + '/public/css/AdminLteV2/skins';
+    var skinsDir = fs.readdirSync(skinPath).filter(function(file) {
+        return (file.indexOf('.') !== 0) && (file.slice(-7) === 'min.css' && (file.slice(0, 1) !== '_'));
+    });
+
+    var skinListAvailable = [];
+
+    skinsDir.forEach(function(file) {
+        var skin = file.slice(5, -8);
+        skinListAvailable.push(skin);
+    });
+
+    var info = {};
+    info.message = "Available skin: <br>";
+    for(var i=0; i<skinListAvailable.length; i++){
+        info.message += "-  " + skinListAvailable[i] + "<br>";
+    }
+    callback(null, info);
+}

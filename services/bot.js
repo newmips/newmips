@@ -606,8 +606,6 @@ exports.createNewComponentContactFormWithName = function(result) {
 // ******* INTERFACE Actions ******* //
 exports.setSkin = function(result) {
 
-    console.log("ACTION : setSkin");
-
     var value = result[1];
     var options = {
         value: value
@@ -616,6 +614,14 @@ exports.setSkin = function(result) {
     var attr = {
         function: "setSkin",
         options: options
+    };
+    return attr;
+};
+
+exports.listSkin = function(result) {
+
+    var attr = {
+        function: "listSkin"
     };
     return attr;
 };
@@ -853,6 +859,15 @@ exports.parse = function(instruction) {
             "lister champ",
             "lister champs",
             "lister les champs"
+        ],
+        "listSkin": [
+            "list all skin",
+            "list skin",
+            "list available skin",
+            "lister les skins",
+            "lister les skin",
+            "lister skin",
+            "lister skins"
         ],
         "relationshipHasOneWithName": [
             "entity (.*) has one (.*) called (.*)",
