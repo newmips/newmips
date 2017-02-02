@@ -1182,4 +1182,13 @@ exports.setSkin = function(attr, callback) {
     });
 }
 
+exports.listSkin = function(attr, callback) {
+    structure_ui.listSkin(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+
+        callback(null, infoStructure);
+    });
+}
+
 return designer;
