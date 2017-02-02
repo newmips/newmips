@@ -254,10 +254,10 @@ exports.getEntityListByModuleName = function(id_application, module_name, callba
     });
 }
 
-exports.deleteModule = function(module_name, callback) {
-    models.Module.destroy({where: {name: module_name}}).then(function(){
+exports.deleteModule = function(idApplication, moduleName, moduleShowName, callback) {
+    models.Module.destroy({where: {codeName: moduleName, id_application: idApplication}}).then(function(){
         var info = {
-            message: "Module '"+module_name+"' deleted."
+            message: "Module '"+moduleShowName+"' deleted."
         }
         callback(null, info);
     }).catch(function(err){

@@ -114,6 +114,7 @@ exports.deleteProject = function(attr, callback) {
         var appIds = [];
         for (var i=0; i<applications.length; i++)
             appIds.push(applications[i].id);
+
         deleteApplicationRecursive(appIds, 0).then(function() {
             db_project.deleteProject(attr.options.showValue, function(err, info) {
                 if (err)
@@ -121,6 +122,8 @@ exports.deleteProject = function(attr, callback) {
 
                 callback(null, info);
             });
+        }).catch(function(err){
+            callback(err, null);
         });
     });
 }
@@ -173,14 +176,33 @@ function deleteApplication(attr, callback) {
                 db_application.deleteApplication(id_application, function(err, infoDB) {
                     if (err)
                         return callback(err, null);
-                    for (var i = 0; i < results.length; i++) {
+                    /* Calculate the length of table to drop */
+                    var resultLength = 0;
+
+                    for (var i=0; i<results.length; i++) {
+                        for (var prop in results[i]) {
+                            resultLength++;
+                        }
+                    }
+
+                    /* Function when all query are done */
+                    function done(currentCpt){
+                        if(currentCpt == resultLength){
+                            callback(null, infoDB);
+                        }
+                    }
+
+                    var cpt = 0;
+                    for (var i=0; i<results.length; i++) {
                         for (var prop in results[i]) {
                             // For each request disable foreign key checks, drop table. Foreign key check
                             // last only for the time of the request
-                            sequelize.query("SET FOREIGN_KEY_CHECKS = 0; DROP TABLE "+results[i][prop]);
+                            done(++cpt);
+                            sequelize.query("SET FOREIGN_KEY_CHECKS=0; DROP TABLE "+results[i][prop]+";SET FOREIGN_KEY_CHECKS=1;").then(function(){
+                                done(++cpt);
+                            });
                         }
                     }
-                    callback(null, infoDB);
                 });
             });
         });
@@ -201,9 +223,19 @@ function deleteApplicationRecursive(appIds, idx) {
     return new Promise(function(resolve, reject) {
         if (!appIds[idx])
             return resolve();
-        attr.options.showValue = appIds[idx];
-        deleteApplication(attr, function() {
-            return (appIds[++idx]) ? resolve(deleteApplicationRecursive(appIds, idx)) : resolve();
+
+        var attr = {
+            options: {
+                value: appIds[idx],
+                showValue: appIds[idx]
+            }
+        };
+
+        deleteApplication(attr, function(err, info) {
+            if(err)
+                reject(err);
+            else
+                return (appIds[++idx])?resolve(deleteApplicationRecursive(appIds, idx)):resolve();
         });
     });
 }
@@ -296,7 +328,7 @@ exports.deleteModule = function(attr, callback) {
             structure_module.deleteModule(attr, function(err) {
                 if(err)
                     return callback(err, null);
-                db_module.deleteModule(moduleName, function(err, info) {
+                db_module.deleteModule(attr.id_application, attr.module_name, moduleName, function(err, info) {
                     if(err)
                         return callback(err, null);
                     callback(null, info);

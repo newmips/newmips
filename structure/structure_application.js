@@ -137,14 +137,14 @@ exports.deleteApplication = function(id_application, callback) {
     var path = __dirname+'/../workspace/'+id_application;
 
     if (process_server != null) {
-        try{
-            process_server = process_manager.killChildProcess(process_server.pid, function() {
+        process_server = process_manager.killChildProcess(process_server.pid, function(err) {
+            try{
                 helpers.rmdirSyncRecursive(path);
                 callback();
-            });
-        } catch(err){
-            callback(err, null);
-        }
+            } catch(err){
+                callback(err, null);
+            }
+        });
     }
     else {
         try{
