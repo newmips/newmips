@@ -132,6 +132,7 @@ var mandatoryInstructions = [
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;
+
 function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
         // All instructions executed
@@ -192,13 +193,13 @@ router.get('/index', block_access.isLoggedIn, function(req, res) {
     };
 
     res.render('front/instruction_script', data);
-
 });
 
 // Execute script file
 router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
+
     var userId = req.session.data.id_user;
 
     // Init scriptData object for user. (session simulation)
@@ -337,8 +338,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
         }
 
         // Delete instructions file
-        fs.unlink(req.file.path);
+        fs.unlinkSync(req.file.path);
     });
+
     res.end();
 });
 
