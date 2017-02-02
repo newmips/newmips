@@ -432,6 +432,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         attr.id_data_entity = req.session.id_data_entity;
         session_manager.getSession(attr, function(err, info) {
             data.session = info;
+            data.iframe_url = process_manager.childUrl();
             res.render('front/preview', data);
         });
     }

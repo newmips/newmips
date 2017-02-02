@@ -151,7 +151,7 @@ function recursiveExecute(req, instructions, idx) {
         else {
             // If project and application are created and we're at the instruction that
             // follows create application, insert mandatory instructions to instruction array
-            if (scriptData[req.session.data.id_user].ids.id_project > 0 && scriptData[req.session.data.id_user].ids.id_application > 0 && instructions[idx-1].toLowerCase().indexOf('application') != -1) {
+            if (scriptData[req.session.data.id_user].ids.id_project > 0 && scriptData[req.session.data.id_user].ids.id_application > 0 && parser.parse(instructions[idx-1].toLowerCase())["function"] == "createNewApplication") {
                 instructions.splice.apply(instructions, [idx, 0].concat(mandatoryInstructions));
                 idxAtMandatoryInstructionStart = idx;
             }
@@ -223,7 +223,42 @@ router.post('/execute', block_access.isLoggedIn, multer({
     // Read file line by line, check for empty line, line comment, scope comment
     var fileLines = [],
         commenting = false,
-        authInstructions = false;
+        authInstructions = false,
+        invalidScript = false;
+
+    /* If one of theses value is to 2 after readings all lines then there is an error,
+    line to 1 are set because they are mandatory lines added by the generator */
+    var exception = {
+        createNewProject : {
+            value: 0,
+            errorMessage: "You can't create more than one project in the same script."
+        },
+        createNewApplication : {
+            value: 0,
+            errorMessage: "You can't create more than one application in the same script."
+        },
+        createModuleHome: {
+            value: 1,
+            errorMessage: "You can't create a module home, because it's a default module in the application."
+        },
+        createModuleAuthentication: {
+            value: 1,
+            errorMessage: "You can't create a module authentication, because it's a default module in the application."
+        },
+        createEntityUser: {
+            value: 1,
+            errorMessage: "You can't create a entity user, because it's a default entity in the application."
+        },
+        createEntityRole: {
+            value: 1,
+            errorMessage: "You can't create a entity role, because it's a default entity in the application."
+        },
+        createEntityGroup: {
+            value: 1,
+            errorMessage: "You can't create a entity group, because it's a default entity in the application."
+        },
+    };
+
     rl.on('line', function(line) {
         // Empty line || One line comment scope
         if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1))
@@ -235,29 +270,71 @@ router.post('/execute', block_access.isLoggedIn, multer({
         else if (line.indexOf('*/') != -1 && commenting)
             commenting = false;
         else if (!commenting) {
-            var pos = line.indexOf('//');
-            // Line comment
-            if (pos == 0)
+            var positionComment = line.indexOf('//');
+            // Line start with comment
+            if (positionComment == 0)
                 return;
-            // Line comment after instruction
-            if (pos != -1)
+            // Line comment is after or in the instruction
+            if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
-            if (line.indexOf('application') != -1)
+            }
+            // Get the wanted function given by the bot to do some checks
+            var designerFunction = parser.parse(line)["function"];
+            var designerValue = null;
+            if(typeof parser.parse(line)["options"] !== "undefined")
+                designerValue = parser.parse(line)["options"]["value"]?parser.parse(line)["options"]["value"]:null;
+
+            if (designerFunction == "createNewProject"){
+                exception.createNewProject.value += 1;
+            }
+            if (designerFunction == "createNewApplication"){
                 authInstructions = true;
+                exception.createNewApplication.value += 1;
+            }
+            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home"){
+                exception.createModuleHome.value += 1;
+            }
+            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication"){
+                exception.createModuleAuthentication.value += 1;
+            }
+            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "user"){
+                exception.createEntityUser.value += 1;
+            }
+            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "role"){
+                exception.createEntityRole.value += 1;
+            }
+            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "group"){
+                exception.createEntityGroup.value += 1;
+            }
             fileLines.push(line);
         }
     });
 
     // All lines read, execute instructions
     rl.on('close', function() {
-        scriptData[userId].totalInstruction = authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
-        recursiveExecute(req, fileLines, 0).then(function(idApplication) {
-            // Success
+        var isError = false;
+        var stringError = "";
+        for(var item in exception){
+            if(exception[item].value > 1){
+                stringError += exception[item].errorMessage + '<br><br>';
+                isError = true;
+            }
+        }
+
+        if(isError){
+            scriptData[userId].answers = [];
+            scriptData[userId].answers.push(stringError);
             scriptData[userId].over = true;
-        }).catch(function() {
-            // Error
-            scriptData[userId].over = true;
-        })
+        } else{
+            scriptData[userId].totalInstruction = authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
+            recursiveExecute(req, fileLines, 0).then(function(idApplication) {
+                // Success
+                scriptData[userId].over = true;
+            }).catch(function() {
+                // Error
+                scriptData[userId].over = true;
+            });
+        }
 
         // Delete instructions file
         fs.unlink(req.file.path);

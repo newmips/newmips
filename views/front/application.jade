@@ -127,23 +127,21 @@ block custom_js
 				var appForms = $(self).parents('.box').find("tbody tr form");
 				$(this).children("button").html("Loading...");
 				$(this).children("button").prop("disabled", true);
-				// Delete application one by one
-				deleteApplication(appForms, 0).then(function() {
-					toastr.success("All Applications deleted");
-					$(document.body).css({cursor: 'wait'});
-					$.ajax({
-						url: '/live/index',
-						method: 'post',
-						data: {instruction: $(self).find("input[name='instruction']").val()},
-						success: function() {
-							toastr.success("Project deleted");
-							$(self).parents('.col-lg-6').remove();
-							$(document.body).css({cursor: 'default'});
-						}
-					})
+
+				$(document.body).css({cursor: 'wait'});
+				$.ajax({
+					url: '/live/index',
+					method: 'post',
+					data: {instruction: $(self).find("input[name='instruction']").val()},
+					success: function() {
+						toastr.success("Project deleted");
+						$(self).parents('.col-lg-6').remove();
+						$(document.body).css({cursor: 'default'});
+					}
 				});
+
 				return false;
-			})
+			});
 
 			// Delete application
 			$(".deleteAppForm").submit(function(){
