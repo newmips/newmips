@@ -153,27 +153,33 @@ exports.setupDataEntity = function(attr, callback) {
 		domHelper.read(fileName).then(function($) {
 			var li = '';
 			// Create new html
-			li += "<li id='"+urlDataEntity.toLowerCase()+"_menu_item' style='display:"+displaySidebar+";' class='treeview'>\n";
-				li += '<a href="#">\n';
-					li += '<i class="fa fa-folder"></i>\n';
-					li += '<span>{@__ key="entity.'+nameDataEntity.toLowerCase()+'.label_entity" /}</span>\n';
-					li += '<i class="fa fa-angle-left pull-right"></i>\n';
-				li += '</a>\n';
-				li += '<ul class="treeview-menu">\n';
-					li += '<li>\n';
-						li += "<a href='/"+urlDataEntity.toLowerCase()+"/create_form'>\n";
-							li += '<i class="fa fa-angle-double-right"></i>\n';
-							li += '{@__ key="operation.create" /} {@__ key="entity.'+nameDataEntity.toLowerCase()+'.name_entity" /}\n';
-						li += '</a>';
-					li += '</li>';
-					li += '<li>';
-						li += "<a href='/"+urlDataEntity.toLowerCase()+"/list'>\n";
-							li += '<i class="fa fa-angle-double-right"></i>\n';
-							li += '{@__ key="operation.list" /} {@__ key="entity.'+nameDataEntity.toLowerCase()+'.plural_entity" /}\n';
-						li += '</a>\n';
-					li += '</li>\n';
-				li += '</ul>\n';
-			li += '</li>\n';
+			li += '{@entityAccess entity="'+urlDataEntity.toLowerCase()+'"}\n';
+				li += "<li id='"+urlDataEntity.toLowerCase()+"_menu_item' style='display:"+displaySidebar+";' class='treeview'>\n";
+					li += '<a href="#">\n';
+						li += '<i class="fa fa-folder"></i>\n';
+						li += '<span>{@__ key="entity.'+nameDataEntity.toLowerCase()+'.label_entity" /}</span>\n';
+						li += '<i class="fa fa-angle-left pull-right"></i>\n';
+					li += '</a>\n';
+					li += '<ul class="treeview-menu">\n';
+						li += '{@actionAccess entity="'+urlDataEntity.toLowerCase()+'" action="write"}';
+							li += '<li>\n';
+								li += "<a href='/"+urlDataEntity.toLowerCase()+"/create_form'>\n";
+									li += '<i class="fa fa-angle-double-right"></i>\n';
+									li += '{@__ key="operation.create" /} {@__ key="entity.'+nameDataEntity.toLowerCase()+'.name_entity" /}\n';
+								li += '</a>';
+							li += '</li>';
+						li += '{/actionAccess}';
+						li += '{@actionAccess entity="'+urlDataEntity.toLowerCase()+'" action="read"}';
+							li += '<li>';
+								li += "<a href='/"+urlDataEntity.toLowerCase()+"/list'>\n";
+									li += '<i class="fa fa-angle-double-right"></i>\n';
+									li += '{@__ key="operation.list" /} {@__ key="entity.'+nameDataEntity.toLowerCase()+'.plural_entity" /}\n';
+								li += '</a>\n';
+							li += '</li>\n';
+						li += '{/actionAccess}';
+					li += '</ul>\n';
+				li += '</li>\n';
+			li += '{/entityAccess}\n';
 
 			// Add new html to document
 			$('#sortable').append(li);

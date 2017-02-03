@@ -16,7 +16,16 @@ passport.use(new LocalStrategy({
     },
     function(req, login_user, password_user, done) {
 
-        models.E_user.findOne({where: {f_login: login_user}}).then(function(user) {
+        models.E_user.findOne({
+            where: {f_login: login_user},
+            include: [{
+                model: models.E_group,
+                as: 'r_group'
+            }, {
+                model: models.E_role,
+                as: 'r_role'
+            }]
+        }).then(function(user) {
             // if the user doesn't exist
             if (!user)
                 return done(null, false, req.flash('loginMessage', 'Nom d\'utilisateur inexistant.'));
