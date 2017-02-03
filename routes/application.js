@@ -239,6 +239,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     content: answer
                 });
                 data.chat = chat;
+                data.iframe_url = process_manager.childUrl();
 
                 // Load session values
                 session_manager.getSession(attr, function(err, info) {

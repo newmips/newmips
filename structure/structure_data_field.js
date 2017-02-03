@@ -1067,6 +1067,7 @@ exports.deleteDataField = function(attr, callback) {
 exports.deleteTab = function(attr, callback) {
     var tabName = attr.options.value.toLowerCase();
     var showTabName = attr.options.showValue.toLowerCase();
+    var tabNameWithoutPrefix = attr.options.urlValue.toLowerCase();
     var name_data_entity = attr.name_data_entity.toLowerCase();
     var show_name_data_entity = attr.show_name_data_entity.toLowerCase();
     var id_data_entity = attr.id_data_entity;
@@ -1079,7 +1080,7 @@ exports.deleteTab = function(attr, callback) {
     var option;
 
     for (var i = 0; i < options.length; i++) {
-    	if (options[i].as.toLowerCase() !== "r_"+showTabName)
+    	if (options[i].as.toLowerCase() !== "r_"+tabNameWithoutPrefix)
     		continue;
     	option = options[i];
     	if (options[i].relation == 'hasMany')
@@ -1092,7 +1093,7 @@ exports.deleteTab = function(attr, callback) {
     }
     if (!found){
     	var err = new Error();
-    	err.message = "Unable to find "+tabName+" tab";
+    	err.message = "Unable to find "+attr.options.showValue+" tab in current entity.";
     	return callback(err, null);
     }
     var writeStream = fs.createWriteStream(jsonPath);
@@ -1102,9 +1103,9 @@ exports.deleteTab = function(attr, callback) {
 		var showFile = __dirname+'/../workspace/'+attr.id_application+'/views/'+name_data_entity+'/show_fields.dust';
 		domHelper.read(showFile).then(function($) {
 			// Remove tab (<li>)
-			$("#"+tabName+"-click").parents('li').remove();
+			$("#"+"r_"+tabNameWithoutPrefix+"-click").parents('li').remove();
 			// Remove tab content
-			$("#"+tabName).remove();
+			$("#"+"r_"+tabNameWithoutPrefix).remove();
 
 			domHelper.write(showFile, $).then(function() {
 				callback(null, option.foreignKey, target);
