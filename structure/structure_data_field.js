@@ -175,6 +175,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 			}
 			else if(file != "create"){
 				str += "	<select style='width:100%;' class='form-control select' name='"+dataField+"' "+disabled+">\n";
+				str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
 				str += "		{#enum."+dataField+"}\n";
 				str += "			{@eq key="+value2+" value=\"{.value}\" }";
 				str += "				<option value=\"{.translation}\" selected> {.translation} </option>\n";
@@ -186,6 +187,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 			}
 			else{
 				str += "	<select style='width:100%;' class='form-control select' name='"+dataField+"' "+disabled+">\n";
+				str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
 				str += "		{#enum."+dataField+"}\n";
 				str += "			<option value=\"{.translation}\"> {.translation} </option>\n";
 				str += "		{/enum."+dataField+"}\n";
