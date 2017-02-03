@@ -945,7 +945,10 @@ exports.parse = function(instruction) {
             "créer composant de stockage de fichier appelé (.*)",
             "ajouter composant de stockage de fichier appelé (.*)",
             "créer composant de stockage appelé (.*)",
-            "ajouter composant de stockage appelé (.*)"
+            "ajouter composant de stockage appelé (.*)",
+            "ajouter le composant de stockage de fichier appelé (.*)",
+            "ajouter le composant de stockage appelé (.*)",
+            "ajouter le composant localfilestorage appelé (.*)"            
         ],
         "createNewComponentLocalFileStorage": [
             "create component local file storage",
@@ -983,7 +986,12 @@ exports.parse = function(instruction) {
             "ajouter un formulaire de contact",
         ],
         "setSkin": [
-            "set skin (.*)"
+            "set skin (.*)",
+            "set color (.*)",
+            "set colour (.*)",
+            "appliquer le style (.*)",
+            "appliquer la couleur (.*)",
+            "mettre la couleur (.*)"
         ]
     };
 

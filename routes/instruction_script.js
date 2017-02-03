@@ -7,7 +7,6 @@ var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
 
-
 // Parser
 var designer = require('../services/designer.js');
 var structure_application = require('../structure/structure_application');
