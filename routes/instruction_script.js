@@ -6,6 +6,7 @@ var message = "";
 var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
+var utf8 = require('utf8');
 
 // Parser
 var designer = require('../services/designer.js');
@@ -200,6 +201,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
 
+    var extensionFile = req.file.originalname.split(".");
+    extensionFile = extensionFile[extensionFile.length -1];
+
     var userId = req.session.data.id_user;
 
     // Init scriptData object for user. (session simulation)
@@ -320,6 +324,11 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 stringError += exception[item].errorMessage + '<br><br>';
                 isError = true;
             }
+        }
+
+        if(extensionFile != "txt" && extensionFile != "nps"){
+            stringError += 'Invalid file extension, please use .txt or .nps file.<br><br>';
+            isError = true;
         }
 
         if(isError){
