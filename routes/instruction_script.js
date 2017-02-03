@@ -6,7 +6,7 @@ var message = "";
 var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
-var utf8 = require('utf8');
+
 
 // Parser
 var designer = require('../services/designer.js');
