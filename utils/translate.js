@@ -92,6 +92,7 @@ module.exports = {
 
         var nbLocales = localesDir.length;
         var localesCpt = 0;
+        var manualModuleTranslationArray = ["home", "authentication"];
         var manualEntityTranslationArray = ["user", "role", "group"];
         var manualFieldTranslationArray = ["login", "email", "role", "group", "label"];
 
@@ -101,7 +102,7 @@ module.exports = {
             var workingLocales = file.slice(0, -5);
             var workingLocales4Google = workingLocales.slice(0, -3);
 
-            if(type == "module"){
+            if(type == "module" && manualModuleTranslationArray.indexOf(value.toLowerCase()) != -1){
                 if(value.toLowerCase() == "home"){
                     if(workingLocales == "fr-FR"){
                         dataLocales[type][keyValue.toLowerCase()] = "Accueil";
