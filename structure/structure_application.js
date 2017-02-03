@@ -32,7 +32,7 @@ exports.setupApplication = function(attr, callback) {
         var dataFR = require(fileFR);
         dataFR.app.name = show_name_application;
 
-        fs.writeFile(fileFR, JSON.stringify(dataFR, null, 2), function(err) {
+        fs.writeFile(fileFR, JSON.stringify(dataFR, null, 4), function(err) {
             if(err){
                 var err = new Error();
                 err.message = "An error occurred while updating fr-FR translation file.";
@@ -43,7 +43,7 @@ exports.setupApplication = function(attr, callback) {
             var dataEN = require(fileEN);
             dataEN.app.name = show_name_application;
 
-            fs.writeFile(fileEN, JSON.stringify(dataEN, null, 2), function(err) {
+            fs.writeFile(fileEN, JSON.stringify(dataEN, null, 4), function(err) {
                 if(err){
                     var err = new Error();
                     err.message = "An error occurred while updating en-EN translation file.";
@@ -115,8 +115,18 @@ exports.initializeApplication = function(id_application) {
                                 // Sync workspace's database and insert admin user
                                 var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
                                 workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
-                                    workspaceSequelize.E_user.create({f_login: 'adminWorkspace', f_password: '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.', f_enabled: 1}).then(function() {
-                                        resolve();
+                                    workspaceSequelize.E_group.create({f_label: 'admin'}).then(function(){
+                                        workspaceSequelize.E_role.create({f_label: 'admin'}).then(function(){
+                                            workspaceSequelize.E_user.create({
+                                                f_login: 'adminWorkspace',
+                                                f_password: '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
+                                                f_id_role: 1,
+                                                f_id_group: 1,
+                                                f_enabled: 1
+                                            }).then(function() {
+                                                resolve();
+                                            });
+                                        });
                                     });
                                 });
                             });

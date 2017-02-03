@@ -209,53 +209,82 @@ block content
 			#access-config.tab-pane.fade.in
 				.row
 					.col-lg-12
-						table.table.table-striped
-							thead
-								th(colspan="2")
-									| Element
-								each group in groups
-									th
-										| #{M_(group.f_label)}
-							tbody
-								each module in modules
+						form(id='group-access-form', action='/settings/set_group_access', method='post')
+							table.table.table-striped
+								thead
 									tr
-										td(colspan="2")
-											| #{M_(module.name)}
+										th(colspan="2")
+											| Element
 										each group in groups
-											td
-												input.form-control.input(type='checkbox')
-									each entity in module.DataEntities
+											th
+												| #{M_(group.f_label)}
+								tbody
+									each module in modules
 										tr
-											td
-											td
-												| #{entity.name}
+											td(colspan="2")
+												| #{M_(module.name)}
 											each group in groups
 												td
-													input.form-control.input(type='checkbox', style='margin-left: 30px;')
+													if (module.groups.indexOf(group.f_label) != -1)
+														input(type='checkbox', name="module.#{module.name}.#{group.f_label}")
+													else
+														input(type='checkbox', name="module.#{module.name}.#{group.f_label}", checked)
+										each entity in module.entities
+											tr
+												td
+												td
+													| #{entity.name}
+												each group in groups
+													td
+														if (entity.groups.indexOf(group.f_label) != -1)
+															input(type='checkbox', name="entity.#{entity.name}.#{group.f_label}")
+														else
+															input(type='checkbox', name="entity.#{entity.name}.#{group.f_label}", checked)
 
-			//- #access-config.tab-pane.fade.in
-			//- 	.row
-			//- 		.col-lg-12
-			//- 			.row
-			//- 				.col-lg-2
-			//- 					| Element
-			//- 				each group in groups
-			//- 					.col-lg-1
-			//- 						| #{M_(group.f_label)}
-			//- 			each module in modules
-			//- 				.row
-			//- 					.col-lg-2
-			//- 						| #{M_(module.name)}
-			//- 					each group in groups
-			//- 						.col-lg-1
-			//- 							input(type='checkbox')
-			//- 				each entity in module.DataEntities
-			//- 					.row
-			//- 						.col-lg-offset-1.col-lg-1
-			//- 							| #{entity.name}
-			//- 						each group in groups
-			//- 							.col-lg-1
-			//- 								input(type='checkbox')
+							button.btn.btn-success(type='submit')
+								| Save
+							br
+
+				.row
+					.col-lg-12
+						form(id='action-access-form', action='/settings/set_role_access', method='post')
+							table.table.table-striped
+								thead
+									tr
+										th
+											| Entities
+										each role in roles
+											th
+												| #{role.f_label}
+								tbody
+									each module in modules
+										each entity in module.entities
+											tr
+												td
+													| #{entity.name}
+												each role in roles
+													td
+														if (entity.actions.read.indexOf(role.f_label) == -1)
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.read", checked)
+														else
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.read")
+														| &nbsp; Read
+														br
+
+														if (entity.actions.write.indexOf(role.f_label) == -1)
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.write", checked)
+														else
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.write")
+														| &nbsp; Write
+														br
+														if (entity.actions.delete.indexOf(role.f_label) == -1)
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.delete", checked)
+														else
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.delete")
+														| &nbsp; Delete
+							button.btn.btn-success(type='submit')
+								| Save
+
 
 block custom_js
 	// AdminLTE App
@@ -292,6 +321,19 @@ block custom_js
 		intro2 += "#{__('module.editor_content.intro3')}";
 	script(type='text/javascript').
 		$(function() {
+
+			$("#group-access-form, #action-access-form").submit(function() {
+		        $(this).find("input[type='checkbox']").each(function(){
+		            if($(this).prop("checked")){
+		                $(this).val(true);
+		            }
+		            else{
+		                /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
+		                $(this).prop("checked", true);
+		                $(this).val(false);
+		            }
+		        });
+			});
 
 			var isEditorStarted = false;
 

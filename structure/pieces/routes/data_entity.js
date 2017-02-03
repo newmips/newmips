@@ -29,7 +29,7 @@ function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
-router.get('/list', block_access.isLoggedIn, function(req, res) {
+router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
     var data = {
         "menu": "ENTITY_NAME",
         "sub_menu": "list_ENTITY_NAME"
@@ -41,7 +41,7 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     res.render('ENTITY_NAME/list', data);
 });
 
-router.post('/datalist', block_access.isLoggedIn, function(req, res) {
+router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options);
@@ -55,7 +55,7 @@ router.post('/datalist', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.isLoggedIn, function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
@@ -82,7 +82,7 @@ router.post('/fieldset/:alias/remove', block_access.isLoggedIn, function(req, re
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.isLoggedIn, function(req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function(ENTITY_NAME) {
@@ -107,7 +107,7 @@ router.post('/fieldset/:alias/add', block_access.isLoggedIn, function(req, res) 
     });
 });
 
-router.get('/show', block_access.isLoggedIn, function(req, res) {
+router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
     var id_ENTITY_NAME = req.query.id;
     var tab = req.query.tab;
     var data = {
@@ -164,7 +164,7 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.get('/create_form', block_access.isLoggedIn, function(req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "create_ENTITY_NAME",
@@ -192,7 +192,7 @@ router.get('/create_form', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/create', block_access.isLoggedIn, function(req, res) {
+router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("ENTITY_NAME", createObject, req.body)
@@ -271,7 +271,7 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.get('/update_form', block_access.isLoggedIn, function(req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
     id_ENTITY_NAME = req.query.id;
     var data = {
         menu: "ENTITY_NAME",
@@ -333,7 +333,7 @@ router.get('/update_form', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/update', block_access.isLoggedIn, function(req, res) {
+router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
     if(typeof req.body.version !== "undefined")
@@ -380,7 +380,7 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/delete', block_access.isLoggedIn, function(req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function(req, res) {
     var id_ENTITY_NAME = req.body.id;
 
     models.MODEL_NAME.destroy({
