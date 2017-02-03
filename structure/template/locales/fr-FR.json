@@ -29,6 +29,9 @@
     "help": "Aide",
     "support": "Support"
   },
+  "select": {
+    "default": "-- Choose --"
+  },
   "module": {
     "home": "Accueil",
     "module": "Module",
