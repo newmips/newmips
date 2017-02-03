@@ -195,7 +195,7 @@ router.get('/create_form', block_access.isLoggedIn, function(req, res) {
 router.post('/create', block_access.isLoggedIn, function(req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    createObject = enums.values("ENTITY_NAME", createObject, req.body)
+    createObject = enums.values("ENTITY_NAME", createObject, req.body);
 
     models.MODEL_NAME.create(createObject).then(function(ENTITY_NAME) {
         var redirect = '/ENTITY_URL_NAME/list';
