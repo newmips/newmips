@@ -93,6 +93,7 @@ module.exports = {
         var nbLocales = localesDir.length;
         var localesCpt = 0;
         var manualEntityTranslationArray = ["user", "role", "group"];
+        var manualFieldTranslationArray = ["login", "email", "role", "group", "label"];
 
         localesDir.forEach(function(file){
             var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
@@ -143,6 +144,44 @@ module.exports = {
                 pushLanguagePromise(urlFile, dataLocales, file);
                 localesCpt++;
                 doneLocales(localesCpt, nbLocales);
+            } else if((type == "field" || type == "aliasfield") && manualFieldTranslationArray.indexOf(value.toLowerCase()) != -1){
+                if(value.toLowerCase() == "login"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Identifiant";
+                    }else{
+                        value = "Login";
+                    }
+                } else if(value.toLowerCase() == "role"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Rôle";
+                    }else{
+                        value = "Role";
+                    }
+                } else if(value.toLowerCase() == "email"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Email";
+                    }else{
+                        value = "Email";
+                    }
+                } else if(value.toLowerCase() == "group"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Groupe";
+                    }else{
+                        value = "Group";
+                    }
+                } else if(value.toLowerCase() == "label"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Libellé";
+                    }else{
+                        value = "Label";
+                    }
+                }
+
+                dataLocales = addLocales(type, value, dataLocales);
+                pushLanguagePromise(urlFile, dataLocales, file);
+                localesCpt++;
+                doneLocales(localesCpt, nbLocales);
+
             } else if(workingLocales != appLang){
                 if(translateKey != "" && toTranslate){
                     googleTranslate.translate(value, appLang4Google, workingLocales4Google, function(err, translations) {
