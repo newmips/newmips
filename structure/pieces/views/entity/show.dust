@@ -26,8 +26,6 @@
                         {>"custom_data_entity/show_fields"/}
                     {/custom_data_entity}
                 </div>
-                <div class="box-footer">
-                </div>
             </div>
         </div>
     </div>

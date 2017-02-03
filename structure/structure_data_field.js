@@ -596,7 +596,7 @@ function addTab(attr, file, newLi, newTabContent) {
 	            tabs += '		<li class="active"><a data-toggle="tab" href="#home">{@__ key="entity.'+source+'.label_entity" /}</a></li>';
 	            tabs += '	</ul>';
 
-	            tabs += '	<div class="tab-content">';
+	            tabs += '	<div class="tab-content" style="min-height:275px;">';
 	            tabs += '		<div id="home" class="tab-pane fade in active"></div>';
 	            tabs += '	</div>';
 	            tabs += '</div>';
@@ -661,20 +661,20 @@ exports.setupHasManyTab = function(attr, callback) {
 
 		    // Create new tab content
 		    var newTab = '';
-		    newTab += '	<div id="'+alias+'" class="tab-pane fade">';
-		    newTab += '		<!--{#'+alias+' '+target+'='+alias+'}-->';
-			newTab += '			<!--{@eq key=id value='+target+'[0].id}-->';
-		    newTab += '				{>"'+target+'/list_fields" associationAlias="'+alias+'" associationForeignKey="'+foreignKey+'" associationFlag="{'+source+'.id}" associationSource="'+source+'" associationUrl="'+urlSource+'" for="hasMany" /}';
-		    newTab += '			<!--{/eq}-->';
-			newTab += '		<!--{:else}-->';
-			newTab += '				{>"'+target+'/list_fields" /}';
-			newTab += '		<!--{/'+alias+'}-->';
+		    newTab += '	<div id="'+alias+'" class="tab-pane fade">\n';
+		    newTab += '		<!--{#'+alias+' '+target+'='+alias+'}-->\n';
+			newTab += '			<!--{@eq key=id value='+target+'[0].id}-->\n';
+		    newTab += '				{>"'+target+'/list_fields" associationAlias="'+alias+'" associationForeignKey="'+foreignKey+'" associationFlag="{'+source+'.id}" associationSource="'+source+'" associationUrl="'+urlSource+'" for="hasMany" /}\n';
+		    newTab += '			<!--{/eq}-->\n';
+			newTab += '		<!--{:else}-->\n';
+			newTab += '				{>"'+target+'/list_fields" /}\n';
+			newTab += '		<!--{/'+alias+'}-->\n';
 
 		   	// Create button to directly associate created object to relation
-			newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">';
-			newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
-			newTab += '		</a>';
-		    newTab += '</div>';
+			newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">\n';
+			newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
+			newTab += '		</a>\n';
+		    newTab += '</div>\n';
 
 		    addTab(attr, file, newLi, newTab).then(callback);
 		});
@@ -715,18 +715,18 @@ exports.setupRelatedToField = function(attr, callback){
 
 	select += "<div data-field='f_"+urlAs+"' class='form-group'>\n";
 	/*select += '<!--{^associationFlag}-->';*/
-	select += '		<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
-	select += '		<select style="width:100%;" class="form-control" name="'+alias+'">';
-	select += '			<!--{#'+alias+'}-->';
-	select += '				<!--{#.'+usingField+'}-->';
-	select += '						<option value="{id}">{'+usingField+'}</option>';
-	select += '				<!--{:else}-->';
-	select += '						<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>';
-	select += '				<!--{/.'+usingField+'}-->';
-	select += '			<!--{/'+alias+'}-->';
-	select += '		</select>';
+	select += '		<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>\n';
+	select += '		<select style="width:100%;" class="form-control" name="'+alias+'">\n';
+	select += '			<!--{#'+alias+'}-->\n';
+	select += '				<!--{#.'+usingField+'}-->\n';
+	select += '						<option value="{id}">{'+usingField+'}</option>\n';
+	select += '				<!--{:else}-->\n';
+	select += '						<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>\n';
+	select += '				<!--{/.'+usingField+'}-->\n';
+	select += '			<!--{/'+alias+'}-->\n';
+	select += '		</select>\n';
 	/*select += '<!--{/associationFlag}-->';*/
-	select += '</div>';
+	select += '</div>\n';
 
 	// Update create_fields file
 	var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+source;
@@ -735,25 +735,25 @@ exports.setupRelatedToField = function(attr, callback){
 
 		// Setup association field for update_fields
 		select = "<div data-field='f_"+urlAs+"' class='form-group'>\n";
-		select += '<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>';
-		select += '<select style="width:100%;" class="form-control" name="'+alias+'">';
-		select += '		<!--{#'+alias+'_global_list}-->';
-		select += '			<!--{#.'+usingField+'}-->';
-		select += '				<!--{@eq key='+alias+'.id value=id}-->';
-		select += '					<option value="{id}" selected>{'+usingField+'}</option>';
-		select += '				<!--{:else}-->';
-		select += '					<option value="{id}">{'+usingField+'}</option>';
-		select += '				<!--{/eq}-->';
-		select += '			<!--{:else}-->';
-		select += '				<!--{@eq key='+alias+'.id value=id}-->';
-		select += '					<option value="{id}" selected>{id} - '+usingFieldDisplay+' not defined</option>';
-		select += '				<!--{:else}-->';
-		select += '					<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>';
-		select += '				<!--{/eq}-->';
-		select += '			<!--{/.'+usingField+'}-->';
-		select += '		<!--{/'+alias+'_global_list}-->';
-		select += '</select>';
-		select += '</div>';
+		select += '<label for="f_'+urlAs+'">{@__ key="entity.'+source+'.'+alias+'" /}</label>\n';
+		select += '<select style="width:100%;" class="form-control" name="'+alias+'">\n';
+		select += '		<!--{#'+alias+'_global_list}-->\n';
+		select += '			<!--{#.'+usingField+'}-->\n';
+		select += '				<!--{@eq key='+alias+'.id value=id}-->\n';
+		select += '					<option value="{id}" selected>{'+usingField+'}</option>\n';
+		select += '				<!--{:else}-->\n';
+		select += '					<option value="{id}">{'+usingField+'}</option>\n';
+		select += '				<!--{/eq}-->\n';
+		select += '			<!--{:else}-->\n';
+		select += '				<!--{@eq key='+alias+'.id value=id}-->\n';
+		select += '					<option value="{id}" selected>{id} - '+usingFieldDisplay+' not defined</option>\n';
+		select += '				<!--{:else}-->\n';
+		select += '					<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>\n';
+		select += '				<!--{/eq}-->\n';
+		select += '			<!--{/.'+usingField+'}-->\n';
+		select += '		<!--{/'+alias+'_global_list}-->\n';
+		select += '</select>\n';
+		select += '</div>\n';
 		file = 'update_fields';
 
 		// Update update_fields file
@@ -862,27 +862,27 @@ exports.setupHasOneTab = function(attr, callback) {
 
 		    // Create new tab content
 		    var newTab = '';
-		    newTab += '<div id="'+alias+'" class="tab-pane fade">';
+		    newTab += '<div id="'+alias+'" class="tab-pane fade">\n';
 
-			    // Include association's fields
-			    newTab += '<!--{#'+alias+'}-->';
-			    newTab += '	{>"'+target+'/show_fields" /}';
-			    newTab += '<!--{:else}-->';
-			    newTab += ' {@__ key="message.empty" /}<br><br>';
-			    newTab += '<!--{/'+alias+'}-->';
+		    // Include association's fields
+		    newTab += '<!--{#'+alias+'}-->\n';
+		    newTab += '	{>"'+target+'/show_fields" /}\n';
+		    newTab += '<!--{:else}-->\n';
+		    newTab += ' {@__ key="message.empty" /}<br><br>\n';
+		    newTab += '<!--{/'+alias+'}-->\n';
 
-			   	newTab += '<!--{#'+alias+'}-->';
-			    newTab += '		<a href="/'+urlTarget+'/update_form?id={id}&associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-warning">';
-			    newTab += '			<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>';
-			    newTab += '		</a>';
-			    newTab += '<!--{:else}-->';
-				// Create button to directly associate created object to relation
-			    newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">';
-			    newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>';
-			    newTab += '		</a>';
-				newTab += '<!--{/'+alias+'}-->';
+		   	newTab += '<!--{#'+alias+'}-->\n';
+		    newTab += '		<a href="/'+urlTarget+'/update_form?id={id}&associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-warning">\n';
+		    newTab += '			<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>\n';
+		    newTab += '		</a>\n';
+		    newTab += '<!--{:else}-->\n';
+			// Create button to directly associate created object to relation
+		    newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">\n';
+		    newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
+		    newTab += '		</a>\n';
+			newTab += '<!--{/'+alias+'}-->\n';
 
-		    newTab += '</div>';
+		    newTab += '</div>\n';
 
 		    addTab(attr, file, newLi, newTab).then(callback);
 		});
@@ -939,30 +939,30 @@ exports.setupFieldsetTab = function(attr, callback) {
 
 		    var newTabContent = '';
 		    // Create select to add elements
-		    newTabContent += '<div id="'+alias+'" class="tab-pane fade">';
-			newTabContent += '	<form action="/'+urlSource+'/fieldset/'+alias+'/add" method="post">'
-		    newTabContent += '		<select style="width:200px;" class="form-control" name="ids" multiple>';
-		    newTabContent += '			<!--{#'+alias+'_global_list}-->';
-		    newTabContent += '				<!--{#.'+usingField+'}-->';
-		    newTabContent += '						<option value="{id}">{'+usingField+'}</option>';
-		    newTabContent += '				<!--{:else}-->';
-		    newTabContent += '						<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>';
-		    newTabContent += '				<!--{/.'+usingField+'}-->';
-		    newTabContent += '			<!--{/'+alias+'_global_list}-->';
-		    newTabContent += '		</select>';
-		    newTabContent += '		<button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>';
-		    newTabContent += '		<input type="hidden" value="{'+source+'.id}" name="idEntity">';
-		    newTabContent += '	</form>';
-			newTabContent += '	<br>';
+		    newTabContent += '<div id="'+alias+'" class="tab-pane fade">\n';
+			newTabContent += '	<form action="/'+urlSource+'/fieldset/'+alias+'/add" method="post">\n';
+		    newTabContent += '		<select style="width:200px;" class="form-control" name="ids" multiple>\n';
+		    newTabContent += '			<!--{#'+alias+'_global_list}-->\n';
+		    newTabContent += '				<!--{#.'+usingField+'}-->\n';
+		    newTabContent += '						<option value="{id}">{'+usingField+'}</option>\n';
+		    newTabContent += '				<!--{:else}-->\n';
+		    newTabContent += '						<option value="{id}">{id} - '+usingFieldDisplay+' not defined</option>\n';
+		    newTabContent += '				<!--{/.'+usingField+'}-->\n';
+		    newTabContent += '			<!--{/'+alias+'_global_list}-->\n';
+		    newTabContent += '		</select>\n';
+		    newTabContent += '		<button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
+		    newTabContent += '		<input type="hidden" value="{'+source+'.id}" name="idEntity">\n';
+		    newTabContent += '	</form>\n';
+			newTabContent += '	<br>\n';
 		    // Include association's fields
-			newTabContent += '	<!--{#'+alias+' '+target+'='+alias+'}-->';
-			newTabContent += '			<!--{@eq key=id value='+target+'[0].id}-->';
-		    newTabContent += '		{>"'+target+'/list_fields" for="fieldset" /}';
-			newTabContent += '			<!--{/eq}-->';
-			newTabContent += '	<!--{:else}-->';
-			newTabContent += '			{>"'+target+'/list_fields" /}';
-			newTabContent += '	<!--{/'+alias+'}-->';
-		    newTabContent += '</div>';
+			newTabContent += '	<!--{#'+alias+' '+target+'='+alias+'}-->\n';
+			newTabContent += '			<!--{@eq key=id value='+target+'[0].id}-->\n';
+		    newTabContent += '		{>"'+target+'/list_fields" for="fieldset" /}\n';
+			newTabContent += '			<!--{/eq}-->\n';
+			newTabContent += '	<!--{:else}-->\n';
+			newTabContent += '			{>"'+target+'/list_fields" /}\n';
+			newTabContent += '	<!--{/'+alias+'}-->\n';
+		    newTabContent += '</div>\n';
 
 		    addTab(attr, file, newLi, newTabContent).then(callback);
 		});
