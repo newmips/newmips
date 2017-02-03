@@ -268,19 +268,29 @@ block custom_js
 				}
 			}
 
+			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ\-\,\ \']/);
 			$("#instruction").keyup(function(e) {
-				var reg = new RegExp("[^a-zA-Z0-9àâçéèêëîïôûùüÿñ-, ']");
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
 			});
 
+			//var instructionHistory = sessionStorage.getItem("newmips_given_instruction_history");
+
 			$(document).on("click", "#execute_instruction", function(e){
 				if($("#instruction").val() == ""){
-					toastr.error("Error, empty instruction.")
+					toastr.error("Error, empty instruction.");
 					e.preventDefault();
 					e.stopPropagation();
 				}
 				else{
+				    /*if (instructionHistory == null) {
+				    	var instructionList = [];
+				    	instructionList.push($("#instruction").val());
+				        sessionStorage.setItem("newmips_given_instruction_history", JSON.stringify(instructionList));
+				    } else {
+				        instructionHistory.push($("#instruction").val());
+				        sessionStorage.setItem("newmips_given_instruction_history", JSON.stringify(instructionHistory));
+				    }*/
 					$(this).html("Loading...");
 					$(this).prop("disabled", true);
 					$(this).parents('form').submit();
