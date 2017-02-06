@@ -117,16 +117,26 @@ exports.deleteModule = function(attr, callback) {
 
     fs.unlinkSync(layoutsPath+moduleFilename);
 
-    fs.readdirSync(layoutsPath).filter(function(file){
+    function done(cpt, lenght){
+        if(cpt == lenght){
+            callback();
+        }
+    }
+
+    var cpt = 0;
+
+    var layoutFiles = fs.readdirSync(layoutsPath).filter(function(file){
         return file.indexOf('.') !== 0 && file.indexOf('layout_') === 0;
-    }).forEach(function(file) {
+    });
+
+    layoutFiles.forEach(function(file) {
         domHelper.read(layoutsPath+file).then(function($){
             $("option[data-module='"+attr.module_name.toLowerCase()+"']").remove();
             domHelper.write(layoutsPath+file, $).then(function(){
-                callback();
+                done(++cpt, layoutFiles.length);
             });
         }).catch(function(err){
-            callback(err, null);
+            return callback(err, null);
         });
     });
 }
