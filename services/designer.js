@@ -306,7 +306,8 @@ exports.deleteModule = function(attr, callback) {
                 id_module: attr.id_module,
                 id_project: attr.id_project,
                 options: {
-                    value: entities[i].name
+                    value: entities[i].codeName,
+                    showValue: entities[i].name
                 }
             }
 
