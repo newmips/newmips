@@ -976,8 +976,13 @@ exports.createNewFieldset = function(attr, callback) {
                     if (err) {
                         return callback(err, null);
                     }
+
+                    // Right now we have id_TARGET_as and we want id_SOURCE_as
+                    var newForeignKey = "id_"+attr.options.source+"_"+attr.options.as.substring(2);
+                    newForeignKey = newForeignKey.toLowerCase();
+
                     // Créer le lien belongsTo en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function() {
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, true, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupFieldsetTab(attr, function() {
 

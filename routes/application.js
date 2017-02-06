@@ -171,6 +171,15 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         "session": ""
     };
 
+    var math = require('math');
+    var port = math.add(9000, req.session.id_application);
+    var env = Object.create(process.env);
+    env.PORT = port;
+    var protocol_iframe = globalConf.protocol_iframe;
+    var host = globalConf.host;
+
+    data.iframe_url = process_manager.childUrl();
+
     // Parse instruction and set results
     try {
 
@@ -239,7 +248,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     content: answer
                 });
                 data.chat = chat;
-                data.iframe_url = process_manager.childUrl();
 
                 // Load session values
                 session_manager.getSession(attr, function(err, info) {
@@ -270,15 +278,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     req.session.id_data_entity = null;
 
                     // Redirect iframe to new module
-                    var math = require('math');
-                    var port = math.add(9000, req.session.id_application);
-                    var env = Object.create(process.env);
-                    env.PORT = port;
-                    // var protocol = globalConf.protocol;
-                    var protocol_iframe = globalConf.protocol_iframe;
-                    var host = globalConf.host;
-                    data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/"+info.moduleName.toLowerCase();
-                    req.session.iframe_url = data.iframe_url;
+                    var iframeUrl = data.iframe_url.split("/default/");
+                    data.iframe_url = iframeUrl[0]+"/default/"+info.moduleName.toLowerCase();
                 }
                 else if ((attr.function == "createNewDataEntity")
                     || (attr.function == "selectDataEntity")
@@ -309,15 +310,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 }
                 else if (attr.function == 'deleteModule') {
                     // Redirect iframe to new module
-                    var math = require('math');
-                    var port = math.add(9000, req.session.id_application);
-                    var env = Object.create(process.env);
-                    env.PORT = port;
-                    // var protocol = globalConf.protocol;
-                    var protocol_iframe = globalConf.protocol_iframe;
-                    var host = globalConf.host;
-                    data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/home";
-                    req.session.iframe_url = data.iframe_url;
+                    var iframeUrl = data.iframe_url.split("/default/");
+                    data.iframe_url = iframeUrl[0]+"/default/home";
                 }
                 else if (attr.function == 'restart') {
                     toRedirectRestart = true;
@@ -333,12 +327,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 });
                 data.chat = chat;
 
-                //Load the request module
-                // var protocol = globalConf.protocol;
-                var protocol_iframe = globalConf.protocol_iframe;
-                var host = globalConf.host;
-                var math = require('math');
-                var port = math.add(9000, req.session.id_application);
                 var sessionID = req.sessionID;
                 timer = 50;
 
@@ -390,7 +378,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 /* Sort folder first, file after */
                                 folder = helpers.sortEditorFolder(folder);
                                 data.workspaceFolder = folder;
-                                data.iframe_url = process_manager.childUrl();
 
                                 if(toRedirectRestart){
                                     return res.redirect("/application/preview?id_application="+attr.id_application);
@@ -406,7 +393,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     // Check server has started
                     console.log('Waiting for server to start');
                     setTimeout(checkServer, timer);
-
                 });
             }
         });
@@ -433,7 +419,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         attr.id_data_entity = req.session.id_data_entity;
         session_manager.getSession(attr, function(err, info) {
             data.session = info;
-            data.iframe_url = process_manager.childUrl();
             res.render('front/preview', data);
         });
     }

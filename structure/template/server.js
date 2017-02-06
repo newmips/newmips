@@ -99,7 +99,7 @@ if (process.argv[2] == 'autologin') {
 // to keep track of it, and redirect after server restart
 if (startedFromGenerator) {
 	app.get('/*', function(req, res, next){
-		console.log("IFRAME_URL::"+req.protocol + '://' + req.get('host') + req.originalUrl);
+		console.log("IFRAME_URL::://"+req.get('host')+req.originalUrl);
 		next();
 	});
 }
