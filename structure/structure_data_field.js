@@ -222,14 +222,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity){
 	var ret = {headers: '', body: ''};
 	/* ------------- Add new FIELD in headers ------------- */
 	var str = '<th data-field="'+dataField+'" data-col="'+dataField+'"';
-	if (type == "date")
-		str += ' data-type="date"';
-	else if (type == "datetime")
-		str += ' data-type=\'datetime\'';
-	else if (type == "time")
-		str += ' data-type=\'time\'';
-	else if (type == "boolean")
-		str += ' data-type=\'boolean\'';
+	str += ' data-type="'+type+'"';
 	str += '>\n';
 	str += '{@__ key="entity.'+dataEntity+'.'+dataField+'"/}\n';
 	str += '</th>\n';
@@ -237,15 +230,11 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity){
 
 	/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
 	str = '<td data-field="'+dataField+'"';
-	if (type == "date")
-		str += ' data-type=\'date\'';
-	else if (type == "datetime")
-		str += ' data-type=\'datetime\'';
-	else if (type == "time")
-		str += ' data-type=\'time\'';
-	else if (type == "boolean")
-		str += ' data-type=\'boolean\'';
-	str += ' >{'+dataField+'}</td>';
+	str += ' data-type="'+type+'"';
+	if(type == "text")
+		str += ' >{'+dataField+'|s}</td>';
+	else
+		str += ' >{'+dataField+'}</td>';
 	ret.body = str;
 	return ret;
 }
@@ -348,72 +337,82 @@ exports.setupDataField = function(attr, callback) {
 	}
 
 	var typeForModel = "STRING";
+	var typeForDatalist = "string";
 
 	switch (type_data_field) {
 		case "password" :
 		case "mot de passe":
 		case "secret":
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		case "number" :
 		case "int" :
 		case "integer" :
 		case "nombre" :
-			typeForModel = "INTEGER"
+			typeForModel = "INTEGER";
+			typeForDatalist = "integer";
 			break;
 		case "float" :
 		case "double" :
 		case "decimal" :
 		case "figures" :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		case "date" :
+			typeForModel = "DATE";
+			typeForDatalist = "date";
+			break;
 		case "datetime" :
-			typeForModel = "DATE"
+			typeForModel = "DATE";
+			typeForDatalist = "datetime";
 			break;
 		case "time" :
 		case "heure" :
-			typeForModel = "TIME"
+			typeForModel = "TIME";
+			typeForDatalist = "time";
 			break;
 		case "email" :
 		case "mail" :
 		case "e-mail" :
 		case "mel" :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		case "phone" :
 		case "tel" :
 		case "téléphone" :
 		case "portable" :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		case "fax" :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		case "checkbox" :
 		case "boolean" :
 		case "case à cocher" :
-			typeForModel = "BOOLEAN"
+			typeForModel = "BOOLEAN";
+			typeForDatalist = "boolean";
 			break;
 		case "radio" :
 		case "case à sélectionner" :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		case "enum" :
-			typeForModel = "ENUM"
+			typeForModel = "ENUM";
+			typeForDatalist = "enum";
 			break;
 		case "text" :
 		case "texte" :
-			typeForModel = "TEXT"
+			typeForModel = "TEXT";
+			typeForDatalist = "text";
 			break;
 		case "localfile" :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		case "cloudfile" :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 		default :
-			typeForModel = "STRING"
+			typeForModel = "STRING";
 			break;
 	}
 
@@ -478,7 +477,7 @@ exports.setupDataField = function(attr, callback) {
 			stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field);
 			updateFile(fileBase, "update_fields", stringToWrite, function(){
 				/* Update the list_fields.dust file */
-				stringToWrite = getFieldInHeaderListHtml(type_data_field, name_data_field, codeName_data_entity);
+				stringToWrite = getFieldInHeaderListHtml(typeForDatalist, name_data_field, codeName_data_entity);
 				updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function(){
 
 					/* --------------- New translation --------------- */
