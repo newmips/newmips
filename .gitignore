@@ -35,6 +35,8 @@ jspm_packages
 workspace
 # Upload Newmips
 upload
+# Locales
+locales
 structure/template/node_modules
 config/database.js
 # Config Files
