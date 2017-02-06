@@ -1,9 +1,4 @@
-<div id='fields'>
-    <div class="form-group">
-        <label for="id">{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}</label>
-        <input type="text" value="{custom_data_entity.id}" disabled="" class="form-control"/>
-    </div>
-</div>
+<div id='fields'></div>
 <div class='actions'>
     <form action="/custom_url_data_entity/delete" method="post">
         <div class="quicklinks">
