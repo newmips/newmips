@@ -28,22 +28,19 @@ exports.setupApplication = function(attr, callback) {
         historyScript += "\ncreate module home\n";
         fs.writeFileSync(historyScriptPath, historyScript);
 
-        /* --------------- Add application translation in generator for list --------------- */
-        translateHelper.writeGeneratorsLocales("application", id_application, show_name_application, function(){
-            /* --------------- New translation --------------- */
-            translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function(){
-                // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
-                var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
-                languageConfig.lang = attr.lang_user;
-                fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
-                    if(err){
-                        var err = new Error();
-                        err.message = "An error occurred while creating language.json.";
-                        return callback(err, null);
-                    }
-                    // Direct callback as application has been installed in template folder
-                    callback();
-                });
+        /* --------------- New translation --------------- */
+        translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function(){
+            // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
+            var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
+            languageConfig.lang = attr.lang_user;
+            fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
+                if(err){
+                    var err = new Error();
+                    err.message = "An error occurred while creating language.json.";
+                    return callback(err, null);
+                }
+                // Direct callback as application has been installed in template folder
+                callback();
             });
         });
 

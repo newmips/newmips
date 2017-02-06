@@ -13,7 +13,6 @@ var database = require("../database/database");
 var session = require("./session");
 
 // Structure
-var structure_project = require("../structure/structure_project");
 var structure_application = require("../structure/structure_application");
 var structure_module = require("../structure/structure_module");
 var structure_data_entity = require("../structure/structure_data_entity");
@@ -89,14 +88,12 @@ exports.selectProject = function(attr, callback) {
 }
 
 exports.createNewProject = function(attr, callback) {
-    db_project.createNewProject(attr, function(err, infoDB) {
-        if (err)
-            return callback(err, null);
-
-        attr.insertIdProject = infoDB.insertId;
-        structure_project.setupProject(attr, function(){
-            callback(null, infoDB);
-        });
+    db_project.createNewProject(attr, function(err, info) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, info);
+        }
     });
 }
 

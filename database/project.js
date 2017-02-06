@@ -77,6 +77,7 @@ exports.createNewProject = function(attr, callback) {
 
             models.Project.create({
                 name: show_name_project,
+                displayName: show_name_project,
                 codeName: name_project,
                 version: version
             }).then(function(created_project) {
