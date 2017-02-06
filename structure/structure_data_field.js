@@ -668,6 +668,7 @@ exports.setupHasManyTab = function(attr, callback) {
 			newTab += '		<!--{:else}-->\n';
 			newTab += '				{>"'+target+'/list_fields" /}\n';
 			newTab += '		<!--{/'+alias+'}-->\n';
+			newTab += '		<br>\n';
 
 		   	// Create button to directly associate created object to relation
 			newTab += '		<a href="/'+urlTarget+'/create_form?associationAlias='+alias+'&associationForeignKey='+foreignKey+'&associationFlag={'+source+'.id}&associationSource='+source+'&associationUrl='+urlSource+'" class="btn btn-success">\n';
