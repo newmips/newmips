@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `application` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `displayName` varchar(255) DEFAULT NULL,
   `codeName` varchar(255) DEFAULT NULL,
   `id_project` bigint(20) NOT NULL,
   `version` int(11) DEFAULT NULL,
@@ -94,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `module` (
 CREATE TABLE IF NOT EXISTS `project` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `displayName` varchar(255) DEFAULT NULL,
   `codeName` varchar(255) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)

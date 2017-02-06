@@ -84,6 +84,7 @@ exports.createNewApplication = function(attr, callback) {
 
             models.Application.create({
                 name: show_name_application,
+                displayName: show_name_application,
                 codeName: name_application,
                 id_project: id_project,
                 version: version

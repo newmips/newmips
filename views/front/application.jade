@@ -49,8 +49,7 @@ block content
 						.box.box-solid.box-default
 							.box-header.bg-newmips
 								h3.box-title(style="color: #fff")
-									- var projectNameCurrent = __("projects."+project.id);
-									|#{__("entity.project.label")} : #{projectNameCurrent}
+									|#{__("entity.project.label")} : #{project.displayName}
 							.box-body(style="overflow-y:auto;overflow-x:hidden;")
 								.row
 									.col-lg-12
@@ -68,8 +67,7 @@ block content
 															td
 																| #{application.id}
 															td
-																- var applicationNameCurrent = __("applications."+application.id);
-																| #{applicationNameCurrent}
+																| #{application.displayName}
 															td
 																| #{application.Modules.length}
 															td.text-center
