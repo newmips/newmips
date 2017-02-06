@@ -1,0 +1,328 @@
+{
+  "app": {
+    "name": "Newmips One",
+    "lang": "en"
+  },
+  "language": {
+    "english": "English",
+    "french": "Frenchs"
+  },
+  "login": {
+    "log_in": "Log in",
+    "reset_password": "Forgotten password",
+    "first_connection": "First connection",
+    "authentication": "Connection",
+    "login": "Login",
+    "password": "Password",
+    "confirm_password": "Confirm password",
+    "mail": "Email",
+    "remember_me": "Remember me",
+    "submit": "Submit"
+  },
+  "navbar": {
+    "about": "About",
+    "help": "Help",
+    "support": "Support"
+  },
+  "module": {
+    "home": "Home",
+    "preview": {
+      "title": "Preview",
+      "reload": "Restart server",
+      "issue-button": "Report an issue"
+    },
+    "module": "Module",
+    "workspace": "My workspace",
+    "manager": "Manager",
+    "business": "Business",
+    "application": "Application",
+    "technology": "Environment",
+    "editor": "Editor",
+    "live": "Live",
+    "instruction": "Instructions",
+    "import": "Import",
+    "settings": "Settings",
+    "editor_content": {
+      "folders": "Folders",
+      "editor": "Editor",
+      "change_theme": "Switch theme",
+      "intro": "Hi Newmips user!",
+      "intro2": "You can select a file on the sidebar on your left ;)",
+      "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
+    }
+  },
+  "description": {
+    "manager": "Manager module enables to describe the state of an application brefore migration (source project) and after migration (target project) ; and to define gaps, requested tasks for construction of future application.",
+    "business": "Business module enables to define company data, and load users directory in built application.",
+    "application": "Application module enables to build dynamically your applications. It is based on the usage of a Newmips Meta-language, using pre-defined rules and grammar elements.",
+    "technology": "Environment module enables to manage deployment, resources allocations and application versioning."
+  },
+  "role": {
+    "administrator": "Administrator",
+    "developer": "Developer"
+  },
+  "button": {
+    "profile": "Profile",
+    "disconnect": "Disconnect",
+    "show": "Show",
+    "update": "Modify",
+    "delete": "Delete",
+    "create": "Create",
+    "list": "List",
+    "save": "Save",
+    "preview": "Preview",
+    "record": "Record",
+    "execute": "Execute",
+    "backtohome": "Back to Home",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "send": "Send"
+  },
+  "operation": {
+    "show": "Show entity ",
+    "update": "Modify entity ",
+    "create": "Create entity ",
+    "delete": "Delete entity ",
+    "list": "List all entities ",
+    "list_of": "List of ",
+    "generate": "Generate entity ",
+    "live": "Live edition",
+    "script": "Execute instruction script",
+    "preview": "Preview entity",
+    "access": "Access module ",
+    "settings": "Define application settings",
+    "editor": "Edit an application"
+  },
+  "message": {
+    "create": {
+      "success": "Success ! Data registered with success.",
+      "failure": "Error ! No data registered. May ask to your administrator."
+    },
+    "update": {
+      "success": "Success ! Data modified with success.",
+      "failure": "Error ! No data modified. May ask to your administrator."
+    },
+    "delete": {
+      "success": "Success ! Data deleted with success.",
+      "failure": "Error ! No data deleted. May ask to your administrator.",
+      "question": "Are you sure you want to delete this entity ?"
+    },
+    "gap": {
+      "create_project_first": "Source and target projects have to be initialzed first."
+    }
+  },
+  "close": "Close",
+  "tour_tip": {
+    "home_1": {
+      "header": "Welcome to Newmips !",
+      "body": "Since it's your first visit here, we're going to show you the basic steps for creating an application using Newmips.",
+      "dont_ask": "Don't show me this again",
+      "discover": "Discover",
+      "shortcuts": "Direct links"
+    },
+    "home_2": {
+      "header": "Create an application",
+      "body1": "Indicate name of your Project and Application",
+      "body2": "It will be generated.",
+      "initializing1": "We're initializing your application.",
+      "initializing2": "This might take a minute, don't refresh the page...",
+      "timeout": "It appears to take longer than usual. You can go to Application to check if your application has been created.",
+      "generate": "Generate",
+      "select_project": "Please, select a project",
+      "create_new_project_application": "Create a new project",
+      "create_new_application": "Create a new application",
+      "select_existing_application": "Select an existing application",
+      "select_existing_project": "Select an existing project"
+    },
+    "preview": {
+      "header": "Application created",
+      "body1": "Your new application have been succesfully created. You have been redirected on your application's preview page.",
+      "body2": "From now on, you can have a look at your application and interact with it.",
+      "body3": "You can now add content to your application by sending instructions through the text input below.",
+      "body4": "Press 'h' key or click the icon on your screen's right side to learn more on how Newmips works.",
+      "continue": "Got it"
+    },
+    "listApplication": {
+      "title": "Projects and Applications",
+      "id": "ID",
+      "name": "Name",
+      "nbModules": "Modules Count",
+      "action": "Preview"
+    }
+  },
+  "actions": {
+    "delete": {
+      "application": "Application succesfully deleted"
+    }
+  },
+  "entity": {
+    "script": {
+      "label": "Script"
+    },
+    "live": {
+      "label": "Live"
+    },
+    "import": {
+      "label": "Import"
+    },
+    "settings": {
+      "label": "Settings",
+      "name": "settings",
+      "plural": "settings",
+      "display_language": "Diplaying language",
+      "activate_translation": "Activate automatic translation (Internet connection required)"
+    },
+    "project": {
+      "label": "Project",
+      "name": "project",
+      "plural": "projects",
+      "id_project": "Id",
+      "name_project": "Name",
+      "description_project": "Description",
+      "type_project": "Type"
+    },
+    "gap": {
+      "label": "Gap",
+      "name": "gap",
+      "plural": "gaps",
+      "id_gap": "Id",
+      "name_gap": "Name",
+      "id_project_initial_gap": "Source project",
+      "id_project_final_gap": "Target project"
+    },
+    "company": {
+      "label": "Company",
+      "name": "company",
+      "plural": "companies",
+      "id_company": "Id",
+      "name_company": "Name",
+      "id_project_company": "Project"
+    },
+    "actor": {
+      "label": "Actor",
+      "name": "actor",
+      "plural": "actors",
+      "id_actor": "Id",
+      "first_name_actor": "First name",
+      "last_name_actor": "Last name",
+      "login_actor": "Login",
+      "reference_number_actor": "Badge",
+      "id_project_actor": "Project"
+    },
+    "application": {
+      "label": "Application",
+      "name": "Application",
+      "plural": "Applications",
+      "id_application": "Id",
+      "name_application": "Name",
+      "id_persistence_application": "Persistence",
+      "id_search_engine_application": "Search engine",
+      "id_theme_application": "Theme",
+      "id_project": "ID Project",
+      "logo": "Logo"
+    },
+    "module": {
+      "label": "Module",
+      "name": "module",
+      "plural": "modules",
+      "id_module": "Id",
+      "name_module": "Name",
+      "id_application": "ID Application"
+    },
+    "data_entity": {
+      "label": "Data entity",
+      "name": "data entity",
+      "plural": "data entities",
+      "id_data_entity": "Id",
+      "name_data_entity": "Name",
+      "description_data_entity": "Description",
+      "icon_data_entity": "Icon",
+      "controllable_data_entity": "Controlable",
+      "listable_data_entity": "Listable",
+      "testable_data_entity": "Testable",
+      "id_module": "ID Module"
+    },
+    "data_field": {
+      "label": "Attribute",
+      "name": "Name",
+      "plural": "Attributes",
+      "id": "Id",
+      "type": "Type",
+      "nillable": "Can be null",
+      "min_length": "Minimum size",
+      "max_length": "Maximum size",
+      "class_object": "Class",
+      "id_data_entity": "ID Data entity"
+    },
+    "persistence": {
+      "label": "Persistence",
+      "name": "instance",
+      "plural": "instances",
+      "id_persistence": "Id",
+      "name_persistence": "Name",
+      "type_persistence": "Source type",
+      "host_persistence": "Host",
+      "schema_persistence": "Schema",
+      "user_persistence": "User",
+      "password_persistence": "Password"
+    },
+    "theme": {
+      "label": "Theme",
+      "name": "theme",
+      "plural": "themes",
+      "id_theme": "Id",
+      "name_theme": "Name",
+      "version_theme": "Version",
+      "description_theme": "Description",
+      "capture_theme": "Snapshot",
+      "tab_1": "Description",
+      "tab_2": "Snapshot"
+    },
+    "search_engine": {
+      "label": "Search engine",
+      "name": "search engine",
+      "plural": "search engines",
+      "id_search_engine": "Id",
+      "name_search_engine": "Name",
+      "state_search_engine": "Status",
+      "type_search_engine": "Type",
+      "url_search_engine": "URL"
+    },
+    "translated_language": {
+      "label": "Langue",
+      "name": "langue",
+      "plural": "langues",
+      "id_translated_language": "Id",
+      "code_translated_language": "Code",
+      "name_translated_language": "Name",
+      "logo": "logo"
+    },
+    "technology": {
+      "label": "Environment",
+      "name": "environment",
+      "plural": "environments"
+    }
+  },
+  "projects": {
+    "318": "ZAEFe a Ef qE F",
+    "319": "JE MANGE une pomme",
+    "320": "projectTest",
+    "321": "projectTest",
+    "322": "projectTest",
+    "323": "projectTest",
+    "324": "projectTest",
+    "325": "projectTest",
+    "328": "fd sqfds fq se"
+  },
+  "applications": {
+    "329": "ZZFEqe fqe fe fq",
+    "330": "JE Vais ALEE JJ",
+    "331": "appTest",
+    "332": "appTest",
+    "333": "appTest",
+    "334": "appTest",
+    "335": "appTest",
+    "336": "appTest"
+  }
+}
