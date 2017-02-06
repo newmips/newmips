@@ -1,6 +1,7 @@
 var process_server = null;
 var spawn = require('cross-spawn');
 var psTree = require('ps-tree');
+var globalConf = require('../config/global.js');
 
 var child_url = '';
 exports.launchChildProcess = function(id_application, env) {
@@ -15,7 +16,7 @@ exports.launchChildProcess = function(id_application, env) {
         // child process after restart
         if ((data + '').indexOf("IFRAME_URL") != -1) {
             if ((data + '').indexOf("/status") == -1)
-                child_url = (data + '').split('::')[1];
+                child_url = globalConf.protocol_iframe + (data + '').split('::')[1];
         } else
             console.log('\x1b[36m%s\x1b[0m', 'App Log: ' + data);
     });

@@ -396,7 +396,7 @@ exports.relationshipHasOne = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+target,
+        foreignKey: "id_"+target.toLowerCase(),
         as: target,
         processValue: true
     };
@@ -413,7 +413,7 @@ exports.relationshipHasOneWithName = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+target,
+        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -446,12 +446,16 @@ exports.relationshipHasManyWithName = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+source.toLowerCase(),
+        foreignKey: "id_"+source.toLowerCase()+"_"+as.toLowerCase(),
         as: as,
         processValue: true
     };
 
     return checkAndCreateAttr("createNewHasMany", options, as);
+};
+
+exports.createHasManyPreset = function(result) {
+    return false;
 };
 
 exports.createFieldRelatedTo = function(result) {
@@ -461,7 +465,7 @@ exports.createFieldRelatedTo = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_"+as,
+        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -477,7 +481,7 @@ exports.createFieldRelatedToUsing = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_"+as,
+        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
         as: as,
         usingField: usingField,
         processValue: true
@@ -487,22 +491,7 @@ exports.createFieldRelatedToUsing = function(result) {
 };
 
 exports.createFieldRelatedToPreset = function(result) {
-
-    var source = result[1];
-    var target = result[2];
-    var as = result[3];
-    var usingField = result[4];
-
-    var options = {
-        source: source,
-        target: target,
-        foreignKey: "id_"+as,
-        as: as,
-        usingField: usingField,
-        processValue: true
-    };
-
-    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
+    return false;
 };
 
 exports.createFieldset = function(result) {
@@ -513,7 +502,7 @@ exports.createFieldset = function(result) {
     // Preparing Options
     var options = {
         target: target,
-        foreignKey: "id_"+as,
+        foreignKey: "id_"+as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -529,33 +518,13 @@ exports.createFieldsetUsing = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_"+as,
+        foreignKey: "id_"+as.toLowerCase(),
         as: as,
         usingField: usingField,
         processValue: true
     };
 
     return checkAndCreateAttr("createNewFieldset", options, as);
-};
-
-exports.createFieldsetPreset = function(result) {
-
-    var source = result[1];
-    var target = result[2];
-
-    var options = {
-        source: source,
-        target: target,
-        foreignKey: "id_"+target,
-        as: target,
-        processValue: true
-    };
-
-    var attr = {
-        function: "createNewFieldset",
-        options: options
-    };
-    return attr;
 };
 
 // ******* COMPONENT Actions ******* //
@@ -922,7 +891,7 @@ exports.parse = function(instruction) {
             "ajouter une liste de (.*) reliée à (.*) en affichant (.*)",
             "ajouter une liste de (.*) liée à (.*) en affichant (.*)"
         ],
-        "createFieldsetPreset": [
+        "createHasManyPreset": [
             "entity (.*) has many preset (.*)"
         ],
         "createFieldset": [
@@ -948,7 +917,7 @@ exports.parse = function(instruction) {
             "ajouter composant de stockage appelé (.*)",
             "ajouter le composant de stockage de fichier appelé (.*)",
             "ajouter le composant de stockage appelé (.*)",
-            "ajouter le composant localfilestorage appelé (.*)"            
+            "ajouter le composant localfilestorage appelé (.*)"
         ],
         "createNewComponentLocalFileStorage": [
             "create component local file storage",
