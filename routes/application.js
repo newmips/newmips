@@ -305,10 +305,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     req.session.toastr = [{
                         message: 'actions.delete.application',
                         level: "success"
-                    }]
+                    }];
                     return res.redirect("/default/home");
                 }
                 else if (attr.function == 'deleteModule') {
+                    req.session.id_module = info.homeID;
+                    req.session.id_data_entity = null;
                     // Redirect iframe to new module
                     var iframeUrl = data.iframe_url.split("/default/");
                     data.iframe_url = iframeUrl[0]+"/default/home";
