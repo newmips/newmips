@@ -57,47 +57,37 @@ function execute(req, instruction) {
                         scriptData[userId].ids.id_module = null;
                         scriptData[userId].ids.id_data_entity = null;
                     }
-
-                    if (attr["function"] == "createNewApplication") {
+                    else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
                         scriptData[userId].ids.id_application = info.insertId;
                         scriptData[userId].ids.id_module = null;
                         scriptData[userId].ids.id_data_entity = null;
                     }
-
-                    if (attr["function"] == "selectApplication") {
-                        scriptData[userId].ids.id_application = info.insertId;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-
-                    if ((attr["function"] == "createNewModule") || (attr["function"] == "selectModule")) {
+                    else if ((attr["function"] == "createNewModule") || (attr["function"] == "selectModule")) {
                         scriptData[userId].ids.id_module = info.insertId;
                         scriptData[userId].ids.id_data_entity = null;
                     }
-
-                    if ((attr["function"] == "createNewDataEntity")
+                    else if ((attr["function"] == "createNewDataEntity")
                         || (attr["function"] == "selectDataEntity")
                         || (attr["function"] == "createNewEntityWithBelongsTo")
                         || (attr["function"] == "createNewEntityWithHasMany")
                         || (attr["function"] == "createNewBelongsTo")
-                        || (attr["function"] == "createNewHasMany")) {
+                        || (attr["function"] == "createNewHasMany")
+                        || (attr["function"] == "createNewFieldRelatedTo")) {
                         scriptData[userId].ids.id_data_entity = info.insertId;
                     }
-
-                    if (attr["function"] == "createNewFieldRelatedTo") {
-                        scriptData[userId].ids.id_data_entity = info.insertId;
-                    }
-
-                    if (attr["function"] == "deleteProject") {
+                    else if (attr["function"] == "deleteProject") {
                         scriptData[userId].ids.id_project = null;
                         scriptData[userId].ids.id_application = null;
                         scriptData[userId].ids.id_module = null;
                         scriptData[userId].ids.id_data_entity = null;
                     }
-
-                    if (attr["function"] == "deleteApplication") {
+                    else if (attr["function"] == "deleteApplication") {
                         scriptData[userId].ids.id_application = null;
                         scriptData[userId].ids.id_module = null;
+                        scriptData[userId].ids.id_data_entity = null;
+                    }
+                    else if (attr.function == 'deleteModule') {
+                        scriptData[userId].ids.id_module = info.homeID;
                         scriptData[userId].ids.id_data_entity = null;
                     }
 
