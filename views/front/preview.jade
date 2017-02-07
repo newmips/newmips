@@ -274,22 +274,25 @@ block custom_js
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
 			});
 
-			var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history"));
+			var idApplication = "#{session.application.id_application}";
+
+			var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_"+idApplication));
 			var indexInstructionSelected = 0;
 
 			$(document).on("keydown", "input#instruction", function(e){
-
-				/* UP ARROW */
-				if(e.which == "38"){
-					$("input#instruction").val(instructionHistory[indexInstructionSelected++]);
-					if(indexInstructionSelected > instructionHistory.length-1)
-						indexInstructionSelected = instructionHistory.length-1;
-				}
-				/* DOWN ARROW */
-				else if(e.which == "40"){
-					$("input#instruction").val(instructionHistory[indexInstructionSelected--]);
-					if(indexInstructionSelected < 0)
-						indexInstructionSelected = 0;
+				if(instructionHistory != null){
+					/* UP ARROW */
+					if(e.which == "38"){
+						$("input#instruction").val(instructionHistory[indexInstructionSelected++]);
+						if(indexInstructionSelected > instructionHistory.length-1)
+							indexInstructionSelected = instructionHistory.length-1;
+					}
+					/* DOWN ARROW */
+					else if(e.which == "40"){
+						$("input#instruction").val(instructionHistory[indexInstructionSelected--]);
+						if(indexInstructionSelected < 0)
+							indexInstructionSelected = 0;
+					}
 				}
 			});
 
@@ -303,10 +306,10 @@ block custom_js
 				    if (instructionHistory == null) {
 				    	var instructionList = [];
 				    	instructionList.push($("#instruction").val());
-				        localStorage.setItem("newmips_given_instruction_history", JSON.stringify(instructionList));
+				        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionList));
 				    } else {
 				        instructionHistory.push($("#instruction").val());
-				        localStorage.setItem("newmips_given_instruction_history", JSON.stringify(instructionHistory));
+				        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
 				    }
 					$(this).html("Loading...");
 					$(this).prop("disabled", true);
