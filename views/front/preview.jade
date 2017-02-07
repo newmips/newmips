@@ -268,7 +268,7 @@ block custom_js
 				}
 			}
 
-			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ\-\,\ \']/);
+			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ\-\,\ \'\!]/);
 			$("#instruction").keyup(function(e) {
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
