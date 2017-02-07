@@ -6,11 +6,13 @@ function clearString(string){
     string = string.replace(new RegExp("û", 'g'), "u");
     string = string.replace(new RegExp("ù", 'g'), "u");
     string = string.replace(new RegExp("ç", 'g'), "c");
+    string = string.replace(new RegExp("â", 'g'), "a");
     string = string.replace(new RegExp("'", 'g'), "_");
     string = string.replace(new RegExp(",", 'g'), "_");
     string = string.replace(new RegExp(" ", 'g'), "_");
     string = string.replace(new RegExp("-", 'g'), "_");
     string = string.replace(new RegExp("\"", 'g'), "_");
+    string = string.replace(new RegExp("!", 'g'), "_");
     return string;
 }
 
