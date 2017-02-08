@@ -28,7 +28,7 @@ var helpers = require('../utils/helpers');
 // Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
-//Sequelize
+// Sequelize
 var models = require('../models/');
 
 // Exclude from Editor

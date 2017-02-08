@@ -3,6 +3,16 @@ var spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
 var translateHelper = require("../utils/translate");
 
+// Global conf
+var globalConf = require('../config/global.js');
+
+var gitlabConf = require('../config/gitlab.json');
+// Gitlab connection
+var gitlab = require('gitlab')({
+    url:   gitlabConf.url,
+    token: gitlabConf.privateToken
+});
+
 // Application
 exports.setupApplication = function(attr, callback) {
 
@@ -39,8 +49,31 @@ exports.setupApplication = function(attr, callback) {
                     err.message = "An error occurred while creating language.json.";
                     return callback(err, null);
                 }
-                // Direct callback as application has been installed in template folder
-                callback();
+
+                // Create the application repository in gitlab
+                // TODO - DO THIS ONLY IN CLOUD ENV
+                if(globalConf.env != "cloud"){
+                    var newGitlabProject = {
+                        user_id : 1,
+                        name: globalConf.host+"_"+id_application+"_"+name_application,
+                        description: "A generated Newmips workspace.",
+                        issues_enabled: false,
+                        merge_requests_enabled: false,
+                        wiki_enabled: false,
+                        snippets_enabled: false,
+                        public: false
+                    };
+
+                    gitlab.projects.create(newGitlabProject, function(result){
+                        console.log(result);
+                        // Direct callback as application has been installed in template folder
+                        callback();
+                    });
+                }
+                else{
+                    // Direct callback as application has been installed in template folder
+                    callback();
+                }
             });
         });
 
