@@ -263,12 +263,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     req.session.id_module = null;
                     req.session.id_data_entity = null;
                 }
-                else if (attr.function == "createNewApplication") {
-                    req.session.id_application = info.insertId;
-                    req.session.id_module = null;
-                    req.session.id_data_entity = null;
-                }
-                else if (attr.function == "selectApplication") {
+                else if (attr.function == "createNewApplication" || attr.function == "selectApplication") {
                     req.session.id_application = info.insertId;
                     req.session.id_module = null;
                     req.session.id_data_entity = null;
@@ -286,10 +281,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     || (attr.function == "createNewEntityWithBelongsTo")
                     || (attr.function == "createNewEntityWithHasMany")
                     || (attr.function == "createNewBelongsTo")
-                    || (attr.function == "createNewHasMany")) {
-                    req.session.id_data_entity = info.insertId;
-                }
-                else if (attr.function == "createNewFieldRelatedTo") {
+                    || (attr.function == "createNewHasMany")
+                    || (attr.function == "createNewFieldRelatedTo")) {
                     req.session.id_data_entity = info.insertId;
                 }
                 else if (attr.function == "deleteProject") {
@@ -305,10 +298,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     req.session.toastr = [{
                         message: 'actions.delete.application',
                         level: "success"
-                    }]
+                    }];
                     return res.redirect("/default/home");
                 }
                 else if (attr.function == 'deleteModule') {
+                    req.session.id_module = info.homeID;
+                    req.session.id_data_entity = null;
                     // Redirect iframe to new module
                     var iframeUrl = data.iframe_url.split("/default/");
                     data.iframe_url = iframeUrl[0]+"/default/home";

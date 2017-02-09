@@ -388,6 +388,9 @@ exports.listDataField = function(result) {
 };
 
 // ******* ASSOCIATION Actions ******* //
+
+// --------- One to One ---------
+// Tabs in show
 exports.relationshipHasOne = function(result) {
 
     var source = result[1];
@@ -421,6 +424,41 @@ exports.relationshipHasOneWithName = function(result) {
     return checkAndCreateAttr("createNewHasOne", options, as);
 };
 
+// Field in create
+exports.createFieldRelatedTo = function(result) {
+
+    var as = result[1];
+    var target = result[2];
+
+    var options = {
+        target: target,
+        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
+        as: as,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
+};
+
+exports.createFieldRelatedToUsing = function(result) {
+
+    var as = result[1];
+    var target = result[2];
+    var usingField = result[3];
+
+    var options = {
+        target: target,
+        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
+        as: as,
+        usingField: usingField,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
+};
+
+// --------- One to Many ---------
+// Tabs in show
 exports.relationshipHasMany = function(result) {
 
     var source = result[1];
@@ -454,44 +492,36 @@ exports.relationshipHasManyWithName = function(result) {
     return checkAndCreateAttr("createNewHasMany", options, as);
 };
 
-exports.createHasManyPreset = function(result) {
-    return false;
-};
-
-exports.createFieldRelatedTo = function(result) {
-
-    var as = result[1];
+exports.relationshipHasManyPreset = function(result) {
+    var source = result[1];
     var target = result[2];
 
     var options = {
         target: target,
-        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
-        as: as,
+        source: source,
+        foreignKey: "id_"+source.toLowerCase(),
+        as: target,
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
+    return checkAndCreateAttr("createNewFieldset", options, target);
 };
 
-exports.createFieldRelatedToUsing = function(result) {
-
-    var as = result[1];
+exports.relationshipHasManyPresetUsing = function(result) {
+    var source = result[1];
     var target = result[2];
     var usingField = result[3];
 
     var options = {
         target: target,
-        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
-        as: as,
+        source: source,
+        foreignKey: "id_"+source.toLowerCase(),
+        as: target,
         usingField: usingField,
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
-};
-
-exports.createFieldRelatedToPreset = function(result) {
-    return false;
+    return checkAndCreateAttr("createNewFieldset", options, target);
 };
 
 exports.createFieldset = function(result) {
@@ -841,13 +871,6 @@ exports.parse = function(instruction) {
             "lister skin",
             "lister skins"
         ],
-        "relationshipHasOneWithName": [
-            "entity (.*) has one (.*) called (.*)",
-            "entité (.*) possède un (.*) appelé (.*)",
-            "entité (.*) possède une (.*) appelée (.*)",
-            "entité (.*) a un (.*) appelé (.*)",
-            "entité (.*) a une (.*) appelée (.*)"
-        ],
         "relationshipHasOne": [
             "entity (.*) has one (.*)",
             "entité (.*) possède un (.*)",
@@ -855,15 +878,20 @@ exports.parse = function(instruction) {
             "entité (.*) a un (.*)",
             "entité (.*) a une (.*)"
         ],
-        "relationshipHasManyWithName": [
-            "entity (.*) has many (.*) called (.*)",
-            "entité (.*) possède plusieurs (.*) appelés (.*)",
-            "entité (.*) a plusieurs (.*) appelés (.*)"
+        "relationshipHasOneWithName": [
+            "entity (.*) has one (.*) called (.*)",
+            "entité (.*) possède un (.*) appelé (.*)",
+            "entité (.*) possède une (.*) appelée (.*)",
+            "entité (.*) a un (.*) appelé (.*)",
+            "entité (.*) a une (.*) appelée (.*)"
         ],
-        "relationshipHasMany": [
-            "entity (.*) has many (.*)",
-            "entité (.*) possède plusieurs (.*)",
-            "entité (.*) a plusieurs (.*)"
+        "createFieldRelatedTo": [
+            "create field (.*) related to (.*)",
+            "add field (.*) related to (.*)",
+            "create data field (.*) related to (.*)",
+            "add data field (.*) related to (.*)",
+            "créer un champ (.*) relié à (.*)",
+            "ajouter un champ (.*) relié à (.*)"
         ],
         "createFieldRelatedToUsing": [
             "create field (.*) related to (.*) using (.*)",
@@ -875,27 +903,45 @@ exports.parse = function(instruction) {
             "ajouter un champ (.*) relié à (.*) en utilisant (.*)",
             "ajouter un champ (.*) relié à (.*) en affichant (.*)"
         ],
-        "createFieldRelatedToPreset": [
-            "entity (.*) has one preset (.*) called (.*) using (.*)"
+        "relationshipHasMany": [
+            "entity (.*) has many (.*)",
+            "entité (.*) possède plusieurs (.*)",
+            "entité (.*) a plusieurs (.*)"
         ],
-        "createFieldRelatedTo": [
-            "create field (.*) related to (.*)",
-            "add field (.*) related to (.*)",
-            "create data field (.*) related to (.*)",
-            "add data field (.*) related to (.*)",
-            "créer un champ (.*) relié à (.*)",
-            "ajouter un champ (.*) relié à (.*)"
+        "relationshipHasManyWithName": [
+            "entity (.*) has many (.*) called (.*)",
+            "entité (.*) possède plusieurs (.*) appelés (.*)",
+            "entité (.*) a plusieurs (.*) appelés (.*)"
         ],
-        "createFieldsetUsing": [
-            "create fieldset (.*) related to (.*) using (.*)",
-            "add fieldset (.*) related to (.*) using (.*)",
-            "créer une liste de (.*) reliée à (.*) en affichant (.*)",
-            "créer une liste de (.*) liée à (.*) en affichant (.*)",
-            "ajouter une liste de (.*) reliée à (.*) en affichant (.*)",
-            "ajouter une liste de (.*) liée à (.*) en affichant (.*)"
+        "relationshipHasManyPreset": [
+            "entity (.*) has many preset (.*)",
+            "entity (.*) has many existing (.*)",
+            "l'entité (.*) a plusieurs (.*) prédéfini",
+            "l'entité (.*) a plusieurs (.*) existant",
+            "l'entité (.*) a plusieurs (.*) déjà prédéfini",
+            "l'entité (.*) a plusieurs (.*) déjà existant",
         ],
-        "createHasManyPreset": [
-            "entity (.*) has many preset (.*)"
+        "relationshipHasManyPresetUsing": [
+            "entity (.*) has many preset (.*) using (.*)",
+            "entity (.*) has many existing (.*) using (.*)",
+            "entity (.*) has many preset (.*) through (.*)",
+            "entity (.*) has many existing (.*) through (.*)",
+            "entity (.*) has many preset (.*) using field (.*)",
+            "entity (.*) has many existing (.*) using field (.*)",
+            "entity (.*) has many preset (.*) through field (.*)",
+            "entity (.*) has many existing (.*) through field (.*)",
+            "entity (.*) has many preset (.*) using the field (.*)",
+            "entity (.*) has many existing (.*) using the field (.*)",
+            "entity (.*) has many preset (.*) through the field (.*)",
+            "entity (.*) has many existing (.*) through the field (.*)",
+            "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*)",
+            "l'entité (.*) a plusieurs (.*) existant en utilisant (.*)",
+            "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*)",
+            "l'entité (.*) a plusieurs (.*) existant en affichant (.*)",
+            "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*)",
+            "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
+            "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
+            "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
         ],
         "createFieldset": [
             "create fieldset (.*) related to (.*)",
@@ -904,6 +950,14 @@ exports.parse = function(instruction) {
             "créer une liste de (.*) liée à (.*)",
             "ajouter une liste de (.*) reliée à (.*)",
             "ajouter une liste de (.*) liée à (.*)"
+        ],
+        "createFieldsetUsing": [
+            "create fieldset (.*) related to (.*) using (.*)",
+            "add fieldset (.*) related to (.*) using (.*)",
+            "créer une liste de (.*) reliée à (.*) en affichant (.*)",
+            "créer une liste de (.*) liée à (.*) en affichant (.*)",
+            "ajouter une liste de (.*) reliée à (.*) en affichant (.*)",
+            "ajouter une liste de (.*) liée à (.*) en affichant (.*)"
         ],
         "createNewComponentLocalFileStorageWithName": [
             "create component local file storage with name (.*)",

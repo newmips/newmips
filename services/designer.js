@@ -306,7 +306,8 @@ exports.deleteModule = function(attr, callback) {
                 id_module: attr.id_module,
                 id_project: attr.id_project,
                 options: {
-                    value: entities[i].name
+                    value: entities[i].codeName,
+                    showValue: entities[i].name
                 }
             }
 
@@ -330,7 +331,11 @@ exports.deleteModule = function(attr, callback) {
                 db_module.deleteModule(attr.id_application, attr.module_name, moduleName, function(err, info) {
                     if(err)
                         return callback(err, null);
-                    callback(null, info);
+
+                    db_module.getHomeModuleId(attr.id_application, function(err, homeID){
+                        info.homeID = homeID;
+                        callback(null, info);
+                    });
                 });
             });
         }).catch(function(err){
