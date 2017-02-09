@@ -135,7 +135,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         data.workspaceFolder = folder;
 
                         // Let's do git init or commit depending the env (only on cloud env for now)
-                        gitHelper.doGit(attr, function(err, infoGit){
+                        gitHelper.doGit(attr, function(){
                             res.render('front/preview', data);
                         });
                     });
@@ -386,7 +386,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 }
                                 else{
                                     // Let's do git init or commit depending the env (only on cloud env for now)
-                                    gitHelper.doGit(attr, function(err, infoGit){
+                                    gitHelper.doGit(attr, function(){
                                         // Call preview page
                                         res.render('front/preview.jade', data);
                                     });
