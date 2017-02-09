@@ -151,47 +151,49 @@ exports.deleteApplication = function(id_application, callback) {
     var process_server = process_manager.process_server;
     var pathToWorkspace = __dirname+'/../workspace/'+id_application;
 
-    models.Application.findById(id_application).then(function(app){
-        gitlab.projects.all(function(projects){
+    if(globalConf.env != "cloud"){
+        // Async delete repo in our gitlab in cloud env
+        models.Application.findById(id_application).then(function(app){
+            gitlab.projects.all(function(projects){
 
-            var nameAppWithoutPrefix = app.codeName.substring(2);
-            var cleanHost = globalConf.host;
-            var nameRepo = cleanHost+"-"+nameAppWithoutPrefix;
+                var nameAppWithoutPrefix = app.codeName.substring(2);
+                var cleanHost = globalConf.host;
+                var nameRepo = cleanHost+"-"+nameAppWithoutPrefix;
 
-            var repoUrl = gitlabConf.url+"/"+gitlabConf.adminUser+"/"+nameRepo;
-            var idRepoToDelete = null;
+                var idRepoToDelete = null;
 
-            for(var i=0; i<projects.length; i++){
-                if(nameRepo == projects[i].name){
-                    idRepoToDelete = projects[i].id;
-                }
-            }
-
-            if(idRepoToDelete != null){
-                gitlab.projects["remove"](idRepoToDelete, function(result){
-                    console.log("Delete Gitlab repository: "+ nameRepo);
-                    console.log(result);
-                });
-            }
-
-            if (process_server != null) {
-                process_server = process_manager.killChildProcess(process_server.pid, function(err) {
-                    try{
-                        helpers.rmdirSyncRecursive(pathToWorkspace);
-                        callback();
-                    } catch(err){
-                        callback(err, null);
+                for(var i=0; i<projects.length; i++){
+                    if(nameRepo == projects[i].name){
+                        idRepoToDelete = projects[i].id;
                     }
-                });
-            }
-            else {
-                try{
-                    helpers.rmdirSyncRecursive(pathToWorkspace);
-                    callback();
-                } catch(err){
-                    callback(err, null);
                 }
+
+                if(idRepoToDelete != null){
+                    gitlab.projects["remove"](idRepoToDelete, function(result){
+                        console.log("Delete Gitlab repository: "+ nameRepo);
+                        console.log(result);
+                    });
+                }
+            });
+        });
+    }
+
+    if (process_server != null) {
+        process_server = process_manager.killChildProcess(process_server.pid, function(err) {
+            try{
+                helpers.rmdirSyncRecursive(pathToWorkspace);
+                callback();
+            } catch(err){
+                callback(err, null);
             }
         });
-    });
+    }
+    else {
+        try{
+            helpers.rmdirSyncRecursive(pathToWorkspace);
+            callback();
+        } catch(err){
+            callback(err, null);
+        }
+    }
 }
