@@ -655,11 +655,14 @@ exports.parse = function(instruction) {
             "set the field (.*) (.*)",
             "mettre champ (.*) (.*)",
             "mettre le champ (.*) (.*)",
-            "mettre le champ (.*) en (.*)"
+            "mettre le champ (.*) en (.*)",
+            "rendre champ (.*) (.*)",
+            "rendre le champ (.*) (.*)"
         ],
         "setColumnVisibility": [
             "set column (.*) (.*)",
-            "mettre la colonne (.*) en (.*)"
+            "mettre la colonne (.*) en (.*)",
+            "rendre la colonne (.*) (.*)"
         ],
         "createNewProject": [
             "create project (.*)",
