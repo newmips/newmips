@@ -13,6 +13,9 @@ var gitlab = require('gitlab')({
     token: gitlabConf.privateToken
 });
 
+//Sequelize
+var models = require('../models/');
+
 // Application
 exports.setupApplication = function(attr, callback) {
 
@@ -50,12 +53,13 @@ exports.setupApplication = function(attr, callback) {
                     return callback(err, null);
                 }
 
+                var nameAppWithoutPrefix = name_application.substring(2);
                 // Create the application repository in gitlab
                 // TODO - DO THIS ONLY IN CLOUD ENV
                 if(globalConf.env != "cloud"){
                     var newGitlabProject = {
                         user_id : 1,
-                        name: globalConf.host+"-"+name_application,
+                        name: globalConf.host+"-"+nameAppWithoutPrefix,
                         description: "A generated Newmips workspace.",
                         issues_enabled: false,
                         merge_requests_enabled: false,
@@ -145,24 +149,49 @@ exports.deleteApplication = function(id_application, callback) {
     // Kill spawned child process by preview
     var process_manager = require('../services/process_manager.js');
     var process_server = process_manager.process_server;
-    var path = __dirname+'/../workspace/'+id_application;
+    var pathToWorkspace = __dirname+'/../workspace/'+id_application;
 
-    if (process_server != null) {
-        process_server = process_manager.killChildProcess(process_server.pid, function(err) {
-            try{
-                helpers.rmdirSyncRecursive(path);
-                callback();
-            } catch(err){
-                callback(err, null);
+    models.Application.findById(id_application).then(function(app){
+        gitlab.projects.all(function(projects){
+
+            var nameAppWithoutPrefix = app.codeName.substring(2);
+            var cleanHost = globalConf.host;
+            var nameRepo = cleanHost+"-"+nameAppWithoutPrefix;
+
+            var repoUrl = gitlabConf.url+"/"+gitlabConf.adminUser+"/"+nameRepo;
+            var idRepoToDelete = null;
+
+            for(var i=0; i<projects.length; i++){
+                if(nameRepo == projects[i].name){
+                    idRepoToDelete = projects[i].id;
+                }
+            }
+
+            if(idRepoToDelete != null){
+                gitlab.projects["remove"](idRepoToDelete, function(result){
+                    console.log("Delete Gitlab repository: "+ nameRepo);
+                    console.log(result);
+                });
+            }
+
+            if (process_server != null) {
+                process_server = process_manager.killChildProcess(process_server.pid, function(err) {
+                    try{
+                        helpers.rmdirSyncRecursive(pathToWorkspace);
+                        callback();
+                    } catch(err){
+                        callback(err, null);
+                    }
+                });
+            }
+            else {
+                try{
+                    helpers.rmdirSyncRecursive(pathToWorkspace);
+                    callback();
+                } catch(err){
+                    callback(err, null);
+                }
             }
         });
-    }
-    else {
-        try{
-            helpers.rmdirSyncRecursive(path);
-            callback();
-        } catch(err){
-            callback(err, null);
-        }
-    }
+    });
 }

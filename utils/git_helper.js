@@ -29,7 +29,8 @@ module.exports = {
             // . becomes -
             var cleanHost = globalConf.host.replace(/\./g, "-");
 
-            var nameApp = application.codeName;
+            // Remove prefix
+            var nameApp = application.codeName.substring(2);
             var nameRepo = cleanHost+"-"+nameApp;
             var originName = "origin-"+cleanHost+"-"+nameApp;
             var repoUrl = gitlabConf.url+"/"+gitlabConf.adminUser+"/"+nameRepo+".git";
