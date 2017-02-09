@@ -28,6 +28,10 @@ var helpers = require('../utils/helpers');
 // Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
+// Use to connect workspaces with gitlab or other repo
+// Only working on our cloud ENV for now.
+var gitHelper = require('../utils/git_helper');
+
 // Sequelize
 var models = require('../models/');
 
@@ -130,7 +134,10 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         folder = helpers.sortEditorFolder(folder);
                         data.workspaceFolder = folder;
 
-                        res.render('front/preview', data);
+                        // Let's do git init or commit depending the env (only on cloud env for now)
+                        gitHelper.doGit(attr, function(err, infoGit){
+                            res.render('front/preview', data);
+                        });
                     });
                 });
             }
@@ -360,12 +367,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                             console.log("Server status is OK");
 
                             // Load session values
-                            var attr = new Array();
-                            attr.id_project = req.session.id_project;
-                            attr.id_application = req.session.id_application;
-                            attr.id_module = req.session.id_module;
-                            attr.id_data_entity = req.session.id_data_entity;
-                            session_manager.getSession(attr, function(err, info) {
+                            var newAttr = {};
+                            newAttr.id_project = req.session.id_project;
+                            newAttr.id_application = req.session.id_application;
+                            newAttr.id_module = req.session.id_module;
+                            newAttr.id_data_entity = req.session.id_data_entity;
+                            session_manager.getSession(newAttr, function(err, info) {
                                 data.session = info;
                                 // Editor
                                 var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
@@ -375,11 +382,14 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 data.workspaceFolder = folder;
 
                                 if(toRedirectRestart){
-                                    return res.redirect("/application/preview?id_application="+attr.id_application);
+                                    return res.redirect("/application/preview?id_application="+newAttr.id_application);
                                 }
                                 else{
-                                    // Call preview page
-                                    res.render('front/preview.jade', data);
+                                    // Let's do git init or commit depending the env (only on cloud env for now)
+                                    gitHelper.doGit(attr, function(err, infoGit){
+                                        // Call preview page
+                                        res.render('front/preview.jade', data);
+                                    });
                                 }
                             });
                         });

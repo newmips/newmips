@@ -33,6 +33,7 @@
     "ps-tree": "~1.1.0",
     "request": "~2.74.0",
     "sequelize": "~3.24.2",
+    "simple-git": "^1.65.0",
     "winston": "^2.3.0"
   },
   "scripts": {
