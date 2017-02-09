@@ -24,7 +24,7 @@ exports.setupApplication = function(attr, callback) {
     var show_name_application = options.showValue;
 
     // *** Copy template folder to new workspace ***
-    fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {
+    fs.copy(__dirname+'/template/', __dirname+'/../workspace/'+id_application, function(err) {
         if(err){
             var err = new Error();
             err.message = "An error occurred while copying template folder.";
@@ -55,7 +55,7 @@ exports.setupApplication = function(attr, callback) {
                 if(globalConf.env != "cloud"){
                     var newGitlabProject = {
                         user_id : 1,
-                        name: globalConf.host+"_"+id_application+"_"+name_application,
+                        name: globalConf.host+"-"+name_application,
                         description: "A generated Newmips workspace.",
                         issues_enabled: false,
                         merge_requests_enabled: false,
@@ -65,7 +65,6 @@ exports.setupApplication = function(attr, callback) {
                     };
 
                     gitlab.projects.create(newGitlabProject, function(result){
-                        console.log(result);
                         // Direct callback as application has been installed in template folder
                         callback();
                     });
@@ -76,44 +75,6 @@ exports.setupApplication = function(attr, callback) {
                 }
             });
         });
-
-        // *** Update translation fileFR ***
-        /*var fileFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-        var dataFR = require(fileFR);
-        dataFR.app.name = show_name_application;
-
-        fs.writeFile(fileFR, JSON.stringify(dataFR, null, 2), function(err) {
-            if(err){
-                var err = new Error();
-                err.message = "An error occurred while updating fr-FR translation file.";
-                return callback(err, null);
-            }
-
-            var fileEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
-            var dataEN = require(fileEN);
-            dataEN.app.name = show_name_application;
-
-            fs.writeFile(fileEN, JSON.stringify(dataEN, null, 2), function(err) {
-                if(err){
-                    var err = new Error();
-                    err.message = "An error occurred while updating en-EN translation file.";
-                    return callback(err, null);
-                }
-
-                // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
-                var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
-                languageConfig.lang = attr.lang_user;
-                fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
-                    if(err){
-                        var err = new Error();
-                        err.message = "An error occurred while creating language.json.";
-                        return callback(err, null);
-                    }
-                    // Direct callback as application has been installed in template folder
-                    callback();
-                });
-            });
-        });*/
     });
 }
 

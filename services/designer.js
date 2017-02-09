@@ -142,15 +142,27 @@ exports.selectApplication = function(attr, callback) {
 }
 
 exports.createNewApplication = function(attr, callback) {
-    // Data
-    db_application.createNewApplication(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            // Structure application
-            attr.id_application = info.insertId;
-            structure_application.setupApplication(attr, function() {
-                callback(null, info);
+    // Check if an application with this name alreadyExist or no
+    db_application.exist(attr, function(err, exist){
+        if(err)
+            return callback(err, null);
+
+        if(exist){
+            var error = new Error();
+            error.message = "An application with the name "+attr.options.showValue+" already exist."
+            return callback(error, null);
+        }
+        else{
+            db_application.createNewApplication(attr, function(err, info) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    // Structure application
+                    attr.id_application = info.insertId;
+                    structure_application.setupApplication(attr, function() {
+                        callback(null, info);
+                    });
+                }
             });
         }
     });
