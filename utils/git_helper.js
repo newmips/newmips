@@ -43,12 +43,8 @@ module.exports = {
                 .commit("First commit!")
                 .addRemote(originName, repoUrl)
                 .push(['-u', originName, 'master'], function(err, answer){
-                    if(err){
+                    if(err)
                         console.log(err);
-                        callback(err, false);
-                    } else{
-                        callback(null, answer);
-                    }
                 });
             } else if(typeof attr.function !== "undefined"){
                 // We are just after a new instruction
@@ -57,19 +53,12 @@ module.exports = {
                 simpleGit.add('.')
                 .commit(commitMsg)
                 .push(['-u', originName, 'master'], function(err, answer){
-                    if(err){
+                    if(err)
                         console.log(err);
-                        callback(err, false);
-                    } else{
-                        callback(null, answer);
-                    }
                 });
 
-            } else{
-                // Nothing to commit
-                console.log("GIT: Nothing to do.");
-                callback(null, true);
             }
+            callback();
         });
     }
 }
