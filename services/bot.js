@@ -45,6 +45,13 @@ exports.restart = function(result) {
     return attr;
 };
 
+exports.gitPush = function(result) {
+
+    var attr = {};
+    attr.function = "gitPush";
+    return attr;
+};
+
 // ******* SELECT Actions ******* //
 exports.selectProject = function(result) {
 
@@ -655,6 +662,15 @@ exports.parse = function(instruction) {
             "redémarrer",
             "redémarrer serveur",
             "redémarrer le serveur"
+        ],
+        "gitPush": [
+            "save",
+            "save on git",
+            "push",
+            "push on git",
+            "save the application",
+            "sauvergarder",
+            "sauvergarder l'application"
         ],
         "selectProject": [
             "select project (.*)",
