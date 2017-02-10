@@ -124,6 +124,10 @@ module.exports = {
                     });
                 }
             });
+        } else{
+            var err = new Error();
+            err.message = "You choose to not do git in config/gitlab.json, so this instruction will do nothing."
+            callback(err, null);
         }
     }
 }
