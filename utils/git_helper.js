@@ -16,7 +16,7 @@ function checkAlreadyInit(idApplication){
 module.exports = {
     doGit: function(attr, callback){
         // We push code on gitlab only in our cloud env
-        if(globalConf.env != "cloud"){
+        if(gitlabConf.doGit){
             var idApplication = attr.id_application;
 
             // Workspace path
@@ -73,7 +73,7 @@ module.exports = {
     },
     gitPush: function(attr, callback){
         // We push code on gitlab only in our cloud env
-        if(globalConf.env != "cloud"){
+        if(gitlabConf.doGit){
             var idApplication = attr.id_application;
 
             // Workspace path

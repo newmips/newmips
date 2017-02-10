@@ -1,4 +1,5 @@
 {
+	"doGit": true,
 	"url": "http://cloud.newmips.com:1400",
 	"sshUrl": "git@cloud.newmips.com",
 	"useSSH": true,

@@ -55,8 +55,7 @@ exports.setupApplication = function(attr, callback) {
 
                 var nameAppWithoutPrefix = name_application.substring(2);
                 // Create the application repository in gitlab
-                // TODO - DO THIS ONLY IN CLOUD ENV
-                if(globalConf.env != "cloud"){
+                if(gitlabConf.doGit){
                     var newGitlabProject = {
                         user_id : 1,
                         name: globalConf.host+"-"+nameAppWithoutPrefix,
@@ -151,7 +150,7 @@ exports.deleteApplication = function(id_application, callback) {
     var process_server = process_manager.process_server;
     var pathToWorkspace = __dirname+'/../workspace/'+id_application;
 
-    if(globalConf.env != "cloud"){
+    if(gitlabConf.doGit){
         // Async delete repo in our gitlab in cloud env
         models.Application.findById(id_application).then(function(app){
             gitlab.projects.all(function(projects){
