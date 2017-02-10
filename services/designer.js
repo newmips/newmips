@@ -23,6 +23,8 @@ var structure_ui = require("../structure/structure_ui");
 // Other
 var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
+var gitHelper = require("../utils/git_helper");
+
 var fs = require('fs');
 var sequelize = require('../models/').sequelize;
 
@@ -72,6 +74,18 @@ exports.restart = function(attr, callback) {
     var info = {};
     info.message = "Server restarted !";
     callback(null, info);
+}
+
+/* --------------------------------------------------------------- */
+/* ----------------------- Save on git --------------------------- */
+/* --------------------------------------------------------------- */
+
+exports.gitPush = function(attr, callback) {
+    gitHelper.gitPush(attr, function(infoGit){
+        var info = {};
+        info.message = "Application saved!";
+        callback(null, info);
+    });
 }
 
 /* --------------------------------------------------------------- */
