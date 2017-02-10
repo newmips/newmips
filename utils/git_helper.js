@@ -34,11 +34,18 @@ module.exports = {
                 var nameApp = application.codeName.substring(2);
                 var nameRepo = cleanHost+"-"+nameApp;
                 var originName = "origin-"+cleanHost+"-"+nameApp;
-                var repoUrl = gitlabConf.url+"/"+gitlabConf.adminUser+"/"+nameRepo+".git";
+                var repoUrl = "";
+                if(!gitlabConf.useSSH){
+                    repoUrl = gitlabConf.url+"/"+gitlabConf.adminUser+"/"+nameRepo+".git";
+                } else{
+                    repoUrl = gitlabConf.sshUrl+":"+gitlabConf.adminUser+"/"+nameRepo+".git";
+                }
 
                 // Is the workspace already git init ?
                 if(!checkAlreadyInit(idApplication)){
                     console.log("GIT: Git init in new workspace directory.");
+                    console.log(repoUrl);
+
                     simpleGit.init()
                     .add('.')
                     .commit("First commit!")
@@ -46,10 +53,12 @@ module.exports = {
                     .push(['-u', originName, 'master'], function(err, answer){
                         if(err)
                             console.log(err);
+                        console.log(answer);
                     });
                 } else if(typeof attr.function !== "undefined"){
                     // We are just after a new instruction
                     console.log("GIT: Git commit after new instruction.");
+                    console.log(repoUrl);
                     var commitMsg = "New commit: Function:"+attr.function+" Project:"+attr.id_project+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
                     simpleGit.add('.')
                     .commit(commitMsg)

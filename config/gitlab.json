@@ -1,5 +1,7 @@
 {
-	"url": "http://127.0.0.1:1400",
-	"adminUser": "root",
-	"privateToken": "Yqua49H75o-tjqC8g6pB"
+	"url": "http://cloud.newmips.com:1400",
+	"sshUrl": "git@cloud.newmips.com",
+	"useSSH": true,
+	"adminUser": "newmipsAdmin",
+	"privateToken": ""
 }
