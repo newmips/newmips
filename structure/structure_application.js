@@ -7,11 +7,18 @@ var translateHelper = require("../utils/translate");
 var globalConf = require('../config/global.js');
 
 var gitlabConf = require('../config/gitlab.json');
-// Gitlab connection
-var gitlab = require('gitlab')({
-    url:   gitlabConf.url,
-    token: gitlabConf.privateToken
-});
+
+try{
+    // Gitlab connection
+    var gitlab = require('gitlab')({
+        url:   gitlabConf.url,
+        token: gitlabConf.privateToken
+    });
+} catch(err){
+    console.log("Error connection Gitlab repository: "+err);
+    console.log("Please set doGit in config/gitlab.json to false");
+}
+
 
 //Sequelize
 var models = require('../models/');
@@ -67,10 +74,16 @@ exports.setupApplication = function(attr, callback) {
                         public: false
                     };
 
-                    gitlab.projects.create(newGitlabProject, function(result){
-                        // Direct callback as application has been installed in template folder
+                    try{
+                        gitlab.projects.create(newGitlabProject, function(result){
+                            // Direct callback as application has been installed in template folder
+                            callback();
+                        });
+                    } catch(err){
+                        console.log("Error connection Gitlab repository: "+err);
+                        console.log("Please set doGit in config/gitlab.json to false");
                         callback();
-                    });
+                    }
                 }
                 else{
                     // Direct callback as application has been installed in template folder
@@ -153,27 +166,33 @@ exports.deleteApplication = function(id_application, callback) {
     if(gitlabConf.doGit){
         // Async delete repo in our gitlab in cloud env
         models.Application.findById(id_application).then(function(app){
-            gitlab.projects.all(function(projects){
+            try{
+                gitlab.projects.all(function(projects){
 
-                var nameAppWithoutPrefix = app.codeName.substring(2);
-                var cleanHost = globalConf.host;
-                var nameRepo = cleanHost+"-"+nameAppWithoutPrefix;
+                    var nameAppWithoutPrefix = app.codeName.substring(2);
+                    var cleanHost = globalConf.host;
+                    var nameRepo = cleanHost+"-"+nameAppWithoutPrefix;
 
-                var idRepoToDelete = null;
+                    var idRepoToDelete = null;
 
-                for(var i=0; i<projects.length; i++){
-                    if(nameRepo == projects[i].name){
-                        idRepoToDelete = projects[i].id;
+                    for(var i=0; i<projects.length; i++){
+                        if(nameRepo == projects[i].name){
+                            idRepoToDelete = projects[i].id;
+                        }
                     }
-                }
 
-                if(idRepoToDelete != null){
-                    gitlab.projects["remove"](idRepoToDelete, function(result){
-                        console.log("Delete Gitlab repository: "+ nameRepo);
-                        console.log(result);
-                    });
-                }
-            });
+                    if(idRepoToDelete != null){
+                        gitlab.projects["remove"](idRepoToDelete, function(result){
+                            console.log("Delete Gitlab repository: "+ nameRepo);
+                            console.log(result);
+                        });
+                    }
+                });
+            } catch(err){
+                console.log("Error connection Gitlab repository: "+err);
+                console.log("Please set doGit in config/gitlab.json to false");
+                callback();
+            }
         });
     }
 
