@@ -9,11 +9,13 @@ var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.json');
 
 try{
-    // Gitlab connection
-    var gitlab = require('gitlab')({
-        url:   gitlabConf.url,
-        token: gitlabConf.privateToken
-    });
+    if(gitlabConf.doGit){
+        // Gitlab connection
+        var gitlab = require('gitlab')({
+            url:   gitlabConf.url,
+            token: gitlabConf.privateToken
+        });
+    }
 } catch(err){
     console.log("Error connection Gitlab repository: "+err);
     console.log("Please set doGit in config/gitlab.json to false");

@@ -81,7 +81,9 @@ exports.restart = function(attr, callback) {
 /* --------------------------------------------------------------- */
 
 exports.gitPush = function(attr, callback) {
-    gitHelper.gitPush(attr, function(infoGit){
+    gitHelper.gitPush(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
         var info = {};
         info.message = "Application saved!";
         callback(null, info);
