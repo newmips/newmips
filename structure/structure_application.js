@@ -5,7 +5,6 @@ var translateHelper = require("../utils/translate");
 
 // Global conf
 var globalConf = require('../config/global.js');
-
 var gitlabConf = require('../config/gitlab.json');
 
 try{
