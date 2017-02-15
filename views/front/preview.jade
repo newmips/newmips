@@ -43,8 +43,6 @@ block content
 				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("module.preview.title")}
 			li
 				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("module.editor")}
-			li
-				a(role="primaryTab", data-toggle='tab', href='#access-config') #{__("module.access_config.tab_name")}
 		.tab-content
 			#preview.tab-pane.fade.in.active
 				.row
@@ -205,86 +203,6 @@ block content
 							option(value="xq-light") xq-light
 							option(value="yeti") yeti
 							option(value="zenburn") zenburn
-
-			#access-config.tab-pane.fade.in
-				.row
-					.col-lg-12
-						form(id='group-access-form', action='/settings/set_group_access', method='post')
-							table.table.table-striped
-								thead
-									tr
-										th(colspan="2")
-											| Element
-										each group in groups
-											th
-												| #{M_(group.f_label)}
-								tbody
-									each module in modules
-										tr
-											td(colspan="2")
-												| #{M_(module.name)}
-											each group in groups
-												td
-													if (module.groups.indexOf(group.f_label) != -1)
-														input(type='checkbox', name="module.#{module.name}.#{group.f_label}")
-													else
-														input(type='checkbox', name="module.#{module.name}.#{group.f_label}", checked)
-										each entity in module.entities
-											tr
-												td
-												td
-													| #{entity.name}
-												each group in groups
-													td
-														if (entity.groups.indexOf(group.f_label) != -1)
-															input(type='checkbox', name="entity.#{entity.name}.#{group.f_label}")
-														else
-															input(type='checkbox', name="entity.#{entity.name}.#{group.f_label}", checked)
-
-							button.btn.btn-success(type='submit')
-								| Save
-							br
-
-				.row
-					.col-lg-12
-						form(id='action-access-form', action='/settings/set_role_access', method='post')
-							table.table.table-striped
-								thead
-									tr
-										th
-											| Entities
-										each role in roles
-											th
-												| #{role.f_label}
-								tbody
-									each module in modules
-										each entity in module.entities
-											tr
-												td
-													| #{entity.name}
-												each role in roles
-													td
-														if (entity.actions.read.indexOf(role.f_label) == -1)
-															input(type='checkbox', name="#{entity.name}.#{role.f_label}.read", checked)
-														else
-															input(type='checkbox', name="#{entity.name}.#{role.f_label}.read")
-														| &nbsp; Read
-														br
-
-														if (entity.actions.write.indexOf(role.f_label) == -1)
-															input(type='checkbox', name="#{entity.name}.#{role.f_label}.write", checked)
-														else
-															input(type='checkbox', name="#{entity.name}.#{role.f_label}.write")
-														| &nbsp; Write
-														br
-														if (entity.actions.delete.indexOf(role.f_label) == -1)
-															input(type='checkbox', name="#{entity.name}.#{role.f_label}.delete", checked)
-														else
-															input(type='checkbox', name="#{entity.name}.#{role.f_label}.delete")
-														| &nbsp; Delete
-							button.btn.btn-success(type='submit')
-								| Save
-
 
 block custom_js
 	// AdminLTE App

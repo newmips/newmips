@@ -1,6 +1,7 @@
 var fs = require("fs-extra");
 var spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
+var domHelper = require('../utils/jsDomHelper');
 
 // Application
 exports.setupApplication = function(attr, callback) {
@@ -84,33 +85,53 @@ exports.initializeApplication = function(id_application) {
                 // Make user login field unique
                 var userModel = require(workspacePath+'/models/attributes/e_user.json');
                 userModel.f_login.unique = true;
-                var writeStream = fs.createWriteStream(workspacePath+'/models/attributes/e_user.json')
-                writeStream.write(JSON.stringify(userModel), null, 4);
-                writeStream.end();
-                writeStream.on('finish', function(){
+                fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
 
-                    // Make role label field unique
-                    var roleModel = require(workspacePath+'/models/attributes/e_role.json');
-                    roleModel.f_label.unique = true;
-                    var writeStream = fs.createWriteStream(workspacePath+'/models/attributes/e_role.json')
-                    writeStream.write(JSON.stringify(roleModel), null, 4);
-                    writeStream.end();
-                    writeStream.on('finish', function(){
+                // Make role label field unique
+                var roleModel = require(workspacePath+'/models/attributes/e_role.json');
+                roleModel.f_label.unique = true;
+                fs.writeFileSync(workspacePath+'/models/attributes/e_role.json', JSON.stringify(roleModel, null, 4), 'utf8');
 
-                        // Make group label field unique
-                        var groupModel = require(workspacePath+'/models/attributes/e_group.json');
-                        groupModel.f_label.unique = true;
-                        var writeStream = fs.createWriteStream(workspacePath+'/models/attributes/e_group.json')
-                        writeStream.write(JSON.stringify(groupModel), null, 4);
-                        writeStream.end();
-                        writeStream.on('finish', function(){
+                // Make group label field unique
+                var groupModel = require(workspacePath+'/models/attributes/e_group.json');
+                groupModel.f_label.unique = true;
+                fs.writeFileSync(workspacePath+'/models/attributes/e_group.json', JSON.stringify(groupModel, null, 4), 'utf8');
 
-                            // Reset toSync to avoid double alter table resulting in error
-                            var toSyncFileName = workspacePath+'/models/toSync.json';
-                            var writeStream = fs.createWriteStream(toSyncFileName)
-                            writeStream.write(JSON.stringify({}), null, 4);
-                            writeStream.end();
-                            writeStream.on('finish', function(){
+                // Reset toSync to avoid double alter table resulting in error
+                var toSyncFileName = workspacePath+'/models/toSync.json';
+                fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
+
+                // Manualy add settings to access file because it's not a real entity
+                var access = require(workspacePath+'/config/access.json');
+                access.authentication.entities.push({
+                    name: 'access_settings',
+                    groups: [],
+                    actions: {read: [], write: [], delete: []}
+                });
+                fs.writeFileSync(workspacePath+'/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+
+                domHelper.read(workspacePath+'/views/layout_m_authentication.dust').then(function($) {
+                    var li = '';
+                    li += '{@entityAccess entity="access_settings"}\n';
+                        li += '{@actionAccess entity="access_settings" action="read"}\n';
+                            li += '<li><a href="/access_settings/show">Set accesses</a></li>\n';
+                        li += '{/actionAccess}\n';
+                    li += '{/entityAccess}\n';
+
+                    $("#sortable").append(li);
+
+                    // Add settings entry into authentication module layout
+                    domHelper.write(workspacePath+'/views/layout_m_authentication.dust', $).then(function() {
+
+                        // Copy routes settings pieces
+                        fs.copy(piecesPath+'/routes/e_access_settings.js', workspacePath+'/routes/e_access_settings.js', function(err) {
+                            if (err)
+                                console.log(err);
+
+                            // Copy view settings pieces
+                            fs.copy(piecesPath+'/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
+                                if (err)
+                                    console.log(err);
 
                                 // Sync workspace's database and insert admin user
                                 var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
@@ -131,9 +152,8 @@ exports.initializeApplication = function(id_application) {
                                 });
                             });
                         });
-                    });
+                    })
                 });
-
             });
         });
     });

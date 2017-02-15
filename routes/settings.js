@@ -2,7 +2,6 @@
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
-var access_helper = require('../utils/access_helper');
 var language = require('../services/language');
 var extend = require('util')._extend;
 
@@ -49,45 +48,6 @@ router.post('/activate_translation', function(req, res) {
             success: false
         });
     }
-});
-
-router.post('/set_group_access', block_access.isLoggedIn, function(req, res) {
-    var form = req.body;
-    var newModuleAccess = {}, newEntityAccess = {};
-    for (var inputName in form) {
-        // Add each not checked input to groups list
-        var parts = inputName.split('.');
-        if (parts[0] == 'module') {
-            if (typeof newModuleAccess[parts[1]] === 'undefined')
-                newModuleAccess[parts[1]] = [];
-            if (form[inputName] != 'true')
-                newModuleAccess[parts[1]].push(parts[2]);
-        }
-        else if (parts[0] == 'entity') {
-            if (typeof newEntityAccess[parts[1]] === 'undefined')
-                newEntityAccess[parts[1]] = [];
-            if (form[inputName] != 'true')
-                newEntityAccess[parts[1]].push(parts[2]);
-        }
-    }
-
-    access_helper.setGroupAccess(req.session.id_application, newModuleAccess, newEntityAccess);
-    res.redirect('/application/preview?id_application='+req.session.id_application);
-});
-
-router.post('/set_role_access', block_access.isLoggedIn, function(req, res) {
-    var form = req.body;
-    var newActionRoles = {};
-    for (var inputName in form) {
-        var parts = inputName.split('.');
-        if (typeof newActionRoles[parts[0]] === 'undefined')
-            newActionRoles[parts[0]] = {read: [], write: [], delete: []};
-        if (form[inputName] != 'true')
-            newActionRoles[parts[0]][parts[2]].push(parts[1]);
-    }
-
-    access_helper.setRoleAccess(req.session.id_application, newActionRoles);
-    res.redirect('/application/preview?id_application='+req.session.id_application);
 });
 
 module.exports = router;

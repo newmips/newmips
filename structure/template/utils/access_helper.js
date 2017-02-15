@@ -3,26 +3,28 @@ var fs = require('fs-extra');
 
 // Get workspace modules and entities list
 // Also get workspace's groups and roles
-exports.getPreviewData = function(id_application) {
+exports.getPreviewData = function() {
 	return new Promise(function(resolve, reject) {
 		var values = {};
-		var workspaceModels = require(__dirname+'/../workspace/'+id_application+'/models/');
 		// Get groups from workspace
-		workspaceModels.E_group.findAll().then(function(groups) {
+		models.E_group.findAll().then(function(groups) {
 			values.groups = groups || [];
 			// Get roles from workspace
-			workspaceModels.E_role.findAll().then(function(roles) {
+			models.E_role.findAll().then(function(roles) {
 				values.roles = roles || [];
 
 				// Get access configuration
-				delete require.cache[require.resolve(__dirname+'/../workspace/'+id_application+'/config/access.json')]
-				var access = require(__dirname+'/../workspace/'+id_application+'/config/access.json');
+				delete require.cache[require.resolve('../config/access.json')]
+				var access = require('../config/access.json');
 
-				// Add module name to module definition
-				for (var module in access)
+				// Restructure access object for dustjs
+				var modules = [];
+				for (var module in access) {
 					access[module].name = module;
+					modules.push(access[module]);
+				}
 
-				values.modules = access;
+				values.modules = modules;
 				resolve(values);
 			});
 		}).catch(function(err) {
@@ -31,8 +33,8 @@ exports.getPreviewData = function(id_application) {
 	});
 }
 
-exports.setGroupAccess = function(id_application, modules, entities) {
-	var accessFileName = __dirname+'/../workspace/'+id_application+'/config/access.json';
+exports.setGroupAccess = function(modules, entities) {
+	var accessFileName = __dirname+'/../config/access.json';
 	var access = require(accessFileName);
 
 	// Loop through access.json modules
@@ -51,13 +53,13 @@ exports.setGroupAccess = function(id_application, modules, entities) {
 	}
 
 	// Write back new data to file
-	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4));
+	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
 
 	return 1;
 }
 
-exports.setRoleAccess = function(id_application, entities) {
-	var accessFileName = __dirname+'/../workspace/'+id_application+'/config/access.json';
+exports.setRoleAccess = function(entities) {
+	var accessFileName = __dirname+'/../config/access.json';
 	var access = require(accessFileName);
 
 	for (var module in access) {
@@ -68,7 +70,7 @@ exports.setRoleAccess = function(id_application, entities) {
 	}
 
 	// Write back new data to file
-	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4));
+	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
 
 	return 1;
 }
