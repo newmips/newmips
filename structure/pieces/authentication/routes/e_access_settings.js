@@ -87,7 +87,7 @@ router.post('/set_role_access', block_access.isLoggedIn, function(req, res) {
             newActionRoles[parts[0]][parts[2]].push(parts[1]);
     }
 
-    access_helper.setRoleAccess(req.session.id_application, newActionRoles);
+    access_helper.setRoleAccess(newActionRoles);
     res.redirect('/access_settings/show');
 });
 
