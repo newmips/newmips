@@ -1,0 +1,151 @@
+{>"layout_m_authentication" /}
+{<content}
+	<div class="row">
+		<div class="col-lg-12">
+			<form id='group-access-form' action='/access_settings/set_group_access' method='post'>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th colspan="2">
+								Element
+							</th>
+							{#allGroups}
+								<th>
+									{f_label}
+								</th>
+							{/allGroups}
+						</tr>
+					</thead>
+					<tbody>
+						{#modules}
+							<tr>
+								<td colspan="2">
+									{name}
+								</td>
+								{#allGroups currentModule=.}
+									<td>
+										{@isGroupChecked source=currentModule target=f_label}
+											<input name="module.{name}.{f_label}" checked type="checkbox">
+										{:else}
+											<input name="module.{name}.{f_label}" type="checkbox">
+										{/isGroupChecked}
+									</td>
+								{/allGroups}
+							</tr>
+							{#entities}
+								<tr>
+									<td></td>
+									<td>
+										{name}
+									</td>
+									{#allGroups currentEntity=.}
+										<td>
+											{@isGroupChecked source=currentEntity target=f_label}
+												<input name="entity.{name}.{f_label}" checked type="checkbox">
+											{:else}
+												<input name="entity.{name}.{f_label}" type="checkbox">
+											{/isGroupChecked}
+										</td>
+									{/allGroups}
+								</tr>
+							{/entities}
+
+						{/modules}
+					</tbody>
+				</table>
+				<button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+			</form>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-lg-12">
+			<form id="action-access-form" action='/access_settings/set_role_access' method='post'>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Entities</th>
+							{#allRoles}
+								<th>{f_label}</th>
+							{/allRoles}
+						</tr>
+					</thead>
+					<tbody>
+						{#modules}
+							{#entities}
+								<tr>
+									<td>
+										{name}
+									</td>
+									{#allRoles currentEntity=.}
+										<td>
+											{@isActionChecked action="read" source=currentEntity target=f_label}
+												<input name="{name}.{f_label}.read" type="checkbox" checked>
+											{:else}
+												<input name="{name}.{f_label}.read" type="checkbox">
+											{/isActionChecked}
+											<br>
+											{@isActionChecked action="write" source=currentEntity target=f_label}
+												<input name="{name}.{f_label}.write" type="checkbox" checked>
+											{:else}
+												<input name="{name}.{f_label}.write" type="checkbox">
+											{/isActionChecked}
+											<br>
+											{@isActionChecked action="delete" source=currentEntity target=f_label}
+												<input name="{name}.{f_label}.delete" type="checkbox" checked>
+											{:else}
+												<input name="{name}.{f_label}.delete" type="checkbox">
+											{/isActionChecked}
+										</td>
+									{/allRoles}
+								</tr>
+							{/entities}
+						{/modules}
+					</tbody>
+				</table>
+				<button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+			</form>
+		</div>
+	</div>
+{/content}
+
+
+{! 				.row
+					.col-lg-12
+						form(id='action-access-form', action='/settings/set_role_access', method='post')
+							table.table.table-striped
+								thead
+									tr
+										th
+											| Entities
+										each role in roles
+											th
+												| #{role.f_label}
+								tbody
+									each module in modules
+										each entity in module.entities
+											tr
+												td
+													| #{entity.name}
+												each role in roles
+													td
+														if (entity.actions.read.indexOf(role.f_label) == -1)
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.read", checked)
+														else
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.read")
+														| &nbsp; Read
+														br
+
+														if (entity.actions.write.indexOf(role.f_label) == -1)
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.write", checked)
+														else
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.write")
+														| &nbsp; Write
+														br
+														if (entity.actions.delete.indexOf(role.f_label) == -1)
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.delete", checked)
+														else
+															input(type='checkbox', name="#{entity.name}.#{role.f_label}.delete")
+														| &nbsp; Delete
+							button.btn.btn-success(type='submit')
+								| Save  !}

@@ -129,6 +129,7 @@ app.use(function(req, res, next) {
 		// Session
 		res.locals.session = req.session;
 
+		// Access control
 		dust.helpers.moduleAccess = function(chunk, context, bodies, params) {
 			var userGroup = req.session.passport.user.r_group.f_label;
 			var moduleName = params.module;
@@ -141,7 +142,6 @@ app.use(function(req, res, next) {
 		}
 		dust.helpers.actionAccess = function(chunk, context, bodies, params) {
 			var userRole = req.session.passport.user.r_role.f_label;
-			console.log(params);
 			var entityName = params.entity;
 			var action = params.action;
 			return block_access.actionAccess(userRole, entityName, action);
