@@ -80,21 +80,21 @@
 									{#allRoles currentEntity=.}
 										<td>
 											{@isActionChecked action="read" source=currentEntity target=f_label}
-												<input name="{name}.{f_label}.read" type="checkbox" checked>
+												<input name="{name}.{f_label}.read" type="checkbox" checked> Read
 											{:else}
-												<input name="{name}.{f_label}.read" type="checkbox">
+												<input name="{name}.{f_label}.read" type="checkbox"> Read
 											{/isActionChecked}
 											<br>
 											{@isActionChecked action="write" source=currentEntity target=f_label}
-												<input name="{name}.{f_label}.write" type="checkbox" checked>
+												<input name="{name}.{f_label}.write" type="checkbox" checked> Write
 											{:else}
-												<input name="{name}.{f_label}.write" type="checkbox">
+												<input name="{name}.{f_label}.write" type="checkbox"> Write
 											{/isActionChecked}
 											<br>
 											{@isActionChecked action="delete" source=currentEntity target=f_label}
-												<input name="{name}.{f_label}.delete" type="checkbox" checked>
+												<input name="{name}.{f_label}.delete" type="checkbox" checked> Delete
 											{:else}
-												<input name="{name}.{f_label}.delete" type="checkbox">
+												<input name="{name}.{f_label}.delete" type="checkbox"> Delete
 											{/isActionChecked}
 										</td>
 									{/allRoles}
