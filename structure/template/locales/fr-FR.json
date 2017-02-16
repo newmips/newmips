@@ -17,8 +17,8 @@
   "settings":{
     "title": "Paramètres",
     "auth_component": {
-      "access_managment": "Gestion des accès",
-      "action_managment": "Gestion des actions",
+      "access_managment": "Gestion des accès par groupe",
+      "action_managment": "Gestion des actions par rôle",
       "moduleList": "Les modules",
       "entityList": "Les entités",
       "grouplist": "Groupes:",

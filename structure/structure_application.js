@@ -176,8 +176,8 @@ exports.initializeApplication = function(id_application, id_user) {
                                                 workspaceSequelize.E_user.create({
                                                     f_login: 'adminWorkspace',
                                                     f_password: user.password || '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
-                                                    f_id_role: 1,
-                                                    f_id_group: 1,
+                                                    f_id_role_role: 1,
+                                                    f_id_group_group: 1,
                                                     f_enabled: 1
                                                 }).then(function() {
                                                     resolve();
