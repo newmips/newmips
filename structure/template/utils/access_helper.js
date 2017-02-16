@@ -40,7 +40,7 @@ exports.setGroupAccess = function(modules, entities) {
 	// Loop through access.json modules
 	for (var module in access) {
 		// Set new groups to module if needed
-		if (typeof modules[module] !== 'undefined')
+		if (typeof modules[module] !== 'undefined' && module != 'home')
 			access[module].groups = modules[module];
 
 		// Loop through access.json entities
