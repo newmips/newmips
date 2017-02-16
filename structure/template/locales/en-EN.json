@@ -16,6 +16,22 @@
 	},
 	"settings":{
 		"title": "Settings",
+		"auth_component": {
+			"access_managment": "Access managment per group",
+			"action_managment": "Action managment per role",
+			"moduleList": "Modules",
+			"entityList": "Entities",
+			"grouplist": "Groups:",
+			"rolelist": "Roles:",
+			"entitylist": "Entities:",
+			"group": "Group",
+			"role": "Role",
+			"action":{
+				"read": "Read",
+				"write": "Write",
+				"delete": "Delete"
+			}
+		},
 		"legend": "Change your user settings",
 		"lang": "Language",
 		"login": "Login",
