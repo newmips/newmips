@@ -19,18 +19,21 @@
 					<tbody>
 						{#modules}
 							<tr>
-								<td colspan="2">
+								<td>
 									{name}
 								</td>
-								{#allGroups currentModule=.}
-									<td>
-										{@isGroupChecked source=currentModule target=f_label}
-											<input name="module.{name}.{f_label}" checked type="checkbox">
-										{:else}
-											<input name="module.{name}.{f_label}" type="checkbox">
-										{/isGroupChecked}
-									</td>
-								{/allGroups}
+								<td></td>
+								{@ne key=name value="home"}
+									{#allGroups currentModule=.}
+										<td>
+											{@isGroupChecked source=currentModule target=f_label}
+												<input name="module.{name}.{f_label}" checked type="checkbox">
+											{:else}
+												<input name="module.{name}.{f_label}" type="checkbox">
+											{/isGroupChecked}
+										</td>
+									{/allGroups}
+								{/ne}
 							</tr>
 							{#entities}
 								<tr>
@@ -111,21 +114,33 @@
 
 {<custom_js}
 	<script type="text/javascript">
-		$("input[type='checkbox']").click(function() {
-			if ($(this).attr('name').indexOf('module') == 0 && !$(this).is(':checked')) {
-				var current = $(this);
-				var tdIndex = $(this).parents('tr').find('td').index(this);
-				while ((current = current.next('tr').find('input').index(tdIndex)).attr('name').indexOf('module') != 0) {
-					current.prop('checked', false);
+		$("input").on('ifChanged',function(event) {
+			var self = event.target;
+			var tdIndex = $(self).parents('tr').find('td').index($(self).parents('td'));
+			var tableBody = $(self).parents('tbody');
+
+			/* On module uncheck, uncheck all related entities */
+			if ($(self).attr('name').indexOf('module') == 0 && !$(self).is(":checked")) {
+				var current = $(self).parents('tr').next('tr');
+				var trIndex = $(self).parents('tbody').find('tr').index(current);
+
+				while (trIndex < tableBody.find('tr').length && current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
+					var newTd = current.find('td').eq(tdIndex);
+					newTd.find('input').eq(0).iCheck('uncheck');
+					current = tableBody.find('tr').eq(trIndex+=1);
 				}
 			}
-			else if ($(this).attr('name').indexOf('entity') == 0 && $(this).is(":checked")) {
-				var current = $(this);
-				while ((current = current.prev('input[type=checkbox]')).attr('name').indexOf("module") != 0) {
-					;
+			/* On entity check, check parent module */
+			else if ($(self).attr('name').indexOf('entity') == 0 && $(self).is(":checked")) {
+				var current = $(self).parents('tr');
+				var trIndex = $(self).parents('tbody').find('tr').index(current);
+
+				while (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
+					current = tableBody.find('tr').eq(trIndex-=1);
 				}
-				current.prop('checked', true);
+				current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
 			}
-		})
+		});
+
 	</script>
 {/custom_js}
