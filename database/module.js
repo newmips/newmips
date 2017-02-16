@@ -3,7 +3,7 @@
 //Sequelize
 var models = require('../models/');
 
-// Module
+// Select a module
 exports.selectModule = function(attr, callback) {
 
     // If params is a string, look for information_system with specific Name
@@ -77,6 +77,7 @@ exports.selectModule = function(attr, callback) {
     }
 }
 
+// Create a module
 exports.createNewModule = function(attr, callback) {
 
     var name_module;
@@ -133,7 +134,7 @@ exports.createNewModule = function(attr, callback) {
     }
 }
 
-// List
+// List all module
 exports.listModule = function(attr, callback) {
 
     if(typeof attr.id_application == "undefined" || attr.id_application == null){
@@ -171,7 +172,6 @@ exports.listModule = function(attr, callback) {
     }
 }
 
-// listModuleByApplication
 exports.listModuleByApplication = function(attr, callback) {
 
     var id_application = 0;
@@ -199,7 +199,6 @@ exports.listModuleByApplication = function(attr, callback) {
     }
 }
 
-// Get name
 exports.getNameModuleById = function(id_module, callback) {
 
     if (typeof id_module == 'undefined') {
@@ -220,7 +219,6 @@ exports.getNameModuleById = function(id_module, callback) {
     });
 }
 
-// Get code name
 exports.getModuleById = function(id_module, callback) {
 
     if (typeof id_module == 'undefined') {
@@ -241,6 +239,26 @@ exports.getModuleById = function(id_module, callback) {
     });
 }
 
+exports.getHomeModuleId = function(idApplication, callback) {
+
+    models.Module.findOne({
+        where: {
+            id_application: idApplication,
+            name: "home",
+            codeName: "m_home"
+        }
+    }).then(function(homeModule) {
+        if (!module) {
+            var err = new Error();
+            err.message = "Cannot find home module in the application with ID "+idApplication+".";
+            return callback(err, null);
+        }
+        callback(null, homeModule.id);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
 exports.getEntityListByModuleName = function(id_application, module_name, callback) {
     models.Module.findOne({where: {name: module_name, id_application: id_application}, include: [models.DataEntity]}).then(function(module){
         if (!module){
@@ -254,10 +272,10 @@ exports.getEntityListByModuleName = function(id_application, module_name, callba
     });
 }
 
-exports.deleteModule = function(module_name, callback) {
-    models.Module.destroy({where: {name: module_name}}).then(function(){
+exports.deleteModule = function(idApplication, moduleName, moduleShowName, callback) {
+    models.Module.destroy({where: {codeName: moduleName, id_application: idApplication}}).then(function(){
         var info = {
-            message: "Module '"+module_name+"' deleted."
+            message: "Module '"+moduleShowName+"' deleted."
         }
         callback(null, info);
     }).catch(function(err){

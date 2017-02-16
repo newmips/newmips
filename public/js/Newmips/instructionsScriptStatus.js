@@ -21,6 +21,10 @@ function fetchStatus() {
 					$("#goTo").prop('disabled', false);
 					$("#progressbarcontent").hide();
 				}
+				else{
+					$("#scriptSubmit").prop('disabled', false);
+					$("#progressbarcontent").hide();
+				}
 			}
 		},
 		error: function() {

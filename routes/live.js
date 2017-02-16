@@ -137,7 +137,13 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
         execute(req, recurInstructions[idx]).then(function(){
             pourcent_generation[req.session.data.id] += 5;
             recursiveExecute(recurInstructions, ++idx);
-        });
+        }).catch(function(err){
+            req.session.toastr = [{
+                message: err.message,
+                level: "error"
+            }];
+            return res.redirect('/default/home');
+        })
     }
     recursiveExecute(instructions, 0);
 });
@@ -174,7 +180,7 @@ function execute(req, instruction) {
                     // Error handling code goes here
                     console.log("ERROR : ", err);
                     req.session.answers.unshift(instruction + " :<br>" + err);
-                    reject();
+                    reject(err);
                 } else {
 
                     // Store key entities in session (id_project for instance) for future instruction
@@ -184,43 +190,37 @@ function execute(req, instruction) {
                         req.session.id_module = null;
                         req.session.id_data_entity = null;
                     }
-
-                    if (attr["function"] == "createNewApplication") {
+                    else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
                         req.session.id_application = info.insertId;
                         req.session.id_module = null;
                         req.session.id_data_entity = null;
                     }
-
-                    if (attr["function"] == "selectApplication") {
-                        req.session.id_application = info.insertId;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-
-                    if ((attr["function"] == "createNewModule") || (attr["function"] == "selectModule")) {
+                    else if ((attr["function"] == "createNewModule") || (attr["function"] == "selectModule")) {
                         req.session.id_module = info.insertId;
                         req.session.id_data_entity = null;
                     }
-
-                    if ((attr["function"] == "createNewDataEntity")
+                    else if ((attr["function"] == "createNewDataEntity")
                         || (attr["function"] == "selectDataEntity")
                         || (attr["function"] == "createNewEntityWithBelongsTo")
                         || (attr["function"] == "createNewEntityWithHasMany")
                         || (attr["function"] == "createNewBelongsTo")
-                        || (attr["function"] == "createNewHasMany")){
+                        || (attr["function"] == "createNewHasMany")
+                        || (attr.function == "createNewFieldRelatedTo")){
                         req.session.id_data_entity = info.insertId;
                     }
-
-                    if (attr["function"] == "deleteProject") {
+                    else if (attr["function"] == "deleteProject") {
                         req.session.id_project = null;
                         req.session.id_application = null;
                         req.session.id_module = null;
                         req.session.id_data_entity = null;
                     }
-
-                    if (attr["function"] == "deleteApplication") {
+                    else if (attr["function"] == "deleteApplication") {
                         req.session.id_application = null;
                         req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                    }
+                    else if (attr.function == 'deleteModule') {
+                        req.session.id_module = info.homeID;
                         req.session.id_data_entity = null;
                     }
 
