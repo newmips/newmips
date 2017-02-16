@@ -18,7 +18,7 @@ function error500(err, res) {
     res.render('common/error', data);
 }
 
-router.get('/show', block_access.isLoggedIn, function(req, res) {
+router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
     var id_e_user = req.query.id;
     var tab = req.query.tab;
     var data = {
@@ -65,7 +65,7 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/set_group_access', block_access.isLoggedIn, function(req, res) {
+router.post('/set_group_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "write"), function(req, res) {
     var form = req.body;
     var newModuleAccess = {}, newEntityAccess = {};
     for (var inputName in form) {
@@ -89,7 +89,7 @@ router.post('/set_group_access', block_access.isLoggedIn, function(req, res) {
     res.redirect('/access_settings/show');
 });
 
-router.post('/set_role_access', block_access.isLoggedIn, function(req, res) {
+router.post('/set_role_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "write"), function(req, res) {
     var form = req.body;
     var newActionRoles = {};
     for (var inputName in form) {
