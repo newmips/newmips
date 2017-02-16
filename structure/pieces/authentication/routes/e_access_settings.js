@@ -30,6 +30,19 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
     access_helper.getPreviewData().then(function(values) {
         data.allGroups = values.groups;
         data.allRoles = values.roles;
+
+        // Build traduction key for modules and entities
+        for(var i=0; i<values.modules.length; i++){
+            values.modules[i].tradKeyModule = "module.m_"+values.modules[i].name;
+            for(var j=0; j<values.modules[i].entities.length; j++){
+                // Access_settings isn't an entity
+                if(values.modules[i].entities[j].name == "access_settings")
+                    values.modules[i].entities[j].tradKeyEntity = "settings.title";
+                else
+                    values.modules[i].entities[j].tradKeyEntity = "entity.e_"+values.modules[i].entities[j].name+".label_entity";
+            }
+        }
+
         data.modules = values.modules;
 
         dust.helpers.isGroupChecked = function(chunk, context, bodies, params) {
