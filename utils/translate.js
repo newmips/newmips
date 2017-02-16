@@ -45,8 +45,11 @@ module.exports = {
             }));
         }
 
-        function addLocales(type, value, value2, data){
-            if(type == "module"){
+        function addLocales(type, value2, data){
+            if(type == "application"){
+                data.app.name = value2;
+            }
+            else if(type == "module"){
                 data.module[keyValue.toLowerCase()] = value2;
             }
             else if(type == "entity"){
@@ -92,6 +95,9 @@ module.exports = {
 
         var nbLocales = localesDir.length;
         var localesCpt = 0;
+        var manualModuleTranslationArray = ["home", "authentication"];
+        var manualEntityTranslationArray = ["user", "role", "group"];
+        var manualFieldTranslationArray = ["login", "email", "role", "group", "label"];
 
         localesDir.forEach(function(file){
             var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
@@ -99,24 +105,96 @@ module.exports = {
             var workingLocales = file.slice(0, -5);
             var workingLocales4Google = workingLocales.slice(0, -3);
 
-            if(type == "module" && value.toLowerCase() == "home"){
-                if(workingLocales == "fr-FR"){
-                    dataLocales[type][keyValue.toLowerCase()] = "Accueil";
-                }else{
-                    dataLocales[type][keyValue.toLowerCase()] = "Home";
+            if(type == "module" && manualModuleTranslationArray.indexOf(value.toLowerCase()) != -1){
+                if(value.toLowerCase() == "home"){
+                    if(workingLocales == "fr-FR"){
+                        dataLocales[type][keyValue.toLowerCase()] = "Accueil";
+                    }else{
+                        dataLocales[type][keyValue.toLowerCase()] = "Home";
+                    }
+                }
+                else if(value.toLowerCase() == "authentication"){
+                    if(workingLocales == "fr-FR"){
+                        dataLocales[type][keyValue.toLowerCase()] = "Authentification";
+                    }else{
+                        dataLocales[type][keyValue.toLowerCase()] = "Authentication";
+                    }
                 }
                 pushLanguagePromise(urlFile, dataLocales, file);
                 localesCpt++;
                 doneLocales(localesCpt, nbLocales);
+            } else if(type == "entity" && manualEntityTranslationArray.indexOf(value.toLowerCase()) != -1){
+                if(value.toLowerCase() == "user"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Utilisateur";
+                    }else{
+                        value = "User";
+                    }
+                } else if(value.toLowerCase() == "role"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Rôle";
+                    }else{
+                        value = "Role";
+                    }
+                } else if(value.toLowerCase() == "group"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Groupe";
+                    }else{
+                        value = "Group";
+                    }
+                }
+
+                dataLocales = addLocales(type, value, dataLocales);
+                pushLanguagePromise(urlFile, dataLocales, file);
+                localesCpt++;
+                doneLocales(localesCpt, nbLocales);
+            } else if((type == "field" || type == "aliasfield") && manualFieldTranslationArray.indexOf(value.toLowerCase()) != -1){
+                if(value.toLowerCase() == "login"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Identifiant";
+                    }else{
+                        value = "Login";
+                    }
+                } else if(value.toLowerCase() == "role"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Rôle";
+                    }else{
+                        value = "Role";
+                    }
+                } else if(value.toLowerCase() == "email"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Email";
+                    }else{
+                        value = "Email";
+                    }
+                } else if(value.toLowerCase() == "group"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Groupe";
+                    }else{
+                        value = "Group";
+                    }
+                } else if(value.toLowerCase() == "label"){
+                    if(workingLocales == "fr-FR"){
+                        value = "Libellé";
+                    }else{
+                        value = "Label";
+                    }
+                }
+
+                dataLocales = addLocales(type, value, dataLocales);
+                pushLanguagePromise(urlFile, dataLocales, file);
+                localesCpt++;
+                doneLocales(localesCpt, nbLocales);
+
             } else if(workingLocales != appLang){
                 if(translateKey != "" && toTranslate){
                     googleTranslate.translate(value, appLang4Google, workingLocales4Google, function(err, translations) {
                         if(!err){
-                            dataLocales = addLocales(type, value, translations.translatedText, dataLocales);
+                            dataLocales = addLocales(type, translations.translatedText, dataLocales);
                         }
                         else{
                             console.log(err);
-                            dataLocales = addLocales(type, value, value, dataLocales);
+                            dataLocales = addLocales(type, value, dataLocales);
                         }
                         pushLanguagePromise(urlFile, dataLocales, file);
                         localesCpt++;
@@ -127,13 +205,13 @@ module.exports = {
                     if(translateKey == "" && googleTranslate)
                         console.log("Error: Empty API key for google translation!");
 
-                    dataLocales = addLocales(type, value, value, dataLocales);
+                    dataLocales = addLocales(type, value, dataLocales);
                     pushLanguagePromise(urlFile, dataLocales, file);
                     localesCpt++;
                     doneLocales(localesCpt, nbLocales);
                 }
             } else{
-                dataLocales = addLocales(type, value, value, dataLocales);
+                dataLocales = addLocales(type, value, dataLocales);
 
                 pushLanguagePromise(urlFile, dataLocales, file);
                 localesCpt++;

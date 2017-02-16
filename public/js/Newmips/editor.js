@@ -16,10 +16,10 @@ $(document).ready(function() {
 		        "	█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n\n";
 
     /* Get browser chosenTheme */
-    var chosenTheme = sessionStorage.getItem("newmips_editor_theme");
+    var chosenTheme = localStorage.getItem("newmips_editor_theme");
 
     if (chosenTheme == null) {
-        sessionStorage.setItem("newmips_editor_theme", "default");
+        localStorage.setItem("newmips_editor_theme", "default");
         chosenTheme = "default";
     } else if (chosenTheme != "default") {
         $("#select-theme").val(chosenTheme);
@@ -71,7 +71,7 @@ $(document).ready(function() {
         var theme = $(this).val();
         $('head').append("<link href='/css/codemirror/themes/" + theme + ".css' rel='stylesheet' type='text/css'>");
         myEditor.setOption("theme", theme);
-        sessionStorage.setItem("newmips_editor_theme", theme);
+        localStorage.setItem("newmips_editor_theme", theme);
     });
 
     /* -------- Set mode depending of file extension -------- */

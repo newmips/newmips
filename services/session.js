@@ -23,9 +23,9 @@ exports.help = function(attr, callback) {
     var info = new Array();
 
     if (id_data_entity == null) {
-        info.message = "You are not yet working on any entity. Please select one or create a new data entity using instruction: 'select data entity NameOrIdOfYourEntity' or 'create data entity NameOfYourEntity'";
+        info.message = "You are not yet working on any entity. Please select one or create a new entity using instruction: <br>'select entity Name_Or_ID_Of_Your_Entity' <br>or<br> 'add entity Name_Of_Your_Entity'. <br><br> You can also refer to our documentation: <a href='http://docs.newmips.com/' target='_blank'>http://docs.newmips.com/</a> to know more about basic instructions.";
     } else {
-        info.message = "Please refer to documentation: <a href='http://docs.newmips.com/' target='_blank'>http://docs.newmips.com/</a> to know more about basic instructions";
+        info.message = "Please refer to documentation: <a href='http://docs.newmips.com/' target='_blank'>http://docs.newmips.com/</a> to know more about basic instructions.";
     }
 
     callback(null, info);

@@ -7,34 +7,37 @@
 </ol>
 {/header}
 {<content}
-    <legend>{@__ key="settings.legend"/}</legend>
     <div class="row">
         <div class="col-xs-12 connectedSortable">
-            <br>
-            <div class="box-body">
-                <div class="form-group">
-                    <label>{@__ key="settings.lang"/}</label><br/>
-                    <a data-lang="fr-FR" class='chooseLanguage btn {@eq key=lang_user value="fr-FR"}btn-primary{:else}btn-default{/eq}'>
-                        Francais
-                    </a>
-                    &nbsp;
-                    <a data-lang="en-EN" class='chooseLanguage btn {@eq key=lang_user value="en-EN"}btn-primary{:else}btn-default{/eq}'>
-                        English
-                    </a>
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="settings.legend"/}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
                 </div>
-                <br>
-                <div class="form-group">
-                    <form action="/user/update" method="post">
-                        <div class="box-body">
+                <div class="box-body">
+                    <div class="form-group">
+                        <label>{@__ key="settings.lang"/}</label><br/>
+                        <a data-lang="fr-FR" class='chooseLanguage btn {@eq key=lang_user value="fr-FR"}btn-primary{:else}btn-default{/eq}'>
+                            Francais
+                        </a>
+                        &nbsp;&nbsp;
+                        <a data-lang="en-EN" class='chooseLanguage btn {@eq key=lang_user value="en-EN"}btn-primary{:else}btn-default{/eq}'>
+                            English
+                        </a>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <form action="/user/update" method="post">
                             {#e_user}
                                 {>"e_user/update_fields"/}
                             {/e_user}
-                        </div>
-                        <div class="box-footer">
                             <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
-                        </div>
-                        <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>
-                    </form>
+                            <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

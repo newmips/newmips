@@ -2,6 +2,26 @@ var fs = require("fs-extra");
 var spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
 var domHelper = require('../utils/jsDomHelper');
+var translateHelper = require("../utils/translate");
+
+// Global conf
+var globalConf = require('../config/global.js');
+var gitlabConf = require('../config/gitlab.json');
+
+try{
+    if(gitlabConf.doGit){
+        // Gitlab connection
+        var gitlab = require('gitlab')({
+            url:   gitlabConf.url,
+            token: gitlabConf.privateToken
+        });
+    }
+} catch(err){
+    console.log("Error connection Gitlab repository: "+err);
+    console.log("Please set doGit in config/gitlab.json to false");
+}
+
+//Sequelize
 var models = require('../models/');
 
 // Application
@@ -15,7 +35,7 @@ exports.setupApplication = function(attr, callback) {
     var show_name_application = options.showValue;
 
     // *** Copy template folder to new workspace ***
-    fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {
+    fs.copy(__dirname+'/template/', __dirname+'/../workspace/'+id_application, function(err) {
         if(err){
             var err = new Error();
             err.message = "An error occurred while copying template folder.";
@@ -29,41 +49,48 @@ exports.setupApplication = function(attr, callback) {
         historyScript += "\ncreate module home\n";
         fs.writeFileSync(historyScriptPath, historyScript);
 
-        // *** Update translation fileFR ***
-        var fileFR = __dirname + '/../workspace/' + id_application + '/locales/fr-FR.json';
-        var dataFR = require(fileFR);
-        dataFR.app.name = show_name_application;
+        /* --------------- New translation --------------- */
+        translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function(){
+            // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
+            var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
+            languageConfig.lang = attr.lang_user;
+            fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
 
-        fs.writeFile(fileFR, JSON.stringify(dataFR, null, 4), function(err) {
-            if(err){
-                var err = new Error();
-                err.message = "An error occurred while updating fr-FR translation file.";
-                return callback(err, null);
-            }
-
-            var fileEN = __dirname + '/../workspace/' + id_application + '/locales/en-EN.json';
-            var dataEN = require(fileEN);
-            dataEN.app.name = show_name_application;
-
-            fs.writeFile(fileEN, JSON.stringify(dataEN, null, 4), function(err) {
                 if(err){
                     var err = new Error();
-                    err.message = "An error occurred while updating en-EN translation file.";
+                    err.message = "An error occurred while creating language.json.";
                     return callback(err, null);
                 }
 
-                // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
-                var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
-                languageConfig.lang = attr.lang_user;
-                fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
-                    if(err){
-                        var err = new Error();
-                        err.message = "An error occurred while creating language.json.";
-                        return callback(err, null);
+                var nameAppWithoutPrefix = name_application.substring(2);
+                // Create the application repository in gitlab
+                if(gitlabConf.doGit){
+                    var newGitlabProject = {
+                        user_id : 1,
+                        name: globalConf.host+"-"+nameAppWithoutPrefix,
+                        description: "A generated Newmips workspace.",
+                        issues_enabled: false,
+                        merge_requests_enabled: false,
+                        wiki_enabled: false,
+                        snippets_enabled: false,
+                        public: false
+                    };
+
+                    try{
+                        gitlab.projects.create(newGitlabProject, function(result){
+                            // Direct callback as application has been installed in template folder
+                            callback();
+                        });
+                    } catch(err){
+                        console.log("Error connection Gitlab repository: "+err);
+                        console.log("Please set doGit in config/gitlab.json to false");
+                        callback();
                     }
+                }
+                else{
                     // Direct callback as application has been installed in template folder
                     callback();
-                });
+                }
             });
         });
     });
@@ -173,21 +200,54 @@ exports.deleteApplication = function(id_application, callback) {
     // Kill spawned child process by preview
     var process_manager = require('../services/process_manager.js');
     var process_server = process_manager.process_server;
-    var path = __dirname+'/../workspace/'+id_application;
+    var pathToWorkspace = __dirname+'/../workspace/'+id_application;
+
+    if(gitlabConf.doGit){
+        // Async delete repo in our gitlab in cloud env
+        models.Application.findById(id_application).then(function(app){
+            try{
+                gitlab.projects.all(function(projects){
+
+                    var nameAppWithoutPrefix = app.codeName.substring(2);
+                    var cleanHost = globalConf.host;
+                    var nameRepo = cleanHost+"-"+nameAppWithoutPrefix;
+
+                    var idRepoToDelete = null;
+
+                    for(var i=0; i<projects.length; i++){
+                        if(nameRepo == projects[i].name){
+                            idRepoToDelete = projects[i].id;
+                        }
+                    }
+
+                    if(idRepoToDelete != null){
+                        gitlab.projects["remove"](idRepoToDelete, function(result){
+                            console.log("Delete Gitlab repository: "+ nameRepo);
+                            console.log(result);
+                        });
+                    }
+                });
+            } catch(err){
+                console.log("Error connection Gitlab repository: "+err);
+                console.log("Please set doGit in config/gitlab.json to false");
+                callback();
+            }
+        });
+    }
 
     if (process_server != null) {
-        try{
-            process_server = process_manager.killChildProcess(process_server.pid, function() {
-                helpers.rmdirSyncRecursive(path);
+        process_server = process_manager.killChildProcess(process_server.pid, function(err) {
+            try{
+                helpers.rmdirSyncRecursive(pathToWorkspace);
                 callback();
-            });
-        } catch(err){
-            callback(err, null);
-        }
+            } catch(err){
+                callback(err, null);
+            }
+        });
     }
     else {
         try{
-            helpers.rmdirSyncRecursive(path);
+            helpers.rmdirSyncRecursive(pathToWorkspace);
             callback();
         } catch(err){
             callback(err, null);

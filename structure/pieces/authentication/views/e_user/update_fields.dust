@@ -1,9 +1,9 @@
 <div id="fields">
     <div data-field="f_login" class="form-group">
-        <label for="f_login">
+        <label class="required" for="f_login">
             {@__ key="entity.e_user.f_login"/}
         </label>
-        <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text">
+        <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text" required>
     </div>
     <div data-field="f_email" class="form-group">
         <label for="f_email">
@@ -18,10 +18,10 @@
     </div>
     {^isSettings}
         <div data-field="r_role" class="form-group">
-            <label for="r_role">
+            <label class="required" for="r_role">
                 {@__ key="entity.e_user.r_role" /}
             </label>
-            <select class="form-control" name="r_role">
+            <select class="form-control" name="r_role" required>
                 {#r_role_global_list}
                 {#.f_label}
                 {@eq key=r_role.id value=id}
@@ -40,8 +40,8 @@
             </select>
         </div>
         <div data-field="r_group" class="form-group">
-            <label for="r_group">{@__ key="entity.e_user.r_group" /}</label>
-            <select class="form-control" name="r_group">
+            <label class="required" for="r_group">{@__ key="entity.e_user.r_group" /}</label>
+            <select class="form-control" name="r_group" required>
                 {#r_group_global_list}
                 {#.f_label}
                 {@eq key=r_group.id value=id}

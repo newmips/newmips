@@ -29,8 +29,11 @@ exports.buildForRoute = function buildForRoute(attributes, options, body) {
 
 	// Simple field
 	for (var prop in attributes) {
-		if (prop !== 'id' && typeof body[prop] !== 'undefined')
+		if (prop !== 'id' && typeof body[prop] !== 'undefined'){
+			if(body[prop] == "")
+				body[prop] = null;
 			object[prop] = body[prop];
+		}
 	}
 
 	// Association Field

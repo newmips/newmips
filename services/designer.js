@@ -23,6 +23,8 @@ var structure_ui = require("../structure/structure_ui");
 // Other
 var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
+var gitHelper = require("../utils/git_helper");
+
 var fs = require('fs');
 var sequelize = require('../models/').sequelize;
 
@@ -75,6 +77,20 @@ exports.restart = function(attr, callback) {
 }
 
 /* --------------------------------------------------------------- */
+/* ----------------------- Save on git --------------------------- */
+/* --------------------------------------------------------------- */
+
+exports.gitPush = function(attr, callback) {
+    gitHelper.gitPush(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = "Application saved!";
+        callback(null, info);
+    });
+}
+
+/* --------------------------------------------------------------- */
 /* ------------------------- Project ----------------------------- */
 /* --------------------------------------------------------------- */
 exports.selectProject = function(attr, callback) {
@@ -114,6 +130,7 @@ exports.deleteProject = function(attr, callback) {
         var appIds = [];
         for (var i=0; i<applications.length; i++)
             appIds.push(applications[i].id);
+
         deleteApplicationRecursive(appIds, 0).then(function() {
             db_project.deleteProject(attr.options.showValue, function(err, info) {
                 if (err)
@@ -121,6 +138,8 @@ exports.deleteProject = function(attr, callback) {
 
                 callback(null, info);
             });
+        }).catch(function(err){
+            callback(err, null);
         });
     });
 }
@@ -139,15 +158,27 @@ exports.selectApplication = function(attr, callback) {
 }
 
 exports.createNewApplication = function(attr, callback) {
-    // Data
-    db_application.createNewApplication(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            // Structure application
-            attr.id_application = info.insertId;
-            structure_application.setupApplication(attr, function() {
-                callback(null, info);
+    // Check if an application with this name alreadyExist or no
+    db_application.exist(attr, function(err, exist){
+        if(err)
+            return callback(err, null);
+
+        if(exist){
+            var error = new Error();
+            error.message = "An application with the name "+attr.options.showValue+" already exist."
+            return callback(error, null);
+        }
+        else{
+            db_application.createNewApplication(attr, function(err, info) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    // Structure application
+                    attr.id_application = info.insertId;
+                    structure_application.setupApplication(attr, function() {
+                        callback(null, info);
+                    });
+                }
             });
         }
     });
@@ -173,14 +204,32 @@ function deleteApplication(attr, callback) {
                 db_application.deleteApplication(id_application, function(err, infoDB) {
                     if (err)
                         return callback(err, null);
-                    for (var i = 0; i < results.length; i++) {
+                    /* Calculate the length of table to drop */
+                    var resultLength = 0;
+
+                    for (var i=0; i<results.length; i++) {
+                        for (var prop in results[i]) {
+                            resultLength++;
+                        }
+                    }
+
+                    /* Function when all query are done */
+                    function done(currentCpt){
+                        if(currentCpt == resultLength){
+                            callback(null, infoDB);
+                        }
+                    }
+
+                    var cpt = 0;
+                    for (var i=0; i<results.length; i++) {
                         for (var prop in results[i]) {
                             // For each request disable foreign key checks, drop table. Foreign key check
                             // last only for the time of the request
-                            sequelize.query("SET FOREIGN_KEY_CHECKS = 0; DROP TABLE "+results[i][prop]);
+                            sequelize.query("SET FOREIGN_KEY_CHECKS=0; DROP TABLE "+results[i][prop]+";SET FOREIGN_KEY_CHECKS=1;").then(function(){
+                                done(++cpt);
+                            });
                         }
                     }
-                    callback(null, infoDB);
                 });
             });
         });
@@ -201,9 +250,19 @@ function deleteApplicationRecursive(appIds, idx) {
     return new Promise(function(resolve, reject) {
         if (!appIds[idx])
             return resolve();
-        attr.options.showValue = appIds[idx];
-        deleteApplication(attr, function() {
-            return (appIds[++idx]) ? resolve(deleteApplicationRecursive(appIds, idx)) : resolve();
+
+        var attr = {
+            options: {
+                value: appIds[idx],
+                showValue: appIds[idx]
+            }
+        };
+
+        deleteApplication(attr, function(err, info) {
+            if(err)
+                reject(err);
+            else
+                return (appIds[++idx])?resolve(deleteApplicationRecursive(appIds, idx)):resolve();
         });
     });
 }
@@ -275,7 +334,8 @@ exports.deleteModule = function(attr, callback) {
                 id_module: attr.id_module,
                 id_project: attr.id_project,
                 options: {
-                    value: entities[i].name
+                    value: entities[i].codeName,
+                    showValue: entities[i].name
                 }
             }
 
@@ -296,10 +356,14 @@ exports.deleteModule = function(attr, callback) {
             structure_module.deleteModule(attr, function(err) {
                 if(err)
                     return callback(err, null);
-                db_module.deleteModule(moduleName, function(err, info) {
+                db_module.deleteModule(attr.id_application, attr.module_name, moduleName, function(err, info) {
                     if(err)
                         return callback(err, null);
-                    callback(null, info);
+
+                    db_module.getHomeModuleId(attr.id_application, function(err, homeID){
+                        info.homeID = homeID;
+                        callback(null, info);
+                    });
                 });
             });
         }).catch(function(err){
@@ -945,8 +1009,13 @@ exports.createNewFieldset = function(attr, callback) {
                     if (err) {
                         return callback(err, null);
                     }
+
+                    // Right now we have id_TARGET_as and we want id_SOURCE_as
+                    var newForeignKey = "id_"+attr.options.source+"_"+attr.options.as.substring(2);
+                    newForeignKey = newForeignKey.toLowerCase();
+
                     // Créer le lien belongsTo en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, true, function() {
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, true, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupFieldsetTab(attr, function() {
 
@@ -1144,6 +1213,15 @@ exports.createNewComponentContactForm = function(attr, callback) {
 // Set adminLTE skin
 exports.setSkin = function(attr, callback) {
     structure_ui.setSkin(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+
+        callback(null, infoStructure);
+    });
+}
+
+exports.listSkin = function(attr, callback) {
+    structure_ui.listSkin(attr, function(err, infoStructure){
         if(err)
             return callback(err, null);
 

@@ -1,14 +1,25 @@
 function clearString(string){
-    string = string.replace(new RegExp("é", 'g'), "e");
-    string = string.replace(new RegExp("è", 'g'), "e");
-    string = string.replace(new RegExp("à", 'g'), "a");
-    string = string.replace(new RegExp("ù", 'g'), "u");
-    string = string.replace(new RegExp("ç", 'g'), "c");
-    string = string.replace(new RegExp("'", 'g'), "_");
-    string = string.replace(new RegExp(",", 'g'), "_");
-    string = string.replace(new RegExp(" ", 'g'), "_");
-    string = string.replace(new RegExp("-", 'g'), "_");
-    string = string.replace(new RegExp("\"", 'g'), "_");
+    string = string.replace(/é/g, "e");
+    string = string.replace(/è/g, "e");
+    string = string.replace(/à/g, "a");
+    string = string.replace(/ô/g, "o");
+    string = string.replace(/û/g, "u");
+    string = string.replace(/ù/g, "u");
+    string = string.replace(/ç/g, "c");
+    string = string.replace(/â/g, "a");
+    string = string.replace(/'/g, "_");
+    string = string.replace(/,/g, "_");
+    string = string.replace(/ /g, "_");
+    string = string.replace(/-/g, "_");
+    string = string.replace(/\\/g, "_");
+    string = string.replace(/!/g, "_");
+    string = string.replace(/\(/g, "_");
+    string = string.replace(/\)/g, "_");
+    string = string.replace(/\//g, "_");
+    string = string.replace(/\\/g, "_");
+    string = string.replace(/\./g, "_");
+    string = string.replace(/\;/g, "_");
+    string = string.replace(/\?/g, "_");
     return string;
 }
 

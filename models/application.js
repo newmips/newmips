@@ -8,6 +8,7 @@ module.exports = function(sequelize, DataTypes) {
             primaryKey: true
         },
         name: DataTypes.STRING,
+        displayName: DataTypes.STRING,
         codeName: DataTypes.STRING,
         version: DataTypes.INTEGER
     }, {

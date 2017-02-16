@@ -28,7 +28,11 @@ var helpers = require('../utils/helpers');
 // Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
-//Sequelize
+// Use to connect workspaces with gitlab or other repo
+// Only working on our cloud ENV for now.
+var gitHelper = require('../utils/git_helper');
+
+// Sequelize
 var models = require('../models/');
 
 // Exclude from Editor
@@ -130,7 +134,10 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         folder = helpers.sortEditorFolder(folder);
                         data.workspaceFolder = folder;
 
-                        res.render('front/preview', data);
+                        // Let's do git init or commit depending the env (only on cloud env for now)
+                        gitHelper.doGit(attr, function(){
+                            res.render('front/preview', data);
+                        });
                     });
                 });
             }
@@ -170,6 +177,15 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
         "instruction": instruction,
         "session": ""
     };
+
+    var math = require('math');
+    var port = math.add(9000, req.session.id_application);
+    var env = Object.create(process.env);
+    env.PORT = port;
+    var protocol_iframe = globalConf.protocol_iframe;
+    var host = globalConf.host;
+
+    data.iframe_url = process_manager.childUrl();
 
     // Parse instruction and set results
     try {
@@ -254,12 +270,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     req.session.id_module = null;
                     req.session.id_data_entity = null;
                 }
-                else if (attr.function == "createNewApplication") {
-                    req.session.id_application = info.insertId;
-                    req.session.id_module = null;
-                    req.session.id_data_entity = null;
-                }
-                else if (attr.function == "selectApplication") {
+                else if (attr.function == "createNewApplication" || attr.function == "selectApplication") {
                     req.session.id_application = info.insertId;
                     req.session.id_module = null;
                     req.session.id_data_entity = null;
@@ -269,25 +280,16 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     req.session.id_data_entity = null;
 
                     // Redirect iframe to new module
-                    var math = require('math');
-                    var port = math.add(9000, req.session.id_application);
-                    var env = Object.create(process.env);
-                    env.PORT = port;
-                    // var protocol = globalConf.protocol;
-                    var protocol_iframe = globalConf.protocol_iframe;
-                    var host = globalConf.host;
-                    data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/"+info.moduleName.toLowerCase();
-                    req.session.iframe_url = data.iframe_url;
+                    var iframeUrl = data.iframe_url.split("/default/");
+                    data.iframe_url = iframeUrl[0]+"/default/"+info.moduleName.toLowerCase();
                 }
                 else if ((attr.function == "createNewDataEntity")
                     || (attr.function == "selectDataEntity")
                     || (attr.function == "createNewEntityWithBelongsTo")
                     || (attr.function == "createNewEntityWithHasMany")
                     || (attr.function == "createNewBelongsTo")
-                    || (attr.function == "createNewHasMany")) {
-                    req.session.id_data_entity = info.insertId;
-                }
-                else if (attr.function == "createNewFieldRelatedTo") {
+                    || (attr.function == "createNewHasMany")
+                    || (attr.function == "createNewFieldRelatedTo")) {
                     req.session.id_data_entity = info.insertId;
                 }
                 else if (attr.function == "deleteProject") {
@@ -303,20 +305,15 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     req.session.toastr = [{
                         message: 'actions.delete.application',
                         level: "success"
-                    }]
+                    }];
                     return res.redirect("/default/home");
                 }
                 else if (attr.function == 'deleteModule') {
+                    req.session.id_module = info.homeID;
+                    req.session.id_data_entity = null;
                     // Redirect iframe to new module
-                    var math = require('math');
-                    var port = math.add(9000, req.session.id_application);
-                    var env = Object.create(process.env);
-                    env.PORT = port;
-                    // var protocol = globalConf.protocol;
-                    var protocol_iframe = globalConf.protocol_iframe;
-                    var host = globalConf.host;
-                    data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/home";
-                    req.session.iframe_url = data.iframe_url;
+                    var iframeUrl = data.iframe_url.split("/default/");
+                    data.iframe_url = iframeUrl[0]+"/default/home";
                 }
                 else if (attr.function == 'restart') {
                     toRedirectRestart = true;
@@ -332,12 +329,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 });
                 data.chat = chat;
 
-                //Load the request module
-                // var protocol = globalConf.protocol;
-                var protocol_iframe = globalConf.protocol_iframe;
-                var host = globalConf.host;
-                var math = require('math');
-                var port = math.add(9000, req.session.id_application);
                 var sessionID = req.sessionID;
                 timer = 50;
 
@@ -345,66 +336,75 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 var env = Object.create(process.env);
                 env.PORT = port;
 
-                // Kill server first
-                process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
+                // If we stop the server manually we loose some stored data, so we just need to redirect.
+                if(typeof process_server[req.session.id_application] !== "undefined"){
+                    // Kill server first
+                    process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
 
-                    // Launch a new server instance to reload resources
-                    process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                        // Launch a new server instance to reload resources
+                        process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
-                    function checkServer() {
+                        function checkServer() {
 
-                        //Lets try to make a HTTPS GET request to modulus.io's website.
-                        //All we did here to make HTTPS call is changed the `http` to `https` in URL.
-                        // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
-                        // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
-                        request({
-                            "rejectUnauthorized": false,
-                            "url": protocol_iframe + "://" + host + ":" + port + "/status",
-                            "method": "GET"
-                        }, function(error, response, body) {
-                            //Check for error
-                            if (error)
-                                return checkServer();
+                            //Lets try to make a HTTPS GET request to modulus.io's website.
+                            //All we did here to make HTTPS call is changed the `http` to `https` in URL.
+                            // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
+                            // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
+                            request({
+                                "rejectUnauthorized": false,
+                                "url": protocol_iframe + "://" + host + ":" + port + "/status",
+                                "method": "GET"
+                            }, function(error, response, body) {
+                                //Check for error
+                                if (error)
+                                    return checkServer();
 
-                            //Check for right status code
-                            if (response.statusCode !== 200) {
-                                console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                return checkServer();
-                            }
+                                //Check for right status code
+                                if (response.statusCode !== 200) {
+                                    console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                    return checkServer();
+                                }
 
-                            //All is good. Print the body
-                            console.log("Server status is OK");
+                                //All is good. Print the body
+                                console.log("Server status is OK");
 
-                            // Load session values
-                            var attr = new Array();
-                            attr.id_project = req.session.id_project;
-                            attr.id_application = req.session.id_application;
-                            attr.id_module = req.session.id_module;
-                            attr.id_data_entity = req.session.id_data_entity;
-                            session_manager.getSession(attr, function(err, info) {
-                                data.session = info;
-                                // Editor
-                                var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
-                                var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
-                                /* Sort folder first, file after */
-                                folder = helpers.sortEditorFolder(folder);
-                                data.workspaceFolder = folder;
-                                data.iframe_url = process_manager.childUrl();
+                                // Load session values
+                                var newAttr = {};
+                                newAttr.id_project = req.session.id_project;
+                                newAttr.id_application = req.session.id_application;
+                                newAttr.id_module = req.session.id_module;
+                                newAttr.id_data_entity = req.session.id_data_entity;
+                                session_manager.getSession(newAttr, function(err, info) {
+                                    data.session = info;
+                                    // Editor
+                                    var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
+                                    var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+                                    /* Sort folder first, file after */
+                                    folder = helpers.sortEditorFolder(folder);
+                                    data.workspaceFolder = folder;
 
-                                if(toRedirectRestart)
-                                    return res.redirect("/application/preview?id_application="+attr.id_application);
-                                else
-                                    // Call preview page
-                                    return res.render('front/preview.jade', data);
+                                    if(toRedirectRestart){
+                                        return res.redirect("/application/preview?id_application="+newAttr.id_application);
+                                    }
+                                    else{
+                                        // Let's do git init or commit depending the env (only on cloud env for now)
+                                        gitHelper.doGit(attr, function(){
+                                            // Call preview page
+                                            res.render('front/preview.jade', data);
+                                        });
+                                    }
+                                });
                             });
-                        });
-                    }
+                        }
 
-                    // Check server has started
-                    console.log('Waiting for server to start');
-                    setTimeout(checkServer, timer);
-
-                });
+                        // Check server has started
+                        console.log('Waiting for server to start');
+                        setTimeout(checkServer, timer);
+                    });
+                }
+                else{
+                    res.redirect("/application/preview?id_application="+req.session.id_application);
+                }
             }
         });
     } catch(e){
