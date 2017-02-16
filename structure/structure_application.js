@@ -2,6 +2,7 @@ var fs = require("fs-extra");
 var spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
 var domHelper = require('../utils/jsDomHelper');
+var models = require('../models/');
 
 // Application
 exports.setupApplication = function(attr, callback) {
@@ -68,7 +69,7 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
-exports.initializeApplication = function(id_application) {
+exports.initializeApplication = function(id_application, id_user) {
     return new Promise(function(resolve, reject) {
         // Copy authentication entities views
         var piecesPath = __dirname+'/pieces/authentication';
@@ -139,19 +140,21 @@ exports.initializeApplication = function(id_application) {
                                 if (err)
                                     console.log(err);
 
-                                // Sync workspace's database and insert admin user
-                                var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
-                                workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
-                                    workspaceSequelize.E_group.create({f_label: 'admin'}).then(function(){
-                                        workspaceSequelize.E_role.create({f_label: 'admin'}).then(function(){
-                                            workspaceSequelize.E_user.create({
-                                                f_login: 'adminWorkspace',
-                                                f_password: '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
-                                                f_id_role: 1,
-                                                f_id_group: 1,
-                                                f_enabled: 1
-                                            }).then(function() {
-                                                resolve();
+                                models.User.findOne({where: {id: id_user}}).then(function(user) {
+                                    // Sync workspace's database and insert admin user
+                                    var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
+                                    workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+                                        workspaceSequelize.E_group.create({f_label: 'admin'}).then(function(){
+                                            workspaceSequelize.E_role.create({f_label: 'admin'}).then(function(){
+                                                workspaceSequelize.E_user.create({
+                                                    f_login: 'adminWorkspace',
+                                                    f_password: user.password || '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
+                                                    f_id_role: 1,
+                                                    f_id_group: 1,
+                                                    f_enabled: 1
+                                                }).then(function() {
+                                                    resolve();
+                                                });
                                             });
                                         });
                                     });
