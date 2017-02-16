@@ -46,7 +46,7 @@
 												</td>
 											{/allGroups}
 										{:else}
-											<td></td>
+											<td><input name="module.{name}" style="display:none;" disabled readonly checked></td>
 										{/ne}
 									</tr>
 									{#entities}
@@ -168,7 +168,9 @@
 				while (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
 					current = tableBody.find('tr').eq(trIndex-=1);
 				}
-				current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
+				if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0) {
+					current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
+				}
 			}
 		});
 

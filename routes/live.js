@@ -123,7 +123,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select module home");
 
     function finishApplicationInitialization() {
-        require(__dirname+'/../structure/structure_application').initializeApplication(req.session.id_application).then(function() {
+        require(__dirname+'/../structure/structure_application').initializeApplication(req.session.id_application, req.session.passport.user.id).then(function() {
             data.answers = req.session.answers.join('<br><br>');
             return res.redirect('/application/preview?id_application=' + req.session.id_application);
         });
