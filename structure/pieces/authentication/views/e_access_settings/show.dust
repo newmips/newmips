@@ -108,3 +108,24 @@
 		</div>
 	</div>
 {/content}
+
+{<custom_js}
+	<script type="text/javascript">
+		$("input[type='checkbox']").click(function() {
+			if ($(this).attr('name').indexOf('module') == 0 && !$(this).is(':checked')) {
+				var current = $(this);
+				var tdIndex = $(this).parents('tr').find('td').index(this);
+				while ((current = current.next('tr').find('input').index(tdIndex)).attr('name').indexOf('module') != 0) {
+					current.prop('checked', false);
+				}
+			}
+			else if ($(this).attr('name').indexOf('entity') == 0 && $(this).is(":checked")) {
+				var current = $(this);
+				while ((current = current.prev('input[type=checkbox]')).attr('name').indexOf("module") != 0) {
+					;
+				}
+				current.prop('checked', true);
+			}
+		})
+	</script>
+{/custom_js}
