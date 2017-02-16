@@ -32,7 +32,7 @@
 	"module": {
 		"home": "Home",
 		"module": "Module",
-    "administration": "Administration",
+    	"administration": "Administration",
 		"workspace": "My workspace"
 	},
 	"role": {
