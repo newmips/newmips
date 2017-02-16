@@ -113,9 +113,15 @@ exports.initializeApplication = function(id_application) {
                 domHelper.read(workspacePath+'/views/layout_m_authentication.dust').then(function($) {
                     var li = '';
                     li += '{@entityAccess entity="access_settings"}\n';
-                        li += '{@actionAccess entity="access_settings" action="read"}\n';
-                            li += '<li><a href="/access_settings/show">Set accesses</a></li>\n';
-                        li += '{/actionAccess}\n';
+                    li += '     {@actionAccess entity="access_settings" action="read"}\n';
+                    li += '         <li>\n';
+                    li += '             <a href="/access_settings/show">\n';
+                    li += '                 <i class="fa fa-cog"></i>\n';
+                    li += '                 <span>{@__ key="settings.title" /}</span>\n';
+                    li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+                    li += '             </a>\n';
+                    li += '         </li>\n';
+                    li += '     {/actionAccess}\n';
                     li += '{/entityAccess}\n';
 
                     $("#sortable").append(li);
