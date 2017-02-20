@@ -16,6 +16,7 @@ var protocol = globalConf.protocol;
 var port = globalConf.port;
 var passport = require('passport');
 var flash    = require('connect-flash');
+var block_access = require('./utils/block_access');
 
 // Language
 var language = require('./services/language');
@@ -127,7 +128,28 @@ app.use(function(req, res, next) {
 	if (req.isAuthenticated() || autologin) {
 		// Session
 		res.locals.session = req.session;
+
+		// Access control
+		dust.helpers.moduleAccess = function(chunk, context, bodies, params) {
+			var userGroup = req.session.passport.user.r_group.f_label;
+			var moduleName = params.module;
+			return block_access.moduleAccess(userGroup, moduleName);
+		};
+		dust.helpers.entityAccess = function(chunk, context, bodies, params) {
+			var userGroup = req.session.passport.user.r_group.f_label;
+			var entityName = params.entity;
+			return block_access.entityAccess(userGroup, entityName);
+		}
+		dust.helpers.actionAccess = function(chunk, context, bodies, params) {
+			var userRole = req.session.passport.user.r_role.f_label;
+			var entityName = params.entity;
+			var action = params.action;
+			return block_access.actionAccess(userRole, entityName, action);
+		}
 	}
+
+	if (typeof req.session.toastr === 'undefined')
+		req.session.toastr = [];
 
 	res.locals.clean = function(item){
 		if (item === undefined || item === null)

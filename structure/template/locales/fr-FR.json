@@ -16,6 +16,22 @@
   },
   "settings":{
     "title": "Paramètres",
+    "auth_component": {
+      "access_managment": "Gestion des accès par groupe",
+      "action_managment": "Gestion des actions par rôle",
+      "moduleList": "Les modules",
+      "entityList": "Les entités",
+      "grouplist": "Groupes:",
+      "rolelist": "Rôles:",
+      "entitylist": "Entités:",
+      "group": "Groupe",
+      "role": "Rôle",
+      "action":{
+        "read": "Lire",
+        "write": "Ecrire",
+        "delete": "Supprimer"
+      }
+    },
     "legend": "Modifier vos paramètres",
     "lang": "Langue",
     "login": "Login",

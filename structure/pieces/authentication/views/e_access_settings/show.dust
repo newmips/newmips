@@ -1,0 +1,178 @@
+{>"layout_m_authentication" /}
+{<content}
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="settings.auth_component.access_managment" /}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+					<form id='group-access-form' action='/access_settings/set_group_access' method='post'>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>
+										{@__ key="settings.auth_component.moduleList"/}
+									</th>
+									<th>
+										{@__ key="settings.auth_component.entityList"/}
+									</th>
+									{#allGroups}
+										<th>
+											{f_label}
+										</th>
+									{/allGroups}
+								</tr>
+							</thead>
+							<tbody>
+								{#modules}
+									<tr>
+										<td>
+											{@__ key=tradKeyModule /}
+										</td>
+										<td></td>
+										{@ne key=name value="home"}
+											{#allGroups currentModule=.}
+												<td>
+													{@isGroupChecked source=currentModule target=f_label}
+														<input name="module.{name}.{f_label}" checked type="checkbox">
+													{:else}
+														<input name="module.{name}.{f_label}" type="checkbox">
+													{/isGroupChecked}
+												</td>
+											{/allGroups}
+										{:else}
+											<td><input name="module.{name}" style="display:none;" disabled readonly checked></td>
+										{/ne}
+									</tr>
+									{#entities}
+										<tr>
+											<td></td>
+											<td>
+												{@__ key=tradKeyEntity /}
+											</td>
+											{#allGroups currentEntity=.}
+												<td>
+													{@isGroupChecked source=currentEntity target=f_label}
+														<input name="entity.{name}.{f_label}" checked type="checkbox">
+													{:else}
+														<input name="entity.{name}.{f_label}" type="checkbox">
+													{/isGroupChecked}
+												</td>
+											{/allGroups}
+										</tr>
+									{/entities}
+								{/modules}
+							</tbody>
+						</table>
+						<button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="settings.auth_component.action_managment" /}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+					<form id="action-access-form" action='/access_settings/set_role_access' method='post'>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>
+										{@__ key="settings.auth_component.entityList"/}
+									</th>
+									{#allRoles}
+										<th>{f_label}</th>
+									{/allRoles}
+								</tr>
+							</thead>
+							<tbody>
+								{#modules}
+									{#entities}
+										{@ne key=name value="access_settings"}
+											<tr>
+												<td>
+													{@__ key=tradKeyEntity /}
+												</td>
+												{#allRoles currentEntity=.}
+													<td>
+														{@isActionChecked action="read" source=currentEntity target=f_label}
+															<input name="{name}.{f_label}.read" type="checkbox" checked> {@__ key="settings.auth_component.action.read"/}
+														{:else}
+															<input name="{name}.{f_label}.read" type="checkbox"> {@__ key="settings.auth_component.action.read"/}
+														{/isActionChecked}
+														<br>
+														{@isActionChecked action="write" source=currentEntity target=f_label}
+															<input name="{name}.{f_label}.write" type="checkbox" checked> {@__ key="settings.auth_component.action.write"/}
+														{:else}
+															<input name="{name}.{f_label}.write" type="checkbox"> {@__ key="settings.auth_component.action.write"/}
+														{/isActionChecked}
+														<br>
+														{@isActionChecked action="delete" source=currentEntity target=f_label}
+															<input name="{name}.{f_label}.delete" type="checkbox" checked> {@__ key="settings.auth_component.action.delete"/}
+														{:else}
+															<input name="{name}.{f_label}.delete" type="checkbox"> {@__ key="settings.auth_component.action.delete"/}
+														{/isActionChecked}
+													</td>
+												{/allRoles}
+											</tr>
+										{/ne}
+									{/entities}
+								{/modules}
+							</tbody>
+						</table>
+						<button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{/content}
+
+{<custom_js}
+	<script type="text/javascript">
+		$("input").on('ifChanged',function(event) {
+			var self = event.target;
+			var tdIndex = $(self).parents('tr').find('td').index($(self).parents('td'));
+			var tableBody = $(self).parents('tbody');
+
+			/* On module uncheck, uncheck all related entities */
+			if ($(self).attr('name').indexOf('module') == 0 && !$(self).is(":checked")) {
+				var current = $(self).parents('tr').next('tr');
+				var trIndex = $(self).parents('tbody').find('tr').index(current);
+
+				while (trIndex < tableBody.find('tr').length && current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
+					var newTd = current.find('td').eq(tdIndex);
+					newTd.find('input').eq(0).iCheck('uncheck');
+					current = tableBody.find('tr').eq(trIndex+=1);
+				}
+			}
+			/* On entity check, check parent module */
+			else if ($(self).attr('name').indexOf('entity') == 0 && $(self).is(":checked")) {
+				var current = $(self).parents('tr');
+				var trIndex = $(self).parents('tbody').find('tr').index(current);
+
+				while (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
+					current = tableBody.find('tr').eq(trIndex-=1);
+				}
+				if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0) {
+					current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
+				}
+			}
+		});
+
+	</script>
+{/custom_js}

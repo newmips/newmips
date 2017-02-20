@@ -23,6 +23,8 @@ var structure_ui = require("../structure/structure_ui");
 // Other
 var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
+var gitHelper = require("../utils/git_helper");
+
 var fs = require('fs');
 var sequelize = require('../models/').sequelize;
 
@@ -72,6 +74,20 @@ exports.restart = function(attr, callback) {
     var info = {};
     info.message = "Server restarted !";
     callback(null, info);
+}
+
+/* --------------------------------------------------------------- */
+/* ----------------------- Save on git --------------------------- */
+/* --------------------------------------------------------------- */
+
+exports.gitPush = function(attr, callback) {
+    gitHelper.gitPush(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = "Application saved!";
+        callback(null, info);
+    });
 }
 
 /* --------------------------------------------------------------- */
@@ -142,15 +158,27 @@ exports.selectApplication = function(attr, callback) {
 }
 
 exports.createNewApplication = function(attr, callback) {
-    // Data
-    db_application.createNewApplication(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            // Structure application
-            attr.id_application = info.insertId;
-            structure_application.setupApplication(attr, function() {
-                callback(null, info);
+    // Check if an application with this name alreadyExist or no
+    db_application.exist(attr, function(err, exist){
+        if(err)
+            return callback(err, null);
+
+        if(exist){
+            var error = new Error();
+            error.message = "An application with the name "+attr.options.showValue+" already exist."
+            return callback(error, null);
+        }
+        else{
+            db_application.createNewApplication(attr, function(err, info) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    // Structure application
+                    attr.id_application = info.insertId;
+                    structure_application.setupApplication(attr, function() {
+                        callback(null, info);
+                    });
+                }
             });
         }
     });

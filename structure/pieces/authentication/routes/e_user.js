@@ -41,7 +41,7 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     res.render('e_user/list', data);
 });
 
-router.post('/datalist', block_access.isLoggedIn, function(req, res) {
+router.post('/datalist', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "read"), function(req, res) {
 
     filterDataTable("E_user", req.body).then(function(data) {
         res.send(data).end();
@@ -52,7 +52,7 @@ router.post('/datalist', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.isLoggedIn, function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user", "delete"), block_access.isLoggedIn, function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
@@ -79,7 +79,7 @@ router.post('/fieldset/:alias/remove', block_access.isLoggedIn, function(req, re
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.isLoggedIn, function(req, res) {
+router.post('/fieldset/:alias/add', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "write"), function(req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_user.findOne({where: {id: idEntity}}).then(function(e_user) {
@@ -104,7 +104,7 @@ router.post('/fieldset/:alias/add', block_access.isLoggedIn, function(req, res) 
     });
 });
 
-router.get('/show', block_access.isLoggedIn, function(req, res) {
+router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "read"), function(req, res) {
     var id_e_user = req.query.id;
     var tab = req.query.tab;
     var data = {
@@ -154,7 +154,7 @@ router.get('/show', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.get('/create_form', block_access.isLoggedIn, function(req, res) {
+router.get('/create_form', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "write"), function(req, res) {
     var data = {
         menu: "e_user",
         sub_menu: "create_e_user",
@@ -182,7 +182,7 @@ router.get('/create_form', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/create', block_access.isLoggedIn, function(req, res) {
+router.post('/create', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "write"), function(req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("e_user", createObject, req.body)
@@ -262,7 +262,7 @@ router.post('/create', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.get('/update_form', block_access.isLoggedIn, function(req, res) {
+router.get('/update_form', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "write"), function(req, res) {
     req.session.formSettings = false;
     var id_e_user = req.query.id;
     var data = {
@@ -326,7 +326,7 @@ router.get('/update_form', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/update', block_access.isLoggedIn, function(req, res) {
+router.post('/update', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "write"), function(req, res) {
     var id_e_user = parseInt(req.body.id);
 
     if(typeof req.body.version !== "undefined")
@@ -375,7 +375,7 @@ router.post('/update', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/delete', block_access.isLoggedIn, function(req, res) {
+router.post('/delete', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "delete"), function(req, res) {
     var id_e_user = req.body.id;
 
     models.E_user.destroy({

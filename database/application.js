@@ -63,6 +63,32 @@ exports.selectApplication = function(attr, callback) {
     }
 }
 
+// Check if application already
+exports.exist = function(attr, callback) {
+
+    var options = attr.options;
+    var value = options.value.toLowerCase();
+
+    // Value is the name of application
+    var name_application = options.value;
+    var where = {
+        where: {
+            codeName: value
+        }
+    };
+
+    models.Application.findOne(where).then(function(application){
+        if(!application){
+            callback(null, false);
+        }
+        else{
+            callback(null, application);
+        }
+    }).catch(function(err){
+        callback(err, null);
+    });
+}
+
 // Create
 exports.createNewApplication = function(attr, callback) {
 

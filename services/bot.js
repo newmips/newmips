@@ -45,6 +45,13 @@ exports.restart = function(result) {
     return attr;
 };
 
+exports.gitPush = function(result) {
+
+    var attr = {};
+    attr.function = "gitPush";
+    return attr;
+};
+
 // ******* SELECT Actions ******* //
 exports.selectProject = function(result) {
 
@@ -656,6 +663,15 @@ exports.parse = function(instruction) {
             "redémarrer serveur",
             "redémarrer le serveur"
         ],
+        "gitPush": [
+            "save",
+            "save on git",
+            "push",
+            "push on git",
+            "save the application",
+            "sauvergarder",
+            "sauvergarder l'application"
+        ],
         "selectProject": [
             "select project (.*)",
             "select the project (.*)",
@@ -869,7 +885,8 @@ exports.parse = function(instruction) {
             "lister les skins",
             "lister les skin",
             "lister skin",
-            "lister skins"
+            "lister skins",
+            "lister les couleurs"
         ],
         "relationshipHasOne": [
             "entity (.*) has one (.*)",

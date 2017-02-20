@@ -28,7 +28,11 @@ var helpers = require('../utils/helpers');
 // Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
-//Sequelize
+// Use to connect workspaces with gitlab or other repo
+// Only working on our cloud ENV for now.
+var gitHelper = require('../utils/git_helper');
+
+// Sequelize
 var models = require('../models/');
 
 // Exclude from Editor
@@ -130,7 +134,10 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         folder = helpers.sortEditorFolder(folder);
                         data.workspaceFolder = folder;
 
-                        res.render('front/preview', data);
+                        // Let's do git init or commit depending the env (only on cloud env for now)
+                        gitHelper.doGit(attr, function(){
+                            res.render('front/preview', data);
+                        });
                     });
                 });
             }
@@ -329,66 +336,75 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 var env = Object.create(process.env);
                 env.PORT = port;
 
-                // Kill server first
-                process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
+                // If we stop the server manually we loose some stored data, so we just need to redirect.
+                if(typeof process_server[req.session.id_application] !== "undefined"){
+                    // Kill server first
+                    process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
 
-                    // Launch a new server instance to reload resources
-                    process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                        // Launch a new server instance to reload resources
+                        process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
-                    function checkServer() {
+                        function checkServer() {
 
-                        //Lets try to make a HTTPS GET request to modulus.io's website.
-                        //All we did here to make HTTPS call is changed the `http` to `https` in URL.
-                        // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
-                        // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
-                        request({
-                            "rejectUnauthorized": false,
-                            "url": protocol_iframe + "://" + host + ":" + port + "/status",
-                            "method": "GET"
-                        }, function(error, response, body) {
-                            //Check for error
-                            if (error)
-                                return checkServer();
+                            //Lets try to make a HTTPS GET request to modulus.io's website.
+                            //All we did here to make HTTPS call is changed the `http` to `https` in URL.
+                            // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
+                            // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
+                            request({
+                                "rejectUnauthorized": false,
+                                "url": protocol_iframe + "://" + host + ":" + port + "/status",
+                                "method": "GET"
+                            }, function(error, response, body) {
+                                //Check for error
+                                if (error)
+                                    return checkServer();
 
-                            //Check for right status code
-                            if (response.statusCode !== 200) {
-                                console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                return checkServer();
-                            }
-
-                            //All is good. Print the body
-                            console.log("Server status is OK");
-
-                            // Load session values
-                            var attr = new Array();
-                            attr.id_project = req.session.id_project;
-                            attr.id_application = req.session.id_application;
-                            attr.id_module = req.session.id_module;
-                            attr.id_data_entity = req.session.id_data_entity;
-                            session_manager.getSession(attr, function(err, info) {
-                                data.session = info;
-                                // Editor
-                                var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
-                                var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
-                                /* Sort folder first, file after */
-                                folder = helpers.sortEditorFolder(folder);
-                                data.workspaceFolder = folder;
-
-                                if(toRedirectRestart){
-                                    return res.redirect("/application/preview?id_application="+attr.id_application);
+                                //Check for right status code
+                                if (response.statusCode !== 200) {
+                                    console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                    return checkServer();
                                 }
-                                else{
-                                    // Call preview page
-                                    res.render('front/preview.jade', data);
-                                }
+
+                                //All is good. Print the body
+                                console.log("Server status is OK");
+
+                                // Load session values
+                                var newAttr = {};
+                                newAttr.id_project = req.session.id_project;
+                                newAttr.id_application = req.session.id_application;
+                                newAttr.id_module = req.session.id_module;
+                                newAttr.id_data_entity = req.session.id_data_entity;
+                                session_manager.getSession(newAttr, function(err, info) {
+                                    data.session = info;
+                                    // Editor
+                                    var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
+                                    var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+                                    /* Sort folder first, file after */
+                                    folder = helpers.sortEditorFolder(folder);
+                                    data.workspaceFolder = folder;
+
+                                    if(toRedirectRestart){
+                                        return res.redirect("/application/preview?id_application="+newAttr.id_application);
+                                    }
+                                    else{
+                                        // Let's do git init or commit depending the env (only on cloud env for now)
+                                        gitHelper.doGit(attr, function(){
+                                            // Call preview page
+                                            res.render('front/preview.jade', data);
+                                        });
+                                    }
+                                });
                             });
-                        });
-                    }
+                        }
 
-                    // Check server has started
-                    console.log('Waiting for server to start');
-                    setTimeout(checkServer, timer);
-                });
+                        // Check server has started
+                        console.log('Waiting for server to start');
+                        setTimeout(checkServer, timer);
+                    });
+                }
+                else{
+                    res.redirect("/application/preview?id_application="+req.session.id_application);
+                }
             }
         });
     } catch(e){
