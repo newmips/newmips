@@ -22,7 +22,7 @@ exports.setupModule = function(attr, callback) {
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
         str += '\t// '+name_module+'\n';
-        str += '\trouter.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, function(req, res) {\n';
+        str += '\trouter.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("'+url_name_module+'"), function(req, res) {\n';
         str += '\t\tvar data = {\n';
         str += '\t\t\t"profile":req.session.data\n';
         str += '\t\t};\n';
@@ -80,9 +80,11 @@ exports.setupModule = function(attr, callback) {
                                                 $("#dynamic_select").empty();
                                                 option = "";
                                                 for (var j=0; j<modules.length; j++) {
+                                                    option += '{@moduleAccess module="'+attrHelper.removePrefix(modules[j].codeName, "module")+'"}';
                                                     option += '<option data-module="'+modules[j].codeName.toLowerCase()+'" value="/default/'+attrHelper.removePrefix(modules[j].codeName, "module")+'" '+(modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected':'') + '>';
                                                     option += '{@__ key="module.'+modules[j].codeName.toLowerCase()+'" /}';
                                                     option += '</option>';
+                                                    option += '{/moduleAccess}';
                                                 }
 
                                                 $("#dynamic_select").append(option);
@@ -98,7 +100,12 @@ exports.setupModule = function(attr, callback) {
 
                                 // Wait for all the layouts to be modified before calling `callback()`
                                 Promise.all(promises).then(function() {
-                                    callback();
+                                    var accessPath = __dirname + '/../workspace/'+id_application+'/config/access.json';
+                                    var accessObject = require(accessPath);
+                                    accessObject[url_name_module.toLowerCase()] = {groups: [], entities: []};
+                                    fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function(err) {
+                                        callback();
+                                    })
                                 }).catch(function(err) {
                                     callback(err, null);
                                 });

@@ -124,39 +124,45 @@ block custom_js
 		$(function() {
 			// Delete Project
 			$(".deleteProjectForm").submit(function() {
-				var self = this;
-				// Get all application delete form
-				var appForms = $(self).parents('.box').find("tbody tr form");
-				$(this).children("button").html("Loading...");
+				var confirm = window.confirm("Are you sure ?");
+				if(confirm){
+					var self = this;
+					// Get all application delete form
+					var appForms = $(self).parents('.box').find("tbody tr form");
+					$(this).children("button").html("Loading...");
 
-				/* Disabled all button to prevent mutli click that may cause issue */
-				$(".deleteProjectForm").children("button").prop("disabled", true);
-				$(".deleteAppForm").children("button").prop("disabled", true);
+					/* Disabled all button to prevent mutli click that may cause issue */
+					$(".deleteProjectForm").children("button").prop("disabled", true);
+					$(".deleteAppForm").children("button").prop("disabled", true);
 
-				$(document.body).css({cursor: 'wait'});
-				$.ajax({
-					url: '/live/index',
-					method: 'post',
-					data: {instruction: $(self).find("input[name='instruction']").val()},
-					success: function() {
-						toastr.success("Project deleted");
-						$(self).parents('.col-lg-6').remove();
-						$(document.body).css({cursor: 'default'});
-						$(".deleteProjectForm").children("button").prop("disabled", false);
-						$(".deleteAppForm").children("button").prop("disabled", false);
-					}
-				});
+					$(document.body).css({cursor: 'wait'});
+					$.ajax({
+						url: '/live/index',
+						method: 'post',
+						data: {instruction: $(self).find("input[name='instruction']").val()},
+						success: function() {
+							toastr.success("Project deleted");
+							$(self).parents('.col-lg-6').remove();
+							$(document.body).css({cursor: 'default'});
+							$(".deleteProjectForm").children("button").prop("disabled", false);
+							$(".deleteAppForm").children("button").prop("disabled", false);
+						}
+					});
 
-				return false;
+					return false;
+				}
 			});
 
 			// Delete application
 			$(".deleteAppForm").submit(function(){
-				$(this).children("button").html("Loading...");
-				$(".deleteProjectForm").children("button").prop("disabled", true);
-				$(".deleteAppForm").children("button").prop("disabled", true);
-				deleteApplication([$(this)], 0);
-				return false;
+				var confirm = window.confirm("Are you sure ?");
+				if(confirm){
+					$(this).children("button").html("Loading...");
+					$(".deleteProjectForm").children("button").prop("disabled", true);
+					$(".deleteAppForm").children("button").prop("disabled", true);
+					deleteApplication([$(this)], 0);
+					return false;
+				}
 			});
 		});
 

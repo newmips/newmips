@@ -148,7 +148,7 @@ function recursiveExecute(req, instructions, idx) {
             }
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
             if (idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
-                structure_application.initializeApplication(scriptData[req.session.data.id_user].ids.id_application).then(function(){
+                structure_application.initializeApplication(scriptData[req.session.data.id_user].ids.id_application, req.session.data.id_user).then(function(){
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.data.id_user].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));
