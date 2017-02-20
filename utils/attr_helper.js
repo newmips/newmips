@@ -20,6 +20,38 @@ function clearString(string){
     string = string.replace(/\./g, "_");
     string = string.replace(/\;/g, "_");
     string = string.replace(/\?/g, "_");
+
+    string = string.replace(/\"/g, "_");
+    string = string.replace(/\&/g, "_");
+    string = string.replace(/\*/g, "_");
+    string = string.replace(/\Ù/g, "_");
+    string = string.replace(/\À/g, "_");
+    string = string.replace(/\Ç/g, "_");
+    string = string.replace(/\È/g, "_");
+    string = string.replace(/\É/g, "_");
+    string = string.replace(/\$/g, "_");
+    string = string.replace(/\ê/g, "_");
+    string = string.replace(/\%/g, "_");
+    string = string.replace(/\£/g, "_");
+    string = string.replace(/\µ/g, "_");
+    string = string.replace(/\°/g, "_");
+    string = string.replace(/\=/g, "_");
+    string = string.replace(/\+/g, "_");
+    string = string.replace(/\}/g, "_");
+    string = string.replace(/\{/g, "_");
+    string = string.replace(/\#/g, "_");
+    string = string.replace(/\`/g, "_");
+    string = string.replace(/\|/g, "_");
+    string = string.replace(/\@/g, "_");
+    string = string.replace(/\^/g, "_");
+    string = string.replace(/\]/g, "_");
+    string = string.replace(/\[/g, "_");
+    string = string.replace(/\~/g, "_");
+    string = string.replace(/\:/g, "_");
+    string = string.replace(/\×/g, "_");
+    string = string.replace(/\¿/g, "_");
+    string = string.replace(/\¡/g, "_");
+    string = string.replace(/\÷/g, "_");
     return string;
 }
 
