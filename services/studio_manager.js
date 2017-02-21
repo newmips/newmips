@@ -26,7 +26,7 @@ function getAuthorization() {
 	return auth;
 }
 
-exports.createApplicationDns = function(subdomain, application_name) {
+exports.createApplicationDns = function(subdomain, name_application) {
 	return new Promise(function(resolve, reject) {
 		var url = studioConfig.url+'/api/environment/application/create';
 		request.post({
@@ -35,7 +35,7 @@ exports.createApplicationDns = function(subdomain, application_name) {
 				'content-type' : 'application/json'
 			},
 			url: url,
-		    form: {subdomain: subdomain, application_name: application_name}
+		    form: {subdomain: subdomain, application_name: name_application}
 		}, function(error, response, body) {
 			if (error)
 				return reject({error: error, response: response});
