@@ -51,12 +51,10 @@ exports.createNewComponentOnModule = function(attr, callback) {
     var version = 1;
 
     if (typeof attr !== 'undefined' && attr) {
-
         id_module = attr.id_module;
         var options = attr.options;
 
         if (typeof options !== 'undefined' && options && id_module != 0) {
-
             models.Component.create({
                 name: options.showValue,
                 codeName: options.value,

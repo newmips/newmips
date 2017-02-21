@@ -1,0 +1,11 @@
+{
+    "id": {
+        "type": "INTEGER",
+        "autoIncrement": true,
+        "primaryKey": true
+    },
+    "version": "INTEGER",
+    "title": "STRING",
+    "libellé": "STRING",
+    "color": "STRING"
+}
