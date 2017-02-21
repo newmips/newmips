@@ -3,6 +3,7 @@ var spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
+var studio_manager = require('../services/studio_manager');
 
 // Global conf
 var globalConf = require('../config/global.js');
@@ -96,7 +97,7 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
-exports.initializeApplication = function(id_application, id_user) {
+exports.initializeApplication = function(id_application, id_user, name_application) {
     return new Promise(function(resolve, reject) {
         // Copy authentication entities views
         var piecesPath = __dirname+'/pieces/authentication';
@@ -166,7 +167,6 @@ exports.initializeApplication = function(id_application, id_user) {
                             fs.copy(piecesPath+'/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
                                 if (err)
                                     console.log(err);
-
                                 models.User.findOne({where: {id: id_user}}).then(function(user) {
                                     // Sync workspace's database and insert admin user
                                     var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
@@ -180,7 +180,13 @@ exports.initializeApplication = function(id_application, id_user) {
                                                     f_id_group_group: 1,
                                                     f_enabled: 1
                                                 }).then(function() {
-                                                    resolve();
+                                                    // Create application's DNS through studio_manager
+                                                    if (globalConf.env == 'cloud')
+                                                        studio.createApplicationDns(globalConf.host, name_application).then(function() {
+                                                            resolve();
+                                                        });
+                                                    else
+                                                        resolve();
                                                 });
                                             });
                                         });
@@ -196,7 +202,6 @@ exports.initializeApplication = function(id_application, id_user) {
 }
 
 exports.deleteApplication = function(id_application, callback) {
-
     // Kill spawned child process by preview
     var process_manager = require('../services/process_manager.js');
     var process_server = process_manager.process_server;

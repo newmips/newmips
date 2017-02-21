@@ -7,6 +7,7 @@ var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
 var pourcent_generation = {};
+var models = require('../models');
 
 // Parser
 var designer = require('../services/designer.js');
@@ -123,7 +124,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select module home");
 
     function finishApplicationInitialization() {
-        require(__dirname+'/../structure/structure_application').initializeApplication(req.session.id_application, req.session.passport.user.id).then(function() {
+        require(__dirname+'/../structure/structure_application').initializeApplication(req.session.id_application, req.session.passport.user.id, name_application).then(function() {
             data.answers = req.session.answers.join('<br><br>');
             return res.redirect('/application/preview?id_application=' + req.session.id_application);
         });
@@ -191,7 +192,10 @@ function execute(req, instruction) {
                         req.session.id_data_entity = null;
                     }
                     else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
+                        console.log("!!! INFO NAME APPLICATION !!!");
+                        console.log(info.name_application);
                         req.session.id_application = info.insertId;
+                        req.session.name_application = info.name_application;
                         req.session.id_module = null;
                         req.session.id_data_entity = null;
                     }

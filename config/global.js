@@ -38,7 +38,8 @@ var config = {
 		env: 'cloud',
 		protocol: 'http',
 		protocol_iframe: 'https',
-		host: process.env.HOSTNAME + '.newmips.cloud',
+		host: process.env.HOSTNAME,
+		dns: '.newmips.cloud',
 		port: process.env.PORT || 1337
 	}
 }
