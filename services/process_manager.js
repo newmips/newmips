@@ -16,7 +16,7 @@ exports.launchChildProcess = function(id_application, env) {
         // child process after restart
         if ((data + '').indexOf("IFRAME_URL") != -1) {
             if ((data + '').indexOf("/status") == -1)
-                child_url = globalConf.protocol_iframe + (data + '').split('::')[1];
+                child_url = (data + '').split('::')[1];
         } else
             console.log('\x1b[36m%s\x1b[0m', 'App Log: ' + data);
     });
@@ -32,8 +32,13 @@ exports.launchChildProcess = function(id_application, env) {
     exports.process_server = process_server;
     return process_server;
 }
-exports.childUrl = function() {
-    return child_url;
+exports.childUrl = function(req) {
+    var url = globalConf.protocol_iframe + '://' + globalConf.host;
+    if (globalConf.env == 'cloud')
+        url += '-' +req.session.name_application + globalConf.dns + child_url;
+    else
+        url += ':' + (9000+parseInt(req.session.id_application)) + child_url;
+    return url;
 }
 
 exports.killChildProcess = function(pid, callback) {
