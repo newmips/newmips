@@ -1,0 +1,8 @@
+[
+    {
+        "target": "SOURCE_ENTITY_LOWER",
+        "relation": "belongsTo",
+        "foreignKey": "id_SOURCE_ENTITY_LOWER",
+        "as": "SOURCE_ENTITY_LOWER"
+    }
+]

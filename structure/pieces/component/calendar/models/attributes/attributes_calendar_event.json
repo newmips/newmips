@@ -1,0 +1,13 @@
+{
+    "id": {
+        "type": "INTEGER",
+        "autoIncrement": true,
+        "primaryKey": true
+    },
+    "version": "INTEGER",
+    "title": "STRING",
+    "description": "TEXT",
+    "lieu": "STRING",
+    "dateDebut": "DATE",
+    "dateFin": "DATE"
+}
