@@ -152,6 +152,7 @@ exports.selectApplication = function(attr, callback) {
         if (err) {
             callback(err, null);
         } else {
+            info.name_application = attr.options.value;
             callback(null, info);
         }
     });
@@ -175,6 +176,7 @@ exports.createNewApplication = function(attr, callback) {
                 } else {
                     // Structure application
                     attr.id_application = info.insertId;
+                    info.name_application = attr.options.urlValue;
                     structure_application.setupApplication(attr, function() {
                         callback(null, info);
                     });
