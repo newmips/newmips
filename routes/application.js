@@ -97,9 +97,14 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 //All we did here to make HTTPS call is changed the `http` to `https` in URL.
                 // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
                 // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
+                var iframe_status_url = protocol_iframe + '://';
+                if (globalConf.env == 'cloud')
+                    iframe_status_url += globalConf.host + '-' + application.name + globalConf.dns + '/status';
+                else
+                    iframe_status_url += host + ":" + port + "/status";
                 request({
                     "rejectUnauthorized": false,
-                    "url": protocol_iframe + "://" + host + ":" + port + "/status",
+                    "url": iframe_status_url,
                     "method": "GET"
                 }, function(error, response, body) {
                     if (error)
@@ -125,6 +130,11 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         // Call preview page
                         data.error = 0;
                         data.application = module;
+                        var iframe_home_url = protocol_iframe + '://';
+                        if (globalConf.env == 'cloud')
+                            iframe_home_url += globalConf.host + '-' + application.name + globalConf.dns + "/default/home";
+                        else
+                            iframe_home_url += host + ":" + port + "/default/home";
                         data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/home";
 
                         // Editor
@@ -185,7 +195,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
     var protocol_iframe = globalConf.protocol_iframe;
     var host = globalConf.host;
 
-    data.iframe_url = process_manager.childUrl();
+    data.iframe_url = process_manager.childUrl(req);
 
     // Parse instruction and set results
     try {
@@ -272,6 +282,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 }
                 else if (attr.function == "createNewApplication" || attr.function == "selectApplication") {
                     req.session.id_application = info.insertId;
+                    req.session.name_application = info.name_application;
                     req.session.id_module = null;
                     req.session.id_data_entity = null;
                 }
@@ -350,9 +361,14 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                             //All we did here to make HTTPS call is changed the `http` to `https` in URL.
                             // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
                             // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
+                            var iframe_status_url = protocol_iframe + '://';
+                            if (globalConf.env == 'cloud')
+                                iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
+                            else
+                                iframe_status_url += host + ":" + port + "/status";
                             request({
                                 "rejectUnauthorized": false,
-                                "url": protocol_iframe + "://" + host + ":" + port + "/status",
+                                "url": iframe_status_url,
                                 "method": "GET"
                             }, function(error, response, body) {
                                 //Check for error
