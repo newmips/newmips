@@ -1,0 +1,36 @@
+{>"layout_m_home"/}
+{<header}
+	<h1>
+		{@__ key="module.m_home"/}
+		<small>{@__ key="module.module"/}</small>
+	</h1>
+	<ol class='breadcrumb'>
+		<li>
+			<a href='#'>
+				<i class='fa fa-home'></i>
+				{@__ key="module.home"/}
+			</a>
+		</li>
+		<li class='active'>
+			{@__ key="module.m_home"/}
+		</li>
+	</ol>
+{/header}
+
+{<content}
+	<div class='row'>
+		<div class='col-xs-12'></div>
+	</div>
+{/content}
+
+{<custom_js}
+	<script type="text/javascript">
+		var url = window.location.href;
+		var current_url = url.split("/");
+
+		var mainMenu = current_url[3];
+
+		$("a[href='/"+mainMenu+"']").css("color", "#3c8dbc");
+
+	</script>
+{/custom_js}
