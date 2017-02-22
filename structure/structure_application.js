@@ -3,11 +3,14 @@ var spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
-var studio_manager = require('../services/studio_manager');
 
 // Global conf
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.json');
+
+var studio_manager;
+if (globalConf.env == 'cloud')
+    studio_manager = require('../services/studio_manager');
 
 try{
     if(gitlabConf.doGit){
@@ -182,7 +185,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 }).then(function() {
                                                     // Create application's DNS through studio_manager
                                                     if (globalConf.env == 'cloud')
-                                                        studio.createApplicationDns(globalConf.host, name_application).then(function() {
+                                                        studio_manager.createApplicationDns(globalConf.host, name_application).then(function() {
                                                             resolve();
                                                         });
                                                     else
