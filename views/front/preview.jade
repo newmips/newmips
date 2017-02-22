@@ -311,9 +311,13 @@ block custom_js
 					/* DOWN ARROW */
 					else if(e.which == "40"){
 						$("input#instruction").css("color", "rgba(255,255,255,0)");
-						if(++indexInstructionSelected > instructionHistory.length-1)
-							indexInstructionSelected = instructionHistory.length-1;
-						setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 300);
+						if(++indexInstructionSelected > instructionHistory.length-1){
+							indexInstructionSelected = instructionHistory.length;
+							$("input#instruction").val("");
+						}
+						else{
+							setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 300);
+						}
 						setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
 					}
 				}

@@ -67,6 +67,30 @@ module.exports = {
                 content += '\t\t}\n';
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
+            else if(type == "component-calendar-event"){
+                var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
+                content += '\t\t\t"name_component" : "'+value2+'",\n';
+                content += '\t\t\t"plural_component" : "'+value2+'s",\n';
+                content += '\t\t\t"id_component" : "ID",\n';
+                content += '\t\t\t"f_title" : "Title",\n';
+                content += '\t\t\t"f_description" : "Description",\n';
+                content += '\t\t\t"f_place" : "Place",\n';
+                content += '\t\t\t"f_datedebut" : "Start Datetime",\n';
+                content += '\t\t\t"f_datefin" : "End Datetime",\n';
+                content += '\t\t\t"r_category" : "Category"\n';
+                content += '\t\t}\n';
+                data.component[keyValue.toLowerCase()] = JSON.parse(content);
+            }
+            else if(type == "component-calendar-category"){
+                var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
+                content += '\t\t\t"name_component" : "'+value2+'",\n';
+                content += '\t\t\t"plural_component" : "Categories",\n';
+                content += '\t\t\t"id_component" : "ID",\n';
+                content += '\t\t\t"f_label" : "Label",\n';
+                content += '\t\t\t"f_color" : "Color"\n';
+                content += '\t\t}\n';
+                data.component[keyValue.toLowerCase()] = JSON.parse(content);
+            }
             else if(type == "field"){
                 data.entity[keyValue.toLowerCase()][keyValueField.toLowerCase()] = value2;
             }

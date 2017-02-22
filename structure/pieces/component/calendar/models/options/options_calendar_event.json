@@ -3,7 +3,7 @@
         "target": "SOURCE_ENTITY_LOWER",
         "relation": "belongsTo",
         "foreignKey": "id_SOURCE_ENTITY_LOWER",
-        "as": "SOURCE_ENTITY_LOWER"
+        "as": "r_SOURCE_ENTITY_LOWER"
     },
     {
     	"target": "e_user",

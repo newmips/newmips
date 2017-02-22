@@ -110,6 +110,9 @@
       "email": "Email",
       "title": "Titre",
       "content": "Contenu"
+    },
+    "calendar": {
+      "menu" : "Calendrier"
     }
   },
   "component": {

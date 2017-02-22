@@ -5,7 +5,6 @@
         "primaryKey": true
     },
     "version": "INTEGER",
-    "title": "STRING",
-    "libellé": "STRING",
-    "color": "STRING"
+    "f_label": "STRING",
+    "f_color": "STRING"
 }
