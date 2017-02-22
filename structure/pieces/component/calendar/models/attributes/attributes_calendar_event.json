@@ -5,9 +5,9 @@
         "primaryKey": true
     },
     "version": "INTEGER",
-    "title": "STRING",
-    "description": "TEXT",
-    "lieu": "STRING",
-    "dateDebut": "DATE",
-    "dateFin": "DATE"
+    "f_title": "STRING",
+    "f_description": "TEXT",
+    "f_place": "STRING",
+    "f_datedebut": "DATE",
+    "f_datefin": "DATE"
 }

@@ -39,18 +39,38 @@ function createComponentAttributesAndOptionsFiles(idApplication, folderComponent
 	});
 }
 
-function setupComponentRoute(idApplication, nameComponent, urlSource, filename, source, callback){
+function setupComponentRoute(idApplication, folderComponent, nameComponent, urlSource, filename, source, callback){
 	// CREATE ROUTE FILE
-	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/routes/route_'+filename+'.js', 'utf8');
+	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/routes/route_'+filename+'.js', 'utf8');
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent.toLowerCase());
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase() + nameComponent.toLowerCase().slice(1));
 	routeTemplate = routeTemplate.replace(/SOURCE_ENTITY_LOWER/g, source.toLowerCase());
 	routeTemplate = routeTemplate.replace(/SOURCE_URL_ENTITY_LOWER/g, urlSource.toLowerCase());
+
 	var writeStream = fs.createWriteStream('./workspace/'+idApplication+'/routes/'+nameComponent.toLowerCase()+'.js');
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Route file ------------------ CREATED')
+		console.log('File => Component Route file ------------------ CREATED');
+		callback();
+	});
+}
+
+function setupComponentRouteForCalendar(idApplication, folderComponent, codeName, filename, callback){
+
+	var urlRoute = codeName.substring(2).toLowerCase();
+	// CREATE ROUTE FILE
+	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/routes/route_'+filename+'.js', 'utf8');
+	routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, codeName.toLowerCase());
+	routeTemplate = routeTemplate.replace(/CODE_NAME_MODEL/g, codeName.charAt(0).toUpperCase()+codeName.toLowerCase().slice(1));
+
+	routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRoute);
+
+	var writeStream = fs.createWriteStream('./workspace/'+idApplication+'/routes/'+codeName.toLowerCase()+'.js');
+	writeStream.write(routeTemplate);
+	writeStream.end();
+	writeStream.on('finish', function() {
+		console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -74,6 +94,56 @@ function setupComponentView(idApplication, nameComponent, urlComponent, filename
 			callback();
 		});
 	});
+}
+
+function setupComponentViewForCalendar(idApplication, component, valueComponent, callback){
+
+	var codeNameCategory = valueComponent+"_category";
+	var codeNameEvent = valueComponent+"_event";
+
+	function replaceValueInTemplate(viewPath, codeName){
+		if(fs.existsSync(viewPath)){
+	        if(viewPath.substr(viewPath.length - 1) == "/"){
+	            viewPath = viewPath.slice(0,-1);
+	        }
+	        fs.readdirSync(viewPath).forEach(function(file, index){
+	            var curPath = viewPath+"/"+file;
+                if(fs.lstatSync(curPath).isDirectory()) {
+                    readdirSyncRecursive(curPath)
+                } else {
+                	var viewTemplate = fs.readFileSync(curPath, 'utf8');
+					/*viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());*/
+					viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2).toLowerCase());
+					viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName.toLowerCase());
+					viewTemplate = viewTemplate.replace(/RELATION_CATEGORY_LOWER/g, "r_"+codeNameCategory.toLowerCase());
+
+					var writeStream = fs.createWriteStream(curPath);
+					writeStream.write(viewTemplate);
+					writeStream.end();
+                }
+	        });
+	    }
+	}
+
+	// Calendar View
+	var componentViewFolder = __dirname+'/pieces/component/'+component+'/views';
+	var viewsFolder = __dirname+'/../workspace/'+idApplication+'/views/'+valueComponent.toLowerCase();
+	fs.copySync(componentViewFolder, viewsFolder);
+	replaceValueInTemplate(viewsFolder, valueComponent);
+
+	// Category View
+	var componentViewFolderCategory = __dirname+'/pieces/component/'+component+'/views_category';
+	var viewsFolderCategory = __dirname+'/../workspace/'+idApplication+'/views/'+valueComponent.toLowerCase()+'_category';
+	fs.copySync(componentViewFolderCategory, viewsFolderCategory);
+	replaceValueInTemplate(viewsFolderCategory, codeNameCategory);
+
+	// Event View
+	var componentViewFolderEvent = __dirname+'/pieces/component/'+component+'/views_event';
+	var viewsFolderEvent = __dirname+'/../workspace/'+idApplication+'/views/'+valueComponent.toLowerCase()+'_event';
+	fs.copySync(componentViewFolderEvent, viewsFolderEvent);
+	replaceValueInTemplate(viewsFolderEvent,codeNameEvent);
+
+	callback();
 }
 
 function addTab(attr, file, newLi, newTabContent) {
@@ -147,7 +217,7 @@ exports.newLocalFileStorage = function(attr, callback){
 
 	setupComponentModel(attr.id_application, filename, nameComponentLower, filename, function(){
 		createComponentAttributesAndOptionsFiles(attr.id_application, filename, nameComponent, filename, source, function(){
-			setupComponentRoute(attr.id_application, nameComponent, urlSource, filename, source, function(){
+			setupComponentRoute(attr.id_application, filename, nameComponent, urlSource, filename, source, function(){
 
 				/* --------------- New translation --------------- */
 				translateHelper.writeLocales(attr.id_application, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
@@ -184,7 +254,7 @@ exports.newContactForm = function(attr, callback){
 	var filename = "contact_form";
 
 	setupComponentView(attr.id_application, nameComponent, urlComponent, filename, attr.options.moduleName, function(){
-		setupComponentRoute(attr.id_application, nameComponent, "", filename, "", function(){
+		setupComponentRoute(attr.id_application, filename, nameComponent, "", filename, "", function(){
 			translateHelper.writeLocales(attr.id_application, "component", nameComponentLower, showComponentName, attr.googleTranslate, function(){
 				var layoutFileName = __dirname+'/../workspace/'+attr.id_application+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
 				domHelper.read(layoutFileName).then(function($) {
@@ -217,55 +287,106 @@ exports.newCalendar = function(attr, callback){
 
 	var idApplication = attr.id_application;
 
-	var nameComponent = attr.options.value;
-	var nameComponentLower = nameComponent.toLowerCase();
+	var valueComponent = attr.options.value;
+	var valueComponentLower = valueComponent.toLowerCase();
 
 	var showComponentName = attr.options.showValue;
 	var showComponentNameLower = showComponentName.toLowerCase();
 
 	var urlComponent = attr.options.urlValue.toLowerCase();
+	var filenameComponent = "calendar";
 	var filenameEvent = "calendar_event";
 	var filenameCategory = "calendar_category";
 
-	var valueCategorie = attr.category.options.value.toLowerCase();
+	var valueCategory = attr.category.options.value.toLowerCase();
 	var valueEvent = attr.event.options.value.toLowerCase();
+
+	var urlCategory = valueCategory.substring(2);
+	var urlEvent =  valueEvent.substring(2);
 
 	// Event Model
 	setupComponentModel(idApplication, "calendar", valueEvent, filenameEvent, function(){
-		createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueEvent, filenameEvent, valueCategorie, function(){
+		createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueEvent, filenameEvent, valueCategory, function(){
 			// Categorie Model
-			setupComponentModel(idApplication, "calendar", valueCategorie, filenameCategory, function(){
-				createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueCategorie, filenameCategory, null, function(){
-					callback();
+			setupComponentModel(idApplication, "calendar", valueCategory, filenameCategory, function(){
+				createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueCategory, filenameCategory, null, function(){
+					// Event Route
+					setupComponentRouteForCalendar(idApplication, "calendar", valueEvent, filenameEvent, function(){
+						// Category Route
+						setupComponentRouteForCalendar(idApplication, "calendar", valueCategory, filenameCategory, function(){
+							// Calendar Route
+							setupComponentRouteForCalendar(idApplication, "calendar", valueComponent, filenameComponent, function(){
+								// Component views
+								setupComponentViewForCalendar(idApplication, "calendar", valueComponent, function(){
+									// Add access managment to Calendar
+									addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function(){
+										// Add access managment to Calendar_Category
+										addAccessManagment(idApplication, urlCategory, attr.options.moduleName.substring(2), function(){
+											// Add access managment to Calendar_Event
+											addAccessManagment(idApplication, urlEvent, attr.options.moduleName.substring(2), function(){
+												// Add Event translation
+												translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
+													translateHelper.writeLocales(idApplication, "component-calendar-event", valueEvent, "Event", attr.googleTranslate, function(){
+														translateHelper.writeLocales(idApplication, "component-calendar-category", valueCategory, "Category", attr.googleTranslate, function(){
+															var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
+															domHelper.read(layoutFileName).then(function($) {
+																var li = '';
+																li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
+																li += "    <a href='#'>\n";
+																li += "        <i class='fa fa-calendar'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
+																li += "        <span class='pull-right-container'>\n";
+																li += "            <i class='fa fa-angle-left pull-right'></i>\n";
+																li += "        </span>\n";
+																li += "    </a>\n";
+																li += "    <ul class='treeview-menu'>\n";
+																li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-circle-o'></i> {@__ key=\"global_component.calendar.menu\" /}</a></li>\n";
+																li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
+																li += "            <a href='#'><i class='fa fa-circle-o'></i> Event\n";
+																li += "                <span class='pull-right-container'>\n";
+																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
+																li += "                </span>\n";
+																li += "            </a>\n";
+																li += "            <ul class='treeview-menu'>\n";
+																li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-circle-o'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueEvent+".label_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-circle-o'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueEvent+".plural_component\" /}</a></li>\n";
+																li += "            </ul>\n";
+																li += "        </li>\n";
+																li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
+																li += "            <a href='#'><i class='fa fa-circle-o'></i> Category\n";
+																li += "                <span class='pull-right-container'>\n";
+																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
+																li += "                </span>\n";
+																li += "            </a>\n";
+																li += "            <ul class='treeview-menu'>\n";
+																li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-circle-o'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueCategory+".label_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-circle-o'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueCategory+".plural_component\" /}</a></li>\n";
+																li += "            </ul>\n";
+																li += "        </li>\n";
+																li += "    </ul>\n";
+																li += "</li>\n";
+
+																// Add new html to document
+																$('#sortable').append(li);
+
+																// Write back to file
+																domHelper.write(layoutFileName, $).then(function() {
+																	callback();
+																});
+															}).catch(function(err) {
+																callback(err, null);
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
 				});
 			});
 		});
 	});
-
-	/*setupComponentView(attr.id_application, nameComponent, urlComponent, filename, attr.options.moduleName, function(){
-		setupComponentRoute(attr.id_application, nameComponent, "", filename, "", function(){
-			translateHelper.writeLocales(attr.id_application, "component", nameComponentLower, showComponentName, attr.googleTranslate, function(){
-				var layoutFileName = __dirname+'/../workspace/'+attr.id_application+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
-				domHelper.read(layoutFileName).then(function($) {
-					var li = '';
-					li += "<li id='"+nameComponentLower+"_menu_item' class='ui-state-default'>\n";
-						li += '<a href="/'+urlComponent+'">\n';
-							li += '<i class="fa fa-envelope"></i>\n';
-							li += '<span>{@__ key="component.'+nameComponentLower+'.label_component" /}</span>\n';
-						li += '</a>\n';
-					li += '</li>\n';
-
-					// Add new html to document
-					$('#sortable').append(li);
-
-					// Write back to file
-					domHelper.write(layoutFileName, $).then(function() {
-						callback();
-					});
-				}).catch(function(err) {
-					callback(err, null);
-				});
-			});
-		});
-	});*/
 }
