@@ -21,7 +21,7 @@ var attrHelper = require('../utils/attr_helper');
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
-        var userId = req.session.data.id_user;
+        var userId = req.session.passport.user.id;
         try {
 
             /* Lower the first word for the basic parser jison */
@@ -59,6 +59,7 @@ function execute(req, instruction) {
                     }
                     else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
                         scriptData[userId].ids.id_application = info.insertId;
+                        scriptData[userId].ids.name_application = info.name_application;
                         scriptData[userId].ids.id_module = null;
                         scriptData[userId].ids.id_data_entity = null;
                     }
@@ -128,7 +129,7 @@ function recursiveExecute(req, instructions, idx) {
         // All instructions executed
         if (instructions.length == idx){
             /* Reset toSync.json because in this situation it's the sequelize sync() that will do the job, not our custom sync */
-            var idApplication = scriptData[req.session.data.id_user].ids.id_application;
+            var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
 
             var toSyncFileName = './workspace/'+idApplication+'/models/toSync.json';
             var writeStream = fs.createWriteStream(toSyncFileName);
@@ -142,15 +143,15 @@ function recursiveExecute(req, instructions, idx) {
         else {
             // If project and application are created and we're at the instruction that
             // follows create application, insert mandatory instructions to instruction array
-            if (scriptData[req.session.data.id_user].ids.id_project > 0 && scriptData[req.session.data.id_user].ids.id_application > 0 && parser.parse(instructions[idx-1].toLowerCase())["function"] == "createNewApplication") {
+            if (scriptData[req.session.passport.user.id].ids.id_project > 0 && scriptData[req.session.passport.user.id].ids.id_application > 0 && parser.parse(instructions[idx-1].toLowerCase())["function"] == "createNewApplication") {
                 instructions.splice.apply(instructions, [idx, 0].concat(mandatoryInstructions));
                 idxAtMandatoryInstructionStart = idx;
             }
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
             if (idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
-                structure_application.initializeApplication(scriptData[req.session.data.id_user].ids.id_application, req.session.data.id_user).then(function(){
+                structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
                     execute(req, instructions[idx]).then(function() {
-                        scriptData[req.session.data.id_user].doneInstruction++;
+                        scriptData[req.session.passport.user.id].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));
                     }).catch(function() {
                         reject();
@@ -160,7 +161,7 @@ function recursiveExecute(req, instructions, idx) {
             // Nothing specific to do, execute instruction
             else {
                 execute(req, instructions[idx]).then(function() {
-                    scriptData[req.session.data.id_user].doneInstruction++;
+                    scriptData[req.session.passport.user.id].doneInstruction++;
                     resolve(recursiveExecute(req, instructions, idx + 1));
                 }).catch(function() {
                     reject();
@@ -193,7 +194,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     var extensionFile = req.file.originalname.split(".");
     extensionFile = extensionFile[extensionFile.length -1];
 
-    var userId = req.session.data.id_user;
+    var userId = req.session.passport.user.id;
 
     // Init scriptData object for user. (session simulation)
     scriptData[userId] = {
@@ -344,7 +345,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
 // Script execution status
 router.get('/status', function(req, res) {
-    var userId = req.session.data.id_user;
+    var userId = req.session.passport.user.id;
     var stats = {
         totalInstruction: scriptData[userId].totalInstruction,
         doneInstruction: scriptData[userId].doneInstruction,

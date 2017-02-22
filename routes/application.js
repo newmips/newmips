@@ -99,7 +99,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
                 var iframe_status_url = protocol_iframe + '://';
                 if (globalConf.env == 'cloud')
-                    iframe_status_url += globalConf.host + '-' + application.name + globalConf.dns + '/status';
+                    iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
                 else
                     iframe_status_url += host + ":" + port + "/status";
                 request({
