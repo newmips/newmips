@@ -1,0 +1,44 @@
+<div id="fields">
+    <div data-field="f_title" class="form-group">
+        <label for="f_title"> {@__ key="component.CODE_NAME_LOWER.f_title"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_title" /}' name="f_title" value="" type="text">
+    </div>
+    <div data-field="f_description" class="form-group">
+        <label for="f_description"> {@__ key="component.CODE_NAME_LOWER.f_description"/} </label>
+        <textarea class="form-control textarea" placeholder='{@__ key="component.CODE_NAME_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" value="" type="text"></textarea>
+    </div>
+    <div data-field="f_place" class="form-group">
+        <label for="f_place"> {@__ key="component.CODE_NAME_LOWER.f_place"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_place" /}' name="f_place" value="" type="text">
+    </div>
+    <div data-field="f_datedebut" class="form-group">
+        <label for="f_datedebut"> {@__ key="component.CODE_NAME_LOWER.f_datedebut"/} </label>
+        <div class="input-group">
+            <div class="input-group-addon">
+                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+            </div>
+            <input class="form-control input datetimepicker" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datedebut" /}' name="f_datedebut" type="text">
+        </div>
+    </div>
+    <div data-field="f_datefin" class="form-group">
+        <label for="f_datefin"> {@__ key="component.CODE_NAME_LOWER.f_datefin"/} </label>
+        <div class="input-group">
+            <div class="input-group-addon">
+                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+            </div>
+            <input class="form-control input datetimepicker" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datefin" /}' name="f_datefin" type="text">
+        </div>
+    </div>
+    <div data-field="f_category" class="form-group">
+        <label for="f_category">{@__ key="component.CODE_NAME_LOWER.r_category" /}</label>
+        <select style="width:100%;" class="form-control" name="RELATION_CATEGORY_LOWER">
+			{#RELATION_CATEGORY_LOWER}
+				{#.f_label}
+						<option value="{id}">{f_label}</option>
+				{:else}
+						<option value="{id}">{id} - label not defined</option>
+				{/.f_label}
+			{/RELATION_CATEGORY_LOWER}
+		</select>
+    </div>
+</div>
