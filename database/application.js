@@ -212,3 +212,11 @@ exports.getIdApplicationByCodeName = function(codeName, showName, callback) {
         callback(err, null);
     });
 }
+
+exports.getCodeNameApplicationById = function(id_app, callback) {
+    models.Application.findOne({where: {id: id_app}}).then(function(application) {
+        if (!application)
+            return callback("Application not found");
+        return application.codeName;
+    })
+}

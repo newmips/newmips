@@ -2,7 +2,11 @@ var db_project = require("../database/project");
 var db_application = require("../database/application");
 var db_module = require("../database/module");
 var db_entity = require("../database/data_entity");
-var global = require("../config/global.js");
+var globalConf = require("../config/global.js");
+
+var manager;
+if (globalConf.env == 'cloud')
+    manager = require('../services/studio_manager');
 
 //Sequelize
 var models = require('../models/');
@@ -84,19 +88,36 @@ exports.showSession = function(attr, callback) {
 // Deploy
 exports.deploy = function(attr, callback) {
 
-  if (typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
+    if (typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
 
-  var protocol = global.protocol;
-  var host = global.host;
-  var math = require('math');
-  var port = math.add(9000, id_application);
-  var url = protocol + "://" + host + ":" + port;
+    if (globalConf.env == 'cloud') {
+        db_application.getCodeNameApplicationById(id_application, function(err, codeName) {
+            if (err)
+                return callback(err);
+            var subdomain = globalConf.host + '-' + codeName.substring(2);
+            var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
+            manager.createCloudDns(subdomain).then(function() {
+                var info = new Array();
+                info.message = "Application is now available on: <br>";
+                info.message += "<a href='" + url + "'  target='_blank'>" + url + "</a>";
 
-  var info = new Array();
-  info.message = "Application is now available on: <br>";
-  info.message = info.message + "<a href='" + url + "'  target='_blank'>" + url + "</a>";
+                callback(null, info);
+            })
+        });
+    }
+    else {
+        var protocol = globalConf.protocol;
+        var host = globalConf.host;
+        var math = require('math');
+        var port = math.add(9000, id_application);
+        var url = protocol + "://" + host + ":" + port;
+        var info = new Array();
+        info.message = "Application is now available on: <br>";
+        info.message += "<a href='" + url + "'  target='_blank'>" + url + "</a>";
 
-  callback(null, info);
+        callback(null, info);
+    }
+
 }
 
 // Get

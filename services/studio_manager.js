@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 var studioConfig = require('../config/studio_manager.json');
+var cloudConfig = require('../config/cloud_manager.json');
 var request = require('request');
 
 var algorithm = 'aes-256-ctr';
@@ -36,6 +37,24 @@ exports.createApplicationDns = function(subdomain, name_application) {
 			},
 			url: url,
 		    form: {subdomain: subdomain, application_name: name_application}
+		}, function(error, response, body) {
+			if (error)
+				return reject({error: error, response: response});
+			resolve({response: response, body: body});
+		});
+	});
+}
+
+exports.createCloudDns = function(subdomain) {
+	return new Promise(function(resolve, reject) {
+		var url = cloudConfig.url+'/api/environment/create';
+		request.post({
+			headers: {
+				"Authorization": getAuthorization(),
+				'content-type' : 'application/json'
+			},
+			url: url,
+		    form: {subdomain: subdomain}
 		}, function(error, response, body) {
 			if (error)
 				return reject({error: error, response: response});
