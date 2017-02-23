@@ -132,10 +132,10 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         data.application = module;
                         var iframe_home_url = protocol_iframe + '://';
                         if (globalConf.env == 'cloud')
-                            iframe_home_url += globalConf.host + '-' + application.name + globalConf.dns + "/default/home";
+                            iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
                         else
                             iframe_home_url += host + ":" + port + "/default/home";
-                        data.iframe_url = protocol_iframe + "://" + host + ":" + port + "/default/home";
+                        data.iframe_url = iframe_home_url;
 
                         // Editor
                         var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
