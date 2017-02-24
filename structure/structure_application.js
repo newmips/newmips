@@ -8,9 +8,9 @@ var translateHelper = require("../utils/translate");
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.json');
 
-var studio_manager;
+var dns_manager;
 if (globalConf.env == 'cloud')
-    studio_manager = require('../services/studio_manager');
+    dns_manager = require('../services/dns_manager');
 
 try{
     if(gitlabConf.doGit){
@@ -183,9 +183,9 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                     f_id_group_group: 1,
                                                     f_enabled: 1
                                                 }).then(function() {
-                                                    // Create application's DNS through studio_manager
+                                                    // Create application's DNS through dns_manager
                                                     if (globalConf.env == 'cloud')
-                                                        studio_manager.createApplicationDns(globalConf.host, name_application).then(function() {
+                                                        dns_manager.createApplicationDns(globalConf.host, name_application).then(function() {
                                                             resolve();
                                                         });
                                                     else
