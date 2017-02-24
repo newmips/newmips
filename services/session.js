@@ -6,7 +6,7 @@ var globalConf = require("../config/global.js");
 
 var manager;
 if (globalConf.env == 'cloud')
-    manager = require('../services/studio_manager');
+    manager = require('../services/dns_manager');
 
 //Sequelize
 var models = require('../models/');
@@ -81,7 +81,6 @@ exports.showSession = function(attr, callback) {
                 });
             });
         });
-
     });
 }
 
@@ -102,7 +101,10 @@ exports.deploy = function(attr, callback) {
                 info.message += "<a href='" + url + "'  target='_blank'>" + url + "</a>";
 
                 callback(null, info);
-            })
+            }).catch(function(err) {
+                console.log("Couldn't deploy application. Cloud manager failed to create DNS");
+                console.log(err);
+            });
         });
     }
     else {
