@@ -29,9 +29,13 @@
             <input class="form-control input datetimepicker-toconvert" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datefin" /}' value="{f_datefin}" type="text" readonly="">
         </div>
     </div>
+    <div data-field="f_allday" class="form-group">
+        <label for="f_allday"> {@__ key="component.CODE_NAME_LOWER.f_allday"/} </label> &nbsp;
+        <br> {#f_allday} <input class="form-control input" name="f_allday" value="{f_allday}" type="checkbox" checked="" disabled=""> {:else} <input class="form-control input" name="f_allday" value="{f_allday}" type="checkbox" disabled=""> {/f_allday}
+    </div>
     <div data-field="RELATION_CATEGORY_LOWER" class="form-group">
         <label for="RELATION_CATEGORY_LOWER"> {@__ key="component.CODE_NAME_LOWER.r_category"/} </label>
-        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.RELATION_CATEGORY_LOWER" /}' name="RELATION_CATEGORY_LOWER" value="{RELATION_CATEGORY_LOWER.f_label}" type="text" readonly="">
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.r_category" /}' name="RELATION_CATEGORY_LOWER" value="{RELATION_CATEGORY_LOWER.f_label}" type="text" readonly="">
     </div>
 </div>
 <div class="actions">

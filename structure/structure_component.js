@@ -59,10 +59,19 @@ function setupComponentRoute(idApplication, folderComponent, nameComponent, urlS
 function setupComponentRouteForCalendar(idApplication, folderComponent, codeName, filename, callback){
 
 	var urlRoute = codeName.substring(2).toLowerCase();
+	var codeNameLower = codeName.toLowerCase();
+	var codeNameModel = codeName.charAt(0).toUpperCase()+codeName.toLowerCase().slice(1);
 	// CREATE ROUTE FILE
 	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/routes/route_'+filename+'.js', 'utf8');
-	routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, codeName.toLowerCase());
-	routeTemplate = routeTemplate.replace(/CODE_NAME_MODEL/g, codeName.charAt(0).toUpperCase()+codeName.toLowerCase().slice(1));
+	routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, codeNameLower);
+	routeTemplate = routeTemplate.replace(/CODE_NAME_MODEL/g, codeNameModel);
+
+	routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_MODEL/g, codeNameModel+"_event");
+	routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_LOWER/g, codeNameLower+"_event");
+	routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_URL/g, codeNameLower.substring(2)+"_event");
+
+	routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_LOWER/g, codeNameLower+"_category");
+	routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_MODEL/g, codeNameModel+"_category");
 
 	routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRoute);
 
@@ -115,7 +124,9 @@ function setupComponentViewForCalendar(idApplication, component, valueComponent,
 					/*viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());*/
 					viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2).toLowerCase());
 					viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName.toLowerCase());
-					viewTemplate = viewTemplate.replace(/RELATION_CATEGORY_LOWER/g, "r_"+codeNameCategory.toLowerCase());
+					viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, codeNameEvent.toLowerCase());
+					viewTemplate = viewTemplate.replace(/URL_EVENT/g, codeNameEvent.toLowerCase().substring(2));
+					viewTemplate = viewTemplate.replace(/RELATION_CATEGORY_LOWER/g, "r_"+valueComponent.toLowerCase()+"_event_category");
 
 					var writeStream = fs.createWriteStream(curPath);
 					writeStream.write(viewTemplate);
@@ -306,7 +317,7 @@ exports.newCalendar = function(attr, callback){
 
 	// Event Model
 	setupComponentModel(idApplication, "calendar", valueEvent, filenameEvent, function(){
-		createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueEvent, filenameEvent, valueCategory, function(){
+		createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueEvent, filenameEvent, valueComponent, function(){
 			// Categorie Model
 			setupComponentModel(idApplication, "calendar", valueCategory, filenameCategory, function(){
 				createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueCategory, filenameCategory, null, function(){
@@ -333,33 +344,33 @@ exports.newCalendar = function(attr, callback){
 																var li = '';
 																li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
 																li += "    <a href='#'>\n";
-																li += "        <i class='fa fa-calendar'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
+																li += "        <i class='fa fa-calendar-o'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
 																li += "        <span class='pull-right-container'>\n";
 																li += "            <i class='fa fa-angle-left pull-right'></i>\n";
 																li += "        </span>\n";
 																li += "    </a>\n";
 																li += "    <ul class='treeview-menu'>\n";
-																li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-circle-o'></i> {@__ key=\"global_component.calendar.menu\" /}</a></li>\n";
+																li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.calendar.menu\" /}</a></li>\n";
 																li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
-																li += "            <a href='#'><i class='fa fa-circle-o'></i> Event\n";
+																li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"component."+valueEvent+".label_component\" /}\n";
 																li += "                <span class='pull-right-container'>\n";
 																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
 																li += "                </span>\n";
 																li += "            </a>\n";
 																li += "            <ul class='treeview-menu'>\n";
-																li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-circle-o'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueEvent+".label_component\" /}</a></li>\n";
-																li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-circle-o'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueEvent+".plural_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueEvent+".label_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueEvent+".plural_component\" /}</a></li>\n";
 																li += "            </ul>\n";
 																li += "        </li>\n";
 																li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
-																li += "            <a href='#'><i class='fa fa-circle-o'></i> Category\n";
+																li += "            <a href='#'><i class='fa fa-bookmark'></i> {@__ key=\"component."+valueCategory+".label_component\" /}\n";
 																li += "                <span class='pull-right-container'>\n";
 																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
 																li += "                </span>\n";
 																li += "            </a>\n";
 																li += "            <ul class='treeview-menu'>\n";
-																li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-circle-o'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueCategory+".label_component\" /}</a></li>\n";
-																li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-circle-o'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueCategory+".plural_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueCategory+".label_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueCategory+".plural_component\" /}</a></li>\n";
 																li += "            </ul>\n";
 																li += "        </li>\n";
 																li += "    </ul>\n";

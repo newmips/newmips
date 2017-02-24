@@ -1,7 +1,7 @@
 <div id="fields">
     <div data-field="f_title" class="form-group">
-        <label for="f_title"> {@__ key="component.CODE_NAME_LOWER.f_title"/} </label>
-        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_title" /}' name="f_title" value="" type="text">
+        <label for="f_title" class="required"> {@__ key="component.CODE_NAME_LOWER.f_title"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_title" /}' name="f_title" value="" type="text" required />
     </div>
     <div data-field="f_description" class="form-group">
         <label for="f_description"> {@__ key="component.CODE_NAME_LOWER.f_description"/} </label>
@@ -12,12 +12,12 @@
         <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_place" /}' name="f_place" value="" type="text">
     </div>
     <div data-field="f_datedebut" class="form-group">
-        <label for="f_datedebut"> {@__ key="component.CODE_NAME_LOWER.f_datedebut"/} </label>
+        <label for="f_datedebut" class="required"> {@__ key="component.CODE_NAME_LOWER.f_datedebut"/} </label>
         <div class="input-group">
             <div class="input-group-addon">
                 <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
             </div>
-            <input class="form-control input datetimepicker" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datedebut" /}' name="f_datedebut" type="text">
+            <input class="form-control input datetimepicker" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datedebut" /}' name="f_datedebut" type="text" required />
         </div>
     </div>
     <div data-field="f_datefin" class="form-group">
@@ -28,6 +28,10 @@
             </div>
             <input class="form-control input datetimepicker" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datefin" /}' name="f_datefin" type="text">
         </div>
+    </div>
+    <div data-field="f_allday" class="form-group">
+        <label for="f_allday"> {@__ key="component.CODE_NAME_LOWER.f_allday"/} </label> &nbsp;
+        <br> {#f_allday} <input class="form-control input" name="f_allday" value="" type="checkbox" checked=""> {:else} <input class="form-control input" name="f_allday" value="" type="checkbox"> {/f_allday}
     </div>
     <div data-field="f_category" class="form-group">
         <label for="f_category">{@__ key="component.CODE_NAME_LOWER.r_category" /}</label>

@@ -5,6 +5,8 @@ var block_access = require('../utils/block_access');
 // Datalist
 var filterDataTable = require('../utils/filterDataTable');
 
+var moment = require("moment");
+
 // Sequelize
 var models = require('../models/');
 var attributes = require('../models/attributes/CODE_NAME_LOWER');
@@ -196,6 +198,8 @@ router.post('/create', block_access.actionAccessMiddleware("URL_ROUTE", "write")
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("CODE_NAME_LOWER", createObject, req.body);
+
+    createObject.pending = false;
 
     models.CODE_NAME_MODEL.create(createObject).then(function(CODE_NAME_LOWER) {
         var redirect = '/URL_ROUTE/list';
@@ -398,6 +402,28 @@ router.post('/delete', block_access.actionAccessMiddleware("URL_ROUTE", "delete"
         res.redirect(redirect);
     }).catch(function(err){
         error500(err, res);
+    });
+});
+
+/* CUSTOM DEV - AJAX call to add event in calendar */
+router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "write"), function(req, res) {
+
+    if(req.body.idCategory == "" || req.body.idCategory == 0)
+        req.body.idCategory = null;
+
+    var createObj = {
+        f_title: req.body.title,
+        f_datedebut: moment(req.body.start).format("YYYY-MM-DD HH:mm:ss"),
+        f_datefin: req.body.end,
+        f_allday: req.body.allday,
+        id_CODE_NAME_CATEGORY_LOWER: req.body.idCategory
+    };
+
+    models.CODE_NAME_MODEL.create(createObj).then(function(createdEvent){
+        res.json({
+            success: true,
+            idEvent: createdEvent.id
+        });
     });
 });
 

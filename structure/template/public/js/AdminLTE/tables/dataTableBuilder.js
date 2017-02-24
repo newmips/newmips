@@ -184,7 +184,7 @@ function init_datatable(tableID){
 				if (columns[meta.col].data.indexOf('.') != -1) {
 					var parts = columns[meta.col].data.split('.');
 					var tmp = row[parts[0]];
-					if(tmp != null){
+					if(typeof tmp !== "undefined" && tmp != null){
 						for (var j = 1; j < parts.length; j++)
 							tmp = tmp[parts[j]];
 					}

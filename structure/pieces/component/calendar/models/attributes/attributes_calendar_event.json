@@ -9,5 +9,6 @@
     "f_description": "TEXT",
     "f_place": "STRING",
     "f_datedebut": "DATE",
-    "f_datefin": "DATE"
+    "f_datefin": "DATE",
+    "f_allday": "BOOLEAN"
 }

@@ -77,6 +77,7 @@ module.exports = {
                 content += '\t\t\t"f_place" : "Place",\n';
                 content += '\t\t\t"f_datedebut" : "Start Datetime",\n';
                 content += '\t\t\t"f_datefin" : "End Datetime",\n';
+                content += '\t\t\t"f_allday" : "All day",\n';
                 content += '\t\t\t"r_category" : "Category"\n';
                 content += '\t\t}\n';
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
