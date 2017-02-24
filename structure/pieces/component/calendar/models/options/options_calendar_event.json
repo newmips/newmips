@@ -1,15 +1,8 @@
 [
     {
-        "target": "SOURCE_ENTITY_LOWER",
+        "target": "SOURCE_ENTITY_LOWER_category",
         "relation": "belongsTo",
-        "foreignKey": "id_SOURCE_ENTITY_LOWER",
-        "as": "r_SOURCE_ENTITY_LOWER"
-    },
-    {
-    	"target": "e_user",
-        "relation": "belongsToMany",
-        "foreignKey": "id_SOURCE_ENTITY_LOWER",
-        "as": "SOURCE_ENTITY_LOWER",
-        "through": "SOURCE_ENTITY_LOWER_user"
+        "foreignKey": "id_SOURCE_ENTITY_LOWER_event_category",
+        "as": "r_SOURCE_ENTITY_LOWER_event_category"
     }
 ]

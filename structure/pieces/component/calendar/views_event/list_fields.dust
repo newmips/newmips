@@ -20,6 +20,9 @@
             <th data-field="f_datefin" data-col="f_datefin" data-type="datetime">
                 {@__ key="component.CODE_NAME_LOWER.f_datefin"/}
             </th>
+            <th data-field="f_allday" data-col="f_allday" data-type="boolean">
+                {@__ key="component.CODE_NAME_LOWER.f_allday"/}
+            </th>
             <th data-field="f_category" data-col="RELATION_CATEGORY_LOWER.f_label">
                 {@__ key="component.CODE_NAME_LOWER.r_category"/}
             </th>
@@ -49,6 +52,9 @@
             <th data-field="f_datefin" data-col="f_datefin" data-type="datetime">
                 {@__ key="component.CODE_NAME_LOWER.f_datefin"/}
             </th>
+            <th data-field="f_allday" data-col="f_allday" data-type="boolean">
+                {@__ key="component.CODE_NAME_LOWER.f_allday"/}
+            </th>
             <th data-field="f_category" data-col="RELATION_CATEGORY_LOWER.f_label">
                 {@__ key="component.CODE_NAME_LOWER.r_category"/}
             </th>
@@ -66,6 +72,7 @@
             <td data-field="f_place" data-type="string">{f_place}</td>
             <td data-field="f_datedebut" data-type="datetime">{f_datedebut}</td>
             <td data-field="f_datefin" data-type="datetime">{f_datefin}</td>
+            <td data-field="f_allday" data-type="boolean">{f_allday}</td>
             <td data-field="f_category">{RELATION_CATEGORY_LOWER.f_label}</td>
             <td>
                 {@eq key=for value="fieldset"}
