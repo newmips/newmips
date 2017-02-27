@@ -235,6 +235,26 @@ exports.getTypeDataFieldByEntityIdAndFieldName = function(id_data_entity, name_d
 }
 
 // GetByName
+exports.getDataFieldByID = function(idField, idEntity, callback) {
+
+	models.DataField.findOne({
+		where: {
+			id: idField,
+			id_data_entity: idEntity
+		}
+	}).then(function(dataField) {
+		if (!dataField) {
+			var err = new Error();
+			err.message = "No data field with ID "+idField+" found in current entity.";
+			return callback(err, null);
+		}
+		callback(null, dataField);
+	}).catch(function(err){
+		callback(err, null);
+	});
+}
+
+// GetByName
 exports.getIdDataFieldByName = function(attr, callback) {
 
 	var id_data_entity = attr.id_data_entity;
