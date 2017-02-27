@@ -357,6 +357,12 @@ exports.setupDataField = function(attr, callback) {
 			typeForModel = "INTEGER";
 			typeForDatalist = "integer";
 			break;
+		case "color" :
+		case "colour" :
+		case "couleur" :
+			typeForModel = "STRING";
+			typeForDatalist = "color";
+			break;
 		case "float" :
 		case "double" :
 		case "decimal" :
