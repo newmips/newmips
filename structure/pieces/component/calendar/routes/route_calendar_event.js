@@ -410,6 +410,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "writ
         req.body.idCategory = null;
 
     var createObj = {
+        version: 0,
         f_title: req.body.title,
         f_datedebut: moment(req.body.start).format("YYYY-MM-DD HH:mm:ss"),
         f_datefin: req.body.end,
