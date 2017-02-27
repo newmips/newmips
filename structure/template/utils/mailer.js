@@ -30,7 +30,7 @@ function sendMailAsync(mailOptions) {
 exports.sendMail_Reset_Password = function(data, res) {
     var mailOptions = {
         from: mailConfig.expediteur,
-        to: data["mail_user"],
+        to: data.f_email,
         subject: 'Newmips, modification de mot de passe',
         html: '<html>' +
             '<head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>' +
@@ -42,7 +42,7 @@ exports.sendMail_Reset_Password = function(data, res) {
             '<br />' +
             'Si vous êtes à l\'origine de cette demande, veuillez cliquer sur le lien suivant :' +
             '<br />' +
-            '<a href="' + mailConfig.host + '/reset_password/' + data['token'] + '">Réinitialisation du mot de passe</a>.' +
+            '<a href="' + mailConfig.host + '/reset_password/' + data.token + '">Réinitialisation du mot de passe</a>.' +
             '<br />' +
             '<br />' +
             'Si vous n\'êtes pas à l\'origine de cette demande, veuillez ignorer cet email.' +
