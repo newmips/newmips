@@ -99,7 +99,7 @@ exports.deploy = function(attr, callback) {
                 var info = {
                     message: "We're deploying your application...<br>\
                             Wait for its initialization on :<br>\
-                            <a href='" + data.url + "'  target='_blank'>" + data.url + "</a>"
+                            <a href='" + data.body.url + "'  target='_blank'>" + data.body.url + "</a>"
                 }
                 // var info = new Array();
                 // info.message = "Application is now available on: <br>";
@@ -124,7 +124,6 @@ exports.deploy = function(attr, callback) {
 
         callback(null, info);
     }
-
 }
 
 // Get
