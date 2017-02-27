@@ -8,7 +8,7 @@
             <th data-field="f_label" data-col="f_label" data-type="string">
                 {@__ key="component.CODE_NAME_LOWER.f_label"/}
             </th>
-            <th data-field="f_color" data-col="f_color" data-type="string">
+            <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="component.CODE_NAME_LOWER.f_color"/}
             </th>
             <th></th>
@@ -25,7 +25,7 @@
             <th data-field="f_label" data-col="f_label" data-type="string">
                 {@__ key="component.CODE_NAME_LOWER.f_label"/}
             </th>
-            <th data-field="f_color" data-col="f_color" data-type="string">
+            <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="component.CODE_NAME_LOWER.f_color"/}
             </th>
             <th></th>

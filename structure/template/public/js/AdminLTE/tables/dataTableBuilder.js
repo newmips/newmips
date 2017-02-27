@@ -220,6 +220,8 @@ function init_datatable(tableID){
 					}
 					else if (columns[meta.col].type == 'boolean')
 						cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"></i>' : '<i class="fa fa-square-o fa-lg"></i>'
+					else if (columns[meta.col].type == 'color')
+						cellValue = '<i style="color:'+cellValue+'" class="fa fa-lg fa-circle"></i>'
 				}
 				return cellValue;
 			}
