@@ -96,14 +96,11 @@ exports.deploy = function(attr, callback) {
             var subdomain = globalConf.host + '-' + codeName.substring(2);
             var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
             manager.createCloudDns(subdomain).then(function(data) {
-                console.log("***********\nPOURQUOI URL = UNDEFINED ?\n***********");
-                console.log(data);
-                console.log(data.body);
-                console.log(data.body.url);
+                var url = JSON.parse(data.body).url;
                 var info = {
                     message: "We're deploying your application...<br>\
                             Wait for its initialization on :<br>\
-                            <a href='" + data.body.url + "'  target='_blank'>" + data.body.url + "</a>"
+                            <a href='" + url + "'  target='_blank'>" + url + "</a>"
                 }
 
                 callback(null, info);
