@@ -1,0 +1,10 @@
+<div id="fields">
+    <div data-field="f_label" class="form-group">
+        <label for="f_label" class="required"> {@__ key="component.CODE_NAME_LOWER.f_label"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_label" /}' name="f_label" value="" type="text" required />
+    </div>
+    <div data-field="f_color" class="form-group">
+        <label for="f_color" class="required"> {@__ key="component.CODE_NAME_LOWER.f_color"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_color" /}' name="f_color" value="#CCCCCC" type="color" required />
+    </div>
+</div>

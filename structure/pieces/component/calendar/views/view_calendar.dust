@@ -1,0 +1,174 @@
+{>"layout_m_home"/}
+{<custom_css}
+	<link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' />
+	<link href='/css/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
+	<link href='/css/fullcalendar/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+	<style>
+		.pendingEvent{
+			padding: 5px 5px 5px 12px;
+			border-radius: 3px;
+			margin-bottom: 5px;
+			cursor: pointer;
+		}
+	</style>
+{/custom_css}
+{<header}
+	<h1>
+		{@__ key="module.m_home"/}
+		<small>{@__ key="module.module"/}</small>
+	</h1>
+	<ol class='breadcrumb'>
+		<li>
+			<a href='#'>
+				<i class='fa fa-home'></i>
+				{@__ key="module.home"/}
+			</a>
+		</li>
+		<li class='active'>
+			{@__ key="module.m_home"/}
+		</li>
+	</ol>
+{/header}
+
+{<content}
+	<div class='row'>
+		<div class='col-xs-12 col-md-3'>
+			<div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="global_component.calendar.add_event"/}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                	<div id="selectCategory">
+	                	<select style="width: 100%;" class="form-control">
+	                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.calendar.no_category"/}</option>
+							{#categories}
+								<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
+							{/categories}
+						</select>
+						<div style="margin-top: 10px;" class="input-group">
+							<input id="new-event-title" type="text" placeholder='{@__ key="component.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
+							<div class="input-group-btn">
+								<button id="add-new-event" type="button" class="btn btn-success btn-flat">{@__ key="button.add"/}</button>
+							</div>
+						</div>
+					</div>
+                </div>
+            </div>
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="global_component.calendar.pending_event"/}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                	<div id="pengingEventList">
+					</div>
+                </div>
+            </div>
+		</div>
+		<div class='col-xs-12 col-md-9'>
+			<div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="component.CODE_NAME_LOWER.label_component" /}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+					<div id="calendar"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+{/content}
+
+{<custom_js}
+	<script src='/js/UI/1.12.1/jquery-ui.min.js'></script>
+	<script src='/js/plugins/fullcalendar/fullcalendar.min.js'></script>
+	<script src='/js/plugins/fullcalendar/script.js'></script>
+	<script src='/js/plugins/fullcalendar/locale-all.js'></script>
+	<script>var calendarEvents = [];</script>
+	{#events}
+		<script>calendarEvents.push({title: "{title}", start: "{start}", end: "{end}", allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}"});</script>
+	{/events}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("*").tooltip({
+				disabled: true
+			});
+			if(lang_user == "fr-FR"){
+				var currentLocal = "fr";
+				var buttonTextObj = {
+					today: 'Aujourd\'hui',
+		            month: 'Mois',
+		            week: 'Semaine',
+		            day: 'Jour'
+		        };
+			} else{
+				var currentLocal = "en";
+				var buttonTextObj = {
+					today: 'Today',
+		            month: 'Month',
+		            week: 'Week',
+		            day: 'Day'
+		        };
+			}
+			/* Full calendat init */
+			$('#calendar').fullCalendar({
+				locale: currentLocal,
+				header: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'month,agendaWeek,agendaDay'
+				},
+				buttonIcons: {
+					prev: "left-single-arrow",
+		            next: "right-single-arrow"
+				},
+		        buttonText: buttonTextObj,
+				navLinks: false,
+				editable: false,
+				eventLimit: true,
+				droppable: true,
+		        eventReceive: function(event){
+		        	var ajaxData = {
+		        		title: event.title,
+		        		allday: event.allDay,
+		        		start: event.start,
+		        		end: event.end,
+		        		idCategory: event.idCategory
+		        	};
+
+		        	$.ajax({
+						url : '/URL_EVENT/add_event',
+						type : 'POST',
+						data : JSON.stringify(ajaxData),
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (data) {
+
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+		        },
+				events: calendarEvents
+			});
+
+			/* Sidebar manu highlighting */
+			var url = window.location.href;
+			var current_url = url.split("/");
+			var mainMenu = current_url[3];
+			$("a[href='/"+mainMenu+"']").css("color", "#3c8dbc");
+		});
+	</script>
+{/custom_js}

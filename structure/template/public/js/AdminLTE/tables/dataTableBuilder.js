@@ -184,7 +184,7 @@ function init_datatable(tableID){
 				if (columns[meta.col].data.indexOf('.') != -1) {
 					var parts = columns[meta.col].data.split('.');
 					var tmp = row[parts[0]];
-					if(tmp != null){
+					if(typeof tmp !== "undefined" && tmp != null){
 						for (var j = 1; j < parts.length; j++)
 							tmp = tmp[parts[j]];
 					}
@@ -220,6 +220,8 @@ function init_datatable(tableID){
 					}
 					else if (columns[meta.col].type == 'boolean')
 						cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"></i>' : '<i class="fa fa-square-o fa-lg"></i>'
+					else if (columns[meta.col].type == 'color')
+						cellValue = '<i style="color:'+cellValue+'" class="fa fa-lg fa-circle"></i>'
 				}
 				return cellValue;
 			}

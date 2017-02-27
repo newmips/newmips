@@ -2,13 +2,13 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 
-function setupComponentModel(idApplication, nameComponent, filename, callback){
+function setupComponentModel(idApplication, folderComponent, nameComponent, filename, callback){
 	// CREATE MODEL FILE
-	var modelTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/models/model_'+filename+'.js', 'utf8');
-	modelTemplate = modelTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent.toLowerCase());
-	modelTemplate = modelTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase() + nameComponent.toLowerCase().slice(1));
-	modelTemplate = modelTemplate.replace(/TABLE_NAME/g, idApplication +'_'+ nameComponent.toLowerCase());
-	var writeStream = fs.createWriteStream('./workspace/'+ idApplication +'/models/'+nameComponent.toLowerCase()+'.js');
+	var modelTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/models/model_'+filename+'.js', 'utf8');
+	modelTemplate = modelTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent);
+	modelTemplate = modelTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase()+nameComponent.toLowerCase().slice(1));
+	modelTemplate = modelTemplate.replace(/TABLE_NAME/g, idApplication +'_'+ nameComponent);
+	var writeStream = fs.createWriteStream('./workspace/'+idApplication+'/models/'+nameComponent+'.js');
 	writeStream.write(modelTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
@@ -17,18 +17,18 @@ function setupComponentModel(idApplication, nameComponent, filename, callback){
 	});
 }
 
-function createComponentAttributesAndOptionsFiles(idApplication, nameComponent, filename, source, callback){
+function createComponentAttributesAndOptionsFiles(idApplication, folderComponent, nameComponent, filename, source, callback){
 	// CREATE MODEL ATTRIBUTES FILE
-	var attributesTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/models/attributes/attributes_'+filename+'.json', 'utf8');
-	var writeStream = fs.createWriteStream('./workspace/'+ idApplication +'/models/attributes/'+nameComponent.toLowerCase()+'.json');
+	var attributesTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/models/attributes/attributes_'+filename+'.json', 'utf8');
+	var writeStream = fs.createWriteStream('./workspace/'+ idApplication +'/models/attributes/'+nameComponent+'.json');
 	writeStream.write(attributesTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
 		console.log("Model => Component attributes ------------------ CREATED");
 		// CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
-		var optionsTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/models/options/options_'+filename+'.json', 'utf8');
-		optionsTemplate = optionsTemplate.replace(/SOURCE_ENTITY_LOWER/g, source.toLowerCase());
-		var writeStreamOption = fs.createWriteStream('./workspace/'+ idApplication +'/models/options/'+nameComponent.toLowerCase()+'.json');
+		var optionsTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/models/options/options_'+filename+'.json', 'utf8');
+		optionsTemplate = optionsTemplate.replace(/SOURCE_ENTITY_LOWER/g, source);
+		var writeStreamOption = fs.createWriteStream('./workspace/'+ idApplication +'/models/options/'+nameComponent+'.json');
 
 		writeStreamOption.write(optionsTemplate);
 		writeStreamOption.end();
@@ -39,18 +39,47 @@ function createComponentAttributesAndOptionsFiles(idApplication, nameComponent, 
 	});
 }
 
-function setupComponentRoute(idApplication, nameComponent, urlSource, filename, source, callback){
+function setupComponentRoute(idApplication, folderComponent, nameComponent, urlSource, filename, source, callback){
 	// CREATE ROUTE FILE
-	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+filename+'/routes/route_'+filename+'.js', 'utf8');
+	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/routes/route_'+filename+'.js', 'utf8');
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent.toLowerCase());
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase() + nameComponent.toLowerCase().slice(1));
 	routeTemplate = routeTemplate.replace(/SOURCE_ENTITY_LOWER/g, source.toLowerCase());
 	routeTemplate = routeTemplate.replace(/SOURCE_URL_ENTITY_LOWER/g, urlSource.toLowerCase());
+
 	var writeStream = fs.createWriteStream('./workspace/'+idApplication+'/routes/'+nameComponent.toLowerCase()+'.js');
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Route file ------------------ CREATED')
+		console.log('File => Component Route file ------------------ CREATED');
+		callback();
+	});
+}
+
+function setupComponentRouteForCalendar(idApplication, folderComponent, codeName, filename, callback){
+
+	var urlRoute = codeName.substring(2).toLowerCase();
+	var codeNameLower = codeName.toLowerCase();
+	var codeNameModel = codeName.charAt(0).toUpperCase()+codeName.toLowerCase().slice(1);
+	// CREATE ROUTE FILE
+	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/routes/route_'+filename+'.js', 'utf8');
+	routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, codeNameLower);
+	routeTemplate = routeTemplate.replace(/CODE_NAME_MODEL/g, codeNameModel);
+
+	routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_MODEL/g, codeNameModel+"_event");
+	routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_LOWER/g, codeNameLower+"_event");
+	routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_URL/g, codeNameLower.substring(2)+"_event");
+
+	routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_LOWER/g, codeNameLower+"_category");
+	routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_MODEL/g, codeNameModel+"_category");
+
+	routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRoute);
+
+	var writeStream = fs.createWriteStream('./workspace/'+idApplication+'/routes/'+codeName.toLowerCase()+'.js');
+	writeStream.write(routeTemplate);
+	writeStream.end();
+	writeStream.on('finish', function() {
+		console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -74,6 +103,58 @@ function setupComponentView(idApplication, nameComponent, urlComponent, filename
 			callback();
 		});
 	});
+}
+
+function setupComponentViewForCalendar(idApplication, component, valueComponent, callback){
+
+	var codeNameCategory = valueComponent+"_category";
+	var codeNameEvent = valueComponent+"_event";
+
+	function replaceValueInTemplate(viewPath, codeName){
+		if(fs.existsSync(viewPath)){
+	        if(viewPath.substr(viewPath.length - 1) == "/"){
+	            viewPath = viewPath.slice(0,-1);
+	        }
+	        fs.readdirSync(viewPath).forEach(function(file, index){
+	            var curPath = viewPath+"/"+file;
+                if(fs.lstatSync(curPath).isDirectory()) {
+                    readdirSyncRecursive(curPath)
+                } else {
+                	var viewTemplate = fs.readFileSync(curPath, 'utf8');
+					/*viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());*/
+					viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2).toLowerCase());
+					viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName.toLowerCase());
+					viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, codeNameEvent.toLowerCase());
+					viewTemplate = viewTemplate.replace(/URL_EVENT/g, codeNameEvent.toLowerCase().substring(2));
+					viewTemplate = viewTemplate.replace(/RELATION_CATEGORY_LOWER/g, "r_"+valueComponent.toLowerCase()+"_event_category");
+
+					var writeStream = fs.createWriteStream(curPath);
+					writeStream.write(viewTemplate);
+					writeStream.end();
+                }
+	        });
+	    }
+	}
+
+	// Calendar View
+	var componentViewFolder = __dirname+'/pieces/component/'+component+'/views';
+	var viewsFolder = __dirname+'/../workspace/'+idApplication+'/views/'+valueComponent.toLowerCase();
+	fs.copySync(componentViewFolder, viewsFolder);
+	replaceValueInTemplate(viewsFolder, valueComponent);
+
+	// Category View
+	var componentViewFolderCategory = __dirname+'/pieces/component/'+component+'/views_category';
+	var viewsFolderCategory = __dirname+'/../workspace/'+idApplication+'/views/'+valueComponent.toLowerCase()+'_category';
+	fs.copySync(componentViewFolderCategory, viewsFolderCategory);
+	replaceValueInTemplate(viewsFolderCategory, codeNameCategory);
+
+	// Event View
+	var componentViewFolderEvent = __dirname+'/pieces/component/'+component+'/views_event';
+	var viewsFolderEvent = __dirname+'/../workspace/'+idApplication+'/views/'+valueComponent.toLowerCase()+'_event';
+	fs.copySync(componentViewFolderEvent, viewsFolderEvent);
+	replaceValueInTemplate(viewsFolderEvent,codeNameEvent);
+
+	callback();
 }
 
 function addTab(attr, file, newLi, newTabContent) {
@@ -111,6 +192,24 @@ function addTab(attr, file, newLi, newTabContent) {
 	});
 }
 
+function addAccessManagment(idApplication, urlComponent, urlModule, callback){
+	// Write new data entity to access.json file, within module's context
+    var accessPath = __dirname + '/../workspace/'+idApplication+'/config/access.json';
+    var accessObject = require(accessPath);
+    accessObject[urlModule.toLowerCase()].entities.push({
+    	name: urlComponent,
+    	groups: [],
+    	actions: {
+    		read: [],
+    		write: [],
+    		delete: []
+    	}
+    });
+    fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function(err){
+    	callback();
+    });
+}
+
 exports.newLocalFileStorage = function(attr, callback){
 
 	var nameComponent = attr.options.value;
@@ -127,9 +226,9 @@ exports.newLocalFileStorage = function(attr, callback){
 
 	var filename = "local_file_storage";
 
-	setupComponentModel(attr.id_application, nameComponent, filename, function(){
-		createComponentAttributesAndOptionsFiles(attr.id_application, nameComponent, filename, source, function(){
-			setupComponentRoute(attr.id_application, nameComponent, urlSource, filename, source, function(){
+	setupComponentModel(attr.id_application, filename, nameComponentLower, filename, function(){
+		createComponentAttributesAndOptionsFiles(attr.id_application, filename, nameComponent, filename, source, function(){
+			setupComponentRoute(attr.id_application, filename, nameComponent, urlSource, filename, source, function(){
 
 				/* --------------- New translation --------------- */
 				translateHelper.writeLocales(attr.id_application, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
@@ -166,7 +265,7 @@ exports.newContactForm = function(attr, callback){
 	var filename = "contact_form";
 
 	setupComponentView(attr.id_application, nameComponent, urlComponent, filename, attr.options.moduleName, function(){
-		setupComponentRoute(attr.id_application, nameComponent, "", filename, "", function(){
+		setupComponentRoute(attr.id_application, filename, nameComponent, "", filename, "", function(){
 			translateHelper.writeLocales(attr.id_application, "component", nameComponentLower, showComponentName, attr.googleTranslate, function(){
 				var layoutFileName = __dirname+'/../workspace/'+attr.id_application+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
 				domHelper.read(layoutFileName).then(function($) {
@@ -183,10 +282,120 @@ exports.newContactForm = function(attr, callback){
 
 					// Write back to file
 					domHelper.write(layoutFileName, $).then(function() {
-						callback();
+						addAccessManagment(attr.id_application, urlComponent, attr.options.moduleName.substring(2), function(){
+							callback();
+						});
 					});
 				}).catch(function(err) {
 					callback(err, null);
+				});
+			});
+		});
+	});
+}
+
+exports.newCalendar = function(attr, callback){
+
+	var idApplication = attr.id_application;
+
+	var valueComponent = attr.options.value;
+	var valueComponentLower = valueComponent.toLowerCase();
+
+	var showComponentName = attr.options.showValue;
+	var showComponentNameLower = showComponentName.toLowerCase();
+
+	var urlComponent = attr.options.urlValue.toLowerCase();
+	var filenameComponent = "calendar";
+	var filenameEvent = "calendar_event";
+	var filenameCategory = "calendar_category";
+
+	var valueCategory = attr.category.options.value.toLowerCase();
+	var valueEvent = attr.event.options.value.toLowerCase();
+
+	var urlCategory = valueCategory.substring(2);
+	var urlEvent =  valueEvent.substring(2);
+
+	// Event Model
+	setupComponentModel(idApplication, "calendar", valueEvent, filenameEvent, function(){
+		createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueEvent, filenameEvent, valueComponent, function(){
+			// Categorie Model
+			setupComponentModel(idApplication, "calendar", valueCategory, filenameCategory, function(){
+				createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueCategory, filenameCategory, null, function(){
+					// Event Route
+					setupComponentRouteForCalendar(idApplication, "calendar", valueEvent, filenameEvent, function(){
+						// Category Route
+						setupComponentRouteForCalendar(idApplication, "calendar", valueCategory, filenameCategory, function(){
+							// Calendar Route
+							setupComponentRouteForCalendar(idApplication, "calendar", valueComponent, filenameComponent, function(){
+								// Component views
+								setupComponentViewForCalendar(idApplication, "calendar", valueComponent, function(){
+									// Add access managment to Calendar
+									addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function(){
+										// Add access managment to Calendar_Category
+										addAccessManagment(idApplication, urlCategory, attr.options.moduleName.substring(2), function(){
+											// Add access managment to Calendar_Event
+											addAccessManagment(idApplication, urlEvent, attr.options.moduleName.substring(2), function(){
+												// Add Event translation
+												translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
+													translateHelper.writeLocales(idApplication, "component-calendar-event", valueEvent, "Event", attr.googleTranslate, function(){
+														translateHelper.writeLocales(idApplication, "component-calendar-category", valueCategory, "Category", attr.googleTranslate, function(){
+															var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
+															domHelper.read(layoutFileName).then(function($) {
+																var li = '';
+																li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
+																li += "    <a href='#'>\n";
+																li += "        <i class='fa fa-calendar-o'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
+																li += "        <span class='pull-right-container'>\n";
+																li += "            <i class='fa fa-angle-left pull-right'></i>\n";
+																li += "        </span>\n";
+																li += "    </a>\n";
+																li += "    <ul class='treeview-menu'>\n";
+																li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.calendar.menu\" /}</a></li>\n";
+																li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
+																li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"component."+valueEvent+".label_component\" /}\n";
+																li += "                <span class='pull-right-container'>\n";
+																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
+																li += "                </span>\n";
+																li += "            </a>\n";
+																li += "            <ul class='treeview-menu'>\n";
+																li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueEvent+".label_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueEvent+".plural_component\" /}</a></li>\n";
+																li += "            </ul>\n";
+																li += "        </li>\n";
+																li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
+																li += "            <a href='#'><i class='fa fa-bookmark'></i> {@__ key=\"component."+valueCategory+".label_component\" /}\n";
+																li += "                <span class='pull-right-container'>\n";
+																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
+																li += "                </span>\n";
+																li += "            </a>\n";
+																li += "            <ul class='treeview-menu'>\n";
+																li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueCategory+".label_component\" /}</a></li>\n";
+																li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueCategory+".plural_component\" /}</a></li>\n";
+																li += "            </ul>\n";
+																li += "        </li>\n";
+																li += "    </ul>\n";
+																li += "</li>\n";
+
+																// Add new html to document
+																$('#sortable').append(li);
+
+																// Write back to file
+																domHelper.write(layoutFileName, $).then(function() {
+																	callback();
+																});
+															}).catch(function(err) {
+																callback(err, null);
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
 				});
 			});
 		});

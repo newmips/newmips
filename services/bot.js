@@ -565,6 +565,7 @@ exports.createFieldsetUsing = function(result) {
 };
 
 // ******* COMPONENT Actions ******* //
+/* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = function(result) {
 
     var options = {};
@@ -587,6 +588,7 @@ exports.createNewComponentLocalFileStorageWithName = function(result) {
     return checkAndCreateAttr("createNewComponentLocalFileStorage", options, value);
 };
 
+/* CONTACT FORM */
 exports.createNewComponentContactForm = function(result) {
 
     var options = {};
@@ -607,6 +609,29 @@ exports.createNewComponentContactFormWithName = function(result) {
     };
 
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
+};
+
+/* CALENDAR */
+exports.createNewComponentCalendar = function(result) {
+
+    var options = {};
+
+    var attr = {
+        function: "createNewComponentCalendar",
+        options: options
+    };
+    return attr;
+};
+
+exports.createNewComponentCalendarWithName = function(result) {
+
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewComponentCalendar", options, value);
 };
 
 // ******* INTERFACE Actions ******* //
@@ -1027,6 +1052,28 @@ exports.parse = function(instruction) {
             "ajouter un composant formulaire de contact",
             "créer un formulaire de contact",
             "ajouter un formulaire de contact",
+        ],
+        "createNewComponentCalendar": [
+            "create component calendar",
+            "add component calendar",
+            "add a calendar",
+            "add calendar",
+            "créer un composant calendrier",
+            "ajouter un composant calendrier",
+            "créer un calendrier",
+            "ajouter un calendrier",
+        ],
+        "createNewComponentCalendarWithName": [
+            "create component calendar with name (.*)",
+            "add component calendar with name (.*)",
+            "créer un composant calendrier nommé (.*)",
+            "ajouter un composant calendrier nommé (.*)",
+            "créer un calendrier nommé (.*)",
+            "ajouter un calendrier nommé (.*)",
+            "créer un calendrier avec le nom (.*)",
+            "ajouter un calendrier avec le nom (.*)",
+            "créer un calendrier appelé (.*)",
+            "ajouter un calendrier appelé (.*)"
         ],
         "setSkin": [
             "set skin (.*)",

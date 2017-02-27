@@ -1,0 +1,8 @@
+[
+    {
+        "target": "SOURCE_ENTITY_LOWER_category",
+        "relation": "belongsTo",
+        "foreignKey": "id_SOURCE_ENTITY_LOWER_event_category",
+        "as": "r_SOURCE_ENTITY_LOWER_event_category"
+    }
+]
