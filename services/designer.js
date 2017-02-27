@@ -1252,14 +1252,14 @@ exports.createNewComponentContactForm = function(attr, callback) {
     });
 }
 
-// Componant to create a contact form in a module
-exports.createNewComponentCalendar = function(attr, callback) {
+// Componant to create an agenda in a module
+exports.createNewComponentAgenda = function(attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "c_calendar";
-        attr.options.urlValue = "calendar";
-        attr.options.showValue = "Calendar";
+        attr.options.value = "c_agenda";
+        attr.options.urlValue = "agenda";
+        attr.options.showValue = "Agenda";
     }
 
     // Check if component with this name is already created on this entity
@@ -1311,7 +1311,7 @@ exports.createNewComponentCalendar = function(attr, callback) {
                                     if(err)
                                         return callback(err, null);
                                     attr.options.moduleName = module.codeName;
-                                    structure_component.newCalendar(attr, function(err){
+                                    structure_component.newAgenda(attr, function(err){
                                         if(err)
                                             return callback(err, null);
 
