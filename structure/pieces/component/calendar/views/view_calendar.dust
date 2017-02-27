@@ -154,7 +154,8 @@
 						contentType: "application/json",
 						context: this,
 						success: function (data) {
-
+							event.url = "/URL_EVENT/show?id="+data.idEvent;
+							$('#calendar').fullCalendar('updateEvent', event);
 						},
 						error: function (error) {
 							console.log(error);
