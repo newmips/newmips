@@ -56,7 +56,7 @@ function setupComponentRoute(idApplication, folderComponent, nameComponent, urlS
 	});
 }
 
-function setupComponentRouteForCalendar(idApplication, folderComponent, codeName, filename, callback){
+function setupComponentRouteForAgenda(idApplication, folderComponent, codeName, filename, callback){
 
 	var urlRoute = codeName.substring(2).toLowerCase();
 	var codeNameLower = codeName.toLowerCase();
@@ -105,7 +105,7 @@ function setupComponentView(idApplication, nameComponent, urlComponent, filename
 	});
 }
 
-function setupComponentViewForCalendar(idApplication, component, valueComponent, callback){
+function setupComponentViewForAgenda(idApplication, component, valueComponent, callback){
 
 	var codeNameCategory = valueComponent+"_category";
 	var codeNameEvent = valueComponent+"_event";
@@ -294,7 +294,7 @@ exports.newContactForm = function(attr, callback){
 	});
 }
 
-exports.newCalendar = function(attr, callback){
+exports.newAgenda = function(attr, callback){
 
 	var idApplication = attr.id_application;
 
@@ -305,9 +305,9 @@ exports.newCalendar = function(attr, callback){
 	var showComponentNameLower = showComponentName.toLowerCase();
 
 	var urlComponent = attr.options.urlValue.toLowerCase();
-	var filenameComponent = "calendar";
-	var filenameEvent = "calendar_event";
-	var filenameCategory = "calendar_category";
+	var filenameComponent = "agenda";
+	var filenameEvent = "agenda_event";
+	var filenameCategory = "agenda_category";
 
 	var valueCategory = attr.category.options.value.toLowerCase();
 	var valueEvent = attr.event.options.value.toLowerCase();
@@ -316,29 +316,29 @@ exports.newCalendar = function(attr, callback){
 	var urlEvent =  valueEvent.substring(2);
 
 	// Event Model
-	setupComponentModel(idApplication, "calendar", valueEvent, filenameEvent, function(){
-		createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueEvent, filenameEvent, valueComponent, function(){
+	setupComponentModel(idApplication, "agenda", valueEvent, filenameEvent, function(){
+		createComponentAttributesAndOptionsFiles(idApplication, "agenda", valueEvent, filenameEvent, valueComponent, function(){
 			// Categorie Model
-			setupComponentModel(idApplication, "calendar", valueCategory, filenameCategory, function(){
-				createComponentAttributesAndOptionsFiles(idApplication, "calendar", valueCategory, filenameCategory, null, function(){
+			setupComponentModel(idApplication, "agenda", valueCategory, filenameCategory, function(){
+				createComponentAttributesAndOptionsFiles(idApplication, "agenda", valueCategory, filenameCategory, null, function(){
 					// Event Route
-					setupComponentRouteForCalendar(idApplication, "calendar", valueEvent, filenameEvent, function(){
+					setupComponentRouteForAgenda(idApplication, "agenda", valueEvent, filenameEvent, function(){
 						// Category Route
-						setupComponentRouteForCalendar(idApplication, "calendar", valueCategory, filenameCategory, function(){
-							// Calendar Route
-							setupComponentRouteForCalendar(idApplication, "calendar", valueComponent, filenameComponent, function(){
+						setupComponentRouteForAgenda(idApplication, "agenda", valueCategory, filenameCategory, function(){
+							// Agenda Route
+							setupComponentRouteForAgenda(idApplication, "agenda", valueComponent, filenameComponent, function(){
 								// Component views
-								setupComponentViewForCalendar(idApplication, "calendar", valueComponent, function(){
-									// Add access managment to Calendar
+								setupComponentViewForAgenda(idApplication, "agenda", valueComponent, function(){
+									// Add access managment to Agenda
 									addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function(){
-										// Add access managment to Calendar_Category
+										// Add access managment to Agenda_Category
 										addAccessManagment(idApplication, urlCategory, attr.options.moduleName.substring(2), function(){
-											// Add access managment to Calendar_Event
+											// Add access managment to Agenda_Event
 											addAccessManagment(idApplication, urlEvent, attr.options.moduleName.substring(2), function(){
 												// Add Event translation
 												translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
-													translateHelper.writeLocales(idApplication, "component-calendar-event", valueEvent, "Event", attr.googleTranslate, function(){
-														translateHelper.writeLocales(idApplication, "component-calendar-category", valueCategory, "Category", attr.googleTranslate, function(){
+													translateHelper.writeLocales(idApplication, "component-agenda-event", valueEvent, "Event", attr.googleTranslate, function(){
+														translateHelper.writeLocales(idApplication, "component-agenda-category", valueCategory, "Category", attr.googleTranslate, function(){
 															var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
 															domHelper.read(layoutFileName).then(function($) {
 																var li = '';
@@ -350,7 +350,7 @@ exports.newCalendar = function(attr, callback){
 																li += "        </span>\n";
 																li += "    </a>\n";
 																li += "    <ul class='treeview-menu'>\n";
-																li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.calendar.menu\" /}</a></li>\n";
+																li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.agenda.menu\" /}</a></li>\n";
 																li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
 																li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"component."+valueEvent+".label_component\" /}\n";
 																li += "                <span class='pull-right-container'>\n";
