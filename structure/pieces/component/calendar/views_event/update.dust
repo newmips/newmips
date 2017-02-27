@@ -54,3 +54,19 @@
         </div>
     </div>
 {/content}
+
+{<custom_js}
+    <script>
+        $(document).ready(function(){
+            var url = window.location.href;
+            var current_url = url.split("/");
+            var mainMenu = current_url[3];
+            $("#"+mainMenu+"_menu_item").parents("li").addClass("active");
+
+            $("#selectCategory .select2-selection").css("background-color", $("#selectCategory select option:selected").attr("data-backgroundcolor"));
+            $("#selectCategory select").on("change", function(){
+                $("#selectCategory .select2-selection").css("background-color", $("#selectCategory select option:selected").attr("data-backgroundcolor"));
+            });
+        });
+    </script>
+{/custom_js}
