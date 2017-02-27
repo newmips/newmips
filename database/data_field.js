@@ -22,7 +22,7 @@ exports.createNewDataField = function (attr, callback) {
         var options = attr.options;
         var name_field = options.value;
         var show_name_field = options.showValue;
-        console.log(attr)
+
         if (typeof options.type !== "undefined")
             type_field = options.type
 
