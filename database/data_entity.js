@@ -284,9 +284,9 @@ exports.getNameDataEntityById = function(id_data_entity, callback) {
 // GetById
 exports.getDataEntityById = function(id_data_entity, callback) {
 
-	if (typeof(id_data_entity) !== 'number') {
+	if (isNaN(id_data_entity)) {
 		var err = new Error();
-		err.message = "ID data entity is not defined. You should select or create a data entity before.";
+		err.message = "Given ID data entity is not a number.";
 		return callback(err, null);
 	}
 

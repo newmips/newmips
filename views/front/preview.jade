@@ -111,13 +111,14 @@ block content
 									br
 									| #{__("entity.data_entity.label")} : #{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
 							.box-footer
-								a.btn.btn-info#restart-server(href="#")
-									i.fa.fa-refresh
-									|&nbsp; #{__("module.preview.reload")}
-								|&nbsp;&nbsp;
-								a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
-									i.fa.fa-lg.fa-github
-									|&nbsp; #{__("module.preview.issue-button")}
+								.text-center
+									a.btn.btn-info#restart-server(href="#")
+										i.fa.fa-refresh
+										|&nbsp; #{__("module.preview.reload")}
+									|&nbsp;&nbsp;
+									a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
+										i.fa.fa-lg.fa-github
+										|&nbsp; #{__("module.preview.issue-button")}
 			#editor.tab-pane.fade.in
 				.row
 					#codemirror-menu.col-xs-12.col-sm-2.sidebar
@@ -298,7 +299,7 @@ block custom_js
 			if(instructionHistory != null){
 				indexInstructionSelected = instructionHistory.length;
 			}
-			$("input#instruction").css("transition", "color 0.3s");
+			$("input#instruction").css("transition", "color 0.2s");
 
 			$(document).on("keydown", "input#instruction", function(e){
 				if(instructionHistory != null){
@@ -307,7 +308,7 @@ block custom_js
 						$("input#instruction").css("color", "rgba(255,255,255,0)");
 						if(--indexInstructionSelected < 0)
 							indexInstructionSelected = 0;
-						setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 300);
+						setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 200);
 						setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
 					}
 					/* DOWN ARROW */
@@ -318,7 +319,7 @@ block custom_js
 							$("input#instruction").val("");
 						}
 						else{
-							setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 300);
+							setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 200);
 						}
 						setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
 					}

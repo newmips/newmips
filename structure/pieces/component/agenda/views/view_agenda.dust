@@ -35,7 +35,7 @@
 		<div class='col-xs-12 col-md-3'>
 			<div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="global_component.calendar.add_event"/}</h3>
+                    <h3 class="box-title">{@__ key="global_component.agenda.add_event"/}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -44,7 +44,7 @@
                 <div class="box-body">
                 	<div id="selectCategory">
 	                	<select style="width: 100%;" class="form-control">
-	                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.calendar.no_category"/}</option>
+	                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
 							{#categories}
 								<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 							{/categories}
@@ -60,7 +60,7 @@
             </div>
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="global_component.calendar.pending_event"/}</h3>
+                    <h3 class="box-title">{@__ key="global_component.agenda.pending_event"/}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
