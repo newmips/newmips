@@ -185,7 +185,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 }).then(function() {
                                                     // Create application's DNS through dns_manager
                                                     if (globalConf.env == 'cloud')
-                                                        dns_manager.createApplicationDns(globalConf.host, name_application).then(function() {
+                                                        dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
                                                             resolve();
                                                         });
                                                     else
