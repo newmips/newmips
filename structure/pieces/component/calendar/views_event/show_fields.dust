@@ -1,0 +1,73 @@
+<div id="fields">
+    <div data-field="f_title" class="form-group">
+        <label for="f_title"> {@__ key="component.CODE_NAME_LOWER.f_title"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
+    </div>
+    <div data-field="f_description" class="form-group">
+        <label for="f_description"> {@__ key="component.CODE_NAME_LOWER.f_description"/} </label>
+        <textarea class="form-control textarea" placeholder='{@__ key="component.CODE_NAME_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" value="{f_description}" type="text" readonly="">{f_description}</textarea>
+    </div>
+    <div data-field="f_place" class="form-group">
+        <label for="f_place"> {@__ key="component.CODE_NAME_LOWER.f_place"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text" readonly="">
+    </div>
+    <div data-field="f_datedebut" class="form-group">
+        <label for="f_datedebut"> {@__ key="component.CODE_NAME_LOWER.f_datedebut"/} </label>
+        <div class="input-group">
+            <div class="input-group-addon">
+                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+            </div>
+            <input class="form-control input datetimepicker-toconvert" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datedebut" /}' value="{f_datedebut}" type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_datefin" class="form-group">
+        <label for="f_datefin"> {@__ key="component.CODE_NAME_LOWER.f_datefin"/} </label>
+        <div class="input-group">
+            <div class="input-group-addon">
+                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+            </div>
+            <input class="form-control input datetimepicker-toconvert" placeholder='{@__ key="component.CODE_NAME_LOWER.f_datefin" /}' value="{f_datefin}" type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_allday" class="form-group">
+        <label for="f_allday"> {@__ key="component.CODE_NAME_LOWER.f_allday"/} </label> &nbsp;
+        <br> {#f_allday} <input class="form-control input" name="f_allday" value="{f_allday}" type="checkbox" checked="" disabled=""> {:else} <input class="form-control input" name="f_allday" value="{f_allday}" type="checkbox" disabled=""> {/f_allday}
+    </div>
+    <div data-field="RELATION_CATEGORY_LOWER" class="form-group">
+        <label for="RELATION_CATEGORY_LOWER"> {@__ key="component.CODE_NAME_LOWER.r_category"/} </label>
+        <input class="form-control input" placeholder='{@__ key="component.CODE_NAME_LOWER.r_category" /}' name="RELATION_CATEGORY_LOWER" value="{RELATION_CATEGORY_LOWER.f_label}" type="text" readonly="">
+    </div>
+</div>
+<div class="actions">
+    <form action="/URL_ROUTE/delete" method="post">
+        <div class="quicklinks">
+            <span>
+                <button class="btn btn-danger">
+                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                <span>{@__ key="button.delete"/}</span>
+                </button>
+                <input name="id" type="hidden" value="{CODE_NAME_LOWER.id}" class="form-control">
+            </span>
+            <span>
+                <a href="/URL_ROUTE/update_form?id={CODE_NAME_LOWER.id}" class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update"/}</span>
+                </a>
+            </span>
+            {^hideButton}
+            <span>
+                <a href="/URL_ROUTE/create_form" class="btn btn-success">
+                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.create"/}</span>
+                </a>
+            </span>
+            <span>
+                <a href="/URL_ROUTE/list" type="submit" class="btn btn-primary">
+                    <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.list"/}</span>
+                </a>
+            </span>
+            {/hideButton}
+        </div>
+    </form>
+</div>

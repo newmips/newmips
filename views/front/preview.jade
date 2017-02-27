@@ -292,21 +292,34 @@ block custom_js
 			var idApplication = "#{session.application.id_application}";
 
 			var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_"+idApplication));
+
 			var indexInstructionSelected = 0;
+			if(instructionHistory != null){
+				indexInstructionSelected = instructionHistory.length;
+			}
+			$("input#instruction").css("transition", "color 0.3s");
 
 			$(document).on("keydown", "input#instruction", function(e){
 				if(instructionHistory != null){
 					/* UP ARROW */
 					if(e.which == "38"){
-						$("input#instruction").val(instructionHistory[indexInstructionSelected++]);
-						if(indexInstructionSelected > instructionHistory.length-1)
-							indexInstructionSelected = instructionHistory.length-1;
+						$("input#instruction").css("color", "rgba(255,255,255,0)");
+						if(--indexInstructionSelected < 0)
+							indexInstructionSelected = 0;
+						setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 300);
+						setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
 					}
 					/* DOWN ARROW */
 					else if(e.which == "40"){
-						$("input#instruction").val(instructionHistory[indexInstructionSelected--]);
-						if(indexInstructionSelected < 0)
-							indexInstructionSelected = 0;
+						$("input#instruction").css("color", "rgba(255,255,255,0)");
+						if(++indexInstructionSelected > instructionHistory.length-1){
+							indexInstructionSelected = instructionHistory.length;
+							$("input#instruction").val("");
+						}
+						else{
+							setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 300);
+						}
+						setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
 					}
 				}
 			});
@@ -314,7 +327,7 @@ block custom_js
 			$(document).on("click", "#execute_instruction", function(e){
 				if($("#instruction").val() == ""){
 					toastr.error("Error, empty instruction.");
-					e.preventDefault();
+					e.defaultPrevented();
 					e.stopPropagation();
 				}
 				else{

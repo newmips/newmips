@@ -28,6 +28,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 		case "":
 			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='text' "+readOnly+"/>\n";
 			break;
+		case "color":
+		case "colour":
+		case "couleur":
+			str += "	<input class='form-control input' placeholder='{@__ key=|entity."+dataEntity+"."+dataField+"| /}' name='"+dataField+"' value='"+value+"' type='color' "+readOnly+"/>\n";
+			break;
 		case "password" :
 		case "mot de passe":
 		case "secret":
@@ -244,7 +249,7 @@ function updateFile(fileBase, file, string, callback){
 	domHelper.read(fileToWrite).then(function($) {
 		$("#fields").append(string);
 		domHelper.write(fileToWrite, $).then(callback);
-	})
+	});
 }
 
 function updateListFile(fileBase, file, thString, bodyString, callback){
@@ -351,6 +356,12 @@ exports.setupDataField = function(attr, callback) {
 		case "nombre" :
 			typeForModel = "INTEGER";
 			typeForDatalist = "integer";
+			break;
+		case "color" :
+		case "colour" :
+		case "couleur" :
+			typeForModel = "STRING";
+			typeForDatalist = "color";
 			break;
 		case "float" :
 		case "double" :

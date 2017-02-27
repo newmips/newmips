@@ -1144,12 +1144,14 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                             attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
                             // Setup the hasMany association in the source entity
                             try{
-                                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
-                                    structure_component.newLocalFileStorage(attr, function(err){
-                                        if(err)
-                                            return callback(err, null);
+                                db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
+                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
+                                        structure_component.newLocalFileStorage(attr, function(err){
+                                            if(err)
+                                                return callback(err, null);
 
-                                        callback(null, info);
+                                            callback(null, info);
+                                        });
                                     });
                                 });
                             } catch(err){
@@ -1169,7 +1171,7 @@ exports.createNewComponentContactForm = function(attr, callback) {
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
         attr.options.value = "c_contact_form";
-        attr.options.urlValue = "contact_form"
+        attr.options.urlValue = "contact_form";
         attr.options.showValue = "Contact Form";
     }
 
@@ -1199,6 +1201,81 @@ exports.createNewComponentContactForm = function(attr, callback) {
                                     return callback(err, null);
 
                                 callback(null, info);
+                            });
+                        });
+                    });
+                }
+            });
+        }
+    });
+}
+
+// Componant to create a contact form in a module
+exports.createNewComponentCalendar = function(attr, callback) {
+
+    /* If there is no defined name for the module */
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "c_calendar";
+        attr.options.urlValue = "calendar";
+        attr.options.showValue = "Calendar";
+    }
+
+    // Check if component with this name is already created on this entity
+    db_component.getComponentByNameInModule(attr.id_module, attr.options.showValue, function(err, component){
+        if(component){
+            var err = new Error();
+            err.message = "Sorry, a component with this name is already associate to this module.";
+            return callback(err, null);
+        } else{
+            // Check if a table as already the composant name
+            db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
+                if(dataEntity){
+                    err = new Error();
+                    err.message = "Sorry, a other entity with this component name already exist in this application.";
+                    return callback(err, null);
+                } else{
+                    var evAttr = {
+                        id_project: attr.id_project,
+                        id_application: attr.id_application,
+                        id_module: attr.id_module,
+                        id_data_entity: attr.id_data_entity,
+                        options: {
+                            value: attr.options.value+"_event",
+                            urlValue: attr.options.urlValue+"_event",
+                            showValue: attr.options.showValue+" Events"
+                        }
+                    };
+                    attr.event = evAttr;
+                    // Add entity event in DB generator
+                    db_entity.createNewDataEntity(evAttr, function(err, infoDbEntity){
+                        var catAttr = {
+                            id_project: attr.id_project,
+                            id_application: attr.id_application,
+                            id_module: attr.id_module,
+                            id_data_entity: attr.id_data_entity,
+                            options: {
+                                value: attr.options.value+"_category",
+                                urlValue: attr.options.urlValue+"_category",
+                                showValue: attr.options.showValue+" Category"
+                            }
+                        };
+                        attr.category = catAttr;
+                        // Add entity category in DB generator
+                        db_entity.createNewDataEntity(catAttr, function(err, infoDbEntity){
+                            // Create the component in newmips database
+                            db_component.createNewComponentOnModule(attr, function(err, info){
+                                // Get Data Entity Name needed for structure
+                                db_module.getModuleById(attr.id_module, function(err, module){
+                                    if(err)
+                                        return callback(err, null);
+                                    attr.options.moduleName = module.codeName;
+                                    structure_component.newCalendar(attr, function(err){
+                                        if(err)
+                                            return callback(err, null);
+
+                                        callback(null, info);
+                                    });
+                                });
                             });
                         });
                     });
