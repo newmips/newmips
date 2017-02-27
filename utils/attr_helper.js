@@ -98,6 +98,7 @@ function addPrefix(string, instructionFunction){
             break;
         case 'createNewComponentLocalFileStorage':
         case 'createNewComponentContactForm':
+        case 'createNewComponentCalendar':
             return "c_"+string;
             break;
     }

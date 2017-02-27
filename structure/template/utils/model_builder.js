@@ -44,9 +44,13 @@ exports.buildForRoute = function buildForRoute(attributes, options, body) {
 
 		if (options[i].relation === 'belongsTo'){
 			if(typeof body[association] !== 'undefined'){
+				if(body[association] == "")
+					body[association] = null;
 				object[foreignKey] = body[association];
 			}
 			else if(typeof body[associationLower] !== 'undefined'){
+				if(body[associationLower] == "")
+					body[associationLower] = null;
 				object[foreignKey] = body[associationLower];
 			}
 		}

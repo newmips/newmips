@@ -109,11 +109,12 @@ block content
 									| #{__("entity.module.label")} : #{session.module.id_module} - #{session.module.name_module}
 									br
 									| #{__("entity.data_entity.label")} : #{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
+							.box-footer
 								a.btn.btn-info#restart-server(href="#")
 									i.fa.fa-refresh
 									|&nbsp; #{__("module.preview.reload")}
 								|&nbsp;&nbsp;
-								a.pull-right.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
+								a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
 									i.fa.fa-lg.fa-github
 									|&nbsp; #{__("module.preview.issue-button")}
 			#editor.tab-pane.fade.in
