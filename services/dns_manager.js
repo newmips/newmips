@@ -30,7 +30,7 @@ function getAuthorization(config) {
 ////////////////////
 // Studio-manager //
 ////////////////////
-exports.createApplicationDns = function(subdomain, name_application) {
+exports.createApplicationDns = function(subdomain, name_application, id_application) {
 	return new Promise(function(resolve, reject) {
 		var url = studioConfig.url+'/api/environment/application/create';
 		request.post({
@@ -39,7 +39,7 @@ exports.createApplicationDns = function(subdomain, name_application) {
 				'content-type' : 'application/json'
 			},
 			url: url,
-		    form: {subdomain: subdomain, application_name: name_application}
+		    form: {subdomain: subdomain, application_name: name_application, id_application: id_application}
 		}, function(error, response, body) {
 			if (error)
 				return reject({error: error, response: response});
@@ -66,7 +66,7 @@ exports.createCloudDns = function(subdomain) {
 				return reject({error: error, response: response});
 
 			// Set cloud-manager's waiting room url. It'll wait for new cloud environment to be ready
-			body.url = cloudConfig.url+'/default/environment/status?redirect='+body.url;
+			body.url = cloudConfig.url+'/waiting?redirect='+body.url;
 			resolve({response: response, body: body});
 		});
 	});

@@ -8,15 +8,11 @@ var readline = require('readline');
 var fs = require('fs');
 var pourcent_generation = {};
 var models = require('../models');
-
+var structure_application = require('../structure/structure_application');
 // Parser
 var designer = require('../services/designer.js');
 
 var fs = require("fs");
-/* OLD PARSER
-var jison = require("jison");
-var bnf = fs.readFileSync("./config/grammar.jison", "utf8");
-var parser = new jison.Parser(bnf); */
 
 var parser = require('../services/bot.js');
 
@@ -64,7 +60,7 @@ router.post('/index', block_access.isLoggedIn, function(req, res) {
 
 router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
-    pourcent_generation[req.session.data.id] = 5;
+    pourcent_generation[req.session.passport.user.id] = 5;
 
     // var instruction = req.body.instruction || '';
     var name_project = req.body.project || '';
@@ -89,7 +85,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     }
     var data = {
         "error": 1,
-        "profile": req.session.data,
+//        "profile": req.session.data,
         "menu": "live",
         "msg": message,
         "answers": "",
@@ -124,7 +120,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select module home");
 
     function finishApplicationInitialization() {
-        require(__dirname+'/../structure/structure_application').initializeApplication(req.session.id_application, req.session.passport.user.id, name_application).then(function() {
+        structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
             data.answers = req.session.answers.join('<br><br>');
             return res.redirect('/application/preview?id_application=' + req.session.id_application);
         });
@@ -136,7 +132,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             return finishApplicationInitialization();
 
         execute(req, recurInstructions[idx]).then(function(){
-            pourcent_generation[req.session.data.id] += 5;
+            pourcent_generation[req.session.passport.user.id] += 5;
             recursiveExecute(recurInstructions, ++idx);
         }).catch(function(err){
             req.session.toastr = [{
@@ -192,8 +188,6 @@ function execute(req, instruction) {
                         req.session.id_data_entity = null;
                     }
                     else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
-                        console.log("!!! INFO NAME APPLICATION !!!");
-                        console.log(info.name_application);
                         req.session.id_application = info.insertId;
                         req.session.name_application = info.name_application;
                         req.session.id_module = null;
@@ -243,7 +237,7 @@ function execute(req, instruction) {
 // Get pourcent generation
 router.get('/get_pourcent_generation', block_access.isLoggedIn, function(req, res) {
     var data = {};
-    data.pourcent = pourcent_generation[req.session.data.id];
+    data.pourcent = pourcent_generation[req.session.passport.user.id];
     res.json(data);
 });
 
