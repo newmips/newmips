@@ -422,114 +422,137 @@ exports.listDataEntity = function(attr, callback) {
 }
 
 function deleteDataEntity(attr, callback) {
-    var id_application = attr.id_application;
-    var name_data_entity = attr.options.value.toLowerCase();
-    var show_name_data_entity = attr.options.showValue.toLowerCase();
 
-    var name_module = "";
+    function checkIfIDGiven(attr, callback){
+        // If it was the ID instead of the name given in the instruction
+        if(!isNaN(attr.options.showValue)){
+            db_entity.getDataEntityById(attr.options.showValue, function(err, entity){
+                if (err)
+                    return callback(err, null);
 
-    var promises = [];
-    var workspacePath = __dirname+'/../workspace/'+id_application;
-
-    db_entity.getIdDataEntityByCodeName(attr.id_module, name_data_entity, function(err, entityId){
-        if(err){
-            callback(err, null);
-        }
-        else{
-            var entityOptions = require(workspacePath+'/models/options/'+name_data_entity+'.json');
-            for (var i = 0; i < entityOptions.length; i++) {
-                if (entityOptions[i].relation == 'hasMany') {
-                    var tmpAttr = {
-                        options: {
-                            value: entityOptions[i].as
-                        },
-                        id_project: attr.id_project,
-                        id_application: attr.id_application,
-                        id_module: attr.id_module,
-                        id_data_entity: entityId
-                    }
-                    promises.push(new Promise(function(resolve, reject) {
-                        (function(tmpAttrIn) {
-                            deleteTab(tmpAttrIn, function() {
-                                resolve();
-                            })
-                        })(tmpAttr);
-                    }));
-                }
-            }
-
-            fs.readdirSync(workspacePath+'/models/options/').filter(function(file) {
-                return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
-            }).forEach(function(file) {
-                var source = file.slice(0, -5);
-                var options = require(workspacePath+'/models/options/'+file);
-                for (var i = 0; i < options.length; i++) {
-                    if (options[i].target != name_data_entity)
-                        continue;
-                    if (options[i].relation == 'hasMany') {
-                        var tmpAttr = {
-                            options: {
-                                value: options[i].as
-                            },
-                            id_project: attr.id_project,
-                            id_application: attr.id_application,
-                            id_module: attr.id_module
-                        }
-                        promises.push(new Promise(function(resolve, reject) {
-                            (function(tmpAttrIn) {
-                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
-                                    tmpAttrIn.id_data_entity = sourceID;
-                                    deleteTab(tmpAttrIn, function() {
-                                        resolve();
-                                    });
-                                });
-                            })(tmpAttr)
-                        }));
-                    } else if (options[i].relation == 'belongsTo') {
-                        var tmpAttr = {
-                            options: {
-                                value: options[i].as
-                            },
-                            id_project: attr.id_project,
-                            id_application: attr.id_application,
-                            id_module: attr.id_module
-                        }
-                        promises.push(new Promise(function(resolve, reject) {
-                            (function(tmpAttrIn) {
-                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
-                                    tmpAttrIn.id_data_entity = sourceID;
-                                    deleteDataField(tmpAttrIn, function() {
-                                        resolve();
-                                    });
-                                });
-                            })(tmpAttr)
-                        }));
-                    }
-                }
+                attr.options.value = entity.codeName;
+                attr.options.showValue = entity.name;
+                attr.options.urlValue = entity.codeName.substring(2);
+                callback(null, attr);
             });
+        } else{
+            callback(null, attr);
+        }
+    }
 
-            Promise.all(promises).then(function() {
-                db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
-                    if (err){
-                        return callback(err, null);
+    checkIfIDGiven(attr, function(err, attr){
+        if (err)
+            return callback(err, null);
+
+        var id_application = attr.id_application;
+        var name_data_entity = attr.options.value.toLowerCase();
+        var show_name_data_entity = attr.options.showValue.toLowerCase();
+
+        var name_module = "";
+
+        var promises = [];
+        var workspacePath = __dirname+'/../workspace/'+id_application;
+
+        db_entity.getIdDataEntityByCodeName(attr.id_module, name_data_entity, function(err, entityId){
+            if(err){
+                callback(err, null);
+            }
+            else{
+                var entityOptions = require(workspacePath+'/models/options/'+name_data_entity+'.json');
+                for (var i = 0; i < entityOptions.length; i++) {
+                    if (entityOptions[i].relation == 'hasMany') {
+                        var tmpAttr = {
+                            options: {
+                                value: entityOptions[i].as
+                            },
+                            id_project: attr.id_project,
+                            id_application: attr.id_application,
+                            id_module: attr.id_module,
+                            id_data_entity: entityId
+                        }
+                        promises.push(new Promise(function(resolve, reject) {
+                            (function(tmpAttrIn) {
+                                deleteTab(tmpAttrIn, function() {
+                                    resolve();
+                                })
+                            })(tmpAttr);
+                        }));
                     }
-                    database.dropDataEntity(id_application, name_data_entity, function(err) {
-                        if (err)
-                            return callback(err);
-                        attr.name_data_entity = name_data_entity;
-                        attr.show_name_data_entity = show_name_data_entity;
-                        db_entity.deleteDataEntity(attr, function(err, infoDB) {
+                }
+
+                fs.readdirSync(workspacePath+'/models/options/').filter(function(file) {
+                    return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
+                }).forEach(function(file) {
+                    var source = file.slice(0, -5);
+                    var options = require(workspacePath+'/models/options/'+file);
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].target != name_data_entity)
+                            continue;
+                        if (options[i].relation == 'hasMany') {
+                            var tmpAttr = {
+                                options: {
+                                    value: options[i].as
+                                },
+                                id_project: attr.id_project,
+                                id_application: attr.id_application,
+                                id_module: attr.id_module
+                            }
+                            promises.push(new Promise(function(resolve, reject) {
+                                (function(tmpAttrIn) {
+                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
+                                        tmpAttrIn.id_data_entity = sourceID;
+                                        deleteTab(tmpAttrIn, function() {
+                                            resolve();
+                                        });
+                                    });
+                                })(tmpAttr)
+                            }));
+                        } else if (options[i].relation == 'belongsTo') {
+                            var tmpAttr = {
+                                options: {
+                                    value: options[i].as
+                                },
+                                id_project: attr.id_project,
+                                id_application: attr.id_application,
+                                id_module: attr.id_module
+                            }
+                            promises.push(new Promise(function(resolve, reject) {
+                                (function(tmpAttrIn) {
+                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
+                                        tmpAttrIn.id_data_entity = sourceID;
+                                        deleteDataField(tmpAttrIn, function() {
+                                            resolve();
+                                        });
+                                    });
+                                })(tmpAttr)
+                            }));
+                        }
+                    }
+                });
+
+                Promise.all(promises).then(function() {
+                    db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
+                        if (err){
+                            return callback(err, null);
+                        }
+                        database.dropDataEntity(id_application, name_data_entity, function(err) {
                             if (err)
                                 return callback(err);
-                            var url_name_data_entity = attr.options.urlValue;
-                            structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
-                                callback(null, infoDB);
+                            attr.name_data_entity = name_data_entity;
+                            attr.show_name_data_entity = show_name_data_entity;
+                            db_entity.deleteDataEntity(attr, function(err, infoDB) {
+                                if (err)
+                                    return callback(err);
+                                var url_name_data_entity = attr.options.urlValue;
+                                structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
+                                    callback(null, infoDB);
+                                });
                             });
                         });
                     });
                 });
-            });
-        }
+            }
+        });
     });
 }
 exports.deleteDataEntity = deleteDataEntity;
@@ -626,26 +649,45 @@ function deleteDataField(attr, callback) {
         var name_data_field = options.value;
 
         try {
-            // Delete field from views and models
-            structure_data_field.deleteDataField(attr, function(err, infoStructure) {
-                if (err)
-                    return callback(err, null);
-
-                // Alter database
-                attr.fieldToDrop = infoStructure.fieldToDrop;
-                var dropFunction = infoStructure.isConstraint?'dropFKDataField':'dropDataField';
-                database[dropFunction](attr, function(err, info) {
-                    if (err)
-                        return callback(err, null);
-
-                    // Missing id_ in attr.options.value, so we use fieldToDrop
-                    attr.options.value = attr.fieldToDrop;
-                    // Delete record from software
-                    db_field.deleteDataField(attr, function(err, infoDB) {
+            function checkIfIDGiven(attr, callback){
+                // If it was the ID instead of the name given in the instruction
+                if(!isNaN(attr.options.showValue)){
+                    db_field.getDataFieldByID(attr.options.showValue, attr.id_data_entity, function(err, field){
                         if (err)
                             return callback(err, null);
 
-                        callback(null, infoDB);
+                        attr.options.value = field.codeName;
+                        attr.options.showValue = field.name;
+                        callback(null, attr);
+                    });
+                }
+                else{
+                    callback(null, attr);
+                }
+            }
+
+            checkIfIDGiven(attr, function(err, attr){
+                // Delete field from views and models
+                structure_data_field.deleteDataField(attr, function(err, infoStructure) {
+                    if (err)
+                        return callback(err, null);
+
+                    // Alter database
+                    attr.fieldToDrop = infoStructure.fieldToDrop;
+                    var dropFunction = infoStructure.isConstraint?'dropFKDataField':'dropDataField';
+                    database[dropFunction](attr, function(err, info) {
+                        if (err)
+                            return callback(err, null);
+
+                        // Missing id_ in attr.options.value, so we use fieldToDrop
+                        attr.options.value = attr.fieldToDrop;
+                        // Delete record from software
+                        db_field.deleteDataField(attr, function(err, infoDB) {
+                            if (err)
+                                return callback(err, null);
+
+                            callback(null, infoDB);
+                        });
                     });
                 });
             });
@@ -1210,14 +1252,14 @@ exports.createNewComponentContactForm = function(attr, callback) {
     });
 }
 
-// Componant to create a contact form in a module
-exports.createNewComponentCalendar = function(attr, callback) {
+// Componant to create an agenda in a module
+exports.createNewComponentAgenda = function(attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "c_calendar";
-        attr.options.urlValue = "calendar";
-        attr.options.showValue = "Calendar";
+        attr.options.value = "c_agenda";
+        attr.options.urlValue = "agenda";
+        attr.options.showValue = "Agenda";
     }
 
     // Check if component with this name is already created on this entity
@@ -1269,7 +1311,7 @@ exports.createNewComponentCalendar = function(attr, callback) {
                                     if(err)
                                         return callback(err, null);
                                     attr.options.moduleName = module.codeName;
-                                    structure_component.newCalendar(attr, function(err){
+                                    structure_component.newAgenda(attr, function(err){
                                         if(err)
                                             return callback(err, null);
 
