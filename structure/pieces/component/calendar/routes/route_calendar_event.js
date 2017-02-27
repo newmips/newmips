@@ -199,8 +199,6 @@ router.post('/create', block_access.actionAccessMiddleware("URL_ROUTE", "write")
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("CODE_NAME_LOWER", createObject, req.body);
 
-    createObject.pending = false;
-
     models.CODE_NAME_MODEL.create(createObject).then(function(CODE_NAME_LOWER) {
         var redirect = '/URL_ROUTE/list';
         req.session.toastr = [{
