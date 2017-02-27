@@ -54,3 +54,12 @@
         </div>
     </div>
 {/content}
+
+{<custom_js}
+    <script>
+        var url = window.location.href;
+        var current_url = url.split("/");
+        var mainMenu = current_url[3];
+        $("#"+mainMenu+"_menu_item").parents("li").addClass("active");
+    </script>
+{/custom_js}

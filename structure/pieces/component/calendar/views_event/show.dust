@@ -66,6 +66,10 @@
                 $("html, body").animate({ scrollTop: 0 }, "fast");
             }
 
+            var url = window.location.href;
+            var current_url = url.split("/");
+            var mainMenu = current_url[3];
+            $("#"+mainMenu+"_menu_item").parents("li").addClass("active");
 
             $(".fieldsetform").submit(function() {
                 var alias = $(this).parents('.tab-pane').attr('id');

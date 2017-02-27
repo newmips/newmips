@@ -112,7 +112,10 @@
 			"content": "Content"
 		},
 		"calendar": {
-			"menu" : "Calendar"
+			"menu" : "Calendar",
+			"add_event" : "Add new event",
+			"no_category": "No category",
+			"pending_event": "Pending event(s)"
 		}
 	},
 	"component": {

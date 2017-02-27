@@ -32,10 +32,10 @@
 
 {<content}
 	<div class='row'>
-		<div class='col-xs-3'>
+		<div class='col-xs-12 col-md-3'>
 			<div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">Add event</h3>
+                    <h3 class="box-title">{@__ key="global_component.calendar.add_event"/}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -44,7 +44,7 @@
                 <div class="box-body">
                 	<div id="selectCategory">
 	                	<select style="width: 100%;" class="form-control">
-	                		<option data-backgroundcolor="#CCCCCC" value="">No category</option>
+	                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.calendar.no_category"/}</option>
 							{#categories}
 								<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 							{/categories}
@@ -52,7 +52,7 @@
 						<div style="margin-top: 10px;" class="input-group">
 							<input id="new-event-title" type="text" placeholder='{@__ key="component.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
 							<div class="input-group-btn">
-								<button id="add-new-event" type="button" class="btn btn-success btn-flat">Add</button>
+								<button id="add-new-event" type="button" class="btn btn-success btn-flat">{@__ key="button.add"/}</button>
 							</div>
 						</div>
 					</div>
@@ -60,7 +60,7 @@
             </div>
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">Pending event(s)</h3>
+                    <h3 class="box-title">{@__ key="global_component.calendar.pending_event"/}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -68,12 +68,11 @@
                 </div>
                 <div class="box-body">
                 	<div id="pengingEventList">
-
 					</div>
                 </div>
             </div>
 		</div>
-		<div class='col-xs-9'>
+		<div class='col-xs-12 col-md-9'>
 			<div class="box">
                 <div class="box-header">
                     <h3 class="box-title">{@__ key="component.CODE_NAME_LOWER.label_component" /}</h3>
@@ -94,13 +93,18 @@
 	<script src='/js/UI/1.12.1/jquery-ui.min.js'></script>
 	<script src='/js/plugins/fullcalendar/fullcalendar.min.js'></script>
 	<script src='/js/plugins/fullcalendar/script.js'></script>
+	<script src='/js/plugins/fullcalendar/locale-all.js'></script>
 	<script>var calendarEvents = [];</script>
 	{#events}
 		<script>calendarEvents.push({title: "{title}", start: "{start}", end: "{end}", allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}"});</script>
 	{/events}
 	<script type="text/javascript">
 		$(document).ready(function() {
+			$("*").tooltip({
+				disabled: true
+			});
 			if(lang_user == "fr-FR"){
+				var currentLocal = "fr";
 				var buttonTextObj = {
 					today: 'Aujourd\'hui',
 		            month: 'Mois',
@@ -108,6 +112,7 @@
 		            day: 'Jour'
 		        };
 			} else{
+				var currentLocal = "en";
 				var buttonTextObj = {
 					today: 'Today',
 		            month: 'Month',
@@ -117,6 +122,7 @@
 			}
 			/* Full calendat init */
 			$('#calendar').fullCalendar({
+				locale: currentLocal,
 				header: {
 					left: 'prev,next today',
 					center: 'title',

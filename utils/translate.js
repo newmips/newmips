@@ -45,7 +45,7 @@ module.exports = {
             }));
         }
 
-        function addLocales(type, value2, data){
+        function addLocales(type, value2, data, lang){
             if(type == "application"){
                 data.app.name = value2;
             }
@@ -72,23 +72,40 @@ module.exports = {
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
                 content += '\t\t\t"plural_component" : "'+value2+'s",\n';
                 content += '\t\t\t"id_component" : "ID",\n';
-                content += '\t\t\t"f_title" : "Title",\n';
-                content += '\t\t\t"f_description" : "Description",\n';
-                content += '\t\t\t"f_place" : "Place",\n';
-                content += '\t\t\t"f_datedebut" : "Start Datetime",\n';
-                content += '\t\t\t"f_datefin" : "End Datetime",\n';
-                content += '\t\t\t"f_allday" : "All day",\n';
-                content += '\t\t\t"r_category" : "Category"\n';
+                if(lang == "fr"){
+                    content += '\t\t\t"f_title" : "Titre",\n';
+                    content += '\t\t\t"f_description" : "Description",\n';
+                    content += '\t\t\t"f_place" : "Lieu",\n';
+                    content += '\t\t\t"f_datedebut" : "Date de début",\n';
+                    content += '\t\t\t"f_datefin" : "Date de fin",\n';
+                    content += '\t\t\t"f_allday" : "Toute la journée",\n';
+                    content += '\t\t\t"r_category" : "Catégorie"\n';
+                } else{
+                    content += '\t\t\t"f_title" : "Title",\n';
+                    content += '\t\t\t"f_description" : "Description",\n';
+                    content += '\t\t\t"f_place" : "Place",\n';
+                    content += '\t\t\t"f_datedebut" : "Start Datetime",\n';
+                    content += '\t\t\t"f_datefin" : "End Datetime",\n';
+                    content += '\t\t\t"f_allday" : "All day",\n';
+                    content += '\t\t\t"r_category" : "Category"\n';
+                }
                 content += '\t\t}\n';
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
             else if(type == "component-calendar-category"){
                 var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
-                content += '\t\t\t"plural_component" : "Categories",\n';
                 content += '\t\t\t"id_component" : "ID",\n';
-                content += '\t\t\t"f_label" : "Label",\n';
-                content += '\t\t\t"f_color" : "Color"\n';
+                if(lang == "fr"){
+                    content += '\t\t\t"plural_component" : "Catégories",\n';
+                    content += '\t\t\t"f_label" : "Libellé",\n';
+                    content += '\t\t\t"f_color" : "Couleur"\n';
+                } else{
+                    content += '\t\t\t"plural_component" : "Categories",\n';
+                    content += '\t\t\t"f_label" : "Label",\n';
+                    content += '\t\t\t"f_color" : "Color"\n';
+                }
+
                 content += '\t\t}\n';
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
@@ -169,7 +186,7 @@ module.exports = {
                     }
                 }
 
-                dataLocales = addLocales(type, value, dataLocales);
+                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
                 pushLanguagePromise(urlFile, dataLocales, file);
                 localesCpt++;
                 doneLocales(localesCpt, nbLocales);
@@ -206,7 +223,7 @@ module.exports = {
                     }
                 }
 
-                dataLocales = addLocales(type, value, dataLocales);
+                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
                 pushLanguagePromise(urlFile, dataLocales, file);
                 localesCpt++;
                 doneLocales(localesCpt, nbLocales);
@@ -215,11 +232,11 @@ module.exports = {
                 if(translateKey != "" && toTranslate){
                     googleTranslate.translate(value, appLang4Google, workingLocales4Google, function(err, translations) {
                         if(!err){
-                            dataLocales = addLocales(type, translations.translatedText, dataLocales);
+                            dataLocales = addLocales(type, translations.translatedText, dataLocales, workingLocales4Google);
                         }
                         else{
                             console.log(err);
-                            dataLocales = addLocales(type, value, dataLocales);
+                            dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
                         }
                         pushLanguagePromise(urlFile, dataLocales, file);
                         localesCpt++;
@@ -230,13 +247,13 @@ module.exports = {
                     if(translateKey == "" && googleTranslate)
                         console.log("Error: Empty API key for google translation!");
 
-                    dataLocales = addLocales(type, value, dataLocales);
+                    dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
                     pushLanguagePromise(urlFile, dataLocales, file);
                     localesCpt++;
                     doneLocales(localesCpt, nbLocales);
                 }
             } else{
-                dataLocales = addLocales(type, value, dataLocales);
+                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
 
                 pushLanguagePromise(urlFile, dataLocales, file);
                 localesCpt++;

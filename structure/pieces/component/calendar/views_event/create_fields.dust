@@ -33,14 +33,15 @@
         <label for="f_allday"> {@__ key="component.CODE_NAME_LOWER.f_allday"/} </label> &nbsp;
         <br> {#f_allday} <input class="form-control input" name="f_allday" value="" type="checkbox" checked=""> {:else} <input class="form-control input" name="f_allday" value="" type="checkbox"> {/f_allday}
     </div>
-    <div data-field="f_category" class="form-group">
+    <div id="selectCategory" data-field="f_category" class="form-group">
         <label for="f_category">{@__ key="component.CODE_NAME_LOWER.r_category" /}</label>
         <select style="width:100%;" class="form-control" name="RELATION_CATEGORY_LOWER">
+            <option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.calendar.no_category"/}</option>
 			{#RELATION_CATEGORY_LOWER}
 				{#.f_label}
-						<option value="{id}">{f_label}</option>
+					<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 				{:else}
-						<option value="{id}">{id} - label not defined</option>
+					<option data-backgroundcolor="{f_color}" value="{id}">{id} - label not defined</option>
 				{/.f_label}
 			{/RELATION_CATEGORY_LOWER}
 		</select>
