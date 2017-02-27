@@ -95,10 +95,15 @@ exports.deploy = function(attr, callback) {
                 return callback(err);
             var subdomain = globalConf.host + '-' + codeName.substring(2);
             var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
-            manager.createCloudDns(subdomain).then(function() {
-                var info = new Array();
-                info.message = "Application is now available on: <br>";
-                info.message += "<a href='" + url + "'  target='_blank'>" + url + "</a>";
+            manager.createCloudDns(subdomain).then(function(data) {
+                var info = {
+                    message: "We're deploying your application...<br>\
+                            Wait for its initialization on :<br>\
+                            <a href='" + data.url + "'  target='_blank'>" + data.url + "</a>"
+                }
+                // var info = new Array();
+                // info.message = "Application is now available on: <br>";
+                // info.message += "<a href='" + url + "'  target='_blank'>" + url + "</a>";
 
                 callback(null, info);
             }).catch(function(err) {
