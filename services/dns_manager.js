@@ -65,6 +65,7 @@ exports.createCloudDns = function(subdomain) {
 			if (error)
 				return reject({error: error, response: response});
 
+			body = JSON.parse(body);
 			// Set cloud-manager's waiting room url. It'll wait for new cloud environment to be ready
 			body.url = cloudConfig.url+'/waiting?redirect='+body.url;
 			resolve({response: response, body: body});
