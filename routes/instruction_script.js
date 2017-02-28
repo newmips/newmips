@@ -59,7 +59,7 @@ function execute(req, instruction) {
                     }
                     else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
                         scriptData[userId].ids.id_application = info.insertId;
-                        scriptData[userId].ids.name_application = info.name_application;
+                        scriptData[userId].name_application = info.name_application;
                         scriptData[userId].ids.id_module = null;
                         scriptData[userId].ids.id_data_entity = null;
                     }

@@ -96,7 +96,7 @@ exports.deploy = function(attr, callback) {
             var subdomain = globalConf.host + '-' + codeName.substring(2);
             var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
             manager.createCloudDns(subdomain).then(function(data) {
-                var url = JSON.parse(data.body).url;
+                var url = data.body.url;
                 var info = {
                     message: "We're deploying your application...<br>\
                             Wait for its initialization on :<br>\
