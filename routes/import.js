@@ -7,44 +7,18 @@ var Excel = require('exceljs');
 var fs = require('fs');
 var moment = require('moment');
 
-var connectTimeout = require('connect-timeout');
-var longTimeout = connectTimeout({ time: 45000000 });
-
 //Sequelize
 var models = require('../models/');
 
-var errorArray = [];
-var errorFile = __dirname + '/../error_import.txt';
+var infoObj = {};
 
 var dataArray = [];
-var dataFile = __dirname + '/../data_import.sql';
 
 var isProcessRunning = false;
 
-function pushErrors(count, nbRows) {
+function pushData() {
 
-    // If error found, log to file
-    if (errorArray.length > 0) {
-        var file = "IMPORT ERRORS :\r\n\r\n";
-        file += JSON.stringify(errorArray, null, 2);
-
-        fs.writeFile(errorFile, file, function(err) {
-            if(err) {
-                console.log('Erreur lors de l\'ecriture du fichier d\'erreur');
-                return console.log(err);
-            }
-
-            console.log("Fin de l\'import. Des erreurs se sont produites, vous trouverez le detail dans le fichier "+errorFile);
-            isProcessRunning = false;
-        });
-    }
-    else{
-        console.log("Fin de l\'import. Aucune erreur :)");
-        isProcessRunning = false;
-    }
-}
-
-function pushData(count, nbRows) {
+    console.log(" --- CREATE SQL FILE MADE OF WORKING REQUEST ---");
 
     // If error found, log to file
     if (dataArray.length > 0) {
@@ -52,49 +26,30 @@ function pushData(count, nbRows) {
         var file = "";
 
         for(var i=0; i < dataArray.length; i++){
-            file += dataArray[i];
+            file += dataArray[i]+"\n";
         }
-        //file += JSON.stringify(dataArray, null, 2);
+        var now = moment();
+        var filename = now+'_data_import.sql'
 
-        fs.writeFile(dataFile, file, function(err) {
+        if (!fs.existsSync(__dirname+'/../sql/import')){
+            fs.mkdirSync(__dirname+'/../sql/import');
+        }
+
+        fs.writeFile(__dirname+'/../sql/import/'+filename, file, function(err) {
             if(err) {
                 console.log('Erreur lors de l\'ecriture du fichier d\'erreur');
-                return console.log(err);
             }
         });
+
+        return filename;
     }
 }
 
-function executeImport(worksheet, ext, appID, configFile, callback) {
+function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
     console.log("--- ANALYSE & EXECUTION DE L'IMPORTATION ---");
 
     if(ext == "XLSX"){
     	worksheet.eachSheet(function(sheet, sheetId) {
-
-            /*var json = {
-                "entity": [{
-                    "name": "language",
-                    "columns": {
-                        "id": {
-                            "nameInBDD": "id"
-                        },
-                        "version": {
-                            "nameInBDD": "version"
-                        },
-                        "code": {
-                            "nameInBDD": "code"
-                        }
-                    }
-                },
-                {
-                    "name": "currency",
-                    "columns": {
-                        "name": {
-                            "nameInBDD": "code"
-                        }
-                    }
-                }]
-            }*/
 
             var json = configFile;
             var nbRows = sheet.rowCount - 1;
@@ -133,7 +88,6 @@ function executeImport(worksheet, ext, appID, configFile, callback) {
 
                     // Because row 1 is the column name
                     if(rowNumber > 1){
-
                         var values = row.values;
                         var request = "";
                         var valuesInrequest = "";
@@ -217,7 +171,7 @@ function executeImport(worksheet, ext, appID, configFile, callback) {
                                                 var error = {};
                                                 error.error = err.message;
                                                 error.request = findRequest;
-                                                errorArray.push(error);
+                                                infoObj[idUser].errorArray.push(error);
                                             });
                                         })(value, column, k, foreignTable, foreignField);
                                     }
@@ -313,39 +267,44 @@ function executeImport(worksheet, ext, appID, configFile, callback) {
                                         request += " ("+columnsInRequest+")";
                                         request += " VALUES("+valuesInrequest+");";
 
-                                        dataArray.push(request);
-
-                                        /*count++;
-
-                                         if(count == nbRows){
-                                            pushErrors(count, nbRows);
-                                            pushData(count, nbRows);
-                                            callback(true);
-                                        }*/
-
-                                        models.sequelize.query(request).then(function() {
-                                            count++;
-                                            if(count == nbRows){
-                                                pushErrors(count, nbRows);
-                                                callback(true);
-                                            }
-                                        }).catch(function(err){
-                                            count++;
-                                            var error = {};
-                                            error.error = err.message;
-                                            error.request = request;
-                                            errorArray.push(error);
-                                            if(count == nbRows){
-                                                pushErrors(count, nbRows);
-                                                callback(true);
-                                            }
-                                        });
+                                        (function(currentRequest){
+                                            models.sequelize.query(currentRequest).then(function() {
+                                                count++;
+                                                dataArray.push(currentRequest);
+                                                if(count == nbRows){
+                                                    isProcessRunning = false;
+                                                    var sqlFilename = pushData();
+                                                    // If error found
+                                                    if (infoObj[idUser].errorArray.length > 0) {
+                                                        callback(false, sqlFilename);
+                                                    }
+                                                    else{
+                                                        callback(true, sqlFilename);
+                                                    }
+                                                }
+                                            }).catch(function(err){
+                                                count++;
+                                                var error = {};
+                                                error.error = err.message;
+                                                error.request = currentRequest;
+                                                infoObj[idUser].errorArray.push(error);
+                                                if(count == nbRows){
+                                                    isProcessRunning = false;
+                                                    var sqlFilename = pushData();
+                                                    // If error found
+                                                    if (infoObj[idUser].errorArray.length > 0) {
+                                                        callback(false, sqlFilename);
+                                                    }
+                                                    else{
+                                                        callback(true, sqlFilename);
+                                                    }
+                                                }
+                                            });
+                                        })(request);
                                     }
                                 }
-
                             }
                         }
-
                     }
                 });
             }
@@ -421,14 +380,13 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/execute', connectTimeout("4500s"), block_access.isLoggedIn, function(req, res) {
+router.post('/execute', block_access.isLoggedIn, function(req, res) {
 
     if(!isProcessRunning){
 
         isProcessRunning = true;
 
         var form = new formidable.IncomingForm();
-        currentProcessRunning = true;
         form.uploadDir = __dirname + "/../upload/";
         form.encoding = 'utf-8';
         form.keepExtensions = true;
@@ -441,20 +399,28 @@ router.post('/execute', connectTimeout("4500s"), block_access.isLoggedIn, functi
                         configFilePath = files.configFile.path;
                         contentFilePath = files.contentFile.path;
                         var configFile = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+
+                        /* Instanciate data and error array */
+                        var idUser = req.session.passport.user.id;
+                        infoObj[idUser] = {};
+                        infoObj[idUser].errorArray = [];
+                        dataArray = [];
+
                         function readingDone(worksheet, ext, appID, configFile){
-                            executeImport(worksheet, ext, appID, configFile, function(success){
+                            executeImport(worksheet, ext, appID, configFile, idUser, function(success, sqlFilename){
                                 if (success) {
-                                    req.session.toastr = [{
-                                        message: "Okok",
-                                        level: "success"
-                                    }];
+                                    res.json({
+                                        success: success,
+                                        sqlFilename: sqlFilename,
+                                        message: "Import terminée. Aucune erreur. Fichier SQL des requêtes valide disponible."
+                                    });
                                 } else {
-                                    req.session.toastr = [{
-                                        message: "Une erreur est survenue: Error execute",
-                                        level: "error"
-                                    }];
+                                    res.json({
+                                        success: success,
+                                        sqlFilename: sqlFilename,
+                                        message: "Import terminée. Des erreurs sont survenues. Fichier SQL des requêtes valide disponible."
+                                    });
                                 }
-                                res.redirect("/import");
                             });
                         }
                         var workbook = new Excel.Workbook();
@@ -497,6 +463,7 @@ router.post('/execute', connectTimeout("4500s"), block_access.isLoggedIn, functi
                     res.redirect("/import");
                 }
             } else {
+                console.log(err);
                 req.session.toastr = [{
                     message: "Une erreur est survenue: " + err,
                     level: "error"
@@ -505,6 +472,31 @@ router.post('/execute', connectTimeout("4500s"), block_access.isLoggedIn, functi
             }
         });
     }
+    else{
+        res.status(500).send('An import process is currently running!');
+    }
 });
+
+router.get('/get_import_status', block_access.isLoggedIn, function(req, res) {
+    var errorArray = infoObj[req.session.passport.user.id].errorArray;
+    var requestArray = infoObj[req.session.passport.user.id].requestArray;
+
+    infoObj[req.session.passport.user.id].errorArray = [];
+    infoObj[req.session.passport.user.id].requestArray = [];
+
+    res.json({
+        errors: errorArray,
+    });
+});
+
+router.get('/download_file/:file', function(req, res) {
+
+    var filePath = __dirname+'/../sql/import/'+req.params.file;
+    var filename = req.params.file;
+
+    res.download(filePath, filename, function(err) {
+    });
+});
+
 
 module.exports = router;

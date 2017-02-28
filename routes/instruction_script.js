@@ -313,6 +313,12 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(exception[item].value > 1){
                 stringError += exception[item].errorMessage + '<br><br>';
                 isError = true;
+            } else if(item == "createNewProject" && exception[item].value == 0){
+                stringError += 'You have to create or select a project in your script.<br><br>';
+                isError = true;
+            } else if(item == "createNewApplication" && exception[item].value == 0){
+                stringError += 'You have to create or select an application in your script.<br><br>';
+                isError = true;
             }
         }
 

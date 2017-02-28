@@ -36,7 +36,7 @@ var gitHelper = require('../utils/git_helper');
 var models = require('../models/');
 
 // Exclude from Editor
-var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload", "public"];
+var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload"];
 
 var timeOut = require('connect-timeout')(1000000);
 

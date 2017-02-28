@@ -52,7 +52,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
             data.toastr = req.session.toastr;
             // Nettoyage de la session
             req.session.toastr = [];
-            res.render('CODE_NAME_LOWER/view_calendar', data);
+            res.render('CODE_NAME_LOWER/view_agenda', data);
         });
     });
 });
