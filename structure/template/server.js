@@ -206,6 +206,10 @@ app.use(function(req, res, next) {
 // Routes ======================================================================
 require('./routes/')(app);
 
+// Api routes ==================================================================
+if (globalConf.api_enabled)
+	require('./api/')(app);
+
 // Launch ======================================================================
 if (protocol == 'https') {
 	require('./models/').sequelize.sync({ logging: console.log, hooks: false }).then(function() {

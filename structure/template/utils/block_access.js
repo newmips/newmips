@@ -128,3 +128,36 @@ exports.actionAccessMiddleware = function(entityName, action) {
 		res.redirect('/default/home');
 	}
 }
+
+exports.apiAuthentication = function(req, res, next) {
+    var authorization = req.headers.authorization;
+    // No authorization header
+    if (!authorization)
+        return res.status(500).send();
+
+    var parts = authorization.split(' ');
+    // Bad authorization header
+    if (parts.length < 2)
+        return res.status(500).send();
+
+    var sheme = parts[0];
+    var credentials = new Buffer(parts[1], 'base64').toString().split(':');
+    // Bad authorization header
+    if (!/Basic/i.test(sheme))
+        return res.status(500).send();
+
+    // Bad authorization header
+    if (credentials.length < 2)
+        return res.status(500).send();
+
+    // Bad authorization header
+    if (!credentials[0] || !credentials[1])
+        return res.status(500).send();
+
+    //TODO: implement encrypt/decrypt functions
+    // var login = encryption.decrypt(credentials[0]);
+    // var password = encryption.decrypt(credentials[1]);
+
+	//TODO: Check login/password against some db table (left to define)
+    next();
+}
