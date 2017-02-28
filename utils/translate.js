@@ -67,7 +67,7 @@ module.exports = {
                 content += '\t\t}\n';
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
-            else if(type == "component-calendar-event"){
+            else if(type == "component-agenda-event"){
                 var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
                 content += '\t\t\t"plural_component" : "'+value2+'s",\n';
@@ -92,7 +92,7 @@ module.exports = {
                 content += '\t\t}\n';
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }
-            else if(type == "component-calendar-category"){
+            else if(type == "component-agenda-category"){
                 var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
                 content += '\t\t\t"id_component" : "ID",\n';

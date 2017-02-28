@@ -199,8 +199,6 @@ router.post('/create', block_access.actionAccessMiddleware("URL_ROUTE", "write")
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("CODE_NAME_LOWER", createObject, req.body);
 
-    createObject.pending = false;
-
     models.CODE_NAME_MODEL.create(createObject).then(function(CODE_NAME_LOWER) {
         var redirect = '/URL_ROUTE/list';
         req.session.toastr = [{
@@ -412,6 +410,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "writ
         req.body.idCategory = null;
 
     var createObj = {
+        version: 0,
         f_title: req.body.title,
         f_datedebut: moment(req.body.start).format("YYYY-MM-DD HH:mm:ss"),
         f_datefin: req.body.end,
