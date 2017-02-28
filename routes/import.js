@@ -10,11 +10,13 @@ var moment = require('moment');
 //Sequelize
 var models = require('../models/');
 
+var timeout = require('connect-timeout');
+
 var infoObj = {};
-
 var dataArray = [];
-
 var isProcessRunning = false;
+var totalRow = 0;
+var currentCount = 0;
 
 function pushData() {
 
@@ -46,8 +48,8 @@ function pushData() {
 }
 
 function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
-    console.log("--- ANALYSE & EXECUTION DE L'IMPORTATION ---");
 
+    console.log("--- ANALYSE & EXECUTION DE L'IMPORTATION ---");
     if(ext == "XLSX"){
     	worksheet.eachSheet(function(sheet, sheetId) {
 
@@ -85,6 +87,8 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
                 sheet.eachRow({
                     includeEmpty: false
                 }, function(row, rowNumber) {
+
+                    totalRow = rowNumber;
 
                     // Because row 1 is the column name
                     if(rowNumber > 1){
@@ -270,6 +274,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
                                         (function(currentRequest){
                                             models.sequelize.query(currentRequest).then(function() {
                                                 count++;
+                                                currentCount = count;
                                                 dataArray.push(currentRequest);
                                                 if(count == nbRows){
                                                     isProcessRunning = false;
@@ -284,6 +289,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
                                                 }
                                             }).catch(function(err){
                                                 count++;
+                                                currentCount = count;
                                                 var error = {};
                                                 error.error = err.message;
                                                 error.request = currentRequest;
@@ -380,7 +386,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/execute', block_access.isLoggedIn, function(req, res) {
+router.post('/execute', timeout('1200s'), block_access.isLoggedIn, function(req, res) {
 
     if(!isProcessRunning){
 
@@ -405,6 +411,8 @@ router.post('/execute', block_access.isLoggedIn, function(req, res) {
                         infoObj[idUser] = {};
                         infoObj[idUser].errorArray = [];
                         dataArray = [];
+                        totalRow = 0;
+                        currentCount = 0;
 
                         function readingDone(worksheet, ext, appID, configFile){
                             executeImport(worksheet, ext, appID, configFile, idUser, function(success, sqlFilename){
@@ -484,8 +492,11 @@ router.get('/get_import_status', block_access.isLoggedIn, function(req, res) {
     infoObj[req.session.passport.user.id].errorArray = [];
     infoObj[req.session.passport.user.id].requestArray = [];
 
+    var percentProgress = (currentCount*100)/totalRow;
+
     res.json({
         errors: errorArray,
+        percentProgress: percentProgress
     });
 });
 
