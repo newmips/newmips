@@ -42,8 +42,8 @@ block content
 						h3.box-title(style="color: #fff") Import
 					.box-body
 						.row
-							.col-lg-12
-								form(action='/import/execute', method='post', enctype="multipart/form-data")
+							.col-xs-12
+								form#importForm(method="post", enctype="multipart/form-data")
 									.form-group
 										label(for='AppID') Select Application
 										select.form-control.select(name="appID", style="width: 100%;", required)
@@ -58,5 +58,66 @@ block content
 										input(id='contentFile', name='contentFile', type='file', required)
 									br
 									.form-group
-										input.btn.btn-primary(type="submit", value="Importer !")
+										button.btn.btn-primary#importSubmit
+											| Importer !
+								.form-group
+									a.btn.btn-info#downloadSQLFile(style="display:none;")
+										| Télécharger le fichier SQL valide
+						br
+						.row
+							.col-xs-12
+								#infoImport
 block custom_js
+	script.
+		$(document).ready(function(){
+			$("form#importForm").submit(function(){
+
+				var formData = new FormData($(this)[0]);
+				var doCheck = true;
+				$("#importSubmit").hide();
+
+				function checkImport(doCheck){
+					if(doCheck){
+						$.ajax({
+							url: '/import/get_import_status',
+							method: 'GET',
+							success: function(answer) {
+								for(var i=0; i<answer.errors.length; i++){
+									$("#infoImport").append("<p><b>ERROR:</b><br><u>REQUEST:</u>&nbsp;&nbsp;"+answer.errors[i].request+"<br><u>ERROR:</u>&nbsp;&nbsp;"+answer.errors[i].error+"</p><br>");
+								}
+							}
+						});
+					}
+				};
+
+				$.ajax({
+					url: '/import/execute',
+					method: 'POST',
+					contentType: false,
+					processData: false,
+					data: formData,
+					success: function(answer){
+						checkImport(doCheck);
+						doCheck = false;
+						$("#downloadSQLFile").attr("href", "/import/download_file/"+answer.sqlFilename);
+						$("#downloadSQLFile").show();
+						if(answer.success){
+							toastr.success(answer.message);
+						} else {
+							toastr.error(answer.message);
+						}
+					},
+					error: function(err){
+						console.log(err.responseText);
+						toastr.error(err.responseText);
+					}
+				});
+
+				/* Check status */
+				setInterval(function(){
+					checkImport(doCheck);
+				}, 500);
+
+				return false;
+			});
+		});
