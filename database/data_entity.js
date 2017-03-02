@@ -377,6 +377,8 @@ exports.getModuleCodeNameByEntityCodeName = function(entity_name, callback){
 	});
 }
 
+/* --- COMPONENT LINK --- */
+
 // Add a component ID on an already created entity found with a codeName
 exports.addComponentOnEntityByCodeName = function(codeName, idComponent, idModule, callback){
 	models.DataEntity.findOne({
@@ -385,17 +387,22 @@ exports.addComponentOnEntityByCodeName = function(codeName, idComponent, idModul
 			id_module: idModule
 		}
 	}).then(function(foundEntity){
+		console.log(foundEntity);
 		if(!foundEntity){
 			var err = new Error();
 			err.message = "Cannot update component on entity("+codeName+"), no entity found.";
 			callback(err);
 		} else {
-			foundEntity.update({
-				id_component: idComponent
-			}).then(function(){
-				callback();
+			foundEntity.addComponent(idComponent).then(function(){
+				callback(null, null);
+			}).catch(function(err){
+				console.log(err);
+				callback(err, null);
 			});
 		}
+	}).catch(function(err){
+		console.log(err);
+		callback(err, null);
 	});
 }
 

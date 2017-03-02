@@ -32,6 +32,38 @@ var fs = require('fs');
 var sequelize = require('../models/').sequelize;
 
 /* --------------------------------------------------------------- */
+/* ------------------------- Function ---------------------------- */
+/* --------------------------------------------------------------- */
+// Execute an array of instructions
+exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, callback) {
+
+    if (instructions.length == idx)
+        callback(null);
+
+    var exportsContext = this;
+
+    // Create the attr obj
+    var recursiveAttr = bot.parse(instructions[idx]);
+
+    // Rework the attr obj
+    recursiveAttr = attrHelper.reworkAttr(recursiveAttr);
+
+    // Add current session info in attr object
+    recursiveAttr.id_project = sessionAttr.id_project;
+    recursiveAttr.id_application = sessionAttr.id_application;
+    recursiveAttr.id_module = sessionAttr.id_module;
+    recursiveAttr.id_data_entity = sessionAttr.id_data_entity;
+
+    // Execute the designer function
+    this[recursiveAttr.function](recursiveAttr, function(err, info) {
+        if(err)
+            return callback(err);
+        session.setSessionInAttr(recursiveAttr, info);
+        exportsContext.recursiveInstructionExecute(recursiveAttr, instructions, ++idx, callback);
+    });
+}
+
+/* --------------------------------------------------------------- */
 /* --------------------------- Help ------------------------------ */
 /* --------------------------------------------------------------- */
 exports.help = function(attr, callback) {
@@ -1166,8 +1198,10 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
     }
 
     // Check if component with this name is already created on this entity
-    db_component.getComponentByNameInEntity(attr.id_module, attr.id_data_entity, attr.options.showValue, function(err, component){
-        if(component){
+    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function(err, alreadyExist){
+        if(err)
+            return callback(err, null);
+        if(alreadyExist){
             var err = new Error();
             err.message = "Sorry, a component with this name is already associate to this entity in this module.";
             return callback(err, null);
@@ -1183,6 +1217,8 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                 else{
                     // Create the component in newmips database
                     db_component.createNewComponentOnEntity(attr, function(err, info){
+                        if(err)
+                            return callback(err, null);
                         // Get Data Entity Name needed for structure
                         db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
                             attr.options.source = sourceEntity.codeName;
@@ -1253,35 +1289,6 @@ exports.createNewComponentContactForm = function (attr, callback) {
                 }
             });
         }
-    });
-}
-
-// Execute an array of instructions
-exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, callback) {
-
-    if (instructions.length == idx)
-        callback(null);
-
-    var exportsContext = this;
-
-    // Create the attr obj
-    var recursiveAttr = bot.parse(instructions[idx]);
-
-    // Rework the attr obj
-    recursiveAttr = attrHelper.reworkAttr(recursiveAttr);
-
-    // Add current session info in attr object
-    recursiveAttr.id_project = sessionAttr.id_project;
-    recursiveAttr.id_application = sessionAttr.id_application;
-    recursiveAttr.id_module = sessionAttr.id_module;
-    recursiveAttr.id_data_entity = sessionAttr.id_data_entity;
-
-    // Execute the designer function
-    this[recursiveAttr.function](recursiveAttr, function(err, info) {
-        if(err)
-            return callback(err);
-        session.setSessionInAttr(recursiveAttr, info);
-        exportsContext.recursiveInstructionExecute(recursiveAttr, instructions, ++idx, callback);
     });
 }
 
@@ -1374,7 +1381,6 @@ exports.createNewComponentAgenda = function(attr, callback) {
         }
     });
 }
-
 
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */

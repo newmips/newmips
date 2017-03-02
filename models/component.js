@@ -14,10 +14,9 @@ module.exports = function(sequelize, DataTypes) {
 		tableName: "component",
 		classMethods: {
 			associate: function(models) {
-				Component.hasMany(models.DataEntity, {
-                    foreignKey: {
-                        name: 'id_component'
-                    }
+				Component.belongsToMany(models.DataEntity, {
+                    foreignKey: 'id_component',
+                    through: "component_data_entity"
                 });
                 Component.belongsTo(models.Module, {
                     foreignKey: {
