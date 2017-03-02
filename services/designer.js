@@ -652,24 +652,25 @@ function deleteDataField(attr, callback) {
         var name_data_field = options.value;
 
         try {
-            function checkIfIDGiven(attr, callback){
+            function checkIfIDGiven(attr, callback2){
                 // If it was the ID instead of the name given in the instruction
                 if(!isNaN(attr.options.showValue)){
-                    db_field.getDataFieldByID(attr.options.showValue, attr.id_data_entity, function(err, field){
+                    db_field.getNameDataFieldById(parseInt(attr.options.showValue), function(err, field){
                         if (err)
-                            return callback(err, null);
+                            return callback2(err, null);
 
                         attr.options.value = field.codeName;
                         attr.options.showValue = field.name;
-                        callback(null, attr);
+                        callback2(null, attr);
                     });
                 }
-                else{
-                    callback(null, attr);
-                }
+                else
+                    callback2(null, attr);
             }
 
             checkIfIDGiven(attr, function(err, attr){
+                if (err)
+                    return callback(err);
                 // Delete field from views and models
                 structure_data_field.deleteDataField(attr, function(err, infoStructure) {
                     if (err)
