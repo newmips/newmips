@@ -25,10 +25,11 @@ module.exports = function(sequelize, DataTypes) {
                         name: 'id_data_entity'
                     }
                 });
-                DataEntity.hasMany(models.Component, {
+                DataEntity.belongsTo(models.Component, {
                     foreignKey: {
-                        name: 'id_data_entity'
-                    }
+                        name: 'id_component'
+                    },
+                    onDelete: 'cascade'
                 });
 			}
 		},

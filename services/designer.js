@@ -1305,20 +1305,29 @@ exports.createNewComponentAgenda = function(attr, callback) {
             return callback(err, null);
         } else{
 
+            var valueEvent = "e_"+attr.options.urlValue+"_event";
+            var valueCategory = "e_"+attr.options.urlValue+"_category";
+
+            var showValueEvent = attr.options.showValue+" Event";
+            var showValueCategory = attr.options.showValue+" Category";
+
+            var urlEvent = attr.options.urlValue+"_category";
+            var urlCategory = attr.options.urlValue+"_event";
+
             var instructions = [
-                "add entity "+attr.options.urlValue+"_category",
+                "add entity "+showValueCategory,
                 "add field Label",
                 "add field Color with type color",
                 "set field Label required",
                 "set field Color required",
-                "add entity "+attr.options.urlValue+"_event",
+                "add entity "+showValueEvent,
                 "add field Title",
                 "add field Description with type text",
                 "add field Place",
                 "add field Start date with type datetime",
                 "add field End date with type datetime",
                 "add field All day with type boolean",
-                "add field Category related to "+attr.options.urlValue+"_category using Label",
+                "add field Category related to "+showValueCategory+" using Label",
                 "set field Title required",
                 "set field Start date required"
             ];
@@ -1339,68 +1348,29 @@ exports.createNewComponentAgenda = function(attr, callback) {
                     db_component.createNewComponentOnModule(attr, function(err, info){
                         if(err)
                             return callback(err, null);
-                        // Get Data Entity Name needed for structure
-                        db_module.getModuleById(attr.id_module, function(err, module){
-                            if(err)
-                                return callback(err, null);
-                            attr.options.moduleName = module.codeName;
 
-                            structure_component.newAgenda(attr, function(err){
-                                if(err)
-                                    return callback(err, null);
+                        // Link new event entity to component
+                        db_entity.addComponentOnEntityByCodeName(valueEvent, info.insertId, attr.id_module, function(err){
+                            // Link new category entity to component
+                            db_entity.addComponentOnEntityByCodeName(valueCategory, info.insertId, attr.id_module, function(err){
+                                // Get Data Entity Name needed for structure
+                                db_module.getModuleById(attr.id_module, function(err, module){
+                                    if(err)
+                                        return callback(err, null);
+                                    attr.options.moduleName = module.codeName;
 
-                                callback(null, info);
+                                    structure_component.newAgenda(attr, function(err){
+                                        if(err)
+                                            return callback(err, null);
+
+                                        callback(null, info);
+                                    });
+                                });
                             });
                         });
                     });
                 });
             });
-
-            /*var evAttr = {
-                id_project: attr.id_project,
-                id_application: attr.id_application,
-                id_module: attr.id_module,
-                id_data_entity: attr.id_data_entity,
-                options: {
-                    value: attr.options.value+"_event",
-                    urlValue: attr.options.urlValue+"_event",
-                    showValue: attr.options.showValue+" Events"
-                }
-            };
-            attr.event = evAttr;
-            // Add entity event in DB generator
-            db_entity.createNewDataEntity(evAttr, function(err, infoDbEntity){
-                var catAttr = {
-                    id_project: attr.id_project,
-                    id_application: attr.id_application,
-                    id_module: attr.id_module,
-                    id_data_entity: attr.id_data_entity,
-                    options: {
-                        value: attr.options.value+"_category",
-                        urlValue: attr.options.urlValue+"_category",
-                        showValue: attr.options.showValue+" Category"
-                    }
-                };
-                attr.category = catAttr;
-                // Add entity category in DB generator
-                db_entity.createNewDataEntity(catAttr, function(err, infoDbEntity){
-                    // Create the component in newmips database
-                    db_component.createNewComponentOnModule(attr, function(err, info){
-                        // Get Data Entity Name needed for structure
-                        db_module.getModuleById(attr.id_module, function(err, module){
-                            if(err)
-                                return callback(err, null);
-                            attr.options.moduleName = module.codeName;
-                            structure_component.newAgenda(attr, function(err){
-                                if(err)
-                                    return callback(err, null);
-
-                                callback(null, info);
-                            });
-                        });
-                    });
-                });
-            });*/
         }
     });
 }

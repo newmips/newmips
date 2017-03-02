@@ -376,3 +376,27 @@ exports.getModuleCodeNameByEntityCodeName = function(entity_name, callback){
 		callback(err, null);
 	});
 }
+
+// Add a component ID on an already created entity found with a codeName
+exports.addComponentOnEntityByCodeName = function(codeName, idComponent, idModule, callback){
+	models.DataEntity.findOne({
+		where: {
+			codeName: codeName,
+			id_module: idModule
+		}
+	}).then(function(foundEntity){
+		if(!foundEntity){
+			var err = new Error();
+			err.message = "Cannot update component on entity("+codeName+"), no entity found.";
+			callback(err);
+		} else {
+			foundEntity.update({
+				id_component: idComponent
+			}).then(function(){
+				callback();
+			});
+		}
+	});
+}
+
+
