@@ -229,7 +229,7 @@ function execute(req, instruction) {
             });
         } catch (e) {
             req.session.answers.unshift(instruction + " :<br>" + e.message);
-            reject();
+            reject(e);
         }
     });
 }

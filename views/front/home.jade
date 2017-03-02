@@ -131,12 +131,48 @@ block custom_js
 		$(function() {
 
 			/* Unable complex caractere for project and application*/
-			$("#project, #application").keyup(function(e) {
+			$("#project").keyup(function(e) {
 				/* var reg = new RegExp("[^A-Za-z ]"); */
 				/* var reg = new RegExp("[^A-zÀ-ú]"); */
 				var reg = new RegExp("[^a-zA-Z0-9àâçéèêëîïôûùüÿñ, ']");
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
+			});
+
+			$("#application").keyup(function(e) {
+				var string = $(this).val();
+		        string = string.replace(/é/g, "e");
+		        string = string.replace(/\./g, "");
+		        string = string.replace(/è/g, "e");
+		        string = string.replace(/à/g, "a");
+		        string = string.replace(/ô/g, "o");
+		        string = string.replace(/û/g, "u");
+		        string = string.replace(/ù/g, "u");
+		        string = string.replace(/ç/g, "c");
+		        string = string.replace(/â/g, "a");
+		        string = string.replace(/\ê/g, "e");
+		        string = string.replace(/\Ù/g, "u");
+		        string = string.replace(/\À/g, "a");
+		        string = string.replace(/\Ç/g, "c");
+		        string = string.replace(/\È/g, "e");
+		        string = string.replace(/\É/g, "e");
+
+		        if (!/^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9-]{1,63}$/g.test(string)) {
+		            var errorText = "Le domaine doit réspecter les régles suivantes :<br>";
+		            errorText += "<ul>";
+		            errorText += "<li>- Caractères alphanumerics</li>";
+		            errorText += "<li>- Au moins une lettre</li>";
+		            errorText += "<li>- Pas de tiret (-) en debut ou fin ni deux à la suite</li>";
+		            errorText += "</ul>";
+		            if ($("span.applicationInput").length == 0)
+		        		$("#application").after("<span class='applicationInput color-red help-block' style='padding-bottom:10px'>"+errorText+"</span>");
+		        	$("#step2Discover2, #step2Discover1").prop('disabled', true);
+		        }
+		        else {
+		        	$("span.applicationInput").remove();
+		        	$("#step2Discover2, #step2Discover1").prop('disabled', false);
+		        }
+		        $(this).val(string);
 			});
 
 			/* --------------- Initialisation des select --------------- */
@@ -207,6 +243,7 @@ block custom_js
 
 			$(document).on("click", "#create_new_project", function(){
 				$("#existing_project").slideUp();
+				$("#application").val("");
 				$("#new_project").slideDown();
 			});
 

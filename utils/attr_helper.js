@@ -1,3 +1,28 @@
+
+function validateString(string) {
+    return /^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9-]{1,63}$/g.test(string);
+}
+
+function clearApplicationString(string) {
+    string = string.replace(/é/g, "e");
+    string = string.replace(/è/g, "e");
+    string = string.replace(/à/g, "a");
+    string = string.replace(/ô/g, "o");
+    string = string.replace(/û/g, "u");
+    string = string.replace(/ù/g, "u");
+    string = string.replace(/ç/g, "c");
+    string = string.replace(/â/g, "a");
+    string = string.replace(/ /g, "-");
+    string = string.replace(/\ê/g, "e");
+    string = string.replace(/\Ù/g, "u");
+    string = string.replace(/\À/g, "a");
+    string = string.replace(/\Ç/g, "c");
+    string = string.replace(/\È/g, "e");
+    string = string.replace(/\É/g, "e");
+
+    return string;
+}
+
 function clearString(string){
     console.log(string);
     string = string.replace(/é/g, "e");
@@ -146,6 +171,7 @@ function removePrefix(string, type){
 
 module.exports = {
     clearString: clearString,
+    validateString: validateString,
     lowerFirstWord: lowerFirstWord,
     addPrefix: addPrefix,
     removePrefix: removePrefix,
@@ -158,7 +184,14 @@ module.exports = {
                 /* Keep the value for the trad file */
                 attr.options.showValue = attr.options.value;
                 /* Clean the name of the value */
-                attr.options.value = clearString(attr.options.value);
+                if (attr.function == 'createNewApplication') {
+                    attr.options.value = clearApplicationString(attr.options.value);
+                    if (!validateString(attr.options.value))
+                        attr.error = "Your application name isn't valid. It must be only alphanumeric characters";
+                }
+                else
+                    attr.options.value = clearString(attr.options.value);
+
                 /* Value that will be used in url */
                 attr.options.urlValue = attr.options.value.toLowerCase();
                 /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
