@@ -14,11 +14,10 @@ module.exports = function(sequelize, DataTypes) {
 		tableName: "component",
 		classMethods: {
 			associate: function(models) {
-				Component.belongsTo(models.DataEntity, {
+				Component.hasMany(models.DataEntity, {
                     foreignKey: {
-                        name: 'id_data_entity'
-                    },
-                    onDelete: 'cascade'
+                        name: 'id_component'
+                    }
                 });
                 Component.belongsTo(models.Module, {
                     foreignKey: {

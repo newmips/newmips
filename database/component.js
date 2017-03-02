@@ -7,22 +7,19 @@ var models = require('../models/');
 exports.createNewComponentOnEntity = function(attr, callback) {
 
     var name = "";
-    var id_data_entity = 0;
     var id_module = 0;
     var version = 1;
 
     if (typeof attr !== 'undefined' && attr) {
 
-        id_data_entity = attr.id_data_entity;
         id_module = attr.id_module;
         var options = attr.options;
 
-        if (typeof options !== 'undefined' && options && id_data_entity != 0 && id_module != 0) {
+        if (typeof options !== 'undefined' && options && id_module != 0) {
 
             models.Component.create({
                 name: options.showValue,
                 codeName: options.value,
-                id_data_entity: id_data_entity,
                 id_module: id_module,
                 version: version
             }).then(function(created_component) {

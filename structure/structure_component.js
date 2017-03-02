@@ -122,6 +122,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 	viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
 	viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
 	viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
+	viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
 
 	var writeStream = fs.createWriteStream(viewFile);
 	writeStream.write(viewTemplate);

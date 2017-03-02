@@ -48,9 +48,11 @@ CREATE TABLE IF NOT EXISTS `data_entity` (
   `name` varchar(255) DEFAULT NULL,
   `codeName` varchar(255) DEFAULT NULL,
   `id_module` bigint(20) NOT NULL,
+  `id_component` bigint(20) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_module` (`id_module`)
+  KEY `id_module` (`id_module`),
+  KEY `id_component` (`id_component`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
 -- --------------------------------------------------------
@@ -159,11 +161,9 @@ CREATE TABLE IF NOT EXISTS `component` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `codeName` varchar(255) DEFAULT NULL,
-  `id_data_entity` bigint(20) DEFAULT NULL,
   `id_module` bigint(20) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_data_entity` (`id_data_entity`),
   KEY `id_module` (`id_module`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
 
@@ -182,6 +182,9 @@ ALTER TABLE `application`
 --
 ALTER TABLE `data_entity`
   ADD CONSTRAINT `fk_data_entity_module` FOREIGN KEY (`id_module`) REFERENCES `module` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `data_entity`
+  ADD CONSTRAINT `fk_data_entity_component` FOREIGN KEY (`id_component`) REFERENCES `component` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `data_field`
@@ -204,8 +207,6 @@ ALTER TABLE `user`
 --
 -- Constraints for table `component`
 --
-ALTER TABLE `component`
-  ADD CONSTRAINT `fk_component_data_entity` FOREIGN KEY (`id_data_entity`) REFERENCES `data_entity` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `component`
   ADD CONSTRAINT `fk_component_module` FOREIGN KEY (`id_module`) REFERENCES `module` (`id`) ON DELETE CASCADE;
