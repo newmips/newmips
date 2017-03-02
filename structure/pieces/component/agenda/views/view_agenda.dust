@@ -50,7 +50,7 @@
 							{/categories}
 						</select>
 						<div style="margin-top: 10px;" class="input-group">
-							<input id="new-event-title" type="text" placeholder='{@__ key="component.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
+							<input id="new-event-title" type="text" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
 							<div class="input-group-btn">
 								<button id="add-new-event" type="button" class="btn btn-success btn-flat">{@__ key="button.add"/}</button>
 							</div>
@@ -147,7 +147,7 @@
 		        	};
 
 		        	$.ajax({
-						url : '/URL_EVENT/add_event',
+						url : '/URL_ROUTE/add_event',
 						type : 'POST',
 						data : JSON.stringify(ajaxData),
 						dataType : 'json',

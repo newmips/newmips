@@ -1,123 +1,121 @@
 {
-  "app": {
-    "name": "Application"
-  },
-  "login": {
-    "log_in": "Log in",
-    "reset_password": "Mot de passe oublié",
-    "first_connection": "Première connexion",
-    "authentication": "Connexion",
-    "login": "Login",
-    "password": "Mot de passe",
-    "confirm_password": "Confirmation du mot de passe",
-    "mail": "Mail",
-    "remember_me": "Se souvenir de moi",
-    "submit": "Soumettre"
-  },
-  "settings":{
-    "title": "Paramètres",
-    "auth_component": {
-      "access_managment": "Gestion des accès par groupe",
-      "action_managment": "Gestion des actions par rôle",
-      "moduleList": "Les modules",
-      "entityList": "Les entités",
-      "grouplist": "Groupes:",
-      "rolelist": "Rôles:",
-      "entitylist": "Entités:",
-      "group": "Groupe",
-      "role": "Rôle",
-      "action":{
-        "read": "Lire",
-        "write": "Ecrire",
-        "delete": "Supprimer"
-      }
+    "app": {
+        "name": "Application"
     },
-    "legend": "Modifier vos paramètres",
-    "lang": "Langue",
-    "login": "Login",
-    "email": "Email",
-    "firstname": "Prénom",
-    "lastname": "Nom",
-    "phone": "Téléphone"
-  },
-  "navbar": {
-    "about": "A propos",
-    "help": "Aide",
-    "support": "Support"
-  },
-  "select": {
-    "default": "-- Choose --"
-  },
-  "module": {
-    "home": "Accueil",
-    "module": "Module",
-    "administration": "Administration",
-    "workspace": "Espace de travail"
-  },
-  "role": {
-    "administrator": "Administrateur",
-    "developer": "Développeur"
-  },
-  "button": {
-    "profile": "Profil",
-    "disconnect": "Se déconnecter",
-    "show": "Afficher",
-    "update": "Modifier",
-    "delete": "Supprimer",
-    "create": "Créer",
-    "list": "Lister",
-    "add": "Ajouter",
-    "remove": "Retirer",
-    "save": "Sauvegarder",
-    "preview": "Prévisualiser",
-    "record": "Enregistrer",
-    "execute": "Exécuter",
-    "settings": "Paramètres",
-    "download": "Télécharger",
-    "search": "Rechercher",
-    "send": "Envoyer"
-  },
-  "operation": {
-    "show": "Afficher une entité ",
-    "update": "Modifier une entité ",
-    "create": "Créer une entité ",
-    "delete": "Supprimer une entité ",
-    "list": "Lister toutes les entités ",
-    "add": "Ajouter une entité "
-  },
-  "message": {
-    "create": {
-      "success": "Succès ! L'enregistrement a été créé en base de données.",
-      "failure": "Erreur ! L'enregistrement n'a pas été créé en base de données. Veuillez contacter votre administrateur."
+    "login": {
+        "log_in": "Log in",
+        "reset_password": "Mot de passe oublié",
+        "first_connection": "Première connexion",
+        "authentication": "Connexion",
+        "login": "Login",
+        "password": "Mot de passe",
+        "confirm_password": "Confirmation du mot de passe",
+        "mail": "Mail",
+        "remember_me": "Se souvenir de moi",
+        "submit": "Soumettre"
     },
-    "update": {
-      "success": "Succès ! L'enregistrement a été modifié en base de données.",
-      "failure": "Erreur ! L'enregistrement n'a pas été modifié en base de données. Veuillez contacter votre administrateur."
+    "settings": {
+        "title": "Paramètres",
+        "auth_component": {
+            "access_managment": "Gestion des accès par groupe",
+            "action_managment": "Gestion des actions par rôle",
+            "moduleList": "Les modules",
+            "entityList": "Les entités",
+            "grouplist": "Groupes:",
+            "rolelist": "Rôles:",
+            "entitylist": "Entités:",
+            "group": "Groupe",
+            "role": "Rôle",
+            "action": {
+                "read": "Lire",
+                "write": "Ecrire",
+                "delete": "Supprimer"
+            }
+        },
+        "legend": "Modifier vos paramètres",
+        "lang": "Langue",
+        "login": "Login",
+        "email": "Email",
+        "firstname": "Prénom",
+        "lastname": "Nom",
+        "phone": "Téléphone"
     },
-    "delete": {
-      "success": "Succès ! L'enregistrement a été supprimé en base de données.",
-      "failure": "Erreur ! L'enregistrement n'a pas été supprimé en base de données. Veuillez contacter votre administrateur.",
-      "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
+    "navbar": {
+        "about": "A propos",
+        "help": "Aide",
+        "support": "Support"
     },
-    "empty": "Aucune donnée à afficher"
-  },
-  "entity": {
-  },
-  "global_component": {
-    "contact_form": {
-      "firstname": "Prénom",
-      "lastname": "Nom",
-      "email": "Email",
-      "title": "Titre",
-      "content": "Contenu"
+    "select": {
+        "default": "-- Choose --"
     },
-    "agenda": {
-      "menu" : "Agenda",
-      "add_event" : "Ajouter un événement",
-      "no_category": "Pas de catégorie",
-      "pending_event": "Évévement en attente"
-    }
-  },
-  "component": {
-  }
+    "module": {
+        "home": "Accueil",
+        "module": "Module",
+        "administration": "Administration",
+        "workspace": "Espace de travail"
+    },
+    "role": {
+        "administrator": "Administrateur",
+        "developer": "Développeur"
+    },
+    "button": {
+        "profile": "Profil",
+        "disconnect": "Se déconnecter",
+        "show": "Afficher",
+        "update": "Modifier",
+        "delete": "Supprimer",
+        "create": "Créer",
+        "list": "Lister",
+        "add": "Ajouter",
+        "remove": "Retirer",
+        "save": "Sauvegarder",
+        "preview": "Prévisualiser",
+        "record": "Enregistrer",
+        "execute": "Exécuter",
+        "settings": "Paramètres",
+        "download": "Télécharger",
+        "search": "Rechercher",
+        "send": "Envoyer"
+    },
+    "operation": {
+        "show": "Afficher une entité ",
+        "update": "Modifier une entité ",
+        "create": "Créer une entité ",
+        "delete": "Supprimer une entité ",
+        "list": "Lister toutes les entités ",
+        "add": "Ajouter une entité "
+    },
+    "message": {
+        "create": {
+            "success": "Succès ! L'enregistrement a été créé en base de données.",
+            "failure": "Erreur ! L'enregistrement n'a pas été créé en base de données. Veuillez contacter votre administrateur."
+        },
+        "update": {
+            "success": "Succès ! L'enregistrement a été modifié en base de données.",
+            "failure": "Erreur ! L'enregistrement n'a pas été modifié en base de données. Veuillez contacter votre administrateur."
+        },
+        "delete": {
+            "success": "Succès ! L'enregistrement a été supprimé en base de données.",
+            "failure": "Erreur ! L'enregistrement n'a pas été supprimé en base de données. Veuillez contacter votre administrateur.",
+            "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
+        },
+        "empty": "Aucune donnée à afficher"
+    },
+    "entity": {},
+    "global_component": {
+        "contact_form": {
+            "firstname": "Prénom",
+            "lastname": "Nom",
+            "email": "Email",
+            "title": "Titre",
+            "content": "Contenu"
+        },
+        "agenda": {
+            "menu": "Agenda",
+            "add_event": "Ajouter un événement",
+            "no_category": "Pas de catégorie",
+            "pending_event": "Évévement en attente"
+        }
+    },
+    "component": {}
 }

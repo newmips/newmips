@@ -64,9 +64,11 @@ $(document).ready(function () {
     }
 
     if (typeof source !== "undefined" && source[0] == "associationSource") {
-        $("#" + source[1] + "_menu_item").addClass("active");
+        $("#"+source[1]+"_menu_item").addClass("active");
     } else {
-        $("#" + mainMenu + "_menu_item").addClass("active");
+        $("#"+mainMenu+"_menu_item").addClass("active");
+        $("#"+mainMenu+"_menu_item").parents("li").addClass("active");
+
         $("a[href='/" + mainMenu + "/" + subMenu + "']").css("color", "#3c8dbc");
     }
 
