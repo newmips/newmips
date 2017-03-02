@@ -1309,6 +1309,8 @@ exports.createNewComponentAgenda = function(attr, callback) {
                 "add entity "+attr.options.urlValue+"_category",
                 "add field Label",
                 "add field Color with type color",
+                "set field Label required",
+                "set field Color required",
                 "add entity "+attr.options.urlValue+"_event",
                 "add field Title",
                 "add field Description with type text",
@@ -1316,7 +1318,9 @@ exports.createNewComponentAgenda = function(attr, callback) {
                 "add field Start date with type datetime",
                 "add field End date with type datetime",
                 "add field All day with type boolean",
-                "add field Category related to "+attr.options.urlValue+"_category using Label"
+                "add field Category related to "+attr.options.urlValue+"_category using Label",
+                "set field Title required",
+                "set field Start date required"
             ];
 
             // Start doing necessary instruction for component creation

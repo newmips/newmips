@@ -291,170 +291,76 @@ exports.newAgenda = function(attr, callback){
 	setupComponentRouteForAgenda(idApplication, valueComponent, valueEvent, valueCategory, function(){
 		// Agenda view
 		setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, function(){
-
 			// Add access managment to Agenda
 			addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function(){
-				// Add access managment to Agenda_Event
-				addAccessManagment(idApplication, urlEvent, attr.options.moduleName.substring(2), function(){
-					// Add access managment to Agenda_Category
-					addAccessManagment(idApplication, urlCategory, attr.options.moduleName.substring(2), function(){
+				// Add Event translation
+				translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
 
-						// Add Event translation
-						translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
+					var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
+					domHelper.read(layoutFileName).then(function($) {
 
-							var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
-							domHelper.read(layoutFileName).then(function($) {
+						$("#"+urlEvent+"_menu_item").remove();
+						$("#"+urlCategory+"_menu_item").remove();
 
-								$("#"+urlEvent+"_menu_item").remove();
-								$("#"+urlCategory+"_menu_item").remove();
+						var li = '';
+						li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
+						li += "    <a href='#'>\n";
+						li += "        <i class='fa fa-calendar-o'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
+						li += "        <span class='pull-right-container'>\n";
+						li += "            <i class='fa fa-angle-left pull-right'></i>\n";
+						li += "        </span>\n";
+						li += "    </a>\n";
+						li += "    <ul class='treeview-menu'>\n";
+						li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.agenda.menu\" /}</a></li>\n";
+						li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
+						li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"entity."+valueEvent+".label_entity\" /}\n";
+						li += "                <span class='pull-right-container'>\n";
+						li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
+						li += "                </span>\n";
+						li += "            </a>\n";
+						li += "            <ul class='treeview-menu'>\n";
+						li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueEvent+".label_entity\" /}</a></li>\n";
+						li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueEvent+".plural_entity\" /}</a></li>\n";
+						li += "            </ul>\n";
+						li += "        </li>\n";
+						li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
+						li += "            <a href='#'><i class='fa fa-bookmark'></i> {@__ key=\"entity."+valueCategory+".label_entity\" /}\n";
+						li += "                <span class='pull-right-container'>\n";
+						li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
+						li += "                </span>\n";
+						li += "            </a>\n";
+						li += "            <ul class='treeview-menu'>\n";
+						li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueCategory+".label_entity\" /}</a></li>\n";
+						li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueCategory+".plural_entity\" /}</a></li>\n";
+						li += "            </ul>\n";
+						li += "        </li>\n";
+						li += "    </ul>\n";
+						li += "</li>\n";
 
-								var li = '';
-								li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
-								li += "    <a href='#'>\n";
-								li += "        <i class='fa fa-calendar-o'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
-								li += "        <span class='pull-right-container'>\n";
-								li += "            <i class='fa fa-angle-left pull-right'></i>\n";
-								li += "        </span>\n";
-								li += "    </a>\n";
-								li += "    <ul class='treeview-menu'>\n";
-								li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.agenda.menu\" /}</a></li>\n";
-								li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
-								li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"entity."+valueEvent+".label_entity\" /}\n";
-								li += "                <span class='pull-right-container'>\n";
-								li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-								li += "                </span>\n";
-								li += "            </a>\n";
-								li += "            <ul class='treeview-menu'>\n";
-								li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueEvent+".label_entity\" /}</a></li>\n";
-								li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueEvent+".plural_entity\" /}</a></li>\n";
-								li += "            </ul>\n";
-								li += "        </li>\n";
-								li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
-								li += "            <a href='#'><i class='fa fa-bookmark'></i> {@__ key=\"entity."+valueCategory+".label_entity\" /}\n";
-								li += "                <span class='pull-right-container'>\n";
-								li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-								li += "                </span>\n";
-								li += "            </a>\n";
-								li += "            <ul class='treeview-menu'>\n";
-								li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueCategory+".label_entity\" /}</a></li>\n";
-								li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueCategory+".plural_entity\" /}</a></li>\n";
-								li += "            </ul>\n";
-								li += "        </li>\n";
-								li += "    </ul>\n";
-								li += "</li>\n";
+						// Add new html to document
+						$('#sortable').append(li);
 
-								// Add new html to document
-								$('#sortable').append(li);
+						// Write back to file
+						domHelper.write(layoutFileName, $).then(function() {
 
-								// Write back to file
-								domHelper.write(layoutFileName, $).then(function() {
+							// Clean empty and useless dust helper created by removing <li>
+							var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
-									// Clean empty and useless dust helper created by removing <li>
-									var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+							// Remove empty dust helper
+							layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
 
-									// Remove empty dust helper
-									layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
-
-									var writeStream = fs.createWriteStream(layoutFileName);
-									writeStream.write(layoutContent);
-									writeStream.end();
-									writeStream.on('finish', function() {
-										callback();
-									});
-								});
-							}).catch(function(err) {
-								callback(err, null);
+							var writeStream = fs.createWriteStream(layoutFileName);
+							writeStream.write(layoutContent);
+							writeStream.end();
+							writeStream.on('finish', function() {
+								callback();
 							});
 						});
+					}).catch(function(err) {
+						callback(err, null);
 					});
 				});
 			});
 		});
 	});
-
-	// Event Model
-	/*setupComponentModel(idApplication, "agenda", valueEvent, filenameEvent, function(){
-		createComponentAttributesAndOptionsFiles(idApplication, "agenda", valueEvent, filenameEvent, valueComponent, function(){
-			// Categorie Model
-			setupComponentModel(idApplication, "agenda", valueCategory, filenameCategory, function(){
-				createComponentAttributesAndOptionsFiles(idApplication, "agenda", valueCategory, filenameCategory, null, function(){
-					// Event Route
-					setupComponentRouteForAgenda(idApplication, "agenda", valueEvent, filenameEvent, function(){
-						// Category Route
-						setupComponentRouteForAgenda(idApplication, "agenda", valueCategory, filenameCategory, function(){
-							// Agenda Route
-							setupComponentRouteForAgenda(idApplication, "agenda", valueComponent, filenameComponent, function(){
-								// Component views
-								setupComponentViewForAgenda(idApplication, "agenda", valueComponent, function(){
-									// Add access managment to Agenda
-									addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function(){
-										// Add access managment to Agenda_Category
-										addAccessManagment(idApplication, urlCategory, attr.options.moduleName.substring(2), function(){
-											// Add access managment to Agenda_Event
-											addAccessManagment(idApplication, urlEvent, attr.options.moduleName.substring(2), function(){
-												// Add Event translation
-												translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
-													translateHelper.writeLocales(idApplication, "component-agenda-event", valueEvent, "Event", attr.googleTranslate, function(){
-														translateHelper.writeLocales(idApplication, "component-agenda-category", valueCategory, "Category", attr.googleTranslate, function(){
-															var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
-															domHelper.read(layoutFileName).then(function($) {
-																var li = '';
-																li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
-																li += "    <a href='#'>\n";
-																li += "        <i class='fa fa-calendar-o'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
-																li += "        <span class='pull-right-container'>\n";
-																li += "            <i class='fa fa-angle-left pull-right'></i>\n";
-																li += "        </span>\n";
-																li += "    </a>\n";
-																li += "    <ul class='treeview-menu'>\n";
-																li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.agenda.menu\" /}</a></li>\n";
-																li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
-																li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"component."+valueEvent+".label_component\" /}\n";
-																li += "                <span class='pull-right-container'>\n";
-																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-																li += "                </span>\n";
-																li += "            </a>\n";
-																li += "            <ul class='treeview-menu'>\n";
-																li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueEvent+".label_component\" /}</a></li>\n";
-																li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueEvent+".plural_component\" /}</a></li>\n";
-																li += "            </ul>\n";
-																li += "        </li>\n";
-																li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
-																li += "            <a href='#'><i class='fa fa-bookmark'></i> {@__ key=\"component."+valueCategory+".label_component\" /}\n";
-																li += "                <span class='pull-right-container'>\n";
-																li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-																li += "                </span>\n";
-																li += "            </a>\n";
-																li += "            <ul class='treeview-menu'>\n";
-																li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"component."+valueCategory+".label_component\" /}</a></li>\n";
-																li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"component."+valueCategory+".plural_component\" /}</a></li>\n";
-																li += "            </ul>\n";
-																li += "        </li>\n";
-																li += "    </ul>\n";
-																li += "</li>\n";
-
-																// Add new html to document
-																$('#sortable').append(li);
-
-																// Write back to file
-																domHelper.write(layoutFileName, $).then(function() {
-																	callback();
-																});
-															}).catch(function(err) {
-																callback(err, null);
-															});
-														});
-													});
-												});
-											});
-										});
-									});
-								});
-							});
-						});
-					});
-				});
-			});
-		});
-	});*/
 }
