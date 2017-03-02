@@ -6,14 +6,17 @@ function validateString(string) {
 function clearApplicationString(string) {
     string = string.replace(/é/g, "e");
     string = string.replace(/è/g, "e");
+    string = string.replace(/\ê/g, "e");
     string = string.replace(/à/g, "a");
     string = string.replace(/ô/g, "o");
     string = string.replace(/û/g, "u");
     string = string.replace(/ù/g, "u");
+    string = string.replace(/ü/g, "u");
     string = string.replace(/ç/g, "c");
+    string = string.replace(/î/g, "i");
+    string = string.replace(/ï/g, "i");
     string = string.replace(/â/g, "a");
     string = string.replace(/ /g, "-");
-    string = string.replace(/\ê/g, "e");
     string = string.replace(/\Ù/g, "u");
     string = string.replace(/\À/g, "a");
     string = string.replace(/\Ç/g, "c");
