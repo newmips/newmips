@@ -108,12 +108,12 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     "method": "GET"
                 }, function(error, response, body) {
                     if (error)
-                        return checkServer();
+                        return setTimeout(checkServer, 100);
 
                     //Check for right status code
                     if (response.statusCode !== 200) {
                         console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                        return checkServer();
+                        return setTimeout(checkServer, 100);
                     }
 
                     //All is good. Print the body
@@ -368,13 +368,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                             process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
                             function checkServer() {
-                                if (++serverCheckCount == 150)
-                                    throw new Error("Server couldn't start");
+                                if (++serverCheckCount == 150) {
+                                    req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
+                                    return res.redirect('/default/home');
+                                }
 
-                                //Lets try to make a HTTPS GET request to modulus.io's website.
-                                //All we did here to make HTTPS call is changed the `http` to `https` in URL.
-                                // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
-                                // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
                                 var iframe_status_url = protocol_iframe + '://';
                                 if (globalConf.env == 'cloud')
                                     iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
@@ -387,12 +385,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 }, function(error, response, body) {
                                     //Check for error
                                     if (error)
-                                        return checkServer();
+                                        return setTimeout(checkServer, 100);
 
                                     //Check for right status code
                                     if (response.statusCode !== 200) {
                                         console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                        return checkServer();
+                                        return setTimeout(checkServer, 100);
                                     }
 
                                     //All is good. Print the body
