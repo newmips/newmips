@@ -43,6 +43,7 @@ function setupComponentRoute(idApplication, folderComponent, nameComponent, urlS
 	// CREATE ROUTE FILE
 	var routeTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/routes/route_'+filename+'.js', 'utf8');
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_LOWER/g, nameComponent.toLowerCase());
+	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_URL/g, nameComponent.toLowerCase().substring(2));
 	routeTemplate = routeTemplate.replace(/COMPONENT_NAME/g, nameComponent.charAt(0).toUpperCase() + nameComponent.toLowerCase().slice(1));
 	routeTemplate = routeTemplate.replace(/SOURCE_ENTITY_LOWER/g, source.toLowerCase());
 	routeTemplate = routeTemplate.replace(/SOURCE_URL_ENTITY_LOWER/g, urlSource.toLowerCase());
@@ -205,23 +206,25 @@ exports.newLocalFileStorage = function(attr, callback){
 	setupComponentModel(attr.id_application, filename, nameComponentLower, filename, function(){
 		createComponentAttributesAndOptionsFiles(attr.id_application, filename, nameComponent, filename, source, function(){
 			setupComponentRoute(attr.id_application, filename, nameComponent, urlSource, filename, source, function(){
+				// Add access managment to the component route
+				addAccessManagment(attr.id_application, urlComponent, attr.options.moduleName.substring(2), function(){
+					/* --------------- New translation --------------- */
+					translateHelper.writeLocales(attr.id_application, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
+						// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
+						var componentPiece = fs.readFileSync('./structure/pieces/component/'+filename+'/views/view_'+filename+'.dust', 'utf8');
 
-				/* --------------- New translation --------------- */
-				translateHelper.writeLocales(attr.id_application, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
-					// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
-					var componentPiece = fs.readFileSync('./structure/pieces/component/'+filename+'/views/view_'+filename+'.dust', 'utf8');
+						var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, nameComponentLower);
+						componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
+						componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
 
-					var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, nameComponentLower);
-					componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
-					componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
+						var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
 
-					var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
+						var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+sourceLower;
+						var file = fileBase+'/show_fields.dust';
 
-					var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+sourceLower;
-					var file = fileBase+'/show_fields.dust';
-
-					// CREATE THE TAB IN SHOW FIELDS
-					addTab(attr, file, newLi, componentContent).then(callback);
+						// CREATE THE TAB IN SHOW FIELDS
+						addTab(attr, file, newLi, componentContent).then(callback);
+					});
 				});
 			});
 		});

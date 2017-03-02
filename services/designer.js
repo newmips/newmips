@@ -1228,11 +1228,17 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
                                     structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
-                                        structure_component.newLocalFileStorage(attr, function(err){
+                                        // Get Data Entity Name needed for structure
+                                        db_module.getModuleById(attr.id_module, function(err, module){
                                             if(err)
                                                 return callback(err, null);
+                                            attr.options.moduleName = module.codeName;
+                                            structure_component.newLocalFileStorage(attr, function(err){
+                                                if(err)
+                                                    return callback(err, null);
 
-                                            callback(null, info);
+                                                callback(null, info);
+                                            });
                                         });
                                     });
                                 });
