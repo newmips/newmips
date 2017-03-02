@@ -235,7 +235,6 @@ exports.getTypeDataFieldByEntityIdAndFieldName = function (id_data_entity, name_
     });
 }
 
-
 // GetByName
 exports.getIdDataFieldByName = function (attr, callback) {
 

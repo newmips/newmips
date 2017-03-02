@@ -25,10 +25,9 @@ module.exports = function(sequelize, DataTypes) {
                         name: 'id_data_entity'
                     }
                 });
-                DataEntity.hasMany(models.Component, {
-                    foreignKey: {
-                        name: 'id_data_entity'
-                    }
+                DataEntity.belongsToMany(models.Component, {
+                    foreignKey: 'id_entity',
+                    through: "component_data_entity"
                 });
 			}
 		},

@@ -28,6 +28,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "":
             str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
+        case "color" :
+        case "colour":
+        case "couleur":
+            str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + "/>\n";
+            break;
         case "money":
         case "currency":
         case "dollar":
@@ -376,6 +381,12 @@ exports.setupDataField = function (attr, callback) {
         case "mot de passe":
         case "secret":
             typeForModel = "STRING";
+            break;
+        case "color":
+        case "colour":
+        case "couleur":
+            typeForModel = "STRING";
+            typeForDatalist = "color";
             break;
         case "number" :
         case "int" :
