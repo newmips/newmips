@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `application` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_project` (`id_project`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -48,12 +48,10 @@ CREATE TABLE IF NOT EXISTS `data_entity` (
   `name` varchar(255) DEFAULT NULL,
   `codeName` varchar(255) DEFAULT NULL,
   `id_module` bigint(20) NOT NULL,
-  `id_component` bigint(20) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_module` (`id_module`),
-  KEY `id_component` (`id_component`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+  KEY `id_module` (`id_module`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -70,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `data_field` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_data_entity` (`id_data_entity`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -86,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `module` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_application` (`id_application`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -101,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `project` (
   `codeName` varchar(255) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -114,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `role` (
   `name` varchar(255) DEFAULT NULL,
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -127,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   `expires` int(11) unsigned NOT NULL,
   `data` text COLLATE utf8_bin,
   PRIMARY KEY (`session_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -149,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_role` (`id_role`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -165,7 +163,21 @@ CREATE TABLE IF NOT EXISTS `component` (
   `version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id_module` (`id_module`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `component_data_entity`
+--
+
+CREATE TABLE IF NOT EXISTS `component_data_entity` (
+  `id_component` bigint(20) NOT NULL,
+  `id_entity` bigint(20) NOT NULL,
+  PRIMARY KEY (`id_component`,`id_entity`),
+  KEY `id_component` (`id_component`),
+  KEY `id_entity` (`id_entity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Constraints for dumped tables
@@ -182,9 +194,6 @@ ALTER TABLE `application`
 --
 ALTER TABLE `data_entity`
   ADD CONSTRAINT `fk_data_entity_module` FOREIGN KEY (`id_module`) REFERENCES `module` (`id`) ON DELETE CASCADE;
-
-ALTER TABLE `data_entity`
-  ADD CONSTRAINT `fk_data_entity_component` FOREIGN KEY (`id_component`) REFERENCES `component` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `data_field`
@@ -210,6 +219,13 @@ ALTER TABLE `user`
 
 ALTER TABLE `component`
   ADD CONSTRAINT `fk_component_module` FOREIGN KEY (`id_module`) REFERENCES `module` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `component_data_entity`
+--
+ALTER TABLE `component_data_entity`
+  ADD CONSTRAINT `fk_component_data_entity_component` FOREIGN KEY (`id_component`) REFERENCES `component` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_component_data_entity_data_entity` FOREIGN KEY (`id_entity`) REFERENCES `data_entity` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
