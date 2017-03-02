@@ -12,6 +12,9 @@ var designer = require('../services/designer.js');
 var structure_application = require('../structure/structure_application');
 var fs = require("fs");
 
+// Session
+var session_manager = require('../services/session.js');
+
 var parser = require('../services/bot.js');
 
 var scriptData = [];
@@ -51,7 +54,11 @@ function execute(req, instruction) {
                     reject();
                 } else {
 
-                    if ((attr["function"] == "createNewProject") || (attr["function"] == "selectProject")) {
+                    // Store key entities in session for futur instruction
+                    session_manager.setSessionForInstructionScript(attr.function, scriptData[userId], info);
+
+                    // OLD WAY
+                    /*if ((attr["function"] == "createNewProject") || (attr["function"] == "selectProject")) {
                         scriptData[userId].ids.id_project = info.insertId;
                         scriptData[userId].ids.id_application = null;
                         scriptData[userId].ids.id_module = null;
@@ -90,7 +97,7 @@ function execute(req, instruction) {
                     else if (attr.function == 'deleteModule') {
                         scriptData[userId].ids.id_module = info.homeID;
                         scriptData[userId].ids.id_data_entity = null;
-                    }
+                    }*/
 
                     scriptData[userId].answers.unshift(instruction + " :<br>" + info.message + "<br><br>");
                     resolve();

@@ -78,19 +78,18 @@ exports.createNewComponentOnModule = function(attr, callback) {
     }
 }
 
-// Get a component with a given name in an entity
-exports.getComponentByNameInEntity = function(idModule, idEntity, name_component, callback) {
+// Get a component with a given name in a module
+exports.getComponentByCodeNameInModule = function(idModule, codeName, displayName, callback) {
 
     models.Component.findOne({
         where:{
-            name: name_component,
-            id_data_entity: idEntity,
+            codeName: codeName,
             id_module: idModule
         }
     }).then(function(component) {
         if (!component) {
-            var err = new Error();
-            err.message = "Sorry, no component with the name '"+name_component+"' exist in the entity with ID "+idEntity+".";
+            err = new Error();
+            err.message = "Sorry, no component with the name '"+displayName+"' exist in the module with id "+idModule+".";
             return callback(err, null);
         }
         callback(null, component);
@@ -119,3 +118,23 @@ exports.getComponentByNameInModule = function(idModule, name_component, callback
     });
 }
 
+// Get a component with a given name in an entity
+exports.getComponentByNameInEntity = function(idModule, idEntity, name_component, callback) {
+
+    models.Component.findOne({
+        where:{
+            name: name_component,
+            id_data_entity: idEntity,
+            id_module: idModule
+        }
+    }).then(function(component) {
+        if (!component) {
+            var err = new Error();
+            err.message = "Sorry, no component with the name '"+name_component+"' exist in the entity with ID "+idEntity+".";
+            return callback(err, null);
+        }
+        callback(null, component);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
