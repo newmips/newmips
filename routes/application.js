@@ -38,8 +38,6 @@ var models = require('../models/');
 // Exclude from Editor
 var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload"];
 
-var timeOut = require('connect-timeout')(1000000);
-
 // ====================================================
 // Redirection application =====================
 // ====================================================
@@ -256,7 +254,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 answer = "Error: " + err.message;
                 data.answers = answer + "\n\n" + answers + "\n\n";
 
-                // Winton log file
+                // Winston log file
                 logger.debug(err.message);
 
                 chat.items.push({
@@ -273,8 +271,17 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 });
             } else {
 
-                // Store key entities in session for future instruction
-                if ((attr.function == "createNewProject") || (attr.function == "selectProject")) {
+                // Store key entities in session for futur instruction
+                session_manager.setSession(attr.function, req, info, data);
+
+                if (attr.function == "deleteApplication")
+                    return res.redirect("/default/home");
+
+                if (attr.function == 'restart')
+                    toRedirectRestart = true;
+
+                // OLD WAY
+                /*if ((attr.function == "createNewProject") || (attr.function == "selectProject")) {
                     req.session.id_project = info.insertId;
                     req.session.id_application = null;
                     req.session.id_module = null;
@@ -328,7 +335,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 }
                 else if (attr.function == 'restart') {
                     toRedirectRestart = true;
-                }
+                }*/
 
                 answer = info.message;
                 data.answers = answer + "\n\n" + answers + "\n\n";

@@ -133,8 +133,7 @@ if (protocol == 'https') {
 }
 else {
 	app.listen(port);
-	console.log("Started on "+port)
-
+	console.log("Started on "+port);
 }
 
 module.exports = app;

@@ -24,7 +24,6 @@ function clearApplicationString(string) {
 }
 
 function clearString(string){
-    console.log(string);
     string = string.replace(/é/g, "e");
     string = string.replace(/è/g, "e");
     string = string.replace(/à/g, "a");
@@ -50,17 +49,17 @@ function clearString(string){
     string = string.replace(/\"/g, "_");
     string = string.replace(/\&/g, "_");
     string = string.replace(/\*/g, "_");
-    string = string.replace(/\Ù/g, "_");
-    string = string.replace(/\Ü/g, "_");
-    string = string.replace(/\Û/g, "_");
-    string = string.replace(/\À/g, "_");
-    string = string.replace(/\Â/g, "_");
-    string = string.replace(/\Ç/g, "_");
-    string = string.replace(/\È/g, "_");
-    string = string.replace(/\É/g, "_");
-    string = string.replace(/\Ê/g, "_");
+    string = string.replace(/\Ù/g, "U");
+    string = string.replace(/\Ü/g, "U");
+    string = string.replace(/\Û/g, "U");
+    string = string.replace(/\À/g, "A");
+    string = string.replace(/\Â/g, "A");
+    string = string.replace(/\Ç/g, "C");
+    string = string.replace(/\È/g, "E");
+    string = string.replace(/\É/g, "E");
+    string = string.replace(/\Ê/g, "E");
     string = string.replace(/\$/g, "_");
-    string = string.replace(/\ê/g, "_");
+    string = string.replace(/\ê/g, "e");
     string = string.replace(/\%/g, "_");
     string = string.replace(/\£/g, "_");
     string = string.replace(/\µ/g, "_");
@@ -82,7 +81,6 @@ function clearString(string){
     string = string.replace(/\¿/g, "_");
     string = string.replace(/\¡/g, "_");
     string = string.replace(/\÷/g, "_");
-    console.log(string);
     return string;
 }
 
