@@ -92,7 +92,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
             function checkServer() {
                 if (++serverCheckCount == 150)
-                    return throw new Error("Server couldn't start");
+                    throw new Error("Server couldn't start");
                 //Lets try to make a HTTPS GET request to modulus.io's website.
                 //All we did here to make HTTPS call is changed the `http` to `https` in URL.
                 // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
@@ -367,7 +367,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
                         function checkServer() {
                             if (++serverCheckCount == 150)
-                                return throw new Error("Server couldn't start");
+                                throw new Error("Server couldn't start");
 
                             //Lets try to make a HTTPS GET request to modulus.io's website.
                             //All we did here to make HTTPS call is changed the `http` to `https` in URL.
