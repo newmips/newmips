@@ -79,6 +79,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             env.PORT = port;
 
             timer = 50;
+            var serverCheckCount = 0;
             if (process_server[application.id] == null) {
                 // Launch server for preview
                 process_server[application.id] = process_manager.launchChildProcess(application.id, env);
@@ -90,7 +91,8 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             var host = globalConf.host;
 
             function checkServer() {
-
+                if (++serverCheckCount == 150)
+                    throw new Error("Server couldn't start");
                 //Lets try to make a HTTPS GET request to modulus.io's website.
                 //All we did here to make HTTPS call is changed the `http` to `https` in URL.
                 // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
@@ -348,7 +350,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 data.chat = chat;
 
                 var sessionID = req.sessionID;
-                timer = 50;
+                var timer = 50;
+                var serverCheckCount = 0;
 
                 // Relaunch server
                 var env = Object.create(process.env);
@@ -363,6 +366,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                         process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
                         function checkServer() {
+                            if (++serverCheckCount == 150)
+                                throw new Error("Server couldn't start");
 
                             //Lets try to make a HTTPS GET request to modulus.io's website.
                             //All we did here to make HTTPS call is changed the `http` to `https` in URL.
