@@ -200,7 +200,6 @@ exports.setSession = function(attrFunction, req, info, data) {
         case "selectApplication":
         case "createNewApplication":
             req.session.id_application = info.insertId;
-            req.session.name_application = info.name_application;
             req.session.id_module = null;
             req.session.id_data_entity = null;
             break;
