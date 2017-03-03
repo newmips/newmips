@@ -85,7 +85,6 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     }
     var data = {
         "error": 1,
-//        "profile": req.session.data,
         "menu": "live",
         "msg": message,
         "answers": "",
@@ -225,11 +224,10 @@ function execute(req, instruction) {
                     req.session.answers.unshift(instruction + " :<br>" + info.message);
                     resolve();
                 }
-
             });
         } catch (e) {
             req.session.answers.unshift(instruction + " :<br>" + e.message);
-            reject();
+            reject(e);
         }
     });
 }

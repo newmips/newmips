@@ -23,23 +23,23 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     models.CODE_NAME_EVENT_MODEL.findAll({
         include: [{
             model: models.CODE_NAME_CATEGORY_MODEL,
-            as: "r_CODE_NAME_EVENT_LOWER_category"
+            as: "r_category"
         }]
     }).then(function(events) {
 
         var eventsArray = [];
         for(var i=0; i<events.length; i++){
-            if(events[i].r_CODE_NAME_EVENT_LOWER_category == null){
-                events[i].r_CODE_NAME_EVENT_LOWER_category = {
+            if(events[i].r_category == null){
+                events[i].r_category = {
                     f_color: "#CCCCCC"
                 };
             }
             eventsArray.push({
                 title: events[i].f_title,
-                start: moment(events[i].f_datedebut).format("YYYY-MM-DD HH:mm:ss"),
-                end: moment(events[i].f_datefin).format("YYYY-MM-DD HH:mm:ss"),
-                allDay: events[i].f_allday,
-                backgroundColor: events[i].r_CODE_NAME_EVENT_LOWER_category.f_color,
+                start: moment(events[i].f_start_date).format("YYYY-MM-DD HH:mm:ss"),
+                end: moment(events[i].f_end_date).format("YYYY-MM-DD HH:mm:ss"),
+                allDay: events[i].f_all_day,
+                backgroundColor: events[i].r_category.f_color,
                 url: "/CODE_NAME_EVENT_URL/show?id="+events[i].id
             });
         }
@@ -53,6 +53,28 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
             // Nettoyage de la session
             req.session.toastr = [];
             res.render('CODE_NAME_LOWER/view_agenda', data);
+        });
+    });
+});
+
+router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "write"), function(req, res) {
+
+    if(req.body.idCategory == "" || req.body.idCategory == 0)
+        req.body.idCategory = null;
+
+    var createObj = {
+        version: 0,
+        f_title: req.body.title,
+        f_start_date: moment(req.body.start).format("YYYY-MM-DD HH:mm:ss"),
+        f_end_date: req.body.end,
+        f_all_day: req.body.allday,
+        f_id_CODE_NAME_CATEGORY_URL_category: req.body.idCategory
+    };
+
+    models.CODE_NAME_EVENT_MODEL.create(createObj).then(function(createdEvent){
+        res.json({
+            success: true,
+            idEvent: createdEvent.id
         });
     });
 });

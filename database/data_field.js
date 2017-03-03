@@ -202,7 +202,8 @@ exports.getNameDataFieldById = function (id_data_field, callback) {
             err.message = "No data field found";
             return callback(err, null);
         }
-        callback(null, dataField.name);
+
+        callback(null, dataField);
     }).catch(function (err) {
         callback(err, null);
     });
@@ -233,7 +234,6 @@ exports.getTypeDataFieldByEntityIdAndFieldName = function (id_data_entity, name_
         callback(err, null);
     });
 }
-
 
 // GetByName
 exports.getIdDataFieldByName = function (attr, callback) {

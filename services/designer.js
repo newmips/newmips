@@ -12,6 +12,9 @@ var database = require("../database/database");
 // Session
 var session = require("./session");
 
+// Bot
+var bot = require('../services/bot.js');
+
 // Structure
 var structure_application = require("../structure/structure_application");
 var structure_module = require("../structure/structure_module");
@@ -27,6 +30,38 @@ var gitHelper = require("../utils/git_helper");
 
 var fs = require('fs');
 var sequelize = require('../models/').sequelize;
+
+/* --------------------------------------------------------------- */
+/* ------------------------- Function ---------------------------- */
+/* --------------------------------------------------------------- */
+// Execute an array of instructions
+exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, callback) {
+
+    if (instructions.length == idx)
+        callback(null);
+
+    var exportsContext = this;
+
+    // Create the attr obj
+    var recursiveAttr = bot.parse(instructions[idx]);
+
+    // Rework the attr obj
+    recursiveAttr = attrHelper.reworkAttr(recursiveAttr);
+
+    // Add current session info in attr object
+    recursiveAttr.id_project = sessionAttr.id_project;
+    recursiveAttr.id_application = sessionAttr.id_application;
+    recursiveAttr.id_module = sessionAttr.id_module;
+    recursiveAttr.id_data_entity = sessionAttr.id_data_entity;
+
+    // Execute the designer function
+    this[recursiveAttr.function](recursiveAttr, function(err, info) {
+        if(err)
+            return callback(err);
+        session.setSessionInAttr(recursiveAttr, info);
+        exportsContext.recursiveInstructionExecute(recursiveAttr, instructions, ++idx, callback);
+    });
+}
 
 /* --------------------------------------------------------------- */
 /* --------------------------- Help ------------------------------ */
@@ -649,24 +684,25 @@ function deleteDataField(attr, callback) {
         var name_data_field = options.value;
 
         try {
-            function checkIfIDGiven(attr, callback){
+            function checkIfIDGiven(attr, callback2){
                 // If it was the ID instead of the name given in the instruction
                 if(!isNaN(attr.options.showValue)){
-                    db_field.getDataFieldByID(attr.options.showValue, attr.id_data_entity, function(err, field){
+                    db_field.getNameDataFieldById(parseInt(attr.options.showValue), function(err, field){
                         if (err)
-                            return callback(err, null);
+                            return callback2(err, null);
 
                         attr.options.value = field.codeName;
                         attr.options.showValue = field.name;
-                        callback(null, attr);
+                        callback2(null, attr);
                     });
                 }
-                else{
-                    callback(null, attr);
-                }
+                else
+                    callback2(null, attr);
             }
 
             checkIfIDGiven(attr, function(err, attr){
+                if (err)
+                    return callback(err);
                 // Delete field from views and models
                 structure_data_field.deleteDataField(attr, function(err, infoStructure) {
                     if (err)
@@ -1152,7 +1188,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
 /* --------------------------------------------------------------- */
 
 // Componant that we can add on an entity to store local documents
-exports.createNewComponentLocalFileStorage = function(attr, callback) {
+exports.createNewComponentLocalFileStorage = function (attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
@@ -1162,8 +1198,10 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
     }
 
     // Check if component with this name is already created on this entity
-    db_component.getComponentByNameInEntity(attr.id_module, attr.id_data_entity, attr.options.showValue, function(err, component){
-        if(component){
+    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function(err, alreadyExist){
+        if(err)
+            return callback(err, null);
+        if(alreadyExist){
             var err = new Error();
             err.message = "Sorry, a component with this name is already associate to this entity in this module.";
             return callback(err, null);
@@ -1179,6 +1217,8 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                 else{
                     // Create the component in newmips database
                     db_component.createNewComponentOnEntity(attr, function(err, info){
+                        if(err)
+                            return callback(err, null);
                         // Get Data Entity Name needed for structure
                         db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
                             attr.options.source = sourceEntity.codeName;
@@ -1188,11 +1228,17 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
                                     structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
-                                        structure_component.newLocalFileStorage(attr, function(err){
+                                        // Get Data Entity Name needed for structure
+                                        db_module.getModuleById(attr.id_module, function(err, module){
                                             if(err)
                                                 return callback(err, null);
+                                            attr.options.moduleName = module.codeName;
+                                            structure_component.newLocalFileStorage(attr, function(err){
+                                                if(err)
+                                                    return callback(err, null);
 
-                                            callback(null, info);
+                                                callback(null, info);
+                                            });
                                         });
                                     });
                                 });
@@ -1208,7 +1254,7 @@ exports.createNewComponentLocalFileStorage = function(attr, callback) {
 }
 
 // Componant to create a contact form in a module
-exports.createNewComponentContactForm = function(attr, callback) {
+exports.createNewComponentContactForm = function (attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
@@ -1218,7 +1264,7 @@ exports.createNewComponentContactForm = function(attr, callback) {
     }
 
     // Check if component with this name is already created on this entity
-    db_component.getComponentByNameInModule(attr.id_module, attr.options.showValue, function(err, component){
+    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function(err, component){
         if(component){
             var err = new Error();
             err.message = "Sorry, a component with this name is already associate to this module.";
@@ -1255,6 +1301,8 @@ exports.createNewComponentContactForm = function(attr, callback) {
 // Componant to create an agenda in a module
 exports.createNewComponentAgenda = function(attr, callback) {
 
+    var exportsContext = this;
+
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
         attr.options.value = "c_agenda";
@@ -1262,55 +1310,68 @@ exports.createNewComponentAgenda = function(attr, callback) {
         attr.options.showValue = "Agenda";
     }
 
-    // Check if component with this name is already created on this entity
-    db_component.getComponentByNameInModule(attr.id_module, attr.options.showValue, function(err, component){
+    // Check if component with this name is already created on this module
+    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value ,attr.options.showValue, function(err, component){
         if(component){
             var err = new Error();
-            err.message = "Sorry, a component with this name is already associate to this module.";
+            err.message = "Sorry, a component with the name "+attr.options.showValue+" is already associate to this module.";
             return callback(err, null);
         } else{
-            // Check if a table as already the composant name
-            db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
-                if(dataEntity){
-                    err = new Error();
-                    err.message = "Sorry, a other entity with this component name already exist in this application.";
+
+            var valueEvent = "e_"+attr.options.urlValue+"_event";
+            var valueCategory = "e_"+attr.options.urlValue+"_category";
+
+            var showValueEvent = attr.options.showValue+" Event";
+            var showValueCategory = attr.options.showValue+" Category";
+
+            var urlEvent = attr.options.urlValue+"_category";
+            var urlCategory = attr.options.urlValue+"_event";
+
+            var instructions = [
+                "add entity "+showValueCategory,
+                "add field Label",
+                "add field Color with type color",
+                "set field Label required",
+                "set field Color required",
+                "add entity "+showValueEvent,
+                "add field Title",
+                "add field Description with type text",
+                "add field Place",
+                "add field Start date with type datetime",
+                "add field End date with type datetime",
+                "add field All day with type boolean",
+                "add field Category related to "+showValueCategory+" using Label",
+                "set field Title required",
+                "set field Start date required"
+            ];
+
+            // Start doing necessary instruction for component creation
+            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+                if(err)
                     return callback(err, null);
-                } else{
-                    var evAttr = {
-                        id_project: attr.id_project,
-                        id_application: attr.id_application,
-                        id_module: attr.id_module,
-                        id_data_entity: attr.id_data_entity,
-                        options: {
-                            value: attr.options.value+"_event",
-                            urlValue: attr.options.urlValue+"_event",
-                            showValue: attr.options.showValue+" Events"
-                        }
-                    };
-                    attr.event = evAttr;
-                    // Add entity event in DB generator
-                    db_entity.createNewDataEntity(evAttr, function(err, infoDbEntity){
-                        var catAttr = {
-                            id_project: attr.id_project,
-                            id_application: attr.id_application,
-                            id_module: attr.id_module,
-                            id_data_entity: attr.id_data_entity,
-                            options: {
-                                value: attr.options.value+"_category",
-                                urlValue: attr.options.urlValue+"_category",
-                                showValue: attr.options.showValue+" Category"
-                            }
-                        };
-                        attr.category = catAttr;
-                        // Add entity category in DB generator
-                        db_entity.createNewDataEntity(catAttr, function(err, infoDbEntity){
-                            // Create the component in newmips database
-                            db_component.createNewComponentOnModule(attr, function(err, info){
+
+                // Clear toSync.json because all fields will be created with the entity creation
+                var toSyncFileName = './workspace/'+attr.id_application+'/models/toSync.json';
+                var writeStream = fs.createWriteStream(toSyncFileName);
+                var toSyncObject = {};
+                writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                writeStream.end();
+                writeStream.on('finish', function() {
+                    // Create the component in newmips database
+                    db_component.createNewComponentOnModule(attr, function(err, info){
+                        if(err)
+                            return callback(err, null);
+
+                        // Link new event entity to component
+                        db_entity.addComponentOnEntityByCodeName(valueEvent, info.insertId, attr.id_module, function(err){
+                            // Link new category entity to component
+                            db_entity.addComponentOnEntityByCodeName(valueCategory, info.insertId, attr.id_module, function(err){
                                 // Get Data Entity Name needed for structure
                                 db_module.getModuleById(attr.id_module, function(err, module){
                                     if(err)
                                         return callback(err, null);
                                     attr.options.moduleName = module.codeName;
+
                                     structure_component.newAgenda(attr, function(err){
                                         if(err)
                                             return callback(err, null);
@@ -1321,12 +1382,11 @@ exports.createNewComponentAgenda = function(attr, callback) {
                             });
                         });
                     });
-                }
+                });
             });
         }
     });
 }
-
 
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */

@@ -1,12 +1,45 @@
+
+function validateString(string) {
+    return /^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9-]{1,25}$/g.test(string);
+}
+
 function clearString(string){
     string = string.replace(/é/g, "e");
     string = string.replace(/è/g, "e");
+    string = string.replace(/\ê/g, "e");
+    string = string.replace(/\ë/g, "e");
+    string = string.replace(/\È/g, "e");
+    string = string.replace(/\É/g, "e");
+    string = string.replace(/\Ê/g, "e");
+    string = string.replace(/\Ë/g, "e");
+
     string = string.replace(/à/g, "a");
+    string = string.replace(/â/g, "a");
+    string = string.replace(/ä/g, "a");
+    string = string.replace(/\À/g, "a");
+    string = string.replace(/\Â/g, "a");
+    string = string.replace(/\Ä/g, "a");
+
     string = string.replace(/ô/g, "o");
+    string = string.replace(/ö/g, "o");
+
+    string = string.replace(/î/g, "i");
+    string = string.replace(/ï/g, "i");
+    string = string.replace(/Î/g, "i");
+    string = string.replace(/Ï/g, "i");
+
     string = string.replace(/û/g, "u");
     string = string.replace(/ù/g, "u");
+    string = string.replace(/ü/g, "u");
+    string = string.replace(/\Ù/g, "u");
+    string = string.replace(/\Ü/g, "u");
+    string = string.replace(/\Û/g, "u");
+
     string = string.replace(/ç/g, "c");
-    string = string.replace(/â/g, "a");
+    string = string.replace(/ĉ/g, "c");
+    string = string.replace(/\Ç/g, "c");
+    string = string.replace(/\Ĉ/g, "c");
+
     string = string.replace(/'/g, "_");
     string = string.replace(/,/g, "_");
     string = string.replace(/ /g, "_");
@@ -20,17 +53,10 @@ function clearString(string){
     string = string.replace(/\./g, "_");
     string = string.replace(/\;/g, "_");
     string = string.replace(/\?/g, "_");
-
     string = string.replace(/\"/g, "_");
     string = string.replace(/\&/g, "_");
     string = string.replace(/\*/g, "_");
-    string = string.replace(/\Ù/g, "_");
-    string = string.replace(/\À/g, "_");
-    string = string.replace(/\Ç/g, "_");
-    string = string.replace(/\È/g, "_");
-    string = string.replace(/\É/g, "_");
     string = string.replace(/\$/g, "_");
-    string = string.replace(/\ê/g, "_");
     string = string.replace(/\%/g, "_");
     string = string.replace(/\£/g, "_");
     string = string.replace(/\µ/g, "_");
@@ -140,6 +166,7 @@ function removePrefix(string, type){
 
 module.exports = {
     clearString: clearString,
+    validateString: validateString,
     lowerFirstWord: lowerFirstWord,
     addPrefix: addPrefix,
     removePrefix: removePrefix,
@@ -153,6 +180,25 @@ module.exports = {
                 attr.options.showValue = attr.options.value;
                 /* Clean the name of the value */
                 attr.options.value = clearString(attr.options.value);
+
+                if (attr.function == 'createNewApplication') {
+                    attr.options.value = attr.options.value.replace(/_/g, "-");
+                    if (!validateString(attr.options.value)){
+                        var errorText = "Le nom d'application doit respecter les règles suivantes :<br>";
+                        errorText += "<ul>";
+                        errorText += "<li>- Caractères alphanumériques uniquement.</li>";
+                        errorText += "<li>- Au moins une lettre.</li>";
+                        errorText += "<li>- Un espace maximum entre chaque mot.</li>";
+                        errorText += "<li>- Aucun espace en début ou fin.</li>";
+                        errorText += "<li>- 25 caractères maximum.</li>";
+                        errorText += "<li>- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).</li>";
+                        errorText += "</ul>";
+
+                        // Generate an error to throw in controller.
+                        attr.error = errorText;
+                    }
+                }
+
                 /* Value that will be used in url */
                 attr.options.urlValue = attr.options.value.toLowerCase();
                 /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
