@@ -1,6 +1,6 @@
 
 function validateString(string) {
-    return /^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9-]{1,63}$/g.test(string);
+    return /^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9-]{1,25}$/g.test(string);
 }
 
 function clearApplicationString(string) {
@@ -187,8 +187,18 @@ module.exports = {
                 /* Clean the name of the value */
                 if (attr.function == 'createNewApplication') {
                     attr.options.value = clearApplicationString(attr.options.value);
-                    if (!validateString(attr.options.value))
-                        attr.error = "Your application name isn't valid. It must be only alphanumeric characters";
+                    if (!validateString(attr.options.value)){
+                        var errorText = "Le nom d'application doit respecter les règles suivantes :<br>";
+                        errorText += "<ul>";
+                        errorText += "<li>- Caractères alphanumériques uniquement.</li>";
+                        errorText += "<li>- Au moins une lettre.</li>";
+                        errorText += "<li>- Un espace maximum entre chaque mot.</li>";
+                        errorText += "<li>- Aucun espace en début ou fin.</li>";
+                        errorText += "<li>- 25 caractères maximum.</li>";
+                        errorText += "<li>- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).</li>";
+                        errorText += "</ul>";
+                        attr.error = errorText;
+                    }
                 }
                 else
                     attr.options.value = clearString(attr.options.value);
