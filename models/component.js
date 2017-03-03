@@ -14,11 +14,9 @@ module.exports = function(sequelize, DataTypes) {
 		tableName: "component",
 		classMethods: {
 			associate: function(models) {
-				Component.belongsTo(models.DataEntity, {
-                    foreignKey: {
-                        name: 'id_data_entity'
-                    },
-                    onDelete: 'cascade'
+				Component.belongsToMany(models.DataEntity, {
+                    foreignKey: 'id_component',
+                    through: "component_data_entity"
                 });
                 Component.belongsTo(models.Module, {
                     foreignKey: {

@@ -70,7 +70,7 @@ block content
 											span #{__("button.preview")}
 									.form-group#create_new_application_input(style="display: none;")
 										label(for='application') #{M_("entity.application.name")}
-										input.form-control.input(id='application', name='application', type='text')
+										input.form-control.input.applicationInput(id='application', name='application', type='text')
 										a#select_existing_application(href="#")
 											i.fa.fa-plus.fa-md &nbsp;
 											| #{__('tour_tip.home_2.select_existing_application')}
@@ -89,7 +89,7 @@ block content
 											| #{__('tour_tip.home_2.select_existing_project')}
 									.form-group
 										label(for='application') #{M_("entity.application.name")}
-										input.form-control.input(id='application', name='application', tabindex="2", type='text')
+										input.form-control.input.applicationInput(id='application', name='application', tabindex="2", type='text')
 										br
 										button.generate-button(id="step2Discover2", type="submit", class="btn btn-primary")
 											| #{__('tour_tip.home_2.generate')}
@@ -131,12 +131,69 @@ block custom_js
 		$(function() {
 
 			/* Unable complex caractere for project and application*/
-			$("#project, #application").keyup(function(e) {
+			$(document).on("keyup", "#project", function(e){
 				/* var reg = new RegExp("[^A-Za-z ]"); */
 				/* var reg = new RegExp("[^A-zÀ-ú]"); */
 				var reg = new RegExp("[^a-zA-Z0-9àâçéèêëîïôûùüÿñ, ']");
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
+			});
+
+			$(document).on("keyup", "#application", function(e){
+
+				var string = $(this).val();
+		        string = string.replace(/é/g, "e");
+		        string = string.replace(/\./g, "");
+		        string = string.replace(/\ /g, "-");
+		        string = string.replace(/è/g, "e");
+		        string = string.replace(/ê/g, "e");
+		        string = string.replace(/ë/g, "e");
+		        string = string.replace(/\ê/g, "e");
+		        string = string.replace(/à/g, "a");
+		        string = string.replace(/â/g, "a");
+		        string = string.replace(/ä/g, "a");
+		        string = string.replace(/ô/g, "o");
+		        string = string.replace(/ö/g, "o");
+		        string = string.replace(/û/g, "u");
+		        string = string.replace(/ù/g, "u");
+		        string = string.replace(/ü/g, "u");
+		        string = string.replace(/î/g, "i");
+		        string = string.replace(/ï/g, "i");
+		        string = string.replace(/ç/g, "c");
+		        string = string.replace(/\Ù/g, "u");
+		        string = string.replace(/\Û/g, "u");
+		        string = string.replace(/\Ü/g, "u");
+		        string = string.replace(/\À/g, "a");
+		        string = string.replace(/\Â/g, "a");
+		        string = string.replace(/\Ä/g, "a");
+		        string = string.replace(/\Ç/g, "c");
+		        string = string.replace(/\È/g, "e");
+		        string = string.replace(/\É/g, "e");
+		        string = string.replace(/\Ê/g, "e");
+		        string = string.replace(/\Ë/g, "e");
+
+		        if (!/^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9- ]{1,25}$/g.test(string)) {
+		            var errorText = "Le nom d'application doit respecter les règles suivantes :<br>";
+		            errorText += "<ul>";
+		            errorText += "<li>- Caractères alphanumériques uniquement.</li>";
+		            errorText += "<li>- Au moins une lettre.</li>";
+		            errorText += "<li>- Un espace maximum entre chaque mot.</li>";
+		            errorText += "<li>- Aucun espace en début ou fin.</li>";
+		            errorText += "<li>- 25 caractères maximum.</li>";
+		            errorText += "<li>- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).</li>";
+		            errorText += "</ul>";
+
+		            $("span.applicationSpanUrl").remove();
+		            if ($("span.applicationSpan").length == 0)
+		        		$(this).after("<span class='applicationSpan' style='color:red;'><i class='fa fa-exclamation-circle'></i> "+errorText+"</span>");
+		        	$("#step2Discover2, #step2Discover1").prop('disabled', true);
+		        }
+		        else {
+		        	$("span.applicationSpan").remove();
+		        	$("span.applicationSpanUrl").remove();
+		        	$("#step2Discover2, #step2Discover1").prop('disabled', false);
+		        	$(this).after("<p><span class='applicationSpanUrl' style='color:#3c8dbc;margin-bottom:10px'><i class='fa fa-info-circle'></i> L'url de votre application sera: "+string.toLowerCase()+"</span></p>");
+		        }
 			});
 
 			/* --------------- Initialisation des select --------------- */
@@ -196,6 +253,9 @@ block custom_js
 			});
 
 			$(document).on("click", "#create_new_application", function(){
+				$(".applicationInput").val("").trigger("keydown");
+				$("span.applicationSpan").remove();
+		        $("span.applicationSpanUrl").remove();
 				$(this).parents(".form-group").slideUp();
 				$("#create_new_application_input").slideDown();
 			});
@@ -206,7 +266,11 @@ block custom_js
 			});
 
 			$(document).on("click", "#create_new_project", function(){
+				$(".applicationInput").val("").trigger("keydown");
+				$("span.applicationSpan").remove();
+		        $("span.applicationSpanUrl").remove();
 				$("#existing_project").slideUp();
+				$("#application").val("");
 				$("#new_project").slideDown();
 			});
 
