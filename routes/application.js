@@ -42,6 +42,15 @@ var exclude = ["node_modules", "config", "sql", "services", "models", "api", "ut
 // Redirection application =====================
 // ====================================================
 
+function initEditor(idApplication){
+    // Editor
+    var workspacePath = __dirname + "/../workspace/" + idApplication + "/";
+    var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+    /* Sort folder first, file after */
+    folder = helpers.sortEditorFolder(folder);
+    return folder;
+}
+
 // Preview Get
 router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
@@ -137,12 +146,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             iframe_home_url += host + ":" + port + "/default/home";
                         data.iframe_url = iframe_home_url;
 
-                        // Editor
-                        var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
-                        var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
-                        /* Sort folder first, file after */
-                        folder = helpers.sortEditorFolder(folder);
-                        data.workspaceFolder = folder;
+                        data.workspaceFolder = initEditor(req.session.id_application);
 
                         // Let's do git init or commit depending the env (only on cloud env for now)
                         gitHelper.doGit(attr, function(){
@@ -158,6 +162,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         });
     }).catch(function(err) {
         data.code = 500;
+        data.workspaceFolder = initEditor(req.session.id_application);
         console.log(err);
         res.render('common/error', data);
     });
@@ -404,12 +409,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                     newAttr.id_data_entity = req.session.id_data_entity;
                                     session_manager.getSession(newAttr, function(err, info) {
                                         data.session = info;
-                                        // Editor
-                                        var workspacePath = __dirname + "/../workspace/" + req.session.id_application + "/";
-                                        var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
-                                        /* Sort folder first, file after */
-                                        folder = helpers.sortEditorFolder(folder);
-                                        data.workspaceFolder = folder;
+                                        data.workspaceFolder = initEditor(req.session.id_application);
 
                                         if(toRedirectRestart){
                                             return res.redirect("/application/preview?id_application="+newAttr.id_application);
@@ -458,6 +458,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             attr.id_data_entity = req.session.id_data_entity;
             session_manager.getSession(attr, function(err, info) {
                 data.session = info;
+                data.workspaceFolder = initEditor(req.session.id_application);
                 res.render('front/preview', data);
             });
         }
