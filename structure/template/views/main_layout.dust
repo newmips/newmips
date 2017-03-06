@@ -22,7 +22,8 @@
 		{! Bootstrap DateTimepicker !}
 		<link href='/css/datetimepicker/bootstrap-datetimepicker.min.css' rel='stylesheet' type="text/css">
 		{! iCheck for checkboxes and radio inputs !}
-		<link href='/css/iCheck/all.css' rel='stylesheet' type='text/css'>
+		<link href='/css/iCheck/flat/blue.css' rel='stylesheet' type='text/css'>
+		{!<link href='/css/iCheck/all.css' rel='stylesheet' type='text/css'>!}
 		{! select2 !}
 		<link href='/css/select2/css/select2.min.css' rel='stylesheet' type='text/css'>
 		{! Dropzone !}
@@ -149,8 +150,6 @@
 		<script src="/js/plugins/select2/dist/js/select2.full.min.js"></script>
 		{! CKEDITOR !}
 		<script src="/js/plugins/ckeditor/ckeditor.js"></script>
-		{! SlimScroll !}
-		{!<script src="/js/plugins/slimScroll/jquery.slimscroll.min.js"></script>!}
 		{! DropZone !}
 		<script src="/js/plugins/dropzone/dropzone.min.js"></script>
 
