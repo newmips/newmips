@@ -1,0 +1,7 @@
+DROP DATABASE IF EXISTS newmips;
+CREATE DATABASE newmips
+  DEFAULT CHARACTER SET utf8
+  DEFAULT COLLATE utf8_general_ci;
+
+CREATE USER 'newmips'@'127.0.0.1' IDENTIFIED BY 'newmips';
+GRANT ALL PRIVILEGES ON newmips.* TO 'newmips'@'127.0.0.1';
