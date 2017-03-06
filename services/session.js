@@ -3,6 +3,7 @@ var db_application = require("../database/application");
 var db_module = require("../database/module");
 var db_entity = require("../database/data_entity");
 var globalConf = require("../config/global.js");
+var gitHelper = require("../utils/git_helper");
 
 var manager;
 if (globalConf.env == 'cloud')
@@ -87,28 +88,34 @@ exports.showSession = function(attr, callback) {
 // Deploy
 exports.deploy = function(attr, callback) {
 
-    if (typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
+    if (typeof(attr.id_application) != 'undefined') id_application = attr.id_application;
 
     if (globalConf.env == 'cloud') {
-        db_application.getCodeNameApplicationById(id_application, function(err, codeName) {
-            if (err)
-                return callback(err);
-            var subdomain = globalConf.host + '-' + codeName.substring(2);
-            var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
-            manager.createCloudDns(subdomain).then(function(data) {
-                var url = data.body.url;
-                var info = {
-                    message: "We're deploying your application...<br>\
-                            Wait for its initialization on :<br>\
-                            <a href='" + url + "'  target='_blank'>" + url + "</a>"
-                }
+            // Push on git before deploy
+            gitHelper.gitPush(attr, function(err, infoGit){
+                if(err)
+                    return callback(err, null);
 
-                callback(null, info);
-            }).catch(function(err) {
-                console.log("Couldn't deploy application. Cloud manager failed to create DNS");
-                console.log(err);
+                db_application.getCodeNameApplicationById(id_application, function(err, codeName) {
+                    if (err)
+                        return callback(err);
+                    var subdomain = globalConf.host + '-' + codeName.substring(2);
+                    var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
+                    manager.createCloudDns(subdomain).then(function(data) {
+                        var url = data.body.url;
+                        var info = {
+                            message: "We're deploying your application...<br>\
+                                    Wait for its initialization on :<br>\
+                                    <a href='"+url+"' target='_blank'>"+url+"</a>"
+                        }
+
+                        callback(null, info);
+                    }).catch(function(err) {
+                        console.log(err);
+                        callback(err, null);
+                    });
+                });
             });
-        });
     }
     else {
         var protocol = globalConf.protocol;
@@ -118,7 +125,7 @@ exports.deploy = function(attr, callback) {
         var url = protocol + "://" + host + ":" + port;
         var info = new Array();
         info.message = "Application is now available on: <br>";
-        info.message += "<a href='" + url + "'  target='_blank'>" + url + "</a>";
+        info.message += "<a href='"+url+"' target='_blank'>"+url+"</a>";
 
         callback(null, info);
     }
