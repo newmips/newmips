@@ -17,6 +17,7 @@ var port = globalConf.port;
 var passport = require('passport');
 var flash    = require('connect-flash');
 var block_access = require('./utils/block_access');
+var models = require('./models/');
 
 // Language
 var language = require('./services/language');
@@ -107,7 +108,6 @@ if (startedFromGenerator) {
 
 //------------------------------ LANGUAGE ------------------------------ //
 app.use(function(req, res, next) {
-
 	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
 		autologinInited = true;
 		req.session.autologin = autologin;
@@ -115,12 +115,10 @@ app.use(function(req, res, next) {
 
     var lang = languageConfig.lang;
 
-    if (req.session.lang_user){
+    if (req.session.lang_user)
         lang = req.session.lang_user;
-    }
-    else{
+    else
     	req.session.lang_user = lang;
-    }
 
     res.locals.lang_user = lang;
 
@@ -165,16 +163,12 @@ app.use(function(req, res, next) {
 		return language(lang).M_(params.key);
 	}
 	dust.helpers.findValueInGivenContext = function(chunk, context, bodies, params) {
-
 		var obj = dust.helpers.tap(params.ofContext, chunk, context);
-		/*var prop = dust.helpers.tap(params.key, chunk, context);*/
 
 		var idx = 0;
-
 		for(var i=0; i<obj.length; i++){
-			if(obj[i].id == params.idx){
+			if(obj[i].id == params.idx)
 				idx = i;
-			}
 		}
 
 		if(typeof params.entity !== "undefined"){
@@ -183,9 +177,8 @@ app.use(function(req, res, next) {
 			else
 				return chunk.write("-");
 		}
-		else{
+		else
 			return chunk.write(obj[idx][params.key]);
-		}
 	}
     next();
 });
@@ -212,8 +205,23 @@ if (globalConf.api_enabled)
 
 // Launch ======================================================================
 if (protocol == 'https') {
-	require('./models/').sequelize.sync({ logging: console.log, hooks: false }).then(function() {
-		require('./models/').sequelize.customAfterSync().then(function(){
+	models.sequelize.sync({ logging: console.log, hooks: false }).then(function() {
+		models.sequelize.customAfterSync().then(function(){
+			models.E_user.findAll().then(function(users) {
+				if (!users || users.length == 0) {
+                    models.E_group.create({f_label: 'admin'}).then(function(){
+                        models.E_role.create({f_label: 'admin'}).then(function(){
+                            models.E_user.create({
+                                f_login: 'admin',
+                                f_password: '',
+                                f_id_role_role: 1,
+                                f_id_group_group: 1,
+                                f_enabled: 1
+                            });
+                        });
+                    });
+                }
+			});
 			var server = https.createServer(globalConf.ssl, app);
 			server.listen(port);
 			console.log("Started https on "+port);
@@ -229,8 +237,23 @@ if (protocol == 'https') {
 	});
 }
 else {
-	require('./models/').sequelize.sync({ logging: console.log, hooks: false }).then(function() {
-		require('./models/').sequelize.customAfterSync().then(function(){
+	models.sequelize.sync({ logging: console.log, hooks: false }).then(function() {
+		models.sequelize.customAfterSync().then(function(){
+			models.E_user.findAll().then(function(users) {
+				if (!users || users.length == 0) {
+                    models.E_group.create({f_label: 'admin'}).then(function(){
+                        models.E_role.create({f_label: 'admin'}).then(function(){
+                            models.E_user.create({
+                                f_login: 'admin',
+                                f_password: '',
+                                f_id_role_role: 1,
+                                f_id_group_group: 1,
+                                f_enabled: 1
+                            });
+                        });
+                    });
+                }
+			});
 			var server = http.createServer(app);
 			server.listen(port);
 			console.log("Started on "+port);

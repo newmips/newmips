@@ -184,11 +184,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "checkbox" :
         case "case à cocher" :
             str += "	&nbsp;\n<br>\n";
-            str += "	{#" + dataField + "}";
+            str += "	{@eq key="+dataField+" value=\"1\"}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
             str += "	{:else}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
-            str += "	{/" + dataField + "}";
+            str += "	{/eq}";
             break;
         case "radio" :
         case "case à sélectionner" :
@@ -1054,6 +1054,9 @@ exports.deleteDataField = function (attr, callback) {
 
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
+
+    // Clear the require cache
+    delete require.cache[require.resolve(jsonPath)]
     var dataToWrite = require(jsonPath);
 
     for (var i = 0; i < dataToWrite.length; i++) {
