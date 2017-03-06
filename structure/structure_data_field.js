@@ -184,11 +184,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "checkbox" :
         case "case à cocher" :
             str += "	&nbsp;\n<br>\n";
-            str += "	{#" + dataField + "}";
+            str += "	{@eq key="+dataField+" value=\"1\"}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
             str += "	{:else}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
-            str += "	{/" + dataField + "}";
+            str += "	{/eq}";
             break;
         case "radio" :
         case "case à sélectionner" :
