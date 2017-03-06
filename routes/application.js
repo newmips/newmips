@@ -289,63 +289,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     if (attr.function == 'restart')
                         toRedirectRestart = true;
 
-                    // OLD WAY
-                    /*if ((attr.function == "createNewProject") || (attr.function == "selectProject")) {
-                        req.session.id_project = info.insertId;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-                    else if (attr.function == "createNewApplication" || attr.function == "selectApplication") {
-                        req.session.id_application = info.insertId;
-                        req.session.name_application = info.name_application;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-                    else if ((attr.function == "createNewModule") || (attr.function == "selectModule")) {
-                        req.session.id_module = info.insertId;
-                        req.session.id_data_entity = null;
-
-                        // Redirect iframe to new module
-                        var iframeUrl = data.iframe_url.split("/default/");
-                        data.iframe_url = iframeUrl[0]+"/default/"+info.moduleName.toLowerCase();
-                    }
-                    else if ((attr.function == "createNewDataEntity")
-                        || (attr.function == "selectDataEntity")
-                        || (attr.function == "createNewEntityWithBelongsTo")
-                        || (attr.function == "createNewEntityWithHasMany")
-                        || (attr.function == "createNewBelongsTo")
-                        || (attr.function == "createNewHasMany")
-                        || (attr.function == "createNewFieldRelatedTo")) {
-                        req.session.id_data_entity = info.insertId;
-                    }
-                    else if (attr.function == "deleteProject") {
-                        req.session.id_project = null;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-                    else if (attr.function == "deleteApplication") {
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        req.session.toastr = [{
-                            message: 'actions.delete.application',
-                            level: "success"
-                        }];
-                        return res.redirect("/default/home");
-                    }
-                    else if (attr.function == 'deleteModule') {
-                        req.session.id_module = info.homeID;
-                        req.session.id_data_entity = null;
-                        // Redirect iframe to new module
-                        var iframeUrl = data.iframe_url.split("/default/");
-                        data.iframe_url = iframeUrl[0]+"/default/home";
-                    }
-                    else if (attr.function == 'restart') {
-                        toRedirectRestart = true;
-                    }*/
-
                     answer = info.message;
                     data.answers = answer + "\n\n" + answers + "\n\n";
 
