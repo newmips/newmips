@@ -40,7 +40,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-money'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' step='0.01' type='number' data-type='currency' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "code barre":
@@ -65,7 +65,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-euro'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' step='0.01' type='number' data-type='currency' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
@@ -405,15 +405,19 @@ exports.setupDataField = function (attr, callback) {
         case "codebarre":
         case "qrcode":
         case "barcode":
-            typeForModel = "STRING"
+            typeForModel = "STRING";
             break;
         case "money":
-        case "argent":
         case "currency":
-        case "devise":
         case "dollar":
+            typeForModel = "STRING";
+            typeForDatalist = "dollar";
+            break;
+        case "devise":
         case "euro":
-            typeForModel = "STRING"
+        case "argent":
+            typeForDatalist = "euro";
+            typeForModel = "STRING";
             break;
         case "float" :
         case "double" :
@@ -471,7 +475,10 @@ exports.setupDataField = function (attr, callback) {
             typeForDatalist = "text";
             break;
         case "localfile" :
+        case "file":
+        case "fichier":
             typeForModel = "STRING";
+            typeForDataList = "file";
             break;
         case "cloudfile" :
             typeForModel = "STRING";

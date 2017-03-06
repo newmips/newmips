@@ -64,10 +64,10 @@ $(document).ready(function () {
     }
 
     if (typeof source !== "undefined" && source[0] == "associationSource") {
-        $("#"+source[1]+"_menu_item").addClass("active");
+        $("#" + source[1] + "_menu_item").addClass("active");
     } else {
-        $("#"+mainMenu+"_menu_item").addClass("active");
-        $("#"+mainMenu+"_menu_item").parents("li").addClass("active");
+        $("#" + mainMenu + "_menu_item").addClass("active");
+        $("#" + mainMenu + "_menu_item").parents("li").addClass("active");
 
         $("a[href='/" + mainMenu + "/" + subMenu + "']").css("color", "#3c8dbc");
     }
@@ -377,6 +377,11 @@ $(document).ready(function () {
         }
 
     });
+
+    //Mask for data-type currency
+    $(this).find("input[data-type='currency']").each(function () {
+        $(this).maskMoney({thousands: ' ', decimal: ',', allowZero: true, suffix: ''}).maskMoney('mask');
+    });
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
     var dropzonesFieldArray = [];
 
@@ -527,7 +532,11 @@ $(document).ready(function () {
                 return false;
             }
         });
-
+        $(this).find("input[data-type='currency']").each(function () {
+            if ($(this).val() != '') {
+                $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
+            }
+        });
         return true;
     });
 
