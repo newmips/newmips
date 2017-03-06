@@ -1054,6 +1054,9 @@ exports.deleteDataField = function (attr, callback) {
 
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
+
+    // Clear the require cache
+    delete require.cache[require.resolve(jsonPath)]
     var dataToWrite = require(jsonPath);
 
     for (var i = 0; i < dataToWrite.length; i++) {
