@@ -46,7 +46,7 @@
 		"support": "Support"
 	},
 	"select": {
-		"default": "-- Choisir --"
+		"default": "-- Choose --"
 	},
 	"module": {
 		"home": "Home",
