@@ -8,6 +8,9 @@ module.exports = function(app) {
 		return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
 	}).forEach(function(file){
 		file = file.slice(0, -3);
-		app.use('/'+file, block_access.apiAuthentication, require('./'+file));
+		if (file == 'default')
+			app.use('/api/', require('./'+file));
+		else
+			app.use('/api/'+file, block_access.apiAuthentication, require('./'+file));
 	});
 }

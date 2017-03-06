@@ -130,34 +130,17 @@ exports.actionAccessMiddleware = function(entityName, action) {
 }
 
 exports.apiAuthentication = function(req, res, next) {
-    var authorization = req.headers.authorization;
-    // No authorization header
-    if (!authorization)
-        return res.status(500).send();
+    var token = req.query.token;
+    console.log(token)
 
-    var parts = authorization.split(' ');
-    // Bad authorization header
-    if (parts.length < 2)
-        return res.status(500).send();
+    models.E_api_credentials.findOne({where: {f_token: token}}).then(function(credentialsObj) {
+    	if (!credentialsObj)
+    		return res.status(401).end();
 
-    var sheme = parts[0];
-    var credentials = new Buffer(parts[1], 'base64').toString().split(':');
-    // Bad authorization header
-    if (!/Basic/i.test(sheme))
-        return res.status(500).send();
+    	var currentTmsp = new Date().getTime();
+    	if (credentialsObj.f_token_timeout_tmsp < currentTmsp)
+    		return res.status(403).json({message: 'Bearer Token expired'});
 
-    // Bad authorization header
-    if (credentials.length < 2)
-        return res.status(500).send();
-
-    // Bad authorization header
-    if (!credentials[0] || !credentials[1])
-        return res.status(500).send();
-
-    //TODO: implement encrypt/decrypt functions
-    // var login = encryption.decrypt(credentials[0]);
-    // var password = encryption.decrypt(credentials[1]);
-
-	//TODO: Check login/password against some db table (left to define)
-    next();
+    	next();
+    });
 }
