@@ -103,14 +103,14 @@ exports.setupApplication = function(attr, callback) {
 exports.initializeApplication = function(id_application, id_user, name_application) {
     return new Promise(function(resolve, reject) {
         // Copy authentication entities views
-        var piecesPath = __dirname+'/pieces/authentication';
+        var piecesPath = __dirname+'/pieces';
         var workspacePath = __dirname+'/../workspace/'+id_application;
-        fs.copy(piecesPath+'/views/e_user', workspacePath+'/views/e_user', function(err) {
+        fs.copy(piecesPath+'/authentication/views/e_user', workspacePath+'/views/e_user', function(err) {
             if (err)
                 console.log(err);
 
             // Copy authentication user entity route
-            fs.copy(piecesPath+'/routes/e_user.js', workspacePath+'/routes/e_user.js', function(err) {
+            fs.copy(piecesPath+'/authentication/routes/e_user.js', workspacePath+'/routes/e_user.js', function(err) {
                 if (err)
                     console.log(err);
 
@@ -162,34 +162,41 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                     domHelper.write(workspacePath+'/views/layout_m_authentication.dust', $).then(function() {
 
                         // Copy routes settings pieces
-                        fs.copy(piecesPath+'/routes/e_access_settings.js', workspacePath+'/routes/e_access_settings.js', function(err) {
+                        fs.copy(piecesPath+'/authentication/routes/e_access_settings.js', workspacePath+'/routes/e_access_settings.js', function(err) {
                             if (err)
                                 console.log(err);
 
                             // Copy view settings pieces
-                            fs.copy(piecesPath+'/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
+                            fs.copy(piecesPath+'/authentication/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
                                 if (err)
                                     console.log(err);
-                                models.User.findOne({where: {id: id_user}}).then(function(user) {
-                                    // Sync workspace's database and insert admin user
-                                    var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
-                                    workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
-                                        workspaceSequelize.E_group.create({f_label: 'admin'}).then(function(){
-                                            workspaceSequelize.E_role.create({f_label: 'admin'}).then(function(){
-                                                workspaceSequelize.E_user.create({
-                                                    f_login: 'adminWorkspace',
-                                                    f_password: user.password || '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
-                                                    f_id_role_role: 1,
-                                                    f_id_group_group: 1,
-                                                    f_enabled: 1
-                                                }).then(function() {
-                                                    // Create application's DNS through dns_manager
-                                                    if (globalConf.env == 'cloud')
-                                                        dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
+
+                                // Copy api e_user piece
+                                fs.copy(piecesPath+'/api/e_user.js', workspacePath+'/api/e_user.js', function(err) {
+                                    if (err)
+                                        console.log(err);
+
+                                    models.User.findOne({where: {id: id_user}}).then(function(user) {
+                                        // Sync workspace's database and insert admin user
+                                        var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
+                                        workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+                                            workspaceSequelize.E_group.create({f_label: 'admin'}).then(function(){
+                                                workspaceSequelize.E_role.create({f_label: 'admin'}).then(function(){
+                                                    workspaceSequelize.E_user.create({
+                                                        f_login: 'adminWorkspace',
+                                                        f_password: user.password || '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
+                                                        f_id_role_role: 1,
+                                                        f_id_group_group: 1,
+                                                        f_enabled: 1
+                                                    }).then(function() {
+                                                        // Create application's DNS through dns_manager
+                                                        if (globalConf.env == 'cloud')
+                                                            dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
+                                                                resolve();
+                                                            });
+                                                        else
                                                             resolve();
-                                                        });
-                                                    else
-                                                        resolve();
+                                                    });
                                                 });
                                             });
                                         });

@@ -43,7 +43,6 @@ router.get('/getToken', function(req, res) {
         token_timeout_tmsp = new Date().getTime() + 86400000;
         credentialsObj.update({f_token_timeout_tmsp: token_timeout_tmsp, f_token: token}).then(function() {
             // Send back new token
-            console.log(credentialsObj);
             res.status(200).json({token: credentialsObj.f_token});
         }).catch(function(err) {
             console.log(err);

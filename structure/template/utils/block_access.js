@@ -131,14 +131,13 @@ exports.actionAccessMiddleware = function(entityName, action) {
 
 exports.apiAuthentication = function(req, res, next) {
     var token = req.query.token;
-    console.log(token)
 
     models.E_api_credentials.findOne({where: {f_token: token}}).then(function(credentialsObj) {
     	if (!credentialsObj)
     		return res.status(401).end();
 
     	var currentTmsp = new Date().getTime();
-    	if (credentialsObj.f_token_timeout_tmsp < currentTmsp)
+    	if (parseInt(credentialsObj.f_token_timeout_tmsp) < currentTmsp)
     		return res.status(403).json({message: 'Bearer Token expired'});
 
     	next();
