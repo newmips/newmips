@@ -57,48 +57,6 @@ function execute(req, instruction) {
                     // Store key entities in session for futur instruction
                     session_manager.setSessionForInstructionScript(attr.function, scriptData[userId], info);
 
-                    // OLD WAY
-                    /*if ((attr["function"] == "createNewProject") || (attr["function"] == "selectProject")) {
-                        scriptData[userId].ids.id_project = info.insertId;
-                        scriptData[userId].ids.id_application = null;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
-                        scriptData[userId].ids.id_application = info.insertId;
-                        scriptData[userId].name_application = info.name_application;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if ((attr["function"] == "createNewModule") || (attr["function"] == "selectModule")) {
-                        scriptData[userId].ids.id_module = info.insertId;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if ((attr["function"] == "createNewDataEntity")
-                        || (attr["function"] == "selectDataEntity")
-                        || (attr["function"] == "createNewEntityWithBelongsTo")
-                        || (attr["function"] == "createNewEntityWithHasMany")
-                        || (attr["function"] == "createNewBelongsTo")
-                        || (attr["function"] == "createNewHasMany")
-                        || (attr["function"] == "createNewFieldRelatedTo")) {
-                        scriptData[userId].ids.id_data_entity = info.insertId;
-                    }
-                    else if (attr["function"] == "deleteProject") {
-                        scriptData[userId].ids.id_project = null;
-                        scriptData[userId].ids.id_application = null;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if (attr["function"] == "deleteApplication") {
-                        scriptData[userId].ids.id_application = null;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if (attr.function == 'deleteModule') {
-                        scriptData[userId].ids.id_module = info.homeID;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }*/
-
                     scriptData[userId].answers.unshift(instruction + " :<br>" + info.message + "<br><br>");
                     resolve();
                 }
@@ -127,6 +85,11 @@ var mandatoryInstructions = [
     "select entity User",
     "add field role related to Role using label",
     "add field group related to Group using label",
+    "add entity API credentials",
+    "add field Client Key",
+    "add field Client Secret",
+    "add field Token",
+    "add field Token timeout TMSP",
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;

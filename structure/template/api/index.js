@@ -11,6 +11,6 @@ module.exports = function(app) {
 		if (file == 'default')
 			app.use('/api/', require('./'+file));
 		else
-			app.use('/api/'+file, block_access.apiAuthentication, require('./'+file));
+			app.use('/api/'+file.substring(2), block_access.apiAuthentication, require('./'+file));
 	});
 }

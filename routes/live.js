@@ -120,7 +120,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Client Key");
     instructions.push("add field Client Secret");
     instructions.push("add field Token");
-    instructions.push("add field Token timeout TMSP with type number");
+    instructions.push("add field Token timeout TMSP");
     instructions.push("select module home");
 
     function finishApplicationInitialization() {

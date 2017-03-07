@@ -52,7 +52,7 @@ router.post('/datalist', block_access.isLoggedIn, block_access.actionAccessMiddl
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user", "delete"), block_access.isLoggedIn, function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "delete"), function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
