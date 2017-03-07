@@ -41,8 +41,10 @@ exports.createApplicationDns = function(subdomain, name_application, id_applicat
 			url: url,
 		    form: {subdomain: subdomain, application_name: name_application, id_application: id_application}
 		}, function(error, response, body) {
-			if (error)
+			if (error) {
+				console.log(error);
 				return reject({error: error, response: response});
+			}
 			resolve({response: response, body: body});
 		});
 	});
@@ -62,8 +64,10 @@ exports.createCloudDns = function(subdomain) {
 			url: url,
 		    form: {subdomain: subdomain}
 		}, function(error, response, body) {
-			if (error)
+			if (error) {
+				console.log(err);
 				return reject({error: error, response: response});
+			}
 
 			body = JSON.parse(body);
 			// Set cloud-manager's waiting room url. It'll wait for new cloud environment to be ready
