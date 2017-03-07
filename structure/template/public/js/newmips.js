@@ -379,7 +379,7 @@ $(document).ready(function () {
     });
 
     //Mask for data-type currency
-    $(this).find("input[data-type='currency']").each(function () {
+    $(this).find("[data-type='currency']").each(function () {
         $(this).maskMoney({thousands: ' ', decimal: ',', allowZero: true, suffix: ''}).maskMoney('mask');
     });
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
@@ -396,15 +396,18 @@ $(document).ready(function () {
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
+            autoDiscover: false,
             init: function () {
                 this.on("addedfile", function () {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                     } else {
+                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
                         $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
                     }
                 });
+
                 this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataEntity = that.attr("data-entity");
@@ -533,9 +536,7 @@ $(document).ready(function () {
             }
         });
         $(this).find("input[data-type='currency']").each(function () {
-            if ($(this).val() != '') {
-                $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
-            }
+            $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
         });
         return true;
     });

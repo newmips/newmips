@@ -169,7 +169,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-phone'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "fax" :
@@ -177,14 +177,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-fax'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "boolean" :
         case "checkbox" :
         case "case à cocher" :
             str += "	&nbsp;\n<br>\n";
-            str += "	{@eq key="+dataField+" value=\"1\"}";
+            str += "	{@eq key=" + dataField + " value=\"1\"}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
             str += "	{:else}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
@@ -410,14 +410,11 @@ exports.setupDataField = function (attr, callback) {
         case "money":
         case "currency":
         case "dollar":
-            typeForModel = "STRING";
-            typeForDatalist = "dollar";
-            break;
         case "devise":
         case "euro":
         case "argent":
-            typeForDatalist = "euro";
             typeForModel = "STRING";
+            typeForDatalist = "currency";
             break;
         case "float" :
         case "double" :
