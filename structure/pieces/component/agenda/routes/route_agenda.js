@@ -24,6 +24,9 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
         include: [{
             model: models.CODE_NAME_CATEGORY_MODEL,
             as: "r_category"
+        }, {
+            model: models.E_user,
+            as: "r_users"
         }]
     }).then(function(events) {
 
@@ -34,25 +37,33 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                     f_color: "#CCCCCC"
                 };
             }
+            var ressourceIds = [];
+            for(var j=0; j<events[i].r_users.length; j++){
+                ressourceIds.push(events[i].r_users[j].id);
+            }
             eventsArray.push({
                 title: events[i].f_title,
                 start: moment(events[i].f_start_date).format("YYYY-MM-DD HH:mm:ss"),
                 end: moment(events[i].f_end_date).format("YYYY-MM-DD HH:mm:ss"),
                 allDay: events[i].f_all_day,
                 backgroundColor: events[i].r_category.f_color,
-                url: "/CODE_NAME_EVENT_URL/show?id="+events[i].id
+                url: "/CODE_NAME_EVENT_URL/show?id="+events[i].id,
+                ressourceIds: ressourceIds
             });
         }
         models.CODE_NAME_CATEGORY_MODEL.findAll().then(function(categories){
+            models.E_user.findAll().then(function(users){
 
-            data.categories = categories;
-            data.events = eventsArray;
+                data.categories = categories;
+                data.events = eventsArray;
+                data.users = users;
 
-            // Récupération des toastr en session
-            data.toastr = req.session.toastr;
-            // Nettoyage de la session
-            req.session.toastr = [];
-            res.render('CODE_NAME_LOWER/view_agenda', data);
+                // Récupération des toastr en session
+                data.toastr = req.session.toastr;
+                // Nettoyage de la session
+                req.session.toastr = [];
+                res.render('CODE_NAME_LOWER/view_agenda', data);
+            });
         });
     });
 });

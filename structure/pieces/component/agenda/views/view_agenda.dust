@@ -3,6 +3,8 @@
 	<link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' />
 	<link href='/css/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
 	<link href='/css/fullcalendar/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+	<link href='/css/AdminLteV2/alt/AdminLTE-fullcalendar.min.css' rel='stylesheet' />
+	<link href='/css/fullcalendar/scheduler.css' rel='stylesheet' />
 	<style>
 		.pendingEvent{
 			padding: 5px 5px 5px 12px;
@@ -94,17 +96,25 @@
 	<script src='/js/plugins/fullcalendar/fullcalendar.min.js'></script>
 	<script src='/js/plugins/fullcalendar/script.js'></script>
 	<script src='/js/plugins/fullcalendar/locale-all.js'></script>
+	<script src='/js/plugins/fullcalendar/scheduler.js'></script>
 	<script>var calendarEvents = [];</script>
 	{#events}
 		<script>calendarEvents.push({title: "{title}", start: "{start}", end: "{end}", allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}"});</script>
 	{/events}
+	<script>var usersRessources = [];</script>
+	{#users}
+		<script>usersRessources.push({id:"{id}", title: "{f_login}"});</script>
+	{/users}
 	<script type="text/javascript">
 		$(document).ready(function() {
+
 			$("*").tooltip({
 				disabled: true
 			});
+
 			if(lang_user == "fr-FR"){
 				var currentLocal = "fr";
+				var ressourceName = "Utilisateurs";
 				var buttonTextObj = {
 					today: 'Aujourd\'hui',
 		            month: 'Mois',
@@ -113,6 +123,7 @@
 		        };
 			} else{
 				var currentLocal = "en";
+				var ressourceName = "Users";
 				var buttonTextObj = {
 					today: 'Today',
 		            month: 'Month',
@@ -122,11 +133,12 @@
 			}
 			/* Full calendat init */
 			$('#calendar').fullCalendar({
+				schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 				locale: currentLocal,
 				header: {
 					left: 'prev,next today',
 					center: 'title',
-					right: 'month,agendaWeek,agendaDay'
+					right: 'month,agendaWeek,agendaDay,timelineDay,timelineWeek'
 				},
 				buttonIcons: {
 					prev: "left-single-arrow",
@@ -137,6 +149,7 @@
 				editable: false,
 				eventLimit: true,
 				droppable: true,
+				resourceAreaWidth:"15%",
 		        eventReceive: function(event){
 		        	var ajaxData = {
 		        		title: event.title,
@@ -162,6 +175,8 @@
 						}
 					});
 		        },
+		        resourceLabelText: ressourceName,
+				resources: usersRessources,
 				events: calendarEvents
 			});
 
