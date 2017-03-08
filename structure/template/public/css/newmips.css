@@ -14,6 +14,9 @@ label.required:after {
   content: ' *';
   display:inline;
 }
+.text-left{
+    text-align: left;
+}
 .connectedSortable {
     padding-bottom: 10px;
 }

@@ -64,10 +64,10 @@ $(document).ready(function () {
     }
 
     if (typeof source !== "undefined" && source[0] == "associationSource") {
-        $("#"+source[1]+"_menu_item").addClass("active");
+        $("#" + source[1] + "_menu_item").addClass("active");
     } else {
-        $("#"+mainMenu+"_menu_item").addClass("active");
-        $("#"+mainMenu+"_menu_item").parents("li").addClass("active");
+        $("#" + mainMenu + "_menu_item").addClass("active");
+        $("#" + mainMenu + "_menu_item").parents("li").addClass("active");
 
         $("a[href='/" + mainMenu + "/" + subMenu + "']").css("color", "#3c8dbc");
     }
@@ -377,6 +377,11 @@ $(document).ready(function () {
         }
 
     });
+
+    //Mask for data-type currency
+    $(this).find("[data-type='currency']").each(function () {
+        $(this).maskMoney({thousands: ' ', decimal: ',', allowZero: true, suffix: ''}).maskMoney('mask');
+    });
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
     var dropzonesFieldArray = [];
 
@@ -391,15 +396,18 @@ $(document).ready(function () {
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
+            autoDiscover: false,
             init: function () {
                 this.on("addedfile", function () {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                     } else {
+                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
                         $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
                     }
                 });
+
                 this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataEntity = that.attr("data-entity");
@@ -415,6 +423,8 @@ $(document).ready(function () {
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
+               
+
             },
             renameFilename: function (filename) {
                 var timeFile = moment().format("YYYYMMDD-HHmmss");
@@ -422,7 +432,16 @@ $(document).ready(function () {
                 return timeFile + '_' + filename;
             }
         });
-
+        var dropzoneId = $(this).attr('id') + '';
+        if ($('#' + dropzoneId + '_hidden').val() != '') {
+            var mockFile = {
+                name: $('#' + dropzoneId + '_dropzone_hidden').val()
+            };
+            dropzoneInit.files.push(mockFile);
+            dropzoneInit.emit('addedfile', mockFile);
+            dropzoneInit.emit('complete', mockFile);
+            dropzonesFieldArray.push(dropzoneInit);
+        }
         dropzonesFieldArray.push(dropzoneInit);
     });
 
@@ -537,7 +556,9 @@ $(document).ready(function () {
                 return false;
             }
         });
-
+        $(this).find("input[data-type='currency']").each(function () {
+            $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
+        });
         return true;
     });
 

@@ -40,7 +40,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-money'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' step='0.01' type='number' data-type='currency' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "code barre":
@@ -65,7 +65,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-euro'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' step='0.01' type='number' data-type='currency' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
@@ -169,7 +169,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-phone'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "fax" :
@@ -177,14 +177,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-fax'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "boolean" :
         case "checkbox" :
         case "case à cocher" :
             str += "	&nbsp;\n<br>\n";
-            str += "	{@eq key="+dataField+" value=\"1\"}";
+            str += "	{@eq key=" + dataField + " value=\"1\"}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
             str += "	{:else}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
@@ -238,12 +238,21 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "localfile" :
         case "fichier":
         case "file":
-            str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-            str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden'/>";
+            if (file != 'show') {
+                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+            } else {
+                str += "	<div class='input-group'>\n";
+                str += "		<div class='input-group-addon'>\n";
+                str += "			<i class='fa fa-download'></i>\n";
+                str += "		</div>";
+                str += "		<a href=/default/download/" + dataEntity + "/" + value + " class='form-control btn btn-default text-left '  name=" + dataField + " " + readOnly +">"+value+"</a>\n";
+                str += "	</div>\n";
+            }
             break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
-            str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden'/>";
+            str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
             str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
@@ -405,15 +414,16 @@ exports.setupDataField = function (attr, callback) {
         case "codebarre":
         case "qrcode":
         case "barcode":
-            typeForModel = "STRING"
+            typeForModel = "STRING";
             break;
         case "money":
-        case "argent":
         case "currency":
-        case "devise":
         case "dollar":
+        case "devise":
         case "euro":
-            typeForModel = "STRING"
+        case "argent":
+            typeForModel = "STRING";
+            typeForDatalist = "currency";
             break;
         case "float" :
         case "double" :
@@ -471,7 +481,10 @@ exports.setupDataField = function (attr, callback) {
             typeForDatalist = "text";
             break;
         case "localfile" :
+        case "file":
+        case "fichier":
             typeForModel = "STRING";
+            typeForDataList = "file";
             break;
         case "cloudfile" :
             typeForModel = "STRING";
