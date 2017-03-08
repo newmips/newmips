@@ -100,20 +100,32 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 router.get('/download/:entity/:f', block_access.isLoggedIn, function (req, res) {
     var entity = req.params.entity;
     var filepath = req.params.f;
-    console.log(filepath)
-    if (!!entity && !!filepath) {
-        var partOfFilepath = filepath.split('-');
-        if (partOfFilepath.length) {
-            var base = partOfFilepath[0];
-            var completeFilePath = global.localstorage + entity + '/' + base+'/' + filepath;
-            res.download(completeFilePath, filepath, function (err) {
-                if (err) {
-                    console.log(err)
-                }
-            });
-        }
+    var p = new Promise(function (resolve, reject) {
+        if (!!entity && !!filepath) {
+            var partOfFilepath = filepath.split('-');
+            if (partOfFilepath.length) {
+                var base = partOfFilepath[0];
+                var completeFilePath = global.localstorage + entity + '/' + base + '/' + filepath;
+                res.download(completeFilePath, filepath, function (err) {
+                    if (err)
+                        reject(err);
+                    else
+                        resolve();
+                });
+            } else
+                reject();
 
-    }
+        } else
+            reject();
+    });
+    p.then(function () {
+        console.log("File downlaod with success");
+    }).catch(function (err) {
+        console.log(err);
+        res.writeHead(303, {Location: req.headers.referer});
+        res.end();
+    });
+
 });
 
 module.exports = router;
