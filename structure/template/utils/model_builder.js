@@ -75,8 +75,10 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
 
             options.foreignKey = association.foreignKey.toLowerCase();
             options.as = association.as.toLowerCase();
-            if (association.relation === 'belongsToMany')
+            if (association.relation === 'belongsToMany'){
+                options.otherKey = association.otherKey;
                 options.through = association.through;
+            }
             options.allowNull = true;
 
             models[selfModel][association['relation']](models[target], options);
@@ -107,6 +109,45 @@ exports.associationsFinder = function associationsFinder(models, options) {
         }));
     }
     return foundAssociations;
+}
+
+// Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
+exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
+    // We have to find value in req.body that are linked to an hasMany or belongsToMany association
+    // because those values are not updated for now
+
+    // List unsed value in req.body for now
+    var unusedValueFromReqBody = [];
+
+    for(var propBody in body){
+        var toAdd = true;
+        for(var propObj in buildForRouteObj){
+            if(propBody == "id" || propBody == propObj)
+                toAdd=false;
+        }
+        if(toAdd)
+            unusedValueFromReqBody.push(propBody);
+    }
+
+    // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
+    for (var i=0; i<options.length; i++) {
+        // Loop on the unused (for now) values in body
+        for (var j=0; j<unusedValueFromReqBody.length; j++) {
+            // if the alias match between the option and the body
+            if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
+                // BelongsTo association have been already done before
+                if(options[i].relation != "belongsTo"){
+                    var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+                    var value = [];
+
+                    if(body[unusedValueFromReqBody[j]].length > 0)
+                        value = body[unusedValueFromReqBody[j]];
+
+                    model['set' + target](value);
+                }
+            }
+        }
+    }
 }
 
 // Find list of associations to create the datalist structure

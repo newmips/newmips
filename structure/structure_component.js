@@ -117,7 +117,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 	fs.copySync(componentViewFolder, viewsFolder);
 
 	var viewPiece = __dirname+'/../workspace/'+idApplication+'/views/agenda/view_agenda.dust';
-	var viewFile = __dirname+'/../workspace/'+idApplication+'/views/'+codeName+'/view_agenda.dust'
+	var viewFile = __dirname+'/../workspace/'+idApplication+'/views/'+codeName+'/view_agenda.dust';
 
 	var viewTemplate = fs.readFileSync(viewFile, 'utf8');
 	viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
@@ -130,7 +130,40 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 	writeStream.end();
 	writeStream.on('finish', function() {
 		console.log('File => Component View file ------------------ CREATED');
-		callback();
+
+		// Copy the event view folder
+		var componentEventViewFolder = __dirname+'/pieces/component/agenda/views/event';
+		var eventViewsFolder = __dirname+'/../workspace/'+idApplication+'/views/'+valueEvent;
+
+		fs.copySync(componentEventViewFolder, eventViewsFolder);
+
+		var eventShowFile = __dirname+'/../workspace/'+idApplication+'/views/'+valueEvent+'/show_fields.dust';
+		var eventCreateFile = __dirname+'/../workspace/'+idApplication+'/views/'+valueEvent+'/create_fields.dust';
+		var eventUpdateFile = __dirname+'/../workspace/'+idApplication+'/views/'+valueEvent+'/update_fields.dust'
+
+		var eventShowTemplate = fs.readFileSync(eventShowFile, 'utf8');
+		var eventCreateTemplate = fs.readFileSync(eventCreateFile, 'utf8');
+		var eventUpdateTemplate = fs.readFileSync(eventUpdateFile, 'utf8');
+
+		eventShowTemplate = eventShowTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+		eventCreateTemplate = eventCreateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+		eventUpdateTemplate = eventUpdateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+
+		var writeStreamEventShow = fs.createWriteStream(eventShowFile);
+		writeStreamEventShow.write(eventShowTemplate);
+		writeStreamEventShow.end();
+
+		var writeStreamEventCreate = fs.createWriteStream(eventCreateFile);
+		writeStreamEventCreate.write(eventCreateTemplate);
+		writeStreamEventCreate.end();
+
+		var writeStreamEventUpdate = fs.createWriteStream(eventUpdateFile);
+		writeStreamEventUpdate.write(eventUpdateTemplate);
+		writeStreamEventUpdate.end();
+
+		writeStreamEventUpdate.on('finish', function() {
+			callback();
+		});
 	});
 }
 
@@ -290,6 +323,22 @@ exports.newAgenda = function(attr, callback){
 
 	var urlEvent =  valueEvent.substring(2);
 	var urlCategory = valueCategory.substring(2);
+
+	// Update the event options.json to add an belongsToMany relation between event and user
+	var eventOptionsPath = './workspace/' + idApplication + '/models/options/' + valueEvent.toLowerCase() + '.json';
+    var eventOptionFile = fs.readFileSync(eventOptionsPath);
+    var eventOptionObj = JSON.parse(eventOptionFile);
+
+    eventOptionObj.push({
+    	"target": "e_user",
+        "relation": "belongsToMany",
+        "through": idApplication+"_"+urlComponent+"_event_user",
+        "as": "r_users",
+        "foreignKey": "event_id",
+        "otherKey": "user_id"
+    });
+
+    fs.writeFileSync(eventOptionsPath, JSON.stringify(eventOptionObj, null, 4));
 
 	// Agenda Route
 	setupComponentRouteForAgenda(idApplication, valueComponent, valueEvent, valueCategory, function(){
