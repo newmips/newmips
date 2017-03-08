@@ -97,9 +97,9 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 
 });
 
-router.get('/download/:entity/:f', block_access.isLoggedIn, function (req, res) {
-    var entity = req.params.entity;
-    var filepath = req.params.f;
+router.get('/download', block_access.isLoggedIn, function (req, res) {
+    var entity = req.param('entity');
+    var filepath = req.param('f');
     var p = new Promise(function (resolve, reject) {
         if (!!entity && !!filepath) {
             var partOfFilepath = filepath.split('-');
@@ -127,5 +127,4 @@ router.get('/download/:entity/:f', block_access.isLoggedIn, function (req, res) 
     });
 
 });
-
 module.exports = router;
