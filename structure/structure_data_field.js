@@ -238,12 +238,21 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "localfile" :
         case "fichier":
         case "file":
-            str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-            str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden'/>";
+            if (file != 'show') {
+                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+            } else {
+                str += "	<div class='input-group'>\n";
+                str += "		<div class='input-group-addon'>\n";
+                str += "			<i class='fa fa-download'></i>\n";
+                str += "		</div>";
+                str += "		<a href=/default/download/" + dataEntity + "/" + value + " class='form-control btn btn-default text-left '  name=" + dataField + " " + readOnly +">"+value+"</a>\n";
+                str += "	</div>\n";
+            }
             break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
-            str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden'/>";
+            str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
             str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";

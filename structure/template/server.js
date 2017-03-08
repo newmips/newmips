@@ -144,6 +144,7 @@ app.use(function(req, res, next) {
 			var action = params.action;
 			return block_access.actionAccess(userRole, entityName, action);
 		}
+                
 	}
 
 	if (typeof req.session.toastr === 'undefined')

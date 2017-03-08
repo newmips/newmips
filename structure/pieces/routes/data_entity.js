@@ -9,7 +9,6 @@ var models = require('../models/');
 var attributes = require('../models/attributes/ENTITY_NAME');
 var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
-var entity_helper=require('../utils/entity_helper');
 
 // ENUM managment
 var enums = require('../utils/enum.js');
@@ -145,7 +144,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
                 }
             }
         }
-
+        /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         var associationsFinder = model_builder.associationsFinder(models, options);
 
