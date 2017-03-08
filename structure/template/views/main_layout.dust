@@ -26,6 +26,8 @@
 		{!<link href='/css/iCheck/all.css' rel='stylesheet' type='text/css'>!}
 		{! select2 !}
 		<link href='/css/select2/css/select2.min.css' rel='stylesheet' type='text/css'>
+		{! Admin LTE Select2 !}
+		<link href='/css/AdminLteV2/alt/AdminLTE-select2.min.css' rel='stylesheet' type='text/css'>
 		{! Dropzone !}
 		<link href='/css/dropzone/dropzone.min.css' rel='stylesheet' type='text/css'>
 		{! Newmips !}

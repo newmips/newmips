@@ -222,7 +222,11 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
             });
         }
 
-        var foreignKeyArray = [];
+        // We have to find value in req.body that are linked to an hasMany or belongsToMany association
+        // because those values are not updated for now
+        model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options);
+
+        /*var foreignKeyArray = [];
         var asArray = [];
         for (var j = 0; j < options.length; j++) {
             if (typeof options[j].foreignKey != "undefined")
@@ -251,16 +255,18 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
             target = target.charAt(0).toUpperCase() + target.toLowerCase().slice(1);
             ENTITY_NAME['set' + target](req.body[prop]);
-        }
+        }*/
 
         res.redirect(redirect);
     }).catch(function (err) {
         var isKnownError = false;
         try {
-            // Unique value constraint
-            if (err.parent.errno == 1062) {
-                req.session.toastr.push({level: 'error', message: err.errors[0].message});
-                isKnownError = true;
+            if(typeof err.parent !== "undefined"){
+                // Unique value constraint
+                if (err.parent.errno == 1062) {
+                    req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                    isKnownError = true;
+                }
             }
         } finally {
             if (isKnownError)
@@ -335,8 +341,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
-    if (typeof req.body.version !== "undefined")
+    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
         req.body.version = parseInt(req.body.version) + 1;
+    else
+        req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
     updateObject = enums.values("ENTITY_NAME", updateObject, req.body);
@@ -350,14 +358,18 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
         ENTITY_NAME.update(updateObject, {where: {id: id_ENTITY_NAME}}).then(function () {
 
+            // We have to find value in req.body that are linked to an hasMany or belongsToMany association
+            // because those values are not updated for now
+            model_builder.setAssocationManyValues(ENTITY_NAME, req.body, updateObject, options);
+
             var redirect = '/ENTITY_URL_NAME/show?id=' + id_ENTITY_NAME;
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
             req.session.toastr = [{
-                    message: 'message.update.success',
-                    level: "success"
-                }];
+                message: 'message.update.success',
+                level: "success"
+            }];
 
             res.redirect(redirect);
         }).catch(function (err) {
