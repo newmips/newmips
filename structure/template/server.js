@@ -180,6 +180,14 @@ app.use(function(req, res, next) {
 		else
 			return chunk.write(obj[idx][params.key]);
 	}
+	dust.helpers.existInContextById = function(chunk, context, bodies, params) {
+		var obj = dust.helpers.tap(params.ofContext, chunk, context);
+		for(var i=0; i<obj.length; i++){
+			if(obj[i].id == params.key)
+				return true;
+		}
+		return false;
+	}
     next();
 });
 

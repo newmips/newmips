@@ -431,6 +431,8 @@ $(document).ready(function () {
 
     $(document).on("submit", "form", function (e) {
 
+        var thatForm = $(this);
+
         if (!filesProceeded && dropzonesFieldArray.length > 0) {
             /* If there are files to write, stop submit and do this before */
             e.preventDefault();
@@ -491,6 +493,14 @@ $(document).ready(function () {
                 }
             });
         }
+
+        /* If a select multiple is empty we want to have an empty value in the req.body */
+        $(this).find("select[multiple]").each(function () {
+            if($(this).val() == null){
+                var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
+                thatForm.append($(input));
+            }
+        });
 
         /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
         $(this).find("input[type='checkbox']").each(function () {
