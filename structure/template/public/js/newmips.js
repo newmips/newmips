@@ -423,6 +423,8 @@ $(document).ready(function () {
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
+               
+
             },
             renameFilename: function (filename) {
                 var timeFile = moment().format("YYYYMMDD-HHmmss");
@@ -430,7 +432,16 @@ $(document).ready(function () {
                 return timeFile + '_' + filename;
             }
         });
-
+        var dropzoneId = $(this).attr('id') + '';
+        if ($('#' + dropzoneId + '_hidden').val() != '') {
+            var mockFile = {
+                name: $('#' + dropzoneId + '_dropzone_hidden').val()
+            };
+            dropzoneInit.files.push(mockFile);
+            dropzoneInit.emit('addedfile', mockFile);
+            dropzoneInit.emit('complete', mockFile);
+            dropzonesFieldArray.push(dropzoneInit);
+        }
         dropzonesFieldArray.push(dropzoneInit);
     });
 
