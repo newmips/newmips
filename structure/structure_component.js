@@ -132,7 +132,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 		console.log('File => Component View file ------------------ CREATED');
 
 		// Copy the event view folder
-		var componentEventViewFolder = __dirname+'/pieces/component/agenda/views/event';
+		var componentEventViewFolder = __dirname+'/pieces/component/agenda/views_event';
 		var eventViewsFolder = __dirname+'/../workspace/'+idApplication+'/views/'+valueEvent;
 
 		fs.copySync(componentEventViewFolder, eventViewsFolder);
@@ -146,8 +146,11 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 		var eventUpdateTemplate = fs.readFileSync(eventUpdateFile, 'utf8');
 
 		eventShowTemplate = eventShowTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+		eventShowTemplate = eventShowTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
 		eventCreateTemplate = eventCreateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+		eventCreateTemplate = eventCreateTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
 		eventUpdateTemplate = eventUpdateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+		eventUpdateTemplate = eventUpdateTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
 
 		var writeStreamEventShow = fs.createWriteStream(eventShowFile);
 		writeStreamEventShow.write(eventShowTemplate);
