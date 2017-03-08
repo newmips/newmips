@@ -246,7 +246,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-download'></i>\n";
                 str += "		</div>";
-                str += "		<a href=/default/download/" + dataEntity + "/" + value + " class='form-control btn btn-default text-left '  name=" + dataField + " " + readOnly +">"+value+"</a>\n";
+                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control btn btn-default text-left '  name=" + dataField + " " + readOnly + ">" + value + "</a>\n";
                 str += "	</div>\n";
             }
             break;
