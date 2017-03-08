@@ -144,7 +144,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
                 }
             }
         }
-
+        /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         var associationsFinder = model_builder.associationsFinder(models, options);
 
