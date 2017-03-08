@@ -708,8 +708,6 @@ function deleteDataField(attr, callback) {
                     if (err)
                         return callback(err, null);
 
-                    console.log(infoStructure);
-
                     // Alter database
                     attr.fieldToDrop = infoStructure.fieldToDrop;
                     var dropFunction = infoStructure.isConstraint?'dropFKDataField':'dropDataField';

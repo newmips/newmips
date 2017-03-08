@@ -1062,6 +1062,14 @@ exports.parse = function(instruction) {
             "ajouter un composant agenda",
             "créer un agenda",
             "ajouter un agenda",
+            "create component timeline",
+            "add component timeline",
+            "add an timeline",
+            "add timeline",
+            "créer un composant ligne de temps",
+            "ajouter un composant ligne de temps",
+            "créer un ligne de temps",
+            "ajouter un ligne de temps"
         ],
         "createNewComponentAgendaWithName": [
             "create component agenda with name (.*)",
@@ -1074,7 +1082,18 @@ exports.parse = function(instruction) {
             "créer un agenda avec le nom (.*)",
             "ajouter un agenda avec le nom (.*)",
             "créer un agenda appelé (.*)",
-            "ajouter un agenda appelé (.*)"
+            "ajouter un agenda appelé (.*)",
+            "create component timeline with name (.*)",
+            "add component timeline with name (.*)",
+            "add timeline with name (.*)",
+            "créer un composant ligne de temps nommé (.*)",
+            "ajouter un composant ligne de temps nommé (.*)",
+            "créer une ligne de temps nommé (.*)",
+            "ajouter une ligne de temps nommé (.*)",
+            "créer une ligne de temps avec le nom (.*)",
+            "ajouter une ligne de temps avec le nom (.*)",
+            "créer une ligne de temps appelé (.*)",
+            "ajouter une ligne de temps appelé (.*)"
         ],
         "setSkin": [
             "set skin (.*)",
