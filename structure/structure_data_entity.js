@@ -133,7 +133,7 @@ exports.setupDataEntity = function (attr, callback) {
 
     function createApiFile(idApplication, nameDataEntity, callback) {
         // CREATE ROUTE FILE
-        var apiTemplate = fs.readFileSync('./structure/pieces/api/data_entity.js', 'utf8');
+        var apiTemplate = fs.readFileSync('./structure/pieces/api/api_entity.js', 'utf8');
         apiTemplate = apiTemplate.replace(/ENTITY_NAME/g, nameDataEntity.toLowerCase());
         apiTemplate = apiTemplate.replace(/MODEL_NAME/g, nameDataEntity.charAt(0).toUpperCase() + nameDataEntity.toLowerCase().slice(1));
         var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/api/' + nameDataEntity.toLowerCase() + '.js');
