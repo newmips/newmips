@@ -200,9 +200,7 @@ app.use(function(req, res, next) {
 require('./routes/')(app);
 
 // Api routes ==================================================================
-console.log(globalConf);
-if (globalConf.api_enabled)
-	require('./api/')(app);
+require('./api/')(app);
 
 // Launch ======================================================================
 if (protocol == 'https') {
