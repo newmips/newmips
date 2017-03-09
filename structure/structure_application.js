@@ -109,93 +109,107 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
             if (err)
                 console.log(err);
 
-            // Copy authentication user entity route
-            fs.copy(piecesPath+'/authentication/routes/e_user.js', workspacePath+'/routes/e_user.js', function(err) {
+            // Copy api entities views
+            fs.copy(piecesPath+'/api/views/e_api_credentials', workspacePath+'/views/e_api_credentials', function(err) {
                 if (err)
                     console.log(err);
+                // Copy authentication user entity route
+                fs.copy(piecesPath+'/authentication/routes/e_user.js', workspacePath+'/routes/e_user.js', function(err) {
+                    if (err)
+                        console.log(err);
 
-                // Make user login field unique
-                var userModel = require(workspacePath+'/models/attributes/e_user.json');
-                userModel.f_login.unique = true;
-                fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
+                    // Make user login field unique
+                    var userModel = require(workspacePath+'/models/attributes/e_user.json');
+                    userModel.f_login.unique = true;
+                    fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
 
-                // Make role label field unique
-                var roleModel = require(workspacePath+'/models/attributes/e_role.json');
-                roleModel.f_label.unique = true;
-                fs.writeFileSync(workspacePath+'/models/attributes/e_role.json', JSON.stringify(roleModel, null, 4), 'utf8');
+                    // Make role label field unique
+                    var roleModel = require(workspacePath+'/models/attributes/e_role.json');
+                    roleModel.f_label.unique = true;
+                    fs.writeFileSync(workspacePath+'/models/attributes/e_role.json', JSON.stringify(roleModel, null, 4), 'utf8');
 
-                // Make group label field unique
-                var groupModel = require(workspacePath+'/models/attributes/e_group.json');
-                groupModel.f_label.unique = true;
-                fs.writeFileSync(workspacePath+'/models/attributes/e_group.json', JSON.stringify(groupModel, null, 4), 'utf8');
+                    // Make group label field unique
+                    var groupModel = require(workspacePath+'/models/attributes/e_group.json');
+                    groupModel.f_label.unique = true;
+                    fs.writeFileSync(workspacePath+'/models/attributes/e_group.json', JSON.stringify(groupModel, null, 4), 'utf8');
 
-                // Reset toSync to avoid double alter table resulting in error
-                var toSyncFileName = workspacePath+'/models/toSync.json';
-                fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
+                    // Reset toSync to avoid double alter table resulting in error
+                    var toSyncFileName = workspacePath+'/models/toSync.json';
+                    fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
 
-                // Manualy add settings to access file because it's not a real entity
-                var access = require(workspacePath+'/config/access.json');
-                access.authentication.entities.push({
-                    name: 'access_settings',
-                    groups: [],
-                    actions: {read: [], write: [], delete: []}
-                });
-                fs.writeFileSync(workspacePath+'/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+                    // Manualy add settings to access file because it's not a real entity
+                    var access = require(workspacePath+'/config/access.json');
+                    access.authentication.entities.push({
+                        name: 'access_settings',
+                        groups: [],
+                        actions: {read: [], write: [], delete: []}
+                    });
+                    fs.writeFileSync(workspacePath+'/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
-                domHelper.read(workspacePath+'/views/layout_m_authentication.dust').then(function($) {
-                    var li = '';
-                    li += '{@entityAccess entity="access_settings"}\n';
-                    li += '     {@actionAccess entity="access_settings" action="read"}\n';
-                    li += '         <li>\n';
-                    li += '             <a href="/access_settings/show">\n';
-                    li += '                 <i class="fa fa-cog"></i>\n';
-                    li += '                 <span>{@__ key="settings.title" /}</span>\n';
-                    li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
-                    li += '             </a>\n';
-                    li += '         </li>\n';
-                    li += '     {/actionAccess}\n';
-                    li += '{/entityAccess}\n';
+                    domHelper.read(workspacePath+'/views/layout_m_authentication.dust').then(function($) {
+                        var li = '';
+                        li += '{@entityAccess entity="access_settings"}\n';
+                        li += '     {@actionAccess entity="access_settings" action="read"}\n';
+                        li += '         <li>\n';
+                        li += '             <a href="/access_settings/show">\n';
+                        li += '                 <i class="fa fa-cog"></i>\n';
+                        li += '                 <span>{@__ key="settings.title" /}</span>\n';
+                        li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+                        li += '             </a>\n';
+                        li += '         </li>\n';
+                        li += '     {/actionAccess}\n';
+                        li += '{/entityAccess}\n';
 
-                    $("#sortable").append(li);
+                        $("#sortable").append(li);
 
-                    // Add settings entry into authentication module layout
-                    domHelper.write(workspacePath+'/views/layout_m_authentication.dust', $).then(function() {
+                        // Add settings entry into authentication module layout
+                        domHelper.write(workspacePath+'/views/layout_m_authentication.dust', $).then(function() {
 
-                        // Copy routes settings pieces
-                        fs.copy(piecesPath+'/authentication/routes/e_access_settings.js', workspacePath+'/routes/e_access_settings.js', function(err) {
-                            if (err)
-                                console.log(err);
-
-                            // Copy view settings pieces
-                            fs.copy(piecesPath+'/authentication/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
+                            // Copy routes settings pieces
+                            fs.copy(piecesPath+'/authentication/routes/e_access_settings.js', workspacePath+'/routes/e_access_settings.js', function(err) {
                                 if (err)
                                     console.log(err);
 
-                                // Copy api e_user piece
-                                fs.copy(piecesPath+'/api/e_user.js', workspacePath+'/api/e_user.js', function(err) {
+                                // Copy view settings pieces
+                                fs.copy(piecesPath+'/authentication/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
                                     if (err)
                                         console.log(err);
 
-                                    models.User.findOne({where: {id: id_user}}).then(function(user) {
-                                        // Sync workspace's database and insert admin user
-                                        var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
-                                        workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
-                                            workspaceSequelize.E_group.create({f_label: 'admin'}).then(function(){
-                                                workspaceSequelize.E_role.create({f_label: 'admin'}).then(function(){
-                                                    workspaceSequelize.E_user.create({
-                                                        f_login: 'adminWorkspace',
-                                                        f_password: user.password || '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
-                                                        f_id_role_role: 1,
-                                                        f_id_group_group: 1,
-                                                        f_enabled: 1
-                                                    }).then(function() {
-                                                        // Create application's DNS through dns_manager
-                                                        if (globalConf.env == 'cloud')
-                                                            dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
-                                                                resolve();
+                                    // Copy route e_api_credentials piece
+                                    fs.copy(piecesPath+'/api/routes/e_api_credentials.js', workspacePath+'/routes/e_api_credentials.js', function(err) {
+                                        if (err)
+                                            console.log(err);
+
+                                        // Copy api e_user piece
+                                        fs.copy(piecesPath+'/api/routes/e_user.js', workspacePath+'/api/e_user.js', function(err) {
+                                            if (err)
+                                                console.log(err);
+
+                                            // API credentials must not be available to API calls, delete the file
+                                            fs.unlink(workspacePath+'/api/e_api_credentials.js');
+
+                                            models.User.findOne({where: {id: id_user}}).then(function(user) {
+                                                // Sync workspace's database and insert admin user
+                                                var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
+                                                workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+                                                    workspaceSequelize.E_group.create({f_label: 'admin'}).then(function(){
+                                                        workspaceSequelize.E_role.create({f_label: 'admin'}).then(function(){
+                                                            workspaceSequelize.E_user.create({
+                                                                f_login: 'adminWorkspace',
+                                                                f_password: user.password || '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.',
+                                                                f_id_role_role: 1,
+                                                                f_id_group_group: 1,
+                                                                f_enabled: 1
+                                                            }).then(function() {
+                                                                // Create application's DNS through dns_manager
+                                                                if (globalConf.env == 'cloud')
+                                                                    dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
+                                                                        resolve();
+                                                                    });
+                                                                else
+                                                                    resolve();
                                                             });
-                                                        else
-                                                            resolve();
+                                                        });
                                                     });
                                                 });
                                             });
@@ -203,8 +217,8 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                     });
                                 });
                             });
-                        });
-                    })
+                        })
+                    });
                 });
             });
         });

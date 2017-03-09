@@ -60,7 +60,7 @@ exports.moduleAccessMiddleware = function(moduleName) {
 		var userGroup = req.session.passport.user.r_group.f_label;
 		if (moduleAccess(userGroup, moduleName))
 			return next();
-		req.session.toastr.push({level: 'error', 'message': "Your group doesn't have access to this module"});
+		req.session.toastr.push({level: 'error', 'message': "Your Group doesn't have access to this module"});
 		res.redirect('/default/home');
 	}
 }
@@ -93,7 +93,7 @@ exports.entityAccessMiddleware = function(entityName) {
 		var userGroup = req.session.passport.user.r_group.f_label;
 		if (entityAccess(userGroup, entityName))
 			return next();
-		req.session.toastr.push({level: 'error', 'message': "Your group doesn't have access to this entity"});
+		req.session.toastr.push({level: 'error', 'message': "Your Group doesn't have access to this entity"});
 		res.redirect('/default/home');
 	}
 }
@@ -124,7 +124,7 @@ exports.actionAccessMiddleware = function(entityName, action) {
 		var userRole = req.session.passport.user.r_role.f_label;
 		if (actionAccess(userRole, entityName, action))
 			return next();
-		req.session.toastr.push({level: 'error', 'message': "Your role doesn't have access to action "+action+' on entity '+entityName});
+		req.session.toastr.push({level: 'error', 'message': "Your Role doesn't have access to action "+action+' on entity '+entityName});
 		res.redirect('/default/home');
 	}
 }
@@ -134,11 +134,11 @@ exports.apiAuthentication = function(req, res, next) {
 
     models.E_api_credentials.findOne({where: {f_token: token}}).then(function(credentialsObj) {
     	if (!credentialsObj)
-    		return res.status(401).end();
+    		return res.status(401).end({error: 'Bad Bearer Token'});
 
     	var currentTmsp = new Date().getTime();
     	if (parseInt(credentialsObj.f_token_timeout_tmsp) < currentTmsp)
-    		return res.status(403).json({message: 'Bearer Token expired'});
+    		return res.status(403).json({error: 'Bearer Token expired'});
 
     	next();
     });

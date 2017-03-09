@@ -1,0 +1,55 @@
+<div id="fields">
+    <div data-field="f_client_name" class="form-group">
+        <label for="f_client_name"> {@__ key="entity.e_api_credentials.f_client_name"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="{f_client_name}" type="text" readonly="">
+    </div>
+    <div data-field="f_client_key" class="form-group">
+        <label for="f_client_key"> {@__ key="entity.e_api_credentials.f_client_key"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_key" /}' name="f_client_key" value="{f_client_key}" type="text" readonly="">
+    </div>
+    <div data-field="f_client_secret" class="form-group">
+        <label for="f_client_secret"> {@__ key="entity.e_api_credentials.f_client_secret"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_secret" /}' name="f_client_secret" value="{f_client_secret}" type="text" readonly="">
+    </div>
+    <div data-field="r_role" class="form-group">
+        <label for="r_role"> {@__ key="entity.e_api_credentials.r_role"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.r_role" /}' name="r_role" value="{r_role.f_label}" type="text" readonly="">
+    </div>
+    <div data-field="r_group" class="form-group">
+        <label for="r_group"> {@__ key="entity.e_api_credentials.r_group"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.r_group" /}' name="r_group" value="{r_group.f_label}" type="text" readonly="">
+    </div>
+</div>
+<div class="actions">
+    <form action="/api_credentials/delete" method="post">
+        <div class="quicklinks">
+            <span>
+                <button class="btn btn-danger">
+                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.delete"/}</span>
+            </button>
+            <input name="id" type="hidden" value="{e_api_credentials.id}" class="form-control">
+            </span>
+            <span>
+                <a href="/api_credentials/update_form?id={e_api_credentials.id}" class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update"/}</span>
+            </a>
+            </span>
+            {^hideButton}
+            <span>
+                    <a href="/api_credentials/create_form" class="btn btn-success">
+                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.create"/}</span>
+            </a>
+            </span>
+            <span>
+                    <a href="/api_credentials/list" type="submit" class="btn btn-primary">
+                        <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.list"/}</span>
+            </a>
+            </span>
+            {/hideButton}
+        </div>
+    </form>
+</div>
