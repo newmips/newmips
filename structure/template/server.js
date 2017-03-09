@@ -189,6 +189,15 @@ app.use(function(req, res, next) {
 		}
 		return false;
 	}
+	dust.helpers.ifTrue = function(chunk, context, bodies, params) {
+		var value = params.key;
+
+		if(value == true || value == "true" || value == 1){
+			return true;
+		} else{
+			return false;
+		}
+	}
     next();
 });
 
