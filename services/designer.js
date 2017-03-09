@@ -751,13 +751,13 @@ exports.listDataField = function(attr, callback) {
 exports.setRequiredAttribute = function(attr, callback) {
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
-            return callback(err);
+            return callback(err, null);
         attr.name_data_entity = dataEntity.codeName;
-        structure_data_field.setRequiredAttribute(attr, function(err) {
+        structure_data_field.setRequiredAttribute(attr, function(err, infoStructure) {
             if (err)
-                return callback(err);
+                return callback(err, null);
 
-            return callback(null, {message: 'Data field '+attr.options.showValue+' is now required.'});
+            callback(null, {message: 'Data field '+attr.options.showValue+' is now '+attr.options.word+'.'});
         });
     });
 }
