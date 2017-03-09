@@ -99,7 +99,7 @@
 	<script src='/js/plugins/fullcalendar/scheduler.js'></script>
 	<script>var calendarEvents = [];</script>
 	{#events}
-		<script>calendarEvents.push({title: "{title}", start: "{start}", end: "{end}", allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}"});</script>
+		<script>calendarEvents.push({title: "{title}", start: "{start}", end: "{end}", allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", resourceIds: "{ressourceIds}"});</script>
 	{/events}
 	<script>var usersRessources = [];</script>
 	{#users}
@@ -119,7 +119,9 @@
 					today: 'Aujourd\'hui',
 		            month: 'Mois',
 		            week: 'Semaine',
-		            day: 'Jour'
+		            day: 'Jour',
+		            customTimelineDay: "Timeline/Jour",
+		            customTimelineWeek: "Timeline/Semaine"
 		        };
 			} else{
 				var currentLocal = "en";
@@ -128,7 +130,9 @@
 					today: 'Today',
 		            month: 'Month',
 		            week: 'Week',
-		            day: 'Day'
+		            day: 'Day',
+		            customTimelineDay: "Timeline/Day",
+		            customTimelineWeek: "Timeline/Week"
 		        };
 			}
 			/* Full calendat init */
@@ -138,11 +142,22 @@
 				header: {
 					left: 'prev,next today',
 					center: 'title',
-					right: 'month,agendaWeek,agendaDay,timelineDay,timelineWeek'
+					right: 'month,agendaWeek,customTimelineDay,customTimelineWeek'
 				},
 				buttonIcons: {
 					prev: "left-single-arrow",
 		            next: "right-single-arrow"
+				},
+				views: {
+					customTimelineDay: {
+						type: 'timelineDay',
+						minTime: "07:00:00",
+						maxTime: "19:00:00"
+					},
+					customTimelineWeek: {
+						type: 'timelineWeek',
+						slotDuration: "24:00:00"
+					}
 				},
 		        buttonText: buttonTextObj,
 				navLinks: false,
@@ -156,7 +171,8 @@
 		        		allday: event.allDay,
 		        		start: event.start,
 		        		end: event.end,
-		        		idCategory: event.idCategory
+		        		idCategory: event.idCategory,
+		        		idUser: event.resourceId || null
 		        	};
 
 		        	$.ajax({
