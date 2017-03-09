@@ -574,7 +574,7 @@ exports.setRequiredAttribute = function (attr, callback) {
     var possibilityOptionnal = ["optionnel", "non obligatoire", "optional"];
 
     var attributes = attr.options.word.toLowerCase();
-    var set;
+    var set = null;
 
     if (possibilityRequired.indexOf(attributes) != -1) {
         set = true;
@@ -590,7 +590,7 @@ exports.setRequiredAttribute = function (attr, callback) {
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
 
         if ($("*[data-field='" + attr.options.value + "']").length > 0) {
-            if (set == true)
+            if (set)
                 $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
             else
                 $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
@@ -602,12 +602,21 @@ exports.setRequiredAttribute = function (attr, callback) {
 
                 // Update update_fields.dust file
                 domHelper.read(pathToViews + '/update_fields.dust').then(function ($) {
-                    if (set == true)
+                    if (set)
                         $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
                     else
                         $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
                     domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
+
+                        // Update the Sequelize attributes.json to set allowNull
+                        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.name_data_entity.toLowerCase() + ".json";
+                        var attributesContent = fs.readFileSync(pathToAttributesJson);
+                        var attributesObj = JSON.parse(attributesContent);
+
+                        attributesObj[attr.options.value].allowNull = set?true:false;
+                        fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+
                         callback();
                     });
                 });
