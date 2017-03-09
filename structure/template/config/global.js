@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var env = 'develop';
+var applicationConf = require('./application.json');
 
 var config = {
 	'develop': {
@@ -37,4 +38,9 @@ var config = {
 	}
 }
 
-module.exports = config[env]
+var currentConfig = config[env];
+for (var appConf in applicationConf) {
+	currentConfig[appConf] = applicationConf[appConf];
+}
+
+module.exports = currentConfig;

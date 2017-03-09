@@ -3,6 +3,7 @@ var router = express.Router();
 var block_access = require('../utils/block_access');
 var access_helper = require('../utils/access_helper');
 var dust = require('dustjs-linkedin');
+var fs = require('fs');
 
 // Datalist
 var filterDataTable = require('../utils/filterDataTable');
@@ -60,9 +61,21 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
                 return true;
             return false;
         }
+        data.api_enabled = require('../config/application.json').api_enabled;
 
         res.render('e_access_settings/show', data);
     });
+});
+
+router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "write"), function(req, res) {
+    var enable = req.body.enable;
+
+    var applicationConfig = require(__dirname+'/../config/application.json');
+    applicationConfig.api_enabled = enable == 'true' ? true : false;
+    fs.writeFileSync(__dirname+'/../config/application.json', JSON.stringify(applicationConfig, null, 4), 'utf8');
+    delete require.cache[require.resolve(__dirname+'/../config/application.json')]
+
+    res.status(200).end();
 });
 
 router.post('/set_group_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "write"), function(req, res) {

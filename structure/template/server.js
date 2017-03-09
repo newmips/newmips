@@ -106,7 +106,7 @@ if (startedFromGenerator) {
 	});
 }
 
-//------------------------------ LANGUAGE ------------------------------ //
+//------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
 	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
 		autologinInited = true;
@@ -207,6 +207,9 @@ app.use(function(req, res, next) {
 
 // Routes ======================================================================
 require('./routes/')(app);
+
+// Api routes ==================================================================
+require('./api/')(app);
 
 // Launch ======================================================================
 if (protocol == 'https') {

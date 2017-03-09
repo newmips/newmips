@@ -60,7 +60,7 @@ router.post('/index', block_access.isLoggedIn, function(req, res) {
 
 router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
-    pourcent_generation[req.session.passport.user.id] = 5;
+    pourcent_generation[req.session.passport.user.id] = 1;
 
     // var instruction = req.body.instruction || '';
     var name_project = req.body.project || '';
@@ -116,6 +116,14 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select entity User");
     instructions.push("add field role related to Role using label");
     instructions.push("add field group related to Group using label");
+    instructions.push("add entity API credentials");
+    instructions.push("add field Client Name");
+    instructions.push("add field Client Key");
+    instructions.push("add field Client Secret");
+    instructions.push("add field role related to Role using label");
+    instructions.push("add field group related to Group using label");
+    instructions.push("add field Token");
+    instructions.push("add field Token timeout TMSP");
     instructions.push("select module home");
 
     function finishApplicationInitialization() {
@@ -131,7 +139,8 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             return finishApplicationInitialization();
 
         execute(req, recurInstructions[idx]).then(function(){
-            pourcent_generation[req.session.passport.user.id] += 5;
+
+            pourcent_generation[req.session.passport.user.id] = idx == 0 ? 5 : Math.floor(idx * 100 / recurInstructions.length);
             recursiveExecute(recurInstructions, ++idx);
         }).catch(function(err){
             req.session.toastr = [{
