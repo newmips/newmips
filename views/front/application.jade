@@ -13,7 +13,7 @@ block header
 		.col-header.col-xs-3.col-lg-1
 			.clearfix
 				span.pull-left Instructions
-				small.pull-right
+				small.pull-right#cptInstructionNumber
 					if cptInstruction > 300
 						b
 							| 300+
@@ -21,7 +21,7 @@ block header
 						b
 							| #{cptInstruction}
 			.progress.xs
-				.progress-bar.progress-bar-striped(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
+				.progress-bar.progress-bar-striped#cptInstructionBar(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
 		.col-header.col-xs-3.col-lg-1(style="padding:0px;")
 			ol.breadcrumb
 				li
@@ -94,6 +94,19 @@ block custom_js
 	// AdminLTE App
 	script(src='/js/AdminLTE/app.js', type='text/javascript')
 	script(type='text/javascript').
+
+		function updateInstructionCount(){
+			$.ajax({
+				url: '/default/update_instruction_cpt',
+				method: 'get',
+				success: function(data) {
+					$("#cptInstructionBar").attr("aria-valuenow", data.pourcentInstruction);
+					$("#cptInstructionBar").css("width", data.pourcentInstruction+"%");
+					$("#cptInstructionNumber").html("<b>"+data.cptInstruction+"</b>");
+				}
+			});
+		}
+
 		function deleteApplication(formArray, index) {
 			return new Promise(function(resolve, reject) {
 				(function(arr, idx){
@@ -107,6 +120,7 @@ block custom_js
 							$(tr).remove();
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);
+							updateInstructionCount();
 						},
 						complete: function() {
 							$(document.body).css({cursor: 'default'});
@@ -146,6 +160,7 @@ block custom_js
 							$(document.body).css({cursor: 'default'});
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);
+							updateInstructionCount();
 						}
 					});
 
@@ -165,4 +180,3 @@ block custom_js
 				}
 			});
 		});
-
