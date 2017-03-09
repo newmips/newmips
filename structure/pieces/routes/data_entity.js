@@ -17,12 +17,33 @@ var enums = require('../utils/enum.js');
 var logger = require('../utils/logger');
 
 
-function error500(err, res) {
-    console.error(err);
-    logger.debug(err);
-    var data = {};
-    data.error = 500;
-    res.render('common/error', data);
+function error500(err, req, res, redirect) {
+    var isKnownError = false;
+    try {
+
+        //Sequelize validation error
+        if(err.name == "SequelizeValidationError"){
+            req.session.toastr.push({level: 'error', message: err.errors[0].message});
+            isKnownError = true;
+        }
+
+        // Unique value constraint error
+        if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
+            req.session.toastr.push({level: 'error', message: err.errors[0].message});
+            isKnownError = true;
+        }
+
+    } finally {
+        if (isKnownError)
+            return res.redirect(redirect);
+        else
+            console.error(err);
+            logger.debug(err);
+            var data = {};
+            data.code = 500;
+            data.message = err.message || null;
+            res.render('common/error', data);
+    }
 }
 
 function capitalizeFirstLetter(word) {
@@ -79,6 +100,8 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
                 res.sendStatus(200).end();
             });
         });
+    }).catch(function (err) {
+        error500(err, req, res, "/");
     });
 });
 
@@ -104,6 +127,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
         ENTITY_NAME['add' + capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
         });
+    }).catch(function (err) {
+        error500(err, req, res, "/");
     });
 });
 
@@ -160,7 +185,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         });
 
     }).catch(function (err) {
-        error500(err, res);
+        error500(err, req, res, "/");
     });
 });
 
@@ -188,7 +213,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         req.session.toastr = [];
         res.render('ENTITY_NAME/create', data);
     }).catch(function (err) {
-        error500(err, res);
+        error500(err, req, res, "/");
     });
 });
 
@@ -208,7 +233,9 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
             models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
                 if (!association) {
                     ENTITY_NAME.destroy();
-                    return error500("Not found", res);
+                    var err = new Error();
+                    err.message = "Association not found."
+                    return error500(err, req, res, "/");
                 }
 
                 var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -259,20 +286,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
         res.redirect(redirect);
     }).catch(function (err) {
-        var isKnownError = false;
-        try {
-            if(typeof err.parent !== "undefined"){
-                // Unique value constraint
-                if (err.parent.errno == 1062) {
-                    req.session.toastr.push({level: 'error', message: err.errors[0].message});
-                    isKnownError = true;
-                }
-            }
-        } finally {
-            if (isKnownError)
-                return res.redirect('/ENTITY_URL_NAME/create_form');
-            error500(err, res);
-        }
+        error500(err, req, res, '/ENTITY_URL_NAME/create_form');
     });
 });
 
@@ -331,10 +345,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
             req.session.toastr = [];
             res.render('ENTITY_NAME/update', data);
         }).catch(function (err) {
-            error500(err, res);
+            error500(err, req, res, "/");
         });
     }).catch(function (err) {
-        error500(err, res);
+        error500(err, req, res, "/");
     });
 });
 
@@ -373,21 +387,10 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
             res.redirect(redirect);
         }).catch(function (err) {
-            var isKnownError = false;
-            try {
-                // Unique value constraint
-                if (err.parent.errno == 1062) {
-                    req.session.toastr.push({level: 'error', message: err.errors[0].message});
-                    isKnownError = true;
-                }
-            } finally {
-                if (isKnownError)
-                    return res.redirect('/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
-                error500(err, res);
-            }
+            error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
         });
     }).catch(function (err) {
-        error500(err, res);
+        error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
     });
 });
 
@@ -408,7 +411,7 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
         res.redirect(redirect);
     }).catch(function (err) {
-        error500(err, res);
+        error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
 });
 

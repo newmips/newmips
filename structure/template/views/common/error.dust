@@ -3,15 +3,16 @@
     <h1>Erreur {code}</h1>
     <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i>Accueil</a></li>
-        <li class="active">Erreur</li>
+        <li class="active">Erreur {code}</li>
     </ol>
 {/header}
 {<content}
     <div class="error-page">
         <h2 class="headline">{code}</h2>
         <div class="error-content">
-            <h3><i class="fa fa-warning fa-lg text-yellow"></i></h3>
+            <h3><i class="fa fa-warning fa-lg text-yellow"></i> Erreur {code}</h3>
             <p>
+                Erreur:<br><br><b>{message}</b><br><br>
                 Merci de contacter votre administrateur.<br>
                 Entre temps, vous pouvez <a href="/">retourner à la page d'accueil</a> ou <a href="javascript:history.back();"> revenir en arrière.</a>
             </p>
