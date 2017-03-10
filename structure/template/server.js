@@ -144,7 +144,6 @@ app.use(function(req, res, next) {
 			var action = params.action;
 			return block_access.actionAccess(userRole, entityName, action);
 		}
-                
 	}
 
 	if (typeof req.session.toastr === 'undefined')
@@ -258,14 +257,15 @@ else {
 		models.sequelize.customAfterSync().then(function(){
 			models.E_user.findAll().then(function(users) {
 				if (!users || users.length == 0) {
-                    models.E_group.create({f_label: 'admin'}).then(function(){
-                        models.E_role.create({f_label: 'admin'}).then(function(){
+                    models.E_group.create({version:0, f_label: 'admin'}).then(function(){
+                        models.E_role.create({version:0, f_label: 'admin'}).then(function(){
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: '',
                                 f_id_role_role: 1,
                                 f_id_group_group: 1,
-                                f_enabled: 1
+                                f_enabled: 1,
+                                version: 0
                             });
                         });
                     });

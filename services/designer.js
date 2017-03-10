@@ -748,17 +748,73 @@ exports.listDataField = function(attr, callback) {
 /* ---------------------- Field Attributes ----------------------- */
 /* --------------------------------------------------------------- */
 
-exports.setRequiredAttribute = function(attr, callback) {
+exports.setFieldAttribute = function(attr, callback) {
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
             return callback(err, null);
-        attr.name_data_entity = dataEntity.codeName;
-        structure_data_field.setRequiredAttribute(attr, function(err, infoStructure) {
-            if (err)
-                return callback(err, null);
 
-            callback(null, {message: 'Data field '+attr.options.showValue+' is now '+attr.options.word+'.'});
-        });
+        attr.name_data_entity = dataEntity.codeName;
+
+        var wordParam = attr.options.word.toLowerCase();
+        var requiredAttribute = ["mandatory", "required", "obligatoire", "optionnel", "non-obligatoire", "optional"];
+        var uniqueAttribute = ["unique", "not-unique", "non-unique"];
+
+        if(requiredAttribute.indexOf(wordParam) != -1){
+            structure_data_field.setRequiredAttribute(attr, function(err) {
+                if (err)
+                    return callback(err, null);
+
+                callback(null, {message: 'Data field '+attr.options.showValue+' is now '+attr.options.word+'.'});
+            });
+        }
+        else if(uniqueAttribute.indexOf(wordParam) != -1){
+
+            var sourceEntity = attr.id_application+"_"+attr.name_data_entity;
+            var constraintName = attr.id_application+"_"+attr.name_data_entity+"_"+attr.options.value+"_unique";
+
+            var possibilityUnique = ["unique"];
+            var possibilityNotUnique = ["not-unique", "non-unique"];
+
+            var attribute = attr.options.word.toLowerCase();
+            var request = "";
+
+            // Add or remove the unique constraint ?
+            if (possibilityUnique.indexOf(attribute) != -1) {
+                request = "ALTER TABLE `"+sourceEntity+"` ADD CONSTRAINT "+constraintName+" UNIQUE (`" + attr.options.value + "`);";
+            } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+                request = "ALTER TABLE `"+sourceEntity+"` DROP INDEX `" + constraintName + "`;";
+            } else {
+                var err = new Error();
+                err.message = "Unable to understand the given attribute. Available";
+                return callback(err);
+            }
+
+            sequelize.query(request).then(function(){
+                structure_data_field.setUniqueField(attr, function(err) {
+                    if (err)
+                        return callback(err, null);
+
+                    callback(null, {message: 'Field '+attr.options.showValue+' is now '+attr.options.word+'.'});
+                });
+            }).catch(function(err){
+                if(typeof err.parent !== "undefined" && err.parent.errno == 1062){
+                    var err = new Error();
+                    err.message = "Sorry, the field has already duplicate value so it can't be unique.";
+                }
+                callback(err, null);
+            });
+        }
+        else{
+            var err = new Error();
+            err.message = "Sorry, I do not understand what you want to do. Available attributes: <br>";
+            for(var i=0; i<requiredAttribute.length; i++){
+                err.message += "-  " + requiredAttribute[i] + "<br>";
+            }
+            for(var j=0; j<uniqueAttribute.length; j++){
+                err.message += "-  " + uniqueAttribute[j] + "<br>";
+            }
+            callback(err, null);
+        }
     });
 }
 
