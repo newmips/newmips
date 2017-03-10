@@ -90,6 +90,8 @@ var mandatoryInstructions = [
     "add field Client Secret",
     "add field Token",
     "add field Token timeout TMSP",
+    "add field role related to Role using label",
+    "add field group related to Group using label",
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;

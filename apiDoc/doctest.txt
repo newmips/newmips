@@ -1,0 +1,44 @@
+
+/**
+ * @api {get} /api/getToken/ Basic Auth
+
+ * @apiName BearerToken
+ * @apiGroup Authentication
+
+ * @apiDescription To be able to interact with the API, you need to generate a Bearer Token using the /api/getToken/ url.
+ * Set your HTTP header like so with basic64 encoding : Authorization clientID:clientSecret
+
+ * @apiHeader {String} ClientID Generated application's API credentials
+ * @apiHeader {String} ClientSecret Generated application's API credentials
+
+ * @apiSuccess {String} token Bearer Token, required for further API calls
+
+ * @apiError (Error 500) BadAuthorizationHeader There is invalid authorization header or none
+ * @apiError (Error 401) AuthenticationFailed Couldn't match clientID/clientSecret with database
+ */
+
+/**
+ * @apiDefine token
+ * @apiParam (Query parameter) {String} token API Bearer Token, required for authentication
+ */
+
+/**
+ * @api {get} /api/user/?token=TOKEN Fetch Users
+ * @apiGroup User
+ *
+ * @apiUse token
+ *
+ * @apiSuccess {Object[]} users List of User
+ * @apiSuccess {Integer} users.id Unique ID of the User.
+ * @apiSuccess {String} users.f_login Login of the User.
+ * @apiSuccess {String} users.f_email Email of the User.
+ */
+/**
+ * @api {post} /api/user/?token=TOKEN Create User
+ * @apiGroup User
+ *
+ * @apiUse token
+ *
+ * @apiParam (Body) {String} f_login User login
+ * @apiParam (Body) {String} f_email User email
+ */

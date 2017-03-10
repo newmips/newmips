@@ -121,7 +121,7 @@ router.post('/', function(req, res) {
         res.status(200).json(answer);
     }).catch(function(err){
         answer.error = err;
-        res.status(200).json(answer);
+        res.status(500).json(answer);
     });
 });
 
