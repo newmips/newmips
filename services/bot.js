@@ -110,7 +110,7 @@ exports.selectDataEntity = function(result) {
 };
 
 // ******* FIELD ATTRIBUTES Actions ******* //
-exports.setRequiredAttribute = function(result) {
+exports.setFieldAttribute = function(result) {
 
     // Set entity name as the first option in options array
     var options = {
@@ -120,7 +120,7 @@ exports.setRequiredAttribute = function(result) {
     };
 
     var attr = {
-        function: "setRequiredAttribute",
+        function: "setFieldAttribute",
         options: options
     };
     return attr;
@@ -721,7 +721,7 @@ exports.parse = function(instruction) {
             "sélectionner l'entité (.*)",
             "sélectionner entité (.*)"
         ],
-        "setRequiredAttribute": [
+        "setFieldAttribute": [
             "set field (.*) (.*)",
             "set the field (.*) (.*)",
             "mettre champ (.*) (.*)",
