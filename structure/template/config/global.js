@@ -10,14 +10,14 @@ var config = {
 		protocol: 'http',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
-                localstorage : __dirname + "/../upload/"
+        localstorage : __dirname + "/../upload/"
 	},
 	'recette': {
 		env: 'recette',
 		protocol: 'https',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
-                localstorage : "/var/data/localstorage/",
+        localstorage : "/var/data/localstorage/",
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
@@ -29,7 +29,7 @@ var config = {
 		protocol: 'https',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
-                localstorage : "/var/data/localstorage/",
+        localstorage : "/var/data/localstorage/",
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
