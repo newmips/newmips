@@ -114,7 +114,7 @@ function addPrefix(string, instructionFunction){
         case 'deleteTab':
         case 'foreignKey':
         case 'using':
-        case 'setRequiredAttribute':
+        case 'setFieldAttribute':
         case 'setColumnVisibility':
             return "f_"+string;
             break;

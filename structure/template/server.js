@@ -191,6 +191,15 @@ app.use(function(req, res, next) {
 		}
 		return false;
 	}
+	dust.helpers.ifTrue = function(chunk, context, bodies, params) {
+		var value = params.key;
+
+		if(value == true || value == "true" || value == 1){
+			return true;
+		} else{
+			return false;
+		}
+	}
     next();
 });
 
@@ -223,10 +232,10 @@ if (protocol == 'https') {
                         models.E_role.create({f_label: 'admin'}).then(function(){
                             models.E_user.create({
                                 f_login: 'admin',
-                                f_password: '',
+                                f_password: null,
                                 f_id_role_role: 1,
                                 f_id_group_group: 1,
-                                f_enabled: 1
+                                f_enabled: 0
                             });
                         });
                     });
@@ -247,18 +256,19 @@ if (protocol == 'https') {
 	});
 }
 else {
-	models.sequelize.sync({ logging: console.log, hooks: false }).then(function() {
+	models.sequelize.sync({ logging: false, hooks: false }).then(function() {
 		models.sequelize.customAfterSync().then(function(){
 			models.E_user.findAll().then(function(users) {
 				if (!users || users.length == 0) {
-                    models.E_group.create({f_label: 'admin'}).then(function(){
-                        models.E_role.create({f_label: 'admin'}).then(function(){
+                    models.E_group.create({version:0, f_label: 'admin'}).then(function(){
+                        models.E_role.create({version:0, f_label: 'admin'}).then(function(){
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: '',
                                 f_id_role_role: 1,
                                 f_id_group_group: 1,
-                                f_enabled: 1
+                                f_enabled: 1,
+                                version: 0
                             });
                         });
                     });
