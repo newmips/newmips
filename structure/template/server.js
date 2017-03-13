@@ -40,9 +40,12 @@ var cons = require('consolidate');
 // Pass passport for configuration
 require('./utils/authStrategies');
 
-// Set up our express application
+// Set up public files access (js/css...)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
+
+// Set up API documentation access
+app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
 
 // Log every request to the console
 app.use(morgan('dev'));
@@ -144,7 +147,6 @@ app.use(function(req, res, next) {
 			var action = params.action;
 			return block_access.actionAccess(userRole, entityName, action);
 		}
-                
 	}
 
 	if (typeof req.session.toastr === 'undefined')
