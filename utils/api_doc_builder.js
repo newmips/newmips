@@ -10,8 +10,10 @@ function routeGet(entity, attributes) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {get} /api/'+name+'?token=TOKEN 1 - Fetch multiple '+name);
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(name));
+	doc.push(' * @api {get} /api/'+name+'?token=TOKEN&limit=10&offset=0 1 - Find all');
+	doc.push(' * @apiVersion 1.0.0');
+	doc.push(' * @apiDescription Fetch records of <code>'+name+'</code> from <code>offset</code> until <code>limit</code>');
+	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiSuccess {Object[]} '+name+'s List of '+name);
 	for (var attr in attributes)
@@ -19,6 +21,7 @@ function routeGet(entity, attributes) {
 
 	doc.push(' * @apiSuccess {Integer} limit Limit used to fetch data');
 	doc.push(' * @apiSuccess {Integer} offset Offset used to fetch data');
+	doc.push(' * @apiSuccess {Integer} totalCount The total count of records for '+name);
 
 	doc.push(' */');
 	doc.push('\n');
@@ -29,8 +32,10 @@ function routeGetId(entity, attributes) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {get} /api/'+name+'/:id?token=TOKEN&limit=10&offset=0 2 - Fetch '+name+' with specified id');
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(name));
+	doc.push(' * @api {get} /api/'+name+'/:id?token=TOKEN 2 - Find one');
+	doc.push(' * @apiVersion 1.0.0');
+	doc.push(' * @apiDescription Fetch one record of '+name+' with <code>id</code>');
+	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id The <code>id</code> of '+name+' to fetch');
 	doc.push(' * @apiSuccess {Object} '+name+' Object of '+name);
@@ -47,8 +52,10 @@ function routeGetAssociation(entity, options) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {get} /api/'+name+'/:id/:association?token=TOKEN&limit=10&offset=0 3 - Fetch association of '+name);
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(name));
+	doc.push(' * @api {get} /api/'+name+'/:id/:association?token=TOKEN&limit=10&offset=0 2.a - Find association');
+	doc.push(' * @apiVersion 1.0.0');
+	doc.push(' * @apiDescription Fetch records of <code>'+name+'</code>\'s <code>association</code> from <code>offset</code> until <code>limit</code>');
+	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of the '+name+' to which <code>association</code> is related');
 
@@ -79,15 +86,17 @@ function routePost(entity, attributes, options) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {post} /api/'+name+'/?token=TOKEN 4 - Create '+name);
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(name));
+	doc.push(' * @api {post} /api/'+name+'/?token=TOKEN 3 - Create');
+	doc.push(' * @apiVersion 1.0.0');
+	doc.push(' * @apiDescription Create a record of <code>'+name+'</code> using values defined in request\'s <code>body</code>');
+	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
 	doc.push(' * @apiUse token');
 	for (var attr in attributes)
 		if (privateFields.indexOf(attr) == -1 && attr != 'id')
-			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} '+attr+' <code>'+attr+'</code> of '+name);
+			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} ['+attr+'] <code>'+attr+'</code> of '+name);
 	for (var i = 0; i < options.length; i++)
 		if (options[i].relation != 'belongsToMany')
-			doc.push(' * @apiParam (Body parameters) {Integer} '+options[i].foreignKey+' <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
+			doc.push(' * @apiParam (Body parameters) {Integer} ['+options[i].foreignKey+'] <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
 	doc.push(' * @apiSuccess {Object} '+name+' Created '+name);
 	for (var attr in attributes)
 		if (privateFields.indexOf(attr) == -1)
@@ -104,16 +113,18 @@ function routePut(entity, attributes, options) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {put} /api/'+name+'/:id?token=TOKEN 5 - Update '+name);
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(name));
+	doc.push(' * @api {put} /api/'+name+'/:id?token=TOKEN 4 - Update');
+	doc.push(' * @apiVersion 1.0.0');
+	doc.push(' * @apiDescription Update record of <code>'+name+'</code> with <code>id</code> using values defined in request\'s <code>body</code>');
+	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of the '+name+' to update');
 	for (var attr in attributes)
 		if (privateFields.indexOf(attr) == -1 && attr != 'id')
-			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} '+attr+' New value of <code>'+attr+'</code> for '+name);
+			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} ['+attr+'] New value of <code>'+attr+'</code> for '+name);
 	for (var i = 0; i < options.length; i++)
 		if (options[i].relation != 'belongsToMany')
-			doc.push(' * @apiParam (Body parameters) {Integer} '+options[i].foreignKey+' <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
+			doc.push(' * @apiParam (Body parameters) {Integer} ['+options[i].foreignKey+'] <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
 
 	doc.push(' * @apiSuccess {Object} '+name+' Updated '+name);
 	for (var attr in attributes)
@@ -132,8 +143,10 @@ function routeDelete(entity) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {delete} /api/'+name+'/:id?token=TOKEN 6 - Delete '+name);
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(name));
+	doc.push(' * @api {delete} /api/'+name+'/:id?token=TOKEN 5 - Delete');
+	doc.push(' * @apiVersion 1.0.0');
+	doc.push(' * @apiDescription Permanently delete a record of <code>'+name+'</code> with <code>id</code>');
+	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of '+name+' to delete');
 
@@ -148,12 +161,18 @@ function routeDelete(entity) {
 
 function entityDocumentation(entity, attributes, options) {
 	var entityDoc = '';
+	entityDoc += '/********************************************\n';
+	entityDoc += ' ********************************************\n';
+	entityDoc += ' * '+entity.name.toUpperCase()+'\n';
+	entityDoc += ' ********************************************\n';
+	entityDoc += ' *******************************************/\n';
 	entityDoc += routeGet(entity, attributes);
 	entityDoc += routeGetId(entity, attributes);
 	entityDoc += routeGetAssociation(entity, options);
 	entityDoc += routePost(entity, attributes, options);
 	entityDoc += routePut(entity, attributes, options);
 	entityDoc += routeDelete(entity);
+	entityDoc += '\n\n';
 	return entityDoc;
 }
 
@@ -167,9 +186,11 @@ function build(id_application) {
 			include: [{model: models.DataEntity}]
 		}).then(function(modules) {
 			var entities = [];
+			var privateEntities = ['api_credentials'];
 			for (var i = 0; i < modules.length; i++)
 				for (var j = 0; j < modules[i].DataEntities.length; j++)
-					entities.push(modules[i].DataEntities[j]);
+					if (privateEntities.indexOf(modules[i].DataEntities[j].codeName.substring(2)) == -1)
+						entities.push(modules[i].DataEntities[j]);
 
 			// Load documentation template, it describes the authentication process
 			var documentation = fs.readFileSync(__dirname+'/../structure/pieces/api/api_doc_template.js');
@@ -185,7 +206,6 @@ function build(id_application) {
 			exec(cmd, function(error, stdout, stderr) {
 				if (error)
 					console.log(error);
-				console.log("API GENERATED");
 				resolve();
 			});
 		}).catch(function(err) {
