@@ -1248,9 +1248,12 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "c_local_file_storage";
-        attr.options.urlValue = "local_file_storage";
+        attr.options.value = "c_local_file_storage_"+attr.id_data_entity;
+        attr.options.urlValue = "local_file_storage_"+attr.id_data_entity;
         attr.options.showValue = "Local File Storage";
+    } else{
+        attr.options.value = attr.options.value+"_"+attr.id_data_entity;
+        attr.options.urlValue = attr.options.urlValue+"_"+attr.id_data_entity;
     }
 
     // Check if component with this name is already created on this entity
