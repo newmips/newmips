@@ -15,7 +15,7 @@ var moment_timezone = require('moment-timezone');
 
 var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
     host: config.connection.host,
-    logging: console.log(),
+    logging: false,
     port: config.connection.port,
     dialectOptions: {
         multipleStatements: true
