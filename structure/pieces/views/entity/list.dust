@@ -92,6 +92,7 @@
             });
 
             $("tbody").mouseup(function(e){down=false;});
+            $("tbody").mouseleave(function(e){down=false;});
         });
     </script>
 {/custom_js}

@@ -255,10 +255,10 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(typeof parser.parse(line)["options"] !== "undefined")
                 designerValue = parser.parse(line)["options"]["value"]?parser.parse(line)["options"]["value"]:null;
 
-            if (designerFunction == "createNewProject"){
+            if (designerFunction == "createNewProject" || designerFunction == "selectProject"){
                 exception.createNewProject.value += 1;
             }
-            if (designerFunction == "createNewApplication"){
+            if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
                 authInstructions = true;
                 exception.createNewApplication.value += 1;
             }
