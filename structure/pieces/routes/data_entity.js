@@ -68,6 +68,21 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     var include = model_builder.getDatalistInclude(models, options);
 
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
+        // Replace data enum value by translated value for datalist
+        var enumsTranslation = enums.translated("ENTITY_NAME", req.session.lang_user);
+        for(var i=0; i<data.data.length; i++){
+            for(var field in data.data[i].dataValues){
+                for(var enumField in enumsTranslation){
+                    if(field == enumField){
+                        for(var j=0; j<enumsTranslation[enumField].length; j++){
+                            if(data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value){
+                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][j].translation;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         res.send(data).end();
     }).catch(function (err) {
         console.log(err);
