@@ -229,10 +229,10 @@ if (protocol == 'https') {
                         models.E_role.create({f_label: 'admin'}).then(function(){
                             models.E_user.create({
                                 f_login: 'admin',
-                                f_password: '',
+                                f_password: null,
                                 f_id_role_role: 1,
                                 f_id_group_group: 1,
-                                f_enabled: 1
+                                f_enabled: 0
                             });
                         });
                     });
