@@ -5,6 +5,7 @@ var block_access = require('../utils/block_access');
 var multer = require('multer');
 var moment = require('moment');
 var request = require('request');
+var docBuilder = require('../utils/api_doc_builder');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -134,6 +135,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     attr.id_module = req.session.id_module;
                     attr.id_data_entity = req.session.id_data_entity;
                     session_manager.getSession(attr, function(err, info) {
+                        docBuilder.build(req.session.id_application);
 
                         data.session = info;
                         // Call preview page
@@ -351,6 +353,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                     newAttr.id_module = req.session.id_module;
                                     newAttr.id_data_entity = req.session.id_data_entity;
                                     session_manager.getSession(newAttr, function(err, info) {
+                                        docBuilder.build(req.session.id_application);
+
                                         data.session = info;
                                         data.workspaceFolder = initEditor(req.session.id_application);
 

@@ -1,5 +1,6 @@
 var models = require('../models/');
 var fs = require('fs-extra');
+var exec = require('child_process').exec;
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -157,31 +158,40 @@ function entityDocumentation(entity, attributes, options) {
 }
 
 function build(id_application) {
-	var workspacePath = __dirname + '/../workspace/'+id_application;
+	return new Promise(function(resolve, reject) {
+		var workspacePath = __dirname + '/../workspace/'+id_application;
 
-	// Fetch all entities from database
-	models.Module.findAll({
-		where: {id_application: id_application},
-		include: [{model: models.DataEntity}]
-	}).then(function(modules) {
-		var entities = [];
-		for (var i = 0; i < modules.length; i++)
-			for (var j = 0; j < modules[i].DataEntities.length; j++)
-				entities.push(modules[i].DataEntities[j]);
+		// Fetch all entities from database
+		models.Module.findAll({
+			where: {id_application: id_application},
+			include: [{model: models.DataEntity}]
+		}).then(function(modules) {
+			var entities = [];
+			for (var i = 0; i < modules.length; i++)
+				for (var j = 0; j < modules[i].DataEntities.length; j++)
+					entities.push(modules[i].DataEntities[j]);
 
-		// Load documentation template, it describes the authentication process
-		var documentation = fs.readFileSync(__dirname+'/../structure/pieces/api/api_doc_template.js');
-		// Generate documentation of each entity
-		for (var i = 0; i < entities.length; i++) {
-			var attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].codeName+'.json', 'utf8'));
-			var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].codeName+'.json', 'utf8'));
-			documentation += entityDocumentation(entities[i], attributes, options);
-		}
+			// Load documentation template, it describes the authentication process
+			var documentation = fs.readFileSync(__dirname+'/../structure/pieces/api/api_doc_template.js');
+			// Generate documentation of each entity
+			for (var i = 0; i < entities.length; i++) {
+				var attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].codeName+'.json', 'utf8'));
+				var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].codeName+'.json', 'utf8'));
+				documentation += entityDocumentation(entities[i], attributes, options);
+			}
 
-		fs.writeFileSync('apiDoc/generatedTest.js', documentation, 'utf8');
-		process.exit();
-	})
+			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
+			var cmd = 'apiDoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
+			exec(cmd, function(error, stdout, stderr) {
+				if (error)
+					console.log(error);
+				console.log("API GENERATED");
+				resolve();
+			});
+		}).catch(function(err) {
+			reject(err);
+		});
+	});
 }
 
 exports.build = build;
-build(41);
