@@ -203,7 +203,11 @@ function build(id_application) {
 
 			// Write file to workspace's api folder
 			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
-			var cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
+			var isWin = /^win/.test(process.platform);
+			if(isWin || process.platform == "win32")
+				var cmd = __dirname+'\\..\\node_modules\\apidoc\\bin\\apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
+			else
+				var cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
 			exec(cmd, function(error, stdout, stderr) {
 				if (error)
 					console.log(error);
