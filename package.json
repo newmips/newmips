@@ -2,6 +2,7 @@
   "name": "newmips",
   "main": "server.js",
   "dependencies": {
+    "apidoc": "^0.17.5",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.15.2",
     "connect-flash": "~0.1.1",

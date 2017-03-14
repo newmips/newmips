@@ -17,7 +17,7 @@ function capitalizeFirstLetter(word) {
 //
 router.get('/', function(req, res) {
     var answer = {
-        limit: parseInt(req.query.limit || 10),
+        limit: parseInt(req.query.limit || 50),
         offset: parseInt(req.query.offset || 0),
         error: null
     };
@@ -63,8 +63,8 @@ router.get('/:id', function(req, res) {
 router.get('/:id/:association', function(req, res) {
     var answer = {
         error: null,
-        limit: parseInt(req.query.limit),
-        offset: parseInt(req.query.offset)
+        limit: parseInt(req.query.limit || 50),
+        offset: parseInt(req.query.offset || 0)
     };
     var id_ENTITY_NAME = req.params.id;
     var association = req.params.association;
@@ -121,7 +121,7 @@ router.post('/', function(req, res) {
         res.status(200).json(answer);
     }).catch(function(err){
         answer.error = err;
-        res.status(200).json(answer);
+        res.status(500).json(answer);
     });
 });
 
