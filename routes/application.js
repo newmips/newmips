@@ -226,10 +226,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             };
 
             /* Save an instruction history in the history script in workspace folder */
-            var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
-            var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-            historyScript += "\n"+instruction;
-            fs.writeFileSync(historyScriptPath, historyScript);
+            if(instruction != "restart server"){
+                var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
+                var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+                historyScript += "\n"+instruction;
+                fs.writeFileSync(historyScriptPath, historyScript);
+            }
 
             /* Lower the first word for the basic parser jison */
             instruction = attrHelper.lowerFirstWord(instruction);
