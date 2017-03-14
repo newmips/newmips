@@ -202,7 +202,7 @@ function build(id_application) {
 			}
 
 			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
-			var cmd = 'apiDoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
+			var cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
 			exec(cmd, function(error, stdout, stderr) {
 				if (error)
 					console.log(error);
