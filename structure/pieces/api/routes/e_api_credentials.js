@@ -198,8 +198,8 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "w
     createObject = enums.values("e_api_credentials", createObject, req.body);
 
     // Generate client ID and client SECRET
-    createObject.f_client_key = randomString.generate();
-    createObject.f_client_secret = randomString.generate();
+    createObject.f_client_key = randomString.generate(15);
+    createObject.f_client_secret = randomString.generate(15);
     models.E_api_credentials.create(createObject).then(function (e_api_credentials) {
         var redirect = '/api_credentials/list';
         req.session.toastr = [{

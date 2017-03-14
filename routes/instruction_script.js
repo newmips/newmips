@@ -6,6 +6,7 @@ var message = "";
 var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
+var docBuilder = require('../utils/api_doc_builder');
 
 // Parser
 var designer = require('../services/designer.js');
@@ -90,6 +91,8 @@ var mandatoryInstructions = [
     "add field Client Secret",
     "add field Token",
     "add field Token timeout TMSP",
+    "add field role related to Role using label",
+    "add field group related to Group using label",
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;
@@ -100,6 +103,9 @@ function recursiveExecute(req, instructions, idx) {
         if (instructions.length == idx){
             /* Reset toSync.json because in this situation it's the sequelize sync() that will do the job, not our custom sync */
             var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
+
+            // Api documentation
+            docBuilder.build(req.session.id_application);
 
             var toSyncFileName = './workspace/'+idApplication+'/models/toSync.json';
             var writeStream = fs.createWriteStream(toSyncFileName);

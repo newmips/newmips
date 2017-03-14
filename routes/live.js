@@ -9,6 +9,8 @@ var fs = require('fs');
 var pourcent_generation = {};
 var models = require('../models');
 var structure_application = require('../structure/structure_application');
+var docBuilder = require('../utils/api_doc_builder');
+
 // Parser
 var designer = require('../services/designer.js');
 
@@ -135,8 +137,11 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
     function recursiveExecute(recurInstructions, idx) {
         // All instructions executed
-        if (recurInstructions.length == idx)
-            return finishApplicationInitialization();
+        if (recurInstructions.length == idx) {
+            finishApplicationInitialization();
+            docBuilder.build(req.session.id_application);
+            return;
+        }
 
         execute(req, recurInstructions[idx]).then(function(){
 
