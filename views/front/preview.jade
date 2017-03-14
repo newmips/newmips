@@ -335,11 +335,15 @@ block custom_js
 				else{
 				    if (instructionHistory == null) {
 				    	var instructionList = [];
-				    	instructionList.push($("#instruction").val());
-				        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionList));
+				    		if($("#instruction").val() != "restart server"){
+						    	instructionList.push($("#instruction").val());
+						        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionList));
+				    		}
 				    } else {
-				        instructionHistory.push($("#instruction").val());
-				        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
+				    	if($("#instruction").val() != "restart server"){
+				    		instructionHistory.push($("#instruction").val());
+				        	localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
+				    	}
 				    }
 					$(this).html("Loading...");
 					$(this).prop("disabled", true);

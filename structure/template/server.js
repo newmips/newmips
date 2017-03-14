@@ -207,6 +207,9 @@ app.use(function(req, res, next) {
 app.use(function(req, res, next) {
     var render = res.render;
     res.render = function(view, locals, cb) {
+    	if(typeof locals === "undefined"){
+            locals = {};
+        }
     	if (req.session.toastr && req.session.toastr.length > 0) {
 	        locals.toastr = req.session.toastr;
 	        req.session.toastr = [];
@@ -264,10 +267,10 @@ else {
                         models.E_role.create({version:0, f_label: 'admin'}).then(function(){
                             models.E_user.create({
                                 f_login: 'admin',
-                                f_password: '',
+                                f_password: null,
                                 f_id_role_role: 1,
                                 f_id_group_group: 1,
-                                f_enabled: 1,
+                                f_enabled: 0,
                                 version: 0
                             });
                         });
