@@ -958,7 +958,7 @@ exports.createNewHasOne = function(attr, callback) {
 exports.createNewHasMany = function(attr, callback) {
 
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeName(attr.id_module, attr.options.source, function(err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function(err, IDdataEntitySource) {
         if (err) {
             return callback(err, null);
         }
