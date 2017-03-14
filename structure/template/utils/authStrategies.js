@@ -31,7 +31,11 @@ passport.use(new LocalStrategy({
                 return done(null, false, req.flash('loginMessage', 'Nom d\'utilisateur inexistant.'));
 
             // if the user has no password
-            if (user.f_password == "")
+            if (user.f_password == "" || user.f_password == null)
+                return done(null, false, req.flash('loginMessage', 'Compte non activé - Mot de passe manquant'));
+
+            // if the user has no password
+            if (user.f_enabled == 0 || user.f_enabled == null)
                 return done(null, false, req.flash('loginMessage', 'Compte non activé'));
 
             // if the user is found but the password is wrong
