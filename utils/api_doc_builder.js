@@ -34,7 +34,7 @@ function routeGetId(entity, attributes) {
 	doc.push('/**');
 	doc.push(' * @api {get} /api/'+name+'/:id?token=TOKEN 2 - Find one');
 	doc.push(' * @apiVersion 1.0.0');
-	doc.push(' * @apiDescription Fetch one record of '+name+' with <code>id</code>');
+	doc.push(' * @apiDescription Fetch one record of <code>'+name+'</code> with <code>id</code>');
 	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id The <code>id</code> of '+name+' to fetch');
@@ -201,6 +201,7 @@ function build(id_application) {
 				documentation += entityDocumentation(entities[i], attributes, options);
 			}
 
+			// Write file to workspace's api folder
 			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
 			var cmd = 'apiDoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
 			exec(cmd, function(error, stdout, stderr) {

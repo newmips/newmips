@@ -316,6 +316,19 @@ exports.getIdDataEntityByCodeName = function(idModule, name_data_entity, callbac
 	});
 }
 
+exports.getIdDataEntityByCodeNameWithoutModuleCheck = function(idModule, name_data_entity, callback) {
+	models.DataEntity.findOne({where: {codeName: name_data_entity}}).then(function(entity) {
+		if (!entity) {
+			var err = new Error();
+			err.message = "No data entity with the name '"+name_data_entity+"' found in the module with the ID "+idModule+".";
+			return callback(err, null);
+		}
+		callback(null, entity.id);
+	}).catch(function(err) {
+		return callback(err, null);
+	});
+}
+
 // Delete
 exports.deleteDataEntity = function(attr, callback) {
 	var id_module = attr.id_module;
