@@ -30,7 +30,7 @@
     },
     "button": {
         "generate": "Générer",
-        "disconnect": "Déconnection",
+        "disconnect": "Déconnexion",
         "show": "Afficher",
         "update": "Modifier",
         "delete": "Supprimer",
@@ -131,6 +131,21 @@
         "textthree": "simplement revenir en arrière."
     },
     "back":{
-        "list": "Lister les"
+        "list": "Lister les",
+        "show": "Afficher le"
+    },
+    "chat": {
+        "welcome": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin ecrivez help pour avoir plus d'informations."
+    },
+    "database": {
+        "entity": {
+            "select": {
+                "selected": "Entity %s(%s) selected."
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no entity with this ID.",
+                "withThisName": "Sorry, but there is no entity with this name."
+            }
+        }
     }
 }

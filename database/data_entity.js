@@ -29,7 +29,7 @@ exports.selectDataEntity = function(attr, callback) {
 						}]
 					}]
 				};
-				type_option = "ID.";
+				type_option = "ID";
 			}
 			else {
 				where = {
@@ -46,17 +46,22 @@ exports.selectDataEntity = function(attr, callback) {
 						}]
 					}]
 				};
-				type_option = "name.";
+				type_option = "Name";
 			}
 
 			models.DataEntity.findOne(where).then(function(model) {
 				if (!model) {
 					var err = new Error();
-					err.message = "Sorry, but there is no entity with this " + type_option;
+					err.message = "database.entity.notFound.withThis" + type_option;
 					return callback(err,null);
 				}
 
-				var info = { "insertId" : model.id, "message" : "Entity " + model.id + " - " + model.name + " selected." };
+				var info = {
+					insertId: model.id,
+					message: "database.entity.select.selected",
+					messageParams: [model.name, model.id]
+				};
+
 				callback(null,info);
 			}).catch(function(err) {
 				callback(err, null);

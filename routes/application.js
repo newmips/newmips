@@ -69,7 +69,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             items: [{
                 user: "Newmips",
                 dateEmission: moment().format("DD MMM HH:mm"),
-                content: "Welcome ! Please type your instructions in input field below or type 'help' if you need any support."
+                content: "chat.welcome"
             }]
         },
         "instruction": "",
@@ -213,7 +213,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             chat.items.push({
                 user: "User",
                 dateEmission: moment().format("DD MMM HH:mm"),
-                content: instruction
+                content: instruction,
+                params: []
             });
             data.chat = chat;
 
@@ -273,13 +274,14 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     chat.items.push({
                         user: "Newmips",
                         dateEmission: moment().format("DD MMM HH:mm"),
-                        content: answer
+                        content: answer,
+                        params: err.messageParams || []
                     });
                     data.chat = chat;
 
                     // Load session values
-                    session_manager.getSession(attr, function(err, info) {
-                        data.session = info;
+                    session_manager.getSession(attr, function(err, infoSession) {
+                        data.session = infoSession;
                         res.render('front/preview', data);
                     });
                 } else {
@@ -299,7 +301,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     chat.items.push({
                         user: "Newmips",
                         dateEmission: moment().format("DD MMM HH:mm"),
-                        content: answer
+                        content: answer,
+                        params: info.messageParams || []
                     });
                     data.chat = chat;
 
@@ -392,12 +395,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             // Analyze instruction more deeply
             var answer = "Sorry, your instruction has not been executed properly.<br><br>";
             answer += "Machine said: " + e.message + "<br><br>";
-            chat["items"].push({
+            chat.items.push({
                 user: "Newmips",
                 dateEmission: moment().format("DD MMM HH:mm"),
-                content: answer
+                content: answer,
+                params: []
             });
-            data["chat"] = chat;
+            data.chat = chat;
 
             // Load session values
             var attr = {};

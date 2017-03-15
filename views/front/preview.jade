@@ -23,7 +23,7 @@ block header
 					a(href='/default/home')
 						i.fa.fa-home
 						| #{__("menu.home")}
-				li.active #{__("menu.manager")}
+				li.active #{__("menu.preview")}
 		.col-header.col-xs-3.col-lg-1
 			a.btn.btn-default.pull-right(href='/logout')
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
@@ -65,22 +65,22 @@ block content
 										|  Instructions
 								#chat-box.box-body.chat
 									// Each item has : user, dateEmission, content
-									each item in chat.items
+									each msg in chat.items
 											hr
 											.item
-												if (item.user == "Newmips")
+												if (msg.user == "Newmips")
 													img(src='/img/avatar.png', alt='user image')
 												else
 													img(src='/img/user.png', alt='user image')
 												p.message
 													a.name(href='#')
 														small.text-muted.pull-right
-															| #{item.dateEmission}
-														if (item.user == "Newmips")
+															| #{msg.dateEmission}
+														if (msg.user == "Newmips")
 															| Newmips
 														else
 															| #{profile.first_name_user} #{profile.last_name_user}
-													| !{item.content}
+													| !{__(msg.content, msg.params)}
 								.box-footer
 									.row
 										.col-xs-1

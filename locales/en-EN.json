@@ -131,6 +131,21 @@
         "textthree": "simply go back."
     },
     "back":{
-        "list": "List"
+        "list": "List",
+        "show": "Show"
+    },
+    "chat": {
+        "welcome": "Welcome ! Please type your instructions in input field below or type 'help' if you need any support."
+    },
+    "database": {
+        "entity": {
+            "select": {
+                "selected": "Entity %s(%s) selected."
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no entity with this ID.",
+                "withThisName": "Sorry, but there is no entity with this name."
+            }
+        }
     }
 }
