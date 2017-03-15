@@ -140,7 +140,8 @@
     "database": {
         "entity": {
             "select": {
-                "selected": "Entity %s(%s) selected."
+                "selected": "Entity %s(%s) selected.",
+                "valid": "Please, indicate a valid name/ID."
             },
             "notFound": {
                 "withThisID": "Sorry, but there is no entity with this ID.",
