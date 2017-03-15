@@ -3,8 +3,8 @@ block header
 	.row
 		.col-header.col-xs-3.col-lg-9
 			h1
-				| #{__("module.preview")}
-				small #{__("module.module")}
+				| #{__("menu.preview")}
+				small #{__("menu.module")}
 		.col-header.col-xs-3.col-lg-1
 			.clearfix
 				span.pull-left Instructions
@@ -22,8 +22,8 @@ block header
 				li
 					a(href='/default/home')
 						i.fa.fa-home
-						| #{__("module.home")}
-				li.active #{__("module.manager")}
+						| #{__("menu.home")}
+				li.active #{__("menu.manager")}
 		.col-header.col-xs-3.col-lg-1
 			a.btn.btn-default.pull-right(href='/logout')
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
@@ -40,9 +40,9 @@ block content
 	#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 		ul.nav.nav-tabs#primary-navtabs(role="tablist")
 			li.active
-				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("module.preview.title")}
+				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("preview.title")}
 			li
-				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("module.editor")}
+				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("menu.editor")}
 
 		.tab-content
 			#preview.tab-pane.fade.in.active

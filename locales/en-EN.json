@@ -1,4 +1,7 @@
 {
+    "app": {
+        "name": "Newmips"
+    },
     "login": {
         "log_in": "Log in",
         "reset_password": "Forgotten password",
@@ -11,7 +14,7 @@
         "remember_me": "Remember me",
         "submit": "Submit"
     },
-    "module": {
+    "menu": {
         "home": "Home",
         "preview": "Preview",
         "module": "Module",
