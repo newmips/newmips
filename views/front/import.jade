@@ -3,8 +3,8 @@ block header
 	.row
 		.col-header.col-xs-3.col-lg-9
 			h1
-				| #{__("module.import")}
-				small #{__("module.module")}
+				| #{__("menu.import")}
+				small #{__("menu.module")}
 		.col-header.col-xs-3.col-lg-1
 			.clearfix
 				span.pull-left Instructions
@@ -22,8 +22,8 @@ block header
 				li
 					a(href='/default/home')
 						i.fa.fa-home
-						| #{__("module.home")}
-				li.active #{__("module.import")}
+						| #{__("menu.home")}
+				li.active #{__("menu.import")}
 		.col-header.col-xs-3.col-lg-1
 			a.btn.btn-default.pull-right(href='/logout')
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
@@ -36,7 +36,8 @@ block content
 				span #{__("button.backtohome")}
 			br
 			br
-			section.col-lg-offset-3.col-lg-6
+			br
+			section.col-xs-12.col-lg-offset-3.col-lg-6
 				.box.box-solid.box-default
 					.box-header.bg-newmips
 						h3.box-title(style="color: #fff") #{__("import.legend")}
