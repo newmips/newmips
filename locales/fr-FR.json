@@ -24,7 +24,9 @@
         "instruction": "Instruction",
         "import": "Import",
         "settings": "Paramètres",
-        "error": "Erreur"
+        "error": "Erreur",
+        "back": "Back office",
+        "users": "Users"
     },
     "button": {
         "generate": "Générer",
@@ -117,7 +119,9 @@
         "label": "Module"
     },
     "entity": {
-        "label": "Entités"
+        "label": "Entités",
+        "name": "Nom de l'entité",
+        "plural": "entités"
     },
     "error": {
         "oops": "Oups! Une erreur s'est produite :(",
@@ -125,5 +129,8 @@
         "texttwo": "retourner à l'accueil",
         "or": "ou",
         "textthree": "simplement revenir en arrière."
+    },
+    "back":{
+        "list": "Lister les"
     }
 }

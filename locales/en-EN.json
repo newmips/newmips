@@ -24,7 +24,9 @@
         "instruction": "Instruction",
         "import": "Import",
         "settings": "Settings",
-        "error": "Error"
+        "error": "Error",
+        "back": "Back office",
+        "users": "Users"
     },
     "button": {
         "generate": "Generate",
@@ -117,7 +119,9 @@
         "label": "Module"
     },
     "entity": {
-        "label": "Entity"
+        "label": "Entity",
+        "name": "Name entity",
+        "plural": "entities"
     },
     "error":{
         "oops": "Oops! An error occured :(",
@@ -125,5 +129,8 @@
         "texttwo": "go to the home page",
         "or": "or",
         "textthree": "simply go back."
+    },
+    "back":{
+        "list": "List"
     }
 }
