@@ -1,14 +1,14 @@
 extends ../main_layout
 block header
-	h1 Erreur #{code}
+	h1 #{__("module.error")} #{code}
 	ol.breadcrumb
 		li
 			a(href='#')
 				i.fa.fa-dashboard
-				| Accueil
+				| #{__("module.home")}
 		li
-			a(href='#') Erreur
-		li.active 500 Internal Error
+			a(href='#') #{__("module.error")}
+		li.active #{__("module.error")} #{code}
 block content
 	.error-page
 		h2.headline #{code}
@@ -20,10 +20,9 @@ block content
 			else
 				h3
 					i.fa.fa-warning.text-yellow
-					| Oops! Une erreur s'est produite.
+					| #{__("error.oops")}
 			p
-				| Merci de contacter votre administrateur.
-				| Entre temps, vous pouvez
-				a(href='/')&nbsp;retourner à la page d'accueil
-				|&nbsp;ou&nbsp;
-				a(href='javascript:history.back();') revenir en arrière.
+				#{__("error.textone")}
+				a(href='/')&nbsp;#{__("error.texttwo")}
+				|&nbsp;#{__("error.or")}&nbsp;
+				a(href='javascript:history.back();') #{__("error.textthree")}

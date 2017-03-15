@@ -29,7 +29,7 @@ block header
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 				span #{__("button.disconnect")}
 block content
-	legend #{__("operation.settings")}
+	legend #{__("settings.legend")}
 	.row
 		.col-xs-12.connectedSortable
 			a.btn.btn-default.pull-right(href='/default/home')
@@ -41,17 +41,17 @@ block content
 			.box.box-primary
 				.box-body
 					.form-group
-						label #{__("entity.settings.display_language")}
+						label #{__("settings.display_language")}
 						br
 						br
 						a.chooseLanguage.btn(data-lang='fr-FR', class="#{getLang()}"=="fr-FR"?"btn-primary":"btn-default")
-							| #{__("language.french")}
+							| #{__("settings.french")}
 						| &nbsp;&nbsp;
 						a.chooseLanguage.btn(data-lang='en-EN', class="#{getLang()}"=="en-EN"?"btn-primary":"btn-default")
-							| #{__("language.english")}
+							| #{__("settings.english")}
 					br
 					.form-group
-						label #{__("entity.settings.activate_translation")}
+						label #{__("settings.activate_translation")}
 						br
 						br
 						a.chooseTranslate.btn(data-activate="true", class=toTranslate?"btn-primary":"btn-default")

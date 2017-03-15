@@ -35,7 +35,7 @@ block header
 				span #{__("button.disconnect")}
 
 block content
-	legend #{__("tour_tip.listApplication.title")}
+	legend #{__("listApplication.legend")}
 	.row
 		.col-xs-12.connectedSortable
 			.box-body
@@ -49,7 +49,7 @@ block content
 						.box.box-solid.box-default
 							.box-header.bg-newmips
 								h3.box-title(style="color: #fff")
-									|#{__("entity.project.label")} : #{project.displayName}
+									|#{__("project.label")} : #{project.displayName}
 							.box-body(style="overflow-y:auto;overflow-x:hidden;")
 								.row
 									.col-lg-12
@@ -57,10 +57,10 @@ block content
 											table.table.no-margin
 												thead
 													tr
-														th #{__("tour_tip.listApplication.id")}
-														th #{__("tour_tip.listApplication.name")}
-														th #{__("tour_tip.listApplication.nbModules")}
-														th(colspan="2", style="text-align:center;") #{__("tour_tip.listApplication.action")}
+														th #{__("listApplication.id")}
+														th #{__("listApplication.name")}
+														th #{__("listApplication.nbModules")}
+														th(colspan="2", style="text-align:center;") #{__("listApplication.action")}
 												tbody
 													each application, index in project.Applications
 														tr
