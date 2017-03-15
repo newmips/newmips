@@ -29,7 +29,7 @@ block header
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 				span #{__("button.disconnect")}
 block content
-	legend #{__("operation.script")}
+	legend #{__("instructionScript.legend")}
 	.row
 		.col-xs-12.connectedSortable
 			.box-body
@@ -55,10 +55,7 @@ block content
 						br
 						br
 						button.btn.btn-success#goTo(disabled, style='display:none;')
-							if (__("app.lang") == 'en')
-								| Redirecting ...
-							else if (__("app.lang") == 'fr')
-								| Redirection en cours ...
+							| #{__("instructionScript.redirecting")}
 						br
 						br
 						.progress.sm.progress-striped.active(id='progressbarcontent', style='display:none;')

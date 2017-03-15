@@ -39,32 +39,32 @@ block content
 			section.col-lg-offset-3.col-lg-6
 				.box.box-solid.box-default
 					.box-header.bg-newmips
-						h3.box-title(style="color: #fff") Import
+						h3.box-title(style="color: #fff") #{__("import.legend")}
 					.box-body
 						.row
 							.col-xs-12
 								form#importForm(method="post", enctype="multipart/form-data")
 									.form-group
-										label(for='AppID') Select Application
+										label(for='AppID') #{__("application.selectExisting")}
 										select.form-control.select(name="appID", style="width: 100%;", required)
 											each app in applications
 												option(value="#{app.id}")
 													| #{app.id} - #{app.name}
 									.form-group
-										label(for='configFile') Configuration File
+										label(for='configFile') #{__("import.confFile")}
 										input(id='configFile', name='configFile', type='file', required)
 									.form-group
-										label(for='contentFile') XLSX or CSV File
+										label(for='contentFile') #{__("import.fileType")}
 										input(id='contentFile', name='contentFile', type='file', required)
 									br
 									.form-group
 										button.btn.btn-primary#importSubmit
-											| Importer !
+											| #{__("import.action")}
 								.progress.sm.progress-striped.active#progressImportOne(style='display:none;')
 									.progress-bar.progress-bar-success#progressImportTwo(aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width:0%;')
 								.form-group
 									a.btn.btn-info#downloadSQLFile(style="display:none;")
-										| Télécharger le fichier SQL valide
+										| #{__("import.downloadsqlfile")}
 						br
 						.row
 							.col-xs-12

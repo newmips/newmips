@@ -63,7 +63,7 @@ block header
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 				span #{__("button.disconnect")}
 block content
-	legend #{__("operation.editor")}
+	legend #{__("editor.legend")}
 	.row
 		.col-xs-12.connectedSortable
 			.box-body
@@ -75,7 +75,7 @@ block content
 				.row
 					#codemirror-menu.col-xs-12.col-sm-2.sidebar
 						h4
-							| #{__("module.editor_content.folders")} :
+							| #{__("editor.folders")} :
 						ul#sortable.sidebar-menu
 							mixin parseObject(array)
 								each file, key in array
@@ -95,7 +95,7 @@ block content
 							mixin parseObject(workspaceFolder)
 					#codemirror-editor.col-xs-12.col-sm-10
 						h4
-							| #{__("module.editor_content.editor")} :
+							| #{__("editor.legend")} :
 						#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 							ul.nav.nav-tabs#editor-navtabs
 				br
@@ -106,7 +106,7 @@ block content
 					.col-xs-5
 						span.pull-right(style="margin-right:50px;")
 							b
-								| #{__("module.editor_content.change_theme")} :
+								| #{__("editor.change_theme")} :
 						br
 						select#select-theme.pull-right
 							option(value="default") default
@@ -237,8 +237,8 @@ block custom_js
 	script(src='/js/plugins/codemirror/mode/htmlmixed/htmlmixed.js', type='text/javascript')
 	script(src='/js/plugins/codemirror/mode/sql/sql.js', type='text/javascript')
 	script(type='text/javascript').
-		var intro2 = "#{__('module.editor_content.intro')}" + "\n";
-		intro2 += "#{__('module.editor_content.intro2')}" + "\n";
-		intro2 += "#{__('module.editor_content.intro3')}";
+		var intro2 = "#{__('editor.intro')}" + "\n";
+		intro2 += "#{__('editor.intro2')}" + "\n";
+		intro2 += "#{__('editor.intro3')}";
 	// Editor
 	script(src='/js/Newmips/editor.js', type='text/javascript')
