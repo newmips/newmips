@@ -4,6 +4,9 @@ function validateString(string) {
 }
 
 function clearString(string){
+
+    // Remove space before and after
+    string = string.trim();
     string = string.replace(/é/g, "e");
     string = string.replace(/è/g, "e");
     string = string.replace(/\ê/g, "e");

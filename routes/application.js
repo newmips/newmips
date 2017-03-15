@@ -264,8 +264,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                 var toRedirectRestart = false;
                 if (err) {
                     // Error handling code goes here
-                    console.log("ERROR : ", err);
-                    answer = "Error: " + err.message;
+                    console.log(err);
+                    answer = err.message;
                     data.answers = answer + "\n\n" + answers + "\n\n";
 
                     // Winston log file

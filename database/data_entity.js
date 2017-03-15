@@ -4,74 +4,76 @@ var models = require('../models/');
 // DataEntity
 exports.selectDataEntity = function(attr, callback) {
 
-	// If params is a string, look for information_system with specific Name
-	// Else if param is a number, look for information_system with its ID
-	if ( typeof attr !== 'undefined' && attr ) {
+	var options = attr.options;
+	var type_option;
 
-		// Set options variable using the attribute array
-		var options = attr.options;
-		var type_option;
+	// Check if only space
+    if (!options.value.replace(/\s/g, '').length) {
+        // string only contained whitespace (ie. spaces, tabs or line breaks)
+        options.value = "";
+    }
 
-		if(typeof options !== 'undefined' && options){
-			var where = {};
-			if (!isNaN(options.value)){
-				where = {
-					where: {
-						id: options.value
-					},
+	if(options.value != ""){
+		// If params is a string, look for information_system with specific Name
+		// Else if param is a number, look for information_system with its ID
+		var where = {};
+		if (!isNaN(options.value)){
+			where = {
+				where: {
+					id: options.value
+				},
+				include: [{
+					model: models.Module,
 					include: [{
-						model: models.Module,
-						include: [{
-							model: models.Application,
-							where: {
-								id: attr.id_application
-							}
-						}]
+						model: models.Application,
+						where: {
+							id: attr.id_application
+						}
 					}]
-				};
-				type_option = "ID";
-			}
-			else {
-				where = {
-					where: {
-						name: options.value
-					},
-					include: [{
-						model: models.Module,
-						include: [{
-							model: models.Application,
-							where: {
-								id: attr.id_application
-							}
-						}]
-					}]
-				};
-				type_option = "Name";
-			}
-
-			models.DataEntity.findOne(where).then(function(model) {
-				if (!model) {
-					var err = new Error();
-					err.message = "database.entity.notFound.withThis" + type_option;
-					return callback(err,null);
-				}
-
-				var info = {
-					insertId: model.id,
-					message: "database.entity.select.selected",
-					messageParams: [model.name, model.id]
-				};
-
-				callback(null,info);
-			}).catch(function(err) {
-				callback(err, null);
-			});
+				}]
+			};
+			type_option = "ID";
 		}
 		else {
-			var err = new Error();
-			err.message = "Please indicate the name or the id of the entity you would like to select.";
-			callback(err, null);
+			where = {
+				where: {
+					name: options.value
+				},
+				include: [{
+					model: models.Module,
+					include: [{
+						model: models.Application,
+						where: {
+							id: attr.id_application
+						}
+					}]
+				}]
+			};
+			type_option = "Name";
 		}
+
+		models.DataEntity.findOne(where).then(function(model) {
+			if (!model) {
+				var err = new Error();
+				err.message = "database.entity.notFound.withThis" + type_option;
+				return callback(err,null);
+			}
+
+			var info = {
+				insertId: model.id,
+				message: "database.entity.select.selected",
+				messageParams: [model.name, model.id]
+			};
+
+			callback(null,info);
+		}).catch(function(err) {
+			callback(err, null);
+		});
+	}
+	else {
+		var err = new Error();
+		err.message = "database.entity.select.valid";
+		callback(err, null);
 	}
 }
 
