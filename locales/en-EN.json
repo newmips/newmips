@@ -61,7 +61,11 @@
         "id": "ID",
         "name": "Name",
         "nbModules": "Modules Count",
-        "action": "Actions"
+        "action": "Actions",
+        "sureToDelete": "Are you sure ?",
+        "loading": "Loading...",
+        "projectDelete" : "Project successfully deleted!",
+        "appDelete" : "Application successfully deleted!"
     },
     "editor": {
         "legend": "Editor",
