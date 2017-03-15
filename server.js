@@ -113,14 +113,11 @@ app.use(function(req, res, next) {
 
 // routes =======================================================================
 app.use('/', require('./routes/routes.js'));
-app.use('/module', require('./routes/module'));
-app.use('/data_entity', require('./routes/data_entity'));
-app.use('/data_field', require('./routes/data_field'));
 app.use('/default', require('./routes/default'));
 app.use('/application', require('./routes/application'));
 app.use('/live', require('./routes/live'));
 app.use('/settings', require('./routes/settings'));
-app.use('/user', require('./routes/user'));
+app.use('/users', require('./routes/users'));
 app.use('/instruction_script', require('./routes/instruction_script'));
 app.use('/import', require('./routes/import'));
 app.use('/editor', require('./routes/editor'));
