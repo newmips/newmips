@@ -8,9 +8,6 @@ var translateHelper = require("../utils/translate");
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.json');
 
-// CMD
-var exec = require('child_process').exec;
-
 var dns_manager;
 if (globalConf.env == 'cloud')
     dns_manager = require('../services/dns_manager');
@@ -41,35 +38,13 @@ exports.setupApplication = function(attr, callback) {
     var name_application = options.value;
     var show_name_application = options.showValue;
 
-    /*var isWin = /^win/.test(process.platform);
-    if(isWin || process.platform == "win32")
-        var cmd = "node "+__dirname+'\\..\\node_modules\\apidoc\\bin\\apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
-    else
-        var cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';*/
-
-    var cmd = "cp -R "+__dirname+"/template/ "+ __dirname+'/../workspace/'+id_application+"/";
-
-    console.log(cmd);
-
-    exec(cmd, function(error, stdout, stderr) {
-        if (error){
-            console.log(error);
-            var err = new Error();
-            err.message = error.message;
-            return callback(err, null);
-        }
-        console.log(stdout);
-        console.log("--");
-        console.log(stderr);
-    //});
-
     // *** Copy template folder to new workspace ***
-    /*fs.copy(__dirname+'/template/', __dirname+'/../workspace/'+id_application, function(err) {
+    fs.copy(__dirname+'/template/', __dirname+'/../workspace/'+id_application, function(err) {
         if(err){
             var err = new Error();
             err.message = "An error occurred while copying template folder.";
             return callback(err, null);
-        }*/
+        }
 
         /* Save an instruction history in the history script in workspace folder */
         var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
