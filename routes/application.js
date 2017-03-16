@@ -52,10 +52,30 @@ function initEditor(idApplication){
     return folder;
 }
 
+function setChat(req, idApp, idUser, user, content, params){
+
+    // Init if necessary
+    if(typeof req.session.chat === "undefined")
+        req.session.chat = {};
+    if(typeof req.session.chat[idApp] === "undefined")
+        req.session.chat[idApp] = {};
+    if(typeof req.session.chat[idApp][idUser] === "undefined")
+        req.session.chat[idApp][idUser] = {items: []};
+
+    // Add chat
+    req.session.chat[idApp][idUser].items.push({
+        user: user,
+        dateEmission: moment().format("DD MMM HH:mm"),
+        content: content,
+        params: params || []
+    });
+}
+
 // Preview Get
 router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
     var id_application = req.query.id_application;
+    var currentUserID = req.session.passport.user.id;
     req.session.id_application = id_application;
 
     var data = {
@@ -65,17 +85,12 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         "sub_menu": "list_project",
         "application": "",
         "answers": "",
-        "chat": {
-            items: [{
-                user: "Newmips",
-                dateEmission: moment().format("DD MMM HH:mm"),
-                content: "chat.welcome"
-            }]
-        },
         "instruction": "",
         "iframe_url": "",
         "session": ""
     };
+
+    setChat(req, id_application, currentUserID, "Newmips", "chat.welcome", []);
 
     models.Application.findOne({where: {id: id_application}}).then(function(application) {
         req.session.id_project = application.id_project;
@@ -138,20 +153,21 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         docBuilder.build(req.session.id_application);
 
                         data.session = info;
-                        // Call preview page
                         data.error = 0;
                         data.application = module;
+
                         var iframe_home_url = protocol_iframe + '://';
                         if (globalConf.env == 'cloud')
                             iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
                         else
                             iframe_home_url += host + ":" + port + "/default/home";
-                        data.iframe_url = iframe_home_url;
 
+                        data.iframe_url = iframe_home_url;
                         data.workspaceFolder = initEditor(req.session.id_application);
 
                         // Let's do git init or commit depending the env (only on cloud env for now)
                         gitHelper.doGit(attr, function(){
+                            data.chat = req.session.chat[id_application][currentUserID];
                             res.render('front/preview', data);
                         });
                     });
@@ -173,28 +189,6 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
 // Preview Post
 router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
-    var instruction = "";
-    var answers = "";
-    var chat = {
-        items: []
-    };
-
-    if (typeof req.body.instruction !== 'undefined' && req.body.instruction)
-        instruction = req.body.instruction;
-    if (typeof req.body.answers !== 'undefined' && req.body.answers)
-        answers = req.body.answers;
-    if (typeof req.body.chat !== 'undefined' && req.body.chat)
-        chat = JSON.parse(req.body.chat);
-    var data = {
-        "error": 1,
-        "profile": req.session.data,
-        "menu": "live",
-        "answers": "",
-        "chat": "",
-        "instruction": instruction,
-        "session": ""
-    };
-
     var math = require('math');
     var port = math.add(9000, req.session.id_application);
     var env = Object.create(process.env);
@@ -204,27 +198,29 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
     // Parse instruction and set results
     models.Application.findById(req.session.id_application).then(function(application) {
-        req.session.name_application = application.codeName.substring(2);
-        data.iframe_url = process_manager.childUrl(req);
 
-        // Parse instruction and set results
+        req.session.name_application = application.codeName.substring(2);
+
+        var instruction = req.body.instruction || "";
+        var currentUserID = req.session.passport.user.id;
+        var currentAppID = application.id;
+
+        var data = {
+            error: 1,
+            profile: req.session.data,
+            instruction: instruction,
+            session: {
+                id_project: req.session.id_project,
+                id_application: req.session.id_application,
+                id_module: req.session.id_module,
+                id_data_entity: req.session.id_data_entity
+            },
+            iframe_url: process_manager.childUrl(req)
+        };
+
         try {
             /* Add instruction in chat */
-            chat.items.push({
-                user: "User",
-                dateEmission: moment().format("DD MMM HH:mm"),
-                content: instruction,
-                params: []
-            });
-            data.chat = chat;
-
-            // Enable session values display
-            data.session = {
-                "id_project": req.session.id_project,
-                "id_application": req.session.id_application,
-                "id_module": req.session.id_module,
-                "id_data_entity": req.session.id_data_entity
-            };
+            setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
 
             /* Save an instruction history in the history script in workspace folder */
             if(instruction != "restart server"){
@@ -266,22 +262,18 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     // Error handling code goes here
                     console.log(err);
                     answer = err.message;
-                    data.answers = answer + "\n\n" + answers + "\n\n";
+                    //data.answers = answer + "\n\n" + answers + "\n\n";
 
                     // Winston log file
                     logger.debug(err.message);
 
-                    chat.items.push({
-                        user: "Newmips",
-                        dateEmission: moment().format("DD MMM HH:mm"),
-                        content: answer,
-                        params: err.messageParams || []
-                    });
-                    data.chat = chat;
+                    //Generator answer
+                    setChat(req, currentAppID, currentUserID, "Newmips", answer, err.messageParams);
 
                     // Load session values
                     session_manager.getSession(attr, function(err, infoSession) {
                         data.session = infoSession;
+                        data.chat = req.session.chat[currentAppID][currentUserID];
                         res.render('front/preview', data);
                     });
                 } else {
@@ -295,16 +287,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     if (attr.function == 'restart')
                         toRedirectRestart = true;
 
-                    answer = info.message;
-                    data.answers = answer + "\n\n" + answers + "\n\n";
-
-                    chat.items.push({
-                        user: "Newmips",
-                        dateEmission: moment().format("DD MMM HH:mm"),
-                        content: answer,
-                        params: info.messageParams || []
-                    });
-                    data.chat = chat;
+                    // Generator answer
+                    setChat(req, currentAppID, currentUserID, "Newmips", info.message, info.messageParams);
 
                     var sessionID = req.sessionID;
                     var timer = 50;
@@ -357,9 +341,10 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                     newAttr.id_application = req.session.id_application;
                                     newAttr.id_module = req.session.id_module;
                                     newAttr.id_data_entity = req.session.id_data_entity;
-                                    session_manager.getSession(newAttr, function(err, info) {
-                                        docBuilder.build(req.session.id_application);
 
+                                    session_manager.getSession(newAttr, function(err, info) {
+
+                                        docBuilder.build(req.session.id_application);
                                         data.session = info;
                                         data.workspaceFolder = initEditor(req.session.id_application);
 
@@ -370,6 +355,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                             // Let's do git init or commit depending the env (only on cloud env for now)
                                             gitHelper.doGit(attr, function(){
                                                 // Call preview page
+                                                data.chat = req.session.chat[currentAppID][currentUserID];
                                                 res.render('front/preview.jade', data);
                                             });
                                         }
@@ -389,19 +375,14 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             });
         } catch(e){
 
-            data["answers"] = e.message + "\n\n" + answers;
+            //data.answers = e.message + "\n\n" + answers;
             console.log(e.message);
 
             // Analyze instruction more deeply
             var answer = "Sorry, your instruction has not been executed properly.<br><br>";
-            answer += "Machine said: " + e.message + "<br><br>";
-            chat.items.push({
-                user: "Newmips",
-                dateEmission: moment().format("DD MMM HH:mm"),
-                content: answer,
-                params: []
-            });
-            data.chat = chat;
+            answer += "Error: " + e.message + "<br><br>";
+
+            setChat(req, currentAppID, currentUserID, "Newmips", answer, []);
 
             // Load session values
             var attr = {};
@@ -409,7 +390,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             attr.id_application = req.session.id_application;
             attr.id_module = req.session.id_module;
             attr.id_data_entity = req.session.id_data_entity;
+
             session_manager.getSession(attr, function(err, info) {
+                data.chat = req.session.chat[currentAppID][currentUserID];
                 data.session = info;
                 data.workspaceFolder = initEditor(req.session.id_application);
                 res.render('front/preview', data);

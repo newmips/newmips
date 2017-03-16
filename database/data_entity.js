@@ -97,7 +97,7 @@ exports.selectDataEntityTarget = function(attr, callback) {
 		if (!dataEntity) {
 			var err = new Error();
 			err.level = 0;
-			err.message = "Data entity target doesn't exist.";
+			err.message = "database.entity.notFound.targetNoExist";
 			return callback(err, null);
 		}
 		callback(null, dataEntity);
@@ -108,70 +108,53 @@ exports.selectDataEntityTarget = function(attr, callback) {
 
 exports.createNewDataEntity = function(attr, callback) {
 
-	var name_entity;
-	var id_module = -1;
+	// Set id_information_system of future data_entity according to session value transmitted in attributes
+	var id_module = attr.id_module;
 
-	if(typeof attr !== 'undefined' && typeof attr.options !== "undefined"){
+	// Set options variable using the attribute array
+	var options = attr.options;
 
-		// Set id_information_system of future data_entity according to session value transmitted in attributes
-		id_module = attr.id_module;
+	// Value is the value used in the code
+	var name_entity = options.value;
+	// showValue is the value without cleaning function
+	var show_name_entity = options.showValue;
 
-		// Set options variable using the attribute array
-		var options = attr.options;
-
-		// Value is the value used in the code
-		name_entity = options.value;
-		// showValue is the value without cleaning function
-		var show_name_entity = options.showValue;
-
-		if(typeof options !== 'undefined' && name_entity != "" && id_module > 0){
-
-			models.DataEntity.findOne({
+	models.DataEntity.findOne({
+		where: {
+			$or: [{name: show_name_entity}, {codeName: name_entity}]
+		},
+		include: [{
+			model: models.Module,
+			include: [{
+				model: models.Application,
 				where: {
-					$or: [{name: show_name_entity}, {codeName: name_entity}]
-				},
-				include: [{
-					model: models.Module,
-					include: [{
-						model: models.Application,
-						where: {
-							id: attr.id_application
-						}
-					}]
-				}]
-			}).then(function(dataEntity) {
-				if(dataEntity) {
-					var err = new Error();
-					err.message = "Entity with the same or similar name '"+name_entity+"' already exists";
-					return callback(err, null);
+					id: attr.id_application
 				}
-
-				models.DataEntity.create({
-					name: show_name_entity,
-					codeName: name_entity,
-					id_module: id_module,
-					version: 1
-				}).then(function(newEntity) {
-					var info = {};
-					info.insertId = newEntity.id;
-					info.message = "New data entity "+ newEntity.id +" | "+ newEntity.name +" created.";
-					callback(null,info);
-				});
-			}).catch(function(err){
-				callback(err, null);
-			});
-		}
-		else {
+			}]
+		}]
+	}).then(function(dataEntity) {
+		if(dataEntity) {
 			var err = new Error();
-			err.message = "Application module seems not to be yet set";
-			callback(err, null);
+			err.message = "database.entity.create.alreadyExist";
+			err.messageParams = [name_entity];
+			return callback(err, null);
 		}
-	}
-	else {
-		var err = new Error();
-		err.message = "Attributes are not properly defined";
+
+		models.DataEntity.create({
+			name: show_name_entity,
+			codeName: name_entity,
+			id_module: id_module,
+			version: 1
+		}).then(function(newEntity) {
+			var info = {};
+			info.insertId = newEntity.id;
+			info.message = "database.entity.create.success";
+			info.messageParams = [newEntity.id, newEntity.name];
+			callback(null,info);
+		});
+	}).catch(function(err){
 		callback(err, null);
-	}
+	});
 }
 
 exports.createNewDataEntityTarget = function(attr, callback) {
@@ -191,7 +174,8 @@ exports.createNewDataEntityTarget = function(attr, callback) {
 	}).then(function(dataEntity) {
 		if (dataEntity) {
 			var err = new Error();
-			err.message = "Entity "+attr.options.target+" already exists.";
+			err.message = "database.entity.create.alreadyExist";
+			err.messageParams = [dataEntity.name];
 			return callback(err, null);
 		}
 		models.DataEntity.create({
@@ -199,12 +183,13 @@ exports.createNewDataEntityTarget = function(attr, callback) {
 			codeName: attr.options.target,
 			id_module: attr.id_module,
 			version: 1
-		}).then(function(created_dataEntity) {
+		}).then(function(createdEntity) {
 			var info = {};
-			info.insertId = created_dataEntity.id;
-			info.name = created_dataEntity.name;
-			info.codeName = created_dataEntity.codeName;
-			info.message = "New data entity "+created_dataEntity.id+" | "+created_dataEntity.name+" created.";
+			info.insertId = createdEntity.id;
+			info.name = createdEntity.name;
+			info.codeName = createdEntity.codeName;
+			info.message = "database.entity.create.success";
+			info.messageParams = [createdEntity.id, createdEntity.name];
 			callback(null, info);
 		});
 	}).catch(function(err){
@@ -212,43 +197,35 @@ exports.createNewDataEntityTarget = function(attr, callback) {
 	});
 }
 
-// List
+// List Entity
 exports.listDataEntity = function(attr, callback) {
 
-	if(typeof attr.id_application == "undefined" || attr.id_application == null){
-        err = new Error();
-        err.message = "Please, select an application before.";
-        callback(err,null);
-    }
-    else{
-
-		models.DataEntity.findAll({
-			order: 'id DESC',
+	models.DataEntity.findAll({
+		order: 'id DESC',
+		include: [{
+			model: models.Module,
 			include: [{
-				model: models.Module,
-				include: [{
-					model: models.Application,
-					where: {
-						id: attr.id_application
-					}
-				}]
+				model: models.Application,
+				where: {
+					id: attr.id_application
+				}
 			}]
-		}).then(function(dataEntities) {
-			var info = {};
-			info.message = "List of data entities (module | id entity | name entity): <br><ul>";
-			if (!dataEntities || dataEntities.length == 0)
-				info.message += 'None<br>';
-			else
-				for (var i = 0; i < dataEntities.length; i++)
-					info.message += "<li>"+ dataEntities[i].Module.name + " | " + dataEntities[i].id + " | " + dataEntities[i].name + "</li>";
+		}]
+	}).then(function(dataEntities) {
+		var info = {};
+		info.message = "Entity list (Module | ID | Name): <br><ul>";
+		if (!dataEntities || dataEntities.length == 0)
+			info.message += 'None<br>';
+		else
+			for (var i = 0; i < dataEntities.length; i++)
+				info.message += "<li>"+ dataEntities[i].Module.name + " | " + dataEntities[i].id + " | " + dataEntities[i].name + "</li>";
 
-			info.message += "</ul>";
-			info.rows = dataEntities;
-			callback(null, info);
-		}).catch(function(err) {
-			callback(err, null);
-		});
-	}
+		info.message += "</ul>";
+		info.rows = dataEntities;
+		callback(null, info);
+	}).catch(function(err) {
+		callback(err, null);
+	});
 }
 
 // List data entity names by application id
