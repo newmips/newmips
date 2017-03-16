@@ -38,7 +38,7 @@ module.exports = {
                         reject();
                     }
                     else{
-                        console.log('File => locales/'+file+' ------------------ UPDATED');
+                        //console.log('File => locales/'+file+' ------------------ UPDATED');
                         resolve();
                     }
                 });

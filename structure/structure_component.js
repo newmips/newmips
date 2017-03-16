@@ -12,7 +12,7 @@ function setupComponentModel(idApplication, folderComponent, nameComponent, file
 	writeStream.write(modelTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Model ------------------ CREATED');
+		//console.log('File => Component Model ------------------ CREATED');
 		callback();
 	});
 }
@@ -24,7 +24,7 @@ function createComponentAttributesAndOptionsFiles(idApplication, folderComponent
 	writeStream.write(attributesTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log("Model => Component attributes ------------------ CREATED");
+		//console.log("Model => Component attributes ------------------ CREATED");
 		// CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
 		var optionsTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/models/options/options_'+filename+'.json', 'utf8');
 		optionsTemplate = optionsTemplate.replace(/SOURCE_ENTITY_LOWER/g, source);
@@ -33,7 +33,7 @@ function createComponentAttributesAndOptionsFiles(idApplication, folderComponent
 		writeStreamOption.write(optionsTemplate);
 		writeStreamOption.end();
 		writeStreamOption.on('finish', function() {
-			console.log("Model => Component options/associations ------------------ CREATED");
+			//console.log("Model => Component options/associations ------------------ CREATED");
 			callback();
 		});
 	});
@@ -52,7 +52,7 @@ function setupComponentRoute(idApplication, folderComponent, nameComponent, urlS
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Route file ------------------ CREATED');
+		//console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -81,7 +81,7 @@ function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, va
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Route file ------------------ CREATED');
+		//console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -101,7 +101,7 @@ function setupComponentView(idApplication, nameComponent, urlComponent, filename
 		writeStream.write(viewTemplate);
 		writeStream.end();
 		writeStream.on('finish', function() {
-			console.log('File => Component View file ------------------ CREATED')
+			//console.log('File => Component View file ------------------ CREATED')
 			callback();
 		});
 	});
@@ -129,7 +129,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 	writeStream.write(viewTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component View file ------------------ CREATED');
+		//console.log('File => Component View file ------------------ CREATED');
 
 		// Copy the event view folder
 		var componentEventViewFolder = __dirname+'/pieces/component/agenda/views_event';
