@@ -429,25 +429,4 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-// Show
-router.get('/show', block_access.isLoggedIn, function(req, res) {
-    var id_application = req.param('id_application');
-    var data = {};
-    models.Application.findOne({
-        where: {
-            id: id_application
-        }
-    }).then(function(application) {
-        if (!application) {
-            data.code = 404;
-            return res.render('common/error', data);
-        }
-        data.application = application;
-        res.render('application/show.jade', data);
-    }).catch(function(err) {
-        data.code = 500;
-        res.render('common/error', data);
-    });
-});
-
 module.exports = router;
