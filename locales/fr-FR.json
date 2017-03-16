@@ -143,9 +143,17 @@
                 "selected": "Entity %s(%s) selected.",
                 "valid": "Please, indicate a valid name/ID."
             },
+            "create": {
+                "success" : "New entity %s | %s created.",
+                "alreadyExist": "Entity with the same or similar name %s already exists."
+            },
+            "list":{
+
+            },
             "notFound": {
                 "withThisID": "Sorry, but there is no entity with this ID.",
-                "withThisName": "Sorry, but there is no entity with this name."
+                "withThisName": "Sorry, but there is no entity with this name.",
+                "targetNoExist": "Entity target doesn't exist."
             }
         }
     }
