@@ -1447,6 +1447,85 @@ exports.createNewComponentAgenda = function(attr, callback) {
     });
 }
 
+// Component to create a C.R.A module
+exports.createNewComponentCra = function(attr, callback) {
+
+    var exportsContext = this;
+
+    // Check if component with this name is already created on this module
+    db_module.getModuleByCodename(attr.id_application, 'm_c_r_a', function(err, module){
+        if(module){
+            var err = new Error();
+            err.message = "Sorry, a C.R.A module already exists.";
+            return callback(err, null);
+        }
+        var instructions = [
+            "create module C.R.A",
+            "create entity Team",
+            "add field name",
+            "entity Team has one C.R.A Calendar Settings",
+            "select entity C.R.A Calendar Settings",
+            "add field monday with type boolean",
+            "add field tuesday with type boolean",
+            "add field wednesday with type boolean",
+            "add field thursday with type boolean",
+            "add field friday with type boolean",
+            "add field saturday with type boolean",
+            "add field sunday with type boolean",
+            "entity Team has many C.R.A Calendar Exception",
+            "select entity C.R.A Calendar Exception",
+            "add field date with type date",
+            "create entity C.R.A",
+            "add field month with type number",
+            "add field year with type number",
+            "add field user validated with type boolean",
+            "add field admin validated with type boolean",
+            "entity user has many C.R.A Activity",
+            "select entity C.R.A Activity",
+            "add field Name",
+            "add field Description with type text",
+            "add field Active with type boolean",
+            "entity C.R.A Activity has one C.R.A Client",
+            "select entity C.R.A Client",
+            "add field name",
+            "entity C.R.A has many Task",
+            "select entity Task",
+            "add field date with type date",
+            "add field duration with type float",
+            "entity Task has one C.R.A Activity"
+        ];
+
+        // Start doing necessary instruction for component creation
+        exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+            if(err)
+                return callback(err, null);
+
+            try {
+                // Create Many to Many relation between team and users
+                var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+                var teamOptions = require(workspacePath+'/models/options/e_team.json');
+                teamOptions.push({
+                    "target": "e_user",
+                    "relation": "belongsToMany",
+                    "foreignKey": "id_team",
+                    "otherKey": "id_user",
+                    "through": attr.id_application+'_team_users',
+                    "as": "r_users"
+                });
+                fs.writeFileSync(workspacePath+'/models/options/e_team.json', JSON.stringify(teamOptions, null, 4));
+                // Add `is admin` boolean to junction table between team and user
+                var toSync = {};
+                toSync[attr.id_application+'_team_users'] = {attributes: {f_is_admin: "BOOLEAN"}};
+                fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+                callback(null, {message: 'Module C.R.A created'});
+            } catch(e) {
+                console.log(e);
+                callback(e);
+            }
+        });
+    });
+}
+
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */

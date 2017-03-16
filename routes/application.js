@@ -251,6 +251,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);
+            if (typeof designer[attr.function] !== 'function')
+                throw new Error("Designer doesn't have function "+attr.function);
 
             // Function is finally executed as "globalConf()" using the static dialog designer
             // "Options" and "Session values" are sent using the attr attribute

@@ -611,6 +611,12 @@ exports.createNewComponentContactFormWithName = function(result) {
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
+exports.createNewComponentCra = function(result) {
+    return {
+        function: "createNewComponentCra"
+    };
+};
+
 /* AGENDA */
 exports.createNewComponentAgenda = function(result) {
 
@@ -1095,6 +1101,9 @@ exports.parse = function(instruction) {
             "créer une ligne de temps appelé (.*)",
             "ajouter une ligne de temps appelé (.*)"
         ],
+        "createNewComponentCra": [
+            "create component cra"
+        ],
         "setSkin": [
             "set skin (.*)",
             "set color (.*)",
@@ -1131,7 +1140,7 @@ exports.parse = function(instruction) {
 
     var attr = {};
 
-    if(typeof instructionResult.action !== "undefined"){
+    if(typeof instructionResult.action !== "undefined" && typeof this[instructionResult.action] !== 'undefined'){
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
     }
