@@ -45,11 +45,11 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
             writeStream2.write(JSON.stringify(toSyncObject, null, 4));
             writeStream2.end();
             writeStream2.on('finish', function () {
-                console.log("Model => Options/Associations ------------------ COMPLETED");
+                //console.log("Model => Options/Associations ------------------ COMPLETED");
                 callback();
             });
         } else {
-            console.log("Model => Options/Associations ------------------ COMPLETED");
+            //console.log("Model => Options/Associations ------------------ COMPLETED");
             callback();
         }
     });
@@ -91,7 +91,7 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(modelTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log('File => Model ------------------ CREATED');
+            //console.log('File => Model ------------------ CREATED');
             callback();
         });
     }
@@ -103,14 +103,14 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(JSON.stringify(baseAttributes, null, 4));
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log("Model => attributes ------------------ CREATED");
+            //console.log("Model => attributes ------------------ CREATED");
             // CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
             var writeStreamOption = fs.createWriteStream('./workspace/' + idApplication + '/models/options/' + nameDataEntity.toLowerCase() + '.json');
             var baseOptions = [];
             writeStreamOption.write(JSON.stringify(baseOptions, null, 4));
             writeStreamOption.end();
             writeStreamOption.on('finish', function () {
-                console.log("Model => options/associations ------------------ CREATED");
+                //console.log("Model => options/associations ------------------ CREATED");
                 callback();
             });
         });
@@ -126,7 +126,7 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(routeTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log('File => Route file ------------------ CREATED')
+            //console.log('File => Route file ------------------ CREATED')
             callback();
         });
     }
@@ -140,7 +140,7 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(apiTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log('File => REST API file ------------------ CREATED')
+            //console.log('File => REST API file ------------------ CREATED')
             callback();
         });
     }
@@ -203,7 +203,7 @@ exports.setupDataEntity = function (attr, callback) {
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            console.log("File => " + file + " ------------------ WRITTEN");
+            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }
@@ -222,7 +222,7 @@ exports.setupDataEntity = function (attr, callback) {
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            console.log("File => " + file + " ------------------ WRITTEN");
+            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }

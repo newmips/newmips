@@ -753,11 +753,11 @@ exports.setupHasManyTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
+        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -955,11 +955,11 @@ exports.setupHasOneTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
+        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -1035,11 +1035,11 @@ exports.setupFieldsetTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
+        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
             var usingField = "id";
