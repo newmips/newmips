@@ -150,7 +150,7 @@
             },
             "notFound": {
                 "withThisID": "Désolé, mais il n'existe aucun projet avec cet ID : %s.",
-                "withThisName": "Désolé, mais il n'existe aucun projet avec ce nom : %s.",
+                "withThisName": "Désolé, mais il n'existe aucun projet avec ce nom : %s."
             }
         },
         "application": {
