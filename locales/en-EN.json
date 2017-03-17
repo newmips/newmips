@@ -138,6 +138,67 @@
         "welcome": "Welcome ! Please type your instructions in input field below or type 'help' if you need any support."
     },
     "database": {
+        "project": {
+            "select": {
+                "selected": "Project %s(%s) selected."
+            },
+            "create": {
+                "success" : "New project %s(%s) created."
+            },
+            "delete":{
+                "deleted": "Project %s deleted !"
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no project with this ID : %s.",
+                "withThisName": "Sorry, but there is no project with this name : %s.",
+            }
+        },
+        "application": {
+            "select": {
+                "selected": "Application %s(%s) selected."
+            },
+            "create": {
+                "success" : "New application %s(%s) created."
+            },
+            "delete":{
+                "deleted": "Application %s deleted !"
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no application with this ID : %s.",
+                "withThisName": "Sorry, but there is no application with this name : %s.",
+                "withThisCodeName": "Sorry, but there is no application with this code name : %s."
+            }
+        },
+        "module": {
+            "select": {
+                "selected": "Module %s(%s) selected."
+            },
+            "create": {
+                "success" : "New module %s(%s) created.",
+                "alreadyExist": "A module with the same or similar name %s already exists."
+            },
+            "list": {
+                "selectAppBefore": "Please select a Application before."
+            },
+            "delete":{
+                "deleted": "Module %s deleted !"
+            },
+            "notFound": {
+                "notFounded": "Unable to find module %s.",
+                "withThisID": "Sorry, but there is no entity with this ID : %s.",
+                "withThisName": "Sorry, but there is no entity with this name : %s.",
+                "noModuleInApp": "Sorry, there is no module in this application.",
+                "notFoundHomeModule": "Cannot find home module in the application with the ID %s."
+            }
+        },
+        "component":{
+            "create": {
+                "success" : "New component %s(%s) created."
+            },
+            "notFound": {
+                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
+            }
+        },
         "entity": {
             "select": {
                 "selected": "Entity %s(%s) selected.",
@@ -145,15 +206,36 @@
             },
             "create": {
                 "success" : "New entity %s | %s created.",
-                "alreadyExist": "Entity with the same or similar name %s already exists."
+                "alreadyExist": "Entity with the same or similar name %s already exists.",
+                "addComponent": "Cannot add component on entity, no entity with code name %s found."
             },
-            "list":{
-
+            "delete": {
+                "deleted": "Entity %s deleted !"
+            },
+            "get":{
+                "idNotDefined": "Entity ID is not defined. You should select or create an entity before."
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no entity with this ID.",
-                "withThisName": "Sorry, but there is no entity with this name.",
+                "withThisID": "Sorry, but there is no entity with this ID : %s.",
+                "withThisName": "Sorry, but there is no entity with this name : %s.",
+                "withThisCodeNameAndModule": "Sorry, but there is no entity with this code name : %s in the module : %s.",
                 "targetNoExist": "Entity target doesn't exist."
+            }
+        },
+        "field": {
+            "error":{
+                "selectOrCreateBefore": "You have to select or create an entity before.",
+                "alreadyExist": "Sorry, a field with the same or similar name(%s) already exists."
+            },
+            "create": {
+                "created": "New field %s | %s created.",
+                "foreignKeyCreated": "New foreign key %s | %s created."
+            },
+            "delete": {
+                "deleted": "Field %s deleted !"
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no field with this ID : %s."
             }
         }
     }

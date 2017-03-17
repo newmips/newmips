@@ -140,102 +140,102 @@
     "database": {
         "project": {
             "select": {
-                "selected": "Project %s(%s) selected."
+                "selected": "Projet %s(%s) sélectionné."
             },
             "create": {
-                "success" : "New project %s(%s) created."
+                "success" : "Nouveau projet %s(%s) crée."
             },
             "delete":{
-                "deleted": "Project %s deleted."
+                "deleted": "Projet %s supprimé !"
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no project with this ID : %s.",
-                "withThisName": "Sorry, but there is no project with this name : %s.",
+                "withThisID": "Désolé, mais il n'existe aucun projet avec cet ID : %s.",
+                "withThisName": "Désolé, mais il n'existe aucun projet avec ce nom : %s.",
             }
         },
         "application": {
             "select": {
-                "selected": "Application %s(%s) selected."
+                "selected": "Application %s(%s) sélectionnée."
             },
             "create": {
-                "success" : "New application %s(%s) created."
+                "success" : "Nouvelle application %s(%s) créée."
             },
             "delete":{
-                "deleted": "Application %s deleted."
+                "deleted": "Application %s supprimée !"
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no application with this ID : %s.",
-                "withThisName": "Sorry, but there is no application with this name : %s.",
-                "withThisCodeName": "Sorry, but there is no application with this code name : %s."
+                "withThisID": "Désolé, mais il n'y a pas d'application avec cet ID : %s.",
+                "withThisName": "Désolé, mais il n'y a pas d'application avec ce nom : %s.",
+                "withThisCodeName": "Désolé, mais il n'y a pas d'application avec ce nom de code : %s."
             }
         },
         "module": {
             "select": {
-                "selected": "Module %s(%s) selected."
+                "selected": "Module %s(%s) sélectionné."
             },
             "create": {
-                "success" : "New module %s(%s) created.",
-                "alreadyExist": "A module with the same or similar name %s already exists."
+                "success" : "Nouveau module %s(%s) crée.",
+                "alreadyExist": "Un module avec le même ou similaire nom %s existe déjà."
             },
             "list": {
-                "selectAppBefore": "Please select a Application before."
+                "selectAppBefore": "S'il vous plaît, sélectionnez une application."
             },
             "delete":{
-                "deleted": "Module %s deleted."
+                "deleted": "Module %s supprimé !"
             },
             "notFound": {
-                "notFounded": "Unable to find module %s.",
-                "withThisID": "Sorry, but there is no entity with this ID : %s.",
-                "withThisName": "Sorry, but there is no entity with this name : %s.",
-                "noModuleInApp": "Sorry, there is no module in this application.",
-                "notFoundHomeModule": "Cannot find home module in the application with the ID %s."
+                "notFounded": "Impossible de trouver le module %s.",
+                "withThisID": "Désolé, mais il n'y a pas de module avec cet ID : %s.",
+                "withThisName": "Désolé, mais il n'y a pas de module avec ce nom : %s.",
+                "noModuleInApp": "Désolé, il n'y a aucun module dans cette application.",
+                "notFoundHomeModule": "Impossible de trouver le module home dans l'application avec ID %s."
             }
         },
         "component":{
             "create": {
-                "success" : "New component %s(%s) created."
+                "success" : "Nouveau composant %s(%s) crée."
             },
             "notFound": {
-                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
+                "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s."
             }
         },
         "entity": {
             "select": {
-                "selected": "Entity %s(%s) selected.",
-                "valid": "Please, indicate a valid name/ID."
+                "selected": "Entité %s(%s) sélectionnée.",
+                "valid": "Merci d'indiquer une nom/ID valide."
             },
             "create": {
-                "success" : "New entity %s | %s created.",
-                "alreadyExist": "Entity with the same or similar name %s already exists.",
-                "addComponent": "Cannot add component on entity, no entity with code name %s found."
+                "success" : "Nouvelle entité %s | %s créée.",
+                "alreadyExist": "Entité avec un nom(%s) identique ou similaire existe déjà.",
+                "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité avec le nom de code %s trouvé."
             },
             "delete": {
-                "deleted": "Entity %s deleted !"
+                "deleted": "Entité %s supprimée !"
             },
             "get":{
-                "idNotDefined": "Entity ID is not defined. You should select or create an entity before."
+                "idNotDefined": "L'ID de l'entité n'est pas défini. Vous devriez sélectionner ou créer une entité avant."
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no entity with this ID : %s.",
-                "withThisName": "Sorry, but there is no entity with this name : %s.",
-                "withThisCodeNameAndModule": "Sorry, but there is no entity with this code name : %s in the module : %s.",
-                "targetNoExist": "Entity target doesn't exist."
+                "withThisID": "Désolé, mais il n'y a pas d'entité avec l'ID: %s.",
+                "withThisName": "Désolé, mais il n'y a pas d'entité avec le nom: %s.",
+                "withThisCodeNameAndModule": "Désolé, mais il n'y a pas d'entité avec le nom de code: %s dans le module: %s.",
+                "targetNoExist": "L'entité cible n'existe pas."
             }
         },
         "field": {
             "error":{
-                "selectOrCreateBefore": "You have to select or create an entity before.",
-                "alreadyExist": "Sorry, a field with the same or similar name(%s) already exists."
+                "selectOrCreateBefore": "Vous devez sélectionner ou créer une entité avant.",
+                "alreadyExist": "Désolé, un champ avec un nom(%s) identique ou similaire existe déjà."
             },
             "create": {
-                "created": "New data field %s | %s created.",
-                "foreignKeyCreated": "New foreign key %s | %s created."
+                "created": "Nouveau champ %s | %s crée.",
+                "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
             },
             "delete": {
-                "deleted": "Field %s deleted !"
+                "deleted": "Champ %s supprimé !"
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no field with this ID : %s."
+                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s."
             }
         }
     }
