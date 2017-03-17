@@ -150,7 +150,7 @@
             },
             "notFound": {
                 "withThisID": "Sorry, but there is no project with this ID : %s.",
-                "withThisName": "Sorry, but there is no project with this name : %s.",
+                "withThisName": "Sorry, but there is no project with this name : %s."
             }
         },
         "application": {
