@@ -138,6 +138,21 @@
         "welcome": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin ecrivez help pour avoir plus d'informations."
     },
     "database": {
+        "project": {
+            "select": {
+                "selected": "Project %s(%s) selected."
+            },
+            "create": {
+                "success" : "New project %s(%s) created."
+            },
+            "delete":{
+                "deleted": "Project %s deleted."
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no project with this ID : %s.",
+                "withThisName": "Sorry, but there is no project with this name : %s.",
+            }
+        },
         "application": {
             "select": {
                 "selected": "Application %s(%s) selected."
@@ -160,7 +175,7 @@
             },
             "create": {
                 "success" : "New module %s(%s) created.",
-                "alreadyExist": "A module with the same or similar name %s already exists.",
+                "alreadyExist": "A module with the same or similar name %s already exists."
             },
             "list": {
                 "selectAppBefore": "Please select a Application before."
@@ -177,7 +192,12 @@
             }
         },
         "component":{
-
+            "create": {
+                "success" : "New component %s(%s) created."
+            },
+            "notFound": {
+                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
+            }
         },
         "entity": {
             "select": {

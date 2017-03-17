@@ -138,11 +138,11 @@ exports.listApplication = function(attr, callback) {
         info.message = "<br><ul>";
 
         if(!applications){
-            info.message = info.message + " - <br>";
+            info.message += " - <br>";
         }
         else {
             for(var i=0; i<applications.length; i++){
-                info.message = info.message + "<li>" + applications[i].name + "("+applications[i].id+")</li>";
+                info.message += "<li>" + applications[i].name + "("+applications[i].id+")</li>";
             }
         }
         info.message += "</ul>";
