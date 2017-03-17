@@ -6,40 +6,34 @@ var models = require('../models/');
 // Insert a new component link to an entity
 exports.createNewComponentOnEntity = function(attr, callback) {
 
-    var id_module = 0;
-    var version = 1;
+    var idModule = attr.id_module;
+    var options = attr.options;
 
-    if (typeof attr !== 'undefined' && attr) {
+    if (typeof options !== 'undefined' && options && idModule != 0) {
 
-        id_module = attr.id_module;
-        var options = attr.options;
+        models.Component.create({
+            name: options.showValue,
+            codeName: options.value,
+            id_module: idModule,
+            version: 1
+        }).then(function(createdComponent) {
+            if (!createdComponent) {
+                var err = new Error();
+                err.message = "Sorry, an error occured while creating the component.";
+                return callback(err, null);
+            }
 
-        if (typeof options !== 'undefined' && options && id_module != 0) {
-
-            models.Component.create({
-                name: options.showValue,
-                codeName: options.value,
-                id_module: id_module,
-                version: version
-            }).then(function(createdComponent) {
-                if (!createdComponent) {
-                    var err = new Error();
-                    err.message = "Sorry, an error occured while creating the component.";
-                    return callback(err, null);
+            createdComponent.addDataEntity(attr.id_data_entity).then(function(){
+                var info = {
+                    insertId: createdComponent.id,
+                    message: "New component "+createdComponent.id+" | "+createdComponent.name+" created."
                 }
-
-                createdComponent.addDataEntity(attr.id_data_entity).then(function(){
-                    var info = {
-                        insertId: createdComponent.id,
-                        message: "New component "+createdComponent.id+" | "+createdComponent.name+" created."
-                    }
-                    callback(null, info);
-                });
-
-            }).catch(function(err) {
-                callback(err, null);
+                callback(null, info);
             });
-        }
+
+        }).catch(function(err) {
+            callback(err, null);
+        });
     }
 }
 
