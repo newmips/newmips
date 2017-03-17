@@ -41,7 +41,7 @@ exports.selectProject = function(attr, callback) {
 
         var info = {
             insertId: project.id,
-            message: "database.project.select.selected"
+            message: "database.project.select.selected",
             messageParams: [project.name, project.id]
         };
         callback(null, info);
@@ -66,7 +66,7 @@ exports.createNewProject = function(attr, callback) {
     }).then(function(created_project) {
         var info = {
             insertId: created_project.id,
-            message: "database.project.create.success"
+            message: "database.project.create.success",
             messageParams: [show_name_project, created_project.id]
         }
         callback(null, info);
@@ -120,8 +120,8 @@ exports.deleteProject = function(value, callback) {
 
         models.Project.destroy(where).then(function() {
             var info = {
-                message: "database.project.delete.deleted"
-                messageParams: [value];
+                message: "database.project.delete.deleted",
+                messageParams: [value]
             };
             callback(null, info);
         }).catch(function(err) {
