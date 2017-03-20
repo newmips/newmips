@@ -46,26 +46,36 @@ function execute(req, instruction) {
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);
 
-            return designer[attr["function"]](attr, function(err, info) {
+            return designer[attr.function](attr, function(err, info) {
+
+                var __ = require("../services/language")(req.session.lang_user).__;
 
                 if (err) {
                     // Error handling code goes here
-                    console.log("ERROR : ", err);
-                    scriptData[userId].answers.unshift(instruction + " :<br>" + err + "<br><br>");
-                    reject();
+                    scriptData[userId].answers.unshift({
+                        instruction: instruction,
+                        message: __(err.message, err.messageParams || [])
+                    });
+                    reject(err);
                 } else {
 
                     // Store key entities in session for futur instruction
                     session_manager.setSessionForInstructionScript(attr.function, scriptData[userId], info);
 
-                    scriptData[userId].answers.unshift(instruction + " :<br>" + info.message + "<br><br>");
+                    scriptData[userId].answers.unshift({
+                        instruction: instruction,
+                        message: __(info.message, info.messageParams || [])
+                    });
                     resolve();
                 }
 
             });
-        } catch (e) {
-            scriptData[userId].answers.unshift(instruction + " :<br>" + e.message + "<br><br>");
-            reject();
+        } catch (err) {
+            scriptData[userId].answers.unshift({
+                instruction: instruction,
+                message: __(err.message, err.messageParams || [])
+            });
+            reject(err);
         }
     });
 }
@@ -129,8 +139,8 @@ function recursiveExecute(req, instructions, idx) {
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));
-                    }).catch(function() {
-                        reject();
+                    }).catch(function(err) {
+                        reject(err);
                     });
                 });
             }
@@ -139,8 +149,8 @@ function recursiveExecute(req, instructions, idx) {
                 execute(req, instructions[idx]).then(function() {
                     scriptData[req.session.passport.user.id].doneInstruction++;
                     resolve(recursiveExecute(req, instructions, idx + 1));
-                }).catch(function() {
-                    reject();
+                }).catch(function(err) {
+                    reject(err);
                 });
             }
         }
@@ -151,12 +161,12 @@ function recursiveExecute(req, instructions, idx) {
 router.get('/index', block_access.isLoggedIn, function(req, res) {
 
     var data = {
-        "error": 1,
-        "profile": req.session.data,
-        "menu": "script",
-        "msg": message,
-        "answers": "",
-        "instruction": ""
+        error: 1,
+        profile: req.session.data,
+        menu: "script",
+        msg: message,
+        answers: "",
+        instruction: ""
     };
 
     res.render('front/instruction_script', data);
@@ -305,15 +315,16 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
         if(isError){
             scriptData[userId].answers = [];
-            scriptData[userId].answers.push(stringError);
+            scriptData[userId].answers.push({
+                message: stringError
+            });
             scriptData[userId].over = true;
         } else{
             scriptData[userId].totalInstruction = authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
-                // Success
                 scriptData[userId].over = true;
-            }).catch(function() {
-                // Error
+            }).catch(function(err) {
+                console.log(err);
                 scriptData[userId].over = true;
             });
         }
@@ -332,7 +343,7 @@ router.get('/status', function(req, res) {
         totalInstruction: scriptData[userId].totalInstruction,
         doneInstruction: scriptData[userId].doneInstruction,
         over: scriptData[userId].over,
-        text: scriptData[userId].answers.join('<br><br>')
+        text: scriptData[userId].answers
     };
     scriptData[userId].answers = [];
 

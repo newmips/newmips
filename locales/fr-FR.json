@@ -205,7 +205,7 @@
                 "valid": "Merci d'indiquer une nom/ID valide."
             },
             "create": {
-                "success" : "Nouvelle entité %s | %s créée.",
+                "success" : "Nouvelle entité %s(%s) créée.",
                 "alreadyExist": "Entité avec un nom(%s) identique ou similaire existe déjà.",
                 "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité avec le nom de code %s trouvé."
             },
@@ -228,7 +228,7 @@
                 "alreadyExist": "Désolé, un champ avec un nom(%s) identique ou similaire existe déjà."
             },
             "create": {
-                "created": "Nouveau champ %s | %s crée.",
+                "created": "Nouveau champ %s(%s) crée.",
                 "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
             },
             "delete": {

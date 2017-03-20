@@ -150,7 +150,7 @@ exports.createNewDataEntity = function(attr, callback) {
 			var info = {};
 			info.insertId = newEntity.id;
 			info.message = "database.entity.create.success";
-			info.messageParams = [newEntity.id, newEntity.name];
+			info.messageParams = [newEntity.name, newEntity.id];
 			callback(null,info);
 		});
 	}).catch(function(err){
@@ -190,7 +190,7 @@ exports.createNewDataEntityTarget = function(attr, callback) {
 			info.name = createdEntity.name;
 			info.codeName = createdEntity.codeName;
 			info.message = "database.entity.create.success";
-			info.messageParams = [createdEntity.id, createdEntity.name];
+			info.messageParams = [createdEntity.name, createdEntity.id];
 			callback(null, info);
 		});
 	}).catch(function(err){
