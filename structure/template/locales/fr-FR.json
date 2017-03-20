@@ -117,5 +117,16 @@
             "pending_event": "Évévement en attente"
         }
     },
-    "component": {}
+    "component": {},
+    "error": {
+        "title": "Erreur",
+        "contactAdmin": "Merci de contacter votre administrateur.",
+        "meanwhile": "Entre temps, vous pouvez ",
+        "goHome": "retourner à la page d'accueil",
+        "or": "ou",
+        "goBack": " revenir en arrière.",
+        "404": {
+            "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+        }
+    }
 }

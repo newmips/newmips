@@ -225,6 +225,12 @@ require('./routes/')(app);
 // Api routes ==================================================================
 require('./api/')(app);
 
+// Handle 404
+app.use(function(req, res) {
+	res.status(400);
+	res.render('common/404');
+});
+
 // Launch ======================================================================
 if (protocol == 'https') {
 	models.sequelize.sync({ logging: console.log, hooks: false }).then(function() {

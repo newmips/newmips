@@ -128,7 +128,8 @@
         "textone": "Vous devriez contact votre administrateur, et vous pouvez",
         "texttwo": "retourner à l'accueil",
         "or": "ou",
-        "textthree": "simplement revenir en arrière."
+        "textthree": "simplement revenir en arrière.",
+        "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
     },
     "back":{
         "list": "Lister les",

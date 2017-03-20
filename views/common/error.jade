@@ -1,14 +1,14 @@
 extends ../main_layout
 block header
-	h1 #{__("module.error")} #{code}
+	h1 #{__("menu.error")} #{code}
 	ol.breadcrumb
 		li
-			a(href='#')
+			a(href='/')
 				i.fa.fa-dashboard
-				| #{__("module.home")}
+				| #{__("menu.home")}
 		li
-			a(href='#') #{__("module.error")}
-		li.active #{__("module.error")} #{code}
+			a(href='#') #{__("menu.error")}
+		li.active #{__("menu.error")} #{code}
 block content
 	.error-page
 		h2.headline #{code}
@@ -22,7 +22,7 @@ block content
 					i.fa.fa-warning.text-yellow
 					| #{__("error.oops")}
 			p
-				#{__("error.textone")}
+				|#{__("error.textone")}
 				a(href='/')&nbsp;#{__("error.texttwo")}
 				|&nbsp;#{__("error.or")}&nbsp;
 				a(href='javascript:history.back();') #{__("error.textthree")}
