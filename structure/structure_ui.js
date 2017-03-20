@@ -43,7 +43,7 @@ exports.setSkin = function(attr, callback) {
     	for(var i=0; i<skinListAvailable.length; i++){
     		msgParams += "-  " + skinListAvailable[i] + "<br>";
     	}
-        err.messageParams = msgParams;
+        err.messageParams = [msgParams];
     	callback(err, null);
     }
 }
@@ -70,6 +70,6 @@ exports.listSkin = function(attr, callback) {
     for(var i=0; i<skinListAvailable.length; i++){
         msgParams += "-  " + skinListAvailable[i] + "<br>";
     }
-    info.messageParams = msgParams;
+    info.messageParams = [msgParams];
     callback(null, info);
 }
