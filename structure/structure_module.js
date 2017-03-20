@@ -21,13 +21,13 @@ exports.setupModule = function(attr, callback) {
 
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
-        str += '\t// '+name_module+'\n';
-        str += '\trouter.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("'+url_name_module+'"), function(req, res) {\n';
-        str += '\t\tvar data = {\n';
-        str += '\t\t\t"profile":req.session.data\n';
-        str += '\t\t};\n';
-        str += '\t\tres.render(\'default/'+name_module.toLowerCase()+'\', data);\n';
-        str += '\t});\n';
+        str += '// '+name_module+'\n';
+        str += 'router.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("'+url_name_module+'"), function(req, res) {\n';
+        str += '    var data = {\n';
+        str += '        profile:req.session.data\n';
+        str += '    };\n';
+        str += '    res.render(\'default/'+name_module.toLowerCase()+'\', data);\n';
+        str += '});\n';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
         fs.writeFile(file, result, 'utf8', function(err) {

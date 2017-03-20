@@ -191,22 +191,14 @@ exports.createNewDataEntity = function(result) {
 exports.createNewDataField = function(result) {
 
     // Field name has not been defined
-    if (result[1] == '') {
-        var attr = {
-            function: "askNameOfDataField"
-        };
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
 
-        return attr;
-    } else {
+    return checkAndCreateAttr("createNewDataField", options, value);
 
-        var value = result[1];
-        var options = {
-            value: value,
-            processValue: true
-        };
-
-        return checkAndCreateAttr("createNewDataField", options, value);
-    }
 };
 
 exports.createNewDataFieldWithType = function(result) {

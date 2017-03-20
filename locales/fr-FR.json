@@ -238,5 +238,52 @@
                 "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s."
             }
         }
+    },
+    "structure": {
+        "module": {
+            "error": {
+                "notHome": "Vous ne pouvez pas supprimer le module Accueil."
+            }
+        },
+        "field": {
+            "attributes": {
+                "success": "Le champs %s est désormais %s.",
+                "notUnderstandGiveAvailable": "Désolé, je ne comprend pas ce que vous souhaitez. Possibilités :<br>%s<br>",
+                "notUnderstand": "Unable to understand the given attribute.",
+                "fieldNoFound": "No field with name %s found in the current entity.",
+                "duplicateUnique": "Désolé, le champ a déjà des valeurs identiques, impossible de le rendre unique."
+            }
+        },
+        "association": {
+            "hasOne": {
+                "successEntity": "Nouvelle assocation 'Has One' avec l'entité %s créée.",
+                "successSubEntity": "Nouvelle assocation 'Has One' avec la sous-entité %s créée."
+            },
+            "hasMany": {
+                "successEntity": "Nouvelle assocation 'Has Many' avec l'entité %s créée.",
+                "successSubEntity": "Nouvelle assocation 'Has Many' avec la sous-entité %s créée."
+            },
+            "fieldset":{
+                "success": "Nouvelle liste d'objets existants %s créée sur %s."
+            },
+            "relatedTo": {
+                "success": "Nouveau champs %s associé à %s crée."
+            },
+            "error":{
+                "alreadyHasMany": "Source entity already has many target entity, impossible to create belongs to association.",
+                "alreadyHasOne": "Source entity already has the association has one with target entity, it's impossible to add has many association.",
+                "alreadySameAlias": "Association already exists between these entities with this alias.",
+                "circularBelongsTo": "Bad entity association, you can't set circular has one association.",
+                "circularHasMany": "Bad entity association, you can't set circular has many association.",
+                "unableTab": "Unable to find %s tab in current entity."
+            }
+        },
+        "component": {
+            "error": {
+                "alreadyExistOnEntity": "Sorry, a component with this name is already associate to this entity in this module.",
+                "alreadyExistInApp": "Sorry, an other entity with this component name already exist in this application.",
+                "alreadyExistOnModule": "Sorry, a component with this name is already associate to this module."
+            }
+        }
     }
 }

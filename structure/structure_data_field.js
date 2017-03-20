@@ -553,7 +553,7 @@ exports.setupDataField = function (attr, callback) {
 
                     /* --------------- New translation --------------- */
                     translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function () {
-                        callback(null, "Data field succesfuly created");
+                        callback(null, "Data field successfully created.");
                     });
                 });
             });
@@ -575,7 +575,7 @@ exports.setRequiredAttribute = function (attr, callback) {
         set = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute.";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
@@ -618,7 +618,8 @@ exports.setRequiredAttribute = function (attr, callback) {
             });
         } else {
             var err = new Error();
-            err.message = "No field with name " + attr.options.showValue + " found in the current entity.";
+            err.message = "structure.field.attributes.fieldNoFound";
+            err.messageParams = [attr.options.showValue];
             callback(err, null);
         }
     }).catch(function (err) {
@@ -643,7 +644,7 @@ exports.setUniqueField = function (attr, callback) {
         set = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute.";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
@@ -674,7 +675,7 @@ exports.setColumnVisibility = function (attr, callback) {
         hide = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute. (You should use hide or show)";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
@@ -918,7 +919,7 @@ exports.setupRelatedToField = function (attr, callback) {
                     updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function () {
                         /* --------------- New translation --------------- */
                         translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
-                            callback(null, "Data field succesfuly created");
+                            callback(null, "Data field successfully created");
                         });
                     });
 
@@ -1217,7 +1218,8 @@ exports.deleteTab = function (attr, callback) {
     }
     if (!found) {
         var err = new Error();
-        err.message = "Unable to find " + attr.options.showValue + " tab in current entity.";
+        err.message = "structure.association.error.unableTab";
+        err.messageParams = [attr.options.showValue];
         return callback(err, null);
     }
     var writeStream = fs.createWriteStream(jsonPath);
