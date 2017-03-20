@@ -201,7 +201,7 @@ exports.createNewApplication = function(attr, callback) {
 
         if(exist){
             var error = new Error();
-            error.message = "database.application.notFound.withThisName";
+            error.message = "database.application.alreadyExist";
             error.messageParams = [attr.options.showValue];
             return callback(error, null);
         }
@@ -758,7 +758,10 @@ exports.setFieldAttribute = function(attr, callback) {
                 if (err)
                     return callback(err, null);
 
-                callback(null, {message: 'Data field '+attr.options.showValue+' is now '+attr.options.word+'.'});
+                callback(null, {
+                    message: "structure.field.attributes.success",
+                    messageParams: [attr.options.showValue, attr.options.word]
+                });
             });
         }
         else if(uniqueAttribute.indexOf(wordParam) != -1){

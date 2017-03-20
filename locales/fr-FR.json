@@ -167,7 +167,8 @@
                 "withThisID": "Désolé, mais il n'y a pas d'application avec cet ID : %s.",
                 "withThisName": "Désolé, mais il n'y a pas d'application avec ce nom : %s.",
                 "withThisCodeName": "Désolé, mais il n'y a pas d'application avec ce nom de code : %s."
-            }
+            },
+            "alreadyExist": "Désolé, mais une application existe déjà avec ce nom : %s."
         },
         "module": {
             "select": {
@@ -283,6 +284,12 @@
                 "alreadyExistOnEntity": "Sorry, a component with this name is already associate to this entity in this module.",
                 "alreadyExistInApp": "Sorry, an other entity with this component name already exist in this application.",
                 "alreadyExistOnModule": "Sorry, a component with this name is already associate to this module."
+            }
+        },
+        "ui": {
+            "skin": {
+                "list": "Colorations disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver la coloration demandée. Colorations disponibles :<br>%s<br>"
             }
         }
     }

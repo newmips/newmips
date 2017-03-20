@@ -164,10 +164,11 @@
                 "deleted": "Application %s deleted !"
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no application with this ID : %s.",
-                "withThisName": "Sorry, but there is no application with this name : %s.",
-                "withThisCodeName": "Sorry, but there is no application with this code name : %s."
-            }
+                "withThisID": "Sorry, but there is no application with this ID: %s.",
+                "withThisName": "Sorry, but there is no application with this name: %s.",
+                "withThisCodeName": "Sorry, but there is no application with this code name: %s."
+            },
+            "alreadyExist": "Sorry, but an application already exist with this name: %s."
         },
         "module": {
             "select": {
@@ -283,6 +284,12 @@
                 "alreadyExistOnEntity": "Sorry, a component with this name is already associate to this entity in this module.",
                 "alreadyExistInApp": "Sorry, an other entity with this component name already exist in this application.",
                 "alreadyExistOnModule": "Sorry, a component with this name is already associate to this module."
+            }
+        },
+        "ui": {
+            "skin": {
+                "list": "Available skin:<br>%s<br>",
+                "cannotFind": "Cannot find the asked skin. Available skin:<br>%s<br>"
             }
         }
     }
