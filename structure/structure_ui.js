@@ -38,10 +38,12 @@ exports.setSkin = function(attr, callback) {
     }
     else{
     	var err = new Error();
-    	err.message = "Cannot find the asked skin. Available skin: <br>";
+    	err.message = "structure.ui.skin.cannotFind";
+        var msgParams = "";
     	for(var i=0; i<skinListAvailable.length; i++){
-    		err.message += "-  " + skinListAvailable[i] + "<br>";
+    		msgParams += "-  " + skinListAvailable[i] + "<br>";
     	}
+        err.messageParams = msgParams;
     	callback(err, null);
     }
 }
@@ -63,9 +65,11 @@ exports.listSkin = function(attr, callback) {
     });
 
     var info = {};
-    info.message = "Available skin: <br>";
+    info.message = "structure.ui.skin.list";
+    var msgParams = "";
     for(var i=0; i<skinListAvailable.length; i++){
-        info.message += "-  " + skinListAvailable[i] + "<br>";
+        msgParams += "-  " + skinListAvailable[i] + "<br>";
     }
+    info.messageParams = msgParams;
     callback(null, info);
 }

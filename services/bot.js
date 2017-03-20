@@ -903,7 +903,9 @@ exports.parse = function(instruction) {
             "lister les skin",
             "lister skin",
             "lister skins",
-            "lister les couleurs"
+            "lister les couleurs",
+            "lister colorations",
+            "lister les colorations"
         ],
         "relationshipHasOne": [
             "entity (.*) has one (.*)",
@@ -1093,7 +1095,9 @@ exports.parse = function(instruction) {
             "set colour (.*)",
             "appliquer le style (.*)",
             "appliquer la couleur (.*)",
-            "mettre la couleur (.*)"
+            "mettre la couleur (.*)",
+            "appliquer la coloration (.*)",
+            "mettre la coloration (.*)"
         ]
     };
 
