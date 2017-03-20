@@ -205,7 +205,7 @@
                 "valid": "Please, indicate a valid name/ID."
             },
             "create": {
-                "success" : "New entity %s | %s created.",
+                "success" : "New entity %s(%s) created.",
                 "alreadyExist": "Entity with the same or similar name %s already exists.",
                 "addComponent": "Cannot add component on entity, no entity with code name %s found."
             },
@@ -228,7 +228,7 @@
                 "alreadyExist": "Sorry, a field with the same or similar name(%s) already exists."
             },
             "create": {
-                "created": "New field %s | %s created.",
+                "created": "New field %s(%s) created.",
                 "foreignKeyCreated": "New foreign key %s | %s created."
             },
             "delete": {

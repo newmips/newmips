@@ -2,6 +2,7 @@
 var languages = [];
 
 function fetchText(key, params, lang) {
+
 	var keys = key.split('.');
 	if (typeof languages[lang] === 'undefined') {
 		try {
@@ -13,7 +14,6 @@ function fetchText(key, params, lang) {
 	}
 
 	var depth = languages[lang];
-
 	for (var i = 0; i < keys.length; i++) {
 		depth = depth[keys[i]];
 		if (typeof depth === 'undefined'){

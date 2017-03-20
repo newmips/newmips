@@ -51,7 +51,7 @@ exports.createNewDataField = function (attr, callback) {
                     var info = {
                         insertId: dataField.id,
                         message: "database.field.create.created",
-                        messageParams: [dataField.id, showNameField]
+                        messageParams: [showNameField, dataField.id]
                     };
                     callback(null, info);
                 }).catch(function (err) {
