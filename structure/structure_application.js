@@ -88,7 +88,7 @@ exports.setupApplication = function(attr, callback) {
                     } catch(err){
                         console.log("Error connection Gitlab repository: "+err);
                         console.log("Please set doGit in config/gitlab.json to false");
-                        callback();
+                        callback(err);
                     }
                 }
                 else{
