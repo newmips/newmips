@@ -289,7 +289,7 @@
         "ui": {
             "skin": {
                 "list": "Available skin:<br>%s<br>",
-                "cannotFind": "Cannot find the asked skin. Available skin:<br>%s<br>"
+                "cannotFind": "Cannot find the asked skin. Available skin:<br> %s <br>"
             }
         }
     }
