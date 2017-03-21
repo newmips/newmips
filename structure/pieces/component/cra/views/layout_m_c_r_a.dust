@@ -1,0 +1,205 @@
+{>"main_layout"/}
+{<modules}
+<select id="dynamic_select" class="form-control select" onchange="navigate()">{@moduleAccess module="home"}<option data-module="m_home" value="/default/home">{@__ key="module.m_home" /}</option>{/moduleAccess}{@moduleAccess module="authentication"}<option data-module="m_authentication" value="/default/authentication">{@__ key="module.m_authentication" /}</option>{/moduleAccess}{@moduleAccess module="c_r_a"}<option data-module="m_c_r_a" value="/default/c_r_a" selected="">{@__ key="module.m_c_r_a" /}</option>{/moduleAccess}</select>
+{/modules}
+
+{<sidebar}
+<ul id="sortable" class="sidebar-menu" style="white-space: pre-wrap;">
+    {@entityAccess entity="c_r_a_team"}
+    <li id="c_r_a_team_menu_item" style="display:block;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a_team.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a_team" action="write"}
+            <li>
+                <a href="/c_r_a_team/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a_team.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="c_r_a_team" action="read"}
+            <li>
+                <a href="/c_r_a_team/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_c_r_a_team.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="c_r_a_calendar_settings"}
+    <li id="c_r_a_calendar_settings_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a_calendar_settings.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a_calendar_settings" action="write"}
+            <li>
+                <a href="/c_r_a_calendar_settings/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a_calendar_settings.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="c_r_a_calendar_settings" action="read"}
+            <li>
+                <a href="/c_r_a_calendar_settings/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_c_r_a_calendar_settings.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="c_r_a_calendar_exception"}
+    <li id="c_r_a_calendar_exception_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a_calendar_exception.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a_calendar_exception" action="write"}
+            <li>
+                <a href="/c_r_a_calendar_exception/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a_calendar_exception.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="c_r_a_calendar_exception" action="read"}
+            <li>
+                <a href="/c_r_a_calendar_exception/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_c_r_a_calendar_exception.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="c_r_a"}
+    <li id="c_r_a_menu_item" style="display:block;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a" action="write"}
+            <li>
+                <a href="/c_r_a/declare">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="c_r_a" action="read"}
+            <li>
+                <a href="/c_r_a/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_c_r_a.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="c_r_a_activity"}
+    <li id="c_r_a_activity_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a_activity.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a_activity" action="write"}
+            <li>
+                <a href="/c_r_a_activity/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a_activity.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="c_r_a_activity" action="read"}
+            <li>
+                <a href="/c_r_a_activity/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_c_r_a_activity.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="c_r_a_client"}
+    <li id="c_r_a_client_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a_client.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a_client" action="write"}
+            <li>
+                <a href="/c_r_a_client/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a_client.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="c_r_a_client" action="read"}
+            <li>
+                <a href="/c_r_a_client/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_c_r_a_client.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="c_r_a_task"}
+    <li id="c_r_a_task_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a_task.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a_task" action="write"}
+            <li>
+                <a href="/c_r_a_task/create_form">
+                    <i class="fa fa-angle-double-right"></i> {@__ key="operation.create" /} {@__ key="entity.e_c_r_a_task.name_entity" /}
+                </a>
+            </li>{/actionAccess}{@actionAccess entity="c_r_a_task" action="read"}
+            <li>
+                <a href="/c_r_a_task/list">
+                    <i class="fa fa-angle-double-right"></i> {@__ key="operation.list" /} {@__ key="entity.e_c_r_a_task.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}</ul>
+    </li>
+    {/entityAccess}
+</ul>
+{/sidebar}

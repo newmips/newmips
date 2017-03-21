@@ -28,7 +28,7 @@ var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
 var gitHelper = require("../utils/git_helper");
 
-var fs = require('fs');
+var fs = require('fs-extra');
 var sequelize = require('../models/').sequelize;
 
 /* --------------------------------------------------------------- */
@@ -1461,9 +1461,11 @@ exports.createNewComponentCra = function(attr, callback) {
         }
         var instructions = [
             "create module C.R.A",
-            "create entity Team",
+            "create entity C.R.A Team",
             "add field name",
-            "entity Team has one C.R.A Calendar Settings",
+            "add field id_admin_user",
+            "create fieldset Users related to user using login",
+            "entity C.R.A Team has one C.R.A Calendar Settings",
             "select entity C.R.A Calendar Settings",
             "add field monday with type boolean",
             "add field tuesday with type boolean",
@@ -1472,7 +1474,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add field friday with type boolean",
             "add field saturday with type boolean",
             "add field sunday with type boolean",
-            "entity Team has many C.R.A Calendar Exception",
+            "entity C.R.A Team has many C.R.A Calendar Exception",
             "select entity C.R.A Calendar Exception",
             "add field date with type date",
             "create entity C.R.A",
@@ -1480,6 +1482,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add field year with type number",
             "add field user validated with type boolean",
             "add field admin validated with type boolean",
+            "entity user has many C.R.A",
             "entity user has many C.R.A Activity",
             "select entity C.R.A Activity",
             "add field Name",
@@ -1488,11 +1491,12 @@ exports.createNewComponentCra = function(attr, callback) {
             "entity C.R.A Activity has one C.R.A Client",
             "select entity C.R.A Client",
             "add field name",
-            "entity C.R.A has many Task",
-            "select entity Task",
+            "entity C.R.A has many C.R.A Task",
+            "select entity C.R.A Task",
             "add field date with type date",
             "add field duration with type float",
-            "entity Task has one C.R.A Activity"
+            "entity C.R.A Task has one C.R.A Activity",
+            "entity C.R.A has one user"
         ];
 
         // Start doing necessary instruction for component creation
@@ -1503,20 +1507,27 @@ exports.createNewComponentCra = function(attr, callback) {
             try {
                 // Create Many to Many relation between team and users
                 var workspacePath = __dirname+'/../workspace/'+attr.id_application;
-                var teamOptions = require(workspacePath+'/models/options/e_team.json');
-                teamOptions.push({
-                    "target": "e_user",
-                    "relation": "belongsToMany",
-                    "foreignKey": "id_team",
-                    "otherKey": "id_user",
-                    "through": attr.id_application+'_team_users',
-                    "as": "r_users"
-                });
-                fs.writeFileSync(workspacePath+'/models/options/e_team.json', JSON.stringify(teamOptions, null, 4));
-                // Add `is admin` boolean to junction table between team and user
+                var piecesPath = __dirname+'/../structure/pieces/component/cra';
+
+                // Clean toSync file, add custom fields
                 var toSync = {};
-                toSync[attr.id_application+'_team_users'] = {attributes: {f_is_admin: "BOOLEAN"}};
+                toSync[attr.id_application+'_e_user'] = {attributes: {id_e_c_r_a_team_users:"INTEGER"}};
                 fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+                // Also add custom fields to attributes.json file to match in toSync function
+                var attributes = require(workspacePath+'/models/attributes/e_user.json');
+                attributes.id_e_c_r_a_team_users = "INTEGER";
+                fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(attributes, null, 4));
+                var attributes = require(workspacePath+'/models/attributes/e_c_r_a.json');
+                attributes.f_open_days_in_month = "INTEGER";
+                fs.writeFileSync(workspacePath+'/models/attributes/e_c_r_a.json', JSON.stringify(attributes, null, 4));
+
+                // Copy pieces
+                fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
+                fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
+                fs.copySync(piecesPath+'/views/e_c_r_a/declare.dust', workspacePath+'/views/e_c_r_a/declare.dust');
+                fs.copySync(piecesPath+'/views/e_c_r_a/show_fields.dust', workspacePath+'/views/e_c_r_a/show_fields.dust');
+                fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
+                fs.copySync(piecesPath+'/js/cra.js', workspacePath+'/public/js/Newmips/component/cra.js');
                 callback(null, {message: 'Module C.R.A created'});
             } catch(e) {
                 console.log(e);
