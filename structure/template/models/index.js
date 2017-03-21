@@ -66,12 +66,10 @@ sequelize.customAfterSync = function() {
             for (var item in attributObject) {
                 (function(sourceAttr, itemAttr) {
                     promises.push(new Promise(function(resolve0, reject0) {
-
                         /* Check if field already exist - New version */
                         if(typeof toSyncObject[sourceAttr] !== "undefined" &&
                             typeof toSyncObject[sourceAttr].attributes !== "undefined" &&
                             typeof toSyncObject[sourceAttr].attributes[itemAttr] !== "undefined"){
-
                             var type = "";
                             switch (attributObject[itemAttr]) {
                                 case "STRING":
