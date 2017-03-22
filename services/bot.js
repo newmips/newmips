@@ -52,6 +52,13 @@ exports.gitPush = function(result) {
     return attr;
 };
 
+exports.gitPull = function(result) {
+
+    var attr = {};
+    attr.function = "gitPull";
+    return attr;
+};
+
 // ******* SELECT Actions ******* //
 exports.selectProject = function(result) {
 
@@ -687,7 +694,14 @@ exports.parse = function(instruction) {
             "push on git",
             "save the application",
             "sauvergarder",
-            "sauvergarder l'application"
+            "sauvergarder l'application",
+            "git push"
+        ],
+        "gitPull": [
+            "load",
+            "pull",
+            "git pull",
+            "fetch"
         ],
         "selectProject": [
             "select project (.*)",

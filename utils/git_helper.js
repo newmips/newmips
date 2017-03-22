@@ -129,5 +129,38 @@ module.exports = {
             err.message = "You choose to not do git in config/gitlab.json, so this instruction will do nothing."
             callback(err, null);
         }
+    },
+    gitPull: function(attr, callback){
+        // We push code on gitlab only in our cloud env
+        if(gitlabConf.doGit){
+            var idApplication = attr.id_application;
+
+            // Workspace path
+            var workspacePath = __dirname+'/../workspace/'+idApplication;
+
+            // Init simple-git in the workspace path
+            var simpleGit = require('simple-git')(workspacePath);
+
+            // Get current application values
+            models.Application.findOne({where:{id: idApplication}}).then(function(application){
+                // . becomes -
+                var cleanHost = globalConf.host.replace(/\./g, "-");
+
+                // Remove prefix
+                var nameApp = application.codeName.substring(2);
+                var nameRepo = cleanHost+"-"+nameApp;
+                var originName = "origin-"+cleanHost+"-"+nameApp;
+
+                simpleGit.pull(originName, "master", function(err, answer){
+                    if(err)
+                        return callback(err, null);
+                    callback(null, answer);
+                });
+            });
+        } else{
+            var err = new Error();
+            err.message = "You choose to not do git in config/gitlab.json, so this instruction will do nothing."
+            callback(err, null);
+        }
     }
 }
