@@ -112,7 +112,7 @@ exports.restart = function(attr, callback) {
 }
 
 /* --------------------------------------------------------------- */
-/* ----------------------- Save on git --------------------------- */
+/* --------------------------- Git ------------------------------- */
 /* --------------------------------------------------------------- */
 
 exports.gitPush = function(attr, callback) {
@@ -121,6 +121,16 @@ exports.gitPush = function(attr, callback) {
             return callback(err, null);
         var info = {};
         info.message = "Application saved!";
+        callback(null, info);
+    });
+}
+
+exports.gitPull = function(attr, callback) {
+    gitHelper.gitPull(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = "Application loaded from git repository!";
         callback(null, info);
     });
 }
