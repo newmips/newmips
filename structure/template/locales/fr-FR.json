@@ -103,6 +103,9 @@
     },
     "entity": {},
     "global_component": {
+        "local_file_storage": {
+            "filename": "Nom du fichier"
+        },
         "contact_form": {
             "firstname": "Prénom",
             "lastname": "Nom",

@@ -141,10 +141,10 @@
     "database": {
         "project": {
             "select": {
-                "selected": "Project %s(%s) selected."
+                "selected": "Project %s (%s) selected."
             },
             "create": {
-                "success" : "New project %s(%s) created."
+                "success" : "New project %s (%s) created."
             },
             "delete":{
                 "deleted": "Project %s deleted !"
@@ -156,10 +156,10 @@
         },
         "application": {
             "select": {
-                "selected": "Application %s(%s) selected."
+                "selected": "Application %s (%s) selected."
             },
             "create": {
-                "success" : "New application %s(%s) created."
+                "success" : "New application %s (%s) created."
             },
             "delete":{
                 "deleted": "Application %s deleted !"
@@ -173,10 +173,10 @@
         },
         "module": {
             "select": {
-                "selected": "Module %s(%s) selected."
+                "selected": "Module %s (%s) selected."
             },
             "create": {
-                "success" : "New module %s(%s) created.",
+                "success" : "New module %s (%s) created.",
                 "alreadyExist": "A module with the same or similar name %s already exists."
             },
             "list": {
@@ -195,7 +195,7 @@
         },
         "component":{
             "create": {
-                "success" : "New component %s(%s) created."
+                "success" : "New component %s (%s) created."
             },
             "notFound": {
                 "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
@@ -203,11 +203,11 @@
         },
         "entity": {
             "select": {
-                "selected": "Entity %s(%s) selected.",
+                "selected": "Entity %s (%s) selected.",
                 "valid": "Please, indicate a valid name/ID."
             },
             "create": {
-                "success" : "New entity %s(%s) created.",
+                "success" : "New entity %s (%s) created.",
                 "alreadyExist": "Entity with the same or similar name %s already exists.",
                 "addComponent": "Cannot add component on entity, no entity with code name %s found."
             },
@@ -227,10 +227,10 @@
         "field": {
             "error":{
                 "selectOrCreateBefore": "You have to select or create an entity before.",
-                "alreadyExist": "Sorry, a field with the same or similar name(%s) already exists."
+                "alreadyExist": "Sorry, a field with the same or similar name (%s) already exists."
             },
             "create": {
-                "created": "New field %s(%s) created.",
+                "created": "New field %s (%s) created.",
                 "foreignKeyCreated": "New foreign key %s | %s created."
             },
             "delete": {
