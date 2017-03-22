@@ -26,6 +26,8 @@
 			"entitylist": "Entities:",
 			"group": "Group",
 			"role": "Role",
+            "api_status": "API Status",
+            "api_doc": "API Documentation",
 			"action":{
 				"read": "Read",
 				"write": "Write",
