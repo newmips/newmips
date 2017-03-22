@@ -699,6 +699,7 @@ exports.parse = function(instruction) {
         ],
         "gitPull": [
             "load",
+            "reload",
             "pull",
             "git pull",
             "fetch"

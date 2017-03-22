@@ -188,6 +188,11 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                             // API credentials must not be available to API calls, delete the file
                                             fs.unlink(workspacePath+'/api/e_api_credentials.js');
 
+                                            // Set french translation about API credentials
+                                            translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
+                                            translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
+                                            translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
+
                                             models.User.findOne({where: {id: id_user}}).then(function(user) {
                                                 // Sync workspace's database and insert admin user
                                                 var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
