@@ -1,0 +1,127 @@
+<div class="nav-tabs-custom" id="tabs">
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#home">
+                {@__ key="entity.e_c_r_a_team.label_entity" /}
+            </a>
+        </li>
+        <li>
+            <a id="r_users-click" data-toggle="tab" href="#r_users">
+                {@__ key="entity.e_user.as_r_users" /}
+            </a>
+        </li>
+        <li>
+            <a id="r_c_r_a_calendar_settings-click" data-toggle="tab" href="#r_c_r_a_calendar_settings">
+                {@__ key="entity.e_c_r_a_calendar_settings.as_r_c_r_a_calendar_settings" /}
+            </a>
+        </li>
+        <li><a id="r_c_r_a_calendar_exception-click" data-toggle="tab" href="#r_c_r_a_calendar_exception">{@__ key="entity.e_c_r_a_calendar_exception.as_r_c_r_a_calendar_exception" /}</a></li>
+    </ul>
+    <div class="tab-content" style="min-height:275px;">
+        <div id="home" class="tab-pane fade in active">
+            <div id="fields">
+                <div data-field="f_name" class="form-group">
+                    <label for="f_name"> {@__ key="entity.e_c_r_a_team.f_name"/} </label>
+                    <input class="form-control input" placeholder='{@__ key="entity.e_c_r_a_team.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+                </div>
+            </div>
+            <div class="actions">
+                <form action="/c_r_a_team/delete" method="post">
+                    <div class="quicklinks">
+                        <span>
+                <button class="btn btn-danger">
+                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.delete"/}</span>
+                        </button>
+                        <input name="id" type="hidden" value="{e_c_r_a_team.id}" class="form-control">
+                        </span>
+                        <span>
+                <a href="/c_r_a_team/update_form?id={e_c_r_a_team.id}" class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update"/}</span>
+                        </a>
+                        </span>
+                        {^hideButton}
+                        <span>
+                    <a href="/c_r_a_team/create_form" class="btn btn-success">
+                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.create"/}</span>
+                        </a>
+                        </span>
+                        <span>
+                    <a href="/c_r_a_team/list" type="submit" class="btn btn-primary">
+                        <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.list"/}</span>
+                        </a>
+                        </span>
+                        {/hideButton}
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="r_users" class="tab-pane fade">
+            <form action="/c_r_a_team/fieldset/r_users/add" method="post">
+                <select style="width:200px;" class="form-control" name="ids" multiple="">
+			     {#r_users_global_list}
+    				{#.f_login}
+    						<option value="{id}">{f_login}</option>
+    				{:else}
+    						<option value="{id}">{id} - f_login not defined</option>
+    				{/.f_login}
+			     {/r_users_global_list}
+                </select>
+                <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>
+                <input type="hidden" value="{e_c_r_a_team.id}" name="idEntity">
+            </form>
+            <br>
+            {#r_users e_user=r_users}
+            {@eq key=id value=e_user[0].id}
+            {>"e_user/list_fields" for="fieldset" /}
+            {/eq}
+            {:else}
+            {>"e_user/list_fields" /}
+            {/r_users}
+        </div>
+        <div id="r_c_r_a_calendar_settings" class="tab-pane fade">
+            {#r_c_r_a_calendar_settings}
+            {>"e_c_r_a_calendar_settings/show_fields" /}
+            {:else}
+            {@__ key="message.empty" /}<br><br>
+            {/r_c_r_a_calendar_settings}
+            {#r_c_r_a_calendar_settings}
+            <form action="/c_r_a_calendar_settings/delete" method="post">
+                <a style="margin-right:8px;" href="/c_r_a_calendar_settings/update_form?id={id}&amp;associationAlias=r_c_r_a_calendar_settings&amp;associationForeignKey=f_id_c_r_a_calendar_settings&amp;associationFlag={e_c_r_a_team.id}&amp;associationSource=e_c_r_a_team&amp;associationUrl=c_r_a_team"
+                    class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>
+                </a>
+                <button onclick="return confirm(" etes-vous="" sûr="" de="" vouloir="" supprimer="" cet="" enregistrement="" ?="" ");"="" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+				<span>{@__ key="button.delete" /}</span>
+				<input name="id" value="{id}" type="hidden">
+				<input name="associationAlias" value="r_c_r_a_calendar_settings" type="hidden">
+				<input name="associationForeignKey" value="f_id_c_r_a_calendar_settings" type="hidden">
+				<input name="associationFlag" value="{e_c_r_a_team.id}" type="hidden">
+				<input name="associationSource" value="e_c_r_a_team" type="hidden">
+				<input name="associationUrl" value="c_r_a_team" type="hidden">
+			</button>
+            </form>
+            {:else}
+            <a href="/c_r_a_calendar_settings/create_form?associationAlias=r_c_r_a_calendar_settings&amp;associationForeignKey=f_id_c_r_a_calendar_settings&amp;associationFlag={e_c_r_a_team.id}&amp;associationSource=e_c_r_a_team&amp;associationUrl=c_r_a_team" class="btn btn-success">
+                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+            </a>
+            {/r_c_r_a_calendar_settings}
+        </div>
+        <div id="r_c_r_a_calendar_exception" class="tab-pane fade">
+            {#r_c_r_a_calendar_exception e_c_r_a_calendar_exception=r_c_r_a_calendar_exception}
+            {@eq key=id value=e_c_r_a_calendar_exception[0].id}
+            {>"e_c_r_a_calendar_exception/list_fields" associationAlias="r_c_r_a_calendar_exception" associationForeignKey="f_id_c_r_a_team" associationFlag="{e_c_r_a_team.id}" associationSource="e_c_r_a_team" associationUrl="c_r_a_team" for="hasMany" /}
+            {/eq}
+            {:else}
+            {>"e_c_r_a_calendar_exception/list_fields" /}
+            {/r_c_r_a_calendar_exception}
+            <br>
+            <a href="/c_r_a_calendar_exception/create_form?associationAlias=r_c_r_a_calendar_exception&amp;associationForeignKey=f_id_c_r_a_team&amp;associationFlag={e_c_r_a_team.id}&amp;associationSource=e_c_r_a_team&amp;associationUrl=c_r_a_team" class="btn btn-success">
+                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+            </a>
+        </div>
+    </div>
+</div>

@@ -167,7 +167,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("c_r_a_t
                     res.redirect('/c_r_a_team/show?id=' + idEntity + "#" + alias);
                 });
             }
-            // If user already in a team, set toastr and redirect
+            // If user already in a team, set error toastr and redirect
             else {
                 req.session.toastr.push({level: 'error', message: notOk});
                 return res.redirect('/c_r_a_team/show?id=' + idEntity + "#" + alias);
