@@ -208,7 +208,7 @@ app.use(function(req, res, next) {
     var render = res.render;
     res.render = function(view, locals, cb) {
     	if(typeof locals === "undefined"){
-            locals = {};
+            var locals = {};
         }
     	if (req.session.toastr && req.session.toastr.length > 0) {
 	        locals.toastr = req.session.toastr;

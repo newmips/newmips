@@ -105,7 +105,7 @@
     },
     "project": {
         "label": "Projet",
-        "selectProject": "S'il vous plaît, sélectionner un projet.",
+        "selectProject": "S'il vous plaît, sélectionnez un projet.",
         "selectExisting": "Sélectionner un projet existant",
         "create": "Créer un nouveau projet"
     },
@@ -141,10 +141,10 @@
     "database": {
         "project": {
             "select": {
-                "selected": "Projet %s(%s) sélectionné."
+                "selected": "Projet %s (%s) sélectionné."
             },
             "create": {
-                "success" : "Nouveau projet %s(%s) crée."
+                "success" : "Nouveau projet %s (%s) crée."
             },
             "delete":{
                 "deleted": "Projet %s supprimé !"
@@ -156,10 +156,10 @@
         },
         "application": {
             "select": {
-                "selected": "Application %s(%s) sélectionnée."
+                "selected": "Application %s (%s) sélectionnée."
             },
             "create": {
-                "success" : "Nouvelle application %s(%s) créée."
+                "success" : "Nouvelle application %s (%s) créée."
             },
             "delete":{
                 "deleted": "Application %s supprimée !"
@@ -173,10 +173,10 @@
         },
         "module": {
             "select": {
-                "selected": "Module %s(%s) sélectionné."
+                "selected": "Module %s (%s) sélectionné."
             },
             "create": {
-                "success" : "Nouveau module %s(%s) crée.",
+                "success" : "Nouveau module %s (%s) crée.",
                 "alreadyExist": "Un module avec le même ou similaire nom %s existe déjà."
             },
             "list": {
@@ -195,7 +195,7 @@
         },
         "component":{
             "create": {
-                "success" : "Nouveau composant %s(%s) crée."
+                "success" : "Nouveau composant %s (%s) crée."
             },
             "notFound": {
                 "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s."
@@ -203,12 +203,12 @@
         },
         "entity": {
             "select": {
-                "selected": "Entité %s(%s) sélectionnée.",
+                "selected": "Entité %s (%s) sélectionnée.",
                 "valid": "Merci d'indiquer une nom/ID valide."
             },
             "create": {
-                "success" : "Nouvelle entité %s(%s) créée.",
-                "alreadyExist": "Entité avec un nom(%s) identique ou similaire existe déjà.",
+                "success" : "Nouvelle entité %s (%s) créée.",
+                "alreadyExist": "Entité avec un nom (%s) identique ou similaire existe déjà.",
                 "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité avec le nom de code %s trouvé."
             },
             "delete": {
@@ -227,10 +227,10 @@
         "field": {
             "error":{
                 "selectOrCreateBefore": "Vous devez sélectionner ou créer une entité avant.",
-                "alreadyExist": "Désolé, un champ avec un nom(%s) identique ou similaire existe déjà."
+                "alreadyExist": "Désolé, un champ avec un nom (%s) identique ou similaire existe déjà."
             },
             "create": {
-                "created": "Nouveau champ %s(%s) crée.",
+                "created": "Nouveau champ %s (%s) crée.",
                 "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
             },
             "delete": {
