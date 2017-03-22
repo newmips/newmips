@@ -1393,9 +1393,6 @@ exports.createNewComponentAgenda = function(attr, callback) {
             var showValueEvent = attr.options.showValue+" Event";
             var showValueCategory = attr.options.showValue+" Category";
 
-            var urlEvent = attr.options.urlValue+"_category";
-            var urlCategory = attr.options.urlValue+"_event";
-
             var instructions = [
                 "add entity "+showValueCategory,
                 "add field Label",

@@ -288,7 +288,7 @@ exports.newContactForm = function(attr, callback){
 					li += "<li id='"+nameComponentLower+"_menu_item' class='ui-state-default'>\n";
 						li += '<a href="/'+urlComponent+'">\n';
 							li += '<i class="fa fa-envelope"></i>\n';
-							li += '<span>{@__ key="component.'+nameComponentLower+'.label_component" /}</span>\n';
+							li += '<span><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></span>\n';
 						li += '</a>\n';
 					li += '</li>\n';
 
@@ -352,6 +352,11 @@ exports.newAgenda = function(attr, callback){
 				// Add Event translation
 				translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
 
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "label_entity"], "Événement "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "name_entity"], "Événement "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie "+showComponentName);
+
 					var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
 					domHelper.read(layoutFileName).then(function($) {
 
@@ -361,33 +366,33 @@ exports.newAgenda = function(attr, callback){
 						var li = '';
 						li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
 						li += "    <a href='#'>\n";
-						li += "        <i class='fa fa-calendar-o'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
+						li += "        <i class='fa fa-calendar-o'></i> <span><!--{@__ key=\"component."+valueComponentLower+".label_component\" /}--></span>\n";
 						li += "        <span class='pull-right-container'>\n";
 						li += "            <i class='fa fa-angle-left pull-right'></i>\n";
 						li += "        </span>\n";
 						li += "    </a>\n";
 						li += "    <ul class='treeview-menu'>\n";
-						li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.agenda.menu\" /}</a></li>\n";
+						li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> <!--{@__ key=\"global_component.agenda.menu\" /}--></a></li>\n";
 						li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
-						li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"entity."+valueEvent+".label_entity\" /}\n";
+						li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> <!--{@__ key=\"entity."+valueEvent+".label_entity\" /}-->\n";
 						li += "                <span class='pull-right-container'>\n";
 						li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
 						li += "                </span>\n";
 						li += "            </a>\n";
 						li += "            <ul class='treeview-menu'>\n";
-						li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueEvent+".label_entity\" /}</a></li>\n";
-						li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueEvent+".plural_entity\" /}</a></li>\n";
+						li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity."+valueEvent+".label_entity\" /}--></a></li>\n";
+						li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}--> <!--{@__ key=\"entity."+valueEvent+".plural_entity\" /}--></a></li>\n";
 						li += "            </ul>\n";
 						li += "        </li>\n";
 						li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
-						li += "            <a href='#'><i class='fa fa-bookmark'></i> {@__ key=\"entity."+valueCategory+".label_entity\" /}\n";
+						li += "            <a href='#'><i class='fa fa-bookmark'></i> <!--{@__ key=\"entity."+valueCategory+".label_entity\" /}-->\n";
 						li += "                <span class='pull-right-container'>\n";
 						li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
 						li += "                </span>\n";
 						li += "            </a>\n";
 						li += "            <ul class='treeview-menu'>\n";
-						li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueCategory+".label_entity\" /}</a></li>\n";
-						li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueCategory+".plural_entity\" /}</a></li>\n";
+						li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity."+valueCategory+".label_entity\" /}--></a></li>\n";
+						li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}--> <!--{@__ key=\"entity."+valueCategory+".plural_entity\" /}--></a></li>\n";
 						li += "            </ul>\n";
 						li += "        </li>\n";
 						li += "    </ul>\n";
