@@ -24,6 +24,7 @@ var structure_component = require("../structure/structure_component");
 var structure_ui = require("../structure/structure_ui");
 
 // Other
+var jsDom = require('../utils/jsDomHelper');
 var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
 var gitHelper = require("../utils/git_helper");
@@ -1505,7 +1506,6 @@ exports.createNewComponentCra = function(attr, callback) {
                 return callback(err, null);
 
             try {
-                // Create Many to Many relation between team and users
                 var workspacePath = __dirname+'/../workspace/'+attr.id_application;
                 var piecesPath = __dirname+'/../structure/pieces/component/cra';
 
@@ -1524,11 +1524,19 @@ exports.createNewComponentCra = function(attr, callback) {
                 // Copy pieces
                 fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
                 fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
-                fs.copySync(piecesPath+'/views/e_c_r_a/declare.dust', workspacePath+'/views/e_c_r_a/declare.dust');
-                fs.copySync(piecesPath+'/views/e_c_r_a/show_fields.dust', workspacePath+'/views/e_c_r_a/show_fields.dust');
+                fs.copySync(piecesPath+'/views/e_c_r_a/', workspacePath+'/views/e_c_r_a/');
+                fs.copySync(piecesPath+'/views/e_c_r_a_team/', workspacePath+'/views/e_c_r_a_team/');
                 fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
                 fs.copySync(piecesPath+'/js/cra.js', workspacePath+'/public/js/Newmips/component/cra.js');
-                callback(null, {message: 'Module C.R.A created'});
+
+                // Modify user show_fields
+                jsDom.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
+                    $("#r_c_r_a-click").parents('li').remove();
+                    $("#r_c_r_a").remove();
+                    jsDom.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function() {
+                        callback(null, {message: 'Module C.R.A created'});
+                    });
+                });
             } catch(e) {
                 console.log(e);
                 callback(e);

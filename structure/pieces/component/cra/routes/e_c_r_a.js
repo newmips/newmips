@@ -206,7 +206,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("c_r_a", 'wri
         },
         include: [{
             model: models.E_c_r_a_task,
-            as: 'r_task',
+            as: 'r_c_r_a_task',
             include: [{
                 model: models.E_c_r_a_activity,
                 as: 'r_c_r_a_activity'
@@ -224,12 +224,12 @@ router.post('/declare/update', block_access.actionAccessMiddleware("c_r_a", 'wri
             var activityId = parts[1];
             var formDate = new Date(body.year, body.month, parts[2]);
             var taskExists = false;
-            for (var i = 0; i < cra.r_task.length; i++) {
-                if (cra.r_task[i].f_id_c_r_a_activity == activityId) {
-                    var taskDate = new Date(cra.r_task[i].f_date);
+            for (var i = 0; i < cra.r_c_r_a_task.length; i++) {
+                if (cra.r_c_r_a_task[i].f_id_c_r_a_activity == activityId) {
+                    var taskDate = new Date(cra.r_c_r_a_task[i].f_date);
                     if (taskDate.getDate() == formDate.getDate()) {
                         taskExists = true;
-                        tasksPromises.push(cra.r_task[i].update({f_duration: body[input]}));
+                        tasksPromises.push(cra.r_c_r_a_task[i].update({f_duration: body[input]}));
                         break;
                     }
                 }
@@ -247,6 +247,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("c_r_a", 'wri
             res.status(200).json({action: 'updated', user_validated: cra.f_user_validated, admin_validated: cra.f_admin_validated});
         });
     }).catch(function(err) {
+        console.log(err);
         return res.status(500).send("Unable to update your Activity report");
     });
 });
