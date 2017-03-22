@@ -79,7 +79,7 @@
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",
-        "redirecting": "Redirection"
+        "redirecting": "Redirection..."
     },
     "live": {
         "legend": "Édition en direct"
