@@ -171,38 +171,38 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 }
 
 function addTab(attr, file, newLi, newTabContent) {
-	return new Promise(function(resolve, reject) {
-		var source = attr.options.showSource;
-		domHelper.read(file).then(function($) {
-	        // Tabs structure doesn't exist, create it
-	        var tabs = '';
-	        var context;
-	        if ($("#tabs").length == 0) {
-	        	tabs += '<div class="nav-tabs-custom" id="tabs">';
-	        	tabs += '	<ul class="nav nav-tabs">';
-	        	tabs += '		<li class="active"><a data-toggle="tab" href="#home">'+source+'</a></li>';
-	        	tabs += '	</ul>';
-	        	tabs += '	<div class="tab-content">';
-	        	tabs += '		<div id="home" class="tab-pane fade in active"></div>';
-	        	tabs += '	</div>';
-	        	tabs += '</div>';
-	        	context = $(tabs);
-	        	$("#home", context).append($("#fields"));
-	        	$("#home", context).append($(".actions"));
-	        } else {
-	        	context = $("#tabs");
-	        }
+    return new Promise(function (resolve, reject) {
+        var source = attr.options.source.toLowerCase();
+        domHelper.read(file).then(function ($) {
+            // Tabs structure doesn't exist, create it
+            var tabs = '';
+            var context;
+            if ($("#tabs").length == 0) {
+                tabs += '<div class="nav-tabs-custom" id="tabs">';
+                tabs += '	<ul class="nav nav-tabs">';
+                tabs += '		<li class="active"><a data-toggle="tab" href="#home">{@__ key="entity.' + source + '.label_entity" /}</a></li>';
+                tabs += '	</ul>';
+                tabs += '	<div class="tab-content" style="min-height:275px;">';
+                tabs += '		<div id="home" class="tab-pane fade in active"></div>';
+                tabs += '	</div>';
+                tabs += '</div>';
+                context = $(tabs);
+                $("#home", context).append($("#fields"));
+                $("#home", context).append($(".actions"));
+            } else {
+                context = $("#tabs");
+            }
 
-	        // Append created elements to `context` to handle presence of tab or not
-	        $(".nav-tabs", context).append(newLi);
-	        $(".tab-content", context).append(newTabContent);
+            // Append created elements to `context` to handle presence of tab or not
+            $(".nav-tabs", context).append(newLi);
+            $(".tab-content", context).append(newTabContent);
 
-	        $('body').empty().append(context);
-	        domHelper.write(file, $).then(function() {
-	        	resolve();
-	        });
-	    });
-	});
+            $('body').empty().append(context);
+            domHelper.write(file, $).then(function () {
+                resolve();
+            });
+        });
+    });
 }
 
 function addAccessManagment(idApplication, urlComponent, urlModule, callback){

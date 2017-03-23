@@ -251,6 +251,10 @@
             },
             "gitPull": {
                 "success": "L'application a bien été chargée!"
+            },
+            "error": {
+                "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour executer une nouvelle instruction git.",
+                "notDoGit": "L'option 'doGit' dans config/gitlab.json est désactivée, l'instruction demandée ne fera donc rien du tout."
             }
         },
         "module": {

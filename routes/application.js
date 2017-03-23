@@ -166,7 +166,9 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         data.workspaceFolder = initEditor(req.session.id_application);
 
                         // Let's do git init or commit depending the env (only on cloud env for now)
-                        gitHelper.doGit(attr, function(){
+                        gitHelper.doGit(attr, function(err){
+                            if(err)
+                                setChat(req, id_application, currentUserID, "Newmips", err.message, []);
                             data.chat = req.session.chat[id_application][currentUserID];
                             res.render('front/preview', data);
                         });
@@ -353,7 +355,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                         }
                                         else{
                                             // Let's do git init or commit depending the env (only on cloud env for now)
-                                            gitHelper.doGit(attr, function(){
+                                            gitHelper.doGit(attr, function(err){
+                                                if(err)
+                                                    setChat(req, currentAppID, currentUserID, "Newmips", err.message, []);
                                                 // Call preview page
                                                 data.chat = req.session.chat[currentAppID][currentUserID];
                                                 res.render('front/preview.jade', data);
