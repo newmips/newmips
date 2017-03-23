@@ -107,7 +107,7 @@ exports.deploy = function(attr, callback) {
 /* --------------------------------------------------------------- */
 exports.restart = function(attr, callback) {
     var info = {};
-    info.message = "Server restarted !";
+    info.message = "structure.global.restart.success";
     callback(null, info);
 }
 
@@ -120,7 +120,7 @@ exports.gitPush = function(attr, callback) {
         if(err)
             return callback(err, null);
         var info = {};
-        info.message = "Application saved!";
+        info.message = "structure.global.gitPush.success";
         callback(null, info);
     });
 }
@@ -130,7 +130,7 @@ exports.gitPull = function(attr, callback) {
         if(err)
             return callback(err, null);
         var info = {};
-        info.message = "Application loaded from git repository!";
+        info.message = "structure.global.gitPull.success";
         callback(null, info);
     });
 }
