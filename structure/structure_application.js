@@ -257,7 +257,7 @@ exports.deleteApplication = function(id_application, callback) {
                     if(idRepoToDelete != null){
                         gitlab.projects["remove"](idRepoToDelete, function(result){
                             console.log("Delete Gitlab repository: "+ nameRepo);
-                            console.log(result);
+                            console.log("Result:", result);
                         });
                     }
                 });
