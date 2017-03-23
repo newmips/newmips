@@ -149,7 +149,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             recursiveExecute(recurInstructions, ++idx);
         }).catch(function(err){
             req.session.toastr = [{
-                message: err.message,
+                message: err,
                 level: "error"
             }];
             return res.redirect('/default/home');
@@ -179,63 +179,72 @@ function execute(req, instruction) {
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
 
+            var __ = require("../services/language")(req.session.lang_user).__;
+
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);
 
             // Function is finally executed as "global()" using the static dialog designer
             // "Options" and "Session values" are sent using the attr attribute
-            return designer[attr["function"]](attr, function(err, info) {
+            return designer[attr.function](attr, function(err, info) {
 
                 if (err) {
+                    var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
-                    console.log("ERROR : ", err);
-                    req.session.answers.unshift(instruction + " :<br>" + err);
-                    reject(err);
+                    console.log("ERROR : ", msgErr);
+                    req.session.answers.unshift(instruction + " :<br>" + msgErr);
+                    reject(msgErr);
                 } else {
 
-                    // Store key entities in session (id_project for instance) for future instruction
-                    if ((attr["function"] == "createNewProject") || (attr["function"] == "selectProject")) {
-                        req.session.id_project = info.insertId;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-                    else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
-                        req.session.id_application = info.insertId;
-                        req.session.name_application = info.name_application;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-                    else if ((attr["function"] == "createNewModule") || (attr["function"] == "selectModule")) {
-                        req.session.id_module = info.insertId;
-                        req.session.id_data_entity = null;
-                    }
-                    else if ((attr["function"] == "createNewDataEntity")
-                        || (attr["function"] == "selectDataEntity")
-                        || (attr["function"] == "createNewEntityWithBelongsTo")
-                        || (attr["function"] == "createNewEntityWithHasMany")
-                        || (attr["function"] == "createNewBelongsTo")
-                        || (attr["function"] == "createNewHasMany")
-                        || (attr.function == "createNewFieldRelatedTo")){
-                        req.session.id_data_entity = info.insertId;
-                    }
-                    else if (attr["function"] == "deleteProject") {
-                        req.session.id_project = null;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-                    else if (attr["function"] == "deleteApplication") {
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                    }
-                    else if (attr.function == 'deleteModule') {
-                        req.session.id_module = info.homeID;
-                        req.session.id_data_entity = null;
+                    switch(attr.function){
+                        case "selectProject":
+                        case "createNewProject":
+                            req.session.id_project = info.insertId;
+                            req.session.id_application = null;
+                            req.session.id_module = null;
+                            req.session.id_data_entity = null;
+                            break;
+                        case "selectApplication":
+                        case "createNewApplication":
+                            req.session.id_application = info.insertId;
+                            req.session.name_application = info.name_application;
+                            req.session.id_module = null;
+                            req.session.id_data_entity = null;
+                            break;
+                        case "selectModule":
+                        case "createNewModule":
+                            req.session.id_module = info.insertId;
+                            req.session.id_data_entity = null;
+                            break;
+                        case "createNewDataEntity":
+                        case "selectDataEntity":
+                        case "createNewEntityWithBelongsTo":
+                        case "createNewEntityWithHasMany":
+                        case "createNewBelongsTo":
+                        case "createNewHasMany":
+                        case "createNewFieldRelatedTo":
+                            req.session.id_data_entity = info.insertId;
+                            break;
+                        case "deleteProject":
+                            req.session.id_project = null;
+                            req.session.id_application = null;
+                            req.session.id_module = null;
+                            req.session.id_data_entity = null;
+                            break;
+                        case "deleteApplication":
+                            req.session.id_application = null;
+                            req.session.id_module = null;
+                            req.session.id_data_entity = null;
+                            break;
+                        case "deleteModule":
+                            req.session.id_module = info.homeID;
+                            req.session.id_data_entity = null;
+                            break;
                     }
 
-                    req.session.answers.unshift(instruction + " :<br>" + info.message);
+                    var msgInfo = __(info.message, info.messageParams || []);
+
+                    req.session.answers.unshift(instruction + " :<br>" + msgInfo);
                     resolve();
                 }
             });
