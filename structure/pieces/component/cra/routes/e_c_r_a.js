@@ -152,7 +152,39 @@ router.get('/declare', block_access.actionAccessMiddleware("c_r_a", 'read'), fun
         menu: "e_c_r_a",
         sub_menu: "list_e_c_r_a"
     };
-    res.render('e_c_r_a/declare', data);
+
+    models.E_c_r_a_activity.findAll({where: {f_active: true}}).then(function(activities) {
+        models.E_c_r_a_team.findOne({
+            include: [{
+                model: models.E_user,
+                as: 'r_users',
+                where: {id: req.session.passport.user.id}
+            }, {
+                model: models.E_c_r_a_activity,
+                as: 'r_default_c_r_a_activity'
+            }]
+        }).then(function(team) {
+            for (var i = 0; i < team.r_default_c_r_a_activity.length; i++)
+                for (var j = 0; j < activities.length; j++)
+                    if (team.r_default_c_r_a_activity[i].id == activities[j].id)
+                        activities.splice(j, 1);
+            data.activities = activities;
+            res.render('e_c_r_a/declare', data);
+        });
+    });
+});
+
+router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("c_r_a", 'write'), function(req, res) {
+    var id_cra = req.params.id_cra;
+
+    models.E_c_r_a.update({f_user_validated: true}, {where: {id: id_cra}}).then(function(cra) {
+        if (!cra)
+            return res.status(404).send("Couldn't find C.R.A with id "+id_cra);
+        res.status(200).end();
+    }).catch(function(err) {
+        console.log(err);
+        return res.status(404).send("Couldn't update");
+    });
 });
 
 router.post('/declare/create', block_access.actionAccessMiddleware("c_r_a", 'write'), function(req, res) {
@@ -185,7 +217,49 @@ router.post('/declare/create', block_access.actionAccessMiddleware("c_r_a", 'wri
         }
 
         Promise.all(tasksPromises).then(function() {
-            res.status(200).json({action: 'created', user_validated: false, admin_validated: false});
+            res.status(200).json({id_cra: cra.id, action: 'created', user_validated: false, admin_validated: false});
+
+            // Calculate and update open days count of CRA
+            models.E_c_r_a_team.findOne({
+                include: [{
+                    model: models.E_user,
+                    as: 'r_users',
+                    where: {id: id_user}
+                }, {
+                    model: models.E_c_r_a_calendar_settings,
+                    as: 'r_c_r_a_calendar_settings'
+                }, {
+                    model: models.E_c_r_a_calendar_exception,
+                    as: 'r_c_r_a_calendar_exception'
+                }]
+            }).then(function(team) {
+                var date = new Date(body.year, body.month-1, 1);
+                var days = [];
+                while (date.getMonth() === body.month-1) {
+                    days.push(new Date(date));
+                    date.setDate(date.getDate()+1);
+                }
+
+                var openDays = days.length;
+                var labels = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                for (var i = 0; i < days.length; i++) {
+                    days[i].setHours(0,0,0,0);
+                    if (team.r_c_r_a_calendar_settings['f_'+labels[days[i].getDay()].toLowerCase()] == false) {
+                        openDays--;
+                        continue;
+                    }
+                    for (var j = 0; j < team.r_c_r_a_calendar_exception.length; j++) {
+                        var excepDate = new Date(team.r_c_r_a_calendar_exception[j].f_date);
+                        excepDate.setHours(0,0,0,0);
+                        if (excepDate.getTime() == days[i].getTime()) {
+                            openDays--;
+                            continue;
+                        }
+                    }
+                }
+
+                cra.update({f_open_days_in_month: openDays});
+            })
         }).catch(function(err) {
             return res.status(500).send("Can't create your C.R.A");
         });
@@ -275,16 +349,13 @@ router.get('/getData/:month/:year', function(req, res) {
             }]
         }]
     }).then(function(cra) {
-        var activitiesWhere = {where: {f_id_user: id_user}};
-        if (!cra) {
+        if (!cra)
             data.craExists = false;
-            activitiesWhere.f_active = true;
-        }
         else {
             data.craExists = true;
             data.cra = cra;
         }
-        models.E_c_r_a_activity.findAll(activitiesWhere).then(function(activities) {
+        models.E_c_r_a_activity.findAll().then(function(activities) {
             data.activities = activities;
             models.E_c_r_a_team.findOne({
                 include: [{
@@ -297,6 +368,9 @@ router.get('/getData/:month/:year', function(req, res) {
                 }, {
                     model: models.E_c_r_a_calendar_exception,
                     as: 'r_c_r_a_calendar_exception'
+                }, {
+                    model: models.E_c_r_a_activity,
+                    as: 'r_default_c_r_a_activity'
                 }]
             }).then(function(team) {
                 if (!team)

@@ -1,6 +1,9 @@
 var daysLabel = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 var craExists = false;
 var teamAdmin = false;
+var openDaysCount = 0;
+var selectCount = 0;
+var globalData;
 
 function daysOfMonth(month, year) {
     var date = new Date(year, month, 1);
@@ -29,15 +32,32 @@ function isDayOpen(day, settings, exceptions) {
             return false;
     }
 
+    openDaysCount++;
     return true;
 }
 
 function generateTotalRow(days) {
-    var row = '<tr><td>Total</td>';
+    var row = '<tr><td style="text-align:right;">Total</td>';
     for (var i = 0; i < days.length; i++)
         row += '<td>0</td>';
     row += '</tr>';
     return row;
+}
+
+function generateAddActivityRow(data) {
+    openDaysCount = 0;
+    var days = daysOfMonth(data.month-1, data.year);
+    var newSelect = $("#activitiesSelect").find('select').clone().attr('name', "select."+(++selectCount));
+    var row = "<tr><td></td>";
+    var j = -1;
+    while (++j < days.length)
+        row += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
+                        ? '<td><input class="openDay taskInput" name="task.activityID.'+days[j].getDate()+'" disabled style="max-width:15px;margin: 0; padding: 0;"></td>'
+                        : '<td><input class="taskInput" name="task.activityID.'+days[j].getDate()+'" style="margin: 0; padding: 0;max-width:10px;" disabled></td>';
+    row += '</tr>';
+    $("#craTable tbody tr:last").prev().after(row);
+    $("#craTable tbody tr:last").prev().find('td:first').html(newSelect);
+    $("#craTable tbody tr:last").prev().find('td:first select').removeClass('select2-hidden-accessible');
 }
 
 function generateEmptyCRA(data) {
@@ -50,23 +70,27 @@ function generateEmptyCRA(data) {
         craTable += "<th>"+daysLabel[days[i].getDay()].substring(0,3)+" "+days[i].getDate()+'</th>';
     }
     craTable += '</tr></thead><tbody>';
+
     // Activities
-    for (var i = 0; i < data.activities.length; i++) {
-        craTable += '<tr><td>'+data.activities[i].f_name+'</td>';
+    for (var i = 0; i < data.team.r_default_c_r_a_activity.length; i++) {
+        openDaysCount = 0;
+        craTable += '<tr><td>'+data.team.r_default_c_r_a_activity[i].f_name+'</td>';
         var j = -1;
         while (++j < days.length)
             craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
-                            ? '<td><input class="taskInput" name="task.'+data.activities[i].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
-                            : '<td><input class="taskInput" style="margin: 0; padding: 0;max-width:10px;" disabled></td>';
+                            ? '<td><input class="openDay taskInput" name="task.'+data.team.r_default_c_r_a_activity[i].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
+                            : '<td><input class="taskInput" name="task.'+data.team.r_default_c_r_a_activity[i].id+'.'+days[j].getDate()+'" style="margin: 0; padding: 0;max-width:10px;" disabled></td>';
 
         craTable += '</tr>';
     }
+
     craTable += generateTotalRow(days);
     craTable += '</tbody></table>';
     return craTable;
 }
 
 function generateExistingCRA(data) {
+    openDaysCount = 0;
     var days = daysOfMonth(data.month-1, data.year);
     var craTable = '';
     craTable += '<table id="craTable" style="overflow: hidden;" class="table dataTable table-striped table-responsive"><thead><tr><th>Activity</th>';
@@ -77,28 +101,37 @@ function generateExistingCRA(data) {
     }
     craTable += '</tr></thead><tbody>';
 
-    for (var i = 0; i < data.activities.length; i++) {
-        craTable += '<tr><td>'+data.activities[i].f_name+'</td>';
+    var knownActivities = [];
+    for (var i = 0; i < data.cra.r_c_r_a_task.length; i++)
+        if (!knownActivities[data.cra.r_c_r_a_task[i].f_id_c_r_a_activity])
+            knownActivities[data.cra.r_c_r_a_task[i].f_id_c_r_a_activity] = data.cra.r_c_r_a_task[i].r_c_r_a_activity;
+    for (var i = 0; i < data.team.r_default_c_r_a_activity.length; i++)
+        if (!knownActivities[data.team.r_default_c_r_a_activity[i].id])
+            knownActivities[data.team.r_default_c_r_a_activity[i].id] = data.team.r_default_c_r_a_activity[i];
+
+    for (var acty in knownActivities) {
+        openDaysCount = 0;
+        craTable += '<tr><td>'+knownActivities[acty].f_name+'</td>';
         var j = -1;
         while (++j < days.length) {
             var taskExists = false;
             for (var k = 0; k < data.cra.r_c_r_a_task.length; k++) {
                 var task = data.cra.r_c_r_a_task[k];
-                if (task.f_id_c_r_a_activity == data.activities[i].id) {
+                if (task.f_id_c_r_a_activity == knownActivities[acty].id) {
                     var date = new Date(task.f_date);
                     if (date.getDate() == days[j].getDate()) {
                         taskExists = true;
                         craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
-                                    ? '<td><input class="taskInput" name="task.'+data.activities[i].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
-                                    : '<td><input class="taskInput" name="task.'+data.activities[i].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
+                                    ? '<td><input class="openDay taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
+                                    : '<td><input class="taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
                         break;
                     }
                 }
             }
             if (!taskExists)
                 craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
-                            ? '<td><input class="taskInput" name="task.'+data.activities[i].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
-                            : '<td><input class="taskInput" name="task.'+data.activities[i].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
+                            ? '<td><input class="openDay taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
+                            : '<td><input class="taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
         }
         craTable += '</tr>';
     }
@@ -137,6 +170,7 @@ $(function() {
         $.ajax({
             url: '/c_r_a/getData/'+month+'/'+year,
             success: function(data) {
+                globalData = data;
                 // Display information divs if required
                 if (data.activities.length == 0) {
                     $(".craBlocks").hide();
@@ -153,6 +187,7 @@ $(function() {
                 if (data.craExists) {
                     showButtonGroup(data.cra.f_user_validated, data.cra.f_admin_validated, true);
                     $("#craForm").attr('action', '/c_r_a/declare/update');
+                    $("#validateButton").data('url', $("#validateButton").data('url')+data.cra.id);
                     $("#cra").html(generateExistingCRA(data));
                 }
                 // CRA doesn't exists
@@ -161,6 +196,8 @@ $(function() {
                     $("#craForm").attr('action', '/c_r_a/declare/create');
                     $("#cra").html(generateEmptyCRA(data));
                 }
+                $("#craTable th:first").css('width', '200px');
+                generateAddActivityRow(data);
 
                 // Add month and year to form data
                 $("input[name=month]").val(month);
@@ -177,7 +214,7 @@ $(function() {
                 });
 
                 // Trigger each row total calculation
-                $("#craTable").find("tr:not(:first):not(:last)").find('.taskInput').each(function(){
+                $("#craTable").find("tr:nth-child(2)").find('.taskInput').each(function(){
                     $(this).trigger('keyup');
                 });
             },
@@ -210,8 +247,10 @@ $(function() {
                     toastr.success('message.update.success');
                 else
                     toastr.success('message.create.success');
-                if (data.action == 'created')
+                if (data.action == 'created') {
+                    $("#validateButton").data('url', $("#validateButton").data('url')+data.id_cra);
                     craExists = true;
+                }
                 showButtonGroup(data.user_validated, data.admin_validated);
             }
         });
@@ -247,6 +286,45 @@ $(function() {
             if (!isNaN(parseFloat(columnTotal)))
                 totalCount += parseFloat(columnTotal);
         });
-        $(self).parents('table').find('tr:last>td:first').html("Total : "+totalCount);
+        $(self).parents('table').find('tr:last>td:first').html("Total : "+totalCount+'/'+openDaysCount);
+    });
+
+    $("#validateButton").click(function() {
+        $.ajax({
+            url: $(this).data('url'),
+            success: function() {
+                toastr.success('Validation successful');
+            },
+            error: function(err, st, rest) {
+                toastr.error(err.responseText);
+            }
+        });
+        return false;
+    });
+
+    $(document).delegate('.activitiesSelect', 'change', function() {
+        var self = this;
+        var selectValue = $(self).find(':selected').val();
+        if (selectValue == '0')
+            $(self).parents('tr').remove();
+        else {
+            $(self).parents('tr').find('.openDay').prop('disabled', false);
+            $(self).parents('tr').find('.taskInput').each(function() {
+                console.log(this);
+                var inputName = $(this).attr('name');
+                var parts = inputName.split('.');
+                inputName = parts[0]+'.'+selectValue+'.'+parts[2];
+                $(this).attr('name', inputName);
+            });
+        }
+
+        var numberOfEmpty = 0;
+        for (var i = 0; i < $('.activitiesSelect').length; i++) {
+            if ($('.activitiesSelect').eq(i).find(':selected').val() == '0')
+                numberOfEmpty++;
+        }
+
+        if (numberOfEmpty == 1)
+            generateAddActivityRow(globalData);
     });
 });

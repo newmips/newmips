@@ -38,7 +38,7 @@
                                         <button type="submit" class="btn btn-primary">Save</button>
                                     </div>
                                     <div class="col-xs-2">
-                                        <button type="submit" class="btn btn-primary">Validate</button>
+                                        <button id="validateButton" data-url="/c_r_a/declare/validate/" class="btn btn-primary">Validate</button>
                                     </div>
                                     <div id="adminValidate" class="col-xs-2" style="display: none;">
                                         <button class="btn btn-primary">Admin Validate</button>
@@ -58,6 +58,15 @@
                     </div>
                     <div id="noSettings" class="craBlocks" style="display: none;">
                         Your team didn't define its C.R.A settings. It is required to display working days.
+                    </div>
+
+                    <div id="activitiesSelect" style="display:none;">
+                        <select class="activitiesSelect">
+                            <option default value="0">Add activity</option>
+                            {#activities}
+                                <option value="{id}">{f_name}</option>
+                            {/activities}
+                        </select>
                     </div>
                 </div>
             </div>

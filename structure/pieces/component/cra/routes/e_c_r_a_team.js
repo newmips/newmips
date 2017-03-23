@@ -136,20 +136,21 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("c_r_a_t
 
         // Check if user is already in the Team
         var hasTeamPromise = [];
-        for (var i = 0; i < toAdd.length; i++)
-            hasTeamPromise.push(new Promise(function(resolve, reject) {
-                models.E_c_r_a_team.findOne({
-                    include: [{
-                        model: models.E_user,
-                        as: 'r_users',
-                        where: {id: toAdd[i]}
-                    }]
-                }).then(function(found) {
-                    if (!found)
-                        return resolve({isOkToAdd: true});
-                    resolve({isOkToAdd: false, login: found.r_users[0].f_login});
-                });
-            }));
+        if (alias == 'r_users')
+            for (var i = 0; i < toAdd.length; i++)
+                hasTeamPromise.push(new Promise(function(resolve, reject) {
+                    models.E_c_r_a_team.findOne({
+                        include: [{
+                            model: models.E_user,
+                            as: 'r_users',
+                            where: {id: toAdd[i]}
+                        }]
+                    }).then(function(found) {
+                        if (!found)
+                            return resolve({isOkToAdd: true});
+                        resolve({isOkToAdd: false, login: found.r_users[0].f_login});
+                    });
+                }));
 
         Promise.all(hasTeamPromise).then(function(isOkToAdd) {
             var notOk = 'Following users already have a C.R.A Team : ';
