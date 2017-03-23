@@ -144,7 +144,7 @@
                 "selected": "Projet %s (%s) sélectionné."
             },
             "create": {
-                "success" : "Nouveau projet %s (%s) crée."
+                "success" : "Nouveau projet %s (%s) créé."
             },
             "delete":{
                 "deleted": "Projet %s supprimé !"
@@ -176,7 +176,7 @@
                 "selected": "Module %s (%s) sélectionné."
             },
             "create": {
-                "success" : "Nouveau module %s (%s) crée.",
+                "success" : "Nouveau module %s (%s) créé.",
                 "alreadyExist": "Un module avec le même ou similaire nom %s existe déjà."
             },
             "list": {
@@ -195,7 +195,7 @@
         },
         "component":{
             "create": {
-                "success" : "Nouveau composant %s (%s) crée."
+                "success" : "Nouveau composant %s (%s) créé."
             },
             "notFound": {
                 "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s."
@@ -230,7 +230,7 @@
                 "alreadyExist": "Désolé, un champ avec un nom (%s) identique ou similaire existe déjà."
             },
             "create": {
-                "created": "Nouveau champ %s (%s) crée.",
+                "created": "Nouveau champ %s (%s) créé.",
                 "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
             },
             "delete": {
@@ -269,7 +269,7 @@
                 "success": "Nouvelle liste d'objets existants %s créée sur %s."
             },
             "relatedTo": {
-                "success": "Nouveau champs %s associé à %s crée."
+                "success": "Nouveau champs %s associé à %s créé."
             },
             "error":{
                 "alreadyHasMany": "L'entité source a déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
