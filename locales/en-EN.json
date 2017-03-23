@@ -242,6 +242,17 @@
         }
     },
     "structure": {
+        "global": {
+            "restart": {
+                "success": "Server restarded!"
+            },
+            "gitPush": {
+                "success": "The application has been saved!"
+            },
+            "gitPull": {
+                "success": "The application has been successfully loaded!"
+            }
+        },
         "module": {
             "error": {
                 "notHome": "You can't delete the home module."

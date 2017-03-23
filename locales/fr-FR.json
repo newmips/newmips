@@ -242,6 +242,17 @@
         }
     },
     "structure": {
+        "global": {
+            "restart": {
+                "success": "Le serveur a bien été redémarré!"
+            },
+            "gitPush": {
+                "success": "L'application a bien été sauvergardée!"
+            },
+            "gitPull": {
+                "success": "L'application a bien été chargée!"
+            }
+        },
         "module": {
             "error": {
                 "notHome": "Vous ne pouvez pas supprimer le module Accueil."

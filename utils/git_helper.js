@@ -55,7 +55,7 @@ module.exports = {
                             console.log(err);
                         console.log(answer);
                     });
-                } else if(typeof attr.function !== "undefined"){
+                } else if(typeof attr.function !== "undefined" && attr.function != "gitPull" && attr.function != "restart"){
                     // We are just after a new instruction
                     console.log("GIT: Git commit after new instruction.");
                     console.log(repoUrl);
