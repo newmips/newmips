@@ -1478,17 +1478,19 @@ exports.createNewComponentCra = function(attr, callback) {
             "entity C.R.A Team has many C.R.A Calendar Exception",
             "select entity C.R.A Calendar Exception",
             "add field date with type date",
-            "create entity C.R.A",
-            "add field month with type number",
-            "add field year with type number",
-            "add field user validated with type boolean",
-            "add field admin validated with type boolean",
-            "entity user has many C.R.A",
-            "entity user has many C.R.A Activity",
-            "select entity C.R.A Activity",
+            "create entity C.R.A Activity",
             "add field Name",
             "add field Description with type text",
             "add field Active with type boolean",
+            "select entity C.R.A Team",
+            "add fieldset Default C.R.A Activity related to C.R.A Activity using Name",
+            "create entity C.R.A",
+            "add field month with type number",
+            "add field year with type number",
+            "add field open days in month with type number",
+            "add field user validated with type boolean",
+            "add field admin validated with type boolean",
+            "entity user has many C.R.A",
             "entity C.R.A Activity has one C.R.A Client",
             "select entity C.R.A Client",
             "add field name",
@@ -1517,26 +1519,16 @@ exports.createNewComponentCra = function(attr, callback) {
                 var attributes = require(workspacePath+'/models/attributes/e_user.json');
                 attributes.id_e_c_r_a_team_users = "INTEGER";
                 fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(attributes, null, 4));
-                var attributes = require(workspacePath+'/models/attributes/e_c_r_a.json');
-                attributes.f_open_days_in_month = "INTEGER";
-                fs.writeFileSync(workspacePath+'/models/attributes/e_c_r_a.json', JSON.stringify(attributes, null, 4));
 
                 // Copy pieces
                 fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
                 fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
                 fs.copySync(piecesPath+'/views/e_c_r_a/', workspacePath+'/views/e_c_r_a/');
                 fs.copySync(piecesPath+'/views/e_c_r_a_team/', workspacePath+'/views/e_c_r_a_team/');
-                fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
+                // fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
                 fs.copySync(piecesPath+'/js/cra.js', workspacePath+'/public/js/Newmips/component/cra.js');
 
-                // Modify user show_fields
-                jsDom.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
-                    $("#r_c_r_a-click").parents('li').remove();
-                    $("#r_c_r_a").remove();
-                    jsDom.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function() {
-                        callback(null, {message: 'Module C.R.A created'});
-                    });
-                });
+                callback(null, {message: 'Module C.R.A created'});
             } catch(e) {
                 console.log(e);
                 callback(e);

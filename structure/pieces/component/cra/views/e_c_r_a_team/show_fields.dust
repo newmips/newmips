@@ -15,7 +15,12 @@
                 {@__ key="entity.e_c_r_a_calendar_settings.as_r_c_r_a_calendar_settings" /}
             </a>
         </li>
-        <li><a id="r_c_r_a_calendar_exception-click" data-toggle="tab" href="#r_c_r_a_calendar_exception">{@__ key="entity.e_c_r_a_calendar_exception.as_r_c_r_a_calendar_exception" /}</a></li>
+        <li>
+            <a id="r_c_r_a_calendar_exception-click" data-toggle="tab" href="#r_c_r_a_calendar_exception">
+                {@__ key="entity.e_c_r_a_calendar_exception.as_r_c_r_a_calendar_exception" /}
+            </a>
+        </li>
+        <li><a id="r_default_c_r_a_activity-click" data-toggle="tab" href="#r_default_c_r_a_activity">{@__ key="entity.e_c_r_a_activity.as_r_default_c_r_a_activity" /}</a></li>
     </ul>
     <div class="tab-content" style="min-height:275px;">
         <div id="home" class="tab-pane fade in active">
@@ -62,14 +67,14 @@
         <div id="r_users" class="tab-pane fade">
             <form action="/c_r_a_team/fieldset/r_users/add" method="post">
                 <select style="width:200px;" class="form-control" name="ids" multiple="">
-			     {#r_users_global_list}
-    				{#.f_login}
-    						<option value="{id}">{f_login}</option>
-    				{:else}
-    						<option value="{id}">{id} - f_login not defined</option>
-    				{/.f_login}
-			     {/r_users_global_list}
-                </select>
+            {#r_users_global_list}
+                {#.f_login}
+                        <option value="{id}">{f_login}</option>
+                {:else}
+                        <option value="{id}">{id} - f_login not defined</option>
+                {/.f_login}
+            {/r_users_global_list}
+        </select>
                 <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>
                 <input type="hidden" value="{e_c_r_a_team.id}" name="idEntity">
             </form>
@@ -95,14 +100,14 @@
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>
                 </a>
                 <button onclick="return confirm(" etes-vous="" sûr="" de="" vouloir="" supprimer="" cet="" enregistrement="" ?="" ");"="" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-				<span>{@__ key="button.delete" /}</span>
-				<input name="id" value="{id}" type="hidden">
-				<input name="associationAlias" value="r_c_r_a_calendar_settings" type="hidden">
-				<input name="associationForeignKey" value="f_id_c_r_a_calendar_settings" type="hidden">
-				<input name="associationFlag" value="{e_c_r_a_team.id}" type="hidden">
-				<input name="associationSource" value="e_c_r_a_team" type="hidden">
-				<input name="associationUrl" value="c_r_a_team" type="hidden">
-			</button>
+                <span>{@__ key="button.delete" /}</span>
+                <input name="id" value="{id}" type="hidden">
+                <input name="associationAlias" value="r_c_r_a_calendar_settings" type="hidden">
+                <input name="associationForeignKey" value="f_id_c_r_a_calendar_settings" type="hidden">
+                <input name="associationFlag" value="{e_c_r_a_team.id}" type="hidden">
+                <input name="associationSource" value="e_c_r_a_team" type="hidden">
+                <input name="associationUrl" value="c_r_a_team" type="hidden">
+            </button>
             </form>
             {:else}
             <a href="/c_r_a_calendar_settings/create_form?associationAlias=r_c_r_a_calendar_settings&amp;associationForeignKey=f_id_c_r_a_calendar_settings&amp;associationFlag={e_c_r_a_team.id}&amp;associationSource=e_c_r_a_team&amp;associationUrl=c_r_a_team" class="btn btn-success">
@@ -122,6 +127,29 @@
             <a href="/c_r_a_calendar_exception/create_form?associationAlias=r_c_r_a_calendar_exception&amp;associationForeignKey=f_id_c_r_a_team&amp;associationFlag={e_c_r_a_team.id}&amp;associationSource=e_c_r_a_team&amp;associationUrl=c_r_a_team" class="btn btn-success">
                 <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
             </a>
+        </div>
+        <div id="r_default_c_r_a_activity" class="tab-pane fade">
+            <form action="/c_r_a_team/fieldset/r_default_c_r_a_activity/add" method="post">
+                <select style="width:200px;" class="form-control" name="ids" multiple="">
+            {#r_default_c_r_a_activity_global_list}
+                {#.f_name}
+                        <option value="{id}">{f_name}</option>
+                {:else}
+                        <option value="{id}">{id} - f_name not defined</option>
+                {/.f_name}
+            {/r_default_c_r_a_activity_global_list}
+        </select>
+                <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>
+                <input type="hidden" value="{e_c_r_a_team.id}" name="idEntity">
+            </form>
+            <br>
+            {#r_default_c_r_a_activity e_c_r_a_activity=r_default_c_r_a_activity}
+            {@eq key=id value=e_c_r_a_activity[0].id}
+            {>"e_c_r_a_activity/list_fields" for="fieldset" /}
+            {/eq}
+            {:else}
+            {>"e_c_r_a_activity/list_fields" /}
+            {/r_default_c_r_a_activity}
         </div>
     </div>
 </div>
