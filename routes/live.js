@@ -64,7 +64,6 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
     pourcent_generation[req.session.passport.user.id] = 1;
 
-    // var instruction = req.body.instruction || '';
     var name_project = req.body.project || '';
     var name_application = req.body.application || '';
     var select_project = req.body.selectProject || '';

@@ -5,15 +5,13 @@ block content
         .body.bg-white
             center
                 img(src='/img/logo_newmips.png', width='50%', height='50%')
-        if (message != '')
-            .body.bg-orange !{message}
         .body.bg-gray
             .form-group
                 label(for='login_user') #{__("login.login")}
-                input.form-control(type='text', name='login_user', placeholder='#{__("login.login")}')
+                input.form-control(required, type='text', name='login_user', placeholder='#{__("login.login")}')
             .form-group
                 label(for='password_user') #{__("login.password")}
-                input.form-control(type='password', name='password_user', placeholder='#{__("login.password")}')
+                input.form-control(required, type='password', name='password_user', placeholder='#{__("login.password")}')
             .form-group
                 input(type='checkbox', name='remember_me' value='yes')
                 | &nbsp; #{__("login.remember_me")}
@@ -23,4 +21,4 @@ block content
             p
                 a(href='/reset_password') #{__("login.reset_password")}
             p
-                a(href='/first_connection') #{__("login.first_connection")}
+                a(href='/first_connection') #{__("login.first_connection.title")}
