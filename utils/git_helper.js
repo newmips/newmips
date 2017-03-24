@@ -86,7 +86,8 @@ module.exports = {
                 }
                 callback(err);
             });
-        }
+        }else 
+            callback();
     },
     gitPush: function(attr, callback){
         // We push code on gitlab only in our cloud env
@@ -213,5 +214,6 @@ module.exports = {
             err.message = "structure.global.error.notDoGit";
             callback(err, null);
         }
+            
     }
 }
