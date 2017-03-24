@@ -122,6 +122,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
         console.log("File downlaod with success");
     }).catch(function (err) {
         console.log(err);
+        req.session.toastr.push({level: 'error', message: "File not found"});
         res.writeHead(303, {Location: req.headers.referer});
         res.end();
     });

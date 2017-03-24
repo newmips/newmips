@@ -435,12 +435,11 @@ $(document).ready(function () {
         var dropzoneId = $(this).attr('id') + '';
         if ($('#' + dropzoneId + '_hidden').val() != '') {
             var mockFile = {
-                name: $('#' + dropzoneId + '_dropzone_hidden').val()
+                name: $('#' + dropzoneId + '_hidden').val()
             };
             dropzoneInit.files.push(mockFile);
             dropzoneInit.emit('addedfile', mockFile);
             dropzoneInit.emit('complete', mockFile);
-            dropzonesFieldArray.push(dropzoneInit);
         }
         dropzonesFieldArray.push(dropzoneInit);
     });

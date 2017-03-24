@@ -484,7 +484,7 @@ exports.setupDataField = function (attr, callback) {
         case "file":
         case "fichier":
             typeForModel = "STRING";
-            typeForDataList = "file";
+            typeForDatalist = "file";
             break;
         case "cloudfile" :
             typeForModel = "STRING";
