@@ -202,7 +202,7 @@ exports.getDatalistInclude = function getDatalistInclude(models, options) {
     return structureDatalist;
 }
 
-exports.getTwoLevelIncludeAll = function getDatalistInclude(models, options) {
+exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) {
     var structureDatalist = [];
 
     /* Two level of all inclusion */

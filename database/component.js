@@ -6,75 +6,55 @@ var models = require('../models/');
 // Insert a new component link to an entity
 exports.createNewComponentOnEntity = function(attr, callback) {
 
-    var id_module = 0;
-    var version = 1;
+    var idModule = attr.id_module;
+    var options = attr.options;
 
-    if (typeof attr !== 'undefined' && attr) {
+    if (typeof options !== 'undefined' && options && idModule != null) {
 
-        id_module = attr.id_module;
-        var options = attr.options;
-
-        if (typeof options !== 'undefined' && options && id_module != 0) {
-
-            models.Component.create({
-                name: options.showValue,
-                codeName: options.value,
-                id_module: id_module,
-                version: version
-            }).then(function(createdComponent) {
-                if (!createdComponent) {
-                    var err = new Error();
-                    err.message = "Sorry, an error occured while creating the component.";
-                    return callback(err, null);
-                }
-
-                createdComponent.addDataEntity(attr.id_data_entity).then(function(){
-                    var info = {
-                        insertId: createdComponent.id,
-                        message: "New component "+createdComponent.id+" | "+createdComponent.name+" created."
-                    }
-                    callback(null, info);
-                });
-
-            }).catch(function(err) {
-                callback(err, null);
+        models.Component.create({
+            name: options.showValue,
+            codeName: options.value,
+            id_module: idModule,
+            version: 1
+        }).then(function(createdComponent) {
+            createdComponent.addDataEntity(attr.id_data_entity).then(function(){
+                var info = {
+                    insertId: createdComponent.id,
+                    message: "database.component.create.success",
+                    messageParams: [createdComponent.name, createdComponent.id]
+                };
+                callback(null, info);
             });
-        }
+
+        }).catch(function(err) {
+            callback(err, null);
+        });
     }
 }
 
 // Insert a new component link to a module
 exports.createNewComponentOnModule = function(attr, callback) {
 
-    var name = "";
-    var id_module = 0;
-    var version = 1;
+    var id_module = attr.id_module;
+    var options = attr.options;
 
-    if (typeof attr !== 'undefined' && attr) {
-        id_module = attr.id_module;
-        var options = attr.options;
+    if (typeof options !== 'undefined' && options && id_module != 0) {
+        models.Component.create({
+            name: options.showValue,
+            codeName: options.value,
+            id_module: id_module,
+            version: 1
+        }).then(function(createdComponent) {
+            var info = {
+                insertId: createdComponent.id,
+                message: "database.component.create.success",
+                messageParams: [createdComponent.name, createdComponent.id]
+            };
 
-        if (typeof options !== 'undefined' && options && id_module != 0) {
-            models.Component.create({
-                name: options.showValue,
-                codeName: options.value,
-                id_module: id_module,
-                version: version
-            }).then(function(created_component) {
-                if (!created_component) {
-                    var err = new Error();
-                    err.message = "Sorry, an error occured while creating the component.";
-                    return callback(err, null);
-                }
-                var info = {
-                    insertId: created_component.id,
-                    message: "New component "+created_component.id+" | "+created_component.name+" created."
-                }
-                callback(null, info);
-            }).catch(function(err) {
-                callback(err, null);
-            });
-        }
+            callback(null, info);
+        }).catch(function(err) {
+            callback(err, null);
+        });
     }
 }
 
@@ -88,8 +68,9 @@ exports.getComponentByCodeNameInModule = function(idModule, codeName, displayNam
         }
     }).then(function(component) {
         if (!component) {
-            err = new Error();
-            err.message = "Sorry, no component with the name '"+displayName+"' exist in the module with id "+idModule+".";
+            var err = new Error();
+            err.message = "database.component.notFound.notFoundedInModule";
+            err.messageParams = [displayName, idModule];
             return callback(err, null);
         }
         callback(null, component);
@@ -99,17 +80,18 @@ exports.getComponentByCodeNameInModule = function(idModule, codeName, displayNam
 }
 
 // Get a component with a given name in a module
-exports.getComponentByNameInModule = function(idModule, name_component, callback) {
+exports.getComponentByNameInModule = function(idModule, nameComponent, callback) {
 
     models.Component.findOne({
         where:{
-            name: name_component,
+            name: nameComponent,
             id_module: idModule
         }
     }).then(function(component) {
         if (!component) {
             err = new Error();
-            err.message = "Sorry, no component with the name '"+name_component+"' exist in the module with id "+idModule+".";
+            err.message = "database.component.notFound.notFoundedInModule";
+            err.messageParams = [nameComponent, idModule];
             return callback(err, null);
         }
         callback(null, component);

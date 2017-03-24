@@ -8,12 +8,12 @@ block header
 	.row
 		.col-header.col-xs-3.col-lg-9
 			h1
-				| #{__("module.application")}
-				small #{__("module.module")}
+				| #{__("menu.application")}
+				small #{__("menu.module")}
 		.col-header.col-xs-3.col-lg-1
 			.clearfix
 				span.pull-left Instructions
-				small.pull-right
+				small.pull-right#cptInstructionNumber
 					if cptInstruction > 300
 						b
 							| 300+
@@ -21,21 +21,21 @@ block header
 						b
 							| #{cptInstruction}
 			.progress.xs
-				.progress-bar.progress-bar-striped(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
+				.progress-bar.progress-bar-striped#cptInstructionBar(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
 		.col-header.col-xs-3.col-lg-1(style="padding:0px;")
 			ol.breadcrumb
 				li
 					a(href='/default/home')
 						i.fa.fa-home
-						| #{__("module.home")}
-				li.active #{__("module.application")}
+						| #{__("menu.home")}
+				li.active #{__("menu.application")}
 		.col-header.col-xs-3.col-lg-1
 			a.btn.btn-default.pull-right(href='/logout')
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 				span #{__("button.disconnect")}
 
 block content
-	legend #{__("tour_tip.listApplication.title")}
+	legend #{__("listApplication.legend")}
 	.row
 		.col-xs-12.connectedSortable
 			.box-body
@@ -49,7 +49,7 @@ block content
 						.box.box-solid.box-default
 							.box-header.bg-newmips
 								h3.box-title(style="color: #fff")
-									|#{__("entity.project.label")} : #{project.displayName}
+									|#{__("project.label")} : #{project.displayName}
 							.box-body(style="overflow-y:auto;overflow-x:hidden;")
 								.row
 									.col-lg-12
@@ -57,10 +57,10 @@ block content
 											table.table.no-margin
 												thead
 													tr
-														th #{__("tour_tip.listApplication.id")}
-														th #{__("tour_tip.listApplication.name")}
-														th #{__("tour_tip.listApplication.nbModules")}
-														th(colspan="2", style="text-align:center;") #{__("tour_tip.listApplication.action")}
+														th #{__("listApplication.id")}
+														th #{__("listApplication.name")}
+														th #{__("listApplication.nbModules")}
+														th(colspan="2", style="text-align:center;") #{__("listApplication.action")}
 												tbody
 													each application, index in project.Applications
 														tr
@@ -94,6 +94,19 @@ block custom_js
 	// AdminLTE App
 	script(src='/js/AdminLTE/app.js', type='text/javascript')
 	script(type='text/javascript').
+
+		function updateInstructionCount(){
+			$.ajax({
+				url: '/default/update_instruction_cpt',
+				method: 'get',
+				success: function(data) {
+					$("#cptInstructionBar").attr("aria-valuenow", data.pourcentInstruction);
+					$("#cptInstructionBar").css("width", data.pourcentInstruction+"%");
+					$("#cptInstructionNumber").html("<b>"+data.cptInstruction+"</b>");
+				}
+			});
+		}
+
 		function deleteApplication(formArray, index) {
 			return new Promise(function(resolve, reject) {
 				(function(arr, idx){
@@ -107,11 +120,12 @@ block custom_js
 							$(tr).remove();
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);
+							updateInstructionCount();
 						},
 						complete: function() {
 							$(document.body).css({cursor: 'default'});
 							if (arr.length == 1) {
-								toastr.success("Application deleted");
+								toastr.success("#{__('listApplication.appDelete')}");
 								return resolve();
 							}
 							return (arr[++idx]) ? resolve(deleteApplication(arr, idx)) : resolve();
@@ -124,12 +138,12 @@ block custom_js
 		$(function() {
 			// Delete Project
 			$(".deleteProjectForm").submit(function() {
-				var confirm = window.confirm("Are you sure ?");
+				var confirm = window.confirm("#{__('listApplication.sureToDelete')}");
 				if(confirm){
 					var self = this;
 					// Get all application delete form
 					var appForms = $(self).parents('.box').find("tbody tr form");
-					$(this).children("button").html("Loading...");
+					$(this).children("button").html("#{__('listApplication.loading')}");
 
 					/* Disabled all button to prevent mutli click that may cause issue */
 					$(".deleteProjectForm").children("button").prop("disabled", true);
@@ -141,11 +155,12 @@ block custom_js
 						method: 'post',
 						data: {instruction: $(self).find("input[name='instruction']").val()},
 						success: function() {
-							toastr.success("Project deleted");
+							toastr.success("#{__('listApplication.projectDelete')}");
 							$(self).parents('.col-lg-6').remove();
 							$(document.body).css({cursor: 'default'});
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);
+							updateInstructionCount();
 						}
 					});
 
@@ -155,9 +170,9 @@ block custom_js
 
 			// Delete application
 			$(".deleteAppForm").submit(function(){
-				var confirm = window.confirm("Are you sure ?");
+				var confirm = window.confirm("#{__('listApplication.sureToDelete')}");
 				if(confirm){
-					$(this).children("button").html("Loading...");
+					$(this).children("button").html("#{__('listApplication.loading')}");
 					$(".deleteProjectForm").children("button").prop("disabled", true);
 					$(".deleteAppForm").children("button").prop("disabled", true);
 					deleteApplication([$(this)], 0);
@@ -165,4 +180,3 @@ block custom_js
 				}
 			});
 		});
-

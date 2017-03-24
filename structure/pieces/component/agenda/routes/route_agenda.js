@@ -83,9 +83,14 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "writ
     };
 
     models.CODE_NAME_EVENT_MODEL.create(createObj).then(function(createdEvent){
-        res.json({
-            success: true,
-            idEvent: createdEvent.id
+        var users = [];
+        if(req.body.idUser != null)
+            users.push(req.body.idUser);
+        createdEvent.setR_users(users).then(function(){
+            res.json({
+                success: true,
+                idEvent: createdEvent.id
+            });
         });
     });
 });

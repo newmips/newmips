@@ -6,6 +6,7 @@ var message = "";
 var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
+var docBuilder = require('../utils/api_doc_builder');
 
 // Parser
 var designer = require('../services/designer.js');
@@ -45,68 +46,36 @@ function execute(req, instruction) {
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);
 
-            return designer[attr["function"]](attr, function(err, info) {
+            return designer[attr.function](attr, function(err, info) {
+
+                var __ = require("../services/language")(req.session.lang_user).__;
 
                 if (err) {
                     // Error handling code goes here
-                    console.log("ERROR : ", err);
-                    scriptData[userId].answers.unshift(instruction + " :<br>" + err + "<br><br>");
-                    reject();
+                    scriptData[userId].answers.unshift({
+                        instruction: instruction,
+                        message: __(err.message, err.messageParams || [])
+                    });
+                    reject(err);
                 } else {
 
                     // Store key entities in session for futur instruction
                     session_manager.setSessionForInstructionScript(attr.function, scriptData[userId], info);
 
-                    // OLD WAY
-                    /*if ((attr["function"] == "createNewProject") || (attr["function"] == "selectProject")) {
-                        scriptData[userId].ids.id_project = info.insertId;
-                        scriptData[userId].ids.id_application = null;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if (attr["function"] == "createNewApplication" || attr["function"] == "selectApplication") {
-                        scriptData[userId].ids.id_application = info.insertId;
-                        scriptData[userId].name_application = info.name_application;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if ((attr["function"] == "createNewModule") || (attr["function"] == "selectModule")) {
-                        scriptData[userId].ids.id_module = info.insertId;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if ((attr["function"] == "createNewDataEntity")
-                        || (attr["function"] == "selectDataEntity")
-                        || (attr["function"] == "createNewEntityWithBelongsTo")
-                        || (attr["function"] == "createNewEntityWithHasMany")
-                        || (attr["function"] == "createNewBelongsTo")
-                        || (attr["function"] == "createNewHasMany")
-                        || (attr["function"] == "createNewFieldRelatedTo")) {
-                        scriptData[userId].ids.id_data_entity = info.insertId;
-                    }
-                    else if (attr["function"] == "deleteProject") {
-                        scriptData[userId].ids.id_project = null;
-                        scriptData[userId].ids.id_application = null;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if (attr["function"] == "deleteApplication") {
-                        scriptData[userId].ids.id_application = null;
-                        scriptData[userId].ids.id_module = null;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }
-                    else if (attr.function == 'deleteModule') {
-                        scriptData[userId].ids.id_module = info.homeID;
-                        scriptData[userId].ids.id_data_entity = null;
-                    }*/
-
-                    scriptData[userId].answers.unshift(instruction + " :<br>" + info.message + "<br><br>");
+                    scriptData[userId].answers.unshift({
+                        instruction: instruction,
+                        message: __(info.message, info.messageParams || [])
+                    });
                     resolve();
                 }
 
             });
-        } catch (e) {
-            scriptData[userId].answers.unshift(instruction + " :<br>" + e.message + "<br><br>");
-            reject();
+        } catch (err) {
+            scriptData[userId].answers.unshift({
+                instruction: instruction,
+                message: __(err.message, err.messageParams || [])
+            });
+            reject(err);
         }
     });
 }
@@ -127,6 +96,13 @@ var mandatoryInstructions = [
     "select entity User",
     "add field role related to Role using label",
     "add field group related to Group using label",
+    "add entity API credentials",
+    "add field Client Key",
+    "add field Client Secret",
+    "add field Token",
+    "add field Token timeout TMSP",
+    "add field role related to Role using label",
+    "add field group related to Group using label",
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;
@@ -137,6 +113,9 @@ function recursiveExecute(req, instructions, idx) {
         if (instructions.length == idx){
             /* Reset toSync.json because in this situation it's the sequelize sync() that will do the job, not our custom sync */
             var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
+
+            // Api documentation
+            docBuilder.build(req.session.id_application);
 
             var toSyncFileName = './workspace/'+idApplication+'/models/toSync.json';
             var writeStream = fs.createWriteStream(toSyncFileName);
@@ -160,8 +139,8 @@ function recursiveExecute(req, instructions, idx) {
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));
-                    }).catch(function() {
-                        reject();
+                    }).catch(function(err) {
+                        reject(err);
                     });
                 });
             }
@@ -170,8 +149,8 @@ function recursiveExecute(req, instructions, idx) {
                 execute(req, instructions[idx]).then(function() {
                     scriptData[req.session.passport.user.id].doneInstruction++;
                     resolve(recursiveExecute(req, instructions, idx + 1));
-                }).catch(function() {
-                    reject();
+                }).catch(function(err) {
+                    reject(err);
                 });
             }
         }
@@ -182,12 +161,12 @@ function recursiveExecute(req, instructions, idx) {
 router.get('/index', block_access.isLoggedIn, function(req, res) {
 
     var data = {
-        "error": 1,
-        "profile": req.session.data,
-        "menu": "script",
-        "msg": message,
-        "answers": "",
-        "instruction": ""
+        error: 1,
+        profile: req.session.data,
+        menu: "script",
+        msg: message,
+        answers: "",
+        instruction: ""
     };
 
     res.render('front/instruction_script', data);
@@ -286,10 +265,10 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(typeof parser.parse(line)["options"] !== "undefined")
                 designerValue = parser.parse(line)["options"]["value"]?parser.parse(line)["options"]["value"]:null;
 
-            if (designerFunction == "createNewProject"){
+            if (designerFunction == "createNewProject" || designerFunction == "selectProject"){
                 exception.createNewProject.value += 1;
             }
-            if (designerFunction == "createNewApplication"){
+            if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
                 authInstructions = true;
                 exception.createNewApplication.value += 1;
             }
@@ -336,15 +315,16 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
         if(isError){
             scriptData[userId].answers = [];
-            scriptData[userId].answers.push(stringError);
+            scriptData[userId].answers.push({
+                message: stringError
+            });
             scriptData[userId].over = true;
         } else{
             scriptData[userId].totalInstruction = authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
-                // Success
                 scriptData[userId].over = true;
-            }).catch(function() {
-                // Error
+            }).catch(function(err) {
+                console.log(err);
                 scriptData[userId].over = true;
             });
         }
@@ -363,7 +343,7 @@ router.get('/status', function(req, res) {
         totalInstruction: scriptData[userId].totalInstruction,
         doneInstruction: scriptData[userId].doneInstruction,
         over: scriptData[userId].over,
-        text: scriptData[userId].answers.join('<br><br>')
+        text: scriptData[userId].answers
     };
     scriptData[userId].answers = [];
 

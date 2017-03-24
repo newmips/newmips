@@ -1,0 +1,30 @@
+<div id="fields">
+    <div data-field="f_client_name" class="form-group">
+        <label for="f_client_name"> {@__ key="entity.e_api_credentials.f_client_name"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="" type="text">
+    </div>
+    <div data-field="f_role" class="form-group">
+        <label for="f_role">{@__ key="entity.e_api_credentials.r_role" /}</label>
+        <select style="width:100%;" class="form-control" name="r_role">
+			{#r_role}
+				{#.f_label}
+						<option value="{id}">{f_label}</option>
+				{:else}
+						<option value="{id}">{id} - label not defined</option>
+				{/.f_label}
+			{/r_role}
+		</select>
+    </div>
+    <div data-field="f_group" class="form-group">
+        <label for="f_group">{@__ key="entity.e_api_credentials.r_group" /}</label>
+        <select style="width:100%;" class="form-control" name="r_group">
+			{#r_group}
+				{#.f_label}
+						<option value="{id}">{f_label}</option>
+				{:else}
+						<option value="{id}">{id} - label not defined</option>
+				{/.f_label}
+			{/r_group}
+		</select>
+    </div>
+</div>

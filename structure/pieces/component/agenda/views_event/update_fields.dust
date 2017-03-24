@@ -32,9 +32,11 @@
     <div data-field="f_all_day" class="form-group">
         <label for="f_all_day"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/} </label> &nbsp;
         <br>
-        {@eq key=f_all_day value="1"}<input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" checked="">
-        {:else}<input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox">
-        {/eq}
+        {@ifTrue key=f_all_day}
+            <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" checked="">
+        {:else}
+            <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox">
+        {/ifTrue}
     </div>
     <div data-field="f_category" class="form-group">
         <label for="f_category">{@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}</label>
@@ -57,7 +59,7 @@
         </select>
     </div>
     <div data-field="f_users" class="form-group">
-        <label for="f_users">Users</label>
+        <label for="f_users">{@__ key="entity.e_user.plural_entity" /}</label>
         <select multiple="multiple" style="width:100%;" class="form-control" name="r_users">
             {#r_users_global_list}
                 {@existInContextById ofContext=r_users key=id}

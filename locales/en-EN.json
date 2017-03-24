@@ -1,307 +1,312 @@
 {
-  "app": {
-    "name": "Newmips One",
-    "lang": "en"
-  },
-  "language": {
-    "english": "English",
-    "french": "French"
-  },
-  "login": {
-    "log_in": "Log in",
-    "reset_password": "Forgotten password",
-    "first_connection": "First connection",
-    "authentication": "Connection",
-    "login": "Login",
-    "password": "Password",
-    "confirm_password": "Confirm password",
-    "mail": "Email",
-    "remember_me": "Remember me",
-    "submit": "Submit"
-  },
-  "navbar": {
-    "about": "About",
-    "help": "Help",
-    "support": "Support"
-  },
-  "module": {
-    "home": "Home",
-    "preview": {
-      "title": "Preview",
-      "reload": "Restart server",
-      "issue-button": "Report an issue"
+    "app": {
+        "name": "Newmips"
     },
-    "module": "Module",
-    "workspace": "My workspace",
-    "manager": "Manager",
-    "business": "Business",
-    "application": "Application",
-    "technology": "Environment",
-    "editor": "Editor",
-    "live": "Live",
-    "instruction": "Instructions",
-    "import": "Import",
-    "settings": "Settings",
-    "editor_content": {
-      "folders": "Folders",
-      "editor": "Editor",
-      "change_theme": "Switch theme",
-      "intro": "Hi Newmips user!",
-      "intro2": "You can select a file on the sidebar on your left ;)",
-      "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
-    }
-  },
-  "description": {
-    "manager": "Manager module enables to describe the state of an application brefore migration (source project) and after migration (target project) ; and to define gaps, requested tasks for construction of future application.",
-    "business": "Business module enables to define company data, and load users directory in built application.",
-    "application": "Application module enables to build dynamically your applications. It is based on the usage of a Newmips Meta-language, using pre-defined rules and grammar elements.",
-    "technology": "Environment module enables to manage deployment, resources allocations and application versioning."
-  },
-  "role": {
-    "administrator": "Administrator",
-    "developer": "Developer"
-  },
-  "button": {
-    "profile": "Profile",
-    "disconnect": "Disconnect",
-    "show": "Show",
-    "update": "Modify",
-    "delete": "Delete",
-    "create": "Create",
-    "list": "List",
-    "save": "Save",
-    "preview": "Preview",
-    "record": "Record",
-    "execute": "Execute",
-    "backtohome": "Back to Home",
-    "yes": "Yes",
-    "no": "No",
-    "close": "Close",
-    "send": "Send"
-  },
-  "operation": {
-    "show": "Show entity ",
-    "update": "Modify entity ",
-    "create": "Create entity ",
-    "delete": "Delete entity ",
-    "list": "List all entities ",
-    "list_of": "List of ",
-    "generate": "Generate entity ",
-    "live": "Live edition",
-    "script": "Execute instruction script",
-    "preview": "Preview entity",
-    "access": "Access module ",
-    "settings": "Define application settings",
-    "editor": "Edit an application"
-  },
-  "message": {
-    "create": {
-      "success": "Success ! Data registered with success.",
-      "failure": "Error ! No data registered. May ask to your administrator."
+    "login": {
+        "log_in": "Log in",
+        "reset_password": "Forgotten password",
+        "first_connection": "First connection",
+        "authentication": "Connection",
+        "login": "Login",
+        "password": "Password",
+        "confirm_password": "Confirm password",
+        "mail": "Email",
+        "remember_me": "Remember me",
+        "submit": "Submit"
     },
-    "update": {
-      "success": "Success ! Data modified with success.",
-      "failure": "Error ! No data modified. May ask to your administrator."
+    "menu": {
+        "home": "Home",
+        "preview": "Preview",
+        "module": "Module",
+        "application": "Application",
+        "editor": "Editor",
+        "live": "Live",
+        "instruction": "Instruction",
+        "import": "Import",
+        "settings": "Settings",
+        "error": "Error",
+        "back": "Back office",
+        "users": "Users"
     },
-    "delete": {
-      "success": "Success ! Data deleted with success.",
-      "failure": "Error ! No data deleted. May ask to your administrator.",
-      "question": "Are you sure you want to delete this entity ?"
+    "button": {
+        "generate": "Generate",
+        "disconnect": "Disconnect",
+        "show": "Show",
+        "update": "Modify",
+        "delete": "Delete",
+        "create": "Create",
+        "list": "List",
+        "save": "Save",
+        "preview": "Preview",
+        "record": "Record",
+        "execute": "Execute",
+        "backtohome": "Back to Home",
+        "yes": "Yes",
+        "no": "No",
+        "close": "Close",
+        "send": "Send"
     },
-    "gap": {
-      "create_project_first": "Source and target projects have to be initialzed first."
-    }
-  },
-  "close": "Close",
-  "tour_tip": {
-    "home_1": {
-      "header": "Welcome to Newmips !",
-      "body": "Since it's your first visit here, we're going to show you the basic steps for creating an application using Newmips.",
-      "dont_ask": "Don't show me this again",
-      "discover": "Discover",
-      "shortcuts": "Direct links"
-    },
-    "home_2": {
-      "header": "Create an application",
-      "body1": "Indicate name of your Project and Application",
-      "body2": "It will be generated.",
-      "initializing1": "We're initializing your application.",
-      "initializing2": "This might take a minute, don't refresh the page...",
-      "timeout": "It appears to take longer than usual. You can go to Application to check if your application has been created.",
-      "generate": "Generate",
-      "select_project": "Please, select a project",
-      "create_new_project_application": "Create a new project",
-      "create_new_application": "Create a new application",
-      "select_existing_application": "Select an existing application",
-      "select_existing_project": "Select an existing project"
-    },
-    "preview": {
-      "header": "Application created",
-      "body1": "Your new application have been succesfully created. You have been redirected on your application's preview page.",
-      "body2": "From now on, you can have a look at your application and interact with it.",
-      "body3": "You can now add content to your application by sending instructions through the text input below.",
-      "body4": "Press 'h' key or click the icon on your screen's right side to learn more on how Newmips works.",
-      "continue": "Got it"
+    "home": {
+        "header": "Welcome to Newmips !",
+        "title": "Create or select a Project and an Application.",
+        "subtitle": "We take care of the rest !",
+        "directlinks": {
+            "title": "Direct links",
+            "script": "Script",
+            "live": "Live",
+            "import": "Import",
+            "settings": "Settings"
+        }
     },
     "listApplication": {
-      "title": "Projects and Applications",
-      "id": "ID",
-      "name": "Name",
-      "nbModules": "Modules Count",
-      "action": "Preview"
-    }
-  },
-  "actions": {
-    "delete": {
-      "application": "Application succesfully deleted"
-    }
-  },
-  "entity": {
-    "script": {
-      "label": "Script"
+        "legend": "Projects and Applications",
+        "id": "ID",
+        "name": "Name",
+        "nbModules": "Modules Count",
+        "action": "Actions",
+        "sureToDelete": "Are you sure ?",
+        "loading": "Loading...",
+        "projectDelete" : "Project successfully deleted!",
+        "appDelete" : "Application successfully deleted!"
     },
-    "live": {
-      "label": "Live"
+    "editor": {
+        "legend": "Editor",
+        "folders": "Folders",
+        "change_theme": "Switch theme",
+        "intro": "Hi Newmips user!",
+        "intro2": "You can select a file on the sidebar on your left ;)",
+        "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
     },
-    "import": {
-      "label": "Import"
+    "instructionScript": {
+        "legend": "Execute a Newmips script",
+        "redirecting": "Redirecting..."
+    },
+    "live":{
+        "legend": "Live edition"
+    },
+    "import":{
+        "legend": "Import",
+        "action": "Import now!",
+        "downloadsqlfile": "Download the valid SQL file.",
+        "confFile": "Configuration file",
+        "fileType": "XLSX or CSV File"
     },
     "settings": {
-      "label": "Settings",
-      "name": "settings",
-      "plural": "settings",
-      "display_language": "Diplaying language",
-      "activate_translation": "Activate automatic translation (Internet connection required)"
+        "legend": "Settings",
+        "display_language": "Diplaying language",
+        "activate_translation": "Activate automatic translation (Internet connection and valid API Key is required)",
+        "english": "English",
+        "french": "French"
     },
-    "project": {
-      "label": "Project",
-      "name": "project",
-      "plural": "projects",
-      "id_project": "Id",
-      "name_project": "Name",
-      "description_project": "Description",
-      "type_project": "Type"
+    "preview":{
+        "title": "Preview",
+        "reload": "Restart server",
+        "issue-button": "Report an issue"
     },
-    "gap": {
-      "label": "Gap",
-      "name": "gap",
-      "plural": "gaps",
-      "id_gap": "Id",
-      "name_gap": "Name",
-      "id_project_initial_gap": "Source project",
-      "id_project_final_gap": "Target project"
+    "project":{
+        "label": "Project",
+        "selectProject": "Please, select a project.",
+        "selectExisting": "Select an existing project",
+        "create": "Create a new project"
     },
-    "company": {
-      "label": "Company",
-      "name": "company",
-      "plural": "companies",
-      "id_company": "Id",
-      "name_company": "Name",
-      "id_project_company": "Project"
-    },
-    "actor": {
-      "label": "Actor",
-      "name": "actor",
-      "plural": "actors",
-      "id_actor": "Id",
-      "first_name_actor": "First name",
-      "last_name_actor": "Last name",
-      "login_actor": "Login",
-      "reference_number_actor": "Badge",
-      "id_project_actor": "Project"
-    },
-    "application": {
-      "label": "Application",
-      "name": "Application",
-      "plural": "Applications",
-      "id_application": "Id",
-      "name_application": "Name",
-      "id_persistence_application": "Persistence",
-      "id_search_engine_application": "Search engine",
-      "id_theme_application": "Theme",
-      "id_project": "ID Project",
-      "logo": "Logo"
+    "application":{
+        "label": "Application",
+        "create": "Create a new application",
+        "selectExisting": "Select an existing application",
+        "plural": "Applications"
     },
     "module": {
-      "label": "Module",
-      "name": "module",
-      "plural": "modules",
-      "id_module": "Id",
-      "name_module": "Name",
-      "id_application": "ID Application"
+        "label": "Module"
     },
-    "data_entity": {
-      "label": "Data entity",
-      "name": "data entity",
-      "plural": "data entities",
-      "id_data_entity": "Id",
-      "name_data_entity": "Name",
-      "description_data_entity": "Description",
-      "icon_data_entity": "Icon",
-      "controllable_data_entity": "Controlable",
-      "listable_data_entity": "Listable",
-      "testable_data_entity": "Testable",
-      "id_module": "ID Module"
+    "entity": {
+        "label": "Entity",
+        "name": "Name entity",
+        "plural": "entities"
     },
-    "data_field": {
-      "label": "Attribute",
-      "name": "Name",
-      "plural": "Attributes",
-      "id": "Id",
-      "type": "Type",
-      "nillable": "Can be null",
-      "min_length": "Minimum size",
-      "max_length": "Maximum size",
-      "class_object": "Class",
-      "id_data_entity": "ID Data entity"
+    "error":{
+        "oops": "Oops! An error occured :(",
+        "textone": "You should contact your system administrator, and you can",
+        "texttwo": "go to the home page",
+        "or": "or",
+        "textthree": "simply go back.",
+        "404": "The link you followed may be broken, or the page may have been removed."
     },
-    "persistence": {
-      "label": "Persistence",
-      "name": "instance",
-      "plural": "instances",
-      "id_persistence": "Id",
-      "name_persistence": "Name",
-      "type_persistence": "Source type",
-      "host_persistence": "Host",
-      "schema_persistence": "Schema",
-      "user_persistence": "User",
-      "password_persistence": "Password"
+    "back":{
+        "list": "List",
+        "show": "Show"
     },
-    "theme": {
-      "label": "Theme",
-      "name": "theme",
-      "plural": "themes",
-      "id_theme": "Id",
-      "name_theme": "Name",
-      "version_theme": "Version",
-      "description_theme": "Description",
-      "capture_theme": "Snapshot",
-      "tab_1": "Description",
-      "tab_2": "Snapshot"
+    "chat": {
+        "welcome": "Welcome ! Please type your instructions in input field below or type 'help' if you need any support."
     },
-    "search_engine": {
-      "label": "Search engine",
-      "name": "search engine",
-      "plural": "search engines",
-      "id_search_engine": "Id",
-      "name_search_engine": "Name",
-      "state_search_engine": "Status",
-      "type_search_engine": "Type",
-      "url_search_engine": "URL"
+    "database": {
+        "project": {
+            "select": {
+                "selected": "Project %s (%s) selected."
+            },
+            "create": {
+                "success" : "New project %s (%s) created."
+            },
+            "delete":{
+                "deleted": "Project %s deleted !"
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no project with this ID : %s.",
+                "withThisName": "Sorry, but there is no project with this name : %s."
+            }
+        },
+        "application": {
+            "select": {
+                "selected": "Application %s (%s) selected."
+            },
+            "create": {
+                "success" : "New application %s (%s) created."
+            },
+            "delete":{
+                "deleted": "Application %s deleted !"
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no application with this ID: %s.",
+                "withThisName": "Sorry, but there is no application with this name: %s.",
+                "withThisCodeName": "Sorry, but there is no application with this code name: %s."
+            },
+            "alreadyExist": "Sorry, but an application already exist with this name: %s."
+        },
+        "module": {
+            "select": {
+                "selected": "Module %s (%s) selected."
+            },
+            "create": {
+                "success" : "New module %s (%s) created.",
+                "alreadyExist": "A module with the same or similar name %s already exists."
+            },
+            "list": {
+                "selectAppBefore": "Please select a Application before."
+            },
+            "delete":{
+                "deleted": "Module %s deleted !"
+            },
+            "notFound": {
+                "notFounded": "Unable to find module %s.",
+                "withThisID": "Sorry, but there is no entity with this ID : %s.",
+                "withThisName": "Sorry, but there is no entity with this name : %s.",
+                "noModuleInApp": "Sorry, there is no module in this application.",
+                "notFoundHomeModule": "Cannot find home module in the application with the ID %s."
+            }
+        },
+        "component":{
+            "create": {
+                "success" : "New component %s (%s) created."
+            },
+            "notFound": {
+                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
+            }
+        },
+        "entity": {
+            "select": {
+                "selected": "Entity %s (%s) selected.",
+                "valid": "Please, indicate a valid name/ID."
+            },
+            "create": {
+                "success" : "New entity %s (%s) created.",
+                "alreadyExist": "Entity with the same or similar name %s already exists.",
+                "addComponent": "Cannot add component on entity, no entity with code name %s found."
+            },
+            "delete": {
+                "deleted": "Entity %s deleted !"
+            },
+            "get":{
+                "idNotDefined": "Entity ID is not defined. You should select or create an entity before."
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no entity with this ID : %s.",
+                "withThisName": "Sorry, but there is no entity with this name : %s.",
+                "withThisCodeNameAndModule": "Sorry, but there is no entity with this code name : %s in the module : %s.",
+                "targetNoExist": "Entity target doesn't exist."
+            }
+        },
+        "field": {
+            "error":{
+                "selectOrCreateBefore": "You have to select or create an entity before.",
+                "alreadyExist": "Sorry, a field with the same or similar name (%s) already exists."
+            },
+            "create": {
+                "created": "New field %s (%s) created.",
+                "foreignKeyCreated": "New foreign key %s | %s created."
+            },
+            "delete": {
+                "deleted": "Field %s deleted !"
+            },
+            "notFound": {
+                "withThisID": "Sorry, but there is no field with this ID : %s."
+            }
+        }
     },
-    "translated_language": {
-      "label": "Langue",
-      "name": "langue",
-      "plural": "langues",
-      "id_translated_language": "Id",
-      "code_translated_language": "Code",
-      "name_translated_language": "Name",
-      "logo": "logo"
-    },
-    "technology": {
-      "label": "Environment",
-      "name": "environment",
-      "plural": "environments"
+    "structure": {
+        "global": {
+            "restart": {
+                "success": "Server restarded!"
+            },
+            "gitPush": {
+                "success": "The application has been saved!"
+            },
+            "gitPull": {
+                "success": "The application has been successfully loaded!"
+            },
+            "error": {
+                "alreadyInProcess": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
+                "notDoGit": "You choose to not do git in config/gitlab.json, so this instruction will do nothing."
+            }
+        },
+        "module": {
+            "error": {
+                "notHome": "You can't delete the home module."
+            }
+        },
+        "field": {
+            "attributes": {
+                "success": "The field %s is now %s.",
+                "notUnderstandGiveAvailable": "Sorry, I do not understand what you want to do. Available attributes:<br>%s<br>",
+                "notUnderstand": "Unable to understand the given attribute.",
+                "fieldNoFound": "No field with name %s found in the current entity.",
+                "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique."
+            }
+        },
+        "association": {
+            "hasOne": {
+                "successEntity": "New relation has one with entity %s created.",
+                "successSubEntity": "New relation has one with sub-entity %s created."
+            },
+            "hasMany": {
+                "successEntity": "New relation has many with entity %s created.",
+                "successSubEntity": "New relation has many with sub-entity %s created."
+            },
+            "fieldset":{
+                "success": "New fieldset of existing %s created on %s."
+            },
+            "relatedTo": {
+                "success": "New field %s related to %s created."
+            },
+            "error":{
+                "alreadyHasMany": "Source entity already has many target entity, impossible to create belongs to association.",
+                "alreadyHasOne": "Source entity already has the association has one with target entity, it's impossible to add has many association.",
+                "alreadySameAlias": "Association already exists between these entities with this alias.",
+                "circularBelongsTo": "Bad entity association, you can't set circular has one association.",
+                "circularHasMany": "Bad entity association, you can't set circular has many association.",
+                "unableTab": "Unable to find %s tab in current entity."
+            }
+        },
+        "component": {
+            "error": {
+                "alreadyExistOnEntity": "Sorry, a component with this name is already associate to this entity in this module.",
+                "alreadyExistInApp": "Sorry, an other entity with this component name already exist in this application.",
+                "alreadyExistOnModule": "Sorry, a component with this name is already associate to this module."
+            }
+        },
+        "ui": {
+            "skin": {
+                "list": "Available skin:<br>%s<br>",
+                "cannotFind": "Cannot find the asked skin. Available skin:<br> %s <br>"
+            }
+        }
     }
-  }
 }

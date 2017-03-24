@@ -45,11 +45,11 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
             writeStream2.write(JSON.stringify(toSyncObject, null, 4));
             writeStream2.end();
             writeStream2.on('finish', function () {
-                console.log("Model => Options/Associations ------------------ COMPLETED");
+                //console.log("Model => Options/Associations ------------------ COMPLETED");
                 callback();
             });
         } else {
-            console.log("Model => Options/Associations ------------------ COMPLETED");
+            //console.log("Model => Options/Associations ------------------ COMPLETED");
             callback();
         }
     });
@@ -91,7 +91,7 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(modelTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log('File => Model ------------------ CREATED');
+            //console.log('File => Model ------------------ CREATED');
             callback();
         });
     }
@@ -103,14 +103,14 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(JSON.stringify(baseAttributes, null, 4));
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log("Model => attributes ------------------ CREATED");
+            //console.log("Model => attributes ------------------ CREATED");
             // CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
             var writeStreamOption = fs.createWriteStream('./workspace/' + idApplication + '/models/options/' + nameDataEntity.toLowerCase() + '.json');
             var baseOptions = [];
             writeStreamOption.write(JSON.stringify(baseOptions, null, 4));
             writeStreamOption.end();
             writeStreamOption.on('finish', function () {
-                console.log("Model => options/associations ------------------ CREATED");
+                //console.log("Model => options/associations ------------------ CREATED");
                 callback();
             });
         });
@@ -126,21 +126,21 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(routeTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log('File => Route file ------------------ CREATED')
+            //console.log('File => Route file ------------------ CREATED')
             callback();
         });
     }
 
     function createApiFile(idApplication, nameDataEntity, callback) {
         // CREATE ROUTE FILE
-        var apiTemplate = fs.readFileSync('./structure/pieces/api/data_entity.js', 'utf8');
+        var apiTemplate = fs.readFileSync('./structure/pieces/api/api_entity.js', 'utf8');
         apiTemplate = apiTemplate.replace(/ENTITY_NAME/g, nameDataEntity.toLowerCase());
         apiTemplate = apiTemplate.replace(/MODEL_NAME/g, nameDataEntity.charAt(0).toUpperCase() + nameDataEntity.toLowerCase().slice(1));
         var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/api/' + nameDataEntity.toLowerCase() + '.js');
         writeStream.write(apiTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            console.log('File => REST API file ------------------ CREATED')
+            //console.log('File => REST API file ------------------ CREATED')
             callback();
         });
     }
@@ -151,33 +151,33 @@ exports.setupDataEntity = function (attr, callback) {
         domHelper.read(fileName).then(function ($) {
             var li = '';
             // Create new html
-            li += '{@entityAccess entity="' + urlDataEntity.toLowerCase() + '"}\n';
-            li += "<li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:" + displaySidebar + ";' class='treeview'>\n";
-            li += '<a href="#">\n';
-            li += '<i class="fa fa-folder"></i>\n';
-            li += '<span>{@__ key="entity.' + nameDataEntity.toLowerCase() + '.label_entity" /}</span>\n';
-            li += '<i class="fa fa-angle-left pull-right"></i>\n';
-            li += '</a>\n';
-            li += '<ul class="treeview-menu">\n';
-            li += '{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="write"}';
-            li += '<li>\n';
-            li += "<a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
-            li += '<i class="fa fa-angle-double-right"></i>\n';
-            li += '{@__ key="operation.create" /} {@__ key="entity.' + nameDataEntity.toLowerCase() + '.name_entity" /}\n';
-            li += '</a>';
-            li += '</li>';
-            li += '{/actionAccess}';
-            li += '{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}';
-            li += '<li>';
-            li += "<a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
-            li += '<i class="fa fa-angle-double-right"></i>\n';
-            li += '{@__ key="operation.list" /} {@__ key="entity.' + nameDataEntity.toLowerCase() + '.plural_entity" /}\n';
-            li += '</a>\n';
-            li += '</li>\n';
-            li += '{/actionAccess}';
-            li += '</ul>\n';
-            li += '</li>\n';
-            li += '{/entityAccess}\n';
+            li += '<!--{@entityAccess entity="' + urlDataEntity.toLowerCase() + '"}-->\n';
+            li += "     <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:" + displaySidebar + ";' class='treeview'>\n";
+            li += '         <a href="#">\n';
+            li += '             <i class="fa fa-folder"></i>\n';
+            li += '             <span><!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.label_entity" /}--></span>\n';
+            li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+            li += '         </a>\n';
+            li += '         <ul class="treeview-menu">\n';
+            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="write"}-->';
+            li += '                 <li>\n';
+            li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
+            li += '                         <i class="fa fa-angle-double-right"></i>\n';
+            li += '                         <!--{@__ key="operation.create" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.name_entity" /}-->\n';
+            li += '                     </a>';
+            li += '                 </li>';
+            li += '             <!--{/actionAccess}-->';
+            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}-->';
+            li += '                 <li>';
+            li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
+            li += '                         <i class="fa fa-angle-double-right"></i>\n';
+            li += '                         <!--{@__ key="operation.list" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.plural_entity" /}-->\n';
+            li += '                     </a>\n';
+            li += '                 </li>\n';
+            li += '             <!--{/actionAccess}-->';
+            li += '         </ul>\n';
+            li += '     </li>\n';
+            li += '<!--{/entityAccess}-->\n';
 
             // Add new html to document
             $('#sortable').append(li);
@@ -203,7 +203,7 @@ exports.setupDataEntity = function (attr, callback) {
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            console.log("File => " + file + " ------------------ WRITTEN");
+            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }
@@ -222,7 +222,7 @@ exports.setupDataEntity = function (attr, callback) {
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            console.log("File => " + file + " ------------------ WRITTEN");
+            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }

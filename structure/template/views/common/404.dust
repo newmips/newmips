@@ -1,0 +1,21 @@
+{>"main_layout"/}
+{<header}
+    <h1>{@__ key="error.title"/} 404</h1>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i>{@__ key="module.home"/}</a></li>
+        <li class="active">{@__ key="error.title"/} 404</li>
+    </ol>
+{/header}
+{<content}
+    <div class="error-page">
+        <h2 class="headline">404</h2>
+        <div class="error-content">
+            <h3><i class="fa fa-warning fa-lg text-yellow"></i> {@__ key="error.title"/} 404</h3>
+            <p>
+                {@__ key="error.title"/}:<br><br><b>{@__ key="error.404.textone"/}</b><br><br>
+                <br>
+                {@__ key="error.meanwhile"/}<a href="/">{@__ key="error.goHome"/}</a> {@__ key="error.or"/} <a href="javascript:history.back();">{@__ key="error.goBack"/}</a>
+            </p>
+        </div>
+    </div>
+{/content}

@@ -26,6 +26,8 @@
 			"entitylist": "Entities:",
 			"group": "Group",
 			"role": "Role",
+            "api_status": "API Status",
+            "api_doc": "API Documentation",
 			"action":{
 				"read": "Read",
 				"write": "Write",
@@ -101,9 +103,11 @@
 		},
 		"empty": "No data to display"
 	},
-	"entity": {
-	},
+	"entity": {},
 	"global_component": {
+		"local_file_storage": {
+			"filename": "Filename"
+		},
 		"contact_form": {
 			"firstname": "Firstname",
 			"lastname": "Lastname",
@@ -118,6 +122,16 @@
 			"pending_event": "Pending event(s)"
 		}
 	},
-	"component": {
-	}
+	"component": {},
+	"error": {
+        "title": "Error",
+        "contactAdmin": "Merci de contacter votre administrateur.",
+        "meanwhile": "Meanwhile, you can ",
+        "goHome": "go back to home page",
+        "or": "or",
+        "goBack": " just go back.",
+        "404": {
+            "textone": "The link you followed may be broken, or the page may have been removed."
+        }
+    }
 }

@@ -191,13 +191,13 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
             }).then(function(){
                 // Redirect to firt connection page
                 res.render('login/first_connection', {
-                    message: 'Votre mot de passe a ete reinitialise'
+                    message: 'Votre mot de passe a été reinitialisé.'
                 });
             });
         }
     }).catch(function(err){
         res.render('login/reset_password', {
-            message: 'Une erreur est survenue lors de la reinitialisation du mot de passe.'
+            message: 'Une erreur est survenue lors de la réinitialisation du mot de passe.'
         });
     });
 });

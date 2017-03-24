@@ -16,7 +16,7 @@
 		<thead class="main">
 			<tr class="fields">
 				<th data-col="id">ID</th>
-				<th data-field="filename" data-col="filename">Filename</th>
+				<th data-field="filename" data-col="filename">{@__ key="global_component.local_file_storage.filename"/}</th>
 				<th></th>
 				<th></th>
 			</tr>
@@ -24,7 +24,7 @@
 		<thead class="filters">
 			<tr class="fields">
 				<th data-col="id">ID</th>
-				<th data-field="filename" data-col="filename">Filename</th>
+				<th data-field="filename" data-col="filename">{@__ key="global_component.local_file_storage.filename"/}</th>
 				<th></th>
 				<th></th>
 			</tr>
