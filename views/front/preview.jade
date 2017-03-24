@@ -243,19 +243,6 @@ block custom_js
 	script(type='text/javascript').
 		$(function() {
 
-			$("#group-access-form, #action-access-form").submit(function() {
-		        $(this).find("input[type='checkbox']").each(function(){
-		            if($(this).prop("checked")){
-		                $(this).val(true);
-		            }
-		            else{
-		                /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
-		                $(this).prop("checked", true);
-		                $(this).val(false);
-		            }
-		        });
-			});
-
 			var isEditorStarted = false;
 
 			$(document).on("click", "#start-editor", function(){

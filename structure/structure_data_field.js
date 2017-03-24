@@ -532,7 +532,7 @@ exports.setupDataField = function (attr, callback) {
 
         // Write Enum file
         var stream_fileEnum = fs.createWriteStream(fileEnum);
-        stream_fileEnum.write(JSON.stringify(enumData, null, 2));
+        stream_fileEnum.write(JSON.stringify(enumData, null, 4));
         stream_fileEnum.end();
     }
 
@@ -751,11 +751,11 @@ exports.setupHasManyTab = function (attr, callback) {
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
-    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
+    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
         //console.log('File => Translation FR ------------------ UPDATED');
-        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
+        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 4));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
             //console.log('File => Translation EN ------------------ UPDATED');
@@ -1033,11 +1033,11 @@ exports.setupFieldsetTab = function (attr, callback) {
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
-    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
+    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
         //console.log('File => Translation FR ------------------ UPDATED');
-        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
+        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 4));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
             //console.log('File => Translation EN ------------------ UPDATED');
@@ -1176,7 +1176,7 @@ exports.deleteDataField = function (attr, callback) {
             if (typeof enumJson[name_data_entity] !== "undefined") {
                 if (typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined") {
                     delete enumJson[name_data_entity][info.fieldToDrop];
-                    fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 2));
+                    fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 4));
                 }
             }
 

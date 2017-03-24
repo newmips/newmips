@@ -58,7 +58,7 @@ exports.setupApplication = function(attr, callback) {
             // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
             var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
             languageConfig.lang = attr.lang_user;
-            fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
+            fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 4), function(err) {
 
                 if(err){
                     var err = new Error();
