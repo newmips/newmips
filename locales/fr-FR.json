@@ -5,7 +5,16 @@
     "login": {
         "log_in": "Se connecter",
         "reset_password": "Mot de passe oublié",
-        "first_connection": "Première connexion",
+        "emailResetSent": "Un email vous permettant de réinitialiser votre mot de passe vous à été envoyé.",
+        "tokenNotFound": "Impossible de retrouver votre token, nous ne pouvons pas valider votre demande.",
+        "passwordReset": "Votre mot de passe a été réinitialisé.",
+        "first_connection": {
+            "title": "Première connexion",
+            "success": "Mise à jour effectuée. Vous pouvez désormais vous connecter avec votre identifiant et votre nouveau mot de passe.",
+            "hasAlreadyPassword": "Mise à jour impossible. Cet utilisateur possède déjà un mot de passe.",
+            "userNotExist": "Erreur, cet utilisateur n'existe pas.",
+            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas."
+        },
         "authentication": "Connexion",
         "login": "Login",
         "password": "Mot de passe",

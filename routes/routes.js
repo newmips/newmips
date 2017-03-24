@@ -6,6 +6,23 @@ var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
 
+// Gitlab
+var globalConf = require('../config/global.js');
+var gitlabConf = require('../config/gitlab.json');
+
+try{
+    if(gitlabConf.doGit){
+        // Gitlab connection
+        var gitlab = require('gitlab')({
+            url:   gitlabConf.url,
+            token: gitlabConf.privateToken
+        });
+    }
+} catch(err){
+    console.log("Error connection Gitlab repository: "+err);
+    console.log("Please set doGit in config/gitlab.json to false");
+}
+
 //Sequelize
 var models = require('../models/');
 
@@ -22,54 +39,113 @@ router.get('/', block_access.loginAccess, function(req, res) {
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
-    res.render('login/first_connection', {
-        message: ""
-    });
+    res.render('login/first_connection');
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
     var login_user = req.body.login_user;
-    var password = bcrypt.hashSync(req.body.password_user2, null, null);
+    var email_user = req.body.email_user;
 
-    models.User.findOne({
-        where: {
-            login: login_user,
-            password: ""
-        }
-    }).then(function(user){
-        if(user){
-            if(user.password == ""){
-                models.User.update({
-                    password: password,
-                }, {
-                    where: {
-                        login: login_user
+    if(req.body.password_user == req.body.password_user2){
+
+        var password = bcrypt.hashSync(req.body.password_user2, null, null);
+
+        models.User.findOne({
+            where: {
+                login: login_user,
+                $or: [{password: ""}, {password: null}]
+            }
+        }).then(function(user){
+            if(user){
+                if(user.password == "" || user.password == null){
+
+                    // Create user in gitlab
+                    if(gitlabConf.doGit){
+
+                        try{
+                            gitlab.users.all(function(gitlabUsers){
+                                console.log(gitlabUsers);
+                                var exist = false;
+                                for(var i=0; i<gitlabUsers.length; i++){
+                                    if(gitlabUsers[i].email == email_user){
+                                        exist = true;
+                                        req.session.gitlab.user = gitlabUsers[i];
+                                    }
+                                }
+                                console.log("Exist:", exist);
+                                if(!exist){
+                                    var userToCreate = {
+                                        email: email_user,
+                                        password: req.body.password_user2,
+                                        username: email_user,
+                                        name: email_user,
+                                        website_url: globalConf.host,
+                                        admin: false,
+                                        confirm: false
+                                    };
+                                    console.log(userToCreate);
+
+                                    gitlab.users.create(userToCreate, function(result){
+                                        console.log(result);
+                                    });
+                                }
+                            });
+                        } catch(err){
+                            console.log("Error connection Gitlab repository: "+err);
+                            console.log("Please set doGit in config/gitlab.json to false");
+                        }
                     }
-                }).then(function(){
-                    req.flash('loginMessage', 'Mise à jour faite. Vous pouvais désormais vous connecter.');
-                    res.redirect('/login');
-                });
+
+                    models.User.update({
+                        password: password,
+                        email: email_user
+                    }, {
+                        where: {
+                            login: login_user
+                        }
+                    }).then(function(){
+                        req.session.toastr = [{
+                            message: "login.first_connection.success",
+                            level: "success"
+                        }];
+                        res.redirect('/login');
+                    });
+                }
+                else{
+                    req.session.toastr = [{
+                        message: "login.first_connection.hasAlreadyPassword",
+                        level: "error"
+                    }];
+                }
             }
             else{
-                // Password isn't empty
-                req.flash('loginMessage', 'Mise à jour impossible. Cet utilisateur possède déjà un mot de passe. Contactez votre Administrateur.');
+                req.session.toastr = [{
+                    message: "login.first_connection.userNotExist",
+                    level: "error"
+                }];
+
+                res.redirect('/login');
             }
-        }
-        else{
-            req.flash('loginMessage', "Erreur. Cet utilisateur n'existe pas.");
+        }).catch(function(err){
+            req.session.toastr = [{
+                message: err.message,
+                level: "error"
+            }];
             res.redirect('/login');
-        }
-    }).catch(function(err){
-        req.flash('loginMessage', 'Erreur. Veuillez contactez votre Administrateur.');
-        res.redirect('/login');
-    });
+        });
+
+    } else{
+        req.session.toastr = [{
+            message: "login.first_connection.passwordNotMatch",
+            level: "error"
+        }];
+        res.redirect('/first_connection');
+    }
 });
 
 // Affichage de la page reset_password
 router.get('/reset_password', block_access.loginAccess, function(req, res) {
-    res.render('login/reset_password', {
-        message: req.flash('loginMessage')
-    });
+    res.render('login/reset_password');
 });
 
 // Reset password
@@ -94,9 +170,12 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                 mail_user: email,
                 token: token
             }).then(function(success) {
-                res.render('login/reset_password', {
-                    message: 'Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.'
-                });
+
+                req.session.toastr = [{
+                    message: "login.emailResetSent",
+                    level: "success"
+                }];
+                res.render('login/reset_password');
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
                 models.User.update({
@@ -106,15 +185,19 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                         id: idUser
                     }
                 }).then(function(){
-                    res.render('login/reset_password', {
-                        message: 'Erreur lors de l\'envoi de l\'email.'
-                    });
+                    req.session.toastr = [{
+                        message: err.message,
+                        level: "error"
+                    }];
+                    res.render('login/reset_password');
                 });
             });
         }).catch(function(err){
-            res.render('login/reset_password', {
-                message: 'Probleme de creation du token.'
-            });
+            req.session.toastr = [{
+                message: err.message,
+                level: "error"
+            }];
+            res.render('login/reset_password');
         });
     }
 
@@ -128,14 +211,18 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             resetPasswordProcess(user.id, user.email);
         }
         else{
-            res.render('login/reset_password', {
-                message: "Erreur. L'utilisateur n'existe pas."
-            });
+            req.session.toastr = [{
+                message: "login.first_connection.userNotExist",
+                level: "error"
+            }];
+            res.render('login/reset_password');
         }
     }).catch(function(err){
-        res.render('login/reset_password', {
-            message: "Une erreur s'est produite."
-        });
+        req.session.toastr = [{
+            message: err.message,
+            level: "error"
+        }];
+        res.render('login/reset_password');
     });
 });
 
@@ -148,43 +235,46 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
         }
     }).then(function(user){
         if(!user){
-            res.render('login/reset_password', {
-                message: 'Impossible de trouver votre token.'
-            });
+            req.session.toastr = [{
+                message: "login.tokenNotFound",
+                level: "error"
+            }];
+            res.render('login/reset_password');
         }
         else{
             models.User.update({
-                password: "",
-                token_password_reset: ""
+                password: null,
+                token_password_reset: null
             }, {
                 where: {
                     id: user.id
                 }
             }).then(function(){
-                // Redirect to firt connection page
-                res.render('login/first_connection', {
-                    message: 'Votre mot de passe a ete reinitialise'
-                });
+                req.session.toastr = [{
+                    message: "login.passwordReset",
+                    level: "success"
+                }];
+                res.render('login/first_connection');
             });
         }
     }).catch(function(err){
-        res.render('login/reset_password', {
-            message: 'Une erreur est survenue lors de la reinitialisation du mot de passe.'
-        });
+        req.session.toastr = [{
+            message: err.message,
+            level: "error"
+        }];
+        res.render('login/reset_password');
     });
 });
 
-// show the login form
 router.get('/login', block_access.loginAccess, function(req, res) {
-    // render the page and pass in any flash data if it exists
-    // console.log(req.headers);
+
     var redirect = req.params.redirect;
     if (typeof redirect === 'undefined') {
         redirect = "/default/home";
     }
+
     res.render('login/login', {
-        message: req.flash('loginMessage'),
-        "redirect": redirect
+        redirect: redirect
     });
 });
 
@@ -201,9 +291,7 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     }
     req.session.message = "";
     req.session.error = 0;
-    // res.redirect('/');
 
-    //is authenticated ?
     res.redirect(redirect_to);
 });
 

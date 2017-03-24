@@ -5,7 +5,16 @@
     "login": {
         "log_in": "Log in",
         "reset_password": "Forgotten password",
-        "first_connection": "First connection",
+        "emailResetSent": "An email allowing you to reset your password has been sent to you.",
+        "tokenNotFound": "Sorry, unable to find your token, we can not validate your request.",
+        "passwordReset": "Your password has been reset.",
+        "first_connection": {
+            "title": "First connection",
+            "success": "Update completed. You could now log in with your username and password",
+            "hasAlreadyPassword": "Can not update. This user already has a password.",
+            "userNotExist": "Error, this user doesn't exist.",
+            "passwordNotMatch": "Sorry, passwords do not match."
+        },
         "authentication": "Connection",
         "login": "Login",
         "password": "Password",
