@@ -50,12 +50,22 @@ function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
-router.get('/list', block_access.actionAccessMiddleware("c_r_a", "read"), function (req, res) {
+function teamAdminMiddleware(req, res, next) {
+    models.E_c_r_a_team.findOne({where: {f_id_admin_user: req.session.passport.user.id}}).then(function(team) {
+        if (!team) {
+            req.session.toastr.push({level: 'error', message: 'You need to be Admin of your C.R.A Team to access this page'});
+            return res.redirect('/default/c_r_a');
+        }
+        req.team = team;
+        next();
+    });
+}
+
+router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("c_r_a", "read"), function (req, res) {
     var data = {
         "menu": "e_c_r_a",
         "sub_menu": "list_e_c_r_a"
     };
-
     data.toastr = req.session.toastr;
     req.session.toastr = [];
 
@@ -147,10 +157,53 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("c_r_a",
     });
 });
 
-router.get('/declare', block_access.actionAccessMiddleware("c_r_a", 'read'), function(req, res) {
+router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c_r_a", 'read'), function(req, res) {
     var data = {
         menu: "e_c_r_a",
         sub_menu: "list_e_c_r_a"
+    };
+
+    var id_cra = req.query.id;
+    models.E_user.findOne({
+        include: [{
+            model: models.E_c_r_a,
+            as: 'r_c_r_a',
+            where: {id: id_cra}
+        }]
+    }).then(function(user) {
+        if (!user)
+            return error500("Unable to find associated user", req, res);
+        data.user = user;
+        console.log(user.r_c_r_a);
+        models.E_c_r_a_activity.findAll({where: {f_active: true}}).then(function(activities) {
+            models.E_c_r_a_team.findOne({
+                include: [{
+                    model: models.E_user,
+                    as: 'r_users',
+                    where: {id: user.id}
+                }, {
+                    model: models.E_c_r_a_activity,
+                    as: 'r_default_c_r_a_activity'
+                }]
+            }).then(function(team) {
+                if (!team)
+                    return res.render('e_c_r_a/declare', data);
+                for (var i = 0; i < team.r_default_c_r_a_activity.length; i++)
+                    for (var j = 0; j < activities.length; j++)
+                        if (team.r_default_c_r_a_activity[i].id == activities[j].id)
+                            activities.splice(j, 1);
+                data.activities = activities;
+                res.render('e_c_r_a/admin_declare', data);
+            });
+        });
+    });
+
+});
+
+router.get('/declare', block_access.actionAccessMiddleware("c_r_a", 'read'), function(req, res) {
+    var data = {
+        menu: "e_c_r_a",
+        sub_menu: "create_e_c_r_a"
     };
 
     models.E_c_r_a_activity.findAll({where: {f_active: true}}).then(function(activities) {
@@ -164,6 +217,8 @@ router.get('/declare', block_access.actionAccessMiddleware("c_r_a", 'read'), fun
                 as: 'r_default_c_r_a_activity'
             }]
         }).then(function(team) {
+            if (!team)
+                return res.render('e_c_r_a/declare', data);
             for (var i = 0; i < team.r_default_c_r_a_activity.length; i++)
                 for (var j = 0; j < activities.length; j++)
                     if (team.r_default_c_r_a_activity[i].id == activities[j].id)
@@ -175,7 +230,7 @@ router.get('/declare', block_access.actionAccessMiddleware("c_r_a", 'read'), fun
 });
 
 router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("c_r_a", 'write'), function(req, res) {
-    var id_cra = req.params.id_cra;
+    var id_cra = parseInt(req.params.id_cra);
 
     models.E_c_r_a.update({f_user_validated: true}, {where: {id: id_cra}}).then(function(cra) {
         if (!cra)
@@ -290,6 +345,9 @@ router.post('/declare/update', block_access.actionAccessMiddleware("c_r_a", 'wri
         if (!cra)
             return res.status(500).send("Couldn't find previously saved C.R.A");
 
+        if (cra.f_user_validated && cra.f_admin_validated)
+            return res.status(403).send("You can't update if admin validated");
+
         var tasksPromises = [];
         for (var input in body) {
             var parts = input.split('.');
@@ -318,7 +376,8 @@ router.post('/declare/update', block_access.actionAccessMiddleware("c_r_a", 'wri
         }
 
         Promise.all(tasksPromises).then(function() {
-            res.status(200).json({action: 'updated', user_validated: cra.f_user_validated, admin_validated: cra.f_admin_validated});
+            res.status(200).json({action: 'updated', user_validated: false, admin_validated: cra.f_admin_validated});
+            cra.update({f_user_validated: false});
         });
     }).catch(function(err) {
         console.log(err);

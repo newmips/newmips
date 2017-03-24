@@ -20,6 +20,12 @@
                 <div class="box-body" style="text-align: center;">
 
                     <div id="craBox" class="craBlocks">
+                        <div style="float:left;">
+                            User validated &nbsp;&nbsp; <i id="userValidIcon" class="fa fa-square-o fa-lg"></i>
+                        </div>
+                        <div style="float:left;margin-left:20px;">
+                            Admin validated &nbsp;&nbsp; <i id="adminValidIcon" class="fa fa-square-o fa-lg"></i>
+                        </div>
                         <button id="previous" class="btn btn-default"><i class="fa fa-angle-left"></i></button>
                         <input id="monthYearPicker">
                         <button id="next" class="btn btn-default"><i class="fa fa-angle-right"></i></button>
@@ -51,6 +57,8 @@
                                 </div>
                             </div>
                         </form>
+                        Notification Admin
+                        <textarea id="notificationAdmin" disabled></textarea>
                     </div>
 
                     <div id="noActivities" class="craBlocks" style="display: none;">
