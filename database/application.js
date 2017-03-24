@@ -6,61 +6,50 @@ var models = require('../models/');
 // Select
 exports.selectApplication = function(attr, callback) {
 
-    // If params is a string, look for application with specific Name
-    // Else if param is a number, look for application with its ID
-    if (typeof attr !== 'undefined' && attr) {
+    // Set options variable using the attribute array
+    var options = attr.options;
+    var where = {};
+    var type_option;
 
-        // Set options variable using the attribute array
-        var options = attr.options;
-        var where = {};
-        var type_option;
-
-        if (typeof options !== 'undefined' && options) {
-
-            if (isNaN(options.value)) {
-                // Value is the name of application
-                var name_application = options.value;
-                where = {
-                    where: {
-                        name: name_application
-                    }
-                }
-                type_option = "name";
+    if (isNaN(options.value)) {
+        // Value is the name of application
+        var name_application = options.value;
+        where = {
+            where: {
+                name: name_application
             }
-            else{
-                // Value is the ID of application
-                var id_application = options.value;
-                where = {
-                    where: {
-                        id: id_application
-                    }
-                }
-                type_option = "ID";
-            }
-
-            models.Application.findOne(where).then(function(application){
-                if(!application){
-                    var err = new Error();
-                    err.message = "Sorry, but there is no application with this " + type_option;
-                    return callback(err, null);
-                }
-
-                // Assign new application to work on
-                var info = {
-                    "insertId": application.id,
-                    "message": "Application " + application.id + " - " + application.name + " selected."
-                };
-                callback(null, info);
-            }).catch(function(err){
-                callback(err, null);
-            });
-
-        } else {
-            var err = new Error();
-            err.message = "Please indicate the name of the application you would like to select";
-            callback(err, null);
         }
+        type_option = "Name";
     }
+    else{
+        // Value is the ID of application
+        var id_application = options.value;
+        where = {
+            where: {
+                id: id_application
+            }
+        }
+        type_option = "ID";
+    }
+
+    models.Application.findOne(where).then(function(application){
+        if(!application){
+            var err = new Error();
+            err.message = "database.application.notFound.withThis"+type_option;
+            err.messageParams = [options.value];
+            return callback(err, null);
+        }
+
+        // Assign new application to work on
+        var info = {
+            insertId: application.id,
+            message: "database.application.select.selected",
+            messageParams: [application.name, application.id]
+        };
+        callback(null, info);
+    }).catch(function(err){
+        callback(err, null);
+    });
 }
 
 // Check if application already
@@ -96,47 +85,42 @@ exports.createNewApplication = function(attr, callback) {
     var id_project = -1;
     var version = 1;
 
-    if (typeof attr !== 'undefined' && typeof attr.options !== "undefined") {
+    // Set id_project of future application according to session value transmitted in attributes
+    id_project = attr.id_project;
 
-        // Set id_project of future application according to session value transmitted in attributes
-        id_project = attr.id_project;
+    // Set options variable using the attribute array
+    var options = attr.options;
+    name_application = options.value;
+    var show_name_application = options.showValue;
 
-        // Set options variable using the attribute array
-        var options = attr.options;
-        name_application = options.value;
-        var show_name_application = options.showValue;
+    if (typeof name_application !== 'undefined' && name_application != "" && id_project != "") {
 
-        if (typeof name_application !== 'undefined' && name_application != "" && id_project != "") {
-
-            models.Application.create({
-                name: show_name_application,
-                displayName: show_name_application,
-                codeName: name_application,
-                id_project: id_project,
-                version: version
-            }).then(function(created_application){
-                var info = {
-                    insertId: created_application.id,
-                    message: "New application " + created_application.id + " created."
-                }
-                callback(null, info);
-            }).catch(function(err){
-                callback(err, null);
-            });
-
-        } else {
-            var err = new Error();
-            err.message = "Project seems not to be yet set.";
+        models.Application.create({
+            name: show_name_application,
+            displayName: show_name_application,
+            codeName: name_application,
+            id_project: id_project,
+            version: version
+        }).then(function(createdApp){
+            var info = {
+                insertId: createdApp.id,
+                message: "database.application.create.success",
+                messageParams: [createdApp.name, createdApp.id]
+            }
+            callback(null, info);
+        }).catch(function(err){
             callback(err, null);
-        }
+        });
+
     }
 }
 
 // Delete
-exports.deleteApplication = function(id_application, callback) {
-    models.Application.destroy({where: {id: id_application}}).then(function() {
+exports.deleteApplication = function(idApp, callback) {
+    models.Application.destroy({where: {id: idApp}}).then(function() {
         var info = {
-            "message": "Application "+id_application+" deleted."
+            message: "database.application.delete.deleted",
+            messageParams: [idApp]
         };
         callback(null, info);
     }).catch(function(err) {
@@ -150,21 +134,20 @@ exports.listApplication = function(attr, callback) {
     models.Application.findAll({
         order: "id DESC"
     }).then(function(applications){
-        var info = new Array();
-        info.message = "List of applications (id | name): <br><ul>";
+        var info = {};
+        info.message = "<br><ul>";
 
         if(!applications){
-            info.message = info.message + "None<br>";
+            info.message += " - <br>";
         }
         else {
-            i = 0;
-            while (i < applications.length) {
-                info.message = info.message + "<li>" + applications[i].id + " | " + applications[i].name + "</li>";
-                i++;
+            for(var i=0; i<applications.length; i++){
+                info.message += "<li>" + applications[i].name + "("+applications[i].id+")</li>";
             }
         }
         info.message += "</ul>";
         info.rows = applications;
+
         callback(null, info);
     }).catch(function(err){
         callback(err, null);
@@ -172,12 +155,13 @@ exports.listApplication = function(attr, callback) {
 }
 
 // GetById
-exports.getNameApplicationById = function(id_application, callback) {
+exports.getNameApplicationById = function(idApp, callback) {
 
-    models.Application.findById(id_application).then(function(application){
+    models.Application.findById(idApp).then(function(application){
         if(!application){
             var err = new Error();
-            err.message = "No application module found";
+            err.message = "database.application.notFound.withThisID";
+            err.messageParams = [idApp];
             return callback(err, null);
         }
         callback(null, application.name);
@@ -191,7 +175,8 @@ exports.getIdApplicationByName = function(name, callback) {
     models.Application.findOne({where: {name: name}}).then(function(application){
         if(!application){
             var err = new Error();
-            err.message = "No application with name "+name+" found.";
+            err.message = "database.application.notFound.withThisCodeName";
+            err.messageParams = [name];
             return callback(err, null);
         }
         callback(null, application.id);
@@ -204,7 +189,8 @@ exports.getIdApplicationByCodeName = function(codeName, showName, callback) {
     models.Application.findOne({where: {codeName: codeName}}).then(function(application){
         if(!application){
             var err = new Error();
-            err.message = "No application with name "+showName+" found.";
+            err.message = "database.application.notFound.withThisName";
+            err.messageParams = [showName];
             return callback(err, null);
         }
         callback(null, application.id);
@@ -213,10 +199,14 @@ exports.getIdApplicationByCodeName = function(codeName, showName, callback) {
     });
 }
 
-exports.getCodeNameApplicationById = function(id_app, callback) {
-    models.Application.findOne({where: {id: id_app}}).then(function(application) {
-        if (!application)
-            return callback("Application not found");
+exports.getCodeNameApplicationById = function(idApp, callback) {
+    models.Application.findOne({where: {id: idApp}}).then(function(application) {
+        if (!application){
+            var err = new Error();
+            err.message = "database.application.notFound.withThisID";
+            err.messageParams = [idApp];
+            return callback(err);
+        }
         return application.codeName;
     })
 }

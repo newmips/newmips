@@ -3,8 +3,8 @@ block header
 	.row
 		.col-header.col-xs-3.col-lg-9
 			h1
-				| #{__("module.manager")}
-				small #{__("module.module")}
+				| #{__("menu.preview")}
+				small #{__("menu.module")}
 		.col-header.col-xs-3.col-lg-1
 			.clearfix
 				span.pull-left Instructions
@@ -22,8 +22,8 @@ block header
 				li
 					a(href='/default/home')
 						i.fa.fa-home
-						| #{__("module.home")}
-				li.active #{__("module.manager")}
+						| #{__("menu.home")}
+				li.active #{__("menu.preview")}
 		.col-header.col-xs-3.col-lg-1
 			a.btn.btn-default.pull-right(href='/logout')
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
@@ -40,9 +40,9 @@ block content
 	#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 		ul.nav.nav-tabs#primary-navtabs(role="tablist")
 			li.active
-				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("module.preview.title")}
+				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("preview.title")}
 			li
-				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("module.editor")}
+				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("menu.editor")}
 
 		.tab-content
 			#preview.tab-pane.fade.in.active
@@ -65,22 +65,22 @@ block content
 										|  Instructions
 								#chat-box.box-body.chat
 									// Each item has : user, dateEmission, content
-									each item in chat.items
+									each msg in chat.items
 											hr
 											.item
-												if (item.user == "Newmips")
+												if (msg.user == "Newmips")
 													img(src='/img/avatar.png', alt='user image')
 												else
 													img(src='/img/user.png', alt='user image')
 												p.message
 													a.name(href='#')
 														small.text-muted.pull-right
-															| #{item.dateEmission}
-														if (item.user == "Newmips")
+															| #{msg.dateEmission}
+														if (msg.user == "Newmips")
 															| Newmips
 														else
 															| #{profile.first_name_user} #{profile.last_name_user}
-													| !{item.content}
+													| !{__(msg.content, msg.params)}
 								.box-footer
 									.row
 										.col-xs-1
@@ -103,27 +103,27 @@ block content
 									|  Session
 							.box-body
 								.callout.callout-warning
-									| #{__("entity.project.label")} : #{session.project.id_project} - #{session.project.name_project}
+									| #{__("project.label")} : #{session.project.id_project} - #{session.project.name_project}
 									br
-									| #{__("entity.application.label")} : #{session.application.id_application} - #{session.application.name_application}
+									| #{__("application.label")} : #{session.application.id_application} - #{session.application.name_application}
 									br
-									| #{__("entity.module.label")} : #{session.module.id_module} - #{session.module.name_module}
+									| #{__("module.label")} : #{session.module.id_module} - #{session.module.name_module}
 									br
-									| #{__("entity.data_entity.label")} : #{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
+									| #{__("entity.label")} : #{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
 							.box-footer
 								.text-center
 									a.btn.btn-info#restart-server(href="#")
 										i.fa.fa-refresh
-										|&nbsp; #{__("module.preview.reload")}
+										|&nbsp; #{__("preview.reload")}
 									|&nbsp;&nbsp;
 									a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
 										i.fa.fa-lg.fa-github
-										|&nbsp; #{__("module.preview.issue-button")}
+										|&nbsp; #{__("preview.issue-button")}
 			#editor.tab-pane.fade.in
 				.row
 					#codemirror-menu.col-xs-12.col-sm-2.sidebar
 						h4
-							| #{__("module.editor_content.folders")} :
+							| #{__("editor.folders")} :
 						ul#sortable.sidebar-menu
 							mixin parseObject(array)
 								if array
@@ -144,7 +144,7 @@ block content
 							mixin parseObject(workspaceFolder)
 					#codemirror-editor.col-xs-12.col-sm-10
 						h4
-							| #{__("module.editor_content.editor")} :
+							| #{__("editor.legend")} :
 						#tabs-editor.nav-tabs-custom(style="margin-bottom:0px;")
 							ul.nav.nav-tabs#editor-navtabs(role="filelist")
 				br
@@ -154,7 +154,7 @@ block content
 					.col-xs-5
 						span.pull-right(style="margin-right:50px;")
 							b
-								| #{__("module.editor_content.change_theme")} :
+								| #{__("editor.change_theme")} :
 						br
 						select#select-theme.pull-right
 							option(value="default") default
@@ -237,9 +237,9 @@ block custom_js
 	script(src='/js/plugins/codemirror/mode/sql/sql.js', type='text/javascript')
 	// Editor
 	script(type='text/javascript').
-		var intro2 = "#{__('module.editor_content.intro')}" + "\n";
-		intro2 += "#{__('module.editor_content.intro2')}" + "\n";
-		intro2 += "#{__('module.editor_content.intro3')}";
+		var intro2 = "#{__('editor.intro')}" + "\n";
+		intro2 += "#{__('editor.intro2')}" + "\n";
+		intro2 += "#{__('editor.intro3')}";
 	script(type='text/javascript').
 		$(function() {
 
@@ -335,11 +335,15 @@ block custom_js
 				else{
 				    if (instructionHistory == null) {
 				    	var instructionList = [];
-				    	instructionList.push($("#instruction").val());
-				        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionList));
+				    		if($("#instruction").val() != "restart server"){
+						    	instructionList.push($("#instruction").val());
+						        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionList));
+				    		}
 				    } else {
-				        instructionHistory.push($("#instruction").val());
-				        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
+				    	if($("#instruction").val() != "restart server"){
+				    		instructionHistory.push($("#instruction").val());
+				        	localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
+				    	}
 				    }
 					$(this).html("Loading...");
 					$(this).prop("disabled", true);

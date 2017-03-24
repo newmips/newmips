@@ -3,8 +3,8 @@ block header
 	.row
 		.col-header.col-xs-3.col-lg-9
 			h1
-				| #{__("module.live")}
-				small #{__("module.module")}
+				| #{__("menu.live")}
+				small #{__("menu.module")}
 		.col-header.col-xs-3.col-lg-1
 			.clearfix
 				span.pull-left Instructions
@@ -22,14 +22,14 @@ block header
 				li
 					a(href='/default/home')
 						i.fa.fa-home
-						| #{__("module.home")}
-				li.active #{__("module.live")}
+						| #{__("menu.home")}
+				li.active #{__("menu.live")}
 		.col-header.col-xs-3.col-lg-1
 			a.btn.btn-default.pull-right(href='/logout')
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 				span #{__("button.disconnect")}
 block content
-	legend #{__("operation.live")}
+	legend #{__("live.legend")}
 	.row
 		.col-xs-12.connectedSortable
 			.box-body
@@ -47,7 +47,6 @@ block content
 
 						form(action='/live/index', id='singleInstruction', method='post')
 							.form-group
-								// input.form-control.input(id='instruction', name='instruction', type='text', value='#{instruction}' x-webkit-speech)
 								input.form-control.input(id='instruction', name='instruction', type='text', autofocus, value='' x-webkit-speech)
 
 							.form-group

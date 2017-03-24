@@ -40,9 +40,12 @@ var cons = require('consolidate');
 // Pass passport for configuration
 require('./utils/authStrategies');
 
-// Set up our express application
+// Set up public files access (js/css...)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
+
+// Set up API documentation access
+app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
 
 // Log every request to the console
 app.use(morgan('dev'));
@@ -106,7 +109,7 @@ if (startedFromGenerator) {
 	});
 }
 
-//------------------------------ LANGUAGE ------------------------------ //
+//------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
 	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
 		autologinInited = true;
@@ -144,7 +147,6 @@ app.use(function(req, res, next) {
 			var action = params.action;
 			return block_access.actionAccess(userRole, entityName, action);
 		}
-                
 	}
 
 	if (typeof req.session.toastr === 'undefined')
@@ -189,6 +191,15 @@ app.use(function(req, res, next) {
 		}
 		return false;
 	}
+	dust.helpers.ifTrue = function(chunk, context, bodies, params) {
+		var value = params.key;
+
+		if(value == true || value == "true" || value == 1){
+			return true;
+		} else{
+			return false;
+		}
+	}
     next();
 });
 
@@ -196,6 +207,9 @@ app.use(function(req, res, next) {
 app.use(function(req, res, next) {
     var render = res.render;
     res.render = function(view, locals, cb) {
+    	if(typeof locals === "undefined"){
+            var locals = {};
+        }
     	if (req.session.toastr && req.session.toastr.length > 0) {
 	        locals.toastr = req.session.toastr;
 	        req.session.toastr = [];
@@ -208,6 +222,15 @@ app.use(function(req, res, next) {
 // Routes ======================================================================
 require('./routes/')(app);
 
+// Api routes ==================================================================
+require('./api/')(app);
+
+// Handle 404
+app.use(function(req, res) {
+	res.status(400);
+	res.render('common/404');
+});
+
 // Launch ======================================================================
 if (protocol == 'https') {
 	models.sequelize.sync({ logging: console.log, hooks: false }).then(function() {
@@ -218,10 +241,10 @@ if (protocol == 'https') {
                         models.E_role.create({f_label: 'admin'}).then(function(){
                             models.E_user.create({
                                 f_login: 'admin',
-                                f_password: '',
+                                f_password: null,
                                 f_id_role_role: 1,
                                 f_id_group_group: 1,
-                                f_enabled: 1
+                                f_enabled: 0
                             });
                         });
                     });
@@ -242,18 +265,19 @@ if (protocol == 'https') {
 	});
 }
 else {
-	models.sequelize.sync({ logging: console.log, hooks: false }).then(function() {
+	models.sequelize.sync({ logging: false, hooks: false }).then(function() {
 		models.sequelize.customAfterSync().then(function(){
 			models.E_user.findAll().then(function(users) {
 				if (!users || users.length == 0) {
-                    models.E_group.create({f_label: 'admin'}).then(function(){
-                        models.E_role.create({f_label: 'admin'}).then(function(){
+                    models.E_group.create({version:0, f_label: 'admin'}).then(function(){
+                        models.E_role.create({version:0, f_label: 'admin'}).then(function(){
                             models.E_user.create({
                                 f_login: 'admin',
-                                f_password: '',
+                                f_password: null,
                                 f_id_role_role: 1,
                                 f_id_group_group: 1,
-                                f_enabled: 1
+                                f_enabled: 0,
+                                version: 0
                             });
                         });
                     });

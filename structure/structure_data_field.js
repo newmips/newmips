@@ -184,11 +184,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "checkbox" :
         case "case à cocher" :
             str += "	&nbsp;\n<br>\n";
-            str += "	{@eq key=" + dataField + " value=\"1\"}";
+            str += "	{@ifTrue key=" + dataField + "}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
             str += "	{:else}";
             str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
-            str += "	{/eq}";
+            str += "	{/ifTrue}";
             break;
         case "radio" :
         case "case à sélectionner" :
@@ -325,8 +325,6 @@ function updateListFile(fileBase, file, thString, bodyString, callback) {
 
 exports.setupDataField = function (attr, callback) {
 
-    console.log("STEP 0 - Setup new datafield");
-
     var id_application = attr.id_application;
 
     var name_module = attr.name_module;
@@ -337,7 +335,6 @@ exports.setupDataField = function (attr, callback) {
     var values_data_field;
 
     /* ----------------- 1 - Initialize variables according to options ----------------- */
-    console.log("STEP 1 - Initializing variables");
     var options = attr.options;
 
     var name_data_field = options.value;
@@ -363,7 +360,6 @@ exports.setupDataField = function (attr, callback) {
     }
 
     /* ----------------- 2 - Update the entity model, add the attribute ----------------- */
-    console.log("STEP 2 - Update the entity model");
 
     // attributes.json
     var attributesFileName = './workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
@@ -515,7 +511,6 @@ exports.setupDataField = function (attr, callback) {
     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4));
 
     /* ----------------- 3 - If it's a select/enum  ----------------- */
-    console.log("STEP 3 - Is it an enum ?");
     if (typeForModel == "ENUM") {
         var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum.json';
         var enumData = require(fileEnum);
@@ -542,7 +537,6 @@ exports.setupDataField = function (attr, callback) {
     }
 
     /* ----------------- 4 - Add the fields in all the views  ----------------- */
-    console.log("STEP 4 - Starting views update");
     var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + codeName_data_entity.toLowerCase();
     /* Update the show_fields.dust file with a disabled input */
     var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field);
@@ -559,7 +553,7 @@ exports.setupDataField = function (attr, callback) {
 
                     /* --------------- New translation --------------- */
                     translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function () {
-                        callback(null, "Data field succesfuly created");
+                        callback(null, "Data field successfully created.");
                     });
                 });
             });
@@ -568,29 +562,30 @@ exports.setupDataField = function (attr, callback) {
 }
 
 exports.setRequiredAttribute = function (attr, callback) {
-    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity.toLowerCase();
 
     var possibilityRequired = ["mandatory", "required", "obligatoire"];
-    var possibilityOptionnal = ["optionnel", "non obligatoire", "optional"];
+    var possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
 
-    var attributes = attr.options.word.toLowerCase();
-    var set;
+    var attribute = attr.options.word.toLowerCase();
+    var set = null;
 
-    if (possibilityRequired.indexOf(attributes) != -1) {
+    if (possibilityRequired.indexOf(attribute) != -1) {
         set = true;
-    } else if (possibilityOptionnal.indexOf(attributes) != -1) {
+    } else if (possibilityOptionnal.indexOf(attribute) != -1) {
         set = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute.";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
+
+    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity.toLowerCase();
 
     // Update create_fields.dust file
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
 
         if ($("*[data-field='" + attr.options.value + "']").length > 0) {
-            if (set == true)
+            if (set)
                 $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
             else
                 $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
@@ -602,24 +597,66 @@ exports.setRequiredAttribute = function (attr, callback) {
 
                 // Update update_fields.dust file
                 domHelper.read(pathToViews + '/update_fields.dust').then(function ($) {
-                    if (set == true)
+                    if (set)
                         $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
                     else
                         $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
                     domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
+
+                        // Update the Sequelize attributes.json to set allowNull
+                        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.name_data_entity.toLowerCase() + ".json";
+                        var attributesContent = fs.readFileSync(pathToAttributesJson);
+                        var attributesObj = JSON.parse(attributesContent);
+
+                        attributesObj[attr.options.value].allowNull = set?false:true;
+                        fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+
                         callback();
                     });
                 });
             });
         } else {
             var err = new Error();
-            err.message = "No field with name " + attr.options.showValue + " found in the current entity.";
+            err.message = "structure.field.attributes.fieldNoFound";
+            err.messageParams = [attr.options.showValue];
             callback(err, null);
         }
     }).catch(function (err) {
         callback(err, null);
     });
+}
+
+exports.setUniqueField = function (attr, callback) {
+
+    var possibilityUnique = ["unique"];
+    var possibilityNotUnique = ["not-unique", "non-unique"];
+
+    var attribute = attr.options.word.toLowerCase();
+    var set = null;
+
+    var idApplication = attr.id_application;
+    var codeName_data_entity = attr.name_data_entity.toLowerCase();
+
+    if (possibilityUnique.indexOf(attribute) != -1) {
+        set = true;
+    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+        set = false;
+    } else {
+        var err = new Error();
+        err.message = "structure.field.attributes.notUnderstand";
+        return callback(err);
+    }
+
+    // Update the Sequelize attributes.json to set unique
+    var pathToAttributesJson = __dirname + '/../workspace/' + idApplication + '/models/attributes/' + codeName_data_entity + ".json";
+    var attributesContent = fs.readFileSync(pathToAttributesJson);
+    var attributesObj = JSON.parse(attributesContent);
+
+    attributesObj[attr.options.value].unique = set?true:false;
+    fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+
+    callback();
 }
 
 exports.setColumnVisibility = function (attr, callback) {
@@ -638,7 +675,7 @@ exports.setColumnVisibility = function (attr, callback) {
         hide = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute. (You should use hide or show)";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
@@ -717,11 +754,11 @@ exports.setupHasManyTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
+        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -882,7 +919,7 @@ exports.setupRelatedToField = function (attr, callback) {
                     updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function () {
                         /* --------------- New translation --------------- */
                         translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
-                            callback(null, "Data field succesfuly created");
+                            callback(null, "Data field successfully created");
                         });
                     });
 
@@ -919,11 +956,11 @@ exports.setupHasOneTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
+        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -999,11 +1036,11 @@ exports.setupFieldsetTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
+        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
             var usingField = "id";
@@ -1181,7 +1218,8 @@ exports.deleteTab = function (attr, callback) {
     }
     if (!found) {
         var err = new Error();
-        err.message = "Unable to find " + attr.options.showValue + " tab in current entity.";
+        err.message = "structure.association.error.unableTab";
+        err.messageParams = [attr.options.showValue];
         return callback(err, null);
     }
     var writeStream = fs.createWriteStream(jsonPath);

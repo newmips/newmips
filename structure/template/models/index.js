@@ -15,7 +15,7 @@ var moment_timezone = require('moment-timezone');
 
 var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
     host: config.connection.host,
-    logging: console.log(),
+    logging: false,
     port: config.connection.port,
     dialectOptions: {
         multipleStatements: true
@@ -99,6 +99,8 @@ sequelize.customAfterSync = function() {
                                     type = "VARCHAR(255)";
                                     break;
                             }
+
+
                             request = "ALTER TABLE ";
                             request += sourceAttr;
                             request += " ADD COLUMN `" + itemAttr + "` " + type + " DEFAULT NULL;";
@@ -112,8 +114,7 @@ sequelize.customAfterSync = function() {
                                     resolve0();
                                 });
                             }).catch(function(err) {
-                                console.log(err);
-                                reject0();
+                                reject0(err);
                             });
                         }
                         else{
@@ -174,8 +175,7 @@ sequelize.customAfterSync = function() {
                                         });
                                     });
                                 }).catch(function(err) {
-                                    console.log(err);
-                                    reject2();
+                                    reject2(err);
                                 });
                             }
                             else{
@@ -194,7 +194,6 @@ sequelize.customAfterSync = function() {
                     }
 
                     (function(sourceHasMany, targetHasMany, foreignHasMany) {
-
                         promises.push(new Promise(function(resolve3, reject3) {
 
                             var toSync = false;
@@ -228,8 +227,7 @@ sequelize.customAfterSync = function() {
                                         });
                                     })
                                 }).catch(function(err) {
-                                    console.log(err);
-                                    reject3();
+                                    reject3(err);
                                 });
                             }
                             else{
@@ -244,7 +242,7 @@ sequelize.customAfterSync = function() {
         Promise.all(promises).then(function() {
             resolve();
         }).catch(function(err){
-            console.log(err);
+            reject(err);
         });
     });
 }

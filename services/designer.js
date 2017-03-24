@@ -107,12 +107,12 @@ exports.deploy = function(attr, callback) {
 /* --------------------------------------------------------------- */
 exports.restart = function(attr, callback) {
     var info = {};
-    info.message = "Server restarted !";
+    info.message = "structure.global.restart.success";
     callback(null, info);
 }
 
 /* --------------------------------------------------------------- */
-/* ----------------------- Save on git --------------------------- */
+/* --------------------------- Git ------------------------------- */
 /* --------------------------------------------------------------- */
 
 exports.gitPush = function(attr, callback) {
@@ -120,7 +120,17 @@ exports.gitPush = function(attr, callback) {
         if(err)
             return callback(err, null);
         var info = {};
-        info.message = "Application saved!";
+        info.message = "structure.global.gitPush.success";
+        callback(null, info);
+    });
+}
+
+exports.gitPull = function(attr, callback) {
+    gitHelper.gitPull(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = "structure.global.gitPull.success";
         callback(null, info);
     });
 }
@@ -201,7 +211,8 @@ exports.createNewApplication = function(attr, callback) {
 
         if(exist){
             var error = new Error();
-            error.message = "An application with the name "+attr.options.showValue+" already exist."
+            error.message = "database.application.alreadyExist";
+            error.messageParams = [attr.options.showValue];
             return callback(error, null);
         }
         else{
@@ -357,7 +368,7 @@ exports.deleteModule = function(attr, callback) {
     var moduleName = attr.options.showValue;
     if (moduleName.toLowerCase() == 'home'){
         var err = new Error();
-        err.message = "You can't delete the home module.";
+        err.message = "structure.module.error.notHome";
         return callback(err, null);
     }
 
@@ -627,13 +638,6 @@ exports.createNewDataField = function(attr, callback) {
     });
 }
 
-exports.askNameOfDataField = function(attr, callback) {
-  var info = {
-    message: "What is the name of data field to add ?"
-  };
-  callback(null, info);
-}
-
 function deleteTab(attr, callback) {
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
@@ -748,17 +752,77 @@ exports.listDataField = function(attr, callback) {
 /* ---------------------- Field Attributes ----------------------- */
 /* --------------------------------------------------------------- */
 
-exports.setRequiredAttribute = function(attr, callback) {
+exports.setFieldAttribute = function(attr, callback) {
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
-            return callback(err);
-        attr.name_data_entity = dataEntity.codeName;
-        structure_data_field.setRequiredAttribute(attr, function(err) {
-            if (err)
-                return callback(err);
+            return callback(err, null);
 
-            return callback(null, {message: 'Data field '+attr.options.showValue+' is now required.'});
-        });
+        attr.name_data_entity = dataEntity.codeName;
+
+        var wordParam = attr.options.word.toLowerCase();
+        var requiredAttribute = ["mandatory", "required", "obligatoire", "optionnel", "non-obligatoire", "optional"];
+        var uniqueAttribute = ["unique", "not-unique", "non-unique"];
+
+        if(requiredAttribute.indexOf(wordParam) != -1){
+            structure_data_field.setRequiredAttribute(attr, function(err) {
+                if (err)
+                    return callback(err, null);
+
+                callback(null, {
+                    message: "structure.field.attributes.success",
+                    messageParams: [attr.options.showValue, attr.options.word]
+                });
+            });
+        }
+        else if(uniqueAttribute.indexOf(wordParam) != -1){
+
+            var sourceEntity = attr.id_application+"_"+attr.name_data_entity;
+            var constraintName = attr.id_application+"_"+attr.name_data_entity+"_"+attr.options.value+"_unique";
+
+            var possibilityUnique = ["unique"];
+            var possibilityNotUnique = ["not-unique", "non-unique"];
+
+            var attribute = attr.options.word.toLowerCase();
+            var request = "";
+
+            // Add or remove the unique constraint ?
+            if (possibilityUnique.indexOf(attribute) != -1) {
+                request = "ALTER TABLE `"+sourceEntity+"` ADD CONSTRAINT "+constraintName+" UNIQUE (`" + attr.options.value + "`);";
+            } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+                request = "ALTER TABLE `"+sourceEntity+"` DROP INDEX `" + constraintName + "`;";
+            }
+
+            sequelize.query(request).then(function(){
+                structure_data_field.setUniqueField(attr, function(err) {
+                    if (err)
+                        return callback(err, null);
+
+                    callback(null, {
+                        message: "structure.field.attributes.success",
+                        messageParams: [attr.options.showValue, attr.options.word]
+                    });
+                });
+            }).catch(function(err){
+                if(typeof err.parent !== "undefined" && err.parent.errno == 1062){
+                    var err = new Error();
+                    err.message = "structure.field.attributes.duplicateUnique";
+                }
+                callback(err, null);
+            });
+        }
+        else{
+            var err = new Error();
+            err.message = "structure.field.attributes.notUnderstandGiveAvailable";
+            var msgParams = "";
+            for(var i=0; i<requiredAttribute.length; i++){
+                msgParams += "-  " + requiredAttribute[i] + "<br>";
+            }
+            for(var j=0; j<uniqueAttribute.length; j++){
+                msgParams += "-  " + uniqueAttribute[j] + "<br>";
+            }
+            err.messageParams = [msgParams];
+            callback(err, null);
+        }
     });
 }
 
@@ -806,12 +870,12 @@ exports.createNewHasOne = function(attr, callback) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()){
                     if(optionsSourceObject[i].relation == "hasMany"){
                         var err = new Error();
-                        err.message = 'Source entity already has many target entity, impossible to create belongs to association';
+                        err.message = "structure.association.error.alreadyHasMany";
                         return callback(err, null);
                     }
                     else if(attr.options.as == optionsSourceObject[i].as){
                         var err = new Error();
-                        err.message = 'Association already exists between these entities with this alias';
+                        err.message = "structure.association.error.alreadySameAlias";
                         return callback(err, null);
                     }
                 }
@@ -823,7 +887,7 @@ exports.createNewHasOne = function(attr, callback) {
             for(var i=0; i<optionsObject.length; i++){
                 if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany"){
                     var err = new Error();
-                    err.message = 'Bad Entity association, you can\'t set circular \'belongs to\'';
+                    err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
                 }
             }
@@ -863,7 +927,8 @@ exports.createNewHasOne = function(attr, callback) {
                         //info = created_dataEntity;
                         // Stay on the source entity, even if the target has been created
                         info.insertId = attr.id_data_entity;
-                        info.message = "New relation has one / belongs to with subEntity "+created_dataEntity.name+" created.";
+                        info.message = "structure.association.hasOne.successSubEntity";
+                        info.messageParams = [created_dataEntity.name];
 
                         db_module.getModuleById(attr.id_module, function(err, module) {
                             if(err){
@@ -887,11 +952,14 @@ exports.createNewHasOne = function(attr, callback) {
                     callback(err, null);
                 }
             } else {
-                // Select the target if it already exist
+                // KEEP - Select the target if it already exist
                 //info.insertId = dataEntity.id;
-                // Stay on the source entity
+
+                // KEEP - Stay on the source entity
                 info.insertId = attr.id_data_entity;
-                info.message = "New relation has one / belongs to with entity "+dataEntity.name+" created.";
+
+                info.message = "structure.association.hasOne.successEntity";
+                info.messageParams = [dataEntity.name];
                 structureCreation(attr, callback);
             }
         });
@@ -902,7 +970,7 @@ exports.createNewHasOne = function(attr, callback) {
 exports.createNewHasMany = function(attr, callback) {
 
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeName(attr.id_module, attr.options.source, function(err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function(err, IDdataEntitySource) {
         if (err) {
             return callback(err, null);
         }
@@ -920,12 +988,12 @@ exports.createNewHasMany = function(attr, callback) {
 
                     if(optionsSourceObject[i].relation == "belongsTo"){
                         var err = new Error();
-                        err.message = 'Source entity already belongs to target entity, it is impossible to create has many association';
+                        err.message = "structure.association.error.alreadyHasOne";
                         return callback(err, null);
                     }
                     else if(attr.options.as == optionsSourceObject[i].as){
                         var err = new Error();
-                        err.message = 'Association already exists between these entities with this name';
+                        err.message = "structure.association.error.alreadySameAlias";
                         return callback(err, null);
                     }
                 }
@@ -938,7 +1006,7 @@ exports.createNewHasMany = function(attr, callback) {
             for(var i=0; i<optionsObject.length; i++){
                 if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                     var err = new Error();
-                    err.message = 'Bad Entity association, you can\'t set circular \'has many\'';
+                    err.message = "structure.association.error.circularHasMany";
                     return callback(err, null);
                 }
             }
@@ -977,11 +1045,14 @@ exports.createNewHasMany = function(attr, callback) {
                         if (err) {
                             return callback(err, null);
                         }
-                        // On se dirige en sessions vers l'entité crée
+                        // KEEP - On se dirige en sessions vers l'entité crée
                         //info = created_dataEntity;
-                        // Stay on the source entity, even if the target has been created
+
+                        // KEEP - Stay on the source entity, even if the target has been created
                         info.insertId = attr.id_data_entity;
-                        info.message = "New relation has many with subEntity "+created_dataEntity.name+" created.";
+
+                        info.message = "structure.association.hasMany.successSubEntity";
+                        info.messageParams = [created_dataEntity.name];
 
                         db_module.getModuleById(attr.id_module, function(err, module) {
                             if (err) {
@@ -1006,11 +1077,14 @@ exports.createNewHasMany = function(attr, callback) {
                     callback(err, null);
                 }
             } else {
-                // Select the target if it already exist
+                // KEEP - Select the target if it already exist
                 //info.insertId = dataEntity.id;
-                //Stay on the source entity
+
+                // KEEP - Stay on the source entity
                 info.insertId = attr.id_data_entity;
-                info.message = "New relation has many with "+dataEntity.name+" created.";
+
+                info.message = "structure.association.hasMany.successEntity";
+                info.messageParams = [dataEntity.name];
                 structureCreation(attr, callback);
             }
         });
@@ -1049,11 +1123,11 @@ exports.createNewFieldset = function(attr, callback) {
 
                         if (optionsSourceObject[i].relation == "belongsTo") {
                             var err = new Error();
-                            err.message = 'Source entity "'+attr.options.showSource+'" already belongs to target entity "'+attr.options.showTarget+'", impossible to create has many association';
+                            err.message = "structure.association.error.alreadyHasOne";
                             return callback(err, null);
                         } else if (attr.options.as == optionsSourceObject[i].as) {
                             var err = new Error();
-                            err.message = 'An association already exists between these entities with this name';
+                            err.message = "structure.association.error.alreadySameAlias";
                             return callback(err, null);
                         }
                     }
@@ -1066,7 +1140,7 @@ exports.createNewFieldset = function(attr, callback) {
                 for (var i = 0; i < optionsObject.length; i++) {
                     if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                         var err = new Error();
-                        err.message = 'Bad Entity association, you can\'t set circular \'has many\'';
+                        err.message = "structure.association.error.circularHasMany";
                         return callback(err, null);
                     }
                 }
@@ -1101,7 +1175,8 @@ exports.createNewFieldset = function(attr, callback) {
 
                             var info = {};
                             info.insertId = attr.id_data_entity;
-                            info.message = "New fieldset of existing "+attr.options.showTarget+" created on "+attr.options.showSource+".";
+                            info.message = "structure.association.fieldset.success";
+                            info.messageParams = [attr.options.showTarget, attr.options.showSource];
                             callback(null, info);
                         });
                     });
@@ -1140,11 +1215,11 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "hasMany") {
                         var err = new Error();
-                        err.message = 'Source entity already has many target entity, impossible to create belongs to association';
+                        err.message = "structure.association.error.alreadyHasMany";
                         return callback(err, null);
                     } else if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
-                        err.message = 'Association already exists between these entities with this alias';
+                        err.message = "structure.association.error.alreadySameAlias";
                         return callback(err, null);
                     }
                 }
@@ -1156,7 +1231,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
             for (var i=0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany"){
                     var err = new Error();
-                    err.message = 'Bad Entity association, you can\'t set circular \'belongs to\'';
+                    err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
                 }
             }
@@ -1174,7 +1249,8 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                         // Stay on the source entity in session
                         var info = {};
                         info.insertId = attr.id_data_entity;
-                        info.message = "New field related to " + dataEntity.name + " created.";
+                        info.message = "structure.association.relatedTo.success";
+                        info.messageParams = [attr.options.as, dataEntity.name];
                         callback(null, info);
                     });
                 });
@@ -1192,9 +1268,12 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
 
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "c_local_file_storage";
-        attr.options.urlValue = "local_file_storage";
+        attr.options.value = "c_local_file_storage_"+attr.id_data_entity;
+        attr.options.urlValue = "local_file_storage_"+attr.id_data_entity;
         attr.options.showValue = "Local File Storage";
+    } else{
+        attr.options.value = attr.options.value+"_"+attr.id_data_entity;
+        attr.options.urlValue = attr.options.urlValue+"_"+attr.id_data_entity;
     }
 
     // Check if component with this name is already created on this entity
@@ -1203,7 +1282,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
             return callback(err, null);
         if(alreadyExist){
             var err = new Error();
-            err.message = "Sorry, a component with this name is already associate to this entity in this module.";
+            err.message = "structure.component.error.alreadyExistOnEntity";
             return callback(err, null);
         }
         else{
@@ -1211,7 +1290,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
             db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
                 if(dataEntity){
                     var err = new Error();
-                    err.message = "Sorry, an other entity with this component name already exist in this application.";
+                    err.message = "structure.component.error.alreadyExistInApp";
                     return callback(err, null);
                 }
                 else{
@@ -1267,7 +1346,7 @@ exports.createNewComponentContactForm = function (attr, callback) {
     db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function(err, component){
         if(component){
             var err = new Error();
-            err.message = "Sorry, a component with this name is already associate to this module.";
+            err.message = "structure.component.error.alreadyExistOnModule";
             return callback(err, null);
         }
         else{
@@ -1275,7 +1354,7 @@ exports.createNewComponentContactForm = function (attr, callback) {
             db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
                 if(dataEntity){
                     err = new Error();
-                    err.message = "Sorry, a other entity with this component name already exist in this application.";
+                    err.message = "structure.component.error.alreadyExistInApp";
                     return callback(err, null);
                 }
                 else{
@@ -1314,7 +1393,7 @@ exports.createNewComponentAgenda = function(attr, callback) {
     db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value ,attr.options.showValue, function(err, component){
         if(component){
             var err = new Error();
-            err.message = "Sorry, a component with the name "+attr.options.showValue+" is already associate to this module.";
+            err.message = "structure.component.error.alreadyExistOnModule";
             return callback(err, null);
         } else{
 
@@ -1323,9 +1402,6 @@ exports.createNewComponentAgenda = function(attr, callback) {
 
             var showValueEvent = attr.options.showValue+" Event";
             var showValueCategory = attr.options.showValue+" Category";
-
-            var urlEvent = attr.options.urlValue+"_category";
-            var urlCategory = attr.options.urlValue+"_event";
 
             var instructions = [
                 "add entity "+showValueCategory,

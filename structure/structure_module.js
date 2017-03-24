@@ -21,20 +21,20 @@ exports.setupModule = function(attr, callback) {
 
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
-        str += '\t// '+name_module+'\n';
-        str += '\trouter.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("'+url_name_module+'"), function(req, res) {\n';
-        str += '\t\tvar data = {\n';
-        str += '\t\t\t"profile":req.session.data\n';
-        str += '\t\t};\n';
-        str += '\t\tres.render(\'default/'+name_module.toLowerCase()+'\', data);\n';
-        str += '\t});\n';
+        str += '// '+name_module+'\n';
+        str += 'router.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("'+url_name_module+'"), function(req, res) {\n';
+        str += '    var data = {\n';
+        str += '        profile:req.session.data\n';
+        str += '    };\n';
+        str += '    res.render(\'default/'+name_module.toLowerCase()+'\', data);\n';
+        str += '});\n';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
         fs.writeFile(file, result, 'utf8', function(err) {
             if (err){
                 return callback(err, null);
             }
-            console.log('File => routes/default.js ------------------ UPDATED');
+            //console.log('File => routes/default.js ------------------ UPDATED');
 
             // Create views/default/MODULE_NAME.dust file
             var fileToCreate = __dirname + '/../workspace/'+id_application+'/views/default/'+name_module.toLowerCase()+'.dust';
@@ -56,7 +56,7 @@ exports.setupModule = function(attr, callback) {
                         if(err){
                             return callback(err, null);
                         }
-                        console.log('File => views/default/'+name_module.toLowerCase()+'.dust ------------------ CREATED');
+                        //console.log('File => views/default/'+name_module.toLowerCase()+'.dust ------------------ CREATED');
 
                         translateHelper.writeLocales(id_application, "module", name_module, show_name_module, attr.googleTranslate, function(){
                             // Create module's layout file
@@ -65,7 +65,7 @@ exports.setupModule = function(attr, callback) {
                                 if(err){
                                     return callback(err, null);
                                 }
-                                console.log("File => layout_"+name_module.toLowerCase()+'.dust ------------------ CREATED');
+                                //console.log("File => layout_"+name_module.toLowerCase()+'.dust ------------------ CREATED');
 
                                 // Loop over module list to add new module's <option> tag in all modules <select> tags
                                 var promises = [];
@@ -90,7 +90,7 @@ exports.setupModule = function(attr, callback) {
                                                 $("#dynamic_select").append(option);
 
                                                 domHelper.write(fileName, $).then(function() {
-                                                    console.log('File => layout_' + modules[ibis].name.toLowerCase() + '.dust ------------------ UPDATED');
+                                                    //console.log('File => layout_' + modules[ibis].name.toLowerCase() + '.dust ------------------ UPDATED');
                                                     resolve();
                                                 });
                                             });

@@ -4,16 +4,16 @@ block custom_css
 	link(href='/css/Datatables/dataTables.bootstrap.css', rel='stylesheet', type='text/css')
 block header
 	h1
-		| Mon espace
-		small R&eacute;serv&eacute;
+		| #{__("menu.users")}
+		small #{__("menu.back")}
 	ol.breadcrumb
 		li
-			a(href='#')
+			a(href='/')
 				i.fa.fa-home
-				| Accueil
-		li.active Mon espace
+				| #{__("menu.home")}
+		li.active #{__("menu.back")}
 block content
-	legend Lister tous les Utilisateurs
+	legend #{__("back.list")} #{__("menu.users")}
 	.row
 		.col-xs-12.connectedSortable
 			.box-body.table-responsive
@@ -31,7 +31,7 @@ block content
 								td #{user.login}
 								td #{user.Role.name}
 								td
-									a(href='/user/show?id_user=#{user.id}')
+									a(href='/users/show?id_user=#{user.id}')
 										button.btn.btn-primary
 											i.fa.fa-desktop.fa-md &nbsp;&nbsp;
 											span Afficher
@@ -51,5 +51,5 @@ block custom_js
 			"bInfo": true,
 			"bAutoWidth": true,
 			"bRetrieve": true,
-			"oLanguage": { "sUrl": "/js/UI/jquery-datatables_#{__("app.lang")}.js" }
+			"oLanguage": { "sUrl": "/js/UI/jquery-datatables_#{getLang()}.js" }
 		});
