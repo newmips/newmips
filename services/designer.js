@@ -1490,6 +1490,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add field open days in month with type number",
             "add field user validated with type boolean",
             "add field admin validated with type boolean",
+            "add field notification admin with type text",
             "entity user has many C.R.A",
             "entity C.R.A Activity has one C.R.A Client",
             "select entity C.R.A Client",
@@ -1525,8 +1526,8 @@ exports.createNewComponentCra = function(attr, callback) {
                 fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
                 fs.copySync(piecesPath+'/views/e_c_r_a/', workspacePath+'/views/e_c_r_a/');
                 fs.copySync(piecesPath+'/views/e_c_r_a_team/', workspacePath+'/views/e_c_r_a_team/');
-                // fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
-                fs.copySync(piecesPath+'/js/cra.js', workspacePath+'/public/js/Newmips/component/cra.js');
+                fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
+                fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
 
                 callback(null, {message: 'Module C.R.A created'});
             } catch(e) {

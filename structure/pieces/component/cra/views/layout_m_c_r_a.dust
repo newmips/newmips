@@ -5,6 +5,35 @@
 
 {<sidebar}
 <ul id="sortable" class="sidebar-menu" style="white-space: pre-wrap;">
+    {@entityAccess entity="c_r_a"}
+    <li id="c_r_a_menu_item" style="display:block;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_c_r_a.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="c_r_a" action="write"}
+            <li>
+                <a href="/c_r_a/declare">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="c_r_a" action="read"}
+            <li>
+                <a href="/c_r_a/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_c_r_a.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
     {@entityAccess entity="c_r_a_team"}
     <li id="c_r_a_team_menu_item" style="display:block;" class="treeview">
         <a href="#">
@@ -92,37 +121,8 @@
         </ul>
     </li>
     {/entityAccess}
-    {@entityAccess entity="c_r_a"}
-    <li id="c_r_a_menu_item" style="display:block;" class="treeview">
-        <a href="#">
-            <i class="fa fa-folder"></i>
-            <span>{@__ key="entity.e_c_r_a.label_entity" /}</span>
-            <i class="fa fa-angle-left pull-right"></i>
-        </a>
-        <ul class="treeview-menu">
-            {@actionAccess entity="c_r_a" action="write"}
-            <li>
-                <a href="/c_r_a/declare">
-                    <i class="fa fa-angle-double-right"></i>
-                    {@__ key="operation.create" /}
-                    {@__ key="entity.e_c_r_a.name_entity" /}
-                </a>
-            </li>
-            {/actionAccess}
-            {@actionAccess entity="c_r_a" action="read"}
-            <li>
-                <a href="/c_r_a/list">
-                    <i class="fa fa-angle-double-right"></i>
-                    {@__ key="operation.list" /}
-                    {@__ key="entity.e_c_r_a.plural_entity" /}
-                </a>
-            </li>
-            {/actionAccess}
-        </ul>
-    </li>
-    {/entityAccess}
     {@entityAccess entity="c_r_a_activity"}
-    <li id="c_r_a_activity_menu_item" style="display:none;" class="treeview">
+    <li id="c_r_a_activity_menu_item" style="display:block;" class="treeview">
         <a href="#">
             <i class="fa fa-folder"></i>
             <span>{@__ key="entity.e_c_r_a_activity.label_entity" /}</span>
