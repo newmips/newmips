@@ -423,7 +423,26 @@ $(document).ready(function () {
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
+                this.on('removedfile', function (file) {
+                    var dropzone = this;
+                    x = confirm('Êtes-vous sûr de vouloir supprimer cette entité ?');
+                    if (!x)
+                        return false;
+                    $.ajax({
+                        url: '/default/delete_file',
+                        type: 'post',
+                        data: {dataEntity: that.attr("data-entity"),
+                            dataStorage: that.attr("data-storage"),
+                            filename: $("#" + that.attr("id") + "_hidden").val()},
+                        success: function (success) {
+                            $("#" + that.attr("id") + "_hidden").val('');
+                            if (dropzone.files.length) {
+                                dropzone.removeAllFiles(true);
+                            }
+                        }
 
+                    });
+                })
 
             },
             renameFilename: function (filename) {
@@ -435,6 +454,17 @@ $(document).ready(function () {
 
             }
         });
+        var dropzoneId = $(this).attr('id') + '';
+        if ($('#' + dropzoneId + '_hidden').val() != '') {
+            var mockFile = {
+                name: $('#' + dropzoneId + '_hidden').val(),
+                type: 'mockfile'
+            };
+            dropzoneInit.files.push(mockFile);
+            dropzoneInit.emit('addedfile', mockFile);
+            dropzoneInit.emit('complete', mockFile);
+        }
+        dropzonesFieldArray.push(dropzoneInit);
     });
 
     /* Dropzone files managment already done ? */
@@ -450,10 +480,12 @@ $(document).ready(function () {
 
             /* Send dropzone file */
             for (var i = 0; i < dropzonesFieldArray.length; i++) {
-                if (dropzonesFieldArray[i].files.length > 0) {
-                    dropzonesFieldArray[i].processQueue();
+                //prevent sent file if mockfile
+                if (dropzonesFieldArray[i].files.length > 0 && dropzonesFieldArray[i].files[0].type != 'mockfile') {
+                    var dropzone = dropzonesFieldArray[i];
+                    dropzone.processQueue();
                     (function (ibis, myform) {
-                        dropzonesFieldArray[i].on("complete", function (file) {
+                        dropzone.on("complete", function (file) {
                             if (ibis == dropzonesFieldArray.length - 1) {
                                 filesProceeded = true;
                                 myform.submit();

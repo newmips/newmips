@@ -21,15 +21,17 @@ module.exports = {
         }
         return entity;
     },
-    remove_files: function (entityName,entity, attributes) {
+    remove_files: function (entityName, entity, attributes) {
         for (var key in entity.dataValues) {
             for (var attribute in attributes) {
-                if ((attributes[attribute].newmipsType === 'file' || attributes[attribute].newmipsType === "cloudfile")
+                if ((attributes[attribute].newmipsType === 'file'
+                        || attributes[attribute].newmipsType === "cloudfile"
+                        || attributes[attribute].newmipsType === "picture")
                         && attribute == key) {
                     var value = entity.dataValues[key] || '';
-                     if (value != '' && !!entityName) {
+                    if (value != '' && !!entityName) {
                         var options = {
-                            entityName:entityName,
+                            entityName: entityName,
                             value: value,
                             type: attributes[attribute].newmipsType,
                         };

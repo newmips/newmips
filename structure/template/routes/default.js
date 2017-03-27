@@ -128,4 +128,35 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
     });
 
 });
+
+router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
+    var entity = req.body.dataEntity;
+    var dataStorage = req.body.dataStorage;
+    var filename = req.body.filename;
+    if (!!entity && !!dataStorage && !!filename) {
+        var partOfFilepath = filename.split('-');
+        if (partOfFilepath.length) {
+            var base = partOfFilepath[0];
+            var completeFilePath = global.localstorage + entity + '/' + base + '/' + filename;
+            fs.unlink(completeFilePath, function (err) {
+                if (!err) {
+                    req.session.toastr.push({level: 'success', message: "message.delete.success"});
+                    res.json({result: 200, message: ''});
+                } else {
+                    req.session.toastr.push({level: 'error', message: "Internal error"});
+                    res.json({result: 500, message: ''});
+                }
+
+            });
+        } else {
+            req.session.toastr.push({level: 'error', message: "File syntax not valid"});
+            res.json({result: 404, message: ''});
+        }
+
+    } else {
+        req.session.toastr.push({level: 'error', message: "File not found"});
+        res.json({result: 404, message: ''});
+    }
+
+});
 module.exports = router;

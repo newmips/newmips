@@ -9,7 +9,7 @@ var models = require('../models/');
 var attributes = require('../models/attributes/ENTITY_NAME');
 var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
-
+var entity_helper = require('../utils/entity_helper');
 // ENUM managment
 var enums = require('../utils/enum.js');
 
@@ -22,7 +22,7 @@ function error500(err, req, res, redirect) {
     try {
 
         //Sequelize validation error
-        if(err.name == "SequelizeValidationError"){
+        if (err.name == "SequelizeValidationError") {
             req.session.toastr.push({level: 'error', message: err.errors[0].message});
             isKnownError = true;
         }
@@ -38,11 +38,11 @@ function error500(err, req, res, redirect) {
             return res.redirect(redirect);
         else
             console.error(err);
-            logger.debug(err);
-            var data = {};
-            data.code = 500;
-            data.message = err.message || null;
-            res.render('common/error', data);
+        logger.debug(err);
+        var data = {};
+        data.code = 500;
+        data.message = err.message || null;
+        res.render('common/error', data);
     }
 }
 
@@ -70,12 +70,12 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
         var enumsTranslation = enums.translated("ENTITY_NAME", req.session.lang_user);
-        for(var i=0; i<data.data.length; i++){
-            for(var field in data.data[i].dataValues){
-                for(var enumField in enumsTranslation){
-                    if(field == enumField){
-                        for(var j=0; j<enumsTranslation[enumField].length; j++){
-                            if(data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value){
+        for (var i = 0; i < data.data.length; i++) {
+            for (var field in data.data[i].dataValues) {
+                for (var enumField in enumsTranslation) {
+                    if (field == enumField) {
+                        for (var j = 0; j < enumsTranslation[enumField].length; j++) {
+                            if (data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value) {
                                 data.data[i].dataValues[enumField] = enumsTranslation[enumField][j].translation;
                             }
                         }
@@ -269,35 +269,35 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
         model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options);
 
         /*var foreignKeyArray = [];
-        var asArray = [];
-        for (var j = 0; j < options.length; j++) {
-            if (typeof options[j].foreignKey != "undefined")
-                foreignKeyArray.push(options[j].foreignKey.toLowerCase());
-            if (typeof options[j].as != "undefined")
-                asArray.push(options[j].as.toLowerCase());
-        }
-
-        first: for (var prop in req.body) {
-            if (prop.indexOf('id_') != 0 && asArray.indexOf(prop.toLowerCase()) == -1)
-                continue;
-            //BELONGS TO with foreignKey naming
-            second: for (var i = 0; i < options.length; i++) {
-                if (typeof options[i].foreignKey != "undefined" && options[i].foreignKey == prop)
-                    continue first;
-            }
-            if (foreignKeyArray.indexOf(prop.toLowerCase()) != -1)
-                continue;
-
-            var target = prop.substr(3);
-            //HAS MANY with as naming
-            for (var k = 0; k < options.length; k++) {
-                if (typeof options[k].as != "undefined" && options[k].as.toLowerCase() == prop.toLowerCase())
-                    target = options[k].as;
-            }
-
-            target = target.charAt(0).toUpperCase() + target.toLowerCase().slice(1);
-            ENTITY_NAME['set' + target](req.body[prop]);
-        }*/
+         var asArray = [];
+         for (var j = 0; j < options.length; j++) {
+         if (typeof options[j].foreignKey != "undefined")
+         foreignKeyArray.push(options[j].foreignKey.toLowerCase());
+         if (typeof options[j].as != "undefined")
+         asArray.push(options[j].as.toLowerCase());
+         }
+         
+         first: for (var prop in req.body) {
+         if (prop.indexOf('id_') != 0 && asArray.indexOf(prop.toLowerCase()) == -1)
+         continue;
+         //BELONGS TO with foreignKey naming
+         second: for (var i = 0; i < options.length; i++) {
+         if (typeof options[i].foreignKey != "undefined" && options[i].foreignKey == prop)
+         continue first;
+         }
+         if (foreignKeyArray.indexOf(prop.toLowerCase()) != -1)
+         continue;
+         
+         var target = prop.substr(3);
+         //HAS MANY with as naming
+         for (var k = 0; k < options.length; k++) {
+         if (typeof options[k].as != "undefined" && options[k].as.toLowerCase() == prop.toLowerCase())
+         target = options[k].as;
+         }
+         
+         target = target.charAt(0).toUpperCase() + target.toLowerCase().slice(1);
+         ENTITY_NAME['set' + target](req.body[prop]);
+         }*/
 
         res.redirect(redirect);
     }).catch(function (err) {
@@ -396,9 +396,9 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
             req.session.toastr = [{
-                message: 'message.update.success',
-                level: "success"
-            }];
+                    message: 'message.update.success',
+                    level: "success"
+                }];
 
             res.redirect(redirect);
         }).catch(function (err) {
@@ -412,22 +412,29 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
     var id_ENTITY_NAME = req.body.id;
 
-    models.MODEL_NAME.destroy({
-        where: {
-            id: id_ENTITY_NAME
-        }
-    }).then(function () {
-        req.session.toastr = [{
-                message: 'message.delete.success',
-                level: "success"
-            }];
-        var redirect = '/ENTITY_URL_NAME/list';
-        if (typeof req.body.associationFlag !== 'undefined')
-            redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-        res.redirect(redirect);
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (deleteObject) {
+        models.MODEL_NAME.destroy({
+            where: {
+                id: id_ENTITY_NAME
+            }
+        }).then(function () {
+            req.session.toastr = [{
+                    message: 'message.delete.success',
+                    level: "success"
+                }];
+
+            var redirect = '/ENTITY_URL_NAME/list';
+            if (typeof req.body.associationFlag !== 'undefined')
+                redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
+            res.redirect(redirect);
+            entity_helper.remove_files("ENTITY_NAME",deleteObject,attributes);
+        }).catch(function (err) {
+            error500(err, req, res, '/ENTITY_URL_NAME/list');
+        });
     }).catch(function (err) {
         error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
+
 });
 
 module.exports = router;
