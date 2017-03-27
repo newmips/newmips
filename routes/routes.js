@@ -76,12 +76,8 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                 if(!exist){
                                     var userToCreate = {
                                         email: email_user,
-                                        password: req.body.password_user2,
                                         username: email_user,
-                                        name: email_user,
-                                        website_url: globalConf.host,
-                                        admin: false,
-                                        confirm: false
+                                        name: email_user
                                     };
                                     console.log(userToCreate);
 
