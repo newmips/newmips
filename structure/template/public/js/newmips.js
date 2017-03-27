@@ -423,25 +423,18 @@ $(document).ready(function () {
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
-               
+
 
             },
             renameFilename: function (filename) {
-                var timeFile = moment().format("YYYYMMDD-HHmmss");
-                $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
-                return timeFile + '_' + filename;
+                if ($("#" + that.attr("id") + "_hidden").val() != '') {
+                    var timeFile = moment().format("YYYYMMDD-HHmmss");
+                    $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
+                    return timeFile + '_' + filename;
+                }
+
             }
         });
-        var dropzoneId = $(this).attr('id') + '';
-        if ($('#' + dropzoneId + '_hidden').val() != '') {
-            var mockFile = {
-                name: $('#' + dropzoneId + '_hidden').val()
-            };
-            dropzoneInit.files.push(mockFile);
-            dropzoneInit.emit('addedfile', mockFile);
-            dropzoneInit.emit('complete', mockFile);
-        }
-        dropzonesFieldArray.push(dropzoneInit);
     });
 
     /* Dropzone files managment already done ? */
@@ -514,7 +507,7 @@ $(document).ready(function () {
 
         /* If a select multiple is empty we want to have an empty value in the req.body */
         $(this).find("select[multiple]").each(function () {
-            if($(this).val() == null){
+            if ($(this).val() == null) {
                 var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
                 thatForm.append($(input));
             }
