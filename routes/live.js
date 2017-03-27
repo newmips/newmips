@@ -178,6 +178,11 @@ function execute(req, instruction) {
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
 
+            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+                attr.idUserGitlab = req.session.gitlab.user.id;
+            else
+                attr.idUserGitlab = null;
+
             var __ = require("../services/language")(req.session.lang_user).__;
 
             if (typeof attr.error !== 'undefined')

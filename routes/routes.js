@@ -334,25 +334,29 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
 
     // Get gitlab instance
     if(gitlabConf.doGit){
-        try{
-            gitlab.users.all(function(gitlabUsers){
-                var exist = false;
-                for(var i=0; i<gitlabUsers.length; i++){
-                    if(gitlabUsers[i].email == email_user){
-                        exist = true;
-                        req.session.gitlab = {};
-                        req.session.gitlab.user = gitlabUsers[i];
-                        res.redirect('/default/home');
+        if(typeof req.session.gitlab === "undefined" && typeof req.session.gitlab.user === "undefined"){
+            try{
+                gitlab.users.all(function(gitlabUsers){
+                    var exist = false;
+                    for(var i=0; i<gitlabUsers.length; i++){
+                        if(gitlabUsers[i].email == email_user){
+                            exist = true;
+                            req.session.gitlab = {};
+                            req.session.gitlab.user = gitlabUsers[i];
+                            res.redirect('/default/home');
+                        }
                     }
-                }
-            });
-        } catch(err){
-            console.log(err);
-            req.session.toastr = [{
-                message: "Error, impossible de se connecter au compte Gitlab.",
-                level: "error"
-            }];
-            res.redirect('/logout');
+                });
+            } catch(err){
+                console.log(err);
+                req.session.toastr = [{
+                    message: "Error, impossible de se connecter au compte Gitlab.",
+                    level: "error"
+                }];
+                res.redirect('/logout');
+            }
+        } else{
+            res.redirect('/default/home');
         }
     } else{
         res.redirect('/default/home');
