@@ -39,7 +39,6 @@
         "winston": "^2.3.0"
     },
     "scripts": {
-        "postinstall": "npm install --prefix structure/template",
         "test": "mocha",
         "start": "node ./server"
     }
