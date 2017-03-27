@@ -149,6 +149,12 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     attr.id_application = req.session.id_application;
                     attr.id_module = req.session.id_module;
                     attr.id_data_entity = req.session.id_data_entity;
+
+                    if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+                        attr.gitlabUser = req.session.gitlab.user;
+                    else
+                        attr.gitlabUser = null;
+
                     session_manager.getSession(attr, function(err, info) {
                         docBuilder.build(req.session.id_application);
 
@@ -249,6 +255,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             attr.id_data_entity = req.session.id_data_entity;
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
+
+            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+                attr.gitlabUser = req.session.gitlab.user;
+            else
+                attr.gitlabUser = null;
 
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);
