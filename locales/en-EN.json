@@ -13,7 +13,7 @@
             "success": "Update completed. You could now log in with your username and password",
             "hasAlreadyPassword": "Can not update. This user already has a password.",
             "userNotExist": "Error, this user doesn't exist.",
-            "passwordNotMatch": "Sorry, passwords do not match."
+            "passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 8 characters."
         },
         "authentication": "Connection",
         "login": "Login",

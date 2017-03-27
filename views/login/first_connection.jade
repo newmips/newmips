@@ -35,6 +35,13 @@ block custom_js
             });
 
             $(document).on("keyup", "#password", function(){
+
+                if($(this).val().length < 8){
+                    $(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
+                } else{
+                    $(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
+                }
+
                 if($("#confirm_password").val() != $("#password").val() && $("#confirm_password").val() != ""){
                     $("#confirm_password").attr("style", "border: 1px solid red !important; border-color: red !important;");
                 } else if($("#confirm_password").val() != ""){
@@ -45,7 +52,7 @@ block custom_js
             });
 
             $(document).on("submit", "#first_connection", function(){
-                if($("#confirm_password").val() != $("#password").val() && $("#confirm_password").val() != "" && $("#password").val() != ""){
+                if($("#confirm_password").val() != $("#password").val() && $("#confirm_password").val() != "" && $("#password").val() != "" && $("#password").val().length >= 8){
                     toastr.error("#{notMatchPasswordText}");
                     return false;
                 } else{
