@@ -6,6 +6,9 @@ var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
 
+// Winston logger
+var logger = require('../utils/logger');
+
 // Gitlab
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.json');
@@ -45,8 +48,9 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
     var login_user = req.body.login_user;
     var email_user = req.body.email_user;
+    var usernameGitlab = email_user.replace(/\@/g, "").replace(/\./g, "").trim();
 
-    if(req.body.password_user == req.body.password_user2){
+    if(req.body.password_user == req.body.password_user2 && req.body.password_user.length >= 8){
 
         var password = bcrypt.hashSync(req.body.password_user2, null, null);
 
@@ -59,57 +63,97 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             if(user){
                 if(user.password == "" || user.password == null){
 
+                    var gitlabError = {
+                        status : false
+                    };
+
+                    function done(){
+                        if(gitlabError.status){
+                            req.session.toastr = [{
+                                message: gitlabError.message,
+                                level: "error"
+                            }];
+                            res.redirect('/first_connection');
+                        } else{
+                            models.User.update({
+                                password: password,
+                                email: email_user
+                            }, {
+                                where: {
+                                    login: login_user
+                                }
+                            }).then(function(){
+                                req.session.toastr = [{
+                                    message: "login.first_connection.success",
+                                    level: "success"
+                                }];
+                                res.redirect('/login');
+                            });
+                        }
+                    }
+
                     // Create user in gitlab
                     if(gitlabConf.doGit){
-
                         try{
                             gitlab.users.all(function(gitlabUsers){
-                                console.log(gitlabUsers);
                                 var exist = false;
                                 for(var i=0; i<gitlabUsers.length; i++){
                                     if(gitlabUsers[i].email == email_user){
                                         exist = true;
-                                        req.session.gitlab.user = gitlabUsers[i];
                                     }
                                 }
-                                console.log("Exist:", exist);
+
+                                var userToCreate = {
+                                    email: email_user,
+                                    password: req.body.password_user2,
+                                    username: usernameGitlab,
+                                    name: email_user,
+                                    website_url: globalConf.host,
+                                    admin: false,
+                                    confirm: false
+                                };
+
                                 if(!exist){
-                                    var userToCreate = {
-                                        email: email_user,
-                                        username: email_user,
-                                        name: email_user
-                                    };
-                                    console.log(userToCreate);
-
-                                    //request.post("http://cloud.newmips.com:1400/get/user")
-
-                                    console.log(gitlab.users);
-
                                     gitlab.users.create(userToCreate, function(result){
-                                        console.log(result);
+                                        if(typeof result === "object"){
+                                            req.session.gitlab = {};
+                                            req.session.gitlab.user = result;
+                                        } else{
+                                            console.log(userToCreate);
+                                            console.log("Error while creating the user on gitlab.");
+                                            // Winston log file
+                                            logger.debug("Error while creating the user on gitlab.");
+
+                                            gitlabError = {
+                                                status : true,
+                                                message: "Error while creating the user on gitlab."
+                                            };
+                                        }
+                                        done();
                                     });
+                                } else{
+                                    gitlabError = {
+                                        status : true,
+                                        message: "User already exist on gitlab: " + userToCreate.email
+                                    };
+                                    // Winston log file
+                                    logger.debug("User already exist on gitlab: " + userToCreate.email);
+                                    console.log("User already exist on gitlab: " + userToCreate.email);
+                                    done();
                                 }
                             });
                         } catch(err){
+                            gitlabError = {
+                                status : true,
+                                message: "Error connection Gitlab repository: " + err
+                            };
                             console.log("Error connection Gitlab repository: "+err);
                             console.log("Please set doGit in config/gitlab.json to false");
+                            done();
                         }
+                    } else{
+                        done();
                     }
-
-                    models.User.update({
-                        password: password,
-                        email: email_user
-                    }, {
-                        where: {
-                            login: login_user
-                        }
-                    }).then(function(){
-                        req.session.toastr = [{
-                            message: "login.first_connection.success",
-                            level: "success"
-                        }];
-                        res.redirect('/login');
-                    });
                 }
                 else{
                     req.session.toastr = [{
@@ -123,7 +167,6 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                     message: "login.first_connection.userNotExist",
                     level: "error"
                 }];
-
                 res.redirect('/login');
             }
         }).catch(function(err){
@@ -281,18 +324,39 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 // process the login form
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
-    var redirect_to = req.session.redirect_to ? req.session.redirect_to : '/default/home';
-    delete req.session.redirect_to;
-
     if (req.body.remember) {
         req.session.cookie.maxAge = 1000 * 60 * 3;
     } else {
         req.session.cookie.expires = false;
     }
-    req.session.message = "";
-    req.session.error = 0;
 
-    res.redirect(redirect_to);
+    var email_user = req.session.passport.user.email;
+
+    // Get gitlab instance
+    if(gitlabConf.doGit){
+        try{
+            gitlab.users.all(function(gitlabUsers){
+                var exist = false;
+                for(var i=0; i<gitlabUsers.length; i++){
+                    if(gitlabUsers[i].email == email_user){
+                        exist = true;
+                        req.session.gitlab = {};
+                        req.session.gitlab.user = gitlabUsers[i];
+                        res.redirect('/default/home');
+                    }
+                }
+            });
+        } catch(err){
+            console.log(err);
+            req.session.toastr = [{
+                message: "Error, impossible de se connecter au compte Gitlab.",
+                level: "error"
+            }];
+            res.redirect('/logout');
+        }
+    } else{
+        res.redirect('/default/home');
+    }
 });
 
 // =====================================
