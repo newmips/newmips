@@ -85,6 +85,10 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                     };
                                     console.log(userToCreate);
 
+                                    //request.post("http://cloud.newmips.com:1400/get/user")
+
+                                    console.log(gitlab.users);
+
                                     gitlab.users.create(userToCreate, function(result){
                                         console.log(result);
                                     });
