@@ -250,6 +250,18 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	</div>\n";
             }
             break;
+//        case "img":
+//        case "picture":
+//        case "image":
+//            if (file != 'show') {
+//                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
+//                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+//            } else {
+//                str += "	<div class='input-group'>\n";
+//                str += "		<img src=img/"+dataEntity+"/"+value.split('-')[0]+'/'+ value + " class='img img-responsive' alt="+value+" name=" + dataField + "  " + readOnly + "/>\n";
+//                str += "	</div>\n";
+//            }
+//            break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
@@ -482,6 +494,12 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "STRING";
             typeForDatalist = "file";
             break;
+//        case "img":
+//        case "image":
+//        case "picture":
+//            typeForModel = "STRING";
+//            typeForDatalist = "picture";
+//            break;
         case "cloudfile" :
             typeForModel = "STRING";
             break;
@@ -609,7 +627,7 @@ exports.setRequiredAttribute = function (attr, callback) {
                         var attributesContent = fs.readFileSync(pathToAttributesJson);
                         var attributesObj = JSON.parse(attributesContent);
 
-                        attributesObj[attr.options.value].allowNull = set?false:true;
+                        attributesObj[attr.options.value].allowNull = set ? false : true;
                         fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
                         callback();
@@ -653,7 +671,7 @@ exports.setUniqueField = function (attr, callback) {
     var attributesContent = fs.readFileSync(pathToAttributesJson);
     var attributesObj = JSON.parse(attributesContent);
 
-    attributesObj[attr.options.value].unique = set?true:false;
+    attributesObj[attr.options.value].unique = set ? true : false;
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
     callback();
