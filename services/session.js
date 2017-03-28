@@ -88,20 +88,36 @@ exports.showSession = function(attr, callback) {
 // Deploy
 exports.deploy = function(attr, callback) {
 
-    if (typeof(attr.id_application) != 'undefined') id_application = attr.id_application;
+    var id_application;
+
+    if (typeof(attr.id_application) !== 'undefined')
+        id_application = attr.id_application;
+
+    console.log("ID App:", id_application)
 
     if (globalConf.env == 'cloud') {
+            console.log("ENV: ", globalConf.env);
             // Push on git before deploy
             gitHelper.gitPush(attr, function(err, infoGit){
-                if(err)
+                if(err){
+                    console.log(err);
                     return callback(err, null);
+                }
+
+                console.log("Git push done!");
 
                 db_application.getCodeNameApplicationById(id_application, function(err, codeName) {
-                    if (err)
+                    if (err){
+                        console.log(err);
                         return callback(err);
+                    }
                     var subdomain = globalConf.host + '-' + codeName.substring(2);
+                    console.log("subdomain: ", subdomain);
                     var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
+                    console.log("url; ", url);
                     manager.createCloudDns(subdomain).then(function(data) {
+                        console.log("CREATE DNS CLOUD FINISH");
+                        console.log(data);
                         var url = data.body.url;
                         var info = {
                             message: "We're deploying your application...<br>\
@@ -118,6 +134,7 @@ exports.deploy = function(attr, callback) {
             });
     }
     else {
+        console.log("ELSE");
         var protocol = globalConf.protocol;
         var host = globalConf.host;
         var math = require('math');
