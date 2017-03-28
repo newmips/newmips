@@ -111,7 +111,6 @@ exports.createNewApplication = function(attr, callback) {
         }).catch(function(err){
             callback(err, null);
         });
-
     }
 }
 
