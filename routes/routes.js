@@ -17,7 +17,7 @@ try{
     if(gitlabConf.doGit){
         // Gitlab connection
         var gitlab = require('gitlab')({
-            url:   gitlabConf.url,
+            url:   gitlabConf.protocol+"://"+gitlabConf.url,
             token: gitlabConf.privateToken
         });
     }
@@ -324,17 +324,16 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 // process the login form
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
-    if (req.body.remember) {
+    if (req.body.remember)
         req.session.cookie.maxAge = 1000 * 60 * 3;
-    } else {
+    else
         req.session.cookie.expires = false;
-    }
 
     var email_user = req.session.passport.user.email;
 
     // Get gitlab instance
     if(gitlabConf.doGit){
-        if(typeof req.session.gitlab === "undefined" && typeof req.session.gitlab.user === "undefined"){
+        if(typeof req.session.gitlab === "undefined"){
             try{
                 gitlab.users.all(function(gitlabUsers){
                     var exist = false;
@@ -343,14 +342,22 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
                             exist = true;
                             req.session.gitlab = {};
                             req.session.gitlab.user = gitlabUsers[i];
-                            res.redirect('/default/home');
                         }
+                    }
+
+                    if(!exist){
+                        req.session.toastr = [{
+                            message: "Erreur, impossible de se connecter au compte Gitlab. Veuillez desactiver doGit dans config/gitlab.json si vous ne souhaitez pas utiliser Gitlab.",
+                            level: "error"
+                        }];
+                        res.redirect('/logout');
+                    } else{
+                        res.redirect('/default/home');
                     }
                 });
             } catch(err){
-                console.log(err);
                 req.session.toastr = [{
-                    message: "Error, impossible de se connecter au compte Gitlab.",
+                    message: err.message,
                     level: "error"
                 }];
                 res.redirect('/logout');
