@@ -88,20 +88,29 @@ exports.showSession = function(attr, callback) {
 // Deploy
 exports.deploy = function(attr, callback) {
 
-    if (typeof(attr.id_application) != 'undefined') id_application = attr.id_application;
+    var id_application;
+
+    if (typeof(attr.id_application) !== 'undefined')
+        id_application = attr.id_application;
 
     if (globalConf.env == 'cloud') {
             // Push on git before deploy
             gitHelper.gitPush(attr, function(err, infoGit){
-                if(err)
+                if(err){
+                    console.log(err);
                     return callback(err, null);
+                }
 
                 db_application.getCodeNameApplicationById(id_application, function(err, codeName) {
-                    if (err)
+                    if (err){
+                        console.log(err);
                         return callback(err);
+                    }
+
                     var subdomain = globalConf.host + '-' + codeName.substring(2);
                     var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
-                    manager.createCloudDns(subdomain).then(function(data) {
+
+                    manager.createCloudDns(subdomain, attr.gitlabUser).then(function(data) {
                         var url = data.body.url;
                         var info = {
                             message: "We're deploying your application...<br>\
@@ -123,7 +132,7 @@ exports.deploy = function(attr, callback) {
         var math = require('math');
         var port = math.add(9000, id_application);
         var url = protocol + "://" + host + ":" + port;
-        var info = new Array();
+        var info = {};
         info.message = "Application is now available on: <br>";
         info.message += "<a href='"+url+"' target='_blank'>"+url+"</a>";
 

@@ -111,7 +111,6 @@ exports.createNewApplication = function(attr, callback) {
         }).catch(function(err){
             callback(err, null);
         });
-
     }
 }
 
@@ -207,6 +206,6 @@ exports.getCodeNameApplicationById = function(idApp, callback) {
             err.messageParams = [idApp];
             return callback(err);
         }
-        return application.codeName;
+        callback(null, application.codeName);
     })
 }

@@ -42,7 +42,8 @@ module.exports = {
                     var usernameGitlab = attr.gitlabUser.username;
 
                     if(!gitlabConf.useSSH){
-                        repoUrl = gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
+                        repoUrl = gitlab.protocol+"://"+gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
+                        //repoUrl = gitlabConf.protocol+"://"+usernameGitlab+":"+passwordUser+"@"+gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
                     } else{
                         repoUrl = gitlabConf.sshUrl+":"+usernameGitlab+"/"+nameRepo+".git";
                     }
@@ -68,8 +69,8 @@ module.exports = {
                             .push(['-u', originName, 'master'], function(err, answer){
                                 if(err)
                                     console.log(err);
-                                gitProcesses[originName] = false;
                                 console.log(answer);
+                                gitProcesses[originName] = false;
                             });
                         } else{
                             err = new Error();
@@ -89,11 +90,14 @@ module.exports = {
                         });
                     }
                     callback(err);
+
                 } else{
                     var err = new Error();
                     err.message = "Missing gitlab user in server session.";
                     return callback(err, null);
                 }
+            }).catch(function(err){
+                callback(err);
             });
         } else{
             callback();
@@ -167,8 +171,11 @@ module.exports = {
                             // Set gitProcesses to prevent any other git command during this process
                             gitProcesses[originName] = true;
                             simpleGit.push(['-u', originName, 'master'], function(err, answer){
-                                if(err)
+                                if(err){
+                                    console.log(err);
                                     return callback(err, null);
+                                }
+                                console.log(answer);
                                 gitProcesses[originName] = false;
                                 callback(null, answer);
                             });
@@ -218,8 +225,11 @@ module.exports = {
                     // Set gitProcesses to prevent any other git command during this process
                     gitProcesses[originName] = true;
                     simpleGit.pull(originName, "master", function(err, answer){
-                        if(err)
+                        if(err){
+                            console.log(err);
                             return callback(err, null);
+                        }
+                        console.log(answer);
                         gitProcesses[originName] = false;
                         callback(null, answer);
                     });

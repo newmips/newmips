@@ -29,7 +29,7 @@ passport.use(new LocalStrategy({
             // if the user doesn't exist
             if (!user) {
                 req.session.toastr = [{
-                    message: "Nom d'utilisateur inexistant.",
+                    message: "Cet utilisateur n'existe pas.",
                     level: "error"
                 }];
                 return done(null, false);
