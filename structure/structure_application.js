@@ -16,7 +16,7 @@ try{
     if(gitlabConf.doGit){
         // Gitlab connection
         var gitlab = require('gitlab')({
-            url:   gitlabConf.url,
+            url:   gitlabConf.protocol+"://"+gitlabConf.url,
             token: gitlabConf.privateToken
         });
     }
