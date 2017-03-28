@@ -176,7 +176,6 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             }];
             res.redirect('/login');
         });
-
     } else{
         req.session.toastr = [{
             message: "login.first_connection.passwordNotMatch",
