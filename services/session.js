@@ -93,10 +93,7 @@ exports.deploy = function(attr, callback) {
     if (typeof(attr.id_application) !== 'undefined')
         id_application = attr.id_application;
 
-    console.log("ID App:", id_application)
-
     if (globalConf.env == 'cloud') {
-            console.log("ENV: ", globalConf.env);
             // Push on git before deploy
             gitHelper.gitPush(attr, function(err, infoGit){
                 if(err){
@@ -104,20 +101,16 @@ exports.deploy = function(attr, callback) {
                     return callback(err, null);
                 }
 
-                console.log("Git push done!");
-
                 db_application.getCodeNameApplicationById(id_application, function(err, codeName) {
                     if (err){
                         console.log(err);
                         return callback(err);
                     }
+
                     var subdomain = globalConf.host + '-' + codeName.substring(2);
-                    console.log("subdomain: ", subdomain);
                     var url = globalConf.protocol + '://' + subdomain + globalConf.dns;
-                    console.log("url; ", url);
-                    manager.createCloudDns(subdomain).then(function(data) {
-                        console.log("CREATE DNS CLOUD FINISH");
-                        console.log(data);
+
+                    manager.createCloudDns(subdomain, attr.gitlabUser).then(function(data) {
                         var url = data.body.url;
                         var info = {
                             message: "We're deploying your application...<br>\
@@ -134,13 +127,12 @@ exports.deploy = function(attr, callback) {
             });
     }
     else {
-        console.log("ELSE");
         var protocol = globalConf.protocol;
         var host = globalConf.host;
         var math = require('math');
         var port = math.add(9000, id_application);
         var url = protocol + "://" + host + ":" + port;
-        var info = new Array();
+        var info = {};
         info.message = "Application is now available on: <br>";
         info.message += "<a href='"+url+"' target='_blank'>"+url+"</a>";
 

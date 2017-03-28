@@ -53,7 +53,7 @@ exports.createApplicationDns = function(subdomain, name_application, id_applicat
 ///////////////////
 // Cloud-manager //
 ///////////////////
-exports.createCloudDns = function(subdomain) {
+exports.createCloudDns = function(subdomain, user) {
 	return new Promise(function(resolve, reject) {
 		var url = cloudConfig.url+'/api/environment/create';
 		request.post({
@@ -62,7 +62,7 @@ exports.createCloudDns = function(subdomain) {
 				'content-type' : 'application/json'
 			},
 			url: url,
-		    form: {subdomain: subdomain}
+		    form: {subdomain: subdomain, user: user}
 		}, function(error, response, body) {
 			if (error) {
 				console.log(err);
