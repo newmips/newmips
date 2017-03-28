@@ -1,4 +1,3 @@
-var wfs = require('webdav');
 var fs = require('fs');
 var global = require('../config/global');
 
