@@ -42,7 +42,7 @@ module.exports = {
                     var usernameGitlab = attr.gitlabUser.username;
 
                     if(!gitlabConf.useSSH){
-                        repoUrl = gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
+                        repoUrl = gitlab.protocol+"://"+gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
                         //repoUrl = gitlabConf.protocol+"://"+usernameGitlab+":"+passwordUser+"@"+gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
                     } else{
                         repoUrl = gitlabConf.sshUrl+":"+usernameGitlab+"/"+nameRepo+".git";
