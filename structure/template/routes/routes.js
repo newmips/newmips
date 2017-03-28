@@ -81,7 +81,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             return res.redirect('/login');
         }
         var password = bcrypt.hashSync(req.body.password_user2, null, null);
-        models.E_user.update({f_password: password, enabled: 1}, {
+        models.E_user.update({f_password: password, f_enabled: 1}, {
             where: {id: user.id}
         }).then(function(){
             req.flash('loginMessage', 'Mise à jour faite. Vous pouvez désormais vous connecter.');
