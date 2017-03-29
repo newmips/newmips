@@ -9,7 +9,7 @@ var models = require('../models/');
 var attributes = require('../models/attributes/ENTITY_NAME');
 var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
-
+var entity_helper = require('../utils/entity_helper');
 // ENUM managment
 var enums = require('../utils/enum.js');
 
@@ -22,7 +22,7 @@ function error500(err, req, res, redirect) {
     try {
 
         //Sequelize validation error
-        if(err.name == "SequelizeValidationError"){
+        if (err.name == "SequelizeValidationError") {
             req.session.toastr.push({level: 'error', message: err.errors[0].message});
             isKnownError = true;
         }
@@ -38,11 +38,11 @@ function error500(err, req, res, redirect) {
             return res.redirect(redirect || '/');
         else
             console.error(err);
-            logger.debug(err);
-            var data = {};
-            data.code = 500;
-            data.message = err.message || null;
-            res.render('common/error', data);
+        logger.debug(err);
+        var data = {};
+        data.code = 500;
+        data.message = err.message || null;
+        res.render('common/error', data);
     }
 }
 
@@ -356,9 +356,9 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
             req.session.toastr = [{
-                message: 'message.update.success',
-                level: "success"
-            }];
+                    message: 'message.update.success',
+                    level: "success"
+                }];
 
             res.redirect(redirect);
         }).catch(function (err) {
@@ -372,22 +372,29 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
     var id_ENTITY_NAME = req.body.id;
 
-    models.MODEL_NAME.destroy({
-        where: {
-            id: id_ENTITY_NAME
-        }
-    }).then(function () {
-        req.session.toastr = [{
-                message: 'message.delete.success',
-                level: "success"
-            }];
-        var redirect = '/ENTITY_URL_NAME/list';
-        if (typeof req.body.associationFlag !== 'undefined')
-            redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-        res.redirect(redirect);
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (deleteObject) {
+        models.MODEL_NAME.destroy({
+            where: {
+                id: id_ENTITY_NAME
+            }
+        }).then(function () {
+            req.session.toastr = [{
+                    message: 'message.delete.success',
+                    level: "success"
+                }];
+
+            var redirect = '/ENTITY_URL_NAME/list';
+            if (typeof req.body.associationFlag !== 'undefined')
+                redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
+            res.redirect(redirect);
+            entity_helper.remove_files("ENTITY_NAME",deleteObject,attributes);
+        }).catch(function (err) {
+            error500(err, req, res, '/ENTITY_URL_NAME/list');
+        });
     }).catch(function (err) {
         error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
+
 });
 
 module.exports = router;

@@ -1,279 +1,321 @@
 {
-  "app": {
-    "name": "Newmips One",
-    "lang": "fr"
-  },
-  "language": {
-    "english": "Anglais",
-    "french": "Français"
-  },
-  "login": {
-    "log_in": "Log in",
-    "reset_password": "Mot de passe oublié",
-    "first_connection": "Première connexion",
-    "authentication": "Connexion",
-    "login": "Login",
-    "password": "Mot de passe",
-    "confirm_password": "Confirmation du mot de passe",
-    "mail": "Mail",
-    "remember_me": "Se souvenir de moi",
-    "submit": "Soumettre"
-  },
-  "navbar": {
-    "about": "A propos",
-    "help": "Aide",
-    "support": "Support"
-  },
-  "module": {
-    "home": "Accueil",
-    "preview": {
-      "title": "Prévisualisation",
-      "reload": "Redémarrer le serveur",
-      "issue-button": "Soumettre un bug"
+    "app": {
+        "name": "Newmips"
     },
-    "module": "Module",
-    "workspace": "Mon espace",
-    "manager": "Manager",
-    "business": "Business",
-    "application": "Application",
-    "technology": "Environnement",
-    "editor": "Éditeur",
-    "live": "Live",
-    "instruction": "Instructions",
-    "import": "Importer",
-    "settings": "Paramètres",
-    "editor_content": {
-      "folders": "Dossiers",
-      "editor": "Éditeur",
-      "change_theme": "Changer de thème",
-      "intro": "Bonjour utilisateur de Newmips !",
-      "intro2": "Vous pouvez choisir un fichier à éditer dans le menu à gauche ;)",
-      "intro3": "Et vous pouvez aussi appuyer sur F11 dans l'éditeur pour passer en plein écran!"
-    }
-  },
-  "description": {
-    "manager": "Le module Manager permet de décrire l'état du système avant migration (projets sources) et après migration (projets cibles) ; et de définir les gaps, tâches nécessaires à la fabrication de l'application.",
-    "business": "Le module Business permet de définir les informations propres à votre société, et de charger l'annuaire des utilisateurs de la future application.",
-    "application": "Le module Application permet de construire dynamiquement vos applications. Il s'appuie sur l'utilisation du Méta-langage Newmips, basé sur une grammaire et des règles de construction pré-établies.",
-    "technology": "Le module Environnement permet de gérer les déploiements, l'allocation des ressources et la gestion du versioning."
-  },
-  "role": {
-    "administrator": "Administrateur",
-    "developer": "Développeur"
-  },
-  "button": {
-    "profile": "Profil",
-    "disconnect": "Déconnexion",
-    "show": "Afficher",
-    "update": "Modifier",
-    "delete": "Supprimer",
-    "create": "Créer",
-    "list": "Lister",
-    "save": "Sauvegarder",
-    "preview": "Prévisualiser",
-    "record": "Enregistrer",
-    "execute": "Exécuter",
-    "backtohome": "Retourner à l'accueil",
-    "yes": "Oui",
-    "no": "Non",
-    "close": "Fermer",
-    "send": "Envoyer"
-  },
-  "operation": {
-    "show": "Afficher une entité ",
-    "update": "Modifier une entité ",
-    "create": "Créer une entité ",
-    "delete": "Supprimer une entité ",
-    "list": "Lister toutes les entités ",
-    "list_of": "Liste des ",
-    "generate": "Générer une entité ",
-    "live": "Edition \"Live\"",
-    "script": "Executer un script d'instructions",
-    "preview": "Prévisualiser une entité",
-    "access": "Accéder au module ",
-    "settings": "Définir les paramètres de l'application",
-    "editor": "Editer une application"
-  },
-  "message": {
-    "create": {
-      "success": "Succès ! L'enregistrement a été créé en base de données.",
-      "failure": "Erreur ! L'enregistrement n'a pas été créé en base de données. Veuillez contacter votre administrateur."
+    "login": {
+        "log_in": "Se connecter",
+        "reset_password": "Mot de passe oublié",
+        "emailResetSent": "Un email vous permettant de réinitialiser votre mot de passe vous à été envoyé.",
+        "tokenNotFound": "Impossible de retrouver votre token, nous ne pouvons pas valider votre demande.",
+        "passwordReset": "Votre mot de passe a été réinitialisé.",
+        "first_connection": {
+            "title": "Première connexion",
+            "success": "Mise à jour effectuée. Vous pouvez désormais vous connecter avec votre identifiant et votre nouveau mot de passe.",
+            "hasAlreadyPassword": "Mise à jour impossible. Cet utilisateur possède déjà un mot de passe.",
+            "userNotExist": "Erreur, cet utilisateur n'existe pas.",
+            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 8 caractères."
+        },
+        "authentication": "Connexion",
+        "login": "Login",
+        "password": "Mot de passe",
+        "confirm_password": "Confirmer le mot de passe",
+        "mail": "Email",
+        "remember_me": "Se souvenir de moi",
+        "submit": "Soumettre"
     },
-    "update": {
-      "success": "Succès ! L'enregistrement a été modifié en base de données.",
-      "failure": "Erreur ! L'enregistrement n'a pas été modifié en base de données. Veuillez contacter votre administrateur."
+    "menu": {
+        "home": "Accueil",
+        "preview": "Prévisualisation",
+        "module": "Module",
+        "application": "Application",
+        "editor": "Éditeur",
+        "live": "Direct",
+        "instruction": "Instruction",
+        "import": "Import",
+        "settings": "Paramètres",
+        "error": "Erreur",
+        "back": "Back office",
+        "users": "Users"
     },
-    "delete": {
-      "success": "Succès ! L'enregistrement a été supprimé en base de données.",
-      "failure": "Erreur ! L'enregistrement n'a pas été supprimé en base de données. Veuillez contacter votre administrateur.",
-      "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
+    "button": {
+        "generate": "Générer",
+        "disconnect": "Déconnexion",
+        "show": "Afficher",
+        "update": "Modifier",
+        "delete": "Supprimer",
+        "create": "Créer",
+        "list": "Lister",
+        "save": "Sauvegarder",
+        "preview": "Prévisualisation",
+        "record": "Enregistrer",
+        "execute": "Executer",
+        "backtohome": "Retourner à l'accueil",
+        "yes": "Oui",
+        "no": "Non",
+        "close": "Fermer",
+        "send": "Envoyer"
     },
-    "gap": {
-      "create_project_first": "Merci de bien vouloir initialiser un projet source et un projet cible en premier."
-    }
-  },
-  "close": "Fermer",
-  "tour_tip": {
-    "home_1": {
-      "header": "Bienvenue sur Newmips !",
-      "body": "Cet assistant vous montre les étapes nécessaires à la création d'une application Newmips.",
-      "dont_ask": "Ne pas me redemander",
-      "discover": "Découvrir",
-      "shortcuts": "Accès direct"
-    },
-    "home_2": {
-      "header": "Créer une application",
-      "body1": "Saisissez le nom de votre Projet et de votre Application",
-      "body2": "Nous pourrons ensuite procéder à leur géneration.",
-      "initializing1": "Nous initialisons votre application.",
-      "initializing2": "Cela peut prendre quelques temps, ne rafraichissez pas la page...",
-      "timeout": "La génération prends plus de temps qu'elle ne devrait. Vous pouvez aller sur la page Application pour vérifier que votre application a bien été générée",
-      "generate": "Générer",
-      "select_project": "Veuillez sélectionner un projet",
-      "create_new_project_application": "Créer un nouveau projet",
-      "create_new_application": "Créer une nouvelle application",
-      "select_existing_application": "Sélectionner une application existante",
-      "select_existing_project": "Sélectionner un projet existant"
-    },
-    "preview": {
-      "header": "Application créée !",
-      "body1": "Nous avons créé votre application. Vous avez été redirigé vers la page de prévisualisation de votre application.",
-      "body2": "Depuis cette page, vous pouvez interagir avec votre application et voir les modifications en temps réel.",
-      "body3": "Vous pouvez ajouter du contenu à votre application en envoyant des instructions à l'aide du champs de text.",
-      "body4": "Appuyez sur la touche 'h' ou cliquez sur l'icon située en bas à droite de votre écran pour en apprendre plus sur le fonctionnement de Newmips.",
-      "continue": "J'ai compris"
+    "home": {
+        "header": "Bienvenue sur Newmips !",
+        "title": "Créez ou sélectionnez un Projet ainsi qu'une Application.",
+        "subtitle": "Et nous nous occupons du reste !",
+        "directlinks": {
+            "title": "Liens directs",
+            "script": "Script",
+            "live": "Direct",
+            "import": "Import",
+            "settings": "Paramètres"
+        }
     },
     "listApplication": {
-      "title": "Projets et Applications",
-      "id": "ID",
-      "name": "Nom",
-      "nbModules": "Nombre de Modules",
-      "action": "Action"
-    }
-  },
-  "actions": {
-    "delete": {
-      "application": "Application supprimée avec succès"
-    }
-  },
-  "entity": {
-    "script": {
-      "label": "Script"
+        "legend": "Projets et Applications",
+        "id": "ID",
+        "name": "Nom",
+        "nbModules": "Nb de modules",
+        "action": "Actions",
+        "sureToDelete": "Êtes-vous sûr ?",
+        "loading": "Chargement...",
+        "projectDelete" : "Projet supprimé !",
+        "appDelete" : "Application supprimée !"
+    },
+    "editor": {
+        "legend": "Éditeur",
+        "folders": "Dossiers",
+        "change_theme": "Changer de thème",
+        "intro": "Bonjour utilisateur Newmips!",
+        "intro2": "Vous pouvez sélectionner un fichier à éditer sur le menu de gauche ;)",
+        "intro3": "Et vous pouvez appuyer sur F11 quand vous êtes sur l'éditeur pour passer en plein écran!"
+    },
+    "instructionScript": {
+        "legend": "Executer un script Newmips",
+        "redirecting": "Redirection..."
     },
     "live": {
-      "label": "Live"
+        "legend": "Édition en direct"
     },
     "import": {
-      "label": "Import"
+        "legend": "Import",
+        "action": "Importer maintenant!",
+        "downloadsqlfile": "Télécharger le fichier SQL valide.",
+        "confFile": "Fichier de configuration",
+        "fileType": "Fichier XLSX ou CSV"
     },
     "settings": {
-      "label": "Paramètres",
-      "name": "paramètre",
-      "plural": "paramètres",
-      "display_language": "Langue d'affichage",
-      "activate_translation": "Activer la traduction automatique (Connexion internet requise)"
+        "legend": "Paramètres",
+        "display_language": "Afficher les langages",
+        "activate_translation": "Activer la traduction automatique (Internet + Clée API valide requis)",
+        "english": "Anglais",
+        "french": "Français"
+    },
+    "preview": {
+        "title": "Prévisualisation",
+        "reload": "Redémarrer le serveur",
+        "issue-button": "Signaler un bug"
     },
     "project": {
-      "label": "Projet",
-      "name": "projet",
-      "plural": "projets",
-      "id_project": "Id",
-      "name_project": "Nom",
-      "description_project": "Description",
-      "type_project": "Type"
+        "label": "Projet",
+        "selectProject": "S'il vous plaît, sélectionnez un projet.",
+        "selectExisting": "Sélectionner un projet existant",
+        "create": "Créer un nouveau projet"
     },
     "application": {
-      "label": "Application",
-      "name": "application",
-      "plural": "applications",
-      "id_application": "Id",
-      "name_application": "Nom",
-      "id_persistence_application": "Persistence",
-      "id_search_engine_application": "Moteur de recherche",
-      "id_theme_application": "Thème",
-      "logo": "Logo",
-      "id_project": "ID Projet"
+        "label": "Application",
+        "create": "Créer une nouvelle application",
+        "selectExisting": "Sélectionner une application existante",
+        "plural": "Applications"
     },
     "module": {
-      "label": "Module",
-      "name": "module",
-      "plural": "modules",
-      "id_module": "Id",
-      "name_module": "Nom",
-      "id_application": "ID Application"
+        "label": "Module"
     },
-    "data_entity": {
-      "label": "Entité de données",
-      "name": "entité de données",
-      "plural": "entités de données",
-      "id_data_entity": "Id",
-      "name_data_entity": "Nom",
-      "description_data_entity": "Description",
-      "icon_data_entity": "Icône",
-      "controllable_data_entity": "Contrôlable",
-      "listable_data_entity": "Listable",
-      "testable_data_entity": "Testable",
-      "id_module": "ID Module"
+    "entity": {
+        "label": "Entités",
+        "name": "Nom de l'entité",
+        "plural": "entités"
     },
-    "data_field": {
-      "label": "Propriété",
-      "name": "propriété",
-      "plural": "Propriétés",
-      "id": "Id",
-      "type": "Type",
-      "nillable": "Peut-être null",
-      "min_length": "Taille minimum",
-      "max_length": "Taille maximum",
-      "class_object": "Classe",
-      "id_data_entity": "ID Entité de données"
+    "error": {
+        "oops": "Oups! Une erreur s'est produite :(",
+        "textone": "Vous devriez contact votre administrateur, et vous pouvez",
+        "texttwo": "retourner à l'accueil",
+        "or": "ou",
+        "textthree": "simplement revenir en arrière.",
+        "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
     },
-    "persistence": {
-      "label": "Persistence",
-      "name": "instance",
-      "plural": "instances",
-      "id_persistence": "Id",
-      "name_persistence": "Nom",
-      "type_persistence": "Type de source",
-      "host_persistence": "Hôte",
-      "schema_persistence": "Schéma",
-      "user_persistence": "Utilisateur",
-      "password_persistence": "Mot de passe"
+    "back":{
+        "list": "Lister les",
+        "show": "Afficher le"
     },
-    "theme": {
-      "label": "Thème",
-      "name": "thème",
-      "plural": "thèmes",
-      "id_theme": "Id",
-      "name_theme": "Nom",
-      "version_theme": "Version",
-      "description_theme": "Description",
-      "capture_theme": "Capture d'écran",
-      "tab_1": "Description",
-      "tab_2": "Visuel"
+    "chat": {
+        "welcome": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin ecrivez help pour avoir plus d'informations."
     },
-    "search_engine": {
-      "label": "Moteur de recherche",
-      "name": "moteur de recherche",
-      "plural": "moteurs de recherche",
-      "id_search_engine": "Id",
-      "name_search_engine": "Nom",
-      "state_search_engine": "Etat",
-      "type_search_engine": "Type",
-      "url_search_engine": "URL"
+    "database": {
+        "project": {
+            "select": {
+                "selected": "Projet %s (%s) sélectionné."
+            },
+            "create": {
+                "success" : "Nouveau projet %s (%s) créé."
+            },
+            "delete":{
+                "deleted": "Projet %s supprimé !"
+            },
+            "notFound": {
+                "withThisID": "Désolé, mais il n'existe aucun projet avec cet ID : %s.",
+                "withThisName": "Désolé, mais il n'existe aucun projet avec ce nom : %s."
+            }
+        },
+        "application": {
+            "select": {
+                "selected": "Application %s (%s) sélectionnée."
+            },
+            "create": {
+                "success" : "Nouvelle application %s (%s) créée."
+            },
+            "delete":{
+                "deleted": "Application %s supprimée !"
+            },
+            "notFound": {
+                "withThisID": "Désolé, mais il n'y a pas d'application avec cet ID : %s.",
+                "withThisName": "Désolé, mais il n'y a pas d'application avec ce nom : %s.",
+                "withThisCodeName": "Désolé, mais il n'y a pas d'application avec ce nom de code : %s."
+            },
+            "alreadyExist": "Désolé, mais une application existe déjà avec ce nom : %s."
+        },
+        "module": {
+            "select": {
+                "selected": "Module %s (%s) sélectionné."
+            },
+            "create": {
+                "success" : "Nouveau module %s (%s) créé.",
+                "alreadyExist": "Un module avec le même ou similaire nom %s existe déjà."
+            },
+            "list": {
+                "selectAppBefore": "S'il vous plaît, sélectionnez une application."
+            },
+            "delete":{
+                "deleted": "Module %s supprimé !"
+            },
+            "notFound": {
+                "notFounded": "Impossible de trouver le module %s.",
+                "withThisID": "Désolé, mais il n'y a pas de module avec cet ID : %s.",
+                "withThisName": "Désolé, mais il n'y a pas de module avec ce nom : %s.",
+                "noModuleInApp": "Désolé, il n'y a aucun module dans cette application.",
+                "notFoundHomeModule": "Impossible de trouver le module home dans l'application avec ID %s."
+            }
+        },
+        "component":{
+            "create": {
+                "success" : "Nouveau composant %s (%s) créé."
+            },
+            "notFound": {
+                "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s."
+            }
+        },
+        "entity": {
+            "select": {
+                "selected": "Entité %s (%s) sélectionnée.",
+                "valid": "Merci d'indiquer une nom/ID valide."
+            },
+            "create": {
+                "success" : "Nouvelle entité %s (%s) créée.",
+                "alreadyExist": "Entité avec un nom (%s) identique ou similaire existe déjà.",
+                "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité avec le nom de code %s trouvé."
+            },
+            "delete": {
+                "deleted": "Entité %s supprimée !"
+            },
+            "get":{
+                "idNotDefined": "L'ID de l'entité n'est pas défini. Vous devriez sélectionner ou créer une entité avant."
+            },
+            "notFound": {
+                "withThisID": "Désolé, mais il n'y a pas d'entité avec l'ID: %s.",
+                "withThisName": "Désolé, mais il n'y a pas d'entité avec le nom: %s.",
+                "withThisCodeNameAndModule": "Désolé, mais il n'y a pas d'entité avec le nom de code: %s dans le module: %s.",
+                "targetNoExist": "L'entité cible n'existe pas."
+            }
+        },
+        "field": {
+            "error":{
+                "selectOrCreateBefore": "Vous devez sélectionner ou créer une entité avant.",
+                "alreadyExist": "Désolé, un champ avec un nom (%s) identique ou similaire existe déjà."
+            },
+            "create": {
+                "created": "Nouveau champ %s (%s) créé.",
+                "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
+            },
+            "delete": {
+                "deleted": "Champ %s supprimé !"
+            },
+            "notFound": {
+                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s."
+            }
+        }
     },
-    "translated_language": {
-      "label": "Langue",
-      "name": "langue",
-      "plural": "langues",
-      "id_translated_language": "Id",
-      "code_translated_language": "Code",
-      "name_translated_language": "Nom",
-      "logo": "logo"
-    },
-    "technology": {
-      "label": "Environnement",
-      "name": "environnement",
-      "plural": "environnements"
+    "structure": {
+        "global": {
+            "restart": {
+                "success": "Le serveur a bien été redémarré!"
+            },
+            "gitPush": {
+                "success": "L'application a bien été sauvergardée!"
+            },
+            "gitPull": {
+                "success": "L'application a bien été chargée!"
+            },
+            "error": {
+                "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour executer une nouvelle instruction git.",
+                "notDoGit": "L'option 'doGit' dans config/gitlab.json est désactivée, l'instruction demandée ne fera donc rien du tout."
+            }
+        },
+        "module": {
+            "error": {
+                "notHome": "Vous ne pouvez pas supprimer le module Accueil."
+            }
+        },
+        "field": {
+            "attributes": {
+                "success": "Le champs %s est désormais %s.",
+                "notUnderstandGiveAvailable": "Désolé, je ne comprend pas ce que vous souhaitez. Possibilités :<br>%s<br>",
+                "notUnderstand": "Désolé, je ne comprend pas l'attribut demandé.",
+                "fieldNoFound": "Aucun champs avec le nom %s trouvé dans l'entité courante.",
+                "duplicateUnique": "Désolé, le champ a déjà des valeurs identiques, impossible de le rendre unique."
+            }
+        },
+        "association": {
+            "hasOne": {
+                "successEntity": "Nouvelle assocation 'Has One' avec l'entité %s créée.",
+                "successSubEntity": "Nouvelle assocation 'Has One' avec la sous-entité %s créée."
+            },
+            "hasMany": {
+                "successEntity": "Nouvelle assocation 'Has Many' avec l'entité %s créée.",
+                "successSubEntity": "Nouvelle assocation 'Has Many' avec la sous-entité %s créée."
+            },
+            "fieldset":{
+                "success": "Nouvelle liste d'objets existants %s créée sur %s."
+            },
+            "relatedTo": {
+                "success": "Nouveau champs %s associé à %s créé."
+            },
+            "error":{
+                "alreadyHasMany": "L'entité source a déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
+                "alreadyHasOne": "L'entité source a déjà l'association 'Has One' avec l'entité cible, impossible de créer l'association 'Has Many'.",
+                "alreadySameAlias": "Une association avec cet alias existe déjà entre ces entités.",
+                "circularBelongsTo": "Désolé, vous ne pouvez pas faire d'association 'Has One' dans les deux sens.",
+                "circularHasMany": "Désolé, vous ne pouvez pas faire d'association 'Has Many' dans les deux sens.",
+                "unableTab": "Impossible de trouver le menu %s dans l'entité courante."
+            }
+        },
+        "component": {
+            "error": {
+                "alreadyExistOnEntity": "Désolé, un composant avec ce nom est déjà associé à cette entité dans ce module.",
+                "alreadyExistInApp": "Désolé, une autre entité avec le nom du composant existe déjà dans cette application.",
+                "alreadyExistOnModule": "Désolé, un composant avec ce nom existe déjà dans ce module."
+            }
+        },
+        "ui": {
+            "skin": {
+                "list": "Colorations disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver la coloration demandée. Colorations disponibles :<br>%s<br>"
+            }
+        }
     }
-  }
 }

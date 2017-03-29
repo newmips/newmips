@@ -94,6 +94,8 @@ app.use(function(req, res, next) {
 app.use(function(req, res, next) {
     var render = res.render;
     res.render = function(view, locals, cb) {
+    	if(typeof locals === "undefined")
+    		locals = {};
     	if (req.session.toastr && req.session.toastr.length > 0) {
 	        locals.toastr = req.session.toastr;
 	        req.session.toastr = [];
@@ -113,17 +115,20 @@ app.use(function(req, res, next) {
 
 // routes =======================================================================
 app.use('/', require('./routes/routes.js'));
-app.use('/module', require('./routes/module'));
-app.use('/data_entity', require('./routes/data_entity'));
-app.use('/data_field', require('./routes/data_field'));
 app.use('/default', require('./routes/default'));
 app.use('/application', require('./routes/application'));
 app.use('/live', require('./routes/live'));
 app.use('/settings', require('./routes/settings'));
-app.use('/user', require('./routes/user'));
+app.use('/users', require('./routes/users'));
 app.use('/instruction_script', require('./routes/instruction_script'));
 app.use('/import', require('./routes/import'));
 app.use('/editor', require('./routes/editor'));
+
+// Handle 404
+app.use(function(req, res) {
+	res.status(400);
+	res.render('common/404');
+});
 
 // launch ======================================================================
 if (protocol == 'https') {

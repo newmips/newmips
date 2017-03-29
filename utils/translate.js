@@ -32,13 +32,13 @@ module.exports = {
         function pushLanguagePromise(urlFile, dataLocales, file){
             // Create an array of promises to write all translations file
             languagePromises.push(new Promise(function(resolve, reject) {
-                fs.writeFile(urlFile, JSON.stringify(dataLocales, null, 2), function(err) {
+                fs.writeFile(urlFile, JSON.stringify(dataLocales, null, 4), function(err) {
                     if (err){
                         console.log(err);
                         reject();
                     }
                     else{
-                        console.log('File => locales/'+file+' ------------------ UPDATED');
+                        //console.log('File => locales/'+file+' ------------------ UPDATED');
                         resolve();
                     }
                 });
@@ -202,7 +202,7 @@ module.exports = {
                     });
                 }
                 else{
-                    if(translateKey == "" && googleTranslate)
+                    if(translateKey == "" && googleTranslate && toTranslate)
                         console.log("Error: Empty API key for google translation!");
 
                     dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
@@ -233,9 +233,25 @@ module.exports = {
                 delete dataLocales.entity[value[0]][value[1]];
             }
 
-            fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 2));
+            fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
         });
 
         callback();
+    },
+    updateLocales: function(idApplication, lang, keys, value){
+        var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+lang+".json";
+        delete require.cache[require.resolve(urlFile)]
+        var dataLocales = require(urlFile);
+
+        var depth = dataLocales;
+        for (var i=0; i<keys.length; i++) {
+            if (typeof depth[keys[i]] !== 'undefined'){
+                if(i+1 == keys.length)
+                    depth[keys[i]] = value;
+                else
+                    depth = depth[keys[i]];
+            }
+        }
+        fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
     }
 }

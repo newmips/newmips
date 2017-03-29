@@ -43,7 +43,7 @@
         <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}' name="r_category" value="{r_category.f_label}" type="text" readonly="">
     </div>
     <div data-field="f_users" class="form-group">
-        <label for="f_users">Users</label>
+        <label for="f_users">{@__ key="entity.e_user.plural_entity" /}</label>
         <select multiple="multiple" style="width:100%;" class="form-control" name="r_users" readonly="readonly" disabled="disabled">
             {#r_users}
                 <option value="{id}" selected="">{f_login} - {f_email}</option>

@@ -12,7 +12,7 @@ function setupComponentModel(idApplication, folderComponent, nameComponent, file
 	writeStream.write(modelTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Model ------------------ CREATED');
+		//console.log('File => Component Model ------------------ CREATED');
 		callback();
 	});
 }
@@ -24,7 +24,7 @@ function createComponentAttributesAndOptionsFiles(idApplication, folderComponent
 	writeStream.write(attributesTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log("Model => Component attributes ------------------ CREATED");
+		//console.log("Model => Component attributes ------------------ CREATED");
 		// CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
 		var optionsTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/models/options/options_'+filename+'.json', 'utf8');
 		optionsTemplate = optionsTemplate.replace(/SOURCE_ENTITY_LOWER/g, source);
@@ -33,7 +33,7 @@ function createComponentAttributesAndOptionsFiles(idApplication, folderComponent
 		writeStreamOption.write(optionsTemplate);
 		writeStreamOption.end();
 		writeStreamOption.on('finish', function() {
-			console.log("Model => Component options/associations ------------------ CREATED");
+			//console.log("Model => Component options/associations ------------------ CREATED");
 			callback();
 		});
 	});
@@ -52,7 +52,7 @@ function setupComponentRoute(idApplication, folderComponent, nameComponent, urlS
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Route file ------------------ CREATED');
+		//console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -81,7 +81,7 @@ function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, va
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component Route file ------------------ CREATED');
+		//console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -101,7 +101,7 @@ function setupComponentView(idApplication, nameComponent, urlComponent, filename
 		writeStream.write(viewTemplate);
 		writeStream.end();
 		writeStream.on('finish', function() {
-			console.log('File => Component View file ------------------ CREATED')
+			//console.log('File => Component View file ------------------ CREATED')
 			callback();
 		});
 	});
@@ -129,7 +129,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 	writeStream.write(viewTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		console.log('File => Component View file ------------------ CREATED');
+		//console.log('File => Component View file ------------------ CREATED');
 
 		// Copy the event view folder
 		var componentEventViewFolder = __dirname+'/pieces/component/agenda/views_event';
@@ -171,38 +171,38 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 }
 
 function addTab(attr, file, newLi, newTabContent) {
-	return new Promise(function(resolve, reject) {
-		var source = attr.options.showSource;
-		domHelper.read(file).then(function($) {
-	        // Tabs structure doesn't exist, create it
-	        var tabs = '';
-	        var context;
-	        if ($("#tabs").length == 0) {
-	        	tabs += '<div class="nav-tabs-custom" id="tabs">';
-	        	tabs += '	<ul class="nav nav-tabs">';
-	        	tabs += '		<li class="active"><a data-toggle="tab" href="#home">'+source+'</a></li>';
-	        	tabs += '	</ul>';
-	        	tabs += '	<div class="tab-content">';
-	        	tabs += '		<div id="home" class="tab-pane fade in active"></div>';
-	        	tabs += '	</div>';
-	        	tabs += '</div>';
-	        	context = $(tabs);
-	        	$("#home", context).append($("#fields"));
-	        	$("#home", context).append($(".actions"));
-	        } else {
-	        	context = $("#tabs");
-	        }
+    return new Promise(function (resolve, reject) {
+        var source = attr.options.source.toLowerCase();
+        domHelper.read(file).then(function ($) {
+            // Tabs structure doesn't exist, create it
+            var tabs = '';
+            var context;
+            if ($("#tabs").length == 0) {
+                tabs += '<div class="nav-tabs-custom" id="tabs">';
+                tabs += '	<ul class="nav nav-tabs">';
+                tabs += '		<li class="active"><a data-toggle="tab" href="#home">{@__ key="entity.' + source + '.label_entity" /}</a></li>';
+                tabs += '	</ul>';
+                tabs += '	<div class="tab-content" style="min-height:275px;">';
+                tabs += '		<div id="home" class="tab-pane fade in active"></div>';
+                tabs += '	</div>';
+                tabs += '</div>';
+                context = $(tabs);
+                $("#home", context).append($("#fields"));
+                $("#home", context).append($(".actions"));
+            } else {
+                context = $("#tabs");
+            }
 
-	        // Append created elements to `context` to handle presence of tab or not
-	        $(".nav-tabs", context).append(newLi);
-	        $(".tab-content", context).append(newTabContent);
+            // Append created elements to `context` to handle presence of tab or not
+            $(".nav-tabs", context).append(newLi);
+            $(".tab-content", context).append(newTabContent);
 
-	        $('body').empty().append(context);
-	        domHelper.write(file, $).then(function() {
-	        	resolve();
-	        });
-	    });
-	});
+            $('body').empty().append(context);
+            domHelper.write(file, $).then(function () {
+                resolve();
+            });
+        });
+    });
 }
 
 function addAccessManagment(idApplication, urlComponent, urlModule, callback){
@@ -288,7 +288,7 @@ exports.newContactForm = function(attr, callback){
 					li += "<li id='"+nameComponentLower+"_menu_item' class='ui-state-default'>\n";
 						li += '<a href="/'+urlComponent+'">\n';
 							li += '<i class="fa fa-envelope"></i>\n';
-							li += '<span>{@__ key="component.'+nameComponentLower+'.label_component" /}</span>\n';
+							li += '<span><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></span>\n';
 						li += '</a>\n';
 					li += '</li>\n';
 
@@ -352,6 +352,22 @@ exports.newAgenda = function(attr, callback){
 				// Add Event translation
 				translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function(){
 
+					// FR translation of the component
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "label_entity"], "Événement "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "name_entity"], "Événement "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "plural_entity"], "Événement "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_title"], "Titre");
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_place"], "Lieu");
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_start_date"], "Date de début");
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_end_date"], "Date de fin");
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_all_day"], "Toute la journée");
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
+
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "plural_entity"], "Catégorie "+showComponentName);
+					translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "f_color"], "Couleur");
+
 					var layoutFileName = __dirname+'/../workspace/'+idApplication+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
 					domHelper.read(layoutFileName).then(function($) {
 
@@ -361,33 +377,33 @@ exports.newAgenda = function(attr, callback){
 						var li = '';
 						li += "<li id='"+urlComponent+"_menu_item' class='treeview'>\n";
 						li += "    <a href='#'>\n";
-						li += "        <i class='fa fa-calendar-o'></i> <span>{@__ key=\"component."+valueComponentLower+".label_component\" /}</span>\n";
+						li += "        <i class='fa fa-calendar-o'></i> <span><!--{@__ key=\"component."+valueComponentLower+".label_component\" /}--></span>\n";
 						li += "        <span class='pull-right-container'>\n";
 						li += "            <i class='fa fa-angle-left pull-right'></i>\n";
 						li += "        </span>\n";
 						li += "    </a>\n";
 						li += "    <ul class='treeview-menu'>\n";
-						li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> {@__ key=\"global_component.agenda.menu\" /}</a></li>\n";
+						li += "        <li><a href='/"+urlComponent+"'><i class='fa fa-calendar'></i> <!--{@__ key=\"global_component.agenda.menu\" /}--></a></li>\n";
 						li += "        <li id='"+urlEvent+"_menu_item' class='treeview'>\n";
-						li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> {@__ key=\"entity."+valueEvent+".label_entity\" /}\n";
+						li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> <!--{@__ key=\"entity."+valueEvent+".label_entity\" /}-->\n";
 						li += "                <span class='pull-right-container'>\n";
 						li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
 						li += "                </span>\n";
 						li += "            </a>\n";
 						li += "            <ul class='treeview-menu'>\n";
-						li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueEvent+".label_entity\" /}</a></li>\n";
-						li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueEvent+".plural_entity\" /}</a></li>\n";
+						li += "                <li><a href='/"+urlEvent+"/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity."+valueEvent+".label_entity\" /}--></a></li>\n";
+						li += "                <li><a href='/"+urlEvent+"/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}--> <!--{@__ key=\"entity."+valueEvent+".plural_entity\" /}--></a></li>\n";
 						li += "            </ul>\n";
 						li += "        </li>\n";
 						li += "        <li id='"+urlCategory+"_menu_item' class='treeview'>\n";
-						li += "            <a href='#'><i class='fa fa-bookmark'></i> {@__ key=\"entity."+valueCategory+".label_entity\" /}\n";
+						li += "            <a href='#'><i class='fa fa-bookmark'></i> <!--{@__ key=\"entity."+valueCategory+".label_entity\" /}-->\n";
 						li += "                <span class='pull-right-container'>\n";
 						li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
 						li += "                </span>\n";
 						li += "            </a>\n";
 						li += "            <ul class='treeview-menu'>\n";
-						li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i>{@__ key=\"operation.create\" /} {@__ key=\"entity."+valueCategory+".label_entity\" /}</a></li>\n";
-						li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i>{@__ key=\"operation.list\" /} {@__ key=\"entity."+valueCategory+".plural_entity\" /}</a></li>\n";
+						li += "                <li><a href='/"+urlCategory+"/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity."+valueCategory+".label_entity\" /}--></a></li>\n";
+						li += "                <li><a href='/"+urlCategory+"/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}--> <!--{@__ key=\"entity."+valueCategory+".plural_entity\" /}--></a></li>\n";
 						li += "            </ul>\n";
 						li += "        </li>\n";
 						li += "    </ul>\n";

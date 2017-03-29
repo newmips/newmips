@@ -196,7 +196,7 @@
 				events: calendarEvents
 			});
 
-			/* Sidebar manu highlighting */
+			/* Sidebar menu highlighting */
 			var url = window.location.href;
 			var current_url = url.split("/");
 			var mainMenu = current_url[3];

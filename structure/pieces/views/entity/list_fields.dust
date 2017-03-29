@@ -23,7 +23,7 @@
 		{#custom_data_entity}
 		<tr id='bodyTR'>
 			<td data-field="id">{id}</td>
-			<td>
+			 <td>
 				{@eq key=for value="fieldset"}
 				<form class='fieldsetform'>
 					<input type='hidden' value='{id}' name='idRemove'>
@@ -31,7 +31,7 @@
 				</form>
 				{/eq}
 		    	{@eq key=for value="hasMany"}
-					<a class="btn btn-primary" href="/custom_url_data_entity/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}</span></a>
+					<!--<a class="btn btn-primary" href="/custom_url_data_entity/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}</span></a>-->
 				{/eq}
 			</td>
 			<td>

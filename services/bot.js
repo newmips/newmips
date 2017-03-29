@@ -52,6 +52,13 @@ exports.gitPush = function(result) {
     return attr;
 };
 
+exports.gitPull = function(result) {
+
+    var attr = {};
+    attr.function = "gitPull";
+    return attr;
+};
+
 // ******* SELECT Actions ******* //
 exports.selectProject = function(result) {
 
@@ -191,22 +198,14 @@ exports.createNewDataEntity = function(result) {
 exports.createNewDataField = function(result) {
 
     // Field name has not been defined
-    if (result[1] == '') {
-        var attr = {
-            function: "askNameOfDataField"
-        };
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
 
-        return attr;
-    } else {
+    return checkAndCreateAttr("createNewDataField", options, value);
 
-        var value = result[1];
-        var options = {
-            value: value,
-            processValue: true
-        };
-
-        return checkAndCreateAttr("createNewDataField", options, value);
-    }
 };
 
 exports.createNewDataFieldWithType = function(result) {
@@ -701,7 +700,15 @@ exports.parse = function(instruction) {
             "push on git",
             "save the application",
             "sauvergarder",
-            "sauvergarder l'application"
+            "sauvergarder l'application",
+            "git push"
+        ],
+        "gitPull": [
+            "load",
+            "reload",
+            "pull",
+            "git pull",
+            "fetch"
         ],
         "selectProject": [
             "select project (.*)",
@@ -917,7 +924,9 @@ exports.parse = function(instruction) {
             "lister les skin",
             "lister skin",
             "lister skins",
-            "lister les couleurs"
+            "lister les couleurs",
+            "lister colorations",
+            "lister les colorations"
         ],
         "relationshipHasOne": [
             "entity (.*) has one (.*)",
@@ -1110,7 +1119,9 @@ exports.parse = function(instruction) {
             "set colour (.*)",
             "appliquer le style (.*)",
             "appliquer la couleur (.*)",
-            "mettre la couleur (.*)"
+            "mettre la couleur (.*)",
+            "appliquer la coloration (.*)",
+            "mettre la coloration (.*)"
         ]
     };
 

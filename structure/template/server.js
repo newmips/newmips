@@ -208,7 +208,7 @@ app.use(function(req, res, next) {
     var render = res.render;
     res.render = function(view, locals, cb) {
     	if(typeof locals === "undefined"){
-            locals = {};
+            var locals = {};
         }
     	if (req.session.toastr && req.session.toastr.length > 0) {
 	        locals.toastr = req.session.toastr;
@@ -224,6 +224,12 @@ require('./routes/')(app);
 
 // Api routes ==================================================================
 require('./api/')(app);
+
+// Handle 404
+app.use(function(req, res) {
+	res.status(400);
+	res.render('common/404');
+});
 
 // Launch ======================================================================
 if (protocol == 'https') {

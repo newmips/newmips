@@ -3,8 +3,8 @@ block header
 	.row
 		.col-header.col-xs-3.col-lg-9
 			h1
-				| #{__("module.settings")}
-				small #{__("module.module")}
+				| #{__("menu.settings")}
+				small #{__("menu.module")}
 		.col-header.col-xs-3.col-lg-1
 			.clearfix
 				span.pull-left Instructions
@@ -22,14 +22,13 @@ block header
 				li
 					a(href='/default/home')
 						i.fa.fa-home
-						| #{__("module.home")}
-				li.active #{__("module.settings")}
+						| #{__("menu.home")}
+				li.active #{__("menu.settings")}
 		.col-header.col-xs-3.col-lg-1
 			a.btn.btn-default.pull-right(href='/logout')
 				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 				span #{__("button.disconnect")}
 block content
-	legend #{__("operation.settings")}
 	.row
 		.col-xs-12.connectedSortable
 			a.btn.btn-default.pull-right(href='/default/home')
@@ -38,20 +37,22 @@ block content
 			br
 			br
 			br
-			.box.box-primary
+			.box.box-solid.box-default
+				.box-header.bg-newmips
+					h3.box-title(style="color: #fff") #{__("settings.legend")}
 				.box-body
 					.form-group
-						label #{__("entity.settings.display_language")}
+						label #{__("settings.display_language")}
 						br
 						br
 						a.chooseLanguage.btn(data-lang='fr-FR', class="#{getLang()}"=="fr-FR"?"btn-primary":"btn-default")
-							| #{__("language.french")}
+							| #{__("settings.french")}
 						| &nbsp;&nbsp;
 						a.chooseLanguage.btn(data-lang='en-EN', class="#{getLang()}"=="en-EN"?"btn-primary":"btn-default")
-							| #{__("language.english")}
+							| #{__("settings.english")}
 					br
 					.form-group
-						label #{__("entity.settings.activate_translation")}
+						label #{__("settings.activate_translation")}
 						br
 						br
 						a.chooseTranslate.btn(data-activate="true", class=toTranslate?"btn-primary":"btn-default")
