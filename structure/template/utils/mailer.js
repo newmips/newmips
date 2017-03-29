@@ -27,7 +27,7 @@ function sendMailAsync(mailOptions) {
     });
 }
 
-exports.sendMail_Reset_Password = function(data, res) {
+exports.sendMailResetPassword = function(data, res) {
     var mailOptions = {
         from: mailConfig.expediteur,
         to: data.f_email,

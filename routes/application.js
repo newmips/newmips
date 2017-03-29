@@ -63,12 +63,14 @@ function setChat(req, idApp, idUser, user, content, params){
         req.session.chat[idApp][idUser] = {items: []};
 
     // Add chat
-    req.session.chat[idApp][idUser].items.push({
-        user: user,
-        dateEmission: moment().format("DD MMM HH:mm"),
-        content: content,
-        params: params || []
-    });
+    if(content != "chat.welcome" || req.session.chat[idApp][idUser].items.length > 0){
+        req.session.chat[idApp][idUser].items.push({
+            user: user,
+            dateEmission: moment().format("DD MMM HH:mm"),
+            content: content,
+            params: params || []
+        });
+    }
 }
 
 // Preview Get
@@ -79,15 +81,15 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
     req.session.id_application = id_application;
 
     var data = {
-        "error": 1,
-        "profile": req.session.data,
-        "menu": "project",
-        "sub_menu": "list_project",
-        "application": "",
-        "answers": "",
-        "instruction": "",
-        "iframe_url": "",
-        "session": ""
+        error: 1,
+        profile: req.session.data,
+        menu: "project",
+        sub_menu: "list_project",
+        application: "",
+        answers: "",
+        instruction: "",
+        iframe_url: "",
+        session: ""
     };
 
     setChat(req, id_application, currentUserID, "Newmips", "chat.welcome", []);
