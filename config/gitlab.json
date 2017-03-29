@@ -1,8 +1,9 @@
 {
-	"doGit": false,
-	"url": "http://cloud.newmips.com:1400",
+	"doGit": true,
+	"protocol": "http",
+	"url": "cloud.newmips.com:1400",
 	"sshUrl": "git@cloud.newmips.com",
 	"useSSH": true,
-	"adminUser": "newmipsAdmin",
+	"adminUser": "",
 	"privateToken": ""
 }
