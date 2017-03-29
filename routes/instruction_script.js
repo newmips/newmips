@@ -42,6 +42,12 @@ function execute(req, instruction) {
             attr.id_data_entity = scriptData[userId].ids.id_data_entity;
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
+            attr.currentUser = req.session.passport.user;
+
+            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+                attr.gitlabUser = req.session.gitlab.user;
+            else
+                attr.gitlabUser = null;
 
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);

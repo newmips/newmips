@@ -177,11 +177,12 @@ function execute(req, instruction) {
             attr.id_data_entity = req.session.id_data_entity;
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
+            attr.currentUser = req.session.passport.user;
 
             if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.idUserGitlab = req.session.gitlab.user.id;
+                attr.gitlabUser = req.session.gitlab.user;
             else
-                attr.idUserGitlab = null;
+                attr.gitlabUser = null;
 
             var __ = require("../services/language")(req.session.lang_user).__;
 
