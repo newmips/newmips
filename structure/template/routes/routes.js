@@ -118,7 +118,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         }).then(function(){
             // Send email with generated token
             mail.sendMailResetPassword({
-                mail_user: email,
+                email: given_mail,
                 token: token
             }).then(function(success) {
                 res.render('login/reset_password', {
@@ -182,7 +182,8 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
         else{
             models.E_user.update({
                 f_password: null,
-                f_token_password_reset: null
+                f_token_password_reset: null,
+                f_enabled: 0
             }, {
                 where: {
                     id: user.id
