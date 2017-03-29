@@ -28,17 +28,29 @@ passport.use(new LocalStrategy({
 
             // if the user doesn't exist
             if (!user) {
-                return done(null, false, req.flash('loginMessage', 'Nom d\'utilisateur inexistant.'));
+                req.session.toastr = [{
+                    message: "Cet utilisateur n'existe pas.",
+                    level: "error"
+                }];
+                return done(null, false);
             }
 
             // if the user has no password
-            if (user.password == "") {
-                return done(null, false, req.flash('loginMessage', 'Compte non activé'));
+            if (user.password == "" || user.password == null) {
+                req.session.toastr = [{
+                    message: "Compte non activé.",
+                    level: "error"
+                }];
+                return done(null, false);
             }
 
             // if the user is found but the password is wrong
             if (!bcrypt.compareSync(password_user, user.password)) {
-                return done(null, false, req.flash('loginMessage', 'Mauvais mot de passe.'));
+                req.session.toastr = [{
+                    message: "Mauvais mot de passe.",
+                    level: "error"
+                }];
+                return done(null, false);
             }
             else{
                 req.session.data = user;

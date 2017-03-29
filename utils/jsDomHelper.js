@@ -38,7 +38,6 @@ exports.write = function(fileName, $) {
 
 		// Indent generated html
 		newFileData = beautify_html(newFileData, {indent_size: 4});
-
 		/* Remove this beautify because it cut the code and it is no doing well its job */
 		/*newFileData = html.prettyPrint(newFileData, {indent_size: 4});*/
 

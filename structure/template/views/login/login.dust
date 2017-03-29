@@ -6,7 +6,7 @@
             <center><img src="/img/logo_newmips.png" width="50%" height="50%"/></center>
         </div>
         {#message}
-            <div class="body bg-orange">{message}</div>
+            <div class="body bg-orange">{@__ key=. /}</div>
         {/message}
         <div class="body bg-gray">
             <div class="form-group">
@@ -24,8 +24,8 @@
         </div>
         <div class="footer">
             <button type="submit" class="btn btn-primary btn-block">{@__ key="login.submit"/}</button>
-            <p><a href="/reset_password">{@__ key="login.reset_password"/}</a></p>
-            <p><a href="/first_connection">{@__ key="login.first_connection"/}</a></p>
+            <p><a href="/reset_password">{@__ key="login.reset_password.title"/}</a></p>
+            <p><a href="/first_connection">{@__ key="login.first_connection.title"/}</a></p>
         </div>
     </form>
 {/content}

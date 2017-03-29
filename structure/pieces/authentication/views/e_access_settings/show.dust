@@ -12,7 +12,7 @@
                 </div>
                 <div class="box-body">
                 	<div class="row">
-	                	<div class="col-lg-4">Status de l'API</div>
+	                	<div class="col-lg-4">{@__ key="settings.auth_component.api_status" /}</div>
 	                	<div class="col-lg-1">
 	                		{?api_enabled}
 	                			<button class="apiOn btn btn-primary">ON</button>
@@ -30,7 +30,7 @@
 	                </div>
 	                <div class="row">
 	                	<div class="col-lg-12">
-	                		<a href="/api_documentation" target="_blank">API Documentation</a>
+	                		<a href="/api_documentation" target="_blank">{@__ key="settings.auth_component.api_doc" /}</a>
 	                	</div>
 	                </div>
 				</div>

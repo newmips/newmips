@@ -67,12 +67,6 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
     });
 });
 
-// Page non autorisée
-router.get('/unauthorized', function(req, res) {
-    // Load the unauthorized.jade file
-    res.render('common/unauthorized');
-});
-
 router.get('/update_instruction_cpt', function(req, res) {
     helper.getNbInstruction(function(totalInstruction){
         var data = {};

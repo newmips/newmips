@@ -250,6 +250,18 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	</div>\n";
             }
             break;
+//        case "img":
+//        case "picture":
+//        case "image":
+//            if (file != 'show') {
+//                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
+//                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+//            } else {
+//                str += "	<div class='input-group'>\n";
+//                str += "		<img src=img/"+dataEntity+"/"+value.split('-')[0]+'/'+ value + " class='img img-responsive' alt="+value+" name=" + dataField + "  " + readOnly + "/>\n";
+//                str += "	</div>\n";
+//            }
+//            break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
@@ -480,8 +492,14 @@ exports.setupDataField = function (attr, callback) {
         case "file":
         case "fichier":
             typeForModel = "STRING";
-            typeForDataList = "file";
+            typeForDatalist = "file";
             break;
+//        case "img":
+//        case "image":
+//        case "picture":
+//            typeForModel = "STRING";
+//            typeForDatalist = "picture";
+//            break;
         case "cloudfile" :
             typeForModel = "STRING";
             break;
@@ -532,7 +550,7 @@ exports.setupDataField = function (attr, callback) {
 
         // Write Enum file
         var stream_fileEnum = fs.createWriteStream(fileEnum);
-        stream_fileEnum.write(JSON.stringify(enumData, null, 2));
+        stream_fileEnum.write(JSON.stringify(enumData, null, 4));
         stream_fileEnum.end();
     }
 
@@ -553,7 +571,7 @@ exports.setupDataField = function (attr, callback) {
 
                     /* --------------- New translation --------------- */
                     translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function () {
-                        callback(null, "Data field succesfuly created");
+                        callback(null, "Data field successfully created.");
                     });
                 });
             });
@@ -575,7 +593,7 @@ exports.setRequiredAttribute = function (attr, callback) {
         set = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute.";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
@@ -609,7 +627,7 @@ exports.setRequiredAttribute = function (attr, callback) {
                         var attributesContent = fs.readFileSync(pathToAttributesJson);
                         var attributesObj = JSON.parse(attributesContent);
 
-                        attributesObj[attr.options.value].allowNull = set?false:true;
+                        attributesObj[attr.options.value].allowNull = set ? false : true;
                         fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
                         callback();
@@ -618,7 +636,8 @@ exports.setRequiredAttribute = function (attr, callback) {
             });
         } else {
             var err = new Error();
-            err.message = "No field with name " + attr.options.showValue + " found in the current entity.";
+            err.message = "structure.field.attributes.fieldNoFound";
+            err.messageParams = [attr.options.showValue];
             callback(err, null);
         }
     }).catch(function (err) {
@@ -643,7 +662,7 @@ exports.setUniqueField = function (attr, callback) {
         set = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute.";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
@@ -652,7 +671,7 @@ exports.setUniqueField = function (attr, callback) {
     var attributesContent = fs.readFileSync(pathToAttributesJson);
     var attributesObj = JSON.parse(attributesContent);
 
-    attributesObj[attr.options.value].unique = set?true:false;
+    attributesObj[attr.options.value].unique = set ? true : false;
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
     callback();
@@ -674,7 +693,7 @@ exports.setColumnVisibility = function (attr, callback) {
         hide = false;
     } else {
         var err = new Error();
-        err.message = "Unable to understand the given attribute. (You should use hide or show)";
+        err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
@@ -750,14 +769,14 @@ exports.setupHasManyTab = function (attr, callback) {
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
-    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
+    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
-        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
+        //console.log('File => Translation FR ------------------ UPDATED');
+        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 4));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -918,7 +937,7 @@ exports.setupRelatedToField = function (attr, callback) {
                     updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function () {
                         /* --------------- New translation --------------- */
                         translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
-                            callback(null, "Data field succesfuly created");
+                            callback(null, "Data field successfully created");
                         });
                     });
 
@@ -955,11 +974,11 @@ exports.setupHasOneTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
+        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -1032,14 +1051,14 @@ exports.setupFieldsetTab = function (attr, callback) {
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
-    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
+    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        console.log('File => Translation FR ------------------ UPDATED');
-        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
+        //console.log('File => Translation FR ------------------ UPDATED');
+        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 4));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            console.log('File => Translation EN ------------------ UPDATED');
+            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
             var usingField = "id";
@@ -1175,7 +1194,7 @@ exports.deleteDataField = function (attr, callback) {
             if (typeof enumJson[name_data_entity] !== "undefined") {
                 if (typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined") {
                     delete enumJson[name_data_entity][info.fieldToDrop];
-                    fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 2));
+                    fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 4));
                 }
             }
 
@@ -1217,7 +1236,8 @@ exports.deleteTab = function (attr, callback) {
     }
     if (!found) {
         var err = new Error();
-        err.message = "Unable to find " + attr.options.showValue + " tab in current entity.";
+        err.message = "structure.association.error.unableTab";
+        err.messageParams = [attr.options.showValue];
         return callback(err, null);
     }
     var writeStream = fs.createWriteStream(jsonPath);

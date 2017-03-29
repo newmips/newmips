@@ -1,16 +1,17 @@
 extends ../login_layout
 block content
-    .header #{__("login.first_connection")}
-    form(action='/first_connection', method='post')
+    .header #{__("login.first_connection.title")}
+    form#first_connection(action='/first_connection', method='post')
         .body.bg-white
             center
                 img(src='/img/logo_newmips.png', width='50%', height='50%')
-        if (message != '')
-            .body.bg-orange !{message}
         .body.bg-gray
             .form-group
                 label(for='login_user') #{__("login.login")}
                 input.form-control(type='text', name='login_user', placeholder='#{__("login.login")}', required)
+            .form-group
+                label(for='email_user') #{__("login.mail")}
+                input.form-control(type='text', name='email_user', placeholder='#{__("login.mail")}', required)
             .form-group
                 label(for='password') #{__("login.password")}
                 input.form-control(type='password', name='password_user', id='password', placeholder='#{__("login.password")}',required)
@@ -20,15 +21,43 @@ block content
         .footer
             button.btn.btn-primary.btn-block(type='submit') #{__("login.submit")}
 block custom_js
+    - var notMatchPasswordText = __("login.first_connection.passwordNotMatch", []);
     script(type='text/javascript').
-        var password = document.getElementById("password"), confirm_password = document.getElementById("confirm_password");
-        function validatePassword(){
-            if(password.value != confirm_password.value) {
-                confirm_password.setCustomValidity("Les mots de passe ne correspondent pas");
-            }
-            else{
-                confirm_password.setCustomValidity('');
-            }
-        };
-        password.onchange = validatePassword;
-        confirm_password.onkeyup = validatePassword;
+        $(document).ready(function(){
+            $(document).on("keyup", "#confirm_password", function(){
+                if($("#confirm_password").val() != $("#password").val()){
+                    $(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
+                } else if($("#confirm_password").val() != ""){
+                    $(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
+                } else{
+                    $(this).attr("style", "");
+                }
+            });
+
+            $(document).on("keyup", "#password", function(){
+
+                if($(this).val().length < 8){
+                    $(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
+                } else{
+                    $(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
+                }
+
+                if($("#confirm_password").val() != $("#password").val() && $("#confirm_password").val() != ""){
+                    $("#confirm_password").attr("style", "border: 1px solid red !important; border-color: red !important;");
+                } else if($("#confirm_password").val() != ""){
+                    $("#confirm_password").attr("style", "border: 1px solid green !important; border-color: green !important;");
+                } else{
+                    $("#confirm_password").attr("style", "");
+                }
+            });
+
+            $(document).on("submit", "#first_connection", function(){
+                if($("#confirm_password").val() != $("#password").val() || $("#password").val().length < 8){
+                    toastr.error("#{notMatchPasswordText}");
+                    return false;
+                } else{
+                    $(this).submit();
+                    return true;
+                }
+            });
+        });

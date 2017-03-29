@@ -16,7 +16,7 @@ try{
     if(gitlabConf.doGit){
         // Gitlab connection
         var gitlab = require('gitlab')({
-            url:   gitlabConf.url,
+            url:   gitlabConf.protocol+"://"+gitlabConf.url,
             token: gitlabConf.privateToken
         });
     }
@@ -58,7 +58,7 @@ exports.setupApplication = function(attr, callback) {
             // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
             var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
             languageConfig.lang = attr.lang_user;
-            fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 2), function(err) {
+            fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 4), function(err) {
 
                 if(err){
                     var err = new Error();
@@ -69,26 +69,58 @@ exports.setupApplication = function(attr, callback) {
                 var nameAppWithoutPrefix = name_application.substring(2);
                 // Create the application repository in gitlab
                 if(gitlabConf.doGit){
-                    var newGitlabProject = {
-                        user_id : 1,
-                        name: globalConf.host+"-"+nameAppWithoutPrefix,
-                        description: "A generated Newmips workspace.",
-                        issues_enabled: false,
-                        merge_requests_enabled: false,
-                        wiki_enabled: false,
-                        snippets_enabled: false,
-                        public: false
-                    };
 
-                    try{
-                        gitlab.projects.create(newGitlabProject, function(result){
-                            // Direct callback as application has been installed in template folder
-                            callback();
+                    var idUserGitlab;
+                    function createGitlabProject(){
+                        var newGitlabProject = {
+                            user_id : idUserGitlab,
+                            name: globalConf.host+"-"+nameAppWithoutPrefix,
+                            description: "A generated Newmips workspace.",
+                            issues_enabled: false,
+                            merge_requests_enabled: false,
+                            wiki_enabled: false,
+                            snippets_enabled: false,
+                            public: false
+                        };
+
+                        try{
+                            gitlab.projects.create_for_user(newGitlabProject, function(result){
+                                if(typeof result === "object"){
+                                    gitlab.projects.members.add(result.id, 1, 40, function(answer){
+                                        callback();
+                                    });
+                                } else{
+                                    callback();
+                                }
+                            });
+                        } catch(err){
+                            console.log("Error connection Gitlab repository: "+err);
+                            console.log("Please set doGit in config/gitlab.json to false");
+                            callback(err);
+                        }
+                    }
+
+                    if(attr.gitlabUser != null){
+                        idUserGitlab = attr.gitlabUser.id;
+                        createGitlabProject();
+                    } else{
+                        gitlab.users.all(function(gitlabUsers){
+                            var exist = false;
+                            for(var i=0; i<gitlabUsers.length; i++){
+                                if(gitlabUsers[i].email == attr.currentUser.email){
+                                    exist = true;
+                                    idUserGitlab = gitlabUsers[i].id;
+                                }
+                            }
+                            if(exist)
+                                createGitlabProject();
+                            else{
+                                var err = new Error();
+                                err.message = "Cannot find your Gitlab account to create the project!";
+                                return callback(err, null);
+                            }
                         });
-                    } catch(err){
-                        console.log("Error connection Gitlab repository: "+err);
-                        console.log("Please set doGit in config/gitlab.json to false");
-                        callback();
+
                     }
                 }
                 else{
@@ -188,6 +220,11 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                             // API credentials must not be available to API calls, delete the file
                                             fs.unlink(workspacePath+'/api/e_api_credentials.js');
 
+                                            // Set french translation about API credentials
+                                            translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
+                                            translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
+                                            translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
+
                                             models.User.findOne({where: {id: id_user}}).then(function(user) {
                                                 // Sync workspace's database and insert admin user
                                                 var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
@@ -252,7 +289,7 @@ exports.deleteApplication = function(id_application, callback) {
                     if(idRepoToDelete != null){
                         gitlab.projects["remove"](idRepoToDelete, function(result){
                             console.log("Delete Gitlab repository: "+ nameRepo);
-                            console.log(result);
+                            console.log("Result:", result);
                         });
                     }
                 });

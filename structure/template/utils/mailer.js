@@ -5,16 +5,6 @@ var transporter = nodemailer.createTransport(mailConfig.transport);
 
 exports.config = mailConfig;
 
-function sendMail(mailOptions, res) {
-    transporter.sendMail(mailOptions, function(error, info) {
-        if (error) {
-            res("Problème d'envoi du mail.");
-        } else {
-            res("Mail envoyé.");
-        }
-    });
-}
-
 function sendMailAsync(mailOptions) {
     return new Promise(function(resolve, reject) {
         transporter.sendMail(mailOptions, function(error, info) {
@@ -27,10 +17,10 @@ function sendMailAsync(mailOptions) {
     });
 }
 
-exports.sendMail_Reset_Password = function(data, res) {
+exports.sendMailResetPassword = function(data, res) {
     var mailOptions = {
         from: mailConfig.expediteur,
-        to: data.f_email,
+        to: data.email,
         subject: 'Newmips, modification de mot de passe',
         html: '<html>' +
             '<head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>' +
@@ -38,7 +28,7 @@ exports.sendMail_Reset_Password = function(data, res) {
             'Bonjour, ' +
             '<br />' +
             '<br />' +
-            'Une demande de réinitialisation de mot de passe a été effectuée pour votre compte : ' + data['email'] + '.' +
+            'Une demande de réinitialisation de mot de passe a été effectuée pour votre compte : ' + data.email + '.' +
             '<br />' +
             'Si vous êtes à l\'origine de cette demande, veuillez cliquer sur le lien suivant :' +
             '<br />' +
@@ -52,33 +42,6 @@ exports.sendMail_Reset_Password = function(data, res) {
             '</body></html>'
     };
     return sendMailAsync(mailOptions);
-}
-
-// Mails relatifs à la connexion d'un utilisation
-exports.sendMail_Activation_Compte = function(data, res) {
-    var mailOptions = {
-        from: mailConfig.expediteur,
-        to: data["mail_user"],
-        subject: 'Bienvenue sur Newmips',
-        html: '<html>' +
-            '<head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>' +
-            '<body>' +
-            'Bonjour, ' +
-            '<br />' +
-            '<br />' +
-            'Vous trouverez ci-joint votre identifiant de connexion sur l\'espace privé Newmips.' +
-            '<br />' +
-            'Identifiant : ' + data["login_user"] +
-            '<br />' +
-            'Pour activer votre compte, vous devez créer un mot de passe en utilisant le lien ci-dessous.' +
-            '<br />' +
-            '<a href="' + mailConfig.host + '/first_connection">Première connexion</a>.' +
-            '<br />' +
-            '<br />' +
-            'Newmips' +
-            '</body></html>'
-    };
-    return sendMail(mailOptions, res);
 }
 
 // Just send a mail

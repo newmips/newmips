@@ -4,8 +4,20 @@
     },
     "login": {
         "log_in": "Log in",
-        "reset_password": "Mot de passe oublié",
-        "first_connection": "Première connexion",
+        "reset_password": {
+            "title": "Mot de passe oublié",
+            "success": "Votre mot de passe a bien été reinitialisé.",
+            "successMail": "Un email vous permettant de réinitialiser votre mot de passe vous a bien été envoyé.",
+            "userNotExist": "Erreur, cet utilisateur n'existe pas.",
+            "cannotFindToken": "Erreur, impossible de retrouver votre token de réinitialisation."
+        },
+        "first_connection": {
+            "title": "Première connexion",
+            "success": "Mise à jour effectuée, vous pouvez désormais vous connecter avec vos identifiants.",
+            "userNotExist": "Erreur, cet utilisateur n'existe pas ou a déjà été activé.",
+            "alreadyHavePassword": "Opération impossible, cet utilisateur possède déjà un mot de passe.",
+            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 4 caractères."
+        },
         "authentication": "Connexion",
         "login": "Login",
         "password": "Mot de passe",
@@ -26,6 +38,8 @@
             "entitylist": "Entités:",
             "group": "Groupe",
             "role": "Rôle",
+            "api_status": "Status de l'API",
+            "api_doc": "Documentation de l'API",
             "action": {
                 "read": "Lire",
                 "write": "Ecrire",
@@ -103,6 +117,9 @@
     },
     "entity": {},
     "global_component": {
+        "local_file_storage": {
+            "filename": "Nom du fichier"
+        },
         "contact_form": {
             "firstname": "Prénom",
             "lastname": "Nom",
@@ -117,5 +134,16 @@
             "pending_event": "Évévement en attente"
         }
     },
-    "component": {}
+    "component": {},
+    "error": {
+        "title": "Erreur",
+        "contactAdmin": "Merci de contacter votre administrateur.",
+        "meanwhile": "Entre temps, vous pouvez ",
+        "goHome": "retourner à la page d'accueil",
+        "or": "ou",
+        "goBack": " revenir en arrière.",
+        "404": {
+            "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+        }
+    }
 }
