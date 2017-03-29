@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-xs-12 connectedSortable">
             <div class="box">
-                <div class="box-header">
+                <div class="box-header no-print">
                     <h4>C.R.A</h4>
                 </div>
                 <div class="box-body" style="text-align: center;">
@@ -34,12 +34,12 @@
                             <input type="hidden" name="month">
                             <input type="hidden" name="year">
                             <div class="row">
-                                <div id="save" class="craButtonGroup" style="display: none;">
+                                <div id="save" class="craButtonGroup no-print" style="display: none;">
                                     <div class="col-xs-2">
                                         <button type="submit" class="btn btn-primary">Save</button>
                                     </div>
                                 </div>
-                                <div id="modifyValidate" class="craButtonGroup" style="display: none;">
+                                <div id="modifyValidate" class="craButtonGroup no-print" style="display: none;">
                                     <div class="col-xs-2">
                                         <button type="submit" class="btn btn-primary">Save</button>
                                     </div>
@@ -50,31 +50,33 @@
                                         <button class="btn btn-primary">Admin Validate</button>
                                     </div>
                                 </div>
-                                <div id="export" class="craButtonGroup" style="display: none;">
+                                <div id="export" class="craButtonGroup no-print" style="display: none;">
                                     <div class="col-xs-2">
-                                        <button class="btn btn-primary">Export PDF</button>
+                                        <a href="/c_r_a/export/" class="btn btn-primary">Export PDF</a>
                                     </div>
                                 </div>
                             </div>
                         </form>
                         Notification Admin
-                        <textarea id="notificationAdmin" disabled></textarea>
+                        <textarea id="notificationAdmin" class=".regular-textarea" disabled></textarea>
                     </div>
 
-                    <div id="noActivities" class="craBlocks" style="display: none;">
-                        You don't have any activities. You need activities to declare your Activity report
-                    </div>
-                    <div id="noSettings" class="craBlocks" style="display: none;">
-                        Your team didn't define its C.R.A settings. It is required to display working days.
-                    </div>
+                    <div class="no-print">
+                        <div id="noActivities" class="craBlocks" style="display: none;">
+                            You don't have any activities. You need activities to declare your Activity report
+                        </div>
+                        <div id="noSettings" class="craBlocks" style="display: none;">
+                            Your team didn't define its C.R.A settings. It is required to display working days.
+                        </div>
 
-                    <div id="activitiesSelect" style="display:none;">
-                        <select class="activitiesSelect">
-                            <option default value="0">Add activity</option>
-                            {#activities}
-                                <option value="{id}">{f_name}</option>
-                            {/activities}
-                        </select>
+                        <div id="activitiesSelect" style="display:none;">
+                            <select class="activitiesSelect">
+                                <option default value="0">Add activity</option>
+                                {#activities}
+                                    <option value="{id}">{f_name}</option>
+                                {/activities}
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>

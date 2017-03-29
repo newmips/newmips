@@ -39,7 +39,7 @@
         <a href="/c_r_a/admin?id=">
             <button class="btn btn-primary">
                 <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
-                <span>{@__ key="button.show" /}</span>
+                <span>{@__ key="entity.e_c_r_a.custom_button_admin_validate" /}</span>
             </button>
         </a>
     </div>
