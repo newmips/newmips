@@ -128,6 +128,42 @@ block custom_js
 	script.
 		$(function() {
 
+			/* Loading generation */
+			$(document).on("click", ".generate-button", function(){
+
+				$(this).parents('form').submit();
+
+				$(this).prop("disabled", true);
+				var pourcent = 0;
+
+				$(this).next(".progress_generate").css("display", "block");
+				$(this).css("display", "none");
+
+				var that = $(this);
+
+				function getPourcent(){
+					$.ajax({
+						url : '/live/get_pourcent_generation',
+						type : 'GET',
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (data) {
+							if(!isNaN(data.pourcent)){
+								that.next(".progress_generate").children("#pourcent_generation").attr("aria-valuenow", data.pourcent);
+								that.next(".progress_generate").children("#pourcent_generation").css("width", data.pourcent + "%");
+								that.next(".progress_generate").children("#pourcent_generation").text(data.pourcent + "%");
+							}
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+				}
+
+				setInterval(getPourcent, 1000);
+			});
+
 			/* Unable complex caractere for project and application*/
 			$(document).on("keyup", "#project", function(e){
 				var reg = new RegExp("[^a-zA-Z0-9àâçéèêëîïôûùüÿñ, ']");
