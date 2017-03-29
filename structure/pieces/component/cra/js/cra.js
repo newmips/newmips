@@ -51,8 +51,8 @@ function generateAddActivityRow(data) {
     var j = -1;
     while (++j < days.length)
         row += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
-                        ? '<td><input class="openDay taskInput" name="task.activityIDplaceholder.'+days[j].getDate()+'" disabled style="max-width:15px;margin: 0; padding: 0;"></td>'
-                        : '<td><input class="taskInput" name="task.activityIDplaceholder.'+days[j].getDate()+'" style="margin: 0; padding: 0;max-width:10px;" disabled></td>';
+                        ? '<td><input class="openDay taskInput" name="task.activityIDplaceholder.'+days[j].getDate()+'" disabled style="max-width:20px;margin: 0; padding: 0;"></td>'
+                        : '<td><input class="taskInput" name="task.activityIDplaceholder.'+days[j].getDate()+'" style="margin: 0; padding: 0;max-width:20px;" disabled></td>';
     row += '</tr>';
     // No default activity, only total tr in tbody (prev().after() won't work)
     if ($("#craTable").find('tr').length == 2) {
@@ -71,7 +71,7 @@ function generateAddActivityRow(data) {
 function generateEmptyCRA(data) {
     var days = daysOfMonth(data.month-1, data.year);
     var craTable = '';
-    craTable += '<table id="craTable" style="overflow: hidden;" class="table dataTable table-striped table-responsive"><thead><tr><th>Activity</th>';
+    craTable += '<table id="craTable" class="small-font table-responsive table dataTable table-striped"><thead><tr><th>Activity</th>';
 
     // Header with "day - date"
     for (var i = 0; i < days.length; i++) {
@@ -86,8 +86,8 @@ function generateEmptyCRA(data) {
         var j = -1;
         while (++j < days.length)
             craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
-                            ? '<td><input class="openDay taskInput" name="task.'+data.team.r_default_c_r_a_activity[i].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
-                            : '<td><input class="taskInput" name="task.'+data.team.r_default_c_r_a_activity[i].id+'.'+days[j].getDate()+'" style="margin: 0; padding: 0;max-width:10px;" disabled></td>';
+                            ? '<td><input class="small-font openDay taskInput" name="task.'+data.team.r_default_c_r_a_activity[i].id+'.'+days[j].getDate()+'" style="max-width:20px;margin: 0; padding: 0;"></td>'
+                            : '<td><input class="small-font taskInput" name="task.'+data.team.r_default_c_r_a_activity[i].id+'.'+days[j].getDate()+'" style="margin: 0; padding: 0;max-width:20px;" disabled></td>';
 
         craTable += '</tr>';
     }
@@ -101,7 +101,7 @@ function generateExistingCRA(data) {
     openDaysCount = 0;
     var days = daysOfMonth(data.month-1, data.year);
     var craTable = '';
-    craTable += '<table id="craTable" style="overflow: hidden;" class="table dataTable table-striped table-responsive"><thead><tr><th>Activity</th>';
+    craTable += '<table id="craTable" class="small-font table-responsive table dataTable table-striped"><thead><tr><th>Activity</th>';
 
     // Header with "day - date"
     for (var i = 0; i < days.length; i++) {
@@ -130,16 +130,16 @@ function generateExistingCRA(data) {
                     if (date.getDate() == days[j].getDate()) {
                         taskExists = true;
                         craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
-                                    ? '<td><input class="openDay taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
-                                    : '<td><input class="taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
+                                    ? '<td><input class="small-font openDay taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:20px;margin: 0; padding: 0;"></td>'
+                                    : '<td><input class="small-font taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:20px;margin: 0; padding: 0;" disabled></td>';
                         break;
                     }
                 }
             }
             if (!taskExists)
                 craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
-                            ? '<td><input class="openDay taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
-                            : '<td><input class="taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
+                            ? '<td><input class="small-font openDay taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:20px;margin: 0; padding: 0;"></td>'
+                            : '<td><input class="small-font taskInput" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:20px;margin: 0; padding: 0;" disabled></td>';
         }
         craTable += '</tr>';
     }
@@ -162,8 +162,10 @@ function showButtonGroup(userValid, adminValid){
         $("#userValidIcon").addClass('fa-check-square-o').removeClass('fa-square-o');
     else
         $("#userValidIcon").addClass('fa-square-o').removeClass('fa-check-square-o');
-    if (adminValid)
+    if (adminValid) {
+        $(".openDay").prop('disabled', true);
         $("#adminValidIcon").addClass('fa-check-square-o').removeClass('fa-square-o');
+    }
     else
         $("#adminValidIcon").addClass('fa-square-o').removeClass('fa-check-square-o');
 }
@@ -196,20 +198,23 @@ $(function() {
                 data.year = year;
                 // CRA already exists
                 if (data.craExists) {
-                    $("#notificationAdmin").text(data.cra.f_notification_admin);
-                    showButtonGroup(data.cra.f_user_validated, data.cra.f_admin_validated, true);
+                    $("notificationAdmin").text(data.cra.f_notification_admin || '');
+                    $("#notificationAdminToPrint").text(data.cra.f_notification_admin);
                     $("#craForm").attr('action', '/c_r_a/declare/update');
-                    $("#validateButton").data('url', $("#validateButton").data('url')+data.cra.id);
+                    $("#validateButton").data('url', '/c_r_a/declare/validate/'+data.cra.id);
                     $("#cra").html(generateExistingCRA(data));
                     if (!data.cra.f_admin_validated)
                         generateAddActivityRow(data);
+                    showButtonGroup(data.cra.f_user_validated, data.cra.f_admin_validated, true);
                 }
                 // CRA doesn't exists
                 else {
-                    showButtonGroup(false, false, false);
+                    $("notificationAdmin").text('');
                     $("#craForm").attr('action', '/c_r_a/declare/create');
                     $("#cra").html(generateEmptyCRA(data));
                     generateAddActivityRow(data);
+                    showButtonGroup(false, false, false);
+                    $("#export").find('a').attr('href',$("#export").find('a').attr('href')+data.cra.id);
                 }
 
                 // Add month and year to form data
@@ -218,12 +223,13 @@ $(function() {
 
                 // Display table as a datatable
                 $("#craTable").DataTable({
-                    "responsive": true,
-                    "bPaginate": false,
-                    "bAutoWidth": false,
-                    "bFilter": false,
-                    "bInfo": false,
-                    "ordering": false
+                    responsive: true,
+                    bPaginate: false,
+                    bAutoWidth: false,
+                    bFilter: false,
+                    bInfo: false,
+                    ordering: false,
+                    scrollX: true
                 });
 
                 // Trigger each row total calculation
@@ -261,7 +267,7 @@ $(function() {
                 else
                     toastr.success('message.create.success');
                 if (data.action == 'created') {
-                    $("#validateButton").data('url', $("#validateButton").data('url')+data.id_cra);
+                    $("#validateButton").data('url', '/c_r_a/declare/validate/'+data.id_cra);
                     craExists = true;
                 }
                 $("#monthYearPicker").datepicker('setDate', $("#monthYearPicker").datepicker('getDate'));

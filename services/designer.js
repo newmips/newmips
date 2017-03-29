@@ -1529,7 +1529,28 @@ exports.createNewComponentCra = function(attr, callback) {
                 fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
                 fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
 
-                callback(null, {message: 'Module C.R.A created'});
+                // Replace locales
+                // fr-FR
+                var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
+                var frLocales = require(piecesPath+'/locales/fr-FR.json');
+                for (var entity in frLocales)
+                    workspaceFrLocales.entity[entity] = frLocales[entity];
+                fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+                // en-EN
+                var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
+                var enLocales = require(piecesPath+'/locales/en-EN.json');
+                for (var entity in enLocales)
+                    workspaceEnLocales.entity[entity] = enLocales[entity];
+                fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+
+                // Remove unwanted tab from user
+                jsDom.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
+                    $("#r_c_r_a-click").parents('li').remove();
+                    $("#r_c_r_a").remove();
+                    jsDom.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
+                        callback(null, {message: 'Module C.R.A created'});
+                    });
+                });
             } catch(e) {
                 console.log(e);
                 callback(e);

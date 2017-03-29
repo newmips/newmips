@@ -17,7 +17,7 @@
             <li>
                 <a href="/c_r_a/declare">
                     <i class="fa fa-angle-double-right"></i>
-                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_c_r_a.custom_button_declare" /}&nbsp;
                     {@__ key="entity.e_c_r_a.name_entity" /}
                 </a>
             </li>

@@ -80,7 +80,7 @@ $(document).ready(function () {
     });
 
     /* --------------- Initialisation des CKEDITOR --------------- */
-    $("textarea").each(function () {
+    $("textarea:not(.regular-textarea)").each(function () {
         CKEDITOR.replace($(this).attr("id"));
     });
 
@@ -423,8 +423,6 @@ $(document).ready(function () {
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
-               
-
             },
             renameFilename: function (filename) {
                 var timeFile = moment().format("YYYYMMDD-HHmmss");

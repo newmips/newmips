@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
+var dust = require('dustjs-linkedin');
+var pdf = require('html-pdf');
+var fs = require('fs-extra');
+
 // Datalist
 var filterDataTable = require('../utils/filterDataTable');
 
@@ -15,7 +19,6 @@ var enums = require('../utils/enum.js');
 
 // Winston logger
 var logger = require('../utils/logger');
-
 
 function error500(err, req, res, redirect) {
     var isKnownError = false;
@@ -174,7 +177,6 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
         if (!user)
             return error500("Unable to find associated user", req, res);
         data.user = user;
-        console.log(user.r_c_r_a);
         models.E_c_r_a_activity.findAll({where: {f_active: true}}).then(function(activities) {
             models.E_c_r_a_team.findOne({
                 include: [{
@@ -197,7 +199,95 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
             });
         });
     });
+});
 
+router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccessMiddleware("c_r_a", 'write'), function(req, res) {
+    var id_cra = req.params.id;
+
+    models.E_c_r_a.findById(id_cra).then(function(cra) {
+        if (!cra)
+            return res.status(404).send("Couldn't find CRA");
+        if (!cra.f_user_validated)
+            return res.status(404).send("User must validate first");
+
+        cra.update({f_admin_validated: true}).then(function() {
+            res.status(200).end();
+        });
+    }).catch(function(err) {
+        res.status(500).send("Couldn't validate CRA");
+    });
+});
+
+router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddleware("c_r_a", 'write'), function(req, res) {
+    var body = req.body;
+    var id_cra = parseInt(body.id_cra);
+console.log(body);
+    models.E_c_r_a.findOne({
+        where: {id: id_cra},
+        include: [{
+            model: models.E_c_r_a_task,
+            as: 'r_c_r_a_task',
+            include: [{
+                model: models.E_c_r_a_activity,
+                as: 'r_c_r_a_activity'
+            }]
+        }]
+    }).then(function(cra) {
+        if (!cra)
+            return res.status(500).send("Couldn't find previously saved C.R.A");
+
+        if (cra.f_user_validated && cra.f_admin_validated)
+            return res.status(403).send("You can't update if admin validated");
+
+        var updateDeleteTasksPromises = [];
+        var createTasksPromises = [];
+        var matchedTasks = [];
+        for (var input in body) {
+            var parts = input.split('.');
+            if (parts[0] !== 'task' || body[input] == '' || body[input] == '0')
+                continue;
+            var activityId = parts[1];
+            var formDate = new Date(cra.f_year, cra.f_month-1, parts[2]);
+            var taskExists = false;
+            for (var i = 0; i < cra.r_c_r_a_task.length; i++) {
+                if (cra.r_c_r_a_task[i].f_id_c_r_a_activity == activityId) {
+                    var taskDate = new Date(cra.r_c_r_a_task[i].f_date);
+                    if (taskDate.getDate() == formDate.getDate()) {
+                        taskExists = true;
+                        matchedTasks.push(cra.r_c_r_a_task[i].id);
+                        updateDeleteTasksPromises.push(cra.r_c_r_a_task[i].update({f_duration: body[input]}));
+                        break;
+                    }
+                }
+            }
+            if (!taskExists)
+                createTasksPromises.push(models.E_c_r_a_task.create({
+                    f_date: formDate,
+                    f_duration: body[input],
+                    f_id_c_r_a: cra.id,
+                    f_id_c_r_a_activity: activityId
+                }));
+        }
+
+        Promise.all(createTasksPromises).then(function(tasks) {
+            for (var i = 0; i < tasks.length; i++)
+                matchedTasks.push(tasks[i].id);
+            // Delete replaced (not changed) tasks
+            updateDeleteTasksPromises.push(models.E_c_r_a_task.destroy({
+                where: {
+                    id: {$notIn: matchedTasks},
+                    f_id_c_r_a: cra.id
+                }})
+            );
+            Promise.all(updateDeleteTasksPromises).then(function() {
+                res.status(200).json({user_validated: cra.f_user_validated, admin_validated: false});
+                cra.update({f_admin_validated: false, f_notification_admin: body.notificationAdmin});
+            });
+        });
+    }).catch(function(err) {
+        console.log(err);
+        return res.status(500).send("Unable to update your Activity report");
+    });
 });
 
 router.get('/declare', block_access.actionAccessMiddleware("c_r_a", 'read'), function(req, res) {
@@ -252,17 +342,16 @@ router.post('/declare/create', block_access.actionAccessMiddleware("c_r_a", 'wri
         f_month: body.month,
         f_year: body.year,
         f_id_user: id_user,
-        f_open_days_in_month: new Date(body.year, body.month, 0).getDate(),
         f_user_validated: false,
         f_admin_validated: false
     }).then(function(cra) {
         var tasksPromises = [];
         for (var input in body) {
             var parts = input.split('.');
-            if (parts[0] !== 'task' || body[input] == '')
+            if (parts[0] !== 'task' || body[input] == '' || body[input] == '0')
                 continue;
             var activityId = parts[1];
-            var date = new Date(body.year, body.month, parts[2]);
+            var date = new Date(body.year, body.month-1, parts[2]);
             tasksPromises.push(models.E_c_r_a_task.create({
                 f_date: date,
                 f_duration: body[input],
@@ -349,18 +438,20 @@ router.post('/declare/update', block_access.actionAccessMiddleware("c_r_a", 'wri
             return res.status(403).send("You can't update if admin validated");
 
         var tasksPromises = [];
+        var matchedTasks = [];
         for (var input in body) {
             var parts = input.split('.');
-            if (parts[0] !== 'task' || body[input] == '')
+            if (parts[0] !== 'task' || body[input] == '' || body[input] == '0')
                 continue;
             var activityId = parts[1];
-            var formDate = new Date(body.year, body.month, parts[2]);
+            var formDate = new Date(body.year, body.month-1, parts[2]);
             var taskExists = false;
             for (var i = 0; i < cra.r_c_r_a_task.length; i++) {
                 if (cra.r_c_r_a_task[i].f_id_c_r_a_activity == activityId) {
                     var taskDate = new Date(cra.r_c_r_a_task[i].f_date);
                     if (taskDate.getDate() == formDate.getDate()) {
                         taskExists = true;
+                        matchedTasks.push(cra.r_c_r_a_task[i].id);
                         tasksPromises.push(cra.r_c_r_a_task[i].update({f_duration: body[input]}));
                         break;
                     }
@@ -374,6 +465,14 @@ router.post('/declare/update', block_access.actionAccessMiddleware("c_r_a", 'wri
                     f_id_c_r_a_activity: activityId
                 }));
         }
+
+        // Delete replaced (not changed) tasks
+        tasksPromises.push(models.E_c_r_a_task.destroy({
+            where: {
+                id: {$notIn: matchedTasks},
+                f_id_c_r_a: cra.id
+            }})
+        );
 
         Promise.all(tasksPromises).then(function() {
             res.status(200).json({action: 'updated', user_validated: false, admin_validated: cra.f_admin_validated});
@@ -438,6 +537,85 @@ router.get('/getData/:month/:year', function(req, res) {
                 data.isTeamAdmin = (team.f_id_admin_user == id_user) ? true : false;
                 res.status(200).json(data);
             })
+        });
+    });
+});
+
+router.get('/export/:id', block_access.actionAccessMiddleware("c_r_a", "read"), function (req, res) {
+    var id_cra = req.params.id;
+
+    models.E_c_r_a.findOne({
+        where: {id: id_cra},
+        include: [{
+            model: models.E_c_r_a_task,
+            as: 'r_c_r_a_task',
+            include: [{
+                model: models.E_c_r_a_activity,
+                as: 'r_c_r_a_activity'
+            }]
+        }]
+    }).then(function(cra) {
+        var workedDays = cra.r_c_r_a_task.length;
+        var activitiesById = [];
+        // Organize array with activity > tasks instead of tasks > activity
+        for (var i = 0; i < cra.r_c_r_a_task.length; i++) {
+            var task = cra.r_c_r_a_task[i];
+            if (typeof activitiesById[task.f_id_c_r_a_activity] === 'undefined') {
+                activitiesById[task.f_id_c_r_a_activity] = task.r_c_r_a_activity;
+                activitiesById[task.f_id_c_r_a_activity].tasks = [];
+            }
+            activitiesById[task.f_id_c_r_a_activity].tasks.push(task);
+        }
+
+        var totalDays = new Date(cra.f_year, cra.f_month, 0).getDate();
+        var activities = [];var daysAndLabels = [];
+        var daysLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        for (var acti in activitiesById) {
+            var i = 0;
+            activitiesById[acti].filledTasks = [];
+            while (i++ < totalDays) {
+                var tmp = new Date(cra.f_year, cra.f_month-1, i);
+                if (daysAndLabels.length < totalDays)
+                    daysAndLabels.push({f_date: i, f_day: daysLabels[tmp.getDay()]})
+                activitiesById[acti].filledTasks.push({f_date: tmp, f_duration: ''});
+            }
+            for (var i = 0; i < activitiesById[acti].tasks.length; i++) {
+                var origiTask = activitiesById[acti].tasks[i];
+                for (var j = 0; j < activitiesById[acti].filledTasks.length; j++) {
+                    var filledTask = activitiesById[acti].filledTasks[j];
+                    if (origiTask.f_date.getDate() == filledTask.f_date.getDate()) {
+                        activitiesById[acti].filledTasks[j].f_duration = origiTask.f_duration;
+                    }
+                }
+            }
+            activitiesById[acti].tasks = undefined;
+            activities.push(activitiesById[acti]);
+        }
+
+        var dustSrc = fs.readFileSync(__dirname+'/../views/e_c_r_a/export_template.dust', 'utf8');
+        dust.renderSource(dustSrc, {
+            activities: activities,
+            daysAndLabels: daysAndLabels,
+            workedDays: workedDays,
+            cra: cra
+        }, function(err, html) {
+            if (err)
+                return error500(err, req, res);
+
+            var fileName = __dirname+'/../views/e_c_r_a/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
+            pdf.create(html, {orientation: 'landscape'}).toFile(fileName, function(err, data) {
+                if (err)
+                    return error500(err, req, res);
+                fs.readFile(fileName, function(err, data) {
+                    if (err)
+                        return error500(err, req, res);
+                    res.writeHead(200, {"Content-Type": "application/pdf"});
+                    res.write(data);
+                    res.end();
+
+                    fs.unlinkSync(fileName);
+                });
+            });
         });
     });
 });
