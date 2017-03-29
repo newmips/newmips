@@ -100,14 +100,14 @@ exports.setupApplication = function(attr, callback) {
                         }
                     }
 
-                    if(attr.idUserGitlab != null){
-                        idUserGitlab = attr.idUserGitlab;
+                    if(attr.gitlabUser != null){
+                        idUserGitlab = attr.gitlabUser.id;
                         createGitlabProject();
                     } else{
                         gitlab.users.all(function(gitlabUsers){
                             var exist = false;
                             for(var i=0; i<gitlabUsers.length; i++){
-                                if(gitlabUsers[i].email == email_user){
+                                if(gitlabUsers[i].email == attr.currentUser.email){
                                     exist = true;
                                     idUserGitlab = gitlabUsers[i].id;
                                 }
