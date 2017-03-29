@@ -28,7 +28,6 @@
     "randomstring": "^1.1.5",
     "sequelize": "~3.24.2",
     "sequelize-cli": "~2.4.0",
-    "validator": "~5.6.0",
     "webdav-fs": "^1.0.0-rc1",
     "winston": "^2.3.0"
   }

@@ -52,11 +52,12 @@ block custom_js
             });
 
             $(document).on("submit", "#first_connection", function(){
-                if($("#confirm_password").val() != $("#password").val() && $("#confirm_password").val() != "" && $("#password").val() != "" && $("#password").val().length >= 8){
+                if($("#confirm_password").val() != $("#password").val() || $("#password").val().length < 8){
                     toastr.error("#{notMatchPasswordText}");
                     return false;
                 } else{
                     $(this).submit();
+                    return true;
                 }
             });
         });
