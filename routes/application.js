@@ -23,7 +23,6 @@ var fs = require("fs");
 var parser = require('../services/bot.js');
 
 var globalConf = require('../config/global.js');
-var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
 
 // Attr helper needed to format value in instuction
