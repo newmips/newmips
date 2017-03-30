@@ -17,7 +17,8 @@
         "export": "Export PDF",
         "no_activities": "You don't have any activities. You need activities to declare your Activity report.",
         "no_calendar_settings": "Your team didn't define its A.R settings. It is required to display working days.",
-        "waiting_validation_list": "Activity reports waiting for validation"
+        "waiting_validation_list": "Activity reports waiting for validation",
+        "noTeam": "You must be associated with a team in order to be able to declare your A.R."
     },
     "e_cra_team": {
         "label_entity": "Team",
