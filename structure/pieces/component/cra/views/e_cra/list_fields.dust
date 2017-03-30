@@ -1,0 +1,84 @@
+<table id="table_e_cra" data-url="/cra/datalist" class="dataTable table table-bordered table-striped">
+    <thead class="main">
+        <tr class="fields">
+            <th data-field="id" data-col="id">
+                {@__ key="entity.e_cra.id_entity"/}&nbsp;
+                {@__ key="entity.e_cra.label_entity"/}
+            </th>
+            <th data-field="f_month" data-col="f_month" data-type="integer">
+                {@__ key="entity.e_cra.f_month"/}
+            </th>
+            <th data-field="f_year" data-col="f_year" data-type="integer">
+                {@__ key="entity.e_cra.f_year"/}
+            </th>
+            <th data-field="f_open_days_in_month" data-col="f_open_days_in_month" data-type="integer">
+                {@__ key="entity.e_cra.f_open_days_in_month"/}
+            </th>
+            <th data-field="f_user_validated" data-col="f_user_validated" data-type="boolean">
+                {@__ key="entity.e_cra.f_user_validated"/}
+            </th>
+            <th data-field="f_admin_validated" data-col="f_admin_validated" data-type="boolean">
+                {@__ key="entity.e_cra.f_admin_validated"/}
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="fields">
+            <th data-field="id" data-col="id">
+                {@__ key="entity.e_cra.id_entity"/}&nbsp;
+                {@__ key="entity.e_cra.label_entity"/}
+            </th>
+            <th data-field="f_month" data-col="f_month" data-type="integer">
+                {@__ key="entity.e_cra.f_month"/}
+            </th>
+            <th data-field="f_year" data-col="f_year" data-type="integer">
+                {@__ key="entity.e_cra.f_year"/}
+            </th>
+            <th data-field="f_open_days_in_month" data-col="f_open_days_in_month" data-type="integer">
+                {@__ key="entity.e_cra.f_open_days_in_month"/}
+            </th>
+            <th data-field="f_user_validated" data-col="f_user_validated" data-type="boolean">
+                {@__ key="entity.e_cra.f_user_validated"/}
+            </th>
+            <th data-field="f_admin_validated" data-col="f_admin_validated" data-type="boolean">
+                {@__ key="entity.e_cra.f_admin_validated"/}
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {#e_cra}
+        <tr id="bodyTR">
+            <td data-field="id">{id}</td>
+            <td data-field="f_month" data-type="integer">{f_month}</td>
+            <td data-field="f_year" data-type="integer">{f_year}</td>
+            <td data-field="f_open_days_in_month" data-type="integer">{f_open_days_in_month}</td>
+            <td data-field="f_user_validated" data-type="boolean">{f_user_validated}</td>
+            <td data-field="f_admin_validated" data-type="boolean">{f_admin_validated}</td>
+            <td>
+                <a class="btn btn-primary" href="/cra/admin?id={id}"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}</span></a>
+            </td>
+            <td>
+                {@eq key=for value="hasMany"}
+                <form action="/cra/delete" method="post">
+                    <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+			                <span>{@__ key="button.delete" /}</span>
+			                <input name="id" value="{id}" type="hidden">
+			                <input name="associationAlias" value="{associationAlias}" type="hidden">
+			                <input name="associationForeignKey" value="{associationForeignKey}" type="hidden">
+			                <input name="associationFlag" value="{associationFlag}" type="hidden">
+			                <input name="associationSource" value="{associationSource}" type="hidden">
+			                <input name="associationUrl" value="{associationUrl}" type="hidden">
+			            </button>
+                </form>
+                {/eq}
+            </td>
+        </tr>
+        {/e_cra}
+    </tbody>
+</table>
