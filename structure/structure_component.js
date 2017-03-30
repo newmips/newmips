@@ -436,3 +436,54 @@ exports.newAgenda = function(attr, callback){
 		});
 	});
 }
+
+exports.newCra = function(attr, callback){
+	try {
+        var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+        var piecesPath = __dirname+'/../structure/pieces/component/cra';
+
+        // Clean toSync file, add custom fields
+        var toSync = {};
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+
+        // Copy pieces
+        fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
+        fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
+        fs.copySync(piecesPath+'/views/e_c_r_a/', workspacePath+'/views/e_c_r_a/');
+        fs.copySync(piecesPath+'/views/e_c_r_a_team/', workspacePath+'/views/e_c_r_a_team/');
+        fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
+        fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
+
+        // Replace locales
+        // fr-FR
+        var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
+        var frLocales = require(piecesPath+'/locales/fr-FR.json');
+        for (var entity in frLocales)
+            workspaceFrLocales.entity[entity] = frLocales[entity];
+        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+
+        // en-EN
+        var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
+        var enLocales = require(piecesPath+'/locales/en-EN.json');
+        for (var entity in enLocales)
+            workspaceEnLocales.entity[entity] = enLocales[entity];
+        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+
+        // Remove unwanted tab from user
+        domHelper.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
+            $("#r_c_r_a-click").parents('li').remove();
+            $("#r_c_r_a").remove();
+            domHelper.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
+                // Check activity activate field in create field
+                domHelper.read(workspacePath+'/views/e_c_r_a_activity/create_fields.dust').then(function($) {
+                    $("input[name='f_active']").attr("checked", "checked");
+                    domHelper.write(workspacePath+'/views/e_c_r_a_activity/create_fields.dust', $).then(function(){
+                        callback(null, {message: 'Module C.R.A created'});
+                    });
+                });
+            });
+        });
+    } catch(err) {
+        callback(err);
+    }
+}
