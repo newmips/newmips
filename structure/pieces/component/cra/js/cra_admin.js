@@ -1,4 +1,7 @@
-var daysLabel = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var englishDaysLabel = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var daysLabel = (lang_user == 'fr-FR')
+                ? ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
+                : englishDaysLabel;
 var openDaysCount = 0;
 var selectCount = 0;
 var globalData;
@@ -19,7 +22,7 @@ function isDayOpen(day, settings, exceptions) {
         $(".craBlocks").hide();
         return $("#noSettings").show();
     }
-    if (!settings['f_'+daysLabel[day.getDay()].toLowerCase()])
+    if (!settings['f_'+englishDaysLabel[day.getDay()].toLowerCase()])
         return false;
     var dayCopy = new Date(day);
     dayCopy.setHours(0,0,0,0);

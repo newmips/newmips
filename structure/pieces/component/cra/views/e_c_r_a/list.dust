@@ -13,6 +13,81 @@
 {<content}
     <div class="box">
         <div class="box-header">
+            <h3 class="box-title">{@__ key="entity.e_c_r_a.waiting_validation_list"/}</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                <i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="table-responsive">
+                <div class="col-xs-12 connectedSortable">
+                    <table id="waitingValidation" class="table table-bordered table-striped">
+                        <thead class="main">
+                            <tr class="fields">
+                                <th data-field="id" data-col="id">
+                                    {@__ key="entity.e_c_r_a.id_entity"/}&nbsp;
+                                    {@__ key="entity.e_c_r_a.label_entity"/}
+                                </th>
+                                <th data-field="f_month" data-col="f_month" data-type="integer">
+                                    {@__ key="entity.e_c_r_a.f_month"/}
+                                </th>
+                                <th data-field="f_year" data-col="f_year" data-type="integer">
+                                    {@__ key="entity.e_c_r_a.f_year"/}
+                                </th>
+                                <th data-field="f_open_days_in_month" data-col="f_open_days_in_month" data-type="integer">
+                                    {@__ key="entity.e_c_r_a.f_open_days_in_month"/}
+                                </th>
+                                <th data-field="f_user_validated" data-col="f_user_validated" data-type="boolean">
+                                    {@__ key="entity.e_c_r_a.f_user_validated"/}
+                                </th>
+                                <th data-field="f_admin_validated" data-col="f_admin_validated" data-type="boolean">
+                                    {@__ key="entity.e_c_r_a.f_admin_validated"/}
+                                </th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#cra}
+                            <tr id="bodyTR">
+                                <td data-field="id">{id}</td>
+                                <td data-field="f_month" data-type="integer">{f_month}</td>
+                                <td data-field="f_year" data-type="integer">{f_year}</td>
+                                <td data-field="f_open_days_in_month" data-type="integer">{f_open_days_in_month}</td>
+                                <td data-field="f_user_validated" data-type="boolean">{f_user_validated}</td>
+                                <td data-field="f_admin_validated" data-type="boolean">{f_admin_validated}</td>
+                                <td>
+                                    <a class="btn btn-primary" href="/c_r_a/show?id={id}"><i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}</span></a>
+                                </td>
+                                <td>
+                                    <a href="/c_r_a/admin?id={id}">
+                                        <button class="btn btn-primary">
+                                            <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+                                            <span>{@__ key="entity.e_c_r_a.custom_button_admin_validate" /}</span>
+                                        </button>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form action="/c_r_a/delete" method="post">
+                                        <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
+                                            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                                            <span>{@__ key="button.delete" /}</span>
+                                            <input name="id" value="{id}" type="hidden"/>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {/cra}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="box">
+        <div class="box-header">
             <h3 class="box-title">{@__ key="operation.list"/} {@__ key="entity.e_c_r_a.plural_entity"/}</h3>
             <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -88,6 +163,13 @@
 
             $("tbody").mouseup(function(e){down=false;});
             $("tbody").mouseleave(function(e){down=false;});
+
+            $("#waitingValidation").DataTable({
+                responsive: true,
+                bPaginate: false,
+                bAutoWidth: false,
+                bFilter: false,
+            });
         });
     </script>
 {/custom_js}
