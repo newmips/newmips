@@ -469,6 +469,10 @@ exports.newCra = function(attr, callback){
             workspaceEnLocales.entity[entity] = enLocales[entity];
         fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
 
+        // Update user translations
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+
         // Remove unwanted tab from user
         domHelper.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
             $("#r_c_r_a-click").parents('li').remove();
