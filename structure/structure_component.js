@@ -447,11 +447,11 @@ exports.newCra = function(attr, callback){
         fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
 
         // Copy pieces
-        fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
-        fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
-        fs.copySync(piecesPath+'/views/e_c_r_a/', workspacePath+'/views/e_c_r_a/');
-        fs.copySync(piecesPath+'/views/e_c_r_a_team/', workspacePath+'/views/e_c_r_a_team/');
-        fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
+        fs.copySync(piecesPath+'/routes/e_cra.js', workspacePath+'/routes/e_cra.js');
+        fs.copySync(piecesPath+'/routes/e_cra_team.js', workspacePath+'/routes/e_cra_team.js');
+        fs.copySync(piecesPath+'/views/e_cra/', workspacePath+'/views/e_cra/');
+        fs.copySync(piecesPath+'/views/e_cra_team/', workspacePath+'/views/e_cra_team/');
+        fs.copySync(piecesPath+'/views/layout_m_cra.dust', workspacePath+'/views/layout_m_cra.dust');
         fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
 
         // Replace locales
@@ -473,15 +473,19 @@ exports.newCra = function(attr, callback){
         translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
         translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
 
+        // Update module name
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "C.R.A");
+        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "A.R");
+
         // Remove unwanted tab from user
         domHelper.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
-            $("#r_c_r_a-click").parents('li').remove();
-            $("#r_c_r_a").remove();
+            $("#r_cra-click").parents('li').remove();
+            $("#r_cra").remove();
             domHelper.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
                 // Check activity activate field in create field
-                domHelper.read(workspacePath+'/views/e_c_r_a_activity/create_fields.dust').then(function($) {
+                domHelper.read(workspacePath+'/views/e_cra_activity/create_fields.dust').then(function($) {
                     $("input[name='f_active']").attr("checked", "checked");
-                    domHelper.write(workspacePath+'/views/e_c_r_a_activity/create_fields.dust', $).then(function(){
+                    domHelper.write(workspacePath+'/views/e_cra_activity/create_fields.dust', $).then(function(){
                         callback(null, {message: 'Module C.R.A created'});
                     });
                 });

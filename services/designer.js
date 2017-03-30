@@ -1470,21 +1470,21 @@ exports.createNewComponentCra = function(attr, callback) {
     var exportsContext = this;
 
     // Check if component with this name is already created on this module
-    db_module.getModuleByCodename(attr.id_application, 'm_c_r_a', function(err, module){
+    db_module.getModuleByCodename(attr.id_application, 'm_cra', function(err, module){
         if(module){
             var err = new Error();
             err.message = "Sorry, a C.R.A module already exists.";
             return callback(err, null);
         }
         var instructions = [
-            "add module C.R.A",
-            "add entity C.R.A Team",
+            "add module CRA",
+            "add entity CRA Team",
             "add field Name",
             "set field Name required",
             "add field id_admin_user",
             "add fieldset Users related to user using login",
-            "entity C.R.A Team has one C.R.A Calendar Settings",
-            "select entity C.R.A Calendar Settings",
+            "entity CRA Team has one CRA Calendar Settings",
+            "select entity CRA Calendar Settings",
             "add field Monday with type boolean",
             "add field Tuesday with type boolean",
             "add field Wednesday with type boolean",
@@ -1492,32 +1492,30 @@ exports.createNewComponentCra = function(attr, callback) {
             "add field Friday with type boolean",
             "add field Saturday with type boolean",
             "add field Sunday with type boolean",
-            "entity C.R.A Team has many C.R.A Calendar Exception",
-            "select entity C.R.A Calendar Exception",
+            "entity CRA Team has many CRA Calendar Exception",
+            "select entity CRA Calendar Exception",
             "add field Date with type date",
-            "add entity C.R.A Activity",
+            "add entity CRA Activity",
             "add field Name",
             "add field Description with type text",
+            "add field Client",
             "add field Active with type boolean",
-            "select entity C.R.A Team",
-            "add fieldset Default C.R.A Activity related to C.R.A Activity using Name",
-            "add entity C.R.A",
+            "select entity CRA Team",
+            "add fieldset Default CRA Activity related to CRA Activity using Name",
+            "add entity CRA",
             "add field Month with type number",
             "add field Year with type number",
             "add field Open days in month with type number",
             "add field User validated with type boolean",
             "add field Admin validated with type boolean",
             "add field Notification admin with type text",
-            "entity user has many C.R.A",
-            "entity C.R.A Activity has one C.R.A Client",
-            "select entity C.R.A Client",
-            "add field Name",
-            "entity C.R.A has many C.R.A Task",
-            "select entity C.R.A Task",
+            "entity user has many CRA",
+            "entity CRA has many CRA Task",
+            "select entity CRA Task",
             "add field Date with type date",
             "add field Duration with type float",
-            "entity C.R.A Task has one C.R.A Activity",
-            "entity C.R.A has one user"
+            "entity CRA Task has one CRA Activity",
+            "entity CRA has one user"
         ];
 
         // Start doing necessary instruction for component creation
@@ -1526,7 +1524,7 @@ exports.createNewComponentCra = function(attr, callback) {
                 return callback(err, null);
 
             // Add fieldset ID in user entity that already exist so toSync doesn't work
-            var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_c_r_a_team_users` INT DEFAULT NULL;";
+            var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_cra_team_users` INT DEFAULT NULL;";
             sequelize.query(request).then(function(){
                 structure_component.newCra(attr, function(err, infoStructure){
                     if(err)

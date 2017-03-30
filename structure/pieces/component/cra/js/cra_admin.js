@@ -52,7 +52,7 @@ function generateAddActivityRow(data) {
     var row = "<tr><td></td>";
     var j = -1;
     while (++j < days.length)
-        row += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
+        row += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)
                         ? '<td><input class="openDay taskInput small-font" name="task.activityIDplaceholder.'+days[j].getDate()+'" disabled style="max-width:15px;margin: 0; padding: 0;"></td>'
                         : '<td><input class="taskInput small-font" name="task.activityIDplaceholder.'+days[j].getDate()+'" style="margin: 0; padding: 0;max-width:10px;" disabled></td>';
     row += '</tr>';
@@ -83,12 +83,12 @@ function generateExistingCRA(data) {
     craTable += '</tr></thead><tbody>';
 
     var knownActivities = [];
-    for (var i = 0; i < data.cra.r_c_r_a_task.length; i++)
-        if (!knownActivities[data.cra.r_c_r_a_task[i].f_id_c_r_a_activity])
-            knownActivities[data.cra.r_c_r_a_task[i].f_id_c_r_a_activity] = data.cra.r_c_r_a_task[i].r_c_r_a_activity;
-    for (var i = 0; i < data.team.r_default_c_r_a_activity.length; i++)
-        if (!knownActivities[data.team.r_default_c_r_a_activity[i].id])
-            knownActivities[data.team.r_default_c_r_a_activity[i].id] = data.team.r_default_c_r_a_activity[i];
+    for (var i = 0; i < data.cra.r_cra_task.length; i++)
+        if (!knownActivities[data.cra.r_cra_task[i].f_id_cra_activity])
+            knownActivities[data.cra.r_cra_task[i].f_id_cra_activity] = data.cra.r_cra_task[i].r_cra_activity;
+    for (var i = 0; i < data.team.r_default_cra_activity.length; i++)
+        if (!knownActivities[data.team.r_default_cra_activity[i].id])
+            knownActivities[data.team.r_default_cra_activity[i].id] = data.team.r_default_cra_activity[i];
 
     for (var acty in knownActivities) {
         openDaysCount = 0;
@@ -96,13 +96,13 @@ function generateExistingCRA(data) {
         var j = -1;
         while (++j < days.length) {
             var taskExists = false;
-            for (var k = 0; k < data.cra.r_c_r_a_task.length; k++) {
-                var task = data.cra.r_c_r_a_task[k];
-                if (task.f_id_c_r_a_activity == knownActivities[acty].id) {
+            for (var k = 0; k < data.cra.r_cra_task.length; k++) {
+                var task = data.cra.r_cra_task[k];
+                if (task.f_id_cra_activity == knownActivities[acty].id) {
                     var date = new Date(task.f_date);
                     if (date.getDate() == days[j].getDate()) {
                         taskExists = true;
-                        craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
+                        craTable += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)
                                     ? '<td><input class="openDay taskInput small-font" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
                                     : '<td><input class="taskInput small-font" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" value="'+task.f_duration+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
                         break;
@@ -110,7 +110,7 @@ function generateExistingCRA(data) {
                 }
             }
             if (!taskExists)
-                craTable += isDayOpen(days[j], data.team.r_c_r_a_calendar_settings, data.team.r_c_r_a_calendar_exception)
+                craTable += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)
                             ? '<td><input class="openDay taskInput small-font" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;"></td>'
                             : '<td><input class="taskInput small-font" name="task.'+knownActivities[acty].id+'.'+days[j].getDate()+'" style="max-width:15px;margin: 0; padding: 0;" disabled></td>';
         }
@@ -144,7 +144,7 @@ $(function() {
     var year = parseInt($("#year").text());
     // Look for exisiting data for month/year
     $.ajax({
-        url: '/c_r_a/getData/'+month+'/'+year,
+        url: '/cra/getData/'+month+'/'+year,
         success: function(data) {
             globalData = data;
             data.month = month;
@@ -225,7 +225,7 @@ $(function() {
     // Validate CRA
     $("#validateButton").click(function() {
         $.ajax({
-            url: '/c_r_a/admin/validate/'+globalData.cra.id,
+            url: '/cra/admin/validate/'+globalData.cra.id,
             success: function(data) {
                 showButtonGroup(true, true);
                 toastr.success('Validation successful');
