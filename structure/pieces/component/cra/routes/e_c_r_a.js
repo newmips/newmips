@@ -221,7 +221,7 @@ router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccess
 router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddleware("c_r_a", 'write'), function(req, res) {
     var body = req.body;
     var id_cra = parseInt(body.id_cra);
-console.log(body);
+
     models.E_c_r_a.findOne({
         where: {id: id_cra},
         include: [{
