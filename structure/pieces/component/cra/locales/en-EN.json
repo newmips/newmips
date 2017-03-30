@@ -29,54 +29,54 @@
       "admin_only": "You need to be admin of your A.R Team to access this page."
     },
     "e_c_r_a_calendar_settings": {
-      "label_entity": "A.R Calendar Settings",
-      "name_entity": "A.R Calendar Settings",
-      "plural_entity": "A.R Calendar Settingss",
-      "id_entity": "ID",
-      "as_r_c_r_a_calendar_settings": "A.R Calendar Settings",
-      "f_monday": "monday",
-      "f_tuesday": "tuesday",
-      "f_wednesday": "wednesday",
-      "f_thursday": "thursday",
-      "f_friday": "friday",
-      "f_saturday": "saturday",
-      "f_sunday": "sunday"
+        "label_entity": "A.R Calendar Settings",
+        "name_entity": "A.R Calendar Settings",
+        "plural_entity": "A.R Calendar Settingss",
+        "id_entity": "ID",
+        "as_r_c_r_a_calendar_settings": "A.R Calendar Settings",
+        "f_monday": "monday",
+        "f_tuesday": "tuesday",
+        "f_wednesday": "wednesday",
+        "f_thursday": "thursday",
+        "f_friday": "friday",
+        "f_saturday": "saturday",
+        "f_sunday": "sunday"
     },
     "e_c_r_a_calendar_exception": {
-      "label_entity": "A.R Calendar Exception",
-      "name_entity": "A.R Calendar Exception",
-      "plural_entity": "A.R Calendar Exceptions",
-      "id_entity": "ID",
-      "as_r_c_r_a_calendar_exception": "A.R Calendar Exception",
-      "f_date": "date"
+        "label_entity": "A.R Calendar Exception",
+        "name_entity": "A.R Calendar Exception",
+        "plural_entity": "A.R Calendar Exceptions",
+        "id_entity": "ID",
+        "as_r_c_r_a_calendar_exception": "A.R Calendar Exception",
+        "f_date": "date"
     },
     "e_c_r_a_activity": {
-      "label_entity": "A.R Activity",
-      "name_entity": "A.R Activity",
-      "plural_entity": "A.R Activitys",
-      "id_entity": "ID",
-      "f_name": "Name",
-      "f_description": "Description",
-      "f_active": "Active",
-      "as_r_default_c_r_a_activity": "Default A.R Activity",
-      "as_r_c_r_a_activity": "A.R Activity",
-      "select_activity": "Select activity"
+        "label_entity": "A.R Activity",
+        "name_entity": "A.R Activity",
+        "plural_entity": "A.R Activitys",
+        "id_entity": "ID",
+        "f_name": "Name",
+        "f_description": "Description",
+        "f_active": "Active",
+        "as_r_default_c_r_a_activity": "Default A.R Activity",
+        "as_r_c_r_a_activity": "A.R Activity",
+        "select_activity": "Select activity"
     },
     "e_c_r_a_client": {
-      "label_entity": "A.R Client",
-      "name_entity": "A.R Client",
-      "plural_entity": "A.R Clients",
-      "id_entity": "ID",
-      "as_r_c_r_a_client": "A.R Client",
-      "f_name": "name"
+        "label_entity": "A.R Client",
+        "name_entity": "A.R Client",
+        "plural_entity": "A.R Clients",
+        "id_entity": "ID",
+        "as_r_c_r_a_client": "A.R Client",
+        "f_name": "name"
     },
     "e_c_r_a_task": {
-      "label_entity": "A.R Task",
-      "name_entity": "A.R Task",
-      "plural_entity": "A.R Tasks",
-      "id_entity": "ID",
-      "as_r_c_r_a_task": "A.R Task",
-      "f_date": "date",
-      "f_duration": "duration"
+        "label_entity": "A.R Task",
+        "name_entity": "A.R Task",
+        "plural_entity": "A.R Tasks",
+        "id_entity": "ID",
+        "as_r_c_r_a_task": "A.R Task",
+        "f_date": "date",
+        "f_duration": "duration"
     }
 }

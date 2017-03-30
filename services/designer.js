@@ -1480,7 +1480,8 @@ exports.createNewComponentCra = function(attr, callback) {
         var instructions = [
             "create module C.R.A",
             "create entity C.R.A Team",
-            "add field name",
+            "add field Name",
+            "set field Name required",
             "add field id_admin_user",
             "create fieldset Users related to user using login",
             "entity C.R.A Team has one C.R.A Calendar Settings",
@@ -1494,7 +1495,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add field sunday with type boolean",
             "entity C.R.A Team has many C.R.A Calendar Exception",
             "select entity C.R.A Calendar Exception",
-            "add field date with type date",
+            "add field Date with type date",
             "create entity C.R.A Activity",
             "add field Name",
             "add field Description with type text",
@@ -1502,12 +1503,12 @@ exports.createNewComponentCra = function(attr, callback) {
             "select entity C.R.A Team",
             "add fieldset Default C.R.A Activity related to C.R.A Activity using Name",
             "create entity C.R.A",
-            "add field month with type number",
-            "add field year with type number",
-            "add field open days in month with type number",
-            "add field user validated with type boolean",
-            "add field admin validated with type boolean",
-            "add field notification admin with type text",
+            "add field Month with type number",
+            "add field Year with type number",
+            "add field Open days in month with type number",
+            "add field User validated with type boolean",
+            "add field Admin validated with type boolean",
+            "add field Notification admin with type text",
             "entity user has many C.R.A",
             "entity C.R.A Activity has one C.R.A Client",
             "select entity C.R.A Client",
@@ -1531,12 +1532,12 @@ exports.createNewComponentCra = function(attr, callback) {
 
                 // Clean toSync file, add custom fields
                 var toSync = {};
-                toSync[attr.id_application+'_e_user'] = {attributes: {id_e_c_r_a_team_users:"INTEGER"}};
+                //toSync[attr.id_application+'_e_user'] = {attributes: {id_e_c_r_a_team_users:"INTEGER"}};
                 fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
                 // Also add custom fields to attributes.json file to match in toSync function
-                var attributes = require(workspacePath+'/models/attributes/e_user.json');
+                /*var attributes = require(workspacePath+'/models/attributes/e_user.json');
                 attributes.id_e_c_r_a_team_users = "INTEGER";
-                fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(attributes, null, 4));
+                fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(attributes, null, 4));*/
 
                 // Copy pieces
                 fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
@@ -1553,6 +1554,7 @@ exports.createNewComponentCra = function(attr, callback) {
                 for (var entity in frLocales)
                     workspaceFrLocales.entity[entity] = frLocales[entity];
                 fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+
                 // en-EN
                 var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
                 var enLocales = require(piecesPath+'/locales/en-EN.json');
@@ -1565,7 +1567,14 @@ exports.createNewComponentCra = function(attr, callback) {
                     $("#r_c_r_a-click").parents('li').remove();
                     $("#r_c_r_a").remove();
                     jsDom.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
-                        callback(null, {message: 'Module C.R.A created'});
+                        // Check activity activate field in create field
+                        jsDom.read(workspacePath+'/views/e_c_r_a_activity/create_fields.dust').then(function($) {
+                            $("input[name='f_active']").find("*").prop("checked", true);
+
+                            jsDom.write(workspacePath+'/views/e_c_r_a_activity/create_fields.dust', $).then(function(){
+                                callback(null, {message: 'Module C.R.A created'});
+                            });
+                        });
                     });
                 });
             } catch(e) {

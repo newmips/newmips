@@ -1,6 +1,6 @@
 <div id="fields">
     <div data-field="f_name" class="form-group">
-        <label for="f_name"> {@__ key="entity.e_c_r_a_team.f_name"/} </label>
-        <input class="form-control input" placeholder='{@__ key="entity.e_c_r_a_team.f_name" /}' name="f_name" value="{f_name}" type="text">
+        <label for="f_name" class="required"> {@__ key="entity.e_c_r_a_team.f_name"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_c_r_a_team.f_name" /}' name="f_name" value="{f_name}" type="text" required />
     </div>
 </div>
