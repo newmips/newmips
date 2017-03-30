@@ -12,7 +12,11 @@
       "f_notification_admin": "Notification administrateur",
       "custom_button_declare": "Déclarer",
       "custom_button_admin_validate": "Voir déclaration",
-      "as_r_c_r_a": "C.R.A"
+      "as_r_c_r_a": "C.R.A",
+      "validate": "Valider",
+      "export": "Export PDF",
+      "no_activities": "Vous n'avez pas d'activités. Vous avez besoin d'activités pour déclarer votre C.R.A",
+      "no_calendar_settings": "Votre C.R.A équipe n'a pas définie son calendrier. Il est nécessaire pour afficher les jours de travail."
     },
     "e_c_r_a_team": {
       "label_entity": "C.R.A Équipe",
@@ -45,15 +49,16 @@
       "f_date": "Date"
     },
     "e_c_r_a_activity": {
-      "label_entity": "Activité",
-      "name_entity": "Activité",
-      "plural_entity": "Activités",
+      "label_entity": "C.R.A Activité",
+      "name_entity": "C.R.A Activité",
+      "plural_entity": "C.R.A Activités",
       "id_entity": "ID",
       "f_name": "Nom",
       "f_description": "Déscription",
       "f_active": "Active",
-      "as_r_default_c_r_a_activity": "C.R.A Défaut Activité",
-      "as_r_c_r_a_activity": "C.R.A Activité"
+      "as_r_default_c_r_a_activity": "C.R.A Défaut Activités",
+      "as_r_c_r_a_activity": "C.R.A Activité",
+      "select_activity": "Séléctionner une activité"
     },
     "e_c_r_a_client": {
       "label_entity": "C.R.A Client",
