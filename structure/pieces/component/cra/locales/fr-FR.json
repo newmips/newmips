@@ -76,20 +76,5 @@
         "as_r_c_r_a_task": "C.R.A Tâche",
         "f_date": "Date",
         "f_duration": "Durée"
-    },
-    "e_user": {
-        "label_entity": "Utilisateur",
-        "name_entity": "Utilisateur",
-        "plural_entity": "Utilisateurs",
-        "id_entity": "ID",
-        "f_login": "Identifiant",
-        "f_password": "password",
-        "f_email": "Email",
-        "f_token_password_reset": "token_password_reset",
-        "f_enabled": "enabled",
-        "r_role": "Rôle",
-        "r_group": "Groupe",
-        "as_r_users": "Utilisateurs",
-        "as_r_user": "Utilisateur"
     }
 }
