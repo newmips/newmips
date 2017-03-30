@@ -1,4 +1,7 @@
-var daysLabel = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var englishDaysLabel = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var daysLabel = (lang_user == 'fr-FR')
+                ? ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
+                : englishDaysLabel;
 var craExists = false;
 var openDaysCount = 0;
 var selectCount = 0;
@@ -20,7 +23,7 @@ function isDayOpen(day, settings, exceptions) {
         $(".craBlocks").hide();
         return $("#noSettings").show();
     }
-    if (!settings['f_'+daysLabel[day.getDay()].toLowerCase()])
+    if (!settings['f_'+englishDaysLabel[day.getDay()].toLowerCase()])
         return false;
     var dayCopy = new Date(day);
     dayCopy.setHours(0,0,0,0);
@@ -349,6 +352,7 @@ $(function() {
             $(self).parents('tr').remove();
         // Enable row's inputs, set input's name with activity ID
         else {
+            console.log('Salut ?');
             $(self).parents('tr').find('.openDay').prop('disabled', false);
             $(self).parents('tr').find('.taskInput').each(function() {
                 var inputName = $(this).attr('name');
