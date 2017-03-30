@@ -23,7 +23,6 @@ var fs = require("fs");
 var parser = require('../services/bot.js');
 
 var globalConf = require('../config/global.js');
-var logoPath = './public/img/';
 var helpers = require('../utils/helpers');
 
 // Attr helper needed to format value in instuction
@@ -63,7 +62,7 @@ function setChat(req, idApp, idUser, user, content, params){
         req.session.chat[idApp][idUser] = {items: []};
 
     // Add chat
-    if(content != "chat.welcome" || req.session.chat[idApp][idUser].items.length > 0){
+    if(content != "chat.welcome" || req.session.chat[idApp][idUser].items.length < 1){
         req.session.chat[idApp][idUser].items.push({
             user: user,
             dateEmission: moment().format("DD MMM HH:mm"),
