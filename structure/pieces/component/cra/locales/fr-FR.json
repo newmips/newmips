@@ -6,7 +6,7 @@
         "id_entity": "ID",
         "f_month": "Mois",
         "f_year": "Année",
-        "f_open_days_in_month": "jours ouvrés dans le mois",
+        "f_open_days_in_month": "Jours ouvrés dans le mois",
         "f_user_validated": "Validation utilisateur",
         "f_admin_validated": "Validation administrateur",
         "f_notification_admin": "Notification administrateur",
@@ -54,7 +54,7 @@
         "plural_entity": "C.R.A Activités",
         "id_entity": "ID",
         "f_name": "Nom",
-        "f_description": "Déscription",
+        "f_description": "Description",
         "f_active": "Active",
         "as_r_default_c_r_a_activity": "C.R.A Défaut Activités",
         "as_r_c_r_a_activity": "C.R.A Activité",
@@ -76,5 +76,20 @@
         "as_r_c_r_a_task": "C.R.A Tâche",
         "f_date": "Date",
         "f_duration": "Durée"
+    },
+    "e_user": {
+        "label_entity": "Utilisateur",
+        "name_entity": "Utilisateur",
+        "plural_entity": "Utilisateurs",
+        "id_entity": "ID",
+        "f_login": "Identifiant",
+        "f_password": "password",
+        "f_email": "Email",
+        "f_token_password_reset": "token_password_reset",
+        "f_enabled": "enabled",
+        "r_role": "Rôle",
+        "r_group": "Groupe",
+        "as_r_users": "Utilisateurs",
+        "as_r_user": "Utilisateur"
     }
 }
