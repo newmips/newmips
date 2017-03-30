@@ -1532,51 +1532,50 @@ exports.createNewComponentCra = function(attr, callback) {
 
                 // Clean toSync file, add custom fields
                 var toSync = {};
-                //toSync[attr.id_application+'_e_user'] = {attributes: {id_e_c_r_a_team_users:"INTEGER"}};
                 fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
-                // Also add custom fields to attributes.json file to match in toSync function
-                /*var attributes = require(workspacePath+'/models/attributes/e_user.json');
-                attributes.id_e_c_r_a_team_users = "INTEGER";
-                fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(attributes, null, 4));*/
 
-                // Copy pieces
-                fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
-                fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
-                fs.copySync(piecesPath+'/views/e_c_r_a/', workspacePath+'/views/e_c_r_a/');
-                fs.copySync(piecesPath+'/views/e_c_r_a_team/', workspacePath+'/views/e_c_r_a_team/');
-                fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
-                fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
+                // Add fieldset ID in user entity that already exist so toSync doesn't work
+                var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_c_r_a_team_users` INT DEFAULT NULL;";
+                sequelize.query(request).then(function(){
+                    // Copy pieces
+                    fs.copySync(piecesPath+'/routes/e_c_r_a.js', workspacePath+'/routes/e_c_r_a.js');
+                    fs.copySync(piecesPath+'/routes/e_c_r_a_team.js', workspacePath+'/routes/e_c_r_a_team.js');
+                    fs.copySync(piecesPath+'/views/e_c_r_a/', workspacePath+'/views/e_c_r_a/');
+                    fs.copySync(piecesPath+'/views/e_c_r_a_team/', workspacePath+'/views/e_c_r_a_team/');
+                    fs.copySync(piecesPath+'/views/layout_m_c_r_a.dust', workspacePath+'/views/layout_m_c_r_a.dust');
+                    fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
 
-                // Replace locales
-                // fr-FR
-                var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
-                var frLocales = require(piecesPath+'/locales/fr-FR.json');
-                for (var entity in frLocales)
-                    workspaceFrLocales.entity[entity] = frLocales[entity];
-                fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+                    // Replace locales
+                    // fr-FR
+                    var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
+                    var frLocales = require(piecesPath+'/locales/fr-FR.json');
+                    for (var entity in frLocales)
+                        workspaceFrLocales.entity[entity] = frLocales[entity];
+                    fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
 
-                // en-EN
-                var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
-                var enLocales = require(piecesPath+'/locales/en-EN.json');
-                for (var entity in enLocales)
-                    workspaceEnLocales.entity[entity] = enLocales[entity];
-                fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+                    // en-EN
+                    var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
+                    var enLocales = require(piecesPath+'/locales/en-EN.json');
+                    for (var entity in enLocales)
+                        workspaceEnLocales.entity[entity] = enLocales[entity];
+                    fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
 
-                // Remove unwanted tab from user
-                jsDom.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
-                    $("#r_c_r_a-click").parents('li').remove();
-                    $("#r_c_r_a").remove();
-                    jsDom.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
-                        // Check activity activate field in create field
-                        jsDom.read(workspacePath+'/views/e_c_r_a_activity/create_fields.dust').then(function($) {
-                            $("input[name='f_active']").find("*").prop("checked", true);
-
-                            jsDom.write(workspacePath+'/views/e_c_r_a_activity/create_fields.dust', $).then(function(){
-                                callback(null, {message: 'Module C.R.A created'});
+                    // Remove unwanted tab from user
+                    jsDom.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
+                        $("#r_c_r_a-click").parents('li').remove();
+                        $("#r_c_r_a").remove();
+                        jsDom.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
+                            // Check activity activate field in create field
+                            jsDom.read(workspacePath+'/views/e_c_r_a_activity/create_fields.dust').then(function($) {
+                                $("input[name='f_active']").attr("checked", "checked");
+                                jsDom.write(workspacePath+'/views/e_c_r_a_activity/create_fields.dust', $).then(function(){
+                                    callback(null, {message: 'Module C.R.A created'});
+                                });
                             });
                         });
                     });
                 });
+
             } catch(e) {
                 console.log(e);
                 callback(e);
