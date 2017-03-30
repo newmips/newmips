@@ -58,6 +58,7 @@
         "id_entity": "ID",
         "f_name": "Nom",
         "f_description": "Description",
+        "f_client": "Client",
         "f_active": "Active",
         "as_r_default_cra_activity": "Défaut Activités",
         "as_r_cra_activity": "Activité",
