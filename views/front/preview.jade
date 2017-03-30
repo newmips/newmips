@@ -218,10 +218,9 @@ block custom_js
 		intro2 += "#{__('editor.intro2')}" + "\n";
 		intro2 += "#{__('editor.intro3')}";
 	script(type='text/javascript').
-		$(function() {
+		$(document).ready(function(){
 
 			var isEditorStarted = false;
-
 			$(document).on("click", "#start-editor", function(){
 				if(!isEditorStarted){
 					// Tabs display/animation need to be completely finished to instanciate the editor
@@ -250,23 +249,6 @@ block custom_js
 				}
 			});
 
-			// Retrieve chat instructions
-			var tab_instr = [];
-			var current_instr = -1;
-			var chat_instr = "#{JSON.stringify(chat.items)}";
-			var d = document.createElement( 'div' );
-			d.innerHTML = chat_instr;
-			chat_instr = d.textContent;
-			chat_instr = JSON.parse(chat_instr);
-
-			var j = 0;
-			for(var i in chat_instr)	{
-				if (chat_instr[i].user == "User") {
-					tab_instr[j] = chat_instr[i].content;
-					j++;
-				}
-			}
-
 			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ\-\,\ \'\!]/);
 			$("#instruction").keyup(function(e) {
 				while (reg.test($(this).val()))
@@ -274,9 +256,7 @@ block custom_js
 			});
 
 			var idApplication = "#{session.application.id_application}";
-
 			var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_"+idApplication));
-
 			var indexInstructionSelected = 0;
 			if(instructionHistory != null){
 				indexInstructionSelected = instructionHistory.length;
@@ -332,12 +312,6 @@ block custom_js
 					$(this).parents('form').submit();
 				}
 			});
-
-		    $("input[type='checkbox'], input[type='radio']").iCheck({
-		        checkboxClass: 'icheckbox_flat-blue',
-		        radioClass: 'iradio_flat-blue',
-		        disabledClass: ''
-		    });
 
 			$(document).on("click", "#restart-server", function(e){
 				$("#instruction").val("restart server");
