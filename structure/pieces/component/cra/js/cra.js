@@ -206,6 +206,7 @@ $(function() {
                     if (!data.cra.f_admin_validated)
                         generateAddActivityRow(data);
                     showButtonGroup(data.cra.f_user_validated, data.cra.f_admin_validated, true);
+                    $("#export").find('a').attr('href',$("#export").find('a').attr('href')+data.cra.id);
                 }
                 // CRA doesn't exists
                 else {
@@ -214,7 +215,6 @@ $(function() {
                     $("#cra").html(generateEmptyCRA(data));
                     generateAddActivityRow(data);
                     showButtonGroup(false, false, false);
-                    $("#export").find('a').attr('href',$("#export").find('a').attr('href')+data.cra.id);
                 }
 
                 // Add month and year to form data
