@@ -54,9 +54,15 @@ function capitalizeFirstLetter(word) {
 }
 
 function teamAdminMiddleware(req, res, next) {
-    models.E_c_r_a_team.findOne({where: {f_id_admin_user: req.session.passport.user.id}}).then(function(team) {
+    models.E_c_r_a_team.findOne({
+        where: {f_id_admin_user: req.session.passport.user.id},
+        include: [{
+            model: models.E_user,
+            as: 'r_users'
+        }]
+    }).then(function(team) {
         if (!team) {
-            req.session.toastr.push({level: 'error', message: 'You need to be Admin of your C.R.A Team to access this page'});
+            req.session.toastr.push({level: 'error', message: 'entity.e_c_r_a_team.admin_only'});
             return res.redirect('/default/c_r_a');
         }
         req.team = team;
@@ -72,15 +78,35 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("c_
     data.toastr = req.session.toastr;
     req.session.toastr = [];
 
-    res.render('e_c_r_a/list', data);
+    var idTeamUsers = [];
+    for (var i = 0; i < req.team.r_users.length; i++)
+        idTeamUsers.push(req.team.r_users[i].id);
+
+    models.E_c_r_a.findAll({
+        where: {
+            f_id_user: {$in: idTeamUsers},
+            f_admin_validated: false,
+            f_user_validated: true
+        }
+    }).then(function(cra) {
+        data.cra = cra;
+        res.render('e_c_r_a/list', data);
+    });
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("c_r_a", "read"), function (req, res) {
-
+router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddleware("c_r_a", "read"), function (req, res) {
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options);
 
-    filterDataTable("E_c_r_a", req.body, include).then(function (data) {
+    var idTeamUsers = [];
+    for (var i = 0; i < req.team.r_users.length; i++)
+        idTeamUsers.push(req.team.r_users[i].id);
+
+    var where = {
+        f_id_user: {$in: idTeamUsers}
+    }
+
+    filterDataTable("E_c_r_a", req.body, include, where).then(function (data) {
         // Replace data enum value by translated value for datalist
         var enumsTranslation = enums.translated("e_c_r_a", req.session.lang_user);
         for(var i=0; i<data.data.length; i++){
@@ -569,7 +595,10 @@ router.get('/export/:id', block_access.actionAccessMiddleware("c_r_a", "read"), 
 
         var totalDays = new Date(cra.f_year, cra.f_month, 0).getDate();
         var activities = [];var daysAndLabels = [];
-        var daysLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        var daysLabels = (req.session.lang_user == 'fr-FR')
+                ? ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
+                : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
         for (var acti in activitiesById) {
             var i = 0;
             activitiesById[acti].filledTasks = [];

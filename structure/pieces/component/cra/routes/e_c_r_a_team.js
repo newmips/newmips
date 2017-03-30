@@ -268,41 +268,52 @@ router.post('/create', block_access.actionAccessMiddleware("c_r_a_team", "write"
 
     // Set creating user as team admin
     createObject.f_id_admin_user = req.session.passport.user.id;
-    models.E_c_r_a_team.create(createObject).then(function (e_c_r_a_team) {
-        var redirect = '/c_r_a_team/list';
-        req.session.toastr = [{
-                message: 'message.create.success',
-                level: "success"
-            }];
 
-        if (typeof req.body.associationFlag !== 'undefined') {
-            redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
-                if (!association) {
-                    e_c_r_a_team.destroy();
-                    var err = new Error();
-                    err.message = "Association not found."
-                    return error500(err, req, res, "/");
-                }
+    // Create default calendar settings
+    models.E_c_r_a_calendar_settings.create({
+        f_monday: true,
+        f_tuesday: true,
+        f_wednesday: true,
+        f_thursday: true,
+        f_friday: true,
+    }).then(function(settings) {
+        createObject.f_id_c_r_a_calendar_settings = settings.id;
+        models.E_c_r_a_team.create(createObject).then(function (e_c_r_a_team) {
+            var redirect = '/c_r_a_team/list';
+            req.session.toastr = [{
+                    message: 'message.create.success',
+                    level: "success"
+                }];
 
-                var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
-                if (typeof association['add' + modelName] !== 'undefined')
-                    association['add' + modelName](e_c_r_a_team.id);
-                else {
-                    var obj = {};
-                    obj[req.body.associationForeignKey] = e_c_r_a_team.id;
-                    association.update(obj);
-                }
-            });
-        }
+            if (typeof req.body.associationFlag !== 'undefined') {
+                redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
+                models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+                    if (!association) {
+                        e_c_r_a_team.destroy();
+                        var err = new Error();
+                        err.message = "Association not found."
+                        return error500(err, req, res, "/");
+                    }
 
-        // We have to find value in req.body that are linked to an hasMany or belongsToMany association
-        // because those values are not updated for now
-        model_builder.setAssocationManyValues(e_c_r_a_team, req.body, createObject, options);
+                    var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+                    if (typeof association['add' + modelName] !== 'undefined')
+                        association['add' + modelName](e_c_r_a_team.id);
+                    else {
+                        var obj = {};
+                        obj[req.body.associationForeignKey] = e_c_r_a_team.id;
+                        association.update(obj);
+                    }
+                });
+            }
 
-        res.redirect(redirect);
-    }).catch(function (err) {
-        error500(err, req, res, '/c_r_a_team/create_form');
+            // We have to find value in req.body that are linked to an hasMany or belongsToMany association
+            // because those values are not updated for now
+            model_builder.setAssocationManyValues(e_c_r_a_team, req.body, createObject, options);
+
+            res.redirect(redirect);
+        }).catch(function (err) {
+            error500(err, req, res, '/c_r_a_team/create_form');
+        });
     });
 });
 
