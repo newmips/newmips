@@ -12,7 +12,11 @@
       "f_notification_admin": "notification admin",
       "custom_button_declare": "Declare",
       "custom_button_admin_validate": "See declaration",
-      "as_r_c_r_a": "Activity Report"
+      "as_r_c_r_a": "Activity Report",
+      "validate": "Validate",
+      "export": "Export PDF",
+      "no_activities": "You don't have any activities. You need activities to declare your Activity report.",
+      "no_calendar_settings": "Your team didn't define its A.R settings. It is required to display working days."
     },
     "e_c_r_a_team": {
       "label_entity": "A.R Team",
@@ -53,7 +57,8 @@
       "f_description": "Description",
       "f_active": "Active",
       "as_r_default_c_r_a_activity": "Default A.R Activity",
-      "as_r_c_r_a_activity": "A.R Activity"
+      "as_r_c_r_a_activity": "A.R Activity",
+      "select_activity": "Select activity"
     },
     "e_c_r_a_client": {
       "label_entity": "A.R Client",

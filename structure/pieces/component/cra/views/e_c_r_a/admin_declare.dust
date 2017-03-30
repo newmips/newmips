@@ -15,43 +15,42 @@
         <div class="col-xs-12 connectedSortable">
             <div class="box">
                 <div class="box-header no-print">
-                    <h4>C.R.A</h4>
+                    <h4>{@__ key="entity.e_c_r_a.label"/}</h4>
                 </div>
                 <div class="box-body" style="text-align: center;">
 
                     <div id="craBox" class="craBlocks">
                         <div style="float:left;">
-                            User validated &nbsp;&nbsp; <i id="userValidIcon" class="fa fa-square-o fa-lg"></i>
+                            {@__ key="entity.e_c_r_a.f_user_validated"/} &nbsp;&nbsp; <i id="userValidIcon" class="fa fa-square-o fa-lg"></i>
                         </div>
                         <div style="float:left;margin-left:20px;">
-                            Admin validated &nbsp;&nbsp; <i id="adminValidIcon" class="fa fa-square-o fa-lg"></i>
+                            {@__ key="entity.e_c_r_a.f_admin_validated"/} &nbsp;&nbsp; <i id="adminValidIcon" class="fa fa-square-o fa-lg"></i>
                         </div>
                         <div>
-                            User login :{user.f_login}
-                            User email :{user.f_email}
-                            <a href="/user/show?id={user.id}">Show user</a>
+                            {@__ key="entity.e_user.label"/} {@__ key="entity.e_user.f_login"/} :{user.f_login}
+                            {@__ key="entity.e_user.label"/} {@__ key="entity.e_user.f_email"/} :{user.f_email}
                             <br>
-                            Month : <div id="month">{user.r_c_r_a[0].f_month}</div>
-                            Year : <div id="year">{user.r_c_r_a[0].f_year}</div>
+                            {@__ key="entity.e_c_r_a.f_month"/} : <div id="month">{user.r_c_r_a[0].f_month}</div>
+                            {@__ key="entity.e_c_r_a.f_year"/} : <div id="year">{user.r_c_r_a[0].f_year}</div>
                         </div>
                         <form id='craForm' method="post" action='/c_r_a/admin/update'>
                             <div id="cra"></div>
 
-                            Notification Admin
+                            {@__ key="entity.e_c_r_a.f_notification_admin"/}
                             <textarea id="notificationAdmin" class="regular-textarea" name="notificationAdmin">{user.r_c_r_a[0].f_notification_admin}</textarea>
                             <input type="hidden" name="id_cra" value="{user.r_c_r_a[0].id}">
                             <div id="buttonGroup" class="no-print">
-                                <button class="btn btn-primary" type="submit">Modifier</button>
-                                <button id="validateButton" class="btn btn-primary">Validate</button>
+                                <button class="btn btn-primary" type="submit">{@__ key="button.update"/}</button>
+                                <button id="validateButton" class="btn btn-primary">{@__ key="entity.e_c_r_a.validate"/}</button>
                             </div>
                             <div id="export" class="no-print" style="display:none;">
-                                <a href="/c_r_a/export/" target="_blank" class="btn btn-primary">Export PDF</a>
+                                <a href="/c_r_a/export/" target="_blank" class="btn btn-primary">{@__ key="entity.e_c_r_a.export"/}</a>
                             </div>
                         </form>
 
                         <div id="activitiesSelect" style="display:none;">
                             <select class="activitiesSelect">
-                                <option default value="0">Add activity</option>
+                                <option default value="0">{@__ key="entity.e_c_r_a_activity.select_activity"/}</option>
                                 {#activities}
                                     <option value="{id}">{f_name}</option>
                                 {/activities}
