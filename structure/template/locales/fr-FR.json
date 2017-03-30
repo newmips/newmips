@@ -89,7 +89,8 @@
         "settings": "Paramètres",
         "download": "Télécharger",
         "search": "Rechercher",
-        "send": "Envoyer"
+        "send": "Envoyer",
+        "validation": "Valider"
     },
     "operation": {
         "show": "Afficher une entité ",

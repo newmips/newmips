@@ -89,7 +89,8 @@
     	"settings": "Settings",
     	"download": "Download",
     	"search": "Search",
-    	"send": "Send"
+    	"send": "Send",
+    	"validation": "Validate"
 	},
 	"operation": {
 		"show": "Show entity ",

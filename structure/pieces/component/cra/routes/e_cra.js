@@ -62,11 +62,18 @@ function teamAdminMiddleware(req, res, next) {
         }]
     }).then(function(team) {
         if (!team) {
-            req.session.toastr.push({level: 'error', message: 'entity.e_cra_team.admin_only'});
-            return res.redirect('/default/cra');
+            if(req.originalUrl == "/cra/list" || req.originalUrl == "/cra/datalist"){
+                req.isAdmin = false;
+                next();
+            } else{
+                req.session.toastr.push({level: 'error', message: 'entity.e_cra_team.admin_only'});
+                return res.redirect('/default/cra');
+            }
+        } else{
+            req.isAdmin = true;
+            req.team = team;
+            next();
         }
-        req.team = team;
-        next();
     });
 }
 
@@ -78,32 +85,44 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
     data.toastr = req.session.toastr;
     req.session.toastr = [];
 
-    var idTeamUsers = [];
-    for (var i = 0; i < req.team.r_users.length; i++)
-        idTeamUsers.push(req.team.r_users[i].id);
+    if(req.isAdmin){
+        var idTeamUsers = [];
+        for (var i = 0; i < req.team.r_users.length; i++)
+            idTeamUsers.push(req.team.r_users[i].id);
 
-    models.E_cra.findAll({
-        where: {
-            f_id_user: {$in: idTeamUsers},
-            f_admin_validated: false,
-            f_user_validated: true
-        }
-    }).then(function(cra) {
-        data.cra = cra;
+        models.E_cra.findAll({
+            where: {
+                f_id_user: {$in: idTeamUsers},
+                f_admin_validated: false,
+                f_user_validated: true
+            }
+        }).then(function(cra) {
+            data.cra = cra;
+            res.render('e_cra/list', data);
+        });
+    } else{
+        data.noAdmin = true;
         res.render('e_cra/list', data);
-    });
+    }
 });
 
 router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options);
 
-    var idTeamUsers = [];
-    for (var i = 0; i < req.team.r_users.length; i++)
-        idTeamUsers.push(req.team.r_users[i].id);
+    var where = {};
+    if(req.isAdmin){
+        var idTeamUsers = [];
+        for (var i = 0; i < req.team.r_users.length; i++)
+            idTeamUsers.push(req.team.r_users[i].id);
 
-    var where = {
-        f_id_user: {$in: idTeamUsers}
+        where = {
+            f_id_user: {$in: idTeamUsers}
+        }
+    } else{
+        where = {
+            f_id_user: req.session.passport.user.id
+        }
     }
 
     filterDataTable("E_cra", req.body, include, where).then(function (data) {
@@ -333,12 +352,17 @@ router.get('/declare', block_access.actionAccessMiddleware("cra", 'read'), funct
                 as: 'r_default_cra_activity'
             }]
         }).then(function(team) {
-            if (!team)
+            if (!team){
+                data.noTeam = true;
                 return res.render('e_cra/declare', data);
+            }
+
+            // Remove activity that are in team default activity
             for (var i = 0; i < team.r_default_cra_activity.length; i++)
                 for (var j = 0; j < activities.length; j++)
                     if (team.r_default_cra_activity[i].id == activities[j].id)
                         activities.splice(j, 1);
+
             data.activities = activities;
             res.render('e_cra/declare', data);
         });

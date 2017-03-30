@@ -22,6 +22,7 @@
                     </div>
                 </div>
                 <div class="box-body" style="text-align: center;">
+                    {^noTeam}
                     <div id="craBox" class="craBlocks">
                         <div style="float:left;">
                             {@__ key="entity.e_cra.f_user_validated"/} &nbsp;&nbsp; <i id="userValidIcon" class="fa fa-square-o fa-lg"></i>
@@ -47,7 +48,7 @@
                                         <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
                                     </div>
                                     <div class="col-xs-2">
-                                        <button id="validateButton" data-url="/cra/declare/validate/" class="btn btn-primary">Validate</button>
+                                        <button id="validateButton" data-url="/cra/declare/validate/" class="btn btn-primary">{@__ key="button.validation"/}</button>
                                     </div>
                                 </div>
                                 <div id="export" class="craButtonGroup no-print" style="display: none;">
@@ -78,6 +79,11 @@
                             </select>
                         </div>
                     </div>
+                    {:else}
+                        <br>
+                        <b>{@__ key="entity.e_cra.noTeam"/}</b>
+                        <br><br><br>
+                    {/noTeam}
                 </div>
             </div>
         </div>
