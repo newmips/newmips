@@ -233,8 +233,10 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
                     as: 'r_default_cra_activity'
                 }]
             }).then(function(team) {
-                if (!team)
+                if (!team){
+                    data.noTeam = true;
                     return res.render('e_cra/declare', data);
+                }
                 for (var i = 0; i < team.r_default_cra_activity.length; i++)
                     for (var j = 0; j < activities.length; j++)
                         if (team.r_default_cra_activity[i].id == activities[j].id)
@@ -365,6 +367,53 @@ router.get('/declare', block_access.actionAccessMiddleware("cra", 'read'), funct
 
             data.activities = activities;
             res.render('e_cra/declare', data);
+        });
+    });
+});
+
+router.get('/getCra', block_access.actionAccessMiddleware("cra", 'read'), function(req, res) {
+    var data = {
+        menu: "e_cra",
+        sub_menu: "list_e_cra"
+    };
+
+    var id_cra = req.query.id;
+    models.E_user.findOne({
+        include: [{
+            model: models.E_cra,
+            as: 'r_cra',
+            where: {id: id_cra}
+        }]
+    }).then(function(user) {
+        if (!user)
+            return error500("Unable to find associated user", req, res);
+        data.user = user;
+        models.E_cra_activity.findAll({where: {f_active: true}}).then(function(activities) {
+            models.E_cra_team.findOne({
+                include: [{
+                    model: models.E_user,
+                    as: 'r_users',
+                    where: {id: user.id}
+                }, {
+                    model: models.E_cra_activity,
+                    as: 'r_default_cra_activity'
+                }]
+            }).then(function(team) {
+                if (!team){
+                    data.noTeam = true;
+                    return res.render('e_cra/declare', data);
+                }
+                for (var i = 0; i < team.r_default_cra_activity.length; i++)
+                    for (var j = 0; j < activities.length; j++)
+                        if (team.r_default_cra_activity[i].id == activities[j].id)
+                            activities.splice(j, 1);
+                data.activities = activities;
+
+                // Send year and month to dust to instanciate the good date on the CRA
+                data.yearCRA = user.r_cra[0].f_year;
+                data.monthCRA = user.r_cra[0].f_month;
+                res.render('e_cra/declare', data);
+            });
         });
     });
 });

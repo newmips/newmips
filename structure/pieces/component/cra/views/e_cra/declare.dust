@@ -99,5 +99,9 @@
     <script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/buttons/buttons.html5.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/buttons/buttons.print.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var yearCRA = "{yearCRA}";
+        var monthCRA = "{monthCRA}";
+    </script>
     <script src="/js/Newmips/component/cra.js" type="text/javascript"></script>
 {/custom_js}

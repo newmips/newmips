@@ -394,7 +394,6 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
     }).catch(function (err) {
         error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
-
 });
 
 module.exports = router;

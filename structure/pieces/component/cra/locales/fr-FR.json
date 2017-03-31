@@ -30,11 +30,11 @@
         "admin_only": "Vous devez être administrateur de votre équipe pour accéder à cette page."
     },
     "e_cra_calendar_settings": {
-        "label_entity": "Paramètres Calendrier",
-        "name_entity": "Paramètres Calendrier",
-        "plural_entity": "Paramètres Calendrier",
+        "label_entity": "Jours ouvrés",
+        "name_entity": "Jours ouvrés",
+        "plural_entity": "Jours ouvrés",
         "id_entity": "ID",
-        "as_r_cra_calendar_settings": "Paramètres Calendrier",
+        "as_r_cra_calendar_settings": "Jours ouvrés",
         "f_monday": "Lundi",
         "f_tuesday": "Mardi",
         "f_wednesday": "Mercredi",
@@ -44,11 +44,11 @@
         "f_sunday": "Dimanche"
     },
     "e_cra_calendar_exception": {
-        "label_entity": "Exception Calendrier",
-        "name_entity": "Exception Calendrier",
-        "plural_entity": "Exception Calendriers",
+        "label_entity": "Exception",
+        "name_entity": "Exception",
+        "plural_entity": "Exceptions",
         "id_entity": "ID",
-        "as_r_cra_calendar_exception": "Exception Calendrier",
+        "as_r_cra_calendar_exception": "Exception",
         "f_date": "Date"
     },
     "e_cra_activity": {
@@ -60,7 +60,7 @@
         "f_description": "Description",
         "f_client": "Client",
         "f_active": "Active",
-        "as_r_default_cra_activity": "Défaut Activités",
+        "as_r_default_cra_activity": "Activités par défaut",
         "as_r_cra_activity": "Activité",
         "select_activity": "Sélectionner une activité"
     },

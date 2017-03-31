@@ -21,8 +21,10 @@
                 {@__ key="entity.e_cra.f_admin_validated"/}
             </th>
             <th></th>
-            <th></th>
-            <th></th>
+            {^noAdmin}
+                <th></th>
+                <th></th>
+            {/noAdmin}
         </tr>
     </thead>
     <thead class="filters">
@@ -47,8 +49,10 @@
                 {@__ key="entity.e_cra.f_admin_validated"/}
             </th>
             <th></th>
-            <th></th>
-            <th></th>
+            {^noAdmin}
+                <th></th>
+                <th></th>
+            {/noAdmin}
         </tr>
     </thead>
     <tbody>
