@@ -245,8 +245,15 @@ $(function() {
             }
         });
     });
+
+    var dateCRA = new Date();
+
+    // Values instanciate in dust file with dust values
+    if(yearCRA != "" && monthCRA != "")
+        dateCRA = monthCRA+"-"+yearCRA;
+
     // Set default date
-    $("#monthYearPicker").datepicker('setDate', new Date());
+    $("#monthYearPicker").datepicker('setDate', dateCRA);
 
     // Bind previous and next button to change datepicker and display
     $("#previous, #next").click(function() {

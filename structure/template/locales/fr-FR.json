@@ -41,8 +41,8 @@
             "api_status": "Status de l'API",
             "api_doc": "Documentation de l'API",
             "action": {
-                "read": "Lire",
-                "write": "Ecrire",
+                "read": "Afficher",
+                "write": "Créer",
                 "delete": "Supprimer"
             }
         },

@@ -7,7 +7,7 @@
     <h1>{@__ key="module.m_cra"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.c.r.a"/}</li>
+        <li class="active">{@__ key="module.m_cra"/}</li>
     </ol>
 {/header}
 {<content}
@@ -104,31 +104,42 @@
             </div>
         </div>
     </div>
-    <div id="table_e_cra_show" style="display:none;">
-        <a href="/cra/show?id=">
-            <button class="btn btn-primary">
-                <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
-                <span>{@__ key="button.show" /}</span>
-            </button>
-        </a>
-    </div>
-    <div id="table_e_cra_update" style="display:none;">
-        <a href="/cra/admin?id=">
-            <button class="btn btn-primary">
-                <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
-                <span>{@__ key="entity.e_cra.custom_button_admin_validate" /}</span>
-            </button>
-        </a>
-    </div>
-    <div id="table_e_cra_delete" style="display:none;">
-        <form action="/cra/delete" method="post">
-            <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
-                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                <span>{@__ key="button.delete" /}</span>
-                <input name="id" type="hidden"/>
-            </button>
-        </form>
-    </div>
+    {^noAdmin}
+        <div id="table_e_cra_show" style="display:none;">
+            <a href="/cra/show?id=">
+                <button class="btn btn-primary">
+                    <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.show" /}</span>
+                </button>
+            </a>
+        </div>
+        <div id="table_e_cra_update" style="display:none;">
+            <a href="/cra/admin?id=">
+                <button class="btn btn-primary">
+                    <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="entity.e_cra.custom_button_admin_validate" /}</span>
+                </button>
+            </a>
+        </div>
+        <div id="table_e_cra_delete" style="display:none;">
+            <form action="/cra/delete" method="post">
+                <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
+                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.delete" /}</span>
+                    <input name="id" type="hidden"/>
+                </button>
+            </form>
+        </div>
+    {:else}
+        <div id="table_e_cra_show" style="display:none;">
+            <a href="/cra/getCra?id=">
+                <button class="btn btn-primary">
+                    <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="entity.e_cra.custom_button_admin_validate" /}</span>
+                </button>
+            </a>
+        </div>
+    {/noAdmin}
 {/content}
 {<custom_js}
     <!-- jQuery UI 1.10.3-->

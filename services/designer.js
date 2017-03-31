@@ -1497,6 +1497,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add field Date with type date",
             "add entity CRA Activity",
             "add field Name",
+            "set field Name required",
             "add field Description with type text",
             "add field Client",
             "add field Active with type boolean",
