@@ -19,6 +19,9 @@
 .closedDay{
     background-color: lightgrey;
 }
+thead{
+    cursor: pointer;
+}
 </style>
 {/custom_css}
 {<header}
@@ -39,7 +42,7 @@
                         <i class="fa fa-minus"></i></button>
                     </div>
                 </div>
-                <div class="box-body" style="overflow: auto;">
+                <div class="box-body primaryBox" style="overflow: auto;">
                     {^noTeam}
                         <div id="craBox" class="craBlocks">
                             <div class="col-xs-12 col-sm-6 text-left">
@@ -67,7 +70,7 @@
                                 </div>
                                 <div id="modifyValidate" class="craButtonGroup no-print" style="display: none;">
                                     <div class="col-xs-2">
-                                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                                        <button type="submit" class="btn btn-info">{@__ key="button.save"/}</button>
                                     </div>
                                     <div class="col-xs-2">
                                         <button id="validateButton" data-url="/cra/declare/validate/" class="btn btn-primary">{@__ key="button.validation"/}</button>
@@ -83,38 +86,46 @@
                         </div>
                         <div class="no-print">
                             <div id="noActivities" class="craBlocks" style="display: none;">
-                                <br>
-                                <b>{@__ key="entity.e_cra.no_activities"/}</b>
-                                <br><br><br>
+                                <div class="text-center">
+                                    <br>
+                                    <b>{@__ key="entity.e_cra.no_activities"/}</b>
+                                    <br><br><br>
+                                </div>
                             </div>
                             <div id="noSettings" class="craBlocks" style="display: none;">
-                                <br>
-                                <b>{@__ key="entity.e_cra.no_calendar_settings"/}</b>
-                                <br><br><br>
+                                <div class="text-center">
+                                    <br>
+                                    <b>{@__ key="entity.e_cra.no_calendar_settings"/}</b>
+                                    <br><br><br>
+                                </div>
                             </div>
                         </div>
                     {:else}
-                        <br>
-                        <b>{@__ key="entity.e_cra.noTeam"/}</b>
-                        <br><br><br>
+                        <div class="text-center">
+                            <br>
+                            <b>{@__ key="entity.e_cra.noTeam"/}</b>
+                            <br><br><br>
+                        </div>
                     {/noTeam}
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-6">
-            <div class="box">
-                <div class="box-header no-print">
-                    <h3 class="box-title">{@__ key="entity.e_cra.f_notification_admin"/}</h3>
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <i class="fa fa-minus"></i></button>
+        {^noTeam}
+            <div class="col-xs-12 col-sm-12 col-md-6 craBlocks">
+                <div class="box">
+                    <div class="box-header no-print">
+                        <h3 class="box-title">{@__ key="entity.e_cra.f_notification_admin"/}</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <textarea id="notificationAdmin" rows="5" class="regular-textarea" disabled></textarea>
                     </div>
                 </div>
-                <div class="box-body">
-                    <textarea id="notificationAdmin" rows="5" class="regular-textarea" disabled></textarea>
-                </div>
             </div>
-        </div>
+        {/noTeam}
     </div>
     {/content}
     {<custom_js}
