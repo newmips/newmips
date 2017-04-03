@@ -253,7 +253,8 @@
     "structure": {
         "global": {
             "restart": {
-                "success": "Le serveur a bien été redémarré!"
+                "success": "Le serveur a bien été redémarré!",
+                "error": "Impossible de démarrer le serveur suite à une erreur critique"
             },
             "gitPush": {
                 "success": "L'application a bien été sauvergardée!"
