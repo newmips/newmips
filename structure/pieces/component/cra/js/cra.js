@@ -213,6 +213,26 @@ function showButtonGroup(userValid, adminValid) {
 }
 
 $(function() {
+    /* Make the table horizontaly scrollable with mouse drag on it */
+    var x,y,top,left = 0,down;
+
+    $(document).on("mousedown", "thead", function(e){
+        e.preventDefault();
+        down=true;
+        x=e.pageX;
+        left=$(".primaryBox").scrollLeft();
+    });
+
+    $(document).on("mousemove", "thead", function(e){
+        if(down){
+            var newX=e.pageX;
+            $(".primaryBox").scrollLeft(left-newX+x);
+        }
+    });
+
+    $(document).on("mouseup", "thead", function(e){down=false;});
+    $(document).on("mouseleave", "thead", function(e){down=false;});
+
     // Initialize datepicker and bind change event
     $("#monthYearPicker").datepicker({
         format: 'mm-yyyy',
