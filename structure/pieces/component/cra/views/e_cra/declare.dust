@@ -63,26 +63,21 @@ thead{
                                 <div id="cra"></div>
                                 <input type="hidden" name="month">
                                 <input type="hidden" name="year">
+                                <br>
                                 <div id="save" class="craButtonGroup no-print" style="display: none;">
                                     <div class="col-xs-2">
                                         <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
                                     </div>
                                 </div>
                                 <div id="modifyValidate" class="craButtonGroup no-print" style="display: none;">
-                                    <div class="col-xs-2">
-                                        <button type="submit" class="btn btn-info">{@__ key="button.save"/}</button>
-                                    </div>
-                                    <div class="col-xs-2">
-                                        <button id="validateButton" data-url="/cra/declare/validate/" class="btn btn-primary">{@__ key="button.validation"/}</button>
-                                    </div>
+                                    <button type="submit" class="btn btn-info">{@__ key="button.save"/}</button>&nbsp;&nbsp;
+                                    <button id="validateButton" data-url="/cra/declare/validate/" class="btn btn-primary">{@__ key="button.validation"/}</button>
                                 </div>
                                 <div id="export" class="craButtonGroup no-print" style="display: none;">
-                                    <div class="col-xs-2">
-                                        <a href="/cra/export/" class="btn btn-primary">{@__ key="entity.e_cra.export"/}</a>
-                                    </div>
+                                    <a href="/cra/export/" class="btn btn-primary">{@__ key="entity.e_cra.export"/}</a>
                                 </div>
                             </form>
-                            <br><br>
+                            <br>
                         </div>
                         <div class="no-print">
                             <div id="noActivities" class="craBlocks" style="display: none;">
@@ -143,6 +138,8 @@ thead{
     var monthCRA = "{monthCRA}";
     var selectOptionArray = [];
     var defaultSelectText = '{@__ key="entity.e_cra_activity.select_activity"/}';
+    var saveMsg = '{@__ key="entity.e_cra.saveSuccess"/}';
+    var validateMsg = '{@__ key="entity.e_cra.validateSuccess"/}';
     </script>
     {#activities}
         <script type="text/javascript">

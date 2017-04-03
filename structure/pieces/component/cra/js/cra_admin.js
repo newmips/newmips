@@ -240,7 +240,7 @@ $(function() {
             method: $(this).attr('method'),
             data: $(this).serialize(),
             success: function(data) {
-                toastr.success('message.update.success');
+                toastr.success(saveMsg);
             }
         });
 
@@ -284,7 +284,7 @@ $(function() {
             url: '/cra/admin/validate/' + globalData.cra.id,
             success: function(data) {
                 showButtonGroup(true, true);
-                toastr.success('Validation successful');
+                toastr.success(validateMsg);
             },
             error: function(err, st, rest) {
                 toastr.error(err.responseText);

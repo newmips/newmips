@@ -94,6 +94,8 @@
     <script type="text/javascript">
     var selectOptionArray = [];
     var defaultSelectText = '{@__ key="entity.e_cra_activity.select_activity"/}';
+    var saveMsg = '{@__ key="entity.e_cra.saveSuccess"/}';
+    var validateMsg = '{@__ key="entity.e_cra.validateSuccess"/}';
     </script>
     {#activities}
         <script type="text/javascript">

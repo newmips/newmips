@@ -18,7 +18,9 @@
         "no_activities": "Vous n'avez pas d'activités. Vous avez besoin d'activités pour déclarer votre C.R.A",
         "no_calendar_settings": "Votre C.R.A équipe n'a pas définie son calendrier. Il est nécessaire pour afficher les jours de travail.",
         "waiting_validation_list": "C.R.A en attente de validation",
-        "noTeam": "Vous devez être associé à une équipe pour pouvoir déclarer votre C.R.A."
+        "noTeam": "Vous devez être associé à une équipe pour pouvoir déclarer votre C.R.A.",
+        "saveSuccess": "Le C.R.A a bien été sauvegarder.",
+        "validateSuccess": "Le C.R.A a bien été validé."
     },
     "e_cra_team": {
         "label_entity": "Équipe",

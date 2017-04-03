@@ -321,9 +321,9 @@ $(function() {
             data: $(this).serialize(),
             success: function(data) {
                 if (craExists)
-                    toastr.success('message.update.success');
+                    toastr.success(saveMsg);
                 else
-                    toastr.success('message.create.success');
+                    toastr.success(saveMsg);
                 if (data.action == 'created') {
                     $("#validateButton").data('url', '/cra/declare/validate/' + data.id_cra);
                     craExists = true;
@@ -375,7 +375,7 @@ $(function() {
             url: $(this).data('url'),
             success: function(data) {
                 showButtonGroup(true, false);
-                toastr.success('Validation successful');
+                toastr.success(validateMsg);
             },
             error: function(err, st, rest) {
                 toastr.error(err.responseText);
