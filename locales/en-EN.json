@@ -253,7 +253,8 @@
     "structure": {
         "global": {
             "restart": {
-                "success": "Server restarded!"
+                "success": "Server restarded!",
+                "error": "Couldn't start server due to critical error"
             },
             "gitPush": {
                 "success": "The application has been saved!"

@@ -53,7 +53,8 @@ block content
 								.box-body
 									div.responsive-iframe
 										img.iframe-ratio(src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7")
-										iframe(id="iframe", name="iframe", height="800px", width="600px", src="#{iframe_url}", webkitAllowFullScreen, mozallowfullscreen, allowFullScreen)
+										if iframe_url != -1
+											iframe(id="iframe", name="iframe", height="800px", width="600px", src="#{iframe_url}", webkitAllowFullScreen, mozallowfullscreen, allowFullScreen)
 									br
 					.col-xs-12.col-md-4.col-lg-3
 						// Chat box
