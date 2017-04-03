@@ -62,7 +62,7 @@
         "f_active": "Active",
         "as_r_default_cra_activity": "Default activities",
         "as_r_cra_activity": "Activity",
-        "select_activity": "Select activity"
+        "select_activity": "Select"
     },
     "e_cra_task": {
         "label_entity": "Task",
