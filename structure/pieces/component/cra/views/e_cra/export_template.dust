@@ -1,47 +1,86 @@
 <html>
-<head>
-
-</head>
-<body style="margin: 20px 20px 20px 20px;font-size: 11px !important;">
-	<div class="row">
-		<div class="col-xs-12">
-			<h4>Date : {cra.f_month}/{cra.f_year}</h4>
+	<head>
+		<meta content='text/html; charset=utf-8' http-equiv='Content-Type'/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<link href="https://fonts.googleapis.com/css?family=Nunito:400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+		<style>
+			body{
+				text-align: center;
+				font-family: Nunito;
+				margin: 0;
+			}
+			table{
+				font-size: 12px;
+				border: 1px solid grey;
+				border-radius: 3px;
+				padding: 5px;
+				width: 97%;
+				margin: auto;
+			}
+			.dayLetter{
+				font-size: 8px;
+			}
+			.daysTh{
+				width: 3%;
+			}
+			.activityTd{
+				display: block;
+ 				max-width: 15px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			td{
+				text-align: center;
+			}
+			.notifAdmin{
+				width: 50%;
+				margin: auto;
+			}
+			.notif{
+				width: 100%;
+				resize: none;
+				border-radius: 3px;
+				border: 1px solid grey;
+			}
+		</style>
+	</head>
+	<body>
+		<br>
+		<h1>{@__ key="entity.e_cra.label_entity" /}</h1>
+		<div>
+			Date: <b>{cra.f_month}/{cra.f_year}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
+			{@__ key="entity.e_user.label_entity" /}: <b>{user.f_login}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
+			{@__ key="entity.e_user.f_email" /}: <b>{user.f_email}</b>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-12">
-			<table class="table table-striped" style="max-width: 200px !important;">
-				<thead>
+		<br>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>{@__ key="entity.e_cra_activity.label_entity" /}</th>
+					{#daysAndLabels}
+						<th class="daysTh"><span class="dayLetter">{f_day}</span><br>{f_date}</th>
+					{/daysAndLabels}
+				</tr>
+			</thead>
+			<tbody>
+				{#activities}
 					<tr>
-						<td>Activities</td>
-						{#daysAndLabels}
-							<td>{f_day}<br>{f_date}</td>
-						{/daysAndLabels}
+						<td class="activityTd">{f_name}</td>
+						{#filledTasks}
+							<td class="task">{f_duration}</td>
+						{/filledTasks}
 					</tr>
-				</thead>
-				<tbody>
-					{#activities}
-						<tr>
-							<td>{f_name}</td>
-							{#filledTasks}
-								<td>{f_duration}</td>
-							{/filledTasks}
-						</tr>
-					{/activities}
-					<tr>
-						<td colspan="100">Total : {workedDays}/{cra.f_open_days_in_month}</td>
-					</tr>
-				</tbody>
-			</table>
+				{/activities}
+			</tbody>
+		</table>
+		<br>
+		Total: <b>{workedDays}/{cra.f_open_days_in_month}</b>
+		<br><br>
+		<div class="notifAdmin">
+			<label><b>{@__ key="entity.e_cra.f_notification_admin" /}</b></label><br>
+			<textarea rows="5" class="notif">{f_notification_admin}</textarea>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-12">
-			<div class="form-group">
-				<label>Notification</label>
-				<textarea class="form-control">{f_notification_admin}</textarea>
-			</div>
-		</div>
-	</div>
-</body>
+	</body>
 </html>

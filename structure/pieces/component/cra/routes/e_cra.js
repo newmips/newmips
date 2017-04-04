@@ -643,17 +643,22 @@ router.get('/getData/:month/:year', function(req, res) {
 router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
     var id_cra = req.params.id;
 
-    models.E_cra.findOne({
-        where: {id: id_cra},
+     models.E_user.findOne({
         include: [{
-            model: models.E_cra_task,
-            as: 'r_cra_task',
+            model: models.E_cra,
+            as: 'r_cra',
+            where: {id: id_cra},
             include: [{
-                model: models.E_cra_activity,
-                as: 'r_cra_activity'
+                model: models.E_cra_task,
+                as: 'r_cra_task',
+                include: [{
+                    model: models.E_cra_activity,
+                    as: 'r_cra_activity'
+                }]
             }]
         }]
-    }).then(function(cra) {
+    }).then(function(user) {
+        var cra = user.r_cra[0];
         var workedDays = cra.r_cra_task.length;
         var activitiesById = [];
         // Organize array with activity > tasks instead of tasks > activity
@@ -678,7 +683,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
             while (i++ < totalDays) {
                 var tmp = new Date(cra.f_year, cra.f_month-1, i);
                 if (daysAndLabels.length < totalDays)
-                    daysAndLabels.push({f_date: i, f_day: daysLabels[tmp.getDay()]})
+                    daysAndLabels.push({f_date: i, f_day: daysLabels[tmp.getDay()].substring(0, 3)})
                 activitiesById[acti].filledTasks.push({f_date: tmp, f_duration: ''});
             }
             for (var i = 0; i < activitiesById[acti].tasks.length; i++) {
@@ -699,13 +704,14 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
             activities: activities,
             daysAndLabels: daysAndLabels,
             workedDays: workedDays,
-            cra: cra
+            cra: cra,
+            user: user
         }, function(err, html) {
             if (err)
                 return error500(err, req, res);
 
             var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
-            pdf.create(html, {orientation: 'landscape'}).toFile(fileName, function(err, data) {
+            pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
                 if (err)
                     return error500(err, req, res);
                 fs.readFile(fileName, function(err, data) {
