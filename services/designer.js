@@ -1486,4 +1486,49 @@ exports.listSkin = function(attr, callback) {
     });
 }
 
+exports.listIcon = function(attr, callback) {
+    callback(null, {
+        message: "structure.ui.icon.list",
+        messageParams: ['http://fontawesome.io/icons']
+    });
+}
+
+exports.setIcon = function(attr, callback) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getNameModuleById(entity.id_module, function(err, moduleName) {
+            if (err)
+                return callback(err);
+
+            attr.module_name = moduleName;
+            attr.entity_name = entity.name;
+            structure_ui.setIcon(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            })
+        })
+    })
+}
+
+exports.setIconToEntity = function(attr, callback) {
+    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getNameModuleById(entity.id_module, function(err, moduleName) {
+            if (err)
+                return callback(err);
+
+            attr.module_name = moduleName;
+            attr.entity_name = entity.name;
+            structure_ui.setIcon(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            })
+        })
+    })
+}
+
 return designer;

@@ -73,3 +73,26 @@ exports.listSkin = function(attr, callback) {
     info.messageParams = [msgParams];
     callback(null, info);
 }
+
+exports.setIcon = function(attr, callback) {
+    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+    var layout_filename = 'layout_m_'+attr.module_name+'.dust';
+
+    var iconClass = attr.iconValue.split(' ').join('-');
+    domHelper.read(workspacePath+'/views/'+layout_filename).then(function($) {
+        var elementI = $("#"+attr.entity_name+'_menu_item').find('a:first').find('i:first');
+        elementI.removeClass();
+        elementI.addClass('fa').addClass('fa-'+iconClass);
+
+        domHelper.write(workspacePath+'/views/'+layout_filename, $).then(function() {
+
+            var info = {
+                message: "structure.ui.icon.success",
+                messageParams: [attr.entity_name, iconClass]
+            }
+            callback(null, info);
+        });
+    }).catch(function(err) {
+        callback(err);
+    });
+}
