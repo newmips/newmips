@@ -316,6 +316,10 @@
             "skin": {
                 "list": "Colorations disponibles:<br>%s<br>",
                 "cannotFind": "Impossible de trouver la coloration demandée. Colorations disponibles :<br>%s<br>"
+            },
+            "icon": {
+                "success": "L'entité %s a maintenant l'icône %s",
+                "list": "Suivez ce lien pour une liste complète des icônes disponibles:<br><a href='%s' target='_blank'>Font Awesome</a>"
             }
         }
     }

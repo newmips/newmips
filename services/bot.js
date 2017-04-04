@@ -656,6 +656,28 @@ exports.listSkin = function(result) {
     return attr;
 };
 
+exports.listIcon = function(result) {
+    return {function: 'listIcon'};
+}
+
+exports.setIcon = function(result) {
+    var attr = {
+        function: "setIcon",
+        iconValue: result[1]
+    };
+    return attr;
+}
+
+exports.setIconToEntity = function(result) {
+    var attr = {
+        function: "setIconToEntity",
+        iconValue: result[1],
+        entityTarget: result[2]
+    };
+
+    return attr;
+}
+
 // ******* Parse *******
 exports.parse = function(instruction) {
 
@@ -1113,6 +1135,35 @@ exports.parse = function(instruction) {
             "mettre la couleur (.*)",
             "appliquer la coloration (.*)",
             "mettre la coloration (.*)"
+        ],
+        "listIcon" : [
+            "list icon",
+            "list icons",
+            "lister les icones",
+            "lister icones",
+            "lister icone",
+            "lister icon",
+            "lister icônes",
+            "lister icône"
+        ],
+        "setIconToEntity": [
+            "set icon (.*) to entity (.*)",
+            "set icon (.*) on entity (.*)",
+            "set icon (.*) on (.*)",
+            "set icon (.*) to (.*)",
+            "mettre l'icône (.*) sur l'entité (.*)",
+            "mettre l'icone (.*) sur l'entité (.*)",
+            "mettre l'icone (.*) a l'entité (.*)",
+            "mettre l'icône (.*) à l'entité (.*)",
+            "mettre l'icône (.*) à (.*)",
+            "mettre l'icône (.*) sur (.*)",
+            "mettre l'icone (.*) à (.*)",
+            "mettre l'icone (.*) sur (.*)"
+        ],
+        "setIcon": [
+            "set icon (.*)",
+            "mettre l'icône (.*)",
+            "mettre l'icone (.*)"
         ]
     };
 
