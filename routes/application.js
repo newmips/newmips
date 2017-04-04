@@ -142,10 +142,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         data.chat = req.session.chat[id_application][currentUserID];
                         return res.render('front/preview', data);
                     }
-                    //Lets try to make a HTTPS GET request to modulus.io's website.
-                    //All we did here to make HTTPS call is changed the `http` to `https` in URL.
-                    // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
-                    // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
+
                     var iframe_status_url = protocol_iframe + '://';
                     if (globalConf.env == 'cloud')
                         iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
@@ -156,10 +153,8 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         "url": iframe_status_url,
                         "method": "GET"
                     }, function(error, response, body) {
-                        if (error) {
-                            console.log(error);
+                        if (error)
                             return setTimeout(checkServer, 100);
-                        }
 
                         //Check for right status code
                         if (response.statusCode !== 200) {
