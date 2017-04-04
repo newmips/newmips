@@ -436,3 +436,62 @@ exports.newAgenda = function(attr, callback){
 		});
 	});
 }
+
+exports.newCra = function(attr, callback){
+	try {
+        var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+        var piecesPath = __dirname+'/../structure/pieces/component/cra';
+
+        // Clean toSync file, add custom fields
+        var toSync = {};
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+
+        // Copy pieces
+        fs.copySync(piecesPath+'/routes/e_cra.js', workspacePath+'/routes/e_cra.js');
+        fs.copySync(piecesPath+'/routes/e_cra_team.js', workspacePath+'/routes/e_cra_team.js');
+        fs.copySync(piecesPath+'/views/e_cra/', workspacePath+'/views/e_cra/');
+        fs.copySync(piecesPath+'/views/e_cra_team/', workspacePath+'/views/e_cra_team/');
+        fs.copySync(piecesPath+'/views/layout_m_cra.dust', workspacePath+'/views/layout_m_cra.dust');
+        fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
+
+        // Replace locales
+        // fr-FR
+        var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
+        var frLocales = require(piecesPath+'/locales/fr-FR.json');
+        for (var entity in frLocales)
+            workspaceFrLocales.entity[entity] = frLocales[entity];
+        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+
+        // en-EN
+        var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
+        var enLocales = require(piecesPath+'/locales/en-EN.json');
+        for (var entity in enLocales)
+            workspaceEnLocales.entity[entity] = enLocales[entity];
+        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+
+        // Update user translations
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+
+        // Update module name
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "C.R.A");
+        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "A.R");
+
+        // Remove unwanted tab from user
+        domHelper.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
+            $("#r_cra-click").parents('li').remove();
+            $("#r_cra").remove();
+            domHelper.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
+                // Check activity activate field in create field
+                domHelper.read(workspacePath+'/views/e_cra_activity/create_fields.dust').then(function($) {
+                    $("input[name='f_active']").attr("checked", "checked");
+                    domHelper.write(workspacePath+'/views/e_cra_activity/create_fields.dust', $).then(function(){
+                        callback(null, {message: 'Module C.R.A created'});
+                    });
+                });
+            });
+        });
+    } catch(err) {
+        callback(err);
+    }
+}

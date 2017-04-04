@@ -316,6 +316,7 @@ img {
 .no-shadow {
   box-shadow: none!important;
 }
+
 /* Don't display when printing */
 @media print {
   .no-print {

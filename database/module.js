@@ -259,6 +259,14 @@ exports.getEntityListByModuleName = function(id_application, moduleName, callbac
     });
 }
 
+exports.getModuleByCodename = function(idApplication, codeName, callback) {
+    models.Module.findOne({where: {codeName: codeName, id_application: idApplication}}).then(function(module) {
+        callback(null, module);
+    }).catch(function(err){
+        callback(err, null);
+    });
+}
+
 exports.deleteModule = function(idApplication, moduleName, moduleShowName, callback) {
     models.Module.destroy({where: {codeName: moduleName, id_application: idApplication}}).then(function(){
         var info = {

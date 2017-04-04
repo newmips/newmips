@@ -28,7 +28,7 @@ var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
 var gitHelper = require("../utils/git_helper");
 
-var fs = require('fs');
+var fs = require('fs-extra');
 var sequelize = require('../models/').sequelize;
 
 /* --------------------------------------------------------------- */
@@ -1461,6 +1461,79 @@ exports.createNewComponentAgenda = function(attr, callback) {
                 });
             });
         }
+    });
+}
+
+// Component to create a C.R.A module
+exports.createNewComponentCra = function(attr, callback) {
+
+    var exportsContext = this;
+
+    // Check if component with this name is already created on this module
+    db_module.getModuleByCodename(attr.id_application, 'm_cra', function(err, module){
+        if(module){
+            var err = new Error();
+            err.message = "Sorry, a C.R.A module already exists.";
+            return callback(err, null);
+        }
+        var instructions = [
+            "add module CRA",
+            "add entity CRA Team",
+            "add field Name",
+            "set field Name required",
+            "add field id_admin_user",
+            "add fieldset Users related to user using login",
+            "entity CRA Team has one CRA Calendar Settings",
+            "select entity CRA Calendar Settings",
+            "add field Monday with type boolean",
+            "add field Tuesday with type boolean",
+            "add field Wednesday with type boolean",
+            "add field Thursday with type boolean",
+            "add field Friday with type boolean",
+            "add field Saturday with type boolean",
+            "add field Sunday with type boolean",
+            "entity CRA Team has many CRA Calendar Exception",
+            "select entity CRA Calendar Exception",
+            "add field Date with type date",
+            "add entity CRA Activity",
+            "add field Name",
+            "set field Name required",
+            "add field Description with type text",
+            "add field Client",
+            "add field Active with type boolean",
+            "select entity CRA Team",
+            "add fieldset Default CRA Activity related to CRA Activity using Name",
+            "add entity CRA",
+            "add field Month with type number",
+            "add field Year with type number",
+            "add field Open days in month with type number",
+            "add field User validated with type boolean",
+            "add field Admin validated with type boolean",
+            "add field Notification admin with type text",
+            "entity user has many CRA",
+            "entity CRA has many CRA Task",
+            "select entity CRA Task",
+            "add field Date with type date",
+            "add field Duration with type float",
+            "entity CRA Task has one CRA Activity",
+            "entity CRA has one user"
+        ];
+
+        // Start doing necessary instruction for component creation
+        exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+            if(err)
+                return callback(err, null);
+
+            // Add fieldset ID in user entity that already exist so toSync doesn't work
+            var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_cra_team_users` INT DEFAULT NULL;";
+            sequelize.query(request).then(function(){
+                structure_component.newCra(attr, function(err, infoStructure){
+                    if(err)
+                        return callback(err, null);
+                    callback(null, infoStructure);
+                });
+            });
+        });
     });
 }
 

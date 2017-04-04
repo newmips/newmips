@@ -1,0 +1,78 @@
+{
+    "e_cra": {
+        "label_entity": "Activity Report",
+        "name_entity": "Activity Report",
+        "plural_entity": "Activities Reports",
+        "id_entity": "ID",
+        "f_month": "Month",
+        "f_year": "Year",
+        "f_open_days_in_month": "Open days in month",
+        "f_user_validated": "User validated",
+        "f_admin_validated": "Admin validated",
+        "f_notification_admin": "Admin notification",
+        "custom_button_declare": "Declare",
+        "custom_button_admin_validate": "See declaration",
+        "as_r_cra": "Activity Report",
+        "validate": "Validate",
+        "export": "Export PDF",
+        "no_activities": "You don't have any activities. You need activities to declare your Activity report.",
+        "no_calendar_settings": "Your team didn't define its A.R settings. It is required to display working days.",
+        "waiting_validation_list": "Activity reports waiting for validation",
+        "noTeam": "You must be associated with a team in order to be able to declare your A.R.",
+        "saveSuccess": "A.R successfully saved!",
+        "validateSuccess": "A.R successfully validate."
+    },
+    "e_cra_team": {
+        "label_entity": "Team",
+        "name_entity": "Team",
+        "plural_entity": "Teams",
+        "id_entity": "ID",
+        "f_name": "name",
+        "f_id_admin_user": "ID Admin",
+        "admin_only": "You need to be admin of your A.R Team to access this page."
+    },
+    "e_cra_calendar_settings": {
+        "label_entity": "Working days",
+        "name_entity": "Working days",
+        "plural_entity": "Working days",
+        "id_entity": "ID",
+        "as_r_cra_calendar_settings": "Working days",
+        "f_monday": "Monday",
+        "f_tuesday": "Tuesday",
+        "f_wednesday": "Wednesday",
+        "f_thursday": "Thursday",
+        "f_friday": "Friday",
+        "f_saturday": "Saturday",
+        "f_sunday": "Sunday"
+    },
+    "e_cra_calendar_exception": {
+        "label_entity": "Exception",
+        "name_entity": "Exception",
+        "plural_entity": "Exceptions",
+        "id_entity": "ID",
+        "as_r_cra_calendar_exception": "Exception",
+        "f_date": "Date"
+    },
+    "e_cra_activity": {
+        "label_entity": "Activity",
+        "name_entity": "Activity",
+        "plural_entity": "Activities",
+        "id_entity": "ID",
+        "f_name": "Name",
+        "f_description": "Description",
+        "f_client": "Client",
+        "f_active": "Active",
+        "as_r_default_cra_activity": "Default activities",
+        "as_r_cra_activity": "Activity",
+        "select_activity": "Select"
+    },
+    "e_cra_task": {
+        "label_entity": "Task",
+        "name_entity": "Task",
+        "plural_entity": "Tasks",
+        "id_entity": "ID",
+        "as_r_cra_task": "Task",
+        "f_date": "Date",
+        "f_duration": "Duration"
+    }
+}

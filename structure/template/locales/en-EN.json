@@ -41,8 +41,8 @@
             "api_status": "API Status",
             "api_doc": "API Documentation",
 			"action":{
-				"read": "Read",
-				"write": "Write",
+				"read": "Show",
+				"write": "Create",
 				"delete": "Delete"
 			}
 		},
@@ -89,14 +89,15 @@
     	"settings": "Settings",
     	"download": "Download",
     	"search": "Search",
-    	"send": "Send"
+    	"send": "Send",
+    	"validation": "Validate"
 	},
 	"operation": {
 		"show": "Show entity ",
 		"update": "Modify entity ",
 		"create": "Create entity ",
 		"delete": "Delete entity ",
-		"list": "List all entities ",
+		"list": "List all ",
     	"add": "Add entity "
 	},
 	"message": {
