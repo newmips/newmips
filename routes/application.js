@@ -109,7 +109,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             if (process_server[application.id] == null) {
                 // Launch server for preview
                 process_server[application.id] = process_manager.launchChildProcess(application.id, env);
-                timer = 2000;
+                timer = 500;
             }
 
             // var protocol = globalConf.protocol;
@@ -134,8 +134,9 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 data.session = info;
                 data.workspaceFolder = initEditor(req.session.id_application);
 
+                var initialTimestamp = new Date().getTime();
                 function checkServer() {
-                    if (++serverCheckCount == 15) {
+                    if (new Date().getTime() - initialTimestamp > 15000) {
                         setChat(req, id_application, currentUserID, "Newmips", "structure.global.restart.error");
                         data.iframe_url = -1;
                         data.chat = req.session.chat[id_application][currentUserID];
@@ -191,7 +192,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 }
                 // Check server has started every 50 ms
                 console.log('Waiting for server to start');
-                setTimeout(checkServer, timer);
+                checkServer();
             });
         });
     }).catch(function(err) {
@@ -344,8 +345,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 data.session = info;
                                 data.workspaceFolder = initEditor(req.session.id_application);
 
+                                var initialTimestamp = new Date().getTime();
                                 function checkServer() {
-                                    if (++serverCheckCount == 15) {
+                                    if (new Date().getTime() - initialTimestamp > 15000) {
                                         // req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
                                         // return res.redirect('/default/home');
                                         data.iframe_url = -1;
@@ -394,7 +396,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 }
                                 // Check server has started
                                 console.log('Waiting for server to start');
-                                setTimeout(checkServer, timer);
+
+                                checkServer();
                             });
                         });
                     }
