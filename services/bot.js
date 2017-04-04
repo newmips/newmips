@@ -633,13 +633,6 @@ exports.createNewComponentAgendaWithName = function(result) {
     return checkAndCreateAttr("createNewComponentAgenda", options, value);
 };
 
-/* CRA */
-exports.createNewComponentCra = function(result) {
-    return {
-        function: "createNewComponentCra"
-    };
-};
-
 // ******* INTERFACE Actions ******* //
 exports.setSkin = function(result) {
 
@@ -1133,24 +1126,6 @@ exports.parse = function(instruction) {
             "créer une ligne de temps appelé (.*)",
             "ajouter une ligne de temps appelé (.*)"
         ],
-        "createNewComponentCra": [
-            "create component cra",
-            "add component cra",
-            "create component activity report",
-            "add component activity report",
-            "créer un composant cra",
-            "ajouter un composant cra",
-            "créer composant cra",
-            "ajouter composant cra",
-            "créer un composant rapport d'activité",
-            "ajouter un composant rapport d'activité",
-            "créer un composant compte-rendu d'activité",
-            "ajouter un composant compte-rendu d'activité",
-            "créer composant rapport d'activité",
-            "ajouter composant rapport d'activité",
-            "créer composant compte-rendu d'activité",
-            "ajouter composant compte-rendu d'activité"
-        ],
         "setSkin": [
             "set skin (.*)",
             "set color (.*)",
@@ -1218,7 +1193,7 @@ exports.parse = function(instruction) {
 
     var attr = {};
 
-    if(typeof instructionResult.action !== "undefined" && typeof this[instructionResult.action] !== 'undefined'){
+    if(typeof instructionResult.action !== "undefined"){
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
     }
