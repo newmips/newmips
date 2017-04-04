@@ -144,7 +144,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
         execute(req, recurInstructions[idx]).then(function(){
 
-            pourcent_generation[req.session.passport.user.id] = idx == 0 ? 5 : Math.floor(idx * 100 / recurInstructions.length);
+            pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
             recursiveExecute(recurInstructions, ++idx);
         }).catch(function(err){
             req.session.toastr = [{

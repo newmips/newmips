@@ -35,7 +35,7 @@ function error500(err, req, res, redirect) {
 
     } finally {
         if (isKnownError)
-            return res.redirect(redirect);
+            return res.redirect(redirect || '/');
         else
             console.error(err);
         logger.debug(err);
@@ -70,19 +70,14 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
         var enumsTranslation = enums.translated("ENTITY_NAME", req.session.lang_user);
-        for (var i = 0; i < data.data.length; i++) {
-            for (var field in data.data[i].dataValues) {
-                for (var enumField in enumsTranslation) {
-                    if (field == enumField) {
-                        for (var j = 0; j < enumsTranslation[enumField].length; j++) {
-                            if (data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value) {
+        for(var i=0; i<data.data.length; i++)
+            for(var field in data.data[i].dataValues)
+                for(var enumField in enumsTranslation)
+                    if(field == enumField)
+                        for(var j=0; j<enumsTranslation[enumField].length; j++)
+                            if(data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value)
                                 data.data[i].dataValues[enumField] = enumsTranslation[enumField][j].translation;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+
         res.send(data).end();
     }).catch(function (err) {
         console.log(err);
@@ -173,17 +168,13 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         }
 
         /* Modify ENTITY_NAME value with the translated enum value in show result */
-        for (var item in data.enum) {
-            for (var field in ENTITY_NAME.dataValues) {
-                if (item == field) {
-                    for (var value in data.enum[item]) {
-                        if (data.enum[item][value].value == ENTITY_NAME[field]) {
+        for (var item in data.enum)
+            for (var field in ENTITY_NAME.dataValues)
+                if (item == field)
+                    for (var value in data.enum[item])
+                        if (data.enum[item][value].value == ENTITY_NAME[field])
                             ENTITY_NAME[field] = data.enum[item][value].translation;
-                        }
-                    }
-                }
-            }
-        }
+
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         var associationsFinder = model_builder.associationsFinder(models, options);
@@ -267,37 +258,6 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
         // because those values are not updated for now
         model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options);
-
-        /*var foreignKeyArray = [];
-         var asArray = [];
-         for (var j = 0; j < options.length; j++) {
-         if (typeof options[j].foreignKey != "undefined")
-         foreignKeyArray.push(options[j].foreignKey.toLowerCase());
-         if (typeof options[j].as != "undefined")
-         asArray.push(options[j].as.toLowerCase());
-         }
-         
-         first: for (var prop in req.body) {
-         if (prop.indexOf('id_') != 0 && asArray.indexOf(prop.toLowerCase()) == -1)
-         continue;
-         //BELONGS TO with foreignKey naming
-         second: for (var i = 0; i < options.length; i++) {
-         if (typeof options[i].foreignKey != "undefined" && options[i].foreignKey == prop)
-         continue first;
-         }
-         if (foreignKeyArray.indexOf(prop.toLowerCase()) != -1)
-         continue;
-         
-         var target = prop.substr(3);
-         //HAS MANY with as naming
-         for (var k = 0; k < options.length; k++) {
-         if (typeof options[k].as != "undefined" && options[k].as.toLowerCase() == prop.toLowerCase())
-         target = options[k].as;
-         }
-         
-         target = target.charAt(0).toUpperCase() + target.toLowerCase().slice(1);
-         ENTITY_NAME['set' + target](req.body[prop]);
-         }*/
 
         res.redirect(redirect);
     }).catch(function (err) {
@@ -434,7 +394,6 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
     }).catch(function (err) {
         error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
-
 });
 
 module.exports = router;

@@ -41,8 +41,8 @@
             "api_status": "Status de l'API",
             "api_doc": "Documentation de l'API",
             "action": {
-                "read": "Lire",
-                "write": "Ecrire",
+                "read": "Afficher",
+                "write": "Créer",
                 "delete": "Supprimer"
             }
         },
@@ -89,14 +89,15 @@
         "settings": "Paramètres",
         "download": "Télécharger",
         "search": "Rechercher",
-        "send": "Envoyer"
+        "send": "Envoyer",
+        "validation": "Valider"
     },
     "operation": {
         "show": "Afficher une entité ",
         "update": "Modifier une entité ",
         "create": "Créer une entité ",
         "delete": "Supprimer une entité ",
-        "list": "Lister toutes les entités ",
+        "list": "Lister les ",
         "add": "Ajouter une entité "
     },
     "message": {

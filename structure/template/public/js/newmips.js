@@ -80,7 +80,7 @@ $(document).ready(function () {
     });
 
     /* --------------- Initialisation des CKEDITOR --------------- */
-    $("textarea").each(function () {
+    $("textarea:not(.regular-textarea)").each(function () {
         CKEDITOR.replace($(this).attr("id"));
     });
 
@@ -157,9 +157,9 @@ $(document).ready(function () {
     $('td[data-type="boolean"]').each(function () {
         var val = $(this).html();
         if (val == 'true' || val == '1')
-            $(this).html('<i class="fa fa-check-square-o fa-lg"></i>"');
+            $(this).html('<i class="fa fa-check-square-o fa-lg"></i>');
         else
-            $(this).html('<i class="fa fa-square-o fa-lg"></i>"');
+            $(this).html('<i class="fa fa-square-o fa-lg"></i>');
     });
 
     /* After good format -> Date / Datetime instanciation */
@@ -443,7 +443,6 @@ $(document).ready(function () {
 
                     });
                 })
-
             },
             renameFilename: function (filename) {
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
