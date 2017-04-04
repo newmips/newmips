@@ -116,51 +116,59 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             var protocol_iframe = globalConf.protocol_iframe;
             var host = globalConf.host;
 
-            function checkServer() {
-                if (++serverCheckCount == 150)
-                    throw new Error("Server couldn't start");
-                //Lets try to make a HTTPS GET request to modulus.io's website.
-                //All we did here to make HTTPS call is changed the `http` to `https` in URL.
-                // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
-                // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
-                var iframe_status_url = protocol_iframe + '://';
-                if (globalConf.env == 'cloud')
-                    iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
-                else
-                    iframe_status_url += host + ":" + port + "/status";
-                request({
-                    "rejectUnauthorized": false,
-                    "url": iframe_status_url,
-                    "method": "GET"
-                }, function(error, response, body) {
-                    if (error)
-                        return setTimeout(checkServer, 100);
+            var attr = new Array();
+            attr.id_project = req.session.id_project;
+            attr.id_application = req.session.id_application;
+            attr.id_module = req.session.id_module;
+            attr.id_data_entity = req.session.id_data_entity;
+            attr.currentUser = req.session.passport.user;
 
-                    //Check for right status code
-                    if (response.statusCode !== 200) {
-                        console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                        return setTimeout(checkServer, 100);
+            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+                attr.gitlabUser = req.session.gitlab.user;
+            else
+                attr.gitlabUser = null;
+
+            session_manager.getSession(attr, function(err, info) {
+                docBuilder.build(req.session.id_application);
+
+                data.session = info;
+                data.workspaceFolder = initEditor(req.session.id_application);
+
+                function checkServer() {
+                    if (++serverCheckCount == 15) {
+                        setChat(req, id_application, currentUserID, "Newmips", "structure.global.restart.error");
+                        data.iframe_url = -1;
+                        data.chat = req.session.chat[id_application][currentUserID];
+                        return res.render('front/preview', data);
                     }
-
-                    //All is good. Print the body
-                    console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
-
-                    var attr = new Array();
-                    attr.id_project = req.session.id_project;
-                    attr.id_application = req.session.id_application;
-                    attr.id_module = req.session.id_module;
-                    attr.id_data_entity = req.session.id_data_entity;
-                    attr.currentUser = req.session.passport.user;
-
-                    if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                        attr.gitlabUser = req.session.gitlab.user;
+                    //Lets try to make a HTTPS GET request to modulus.io's website.
+                    //All we did here to make HTTPS call is changed the `http` to `https` in URL.
+                    // request("http://127.0.0.1:" + port + "/status", function (error, response, body) {
+                    // request(protocol + "://" + host + ":" + port + "/status", function (error, response, body) {
+                    var iframe_status_url = protocol_iframe + '://';
+                    if (globalConf.env == 'cloud')
+                        iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
                     else
-                        attr.gitlabUser = null;
+                        iframe_status_url += host + ":" + port + "/status";
+                    request({
+                        "rejectUnauthorized": false,
+                        "url": iframe_status_url,
+                        "method": "GET"
+                    }, function(error, response, body) {
+                        if (error) {
+                            console.log(error);
+                            return setTimeout(checkServer, 100);
+                        }
 
-                    session_manager.getSession(attr, function(err, info) {
-                        docBuilder.build(req.session.id_application);
+                        //Check for right status code
+                        if (response.statusCode !== 200) {
+                            console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                            return setTimeout(checkServer, 100);
+                        }
 
-                        data.session = info;
+                        //All is good. Print the body
+                        console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
+
                         data.error = 0;
                         data.application = module;
 
@@ -171,7 +179,6 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             iframe_home_url += host + ":" + port + "/default/home";
 
                         data.iframe_url = iframe_home_url;
-                        data.workspaceFolder = initEditor(req.session.id_application);
 
                         // Let's do git init or commit depending the env (only on cloud env for now)
                         gitHelper.doGit(attr, function(err){
@@ -181,12 +188,11 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             res.render('front/preview', data);
                         });
                     });
-                });
-            }
-
-            // Check server has started every 50 ms
-            console.log('Waiting for server to start');
-            setTimeout(checkServer, timer);
+                }
+                // Check server has started every 50 ms
+                console.log('Waiting for server to start');
+                setTimeout(checkServer, timer);
+            });
         });
     }).catch(function(err) {
         data.code = 500;
@@ -304,9 +310,10 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
                     if (attr.function == 'restart')
                         toRedirectRestart = true;
-
-                    // Generator answer
-                    setChat(req, currentAppID, currentUserID, "Newmips", info.message, info.messageParams);
+                    else {
+                        // Generator answer
+                        setChat(req, currentAppID, currentUserID, "Newmips", info.message, info.messageParams);
+                    }
 
                     var sessionID = req.sessionID;
                     var timer = 50;
@@ -324,47 +331,51 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                             // Launch a new server instance to reload resources
                             process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
-                            function checkServer() {
-                                if (++serverCheckCount == 150) {
-                                    req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
-                                    return res.redirect('/default/home');
-                                }
+                            // Load session values
+                            var newAttr = {};
+                            newAttr.id_project = req.session.id_project;
+                            newAttr.id_application = req.session.id_application;
+                            newAttr.id_module = req.session.id_module;
+                            newAttr.id_data_entity = req.session.id_data_entity;
 
-                                var iframe_status_url = protocol_iframe + '://';
-                                if (globalConf.env == 'cloud')
-                                    iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
-                                else
-                                    iframe_status_url += host + ":" + port + "/status";
-                                request({
-                                    "rejectUnauthorized": false,
-                                    "url": iframe_status_url,
-                                    "method": "GET"
-                                }, function(error, response, body) {
-                                    //Check for error
-                                    if (error)
-                                        return setTimeout(checkServer, 100);
+                            session_manager.getSession(newAttr, function(err, info) {
 
-                                    //Check for right status code
-                                    if (response.statusCode !== 200) {
-                                        console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                        return setTimeout(checkServer, 100);
+                                docBuilder.build(req.session.id_application);
+                                data.session = info;
+                                data.workspaceFolder = initEditor(req.session.id_application);
+
+                                function checkServer() {
+                                    if (++serverCheckCount == 15) {
+                                        // req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
+                                        // return res.redirect('/default/home');
+                                        data.iframe_url = -1;
+                                        setChat(req, currentAppID, currentUserID, "Newmips", "structure.global.restart.error");
+                                        data.chat = req.session.chat[currentAppID][currentUserID];
+                                        return res.render('front/preview', data);
                                     }
 
-                                    //All is good. Print the body
-                                    console.log("Server status is OK");
+                                    var iframe_status_url = protocol_iframe + '://';
+                                    if (globalConf.env == 'cloud')
+                                        iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
+                                    else
+                                        iframe_status_url += host + ":" + port + "/status";
+                                    request({
+                                        "rejectUnauthorized": false,
+                                        "url": iframe_status_url,
+                                        "method": "GET"
+                                    }, function(error, response, body) {
+                                        //Check for error
+                                        if (error)
+                                            return setTimeout(checkServer, 100);
 
-                                    // Load session values
-                                    var newAttr = {};
-                                    newAttr.id_project = req.session.id_project;
-                                    newAttr.id_application = req.session.id_application;
-                                    newAttr.id_module = req.session.id_module;
-                                    newAttr.id_data_entity = req.session.id_data_entity;
+                                        //Check for right status code
+                                        if (response.statusCode !== 200) {
+                                            console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                            return setTimeout(checkServer, 100);
+                                        }
 
-                                    session_manager.getSession(newAttr, function(err, info) {
-
-                                        docBuilder.build(req.session.id_application);
-                                        data.session = info;
-                                        data.workspaceFolder = initEditor(req.session.id_application);
+                                        //All is good. Print the body
+                                        console.log("Server status is OK");
 
                                         if(toRedirectRestart){
                                             return res.redirect("/application/preview?id_application="+newAttr.id_application);
@@ -380,12 +391,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                             });
                                         }
                                     });
-                                });
-                            }
-
-                            // Check server has started
-                            console.log('Waiting for server to start');
-                            setTimeout(checkServer, timer);
+                                }
+                                // Check server has started
+                                console.log('Waiting for server to start');
+                                setTimeout(checkServer, timer);
+                            });
                         });
                     }
                     else{

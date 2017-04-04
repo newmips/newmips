@@ -4,6 +4,7 @@ var block_access = require('../utils/block_access');
 var access_helper = require('../utils/access_helper');
 var dust = require('dustjs-linkedin');
 var fs = require('fs');
+var language = require('../services/language')('fr-FR');
 
 // Datalist
 var filterDataTable = require('../utils/filterDataTable');
@@ -39,8 +40,12 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
                 // Access_settings isn't an entity
                 if(values.modules[i].entities[j].name == "access_settings")
                     values.modules[i].entities[j].tradKeyEntity = "settings.title";
-                else
-                    values.modules[i].entities[j].tradKeyEntity = "entity.e_"+values.modules[i].entities[j].name+".label_entity";
+                else {
+                    var key = "entity.e_"+values.modules[i].entities[j].name+".label_entity";
+                    if (language.__(key) == key)
+                        key = "component.c_"+values.modules[i].entities[j].name+".label_component";
+                    values.modules[i].entities[j].tradKeyEntity = key;
+                }
             }
         }
 
