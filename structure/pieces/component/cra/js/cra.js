@@ -260,7 +260,7 @@ $(function() {
                 data.year = year;
                 // CRA already exists
                 if (data.craExists) {
-                    $("notificationAdmin").text(data.cra.f_notification_admin || '');
+                    $("#notificationAdmin").text(data.cra.f_notification_admin || '');
                     $("#notificationAdminToPrint").text(data.cra.f_notification_admin);
                     $("#craForm").attr('action', '/cra/declare/update');
                     $("#validateButton").data('url', '/cra/declare/validate/' + data.cra.id);
@@ -272,7 +272,7 @@ $(function() {
                 }
                 // CRA doesn't exists
                 else {
-                    $("notificationAdmin").text('');
+                    $("#notificationAdmin").text('');
                     $("#craForm").attr('action', '/cra/declare/create');
                     $("#cra").html(generateEmptyCRA(data));
                     generateAddActivityRow(data);
