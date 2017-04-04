@@ -700,28 +700,37 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         }
 
         var dustSrc = fs.readFileSync(__dirname+'/../views/e_cra/export_template.dust', 'utf8');
-        dust.renderSource(dustSrc, {
-            activities: activities,
-            daysAndLabels: daysAndLabels,
-            workedDays: workedDays,
-            cra: cra,
-            user: user
-        }, function(err, html) {
-            if (err)
-                return error500(err, req, res);
-
-            var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
-            pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
+        models.E_cra_team.findOne({
+            include: [{
+                model: models.E_user,
+                as: 'r_users',
+                where: {id: user.id}
+            }]
+        }).then(function(team) {
+            dust.renderSource(dustSrc, {
+                activities: activities,
+                daysAndLabels: daysAndLabels,
+                workedDays: workedDays,
+                cra: cra,
+                user: user,
+                team: team
+            }, function(err, html) {
                 if (err)
                     return error500(err, req, res);
-                fs.readFile(fileName, function(err, data) {
+
+                var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
+                pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
                     if (err)
                         return error500(err, req, res);
-                    res.writeHead(200, {"Content-Type": "application/pdf"});
-                    res.write(data);
-                    res.end();
+                    fs.readFile(fileName, function(err, data) {
+                        if (err)
+                            return error500(err, req, res);
+                        res.writeHead(200, {"Content-Type": "application/pdf"});
+                        res.write(data);
+                        res.end();
 
-                    fs.unlinkSync(fileName);
+                        fs.unlinkSync(fileName);
+                    });
                 });
             });
         });

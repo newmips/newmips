@@ -52,7 +52,8 @@
 		<div>
 			Date: <b>{cra.f_month}/{cra.f_year}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
 			{@__ key="entity.e_user.label_entity" /}: <b>{user.f_login}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
-			{@__ key="entity.e_user.f_email" /}: <b>{user.f_email}</b>
+			{@__ key="entity.e_user.f_email" /}: <b>{user.f_email}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
+			{@__ key="entity.e_cra_team.label_entity" /}: <b>{team.f_name}</b>
 		</div>
 		<br>
 		<table class="table">
