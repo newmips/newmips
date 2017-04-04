@@ -254,7 +254,7 @@
         "global": {
             "restart": {
                 "success": "Server restarded!",
-                "error": "Couldn't start server due to critical error"
+                "error": "Couldn't start server due to critical error."
             },
             "gitPush": {
                 "success": "The application has been saved!"
