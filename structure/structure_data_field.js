@@ -2,16 +2,32 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
+var moment = require("moment");
 
-function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values) {
+function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
     var dataField = nameDataField.toLowerCase();
     var dataEntity = nameDataEntity.toLowerCase();
 
     var value = "";
     var value2 = "";
+
     if (file != "create") {
         value = "{" + dataField + "}";
         value2 = dataField;
+    } else if(defaultValue != null){
+        if(type == "date"){
+            if(moment(defaultValue, "YYYY-MM-DD", true).isValid()){
+                value = moment(defaultValue, "YYYY-MM-DD").format("YYYY-MM-DD");
+            } else if(moment(defaultValue, "DD/MM/YYYY", true).isValid()){
+                value = moment(defaultValue, "DD/MM/YYYY").format("YYYY-MM-DD");
+            } else if(["today", "now", "aujourd'hui"].indexOf(defaultValue.toLowerCase()) != -1){
+                value = moment().format("YYYY-MM-DD");
+            } else{
+                console.log("ERROR: Invalide date '"+defaultValue+"' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
+            }
+        } else{
+            value = defaultValue;
+        }
     }
 
     readOnly = readOnly ? "readOnly" : "";
@@ -98,21 +114,22 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		</div>\n";
                 str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
                 str += "	</div>\n";
-            } else if (file == "update") {
+            } else if (file == "update" || file == "create") {
                 str += "	<div class='input-group'>\n";
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-calendar'></i>\n";
                 str += "		</div>\n";
                 str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
                 str += "	</div>\n";
-            } else if (file == "create") {
+            }
+            /*else if (file == "create") {
                 str += "	<div class='input-group'>\n";
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-calendar'></i>\n";
                 str += "		</div>\n";
-                str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
+                str += "		<input class='form-control input datepicker' value='" + value + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
                 str += "	</div>\n";
-            }
+            }*/
             break;
         case "time" :
         case "heure" :
@@ -250,18 +267,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	</div>\n";
             }
             break;
-//        case "img":
-//        case "picture":
-//        case "image":
-//            if (file != 'show') {
-//                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-//                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
-//            } else {
-//                str += "	<div class='input-group'>\n";
-//                str += "		<img src=img/"+dataEntity+"/"+value.split('-')[0]+'/'+ value + " class='img img-responsive' alt="+value+" name=" + dataField + "  " + readOnly + "/>\n";
-//                str += "	</div>\n";
-//            }
-//            break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
@@ -350,7 +355,11 @@ exports.setupDataField = function (attr, callback) {
     var options = attr.options;
 
     var name_data_field = options.value;
-    var show_name_data_field = attr.options.showValue;
+    var show_name_data_field = options.showValue;
+    var defaultValue = null;
+
+    if(typeof options.defaultValue !== "undefined")
+        defaultValue = options.defaultValue;
 
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
@@ -494,12 +503,6 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "STRING";
             typeForDatalist = "file";
             break;
-//        case "img":
-//        case "image":
-//        case "picture":
-//            typeForModel = "STRING";
-//            typeForDatalist = "picture";
-//            break;
         case "cloudfile" :
             typeForModel = "STRING";
             break;
@@ -557,13 +560,13 @@ exports.setupDataField = function (attr, callback) {
     /* ----------------- 4 - Add the fields in all the views  ----------------- */
     var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + codeName_data_entity.toLowerCase();
     /* Update the show_fields.dust file with a disabled input */
-    var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field);
+    var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field, defaultValue);
     updateFile(fileBase, "show_fields", stringToWrite, function () {
         /* Update the create_fields.dust file */
-        stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field);
+        stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field, defaultValue);
         updateFile(fileBase, "create_fields", stringToWrite, function () {
             /* Update the update_fields.dust file */
-            stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field);
+            stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field, defaultValue);
             updateFile(fileBase, "update_fields", stringToWrite, function () {
                 /* Update the list_fields.dust file */
                 stringToWrite = getFieldInHeaderListHtml(typeForDatalist, name_data_field, codeName_data_entity);
