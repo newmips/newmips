@@ -26,6 +26,7 @@ var attrHelper = require('../utils/attr_helper');
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
         var userId = req.session.passport.user.id;
+        var __ = require("../services/language")(req.session.lang_user).__;
         try {
 
             /* Lower the first word for the basic parser jison */
@@ -53,8 +54,6 @@ function execute(req, instruction) {
                 throw new Error(attr.error);
 
             return designer[attr.function](attr, function(err, info) {
-
-                var __ = require("../services/language")(req.session.lang_user).__;
 
                 if (err) {
                     // Error handling code goes here
