@@ -199,24 +199,36 @@ exports.createNewDataField = function(result) {
 
     // Field name has not been defined
     var value = result[1];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[2] !== "undefined")
+        defaultValue = result[2];
+
     var options = {
         value: value,
+        defaultValue: defaultValue,
         processValue: true
     };
 
     return checkAndCreateAttr("createNewDataField", options, value);
-
 };
 
 exports.createNewDataFieldWithType = function(result) {
 
     var value = result[1];
     var type = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     // Preparing Options
     var options = {
         value: value,
         type: type,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -226,13 +238,18 @@ exports.createNewDataFieldWithType = function(result) {
 exports.createNewDataFieldWithTypeEnum = function(result) {
 
     var value = result[1];
-    var type = "enum";
     var allValues = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     var options = {
         value: value,
-        type: type,
+        type: "enum",
         allValues: allValues,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -242,13 +259,18 @@ exports.createNewDataFieldWithTypeEnum = function(result) {
 exports.createNewDataFieldWithTypeRadio = function(result) {
 
     var value = result[1];
-    var type = "radio";
     var allValues = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     var options = {
         value: value,
-        type: type,
+        type: "radio",
         allValues: allValues,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -850,7 +872,24 @@ exports.parse = function(instruction) {
             "créer un champ (.*) de type enum avec les valeurs (.*)",
             "ajouter champ (.*) de type enum avec les valeurs (.*)",
             "ajouter un champ (.*) de type enum avec les valeurs (.*)",
-            "ajouter le champ (.*) de type enum avec les valeurs (.*)"
+            "ajouter le champ (.*) de type enum avec les valeurs (.*)",
+            "create field (.*) with type enum and values (.*) and default value (.*)",
+            "create data field (.*) with type enum and values (.*) and default value (.*)",
+            "add field (.*) with type enum and values (.*) and default value (.*)",
+            "add data field (.*) with type enum and values (.*) and default value (.*)",
+            "create field (.*) with type enum with values (.*) and default value (.*)",
+            "create data field (.*) with type enum with values (.*) and default value (.*)",
+            "add field (.*) with type enum with values (.*) and default value (.*)",
+            "add data field (.*) with type enum with values (.*) and default value (.*)",
+            "create field (.*) with type enum and values (.*) with default value (.*)",
+            "create data field (.*) with type enum and values (.*) with default value (.*)",
+            "add field (.*) with type enum and values (.*) with default value (.*)",
+            "add data field (.*) with type enum and values (.*) with default value (.*)",
+            "créer champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)"
         ],
         "createNewDataFieldWithTypeRadio": [
             "create field (.*) with type radio and values (.*)",
@@ -861,7 +900,24 @@ exports.parse = function(instruction) {
             "créer un champ (.*) de type radio avec les valeurs (.*)",
             "ajouter champ (.*) de type radio avec les valeurs (.*)",
             "ajouter un champ (.*) de type radio avec les valeurs (.*)",
-            "ajouter le champ (.*) de type radio avec les valeurs (.*)"
+            "ajouter le champ (.*) de type radio avec les valeurs (.*)",
+            "create field (.*) with type radio with values (.*) and default value (.*)",
+            "create data field (.*) with type radio with values (.*) and default value (.*)",
+            "add field (.*) with type radio with values (.*) and default value (.*)",
+            "add data field (.*) with type radio with values (.*) and default value (.*)",
+            "create field (.*) with type radio and values (.*) with default value (.*)",
+            "create data field (.*) with type radio and values (.*) with default value (.*)",
+            "add field (.*) with type radio and values (.*) with default value (.*)",
+            "add data field (.*) with type radio and values (.*) with default value (.*)",
+            "create field (.*) with type radio and values (.*) and default value (.*)",
+            "create data field (.*) with type radio and values (.*) and default value (.*)",
+            "add field (.*) with type radio and values (.*) and default value (.*)",
+            "add data field (.*) with type radio and values (.*) and default value (.*)",
+            "créer champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter le champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)"
         ],
         "createNewDataFieldWithType": [
             "create field (.*) with type (.*)",
@@ -872,7 +928,16 @@ exports.parse = function(instruction) {
             "créer un champ (.*) de type (.*)",
             "ajouter champ (.*) de type (.*)",
             "ajouter un champ (.*) de type (.*)",
-            "ajouter le champ (.*) de type (.*)"
+            "ajouter le champ (.*) de type (.*)",
+            "create field (.*) with type (.*) and default value (.*)",
+            "create data field (.*) with type (.*) and default value (.*)",
+            "add field (.*) with type (.*) and default value (.*)",
+            "add data field (.*) with type (.*) and default value (.*)",
+            "créer champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "créer un champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "ajouter champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "ajouter un champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "ajouter le champ (.*) de type (.*) avec la valeur par défaut (.*)"
         ],
         "createNewDataField": [
             "create field ?(.*)",
@@ -883,7 +948,20 @@ exports.parse = function(instruction) {
             "créer un champ (.*)",
             "ajouter champ (.*)",
             "ajouter un champ (.*)",
-            "ajouter le champ (.*)"
+            "ajouter le champ (.*)",
+            "create field ?(.*) and default value (.*)",
+            "create data field (.*) and default value (.*)",
+            "add field (.*) and default value (.*)",
+            "add data field (.*) and default value (.*)",
+            "create field ?(.*) with default value (.*)",
+            "create data field (.*) with default value (.*)",
+            "add field (.*) with default value (.*)",
+            "add data field (.*) with default value (.*)",
+            "créer champ (.*) avec la valeur par défaut (.*)",
+            "créer un champ (.*) avec la valeur par défaut (.*)",
+            "ajouter champ (.*) avec la valeur par défaut (.*)",
+            "ajouter un champ (.*) avec la valeur par défaut (.*)",
+            "ajouter le champ (.*) avec la valeur par défaut (.*)"
         ],
         "deleteProject": [
             "delete project (.*)",
@@ -1224,7 +1302,7 @@ exports.parse = function(instruction) {
     };
 
     var instructionResult = {
-        insctructionLength: 0
+        instructionLength: 0
     };
 
     for (var action in training) {
@@ -1234,13 +1312,12 @@ exports.parse = function(instruction) {
 
             var result = regExp.exec(instruction);
             if (result !== null){
-
                 /* Get the most complicated instruction found */
-                if(instructionResult.insctructionLength < regStr.length){
+                if(instructionResult.instructionLength < regStr.length){
                     instructionResult = {
                         action: action,
                         result: result,
-                        insctructionLength: regStr.length
+                        instructionLength: regStr.length
                     };
                 }
             }
