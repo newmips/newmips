@@ -51,10 +51,10 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             case "boolean" :
             case "checkbox" :
             case "case à cocher" :
-                if(["true", "vrai", "1", "checked", "coché"].indexOf(defaultValue.toLowerCase()) != -1){
+                if(["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1){
                     value = true;
                 }
-                else if(["false", "faux", "0", "unchecked", "non coché"].indexOf(defaultValue.toLowerCase()) != -1){
+                else if(["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1){
                     value = false;
                 }
                 else{
@@ -253,7 +253,15 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
         case "radio" :
         case "case à sélectionner" :
-            if (file != "create") {
+            if (file == "create") {
+                for (var i = 0; i < values.length; i++) {
+                    str += "    &nbsp;\n<br>\n";
+                    if(values[i] == defaultValue)
+                        str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' checked type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
+                    else
+                        str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
+                }
+            } else {
                 for (var i = 0; i < values.length; i++) {
                     str += "	&nbsp;\n<br>\n";
                     str += "	{@eq key=" + value2 + " value=\"" + values[i] + "\" }";
@@ -261,11 +269,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     str += "	{:else}";
                     str += "		<input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
                     str += "	{/eq}";
-                }
-            } else {
-                for (var i = 0; i < values.length; i++) {
-                    str += "	&nbsp;\n<br>\n";
-                    str += "	<input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
                 }
             }
             break;
