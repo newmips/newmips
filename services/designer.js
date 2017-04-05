@@ -1575,14 +1575,14 @@ exports.setIcon = function(attr, callback) {
                 return callback(err);
 
             attr.module_name = moduleName;
-            attr.entity_name = entity.name;
+            attr.entity = entity;
             structure_ui.setIcon(attr, function(err, info) {
                 if (err)
                     return callback(err);
                 callback(null, info);
-            })
-        })
-    })
+            });
+        });
+    });
 }
 
 exports.setIconToEntity = function(attr, callback) {
@@ -1594,14 +1594,45 @@ exports.setIconToEntity = function(attr, callback) {
                 return callback(err);
 
             attr.module_name = moduleName;
-            attr.entity_name = entity.name;
+            attr.entity = entity;
             structure_ui.setIcon(attr, function(err, info) {
                 if (err)
                     return callback(err);
                 callback(null, info);
-            })
-        })
-    })
+            });
+        });
+    });
 }
+
+exports.createWidgetOnEntity = function(attr, callback) {
+    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+        if (err)
+            return callback(err);
+        attr.id_data_entity = entity.id;
+        createWidget(attr, callback);
+    });
+}
+
+function createWidget(attr, callback) {
+    if (attr.widgetType == -1)
+        return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+
+            attr.module = module;
+            attr.entity = entity;
+            structure_ui.createWidget(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            });
+        });
+    });
+}
+exports.createWidget = createWidget;
 
 return designer;

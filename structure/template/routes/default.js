@@ -4,7 +4,7 @@ var router = express.Router();
 var block_access = require('../utils/block_access');
 var languageConfig = require('../config/language');
 var message = "";
-var global = require('../config/global');
+var globalConf = require('../config/global');
 var multer = require('multer');
 var fs = require('fs');
 var fse = require('fs-extra');
@@ -12,6 +12,7 @@ var moment = require("moment");
 var crypto = require('../utils/crypto_helper');
 var webdav_conf = require('../config/webdav');
 var upload = multer().single('file');
+var models = require('../models/');
 
 /* Connect WebDav with webdav-fs */
 var wfs = require("webdav-fs")(
@@ -19,23 +20,6 @@ var wfs = require("webdav-fs")(
         webdav_conf.user_name,
         webdav_conf.password
         );
-
-/* ------- TUTO TOASTR -------- */
-/*
- // Création d'un toastr
- req.session.toastr = [{
- message: "Vos informations ont bien été mises à jours.",
- level: "success" // error / info / success / warning
- }];
- 
- */
-/*
- // Récupération des toastr en session
- data.toastr = req.session.toastr;
- 
- // Nettoyage de la session
- req.session.toastr = [];
- */
 
 // ===========================================
 // Redirection Home =====================
@@ -68,7 +52,7 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                 var folder = req.file.originalname.split('-');
                 var dataEntity = req.body.dataEntity;
                 if (folder.length && !!dataEntity) {
-                    var basePath = global.localstorage + dataEntity + '/' + folder[0] + '/';
+                    var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
                     fse.mkdirs(basePath, function (err) {
                         if (!err) {
                             var uploadPath = basePath + req.file.originalname;
@@ -105,7 +89,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
             var partOfFilepath = filepath.split('-');
             if (partOfFilepath.length) {
                 var base = partOfFilepath[0];
-                var completeFilePath = global.localstorage + entity + '/' + base + '/' + filepath;
+                var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filepath;
                 res.download(completeFilePath, filepath, function (err) {
                     if (err)
                         reject(err);
@@ -137,7 +121,7 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
         var partOfFilepath = filename.split('-');
         if (partOfFilepath.length) {
             var base = partOfFilepath[0];
-            var completeFilePath = global.localstorage + entity + '/' + base + '/' + filename;
+            var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filename;
             fs.unlink(completeFilePath, function (err) {
                 if (!err) {
                     req.session.toastr.push({level: 'success', message: "message.delete.success"});

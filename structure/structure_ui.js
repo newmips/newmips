@@ -80,19 +80,75 @@ exports.setIcon = function(attr, callback) {
 
     var iconClass = attr.iconValue.split(' ').join('-');
     domHelper.read(workspacePath+'/views/'+layout_filename).then(function($) {
-        var elementI = $("#"+attr.entity_name+'_menu_item').find('a:first').find('i:first');
+        var elementI = $("#"+attr.entity.codeName.substring(2)+'_menu_item').find('a:first').find('i:first');
         elementI.removeClass();
-        elementI.addClass('fa').addClass('fa-'+iconClass);
+        elementI.addClass('fa fa-'+iconClass);
 
         domHelper.write(workspacePath+'/views/'+layout_filename, $).then(function() {
 
             var info = {
                 message: "structure.ui.icon.success",
-                messageParams: [attr.entity_name, iconClass]
+                messageParams: [attr.entity.name, iconClass]
             }
-            callback(null, info);
+
+            domHelper.read(workspacePath+'/views/default/m_'+attr.module_name+'.dust').then(function($) {
+                $('i.'+attr.entity.codeName.substring(2)+'-icon').removeClass().addClass('fa fa-'+iconClass+' '+attr.entity.codeName.substring(2)+'-icon');
+                domHelper.write(workspacePath+'/views/default/m_'+attr.module_name+'.dust', $).then(function() {
+                    callback(null, info);
+                });
+            });
         });
     }).catch(function(err) {
         callback(err);
+    });
+}
+
+// REGEX USEFUL FOR WIDGET DELETION
+// var regexString = "([^]*)(\/\/ \*\*\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" start \| Do not remove \*\*\*)([^]*)(\/\/ \*\*\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" end \| Do not remove \*\*\*)([^]*)";
+// defaultFile = defaultFile.replace(regexString, '$1$2\n\t'+insertCode+'\n\t$4$5')
+
+exports.createWidget = function(attr, callback) {
+    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+    var piecesPath = __dirname+'/pieces/';
+
+    // Add widget's query to routes/default controller
+    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
+    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
+    var insertCode = '';
+    insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
+    insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
+    insertCode += "\t\tmodels."+modelName+'.count().then(function(result){\n';
+    insertCode += "\t\t\tresolve({"+attr.widgetType+attr.entity.codeName+': result});\n';
+    insertCode += "\t\t});\n";
+    insertCode += "\t}));\n";
+    insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
+    insertCode += "\t// *** Widget module "+attr.module.codeName+" | Do not remove ***\n";
+
+    insertCode = defaultFile.replace("// *** Widget module "+attr.module.codeName+" | Do not remove ***", insertCode);
+    fs.writeFileSync(workspacePath+'/routes/default.js', insertCode);
+
+    var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
+    // Add widget to module's layout
+    domHelper.read(layout_view_filename).then(function($) {
+        domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
+            var widgetElemId = attr.widgetType+'_'+attr.entity.name+'_widget';
+
+            var newHtml = "";
+            newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += "<div id='"+widgetElemId+"' class='col-xs-4'>\n"
+            newHtml +=      $2("body")[0].innerHTML+"\n";
+            newHtml += "</div>";
+            newHtml += '<!--{/entityAccess}-->';
+            newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
+            newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
+
+            $("#widgets").append(newHtml);
+            domHelper.write(layout_view_filename, $).then(function() {
+                callback(null, {message: "structure.ui.widget.success", messageParams: [attr.widgetInputType, attr.module.name]});
+            }).catch(function(err) {
+                console.log(err)
+                callback(err);
+            });
+        });
     });
 }

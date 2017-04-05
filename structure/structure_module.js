@@ -23,10 +23,15 @@ exports.setupModule = function(attr, callback) {
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
         str += '// '+name_module+'\n';
         str += 'router.get(\'/'+url_name_module.toLowerCase()+'\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("'+url_name_module+'"), function(req, res) {\n';
-        str += '    var data = {\n';
-        str += '        profile:req.session.data\n';
-        str += '    };\n';
-        str += '    res.render(\'default/'+name_module.toLowerCase()+'\', data);\n';
+        str += '    var widgetPromises = [];\n'
+        str += '    // *** Widget module '+name_module.toLowerCase()+' | Do not remove ***\n';
+        str += '    Promise.all(widgetPromises).then(function(results) {\n';
+        str += '        var data = {};\n';
+        str += '        for (var i = 0; i < results.length; i++)\n';
+        str += '            for (var prop in results[i])\n';
+        str += '                data[prop] = results[i][prop];\n';
+        str += '        res.render(\'default/'+name_module.toLowerCase()+'\', data);\n';
+        str += '    });\n';
         str += '});\n';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
@@ -34,7 +39,6 @@ exports.setupModule = function(attr, callback) {
             if (err){
                 return callback(err, null);
             }
-            //console.log('File => routes/default.js ------------------ UPDATED');
 
             // Create views/default/MODULE_NAME.dust file
             var fileToCreate = __dirname + '/../workspace/'+id_application+'/views/default/'+name_module.toLowerCase()+'.dust';

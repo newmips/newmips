@@ -678,6 +678,46 @@ exports.setIconToEntity = function(result) {
     return attr;
 }
 
+function getRightWidgetType(originalType) {
+    switch (originalType) {
+        case "boîte d'information":
+        case "info box":
+        case "info":
+        case "information":
+            return "info";
+        case "boîte de statistiques":
+        case "stats box":
+        case "stats":
+        case "stat":
+        case "statistique":
+            return "stats";
+        default:
+            return -1;
+    }
+}
+exports.createWidgetOnEntity = function(result) {
+    var originalType = result[1];
+    var finalType = getRightWidgetType(originalType);
+
+    return {
+        function: 'createWidgetOnEntity',
+        widgetInputType: originalType,
+        widgetType: finalType,
+        entityTarget: result[2]
+    }
+}
+
+exports.createWidget = function(result) {
+    var originalType = result[1];
+    var finalType = getRightWidgetType(originalType);
+
+    return {
+        function: 'createWidget',
+        widgetInputType: originalType,
+        widgetType: finalType
+    }
+}
+
 // ******* Parse *******
 exports.parse = function(instruction) {
 
@@ -1164,6 +1204,22 @@ exports.parse = function(instruction) {
             "set icon (.*)",
             "mettre l'icône (.*)",
             "mettre l'icone (.*)"
+        ],
+        "createWidgetOnEntity": [
+            "créer une (.*) sur l'entité (.*)",
+            "créer un widget (.*) sur l'entité (.*)",
+            "ajouter une (.*) sur l'entité (.*)",
+            "ajouter un widget (.*) sur l'entité (.*)",
+            "add widget (.*) on entity (.*)",
+            "create widget (.*) on entity (.*)"
+        ],
+        "createWidget": [
+            "add widget (.*)",
+            "create widget (.*)",
+            "ajouter une (.*)",
+            "ajouter un widget (.*)",
+            "créer une (.*)",
+            "créer un widget (.*)"
         ]
     };
 

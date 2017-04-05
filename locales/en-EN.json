@@ -320,6 +320,10 @@
             "icon": {
                 "success": "Entity %s now have icon %s",
                 "list": "Follow this link to see the icon list:<br><a href='%s' target='_blank'>Font Awesome</a>"
+            },
+            "widget": {
+                "unknown": "Unknown widget %s",
+                "success": "Widget %s added to module %s"
             }
         }
     }
