@@ -238,13 +238,18 @@ exports.createNewDataFieldWithType = function(result) {
 exports.createNewDataFieldWithTypeEnum = function(result) {
 
     var value = result[1];
-    var type = "enum";
     var allValues = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     var options = {
         value: value,
-        type: type,
+        type: "enum",
         allValues: allValues,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -254,13 +259,18 @@ exports.createNewDataFieldWithTypeEnum = function(result) {
 exports.createNewDataFieldWithTypeRadio = function(result) {
 
     var value = result[1];
-    var type = "radio";
     var allValues = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     var options = {
         value: value,
-        type: type,
+        type: "radio",
         allValues: allValues,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -833,7 +843,16 @@ exports.parse = function(instruction) {
             "créer un champ (.*) de type radio avec les valeurs (.*)",
             "ajouter champ (.*) de type radio avec les valeurs (.*)",
             "ajouter un champ (.*) de type radio avec les valeurs (.*)",
-            "ajouter le champ (.*) de type radio avec les valeurs (.*)"
+            "ajouter le champ (.*) de type radio avec les valeurs (.*)",
+            "create field (.*) with type radio and values (.*) and default value (.*)",
+            "create data field (.*) with type radio and values (.*) and default value (.*)",
+            "add field (.*) with type radio and values (.*) and default value (.*)",
+            "add data field (.*) with type radio and values (.*) and default value (.*)",
+            "créer champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter le champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)"
         ],
         "createNewDataFieldWithType": [
             "create field (.*) with type (.*)",
