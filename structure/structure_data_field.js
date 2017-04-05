@@ -279,20 +279,31 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum." + dataField + "}\n";
-                str += "			{@eq key=" + value2 + " value=\"{.value}\" }";
+                str += "			{@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "				<option value=\"{.translation}\" selected> {.translation} </option>\n";
-                str += "			{:else}"
+                str += "			{:else}\n"
                 str += "				<option value=\"{.translation}\"> {.translation} </option>\n";
-                str += "			{/eq}"
+                str += "			{/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
-            } else {
+            } else if(value != ""){
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum." + dataField + "}\n";
-                str += "			<option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "            {@eq key=\"" + value + "\" value=\"{.value}\" }\n";
+                str += "                <option value=\"{.translation}\" selected> {.translation} </option>\n";
+                str += "            {:else}\n"
+                str += "                <option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "            {/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
+            } else{
+                str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+                str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
+                str += "        {#enum." + dataField + "}\n";
+                str += "            <option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "        {/enum." + dataField + "}\n";
+                str += "    </select>";
             }
             break;
         case "text" :
