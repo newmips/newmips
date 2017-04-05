@@ -8,6 +8,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     var dataField = nameDataField.toLowerCase();
     var dataEntity = nameDataEntity.toLowerCase();
 
+    /* Value in input managment */
     var value = "";
     var value2 = "";
 
@@ -15,25 +16,60 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         value = "{" + dataField + "}";
         value2 = dataField;
     } else if(defaultValue != null){
-        if(type == "date"){
-            if(moment(defaultValue, "YYYY-MM-DD", true).isValid()){
-                value = moment(defaultValue, "YYYY-MM-DD").format("YYYY-MM-DD");
-            } else if(moment(defaultValue, "DD/MM/YYYY", true).isValid()){
-                value = moment(defaultValue, "DD/MM/YYYY").format("YYYY-MM-DD");
-            } else if(["today", "now", "aujourd'hui"].indexOf(defaultValue.toLowerCase()) != -1){
-                value = moment().format("YYYY-MM-DD");
-            } else{
-                console.log("ERROR: Invalide date '"+defaultValue+"' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
-            }
-        } else{
-            value = defaultValue;
+        switch (type) {
+            case "number" :
+            case "nombre" :
+            case "int" :
+            case "integer" :
+                defaultValue = defaultValue.replace(/\.|\,/g, "");
+                if(!isNaN(defaultValue))
+                    value = defaultValue;
+                else
+                    console.log("ERROR: Invalid default value "+defaultValue+" for number input.")
+                break;
+            case "decimal" :
+            case "double" :
+            case "float" :
+            case "figures" :
+                defaultValue = defaultValue.replace(/\,/g, ".");
+                if(!isNaN(defaultValue))
+                    value = defaultValue;
+                else
+                    console.log("ERROR: Invalid default value "+defaultValue+" for decimal input.")
+                break;
+            case "date" :
+                if(moment(defaultValue, "YYYY-MM-DD", true).isValid()){
+                    value = moment(defaultValue, "YYYY-MM-DD").format("YYYY-MM-DD");
+                } else if(moment(defaultValue, "DD/MM/YYYY", true).isValid()){
+                    value = moment(defaultValue, "DD/MM/YYYY").format("YYYY-MM-DD");
+                } else if(["today", "now", "aujourd'hui"].indexOf(defaultValue.toLowerCase()) != -1){
+                    value = moment().format("YYYY-MM-DD");
+                } else{
+                    console.log("ERROR: Invalide date '"+defaultValue+"' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
+                }
+                break;
+            case "boolean" :
+            case "checkbox" :
+            case "case à cocher" :
+                if(["true", "vrai", "1", "checked", "coché"].indexOf(defaultValue.toLowerCase()) != -1){
+                    value = true;
+                }
+                else if(["false", "faux", "0", "unchecked", "non coché"].indexOf(defaultValue.toLowerCase()) != -1){
+                    value = false;
+                }
+                else{
+                    console.log("ERROR: Invalid default value "+defaultValue+" for boolean input.")
+                }
+            break;
+            default :
+                value = defaultValue;
+                break;
         }
     }
 
-    readOnly = readOnly ? "readOnly" : "";
-
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
+    readOnly = readOnly ? "readOnly" : "";
 
     var str = "<div data-field='" + dataField + "' class='form-group'>\n";
     str += "\t<label for='" + dataField + "'> {@__ key=\"entity." + dataEntity + "." + dataField + "\"/} </label>\n";
@@ -200,12 +236,20 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "boolean" :
         case "checkbox" :
         case "case à cocher" :
-            str += "	&nbsp;\n<br>\n";
-            str += "	{@ifTrue key=" + dataField + "}";
-            str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
-            str += "	{:else}";
-            str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
-            str += "	{/ifTrue}";
+            str += "    &nbsp;\n<br>\n";
+            if (file == "create") {
+                if(value === true){
+                    str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' checked />\n";
+                } else{
+                    str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' />\n";
+                }
+            } else{
+                str += "	{@ifTrue key=" + dataField + "}";
+                str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
+                str += "	{:else}";
+                str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
+                str += "	{/ifTrue}";
+            }
             break;
         case "radio" :
         case "case à sélectionner" :
