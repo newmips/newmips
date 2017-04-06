@@ -740,6 +740,22 @@ exports.createWidget = function(result) {
     }
 }
 
+exports.deleteWidget = function(result) {
+    return {
+        function: 'deleteWidget',
+        widgetType: getRightWidgetType(result[1]),
+        widgetInputType: result[1],
+        entityTarget: result[2]
+    }
+}
+
+exports.deleteEntityWidgets = function(result) {
+    return {
+        function: 'deleteEntityWidgets',
+        entityTarget: result[1]
+    }
+}
+
 // ******* Parse *******
 exports.parse = function(instruction) {
 
@@ -1298,6 +1314,18 @@ exports.parse = function(instruction) {
             "ajouter un widget (.*)",
             "créer une (.*)",
             "créer un widget (.*)"
+        ],
+        "deleteWidget": [
+            "delete widget (.*) of entity (.*)",
+            "delete widget (.*) for entity (.*)",
+            "delete widget (.*) of (.*)",
+            "delete widget (.*) for (.*)"
+        ],
+        "deleteEntityWidgets": [
+            "delete widgets of (.*)",
+            "delete widgets of entity (.*)",
+            "delete all widgets of entity (.*)",
+            "delete all widgets of (.*)"
         ]
     };
 

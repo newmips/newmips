@@ -76,7 +76,7 @@ exports.listSkin = function(attr, callback) {
 
 exports.setIcon = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
-    var layout_filename = 'layout_m_'+attr.module_name+'.dust';
+    var layout_filename = 'layout_'+attr.module.codeName+'.dust';
 
     var iconClass = attr.iconValue.split(' ').join('-');
     domHelper.read(workspacePath+'/views/'+layout_filename).then(function($) {
@@ -91,9 +91,9 @@ exports.setIcon = function(attr, callback) {
                 messageParams: [attr.entity.name, iconClass]
             }
 
-            domHelper.read(workspacePath+'/views/default/m_'+attr.module_name+'.dust').then(function($) {
+            domHelper.read(workspacePath+'/views/default/'+attr.module.codeName+'.dust').then(function($) {
                 $('i.'+attr.entity.codeName.substring(2)+'-icon').removeClass().addClass('fa fa-'+iconClass+' '+attr.entity.codeName.substring(2)+'-icon');
-                domHelper.write(workspacePath+'/views/default/m_'+attr.module_name+'.dust', $).then(function() {
+                domHelper.write(workspacePath+'/views/default/'+attr.module.codeName+'.dust', $).then(function() {
                     callback(null, info);
                 });
             });
@@ -102,10 +102,6 @@ exports.setIcon = function(attr, callback) {
         callback(err);
     });
 }
-
-// REGEX USEFUL FOR WIDGET DELETION
-// var regexString = "([^]*)(\/\/ \*\*\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" start \| Do not remove \*\*\*)([^]*)(\/\/ \*\*\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" end \| Do not remove \*\*\*)([^]*)";
-// defaultFile = defaultFile.replace(regexString, '$1$2\n\t'+insertCode+'\n\t$4$5')
 
 exports.createWidget = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
@@ -127,28 +123,63 @@ exports.createWidget = function(attr, callback) {
     insertCode = defaultFile.replace("// *** Widget module "+attr.module.codeName+" | Do not remove ***", insertCode);
     fs.writeFileSync(workspacePath+'/routes/default.js', insertCode);
 
-    var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
-    // Add widget to module's layout
-    domHelper.read(layout_view_filename).then(function($) {
-        domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
-            var widgetElemId = attr.widgetType+'_'+attr.entity.name+'_widget';
+    var layout_filename = 'layout_'+attr.module.codeName+'.dust';
+    // Get entity's icon
+    domHelper.read(workspacePath+'/views/'+layout_filename).then(function($) {
+        var entityIconClass = $("#"+attr.entity.codeName.substring(2)+'_menu_item').find('a:first').find('i:first').attr('class');
+        var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
 
-            var newHtml = "";
-            newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-4'>\n"
-            newHtml +=      $2("body")[0].innerHTML+"\n";
-            newHtml += "</div>";
-            newHtml += '<!--{/entityAccess}-->';
-            newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
-            newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
+        // Add widget to module's layout
+        domHelper.read(layout_view_filename).then(function($) {
+            domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
+                var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
 
-            $("#widgets").append(newHtml);
-            domHelper.write(layout_view_filename, $).then(function() {
-                callback(null, {message: "structure.ui.widget.success", messageParams: [attr.widgetInputType, attr.module.name]});
-            }).catch(function(err) {
-                console.log(err)
-                callback(err);
+                // Create widget's html
+                var newHtml = "";
+                newHtml += "<div id='"+widgetElemId+"' class='col-xs-4'>\n"
+                newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+                newHtml +=      $2("body")[0].innerHTML+"\n";
+                newHtml += '<!--{/entityAccess}-->';
+                newHtml += "</div>";
+                newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
+                newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
+                $("#widgets").append(newHtml);
+
+                // Set entity's icon class to widget
+                $('i.'+attr.entity.codeName.substring(2)+'-icon').removeClass().addClass(entityIconClass+' '+attr.entity.codeName.substring(2)+'-icon');
+
+                domHelper.write(layout_view_filename, $).then(function() {
+                    callback(null, {message: "structure.ui.widget.success", messageParams: [attr.widgetInputType, attr.module.name]});
+                }).catch(function(err) {
+                    console.log(err)
+                    callback(err);
+                });
             });
         });
+    });
+}
+
+exports.deleteWidget = function(attr, callback) {
+    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+
+    // Delete from controller
+    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
+    var regex = new RegExp("([^]*)(\\/\\/ \\*\\*\\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" start \\| Do not remove \\*\\*\\*)([^]*)(\\/\\/ \\*\\*\\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" end \\| Do not remove \\*\\*\\*)([^]*)", "g");
+    defaultFile = defaultFile.replace(regex, '$1\n\t$5');
+    fs.writeFileSync(workspacePath+'/routes/default.js', defaultFile, 'utf8');
+
+    // Delete from view
+    domHelper.read(workspacePath+'/views/default/'+attr.module.codeName+'.dust').then(function($) {
+        var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
+        // It is possible to have the same widgetType for the same entity
+        // It results in a duplication of the ID, so we loop until there is none left
+        while ($("#"+widgetElemId).length > 0)
+            $("#"+widgetElemId).remove();
+
+        domHelper.write(workspacePath+'/views/default/'+attr.module.codeName+'.dust', $).then(function() {
+            callback(null, {message: "structure.ui.widget.delete", messageParams: [attr.widgetInputType]});
+        });
+    }).catch(function(e) {
+        callback(e);
     });
 }
