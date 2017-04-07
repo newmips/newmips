@@ -13,6 +13,7 @@ var crypto = require('../utils/crypto_helper');
 var webdav_conf = require('../config/webdav');
 var upload = multer().single('file');
 var models = require('../models/');
+var Jimp = require("jimp");
 
 /* Connect WebDav with webdav-fs */
 var wfs = require("webdav-fs")(
@@ -20,6 +21,40 @@ var wfs = require("webdav-fs")(
         webdav_conf.user_name,
         webdav_conf.password
         );
+
+// m_authentication
+router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
+    var data = {
+        profile: req.session.data
+    };
+    res.render('default/m_authentication', data);
+});
+
+
+// m_home
+router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function (req, res) {
+    var data = {
+        profile: req.session.data
+    };
+    res.render('default/m_home', data);
+});
+
+
+// Page non autorisée
+router.get('/unauthorized', function (req, res) {
+    res.render('common/unauthorized');
+});
+
+/* Fonction de changement du language */
+router.post('/change_language', function (req, res) {
+    req.session.lang_user = req.body.lang;
+    res.locals.lang_user = req.body.lang;
+    languageConfig.lang = req.body.lang;
+    fs.writeFileSync(__dirname + "/../config/language.json", JSON.stringify(languageConfig, null, 2));
+    res.json({
+        success: true
+    });
+});
 
 // ===========================================
 // Redirection Home =====================
@@ -64,6 +99,21 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                                     success: true
                                 });
                             });
+                            if (req.body.dataType == 'picture') {
+                                //We make thumbnail and reuse it in datalist
+                                basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
+                                fse.mkdirs(basePath, function (err) {
+                                    if (!err) {
+                                        Jimp.read(uploadPath, function (err, imgThumb) {
+                                            if (!err) {
+                                                imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
+                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality 
+                                                        .write(basePath + req.file.originalname);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
                         } else
                             res.end();
                     });
@@ -80,6 +130,33 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     });
 
 });
+
+
+router.get('/get_file', block_access.isLoggedIn, function (req, res) {
+    var entity = req.param('entity');
+    var src = req.param('src');
+    if (!!entity && !!src) {
+        var partOfFilepath = src.split('-');
+        if (partOfFilepath.length) {
+            var base = partOfFilepath[0];
+            var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + src;
+            fs.readFile(completeFilePath, function (err, data) {
+                if (!err) {
+                    var buffer = new Buffer(data).toString('base64');
+                    res.json({
+                        result: 200,
+                        data: buffer,
+                        success: true
+                    });
+                } else
+                    res.end();
+            });
+        } else
+            res.end();
+    } else
+        res.end();
+});
+
 
 router.get('/download', block_access.isLoggedIn, function (req, res) {
     var entity = req.param('entity');
@@ -122,10 +199,13 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
         if (partOfFilepath.length) {
             var base = partOfFilepath[0];
             var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filename;
+            // thumbnail file to delete
+            var completeThumbnailPath = globalConf.localstorage + globalConf.thumbnail.folder + entity + '/' + base + '/' + filename;
             fs.unlink(completeFilePath, function (err) {
                 if (!err) {
                     req.session.toastr.push({level: 'success', message: "message.delete.success"});
                     res.json({result: 200, message: ''});
+                    fs.unlinkSync(completeThumbnailPath);
                 } else {
                     req.session.toastr.push({level: 'error', message: "Internal error"});
                     res.json({result: 500, message: ''});
