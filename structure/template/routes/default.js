@@ -104,11 +104,11 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                                 fse.mkdirs(basePath, function (err) {
                                     if (!err) {
                                         Jimp.read(uploadPath, function (err, imgThumb) {
-                                            if (err)
-                                                throw err;
-                                            imgThumb.resize(32, 32)
-                                                    .quality(60)  // set JPEG quality 
-                                                    .write(basePath + req.file.originalname);
+                                            if (!err) {
+                                                imgThumb.resize(32, 32)
+                                                        .quality(60)  // set JPEG quality 
+                                                        .write(basePath + req.file.originalname);
+                                            }
                                         });
                                     }
                                 });
