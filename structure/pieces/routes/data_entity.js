@@ -78,36 +78,33 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
                 var compteurField = 0;
                 for (var field in data.data[i].dataValues) {
                     compteurField++;
-                    (function (iCopy, compteurFieldCopy, fieldCopy) {
-                        for (var enumField in enumsTranslation)
-                            if (fieldCopy == enumField)
-                                for (var k = 0; k < enumsTranslation[enumField].length; k++)
-                                    if (data.data[iCopy].dataValues[enumField] == enumsTranslation[enumField][k].value)
-                                        data.data[iCopy].dataValues[enumField] = enumsTranslation[enumField][k].translation;
-                        //get attribute value
-                        var value = data.data[iCopy].dataValues[fieldCopy];
-                        //for type picture, get thumbnail picture
-                        if (typeof attributes[fieldCopy] != 'undefined' && attributes[fieldCopy].newmipsType == 'picture' && value != null) {
-                            var partOfFile = value.split('-');
-                            if (partOfFile.length>1) {
-                                //if field value have valide picture name, add new task in toto list
-                                //we will use toto list to get all pictures binary
-                                var thumbnailFolder = global.thumbnail.folder;
-                                var filePath = thumbnailFolder + 'ENTITY_NAME/' + partOfFile[0] + '/' + value;
-                                todo.push({
-                                    value: value,
-                                    file: filePath,
-                                    field: fieldCopy,
-                                    dataIndex: iCopy
-                                });
-                                if (iCopy === data.data.length - 1 && compteurFieldCopy === dataValuesLength)
-                                    end();
-                            } else if (iCopy === data.data.length - 1 && compteurFieldCopy === dataValuesLength)
+                    for (var enumField in enumsTranslation)
+                        if (field == enumField)
+                            for (var k = 0; k < enumsTranslation[enumField].length; k++)
+                                if (data.data[i].dataValues[enumField] == enumsTranslation[enumField][k].value)
+                                    data.data[i].dataValues[enumField] = enumsTranslation[enumField][k].translation;
+                    //get attribute value
+                    var value = data.data[i].dataValues[field];
+                    //for type picture, get thumbnail picture
+                    if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
+                        var partOfFile = value.split('-');
+                        if (partOfFile.length > 1) {
+                            //if field value have valide picture name, add new task in todo list
+                            //we will use todo list to get all pictures binary
+                            var thumbnailFolder = global.thumbnail.folder;
+                            var filePath = thumbnailFolder + 'ENTITY_NAME/' + partOfFile[0] + '/' + value;
+                            todo.push({
+                                value: value,
+                                file: filePath,
+                                field: field,
+                                dataIndex: i
+                            });
+                            if (i === data.data.length - 1 && compteurField === dataValuesLength)
                                 end();
-                        } else if (iCopy === data.data.length - 1 && compteurFieldCopy === dataValuesLength) {
+                        } else if (i === data.data.length - 1 && compteurField === dataValuesLength)
                             end();
-                        }
-                    }(i, compteurField, field));
+                    } else if (i === data.data.length - 1 && compteurField === dataValuesLength)
+                        end();
                 }
             }
             function end() {

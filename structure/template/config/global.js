@@ -11,11 +11,15 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: __dirname + "/../upload/",
-        thumbnail:{
-            folder:'thumbnail/',
-            height:30,
-            width:30,
-            quality:60
+        thumbnail: {
+            folder: 'thumbnail/',
+            height: 30,
+            width: 30,
+            quality: 60
+        },
+        pictureField: {
+            height: 200, //px
+            width: 200
         }
     },
     'recette': {
@@ -24,11 +28,15 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: "/var/data/localstorage/",
-        thumbnail:{
-            folder:'thumbnail/',
-            height:30,
-            width:30,
-            quality:60
+        thumbnail: {
+            folder: 'thumbnail/',
+            height: 30,
+            width: 30,
+            quality: 60
+        },
+        pictureField: {
+            height: 200, //px
+            width: 200
         },
         ssl: {
             key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
@@ -42,11 +50,15 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: "/var/data/localstorage/",
-        thumbnail:{
-            folder:'thumbnail/',
-            height:30,
-            width:30,
-            quality:60
+        thumbnail: {
+            folder: 'thumbnail/',
+            height: 30,
+            width: 30,
+            quality: 60
+        },
+        pictureField: {
+            height: 200, //px
+            width: 200
         },
         ssl: {
             key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
