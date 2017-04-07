@@ -387,6 +387,7 @@ $(document).ready(function () {
 
     $('.dropzone-field').each(function (index) {
         var that = $(this);
+        var type = that.attr('data-type');
         var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
             url: "/default/file_upload",
             autoProcessQueue: false,
@@ -411,8 +412,10 @@ $(document).ready(function () {
                 this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataEntity = that.attr("data-entity");
+                    var dataType = that.attr("data-type") || '';
                     formData.append("storageType", storageType);
                     formData.append("dataEntity", dataEntity);
+                    formData.append("dataType", dataType);
                 });
                 this.on("maxfilesexceeded", function () {
                     this.removeFile(this.files[1]);
@@ -424,25 +427,26 @@ $(document).ready(function () {
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
                 this.on('removedfile', function (file) {
-                    var dropzone = this;
-                    x = confirm('Êtes-vous sûr de vouloir supprimer cette entité ?');
-                    if (!x)
-                        return false;
-                    $.ajax({
-                        url: '/default/delete_file',
-                        type: 'post',
-                        data: {dataEntity: that.attr("data-entity"),
-                            dataStorage: that.attr("data-storage"),
-                            filename: $("#" + that.attr("id") + "_hidden").val()},
-                        success: function (success) {
-                            $("#" + that.attr("id") + "_hidden").val('');
-                            if (dropzone.files.length) {
-                                dropzone.removeAllFiles(true);
+                    if (file.accepted) {
+                        var dropzone = this;
+                        x = confirm('Êtes-vous sûr de vouloir supprimer cette entité ?');
+                        if (!x)
+                            return false;
+                        $.ajax({
+                            url: '/default/delete_file',
+                            type: 'post',
+                            data: {dataEntity: that.attr("data-entity"),
+                                dataStorage: that.attr("data-storage"),
+                                filename: $("#" + that.attr("id") + "_hidden").val()},
+                            success: function (success) {
+                                $("#" + that.attr("id") + "_hidden").val('');
+                                if (dropzone.files.length) {
+                                    dropzone.removeAllFiles(true);
+                                }
                             }
-                        }
-
-                    });
-                })
+                        });
+                    }
+                });
             },
             renameFilename: function (filename) {
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
@@ -453,6 +457,8 @@ $(document).ready(function () {
 
             }
         });
+        if (type == 'picture')
+            dropzoneInit.options.acceptedFiles = 'image/*';
         var dropzoneId = $(this).attr('id') + '';
         if ($('#' + dropzoneId + '_hidden').val() != '') {
             var mockFile = {
@@ -484,7 +490,7 @@ $(document).ready(function () {
                     var dropzone = dropzonesFieldArray[i];
                     dropzone.processQueue();
                     (function (ibis, myform) {
-                        dropzone.on("complete", function (file) {
+                        dropzone.on("complete", function (file, response) {
                             if (ibis == dropzonesFieldArray.length - 1) {
                                 filesProceeded = true;
                                 myform.submit();

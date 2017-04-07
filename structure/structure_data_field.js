@@ -250,18 +250,19 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	</div>\n";
             }
             break;
-//        case "img":
-//        case "picture":
-//        case "image":
-//            if (file != 'show') {
-//                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-//                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
-//            } else {
-//                str += "	<div class='input-group'>\n";
-//                str += "		<img src=img/"+dataEntity+"/"+value.split('-')[0]+'/'+ value + " class='img img-responsive' alt="+value+" name=" + dataField + "  " + readOnly + "/>\n";
-//                str += "	</div>\n";
-//            }
-//            break;
+        case "img":
+        case "picture":
+        case "image":
+        case "photo":
+            if (file != 'show') {
+                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+            } else {
+                str += "	<div class='input-group'>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 +".value} ><img src=data:image/;base64,{"+value2+".buffer}  class='img img-small' data-type='image' alt=" + value + " name=" + dataField + "  " + readOnly + " height=200 width=200/></a>\n";
+                str += "	</div>\n";
+            }
+            break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
@@ -494,12 +495,13 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "STRING";
             typeForDatalist = "file";
             break;
-//        case "img":
-//        case "image":
-//        case "picture":
-//            typeForModel = "STRING";
-//            typeForDatalist = "picture";
-//            break;
+        case "img":
+        case "image":
+        case "picture":
+        case "photo":
+            typeForModel = "STRING";
+            typeForDatalist = "picture";
+            break;
         case "cloudfile" :
             typeForModel = "STRING";
             break;

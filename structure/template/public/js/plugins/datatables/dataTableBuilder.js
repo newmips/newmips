@@ -222,9 +222,12 @@ function init_datatable(tableID) {
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + cellValue + '</span>';
                     else if (columns[meta.col].type == 'email')
-                        cellValue = '<a href=mailto:' + cellValue + '>'+cellValue+'</a>';
+                        cellValue = '<a href=mailto:' + cellValue + '>' + cellValue + '</a>';
                     else if (columns[meta.col].type == 'tel')
-                        cellValue = '<a href=tel:' + cellValue + '>'+cellValue+'</a>';
+                        cellValue = '<a href=tel:' + cellValue + '>' + cellValue + '</a>';
+                    else if (columns[meta.col].type == 'picture' && cellValue!=null) {
+                        cellValue = '<img src=data:image/;base64,' + cellValue.buffer + ' />';
+                    }
                 }
                 return cellValue;
             }
