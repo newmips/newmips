@@ -22,7 +22,7 @@ exports.deleteEntityFile = function (options) {
 
 exports.getFileBuffer64 = function (path, callback) {
     if (typeof path == 'undefined')
-        return callback(false);
+        return callback(false,'');
     fs.readFile(global.localstorage + path, function (err, data) {
         if (!err)
             return callback(true, new Buffer(data).toString('base64'));
