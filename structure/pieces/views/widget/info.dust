@@ -3,6 +3,6 @@
 
 	<div class="info-box-content">
 		<span class="info-box-text">{@__ key="entity.ENTITY_NAME.label_entity" /}</span>
-		<span class="info-box-number">{infoENTITY_NAME}</span>
+		<span class="info-box-number">{ENTITY_NAME_info}</span>
 	</div>
 </div>
