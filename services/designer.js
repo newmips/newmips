@@ -38,7 +38,7 @@ var sequelize = require('../models/').sequelize;
 exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, callback) {
 
     if (instructions.length == idx)
-        callback(null);
+        return callback(null);
 
     var exportsContext = this;
 
@@ -1335,9 +1335,11 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
 // Componant to create a contact form in a module
 exports.createNewComponentContactForm = function (attr, callback) {
 
+    var exportsContext = this;
+
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "c_contact_form";
+        attr.options.value = "e_contact_form";
         attr.options.urlValue = "contact_form";
         attr.options.showValue = "Contact Form";
     }
@@ -1356,18 +1358,58 @@ exports.createNewComponentContactForm = function (attr, callback) {
                     err = new Error();
                     err.message = "structure.component.error.alreadyExistInApp";
                     return callback(err, null);
-                }
-                else{
-                    // Create the component in newmips database
-                    db_component.createNewComponentOnModule(attr, function(err, info){
-                        // Get Data Entity Name needed for structure
-                        db_module.getModuleById(attr.id_module, function(err, module){
-                            attr.options.moduleName = module.codeName;
-                            structure_component.newContactForm(attr, function(err){
+                } else{
+
+                    attr.options.valueSettings = attr.options.value + "_settings";
+                    attr.options.urlValueSettings = attr.options.urlValue + "_settings";
+                    attr.options.showValueSettings = attr.options.showValue + " Settings";
+
+                    var instructions = [
+                        "add entity "+attr.options.showValue,
+                        "add field Name",
+                        "set field Name required",
+                        "add field Title",
+                        "set field Title required",
+                        "add field Sender with type email",
+                        "set field Sender required",
+                        "add field Recipient with type email",
+                        "add field Content with type text",
+                        "set field Content required",
+                        "add field User related to user",
+                        "add entity "+attr.options.showValueSettings,
+                        "add field Transport Host",
+                        "add field Port with type number",
+                        "add field Secure with type boolean and default value true",
+                        "add field User",
+                        "add field Pass",
+                        "add field Expediteur",
+                        "add field Administrateur",
+                        "add field Host",
+                    ];
+
+
+                    // Start doing necessary instruction for component creation
+                    exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+                        if(err)
+                            return callback(err, null);
+
+                        // Create the component in newmips database
+                        db_component.createNewComponentOnModule(attr, function(err, info){
+                            if(err)
+                                return callback(err, null);
+
+                            // Get Data Entity Name needed for structure
+                            db_module.getModuleById(attr.id_module, function(err, module){
                                 if(err)
                                     return callback(err, null);
 
-                                callback(null, info);
+                                attr.options.moduleName = module.codeName;
+                                structure_component.newContactForm(attr, function(err){
+                                    if(err)
+                                        return callback(err, null);
+
+                                    callback(null, info);
+                                });
                             });
                         });
                     });
