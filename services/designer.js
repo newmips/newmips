@@ -1610,6 +1610,35 @@ exports.setIconToEntity = function(attr, callback) {
     });
 }
 
+exports.createWidgetLastRecords = function(attr, callback) {
+    var entityDbFunction = '', param = '';
+    if (attr.entityTarget) {
+        entityDbFunction = 'getDataEntityByName';
+        param = attr.entityTarget;
+    }
+    else {
+        entityDbFunction = 'getDataEntityById';
+        param = attr.id_data_entity;
+    }
+
+    db_entity[entityDbFunction](param, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+            attr.entity = entity;
+            attr.module = module;
+
+            structure_ui.createWidgetLastRecords(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            })
+        });
+    });
+}
+
 exports.createWidgetOnEntity = function(attr, callback) {
     db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
         if (err)

@@ -707,16 +707,46 @@ function getRightWidgetType(originalType) {
         case "info":
         case "information":
             return "info";
+
         case "boîte de statistiques":
         case "stats box":
         case "stats":
         case "stat":
         case "statistique":
             return "stats";
+
+        case "lastrecords":
+        case "last records":
+            return "lastrecords";
+
         default:
             return -1;
     }
 }
+
+exports.createWidgetLastRecordsWithLimit = function(result) {
+    var attr = {
+        function: 'createWidgetLastRecords',
+        widgetType: getRightWidgetType
+    }
+
+    if (result.length == 3) {
+        attr.limit = result[1];
+        attr.columns = result[2].split(',');
+    }
+    else if (result.length == 4) {
+        attr.entityTarget = result[1];
+        attr.limit = result[2];
+        attr.columns = result[3].split(',');
+    }
+
+    // Remove unwanted spaces from columns
+    for (var i = 0; i < attr.columns.length; i++)
+        attr.columns[i] = attr.columns[i].trim();
+
+    return attr;
+}
+
 exports.createWidgetOnEntity = function(result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
@@ -1298,6 +1328,14 @@ exports.parse = function(instruction) {
             "set icon (.*)",
             "mettre l'icône (.*)",
             "mettre l'icone (.*)"
+        ],
+        "createWidgetLastRecordsWithLimit": [
+            "add widget last records limited to (.*) records with columns (.*)",
+            "add widget last records on entity (.*) limited to (.*) records with columns (.*)"
+        ],
+        "createWidgetLastRecords": [
+            "add widget last records with columns (.*)",
+            "add widget last records on entity (.*) with columns (.*)"
         ],
         "createWidgetOnEntity": [
             "créer une (.*) sur l'entité (.*)",

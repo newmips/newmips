@@ -323,7 +323,8 @@
             },
             "widget": {
                 "unknown": "Widget %s inconnu",
-                "success": "Widget %s ajouté au module %s"
+                "success": "Widget %s ajouté au module %s",
+                "delete": "Widget %s supprimé avec succès"
             }
         }
     }
