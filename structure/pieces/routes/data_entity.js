@@ -73,9 +73,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
         var enumsTranslation = enums.translated("ENTITY_NAME", req.session.lang_user);
         var todo = [];
         for (var i = 0; i < data.data.length; i++) {
-            var compteurField = 0;
             for (var field in data.data[i].dataValues) {
-                compteurField++;
                 for (var enumField in enumsTranslation)
                     if (field == enumField)
                         for (var k = 0; k < enumsTranslation[enumField].length; k++)
@@ -103,19 +101,21 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
         }
         //check if we have to get some picture buffer before send data
         if (todo.length) {
+            var counter=0;
             for (var i = 0; i < todo.length; i++) {
                 var _todo = todo[i];
-                (function (task, iCopy) {
+                (function (task) {
                     file_helper.getFileBuffer64(task.file, function (success, buffer) {
+                        counter++;
                         data.data[task.dataIndex].dataValues[task.field] = {
                             value: task.value,
                             buffer: buffer
                         };
-                        if (iCopy === todo.length - 1) {
+                        if (counter === todo.length) 
                             res.send(data).end();
-                        }
+                        
                     });
-                }(_todo, i));
+                }(_todo));
             }
         } else
             res.send(data).end();
