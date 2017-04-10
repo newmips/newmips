@@ -136,6 +136,13 @@
         }
     },
     "component": {},
+    "defaults": {
+        "widgets": {
+            "lastrecords": {
+                "label": "Derniers enregistrements"
+            }
+        }
+    },
     "error": {
         "title": "Erreur",
         "contactAdmin": "Merci de contacter votre administrateur.",
