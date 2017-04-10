@@ -256,13 +256,11 @@ router.post('/create', block_access.actionAccessMiddleware("contact_form", "writ
             var createObject = model_builder.buildForRoute(attributes, options, req.body);
             createObject = enums.values("e_contact_form", createObject, req.body);
             createObject.f_id_user_user = req.session.passport.user.id;
+            createObject.f_recipient = settings.f_administrateur;
             models.E_contact_form.create(createObject).then(function (e_contact_form) {
                 var redirect = '/contact_form/create_form';
                 req.session.toastr = [{
-                    message: 'message.create.success',
-                    level: "success"
-                }, {
-                    message: "Le mail à bien été envoyé.",
+                    message: "Votre mail a bien été envoyé !",
                     level: "success"
                 }];
 
