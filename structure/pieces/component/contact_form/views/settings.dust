@@ -1,34 +1,34 @@
-{>"layout_m_home"/}
+{>"layout_CODE_VALUE_MODULE"/}
 {<header}
-    <h1>{@__ key="module.m_home"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{@__ key="module.CODE_VALUE_MODULE"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.m_home"/}</li>
+        <li class="active">{@__ key="module.CODE_VALUE_MODULE"/}</li>
     </ol>
 {/header}
 {<content}
     <div class="row">
         <div class="col-xs-12 connectedSortable">
-            <form action="/contact_form/settings" method="post">
+            <form action="/URL_VALUE_CONTACT/settings" method="post">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">{@__ key="operation.update"/} {@__ key="entity.e_contact_form_settings.name_entity"/}</h3>
+                        <h3 class="box-title">{@__ key="entity.CODE_VALUE_CONTACT.settings"/}</h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                             <i class="fa fa-minus"></i></button>
                         </div>
                     </div>
                     <div class="box-body">
-                        <div class="form-group">
-                            <label for="id">{@__ key="entity.e_contact_form_settings.id_entity"/} {@__ key="entity.e_contact_form_settings.name_entity"/}</label>
-                            <input name="id" type="hidden" placeholder="{e_contact_form_settings.id_entity}" value="{e_contact_form_settings.id}" class="form-control input"/>
-                            <input name="id_display" type="text" placeholder="{e_contact_form_settings.id_entity}" value="{e_contact_form_settings.id}" disabled="" class="form-control input"/>
+                        <div class="form-group" style="display: none;">
+                            <label for="id">{@__ key="entity.CODE_VALUE_CONTACT_settings.id_entity"/} {@__ key="entity.CODE_VALUE_CONTACT_settings.name_entity"/}</label>
+                            <input name="id" type="hidden" placeholder="{CODE_VALUE_CONTACT_settings.id_entity}" value="{CODE_VALUE_CONTACT_settings.id}" class="form-control input"/>
+                            <input name="id_display" type="text" placeholder="{CODE_VALUE_CONTACT_settings.id_entity}" value="{CODE_VALUE_CONTACT_settings.id}" disabled="" class="form-control input"/>
                         </div>
-                        {#e_contact_form_settings}
-                            {>"e_contact_form/settings_fields"/}
-                        {/e_contact_form_settings}
+                        {#CODE_VALUE_CONTACT_settings}
+                            {>"CODE_VALUE_CONTACT/settings_fields"/}
+                        {/CODE_VALUE_CONTACT_settings}
                         <div class="form-group">
-                            <input name="version" value="{e_contact_form_settings.version}" type="hidden" placeholder="version" class="form-control input"/>
+                            <input name="version" value="{CODE_VALUE_CONTACT_settings.version}" type="hidden" placeholder="version" class="form-control input"/>
                         </div>
                     </div>
                     <div class="box-footer">

@@ -1,0 +1,63 @@
+<div id="fields">
+    <div data-field="f_name" class="form-group">
+        <label for="f_name"> {@__ key="entity.CODE_VALUE_CONTACT.f_name"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_CONTACT.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+    </div>
+    <div data-field="f_sender" class="form-group">
+        <label for="f_sender"> {@__ key="entity.CODE_VALUE_CONTACT.f_sender"/} </label>
+        <div class="input-group">
+            <div class="input-group-addon">
+                <i class="fa fa-envelope"></i>
+            </div>
+            <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_CONTACT.f_sender" /}' name="f_sender" value="{f_sender}" type="text" data-type="email" readonly="">
+        </div>
+    </div>
+    <div data-field="f_recipient" class="form-group">
+        <label for="f_recipient"> {@__ key="entity.CODE_VALUE_CONTACT.f_recipient"/} </label>
+        <div class="input-group">
+            <div class="input-group-addon">
+                <i class="fa fa-envelope"></i>
+            </div>
+            <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_CONTACT.f_recipient" /}' name="f_recipient" value="{f_recipient}" type="text" data-type="email" readonly="">
+        </div>
+    </div>
+    <div data-field="r_user" class="form-group">
+        <label for="r_user"> {@__ key="entity.CODE_VALUE_CONTACT.r_user"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_CONTACT.r_user" /}' name="r_user" value="{r_user.id}" type="text" readonly="">
+    </div>
+    <div data-field="f_title" class="form-group">
+        <label for="f_title"> {@__ key="entity.CODE_VALUE_CONTACT.f_title"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_CONTACT.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
+    </div>
+    <div data-field="f_content" class="form-group">
+        <label for="f_content"> {@__ key="entity.CODE_VALUE_CONTACT.f_content"/} </label>
+        <textarea class="form-control textarea" placeholder='{@__ key="entity.CODE_VALUE_CONTACT.f_content" /}' name="f_content" id="f_content_textareaid" value="{f_content}" type="text" readonly="">{f_content}</textarea>
+    </div>
+</div>
+<div class="actions">
+    <form action="/URL_VALUE_CONTACT/delete" method="post">
+        <div class="quicklinks">
+            <span>
+                <button class="btn btn-danger">
+                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                <span>{@__ key="button.delete"/}</span>
+                </button>
+                <input name="id" type="hidden" value="{CODE_VALUE_CONTACT.id}" class="form-control">
+            </span>
+            {^hideButton}
+            <span>
+                <a href="/URL_VALUE_CONTACT/create_form" class="btn btn-success">
+                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="entity.CODE_VALUE_CONTACT.sendMail" /}</span>
+                </a>
+            </span>
+            <span>
+                <a href="/URL_VALUE_CONTACT/list" type="submit" class="btn btn-primary">
+                    <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="entity.CODE_VALUE_CONTACT.inbox" /}</span>
+                </a>
+            </span>
+            {/hideButton}
+        </div>
+    </form>
+</div>

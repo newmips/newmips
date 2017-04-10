@@ -1,21 +1,21 @@
 &nbsp;
-<table id="table_e_contact_form" data-url="/contact_form/datalist" class="dataTable table table-bordered table-striped">
+<table id="table_CODE_VALUE_CONTACT" data-url="/URL_VALUE_CONTACT/datalist" class="dataTable table table-bordered table-striped">
     <thead class="main">
         <tr class="fields">
             <th data-field="f_name" data-col="f_name" data-type="string">
-                {@__ key="entity.e_contact_form.f_name"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_name"/}
             </th>
             <th data-field="f_sender" data-col="f_sender" data-type="email">
-                {@__ key="entity.e_contact_form.f_sender"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_sender"/}
             </th>
             <th data-field="f_recipient" data-col="f_recipient" data-type="email">
-                {@__ key="entity.e_contact_form.f_recipient"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_recipient"/}
             </th>
             <th data-field="f_title" data-col="f_title" data-type="string">
-                {@__ key="entity.e_contact_form.f_title"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_title"/}
             </th>
             <th data-field="f_content" data-col="f_content" data-type="text">
-                {@__ key="entity.e_contact_form.f_content"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_content"/}
             </th>
             <th></th>
             <th></th>
@@ -24,26 +24,26 @@
     <thead class="filters">
         <tr class="fields">
             <th data-field="f_name" data-col="f_name" data-type="string">
-                {@__ key="entity.e_contact_form.f_name"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_name"/}
             </th>
             <th data-field="f_sender" data-col="f_sender" data-type="email">
-                {@__ key="entity.e_contact_form.f_sender"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_sender"/}
             </th>
             <th data-field="f_recipient" data-col="f_recipient" data-type="email">
-                {@__ key="entity.e_contact_form.f_recipient"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_recipient"/}
             </th>
             <th data-field="f_title" data-col="f_title" data-type="string">
-                {@__ key="entity.e_contact_form.f_title"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_title"/}
             </th>
             <th data-field="f_content" data-col="f_content" data-type="text">
-                {@__ key="entity.e_contact_form.f_content"/}
+                {@__ key="entity.CODE_VALUE_CONTACT.f_content"/}
             </th>
             <th></th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        {#e_contact_form}
+        {#CODE_VALUE_CONTACT}
         <tr id="bodyTR">
             <td data-field="f_name" data-type="string">{f_name}</td>
             <td data-field="f_sender" data-type="email">{f_sender}</td>
@@ -58,17 +58,17 @@
                 </form>
                 {/eq}
                 {@eq key=for value="hasMany"}
-                <!--<a class="btn btn-primary" href="/contact_form/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}-->
+                <!--<a class="btn btn-primary" href="/URL_VALUE_CONTACT/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}-->
                 {/eq}
             </td>
             <td>
                 {@eq key=for value="hasMany"}
-                <a class="btn btn-warning" href="/contact_form/update_form?id={id}&amp;associationAlias={associationAlias}&amp;associationForeignKey={associationForeignKey}&amp;associationFlag={associationFlag}&amp;associationSource={associationSource}&amp;associationUrl={associationUrl}"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update" /}</span></a>
+                <a class="btn btn-warning" href="/URL_VALUE_CONTACT/update_form?id={id}&amp;associationAlias={associationAlias}&amp;associationForeignKey={associationForeignKey}&amp;associationFlag={associationFlag}&amp;associationSource={associationSource}&amp;associationUrl={associationUrl}"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update" /}</span></a>
                 {/eq}
             </td>
             <td>
                 {@eq key=for value="hasMany"}
-                <form action="/contact_form/delete" method="post">
+                <form action="/URL_VALUE_CONTACT/delete" method="post">
                     <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                             <span>{@__ key="button.delete" /}</span>
                             <input name="id" value="{id}" type="hidden">
@@ -82,6 +82,6 @@
                 {/eq}
             </td>
         </tr>
-        {/e_contact_form}
+        {/CODE_VALUE_CONTACT}
     </tbody>
 </table>

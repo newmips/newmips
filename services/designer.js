@@ -1382,9 +1382,12 @@ exports.createNewComponentContactForm = function (attr, callback) {
                         "add field Secure with type boolean and default value true",
                         "add field User",
                         "add field Pass",
-                        "add field Expediteur",
-                        "add field Administrateur",
-                        "add field Host",
+                        "add field Form Recipient",
+                        "set field Transport Host required",
+                        "set field Port required",
+                        "set field User required",
+                        "set field Pass required",
+                        "set field Form Recipient required"
                     ];
 
 
