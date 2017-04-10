@@ -1,0 +1,37 @@
+<div id="fields">
+    <div data-field="f_transport_host" class="form-group">
+        <label for="f_transport_host"> {@__ key="entity.e_contact_form_settings.f_transport_host"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_contact_form_settings.f_transport_host" /}' name="f_transport_host" value="{f_transport_host}" type="text">
+    </div>
+    <div data-field="f_port" class="form-group">
+        <label for="f_port"> {@__ key="entity.e_contact_form_settings.f_port"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_contact_form_settings.f_port" /}' name="f_port" value="{f_port}" type="number">
+    </div>
+    <div data-field="f_secure" class="form-group">
+        <label for="f_secure"> {@__ key="entity.e_contact_form_settings.f_secure"/} </label> &nbsp;
+        <br>
+        {@ifTrue key=f_secure}<input class="form-control input" name="f_secure" value="{f_secure}" type="checkbox" checked="">
+        {:else}<input class="form-control input" name="f_secure" value="{f_secure}" type="checkbox">
+        {/ifTrue}
+    </div>
+    <div data-field="f_user" class="form-group">
+        <label for="f_user"> {@__ key="entity.e_contact_form_settings.f_user"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_contact_form_settings.f_user" /}' name="f_user" value="{f_user}" type="text">
+    </div>
+    <div data-field="f_pass" class="form-group">
+        <label for="f_pass"> {@__ key="entity.e_contact_form_settings.f_pass"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_contact_form_settings.f_pass" /}' name="f_pass" value="{f_pass}" type="password">
+    </div>
+    <div data-field="f_expediteur" class="form-group">
+        <label for="f_expediteur"> {@__ key="entity.e_contact_form_settings.f_expediteur"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_contact_form_settings.f_expediteur" /}' name="f_expediteur" value="{f_expediteur}" type="text">
+    </div>
+    <div data-field="f_administrateur" class="form-group">
+        <label for="f_administrateur"> {@__ key="entity.e_contact_form_settings.f_administrateur"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_contact_form_settings.f_administrateur" /}' name="f_administrateur" value="{f_administrateur}" type="text">
+    </div>
+    <div data-field="f_host" class="form-group">
+        <label for="f_host"> {@__ key="entity.e_contact_form_settings.f_host"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.e_contact_form_settings.f_host" /}' name="f_host" value="{f_host}" type="text">
+    </div>
+</div>

@@ -56,3 +56,18 @@ exports.sendMailAsync = function(mailOptions) {
         });
     });
 }
+
+// Send mail with custom transporteur
+exports.sendMailAsyncCustomTransport = function(mailOptions, config) {
+    return new Promise(function(resolve, reject) {
+        var customTransporter = nodemailer.createTransport(config.transport);
+        customTransporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.error(error);
+                reject(false);
+            }
+            console.log(info);
+            resolve(true);
+        });
+    });
+}
