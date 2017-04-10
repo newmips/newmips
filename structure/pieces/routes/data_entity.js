@@ -10,6 +10,8 @@ var attributes = require('../models/attributes/ENTITY_NAME');
 var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
+var file_helper = require('../utils/file_helper');
+var global = require('../config/global');
 // ENUM managment
 var enums = require('../utils/enum.js');
 
@@ -66,19 +68,57 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options);
-
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
         var enumsTranslation = enums.translated("ENTITY_NAME", req.session.lang_user);
-        for(var i=0; i<data.data.length; i++)
-            for(var field in data.data[i].dataValues)
-                for(var enumField in enumsTranslation)
-                    if(field == enumField)
-                        for(var j=0; j<enumsTranslation[enumField].length; j++)
-                            if(data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value)
-                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][j].translation;
-
-        res.send(data).end();
+        var todo = [];
+        for (var i = 0; i < data.data.length; i++) {
+            for (var field in data.data[i].dataValues) {
+                for (var enumField in enumsTranslation)
+                    if (field == enumField)
+                        for (var k = 0; k < enumsTranslation[enumField].length; k++)
+                            if (data.data[i].dataValues[enumField] == enumsTranslation[enumField][k].value)
+                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][k].translation;
+                //get attribute value
+                var value = data.data[i].dataValues[field];
+                //for type picture, get thumbnail picture
+                if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
+                    var partOfFile = value.split('-');
+                    if (partOfFile.length > 1) {
+                        //if field value have valide picture name, add new task in todo list
+                        //we will use todo list to get all pictures binary
+                        var thumbnailFolder = global.thumbnail.folder;
+                        var filePath = thumbnailFolder + 'ENTITY_NAME/' + partOfFile[0] + '/' + value;
+                        todo.push({
+                            value: value,
+                            file: filePath,
+                            field: field,
+                            dataIndex: i
+                        });
+                    }
+                }
+            }
+        }
+        //check if we have to get some picture buffer before send data
+        if (todo.length) {
+            var counter=0;
+            for (var i = 0; i < todo.length; i++) {
+                var _todo = todo[i];
+                (function (task) {
+                    file_helper.getFileBuffer64(task.file, function (success, buffer) {
+                        counter++;
+                        data.data[task.dataIndex].dataValues[task.field] = {
+                            value: task.value,
+                            buffer: buffer
+                        };
+                        if (counter === todo.length) 
+                            res.send(data).end();
+                        
+                    });
+                }(_todo));
+            }
+        } else
+            res.send(data).end();
     }).catch(function (err) {
         console.log(err);
         logger.debug(err);
@@ -187,6 +227,8 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 
             data.toastr = req.session.toastr;
             req.session.toastr = [];
+            // Update some data before show, e.g get picture binary
+            ENTITY_NAME = entity_helper.update_local_data(ENTITY_NAME, attributes, "ENTITY_NAME");
             res.render('ENTITY_NAME/show', data);
         });
 
@@ -387,7 +429,7 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("ENTITY_NAME",deleteObject,attributes);
+            entity_helper.remove_files("ENTITY_NAME", deleteObject, attributes);
         }).catch(function (err) {
             error500(err, req, res, '/ENTITY_URL_NAME/list');
         });
