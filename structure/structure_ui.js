@@ -114,7 +114,7 @@ exports.createWidget = function(attr, callback) {
     insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
     insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
     insertCode += "\t\tmodels."+modelName+'.count().then(function(result){\n';
-    insertCode += "\t\t\tresolve({"+attr.widgetType+attr.entity.codeName+': result});\n';
+    insertCode += "\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': result});\n';
     insertCode += "\t\t});\n";
     insertCode += "\t}));\n";
     insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
@@ -136,7 +136,7 @@ exports.createWidget = function(attr, callback) {
 
                 // Create widget's html
                 var newHtml = "";
-                newHtml += "<div id='"+widgetElemId+"' class='col-xs-4'>\n"
+                newHtml += "<div id='"+widgetElemId+"' class='col-xs-4'>\n";
                 newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
                 newHtml +=      $2("body")[0].innerHTML+"\n";
                 newHtml += '<!--{/entityAccess}-->';
@@ -154,6 +154,57 @@ exports.createWidget = function(attr, callback) {
                     console.log(err)
                     callback(err);
                 });
+            });
+        });
+    });
+}
+
+exports.createWidgetLastRecords = function(attr, callback) {
+    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+    var piecesPath = __dirname+'/pieces/';
+
+    // Add widget's query to routes/default controller
+    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
+    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
+    var insertCode = '';
+    insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
+    insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
+    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+'}).then(function(result){\n';
+    insertCode += "\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': result});\n';
+    insertCode += "\t\t});\n";
+    insertCode += "\t}));\n";
+    insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
+    insertCode += "\t// *** Widget module "+attr.module.codeName+" | Do not remove ***\n";
+
+    insertCode = defaultFile.replace("// *** Widget module "+attr.module.codeName+" | Do not remove ***", insertCode);
+    fs.writeFileSync(workspacePath+'/routes/default.js', insertCode);
+
+    var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
+    domHelper.read(layout_view_filename).then(function($) {
+        domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
+            var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
+            var newHtml = "";
+            newHtml += "<div id='"+widgetElemId+"' class='col-xs-4'>\n";
+            newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml +=      $2("body")[0].innerHTML+"\n";
+            newHtml += '<!--{/entityAccess}-->';
+            newHtml += "</div>";
+            newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
+            newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
+
+            $("#widgets").append(newHtml);
+
+            var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr>';
+            for (var i = 0; i < attr.columns.length; i++) {
+                thead += '<th><!--{@__ key="entity.'+attr.entity.codeName+'.f_'+attr.columns[i]+'" /}--></th>';
+                tbody += '<td>{f_'+attr.columns[i]+'}</td>';
+            }
+            thead += '</tr></thead>';
+            tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
+
+            $("#"+attr.entity.codeName.substring(2)+'_lastrecords').html(thead+tbody);
+            domHelper.write(layout_view_filename, $).then(function() {
+                callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
             });
         });
     });
