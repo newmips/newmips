@@ -700,6 +700,93 @@ exports.setIconToEntity = function(result) {
     return attr;
 }
 
+function getRightWidgetType(originalType) {
+    switch (originalType) {
+        case "boîte d'information":
+        case "info box":
+        case "info":
+        case "information":
+            return "info";
+
+        case "boîte de statistiques":
+        case "stats box":
+        case "stats":
+        case "stat":
+        case "statistique":
+            return "stats";
+
+        case "lastrecords":
+        case "last records":
+            return "lastrecords";
+
+        default:
+            return -1;
+    }
+}
+
+exports.createWidgetLastRecordsWithLimit = function(result) {
+    var attr = {
+        function: 'createWidgetLastRecords',
+        widgetType: 'lastrecords',
+        widgetInputType: 'last records'
+    }
+
+    if (result.length == 3) {
+        attr.limit = result[1];
+        attr.columns = result[2].split(',');
+    }
+    else if (result.length == 4) {
+        attr.entityTarget = result[1];
+        attr.limit = result[2];
+        attr.columns = result[3].split(',');
+    }
+
+    // Remove unwanted spaces from columns
+    for (var i = 0; i < attr.columns.length; i++)
+        attr.columns[i] = attr.columns[i].trim();
+
+    return attr;
+}
+
+exports.createWidgetOnEntity = function(result) {
+    var originalType = result[1];
+    var finalType = getRightWidgetType(originalType);
+
+    return {
+        function: 'createWidgetOnEntity',
+        widgetInputType: originalType,
+        widgetType: finalType,
+        entityTarget: result[2]
+    }
+}
+
+exports.createWidget = function(result) {
+    var originalType = result[1];
+    var finalType = getRightWidgetType(originalType);
+
+    return {
+        function: 'createWidget',
+        widgetInputType: originalType,
+        widgetType: finalType
+    }
+}
+
+exports.deleteWidget = function(result) {
+    return {
+        function: 'deleteWidget',
+        widgetTypes: [getRightWidgetType(result[1])],
+        widgetInputType: result[1],
+        entityTarget: result[2]
+    }
+}
+
+exports.deleteEntityWidgets = function(result) {
+    return {
+        function: 'deleteEntityWidgets',
+        entityTarget: result[1]
+    }
+}
+
 // ******* Parse *******
 exports.parse = function(instruction) {
 
@@ -1242,6 +1329,42 @@ exports.parse = function(instruction) {
             "set icon (.*)",
             "mettre l'icône (.*)",
             "mettre l'icone (.*)"
+        ],
+        "createWidgetLastRecordsWithLimit": [
+            "add widget last records limited to (.*) records with columns (.*)",
+            "add widget last records on entity (.*) limited to (.*) records with columns (.*)"
+        ],
+        "createWidgetLastRecords": [
+            "add widget last records with columns (.*)",
+            "add widget last records on entity (.*) with columns (.*)"
+        ],
+        "createWidgetOnEntity": [
+            "créer une (.*) sur l'entité (.*)",
+            "créer un widget (.*) sur l'entité (.*)",
+            "ajouter une (.*) sur l'entité (.*)",
+            "ajouter un widget (.*) sur l'entité (.*)",
+            "add widget (.*) on entity (.*)",
+            "create widget (.*) on entity (.*)"
+        ],
+        "createWidget": [
+            "add widget (.*)",
+            "create widget (.*)",
+            "ajouter une (.*)",
+            "ajouter un widget (.*)",
+            "créer une (.*)",
+            "créer un widget (.*)"
+        ],
+        "deleteWidget": [
+            "delete widget (.*) of entity (.*)",
+            "delete widget (.*) for entity (.*)",
+            "delete widget (.*) of (.*)",
+            "delete widget (.*) for (.*)"
+        ],
+        "deleteEntityWidgets": [
+            "delete widgets of (.*)",
+            "delete widgets of entity (.*)",
+            "delete all widgets of entity (.*)",
+            "delete all widgets of (.*)"
         ]
     };
 

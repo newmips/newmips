@@ -4,7 +4,7 @@ var router = express.Router();
 var block_access = require('../utils/block_access');
 var languageConfig = require('../config/language');
 var message = "";
-var global = require('../config/global');
+var globalConf = require('../config/global');
 var multer = require('multer');
 var fs = require('fs');
 var fse = require('fs-extra');
@@ -12,6 +12,8 @@ var moment = require("moment");
 var crypto = require('../utils/crypto_helper');
 var webdav_conf = require('../config/webdav');
 var upload = multer().single('file');
+var models = require('../models/');
+var Jimp = require("jimp");
 
 /* Connect WebDav with webdav-fs */
 var wfs = require("webdav-fs")(
@@ -19,29 +21,57 @@ var wfs = require("webdav-fs")(
         webdav_conf.user_name,
         webdav_conf.password
         );
-
-/* ------- TUTO TOASTR -------- */
-/*
- // Création d'un toastr
- req.session.toastr = [{
- message: "Vos informations ont bien été mises à jours.",
- level: "success" // error / info / success / warning
- }];
- 
- */
-/*
- // Récupération des toastr en session
- data.toastr = req.session.toastr;
- 
- // Nettoyage de la session
- req.session.toastr = [];
- */
-
 // ===========================================
 // Redirection Home =====================
 // ===========================================
 
 // *** Dynamic Module | Do not remove ***
+
+// m_authentication
+router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
+    var widgetPromises = [];
+
+    // *** Widget module m_authentication | Do not remove ***
+
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_authentication', data);
+    });
+});
+
+// m_home
+router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function (req, res) {
+    var widgetPromises = [];
+
+    // *** Widget module m_home | Do not remove ***
+
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_home', data);
+    });
+});
+
+// Page non autorisée
+router.get('/unauthorized', function (req, res) {
+    res.render('common/unauthorized');
+});
+
+/* Fonction de changement du language */
+router.post('/change_language', function (req, res) {
+    req.session.lang_user = req.body.lang;
+    res.locals.lang_user = req.body.lang;
+    languageConfig.lang = req.body.lang;
+    fs.writeFileSync(__dirname + "/../config/language.json", JSON.stringify(languageConfig, null, 2));
+    res.json({
+        success: true
+    });
+});
 
 // Page non autorisée
 router.get('/unauthorized', function (req, res) {
@@ -68,7 +98,7 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                 var folder = req.file.originalname.split('-');
                 var dataEntity = req.body.dataEntity;
                 if (folder.length && !!dataEntity) {
-                    var basePath = global.localstorage + dataEntity + '/' + folder[0] + '/';
+                    var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
                     fse.mkdirs(basePath, function (err) {
                         if (!err) {
                             var uploadPath = basePath + req.file.originalname;
@@ -80,6 +110,21 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                                     success: true
                                 });
                             });
+                            if (req.body.dataType == 'picture') {
+                                //We make thumbnail and reuse it in datalist
+                                basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
+                                fse.mkdirs(basePath, function (err) {
+                                    if (!err) {
+                                        Jimp.read(uploadPath, function (err, imgThumb) {
+                                            if (!err) {
+                                                imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
+                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality 
+                                                        .write(basePath + req.file.originalname);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
                         } else
                             res.end();
                     });
@@ -97,6 +142,33 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 
 });
 
+
+router.get('/get_file', block_access.isLoggedIn, function (req, res) {
+    var entity = req.param('entity');
+    var src = req.param('src');
+    if (!!entity && !!src) {
+        var partOfFilepath = src.split('-');
+        if (partOfFilepath.length) {
+            var base = partOfFilepath[0];
+            var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + src;
+            fs.readFile(completeFilePath, function (err, data) {
+                if (!err) {
+                    var buffer = new Buffer(data).toString('base64');
+                    res.json({
+                        result: 200,
+                        data: buffer,
+                        success: true
+                    });
+                } else
+                    res.end();
+            });
+        } else
+            res.end();
+    } else
+        res.end();
+});
+
+
 router.get('/download', block_access.isLoggedIn, function (req, res) {
     var entity = req.param('entity');
     var filepath = req.param('f');
@@ -105,7 +177,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
             var partOfFilepath = filepath.split('-');
             if (partOfFilepath.length) {
                 var base = partOfFilepath[0];
-                var completeFilePath = global.localstorage + entity + '/' + base + '/' + filepath;
+                var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filepath;
                 res.download(completeFilePath, filepath, function (err) {
                     if (err)
                         reject(err);
@@ -137,11 +209,14 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
         var partOfFilepath = filename.split('-');
         if (partOfFilepath.length) {
             var base = partOfFilepath[0];
-            var completeFilePath = global.localstorage + entity + '/' + base + '/' + filename;
+            var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filename;
+            // thumbnail file to delete
+            var completeThumbnailPath = globalConf.localstorage + globalConf.thumbnail.folder + entity + '/' + base + '/' + filename;
             fs.unlink(completeFilePath, function (err) {
                 if (!err) {
                     req.session.toastr.push({level: 'success', message: "message.delete.success"});
                     res.json({result: 200, message: ''});
+                    fs.unlinkSync(completeThumbnailPath);
                 } else {
                     req.session.toastr.push({level: 'error', message: "Internal error"});
                     res.json({result: 500, message: ''});

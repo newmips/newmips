@@ -320,6 +320,12 @@
             "icon": {
                 "success": "L'entité %s a maintenant l'icône %s",
                 "list": "Suivez ce lien pour une liste complète des icônes disponibles:<br><a href='%s' target='_blank'>Font Awesome</a>"
+            },
+            "widget": {
+                "unknown": "Widget %s inconnu",
+                "success": "Widget %s ajouté au module %s",
+                "delete": "Widget %s supprimé avec succès",
+                "all_deleted": "Tous les widget de %s ont été supprimés"
             }
         }
     }

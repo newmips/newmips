@@ -3,64 +3,59 @@ var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
 var moment = require("moment");
-
 function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
     var dataField = nameDataField.toLowerCase();
     var dataEntity = nameDataEntity.toLowerCase();
-
     /* Value in input managment */
     var value = "";
     var value2 = "";
-
     if (file != "create") {
         value = "{" + dataField + "}";
         value2 = dataField;
-    } else if(defaultValue != null){
+    } else if (defaultValue != null) {
         switch (type) {
             case "number" :
             case "nombre" :
             case "int" :
             case "integer" :
                 defaultValue = defaultValue.replace(/\.|\,/g, "");
-                if(!isNaN(defaultValue))
+                if (!isNaN(defaultValue))
                     value = defaultValue;
                 else
-                    console.log("ERROR: Invalid default value "+defaultValue+" for number input.")
+                    console.log("ERROR: Invalid default value " + defaultValue + " for number input.")
                 break;
             case "decimal" :
             case "double" :
             case "float" :
             case "figures" :
                 defaultValue = defaultValue.replace(/\,/g, ".");
-                if(!isNaN(defaultValue))
+                if (!isNaN(defaultValue))
                     value = defaultValue;
                 else
-                    console.log("ERROR: Invalid default value "+defaultValue+" for decimal input.")
+                    console.log("ERROR: Invalid default value " + defaultValue + " for decimal input.")
                 break;
             case "date" :
-                if(moment(defaultValue, "YYYY-MM-DD", true).isValid()){
+                if (moment(defaultValue, "YYYY-MM-DD", true).isValid()) {
                     value = moment(defaultValue, "YYYY-MM-DD").format("YYYY-MM-DD");
-                } else if(moment(defaultValue, "DD/MM/YYYY", true).isValid()){
+                } else if (moment(defaultValue, "DD/MM/YYYY", true).isValid()) {
                     value = moment(defaultValue, "DD/MM/YYYY").format("YYYY-MM-DD");
-                } else if(["today", "now", "aujourd'hui"].indexOf(defaultValue.toLowerCase()) != -1){
+                } else if (["today", "now", "aujourd'hui"].indexOf(defaultValue.toLowerCase()) != -1) {
                     value = moment().format("YYYY-MM-DD");
-                } else{
-                    console.log("ERROR: Invalide date '"+defaultValue+"' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
+                } else {
+                    console.log("ERROR: Invalide date '" + defaultValue + "' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
                 }
                 break;
             case "boolean" :
             case "checkbox" :
             case "case à cocher" :
-                if(["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1){
+                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
                     value = true;
-                }
-                else if(["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1){
+                } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
                     value = false;
+                } else {
+                    console.log("ERROR: Invalid default value " + defaultValue + " for boolean input.")
                 }
-                else{
-                    console.log("ERROR: Invalid default value "+defaultValue+" for boolean input.")
-                }
-            break;
+                break;
             default :
                 value = defaultValue;
                 break;
@@ -70,10 +65,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
-
     var str = "<div data-field='" + dataField + "' class='form-group'>\n";
     str += "\t<label for='" + dataField + "'> {@__ key=\"entity." + dataEntity + "." + dataField + "\"/} </label>\n";
-
     // Check type of field
     switch (type) {
         case "string" :
@@ -107,7 +100,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text' data-type='qrcode' " + readOnly + "/>\n";
             else
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text'" + readOnly + "/>\n";
-
             str += "	</div>\n";
             break;
         case "euro":
@@ -159,13 +151,13 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	</div>\n";
             }
             /*else if (file == "create") {
-                str += "	<div class='input-group'>\n";
-                str += "		<div class='input-group-addon'>\n";
-                str += "			<i class='fa fa-calendar'></i>\n";
-                str += "		</div>\n";
-                str += "		<input class='form-control input datepicker' value='" + value + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
-                str += "	</div>\n";
-            }*/
+             str += "	<div class='input-group'>\n";
+             str += "		<div class='input-group-addon'>\n";
+             str += "			<i class='fa fa-calendar'></i>\n";
+             str += "		</div>\n";
+             str += "		<input class='form-control input datepicker' value='" + value + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
+             str += "	</div>\n";
+             }*/
             break;
         case "time" :
         case "heure" :
@@ -238,12 +230,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "case à cocher" :
             str += "    &nbsp;\n<br>\n";
             if (file == "create") {
-                if(value === true){
+                if (value === true) {
                     str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' checked />\n";
-                } else{
+                } else {
                     str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' />\n";
                 }
-            } else{
+            } else {
                 str += "	{@ifTrue key=" + dataField + "}";
                 str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
                 str += "	{:else}";
@@ -256,7 +248,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             if (file == "create") {
                 for (var i = 0; i < values.length; i++) {
                     str += "    &nbsp;\n<br>\n";
-                    if(values[i] == defaultValue)
+                    if (values[i] == defaultValue)
                         str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' checked type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
                     else
                         str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
@@ -286,7 +278,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "			{/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
-            } else if(value != ""){
+            } else if (value != "") {
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum." + dataField + "}\n";
@@ -297,7 +289,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "            {/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
-            } else{
+            } else {
                 str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "        {#enum." + dataField + "}\n";
@@ -325,6 +317,19 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	</div>\n";
             }
             break;
+        case "img":
+        case "picture":
+        case "image":
+        case "photo":
+            if (file != 'show') {
+                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+            } else {
+                str += "	<div class='input-group'>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-small' data-type='image' alt=" + value + " name=" + dataField + "  " + readOnly + " height=200 width=200/></a>\n";
+                str += "	</div>\n";
+            }
+            break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
@@ -341,7 +346,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     var dataEntity = nameDataEntity.toLowerCase();
     var dataField = nameDataField.toLowerCase();
-
     var ret = {headers: '', body: ''};
     /* ------------- Add new FIELD in headers ------------- */
     var str = '<th data-field="' + dataField + '" data-col="' + dataField + '"';
@@ -350,7 +354,6 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
     str += '</th>\n';
     ret.headers = str;
-
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
     str = '<td data-field="' + dataField + '"';
     str += ' data-type="' + type + '"';
@@ -373,17 +376,14 @@ function updateFile(fileBase, file, string, callback) {
 function updateListFile(fileBase, file, thString, bodyString, callback) {
     fileToWrite = fileBase + '/' + file + '.dust';
     domHelper.read(fileToWrite).then(function ($) {
-        // Count th to know where to insert new th (-3 because of actions th, show/update/delete)
+// Count th to know where to insert new th (-3 because of actions th, show/update/delete)
         var thCount = $(".main").find('th').length - 3;
-
         // Add to header thead and filter thead
         $(".fields").each(function () {
             $(this).find('th').eq(thCount).before(thString);
         });
-
         // Add td to tbody, this will be used in case of belongsToMany or hasMany show association
         $("#bodyTR").find('td').eq(thCount).before(bodyString);
-
         // jsDom have difficulties parsing the context inside <tr> tag. We need to extract the content of
         // a bad <tr> that jsDom generates, place this content at the right place, then remove the extra <tr>
         // generated by jsDom.
@@ -393,7 +393,7 @@ function updateListFile(fileBase, file, thString, bodyString, callback) {
             $("#bodyTR").parents('tbody').find('tr:last').after(closingContext);
         }
 
-        // Write back to file
+// Write back to file
         domHelper.write(fileToWrite, $).then(callback);
     });
 }
@@ -401,24 +401,18 @@ function updateListFile(fileBase, file, thString, bodyString, callback) {
 exports.setupDataField = function (attr, callback) {
 
     var id_application = attr.id_application;
-
     var name_module = attr.name_module;
     var name_data_entity = attr.name_data_entity;
     var codeName_data_entity = attr.codeName_data_entity;
-
     var type_data_field;
     var values_data_field;
-
     /* ----------------- 1 - Initialize variables according to options ----------------- */
     var options = attr.options;
-
     var name_data_field = options.value;
     var show_name_data_field = options.showValue;
     var defaultValue = null;
-
-    if(typeof options.defaultValue !== "undefined")
+    if (typeof options.defaultValue !== "undefined")
         defaultValue = options.defaultValue;
-
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
         type_data_field = options.type.toLowerCase();
@@ -440,16 +434,14 @@ exports.setupDataField = function (attr, callback) {
 
     /* ----------------- 2 - Update the entity model, add the attribute ----------------- */
 
-    // attributes.json
+// attributes.json
     var attributesFileName = './workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
     var attributesFile = fs.readFileSync(attributesFileName);
     var attributesObject = JSON.parse(attributesFile);
-
     // toSync.json
     var toSyncFileName = './workspace/' + id_application + '/models/toSync.json';
     var toSyncFile = fs.readFileSync(toSyncFileName);
     var toSyncObject = JSON.parse(toSyncFile);
-
     if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] === "undefined") {
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] = {};
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes = {};
@@ -459,7 +451,6 @@ exports.setupDataField = function (attr, callback) {
 
     var typeForModel = "STRING";
     var typeForDatalist = "string";
-
     switch (type_data_field) {
         case "password" :
         case "mot de passe":
@@ -560,6 +551,13 @@ exports.setupDataField = function (attr, callback) {
         case "fichier":
             typeForModel = "STRING";
             typeForDatalist = "file";
+            break;
+        case "img":
+        case "image":
+        case "picture":
+        case "photo":
+            typeForModel = "STRING";
+            typeForDatalist = "picture";
             break;
         case "cloudfile" :
             typeForModel = "STRING";

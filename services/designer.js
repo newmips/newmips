@@ -576,22 +576,28 @@ function deleteDataEntity(attr, callback) {
                     }
                 });
 
-                Promise.all(promises).then(function() {
-                    db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
-                        if (err){
-                            return callback(err, null);
-                        }
-                        database.dropDataEntity(id_application, name_data_entity, function(err) {
-                            if (err)
-                                return callback(err);
-                            attr.name_data_entity = name_data_entity;
-                            attr.show_name_data_entity = show_name_data_entity;
-                            db_entity.deleteDataEntity(attr, function(err, infoDB) {
+                attr.entityTarget = name_data_entity.substring(2);
+                deleteEntityWidgets(attr, function(err) {
+                    if (err)
+                        return callback(err);
+
+                    Promise.all(promises).then(function() {
+                        db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
+                            if (err){
+                                return callback(err, null);
+                            }
+                            database.dropDataEntity(id_application, name_data_entity, function(err) {
                                 if (err)
                                     return callback(err);
-                                var url_name_data_entity = attr.options.urlValue;
-                                structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
-                                    callback(null, infoDB);
+                                attr.name_data_entity = name_data_entity;
+                                attr.show_name_data_entity = show_name_data_entity;
+                                db_entity.deleteDataEntity(attr, function(err, infoDB) {
+                                    if (err)
+                                        return callback(err);
+                                    var url_name_data_entity = attr.options.urlValue;
+                                    structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
+                                        callback(null, infoDB);
+                                    });
                                 });
                             });
                         });
@@ -1615,38 +1621,131 @@ exports.setIcon = function(attr, callback) {
     db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
         if (err)
             return callback(err);
-        db_module.getNameModuleById(entity.id_module, function(err, moduleName) {
+        db_module.getModuleById(entity.id_module, function(err, module) {
             if (err)
                 return callback(err);
 
-            attr.module_name = moduleName;
-            attr.entity_name = entity.name;
+            attr.module = module;
+            attr.entity = entity;
             structure_ui.setIcon(attr, function(err, info) {
                 if (err)
                     return callback(err);
                 callback(null, info);
-            })
-        })
-    })
+            });
+        });
+    });
 }
 
 exports.setIconToEntity = function(attr, callback) {
     db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
         if (err)
             return callback(err);
-        db_module.getNameModuleById(entity.id_module, function(err, moduleName) {
+        db_module.getModuleById(entity.id_module, function(err, module) {
             if (err)
                 return callback(err);
 
-            attr.module_name = moduleName;
-            attr.entity_name = entity.name;
+            attr.module = module;
+            attr.entity = entity;
             structure_ui.setIcon(attr, function(err, info) {
                 if (err)
                     return callback(err);
                 callback(null, info);
-            })
-        })
-    })
+            });
+        });
+    });
 }
+
+exports.createWidgetLastRecords = function(attr, callback) {
+    var entityDbFunction = '', param = '';
+    if (attr.entityTarget) {
+        entityDbFunction = 'getDataEntityByName';
+        param = attr.entityTarget;
+    }
+    else {
+        entityDbFunction = 'getDataEntityById';
+        param = attr.id_data_entity;
+    }
+
+    db_entity[entityDbFunction](param, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+            attr.entity = entity;
+            attr.module = module;
+
+            structure_ui.createWidgetLastRecords(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            })
+        });
+    });
+}
+
+exports.createWidgetOnEntity = function(attr, callback) {
+    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+        if (err)
+            return callback(err);
+        attr.id_data_entity = entity.id;
+        createWidget(attr, callback);
+    });
+}
+
+function createWidget(attr, callback) {
+    if (attr.widgetType == -1)
+        return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+
+            attr.module = module;
+            attr.entity = entity;
+            structure_ui.createWidget(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            });
+        });
+    });
+}
+exports.createWidget = createWidget;
+
+function deleteWidget(attr, callback) {
+    if (attr.widgetType == -1)
+        return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
+    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+
+            attr.module = module;
+            attr.entity = entity;
+            structure_ui.deleteWidget(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            });
+        });
+    });
+}
+exports.deleteWidget = deleteWidget;
+
+function deleteEntityWidgets(attr, callback) {
+    attr.widgetTypes = ['info','stats', 'lastrecords'];
+    deleteWidget(attr, function(err) {
+        if (err)
+            callback(err);
+        callback(null, {message: "structure.ui.widget.all_deleted", messageParams: [attr.entityTarget]});
+    });
+}
+exports.deleteEntityWidgets = deleteEntityWidgets;
+
 
 return designer;

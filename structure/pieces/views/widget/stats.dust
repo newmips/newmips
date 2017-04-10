@@ -1,0 +1,13 @@
+<div class="small-box bg-aqua">
+    <div class="inner">
+        <h3>{ENTITY_NAME_stats}</h3>
+
+        <p>{@__ key="entity.ENTITY_NAME.label_entity" /}</p>
+    </div>
+    <div class="icon">
+        <i class="fa fa-shopping-cart ENTITY_URL_NAME-icon"></i>
+    </div>
+    <a href="/ENTITY_URL_NAME/list" class="small-box-footer">
+        More info <i class="fa fa-arrow-circle-right"></i>
+    </a>
+</div>
