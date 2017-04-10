@@ -64,10 +64,10 @@ exports.sendMailAsyncCustomTransport = function(mailOptions, config) {
         customTransporter.sendMail(mailOptions, function(error, info) {
             if (error) {
                 console.error(error);
-                reject(false);
+                reject(error);
             }
             console.log(info);
-            resolve(true);
+            resolve(info);
         });
     });
 }
