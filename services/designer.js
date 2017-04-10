@@ -1693,28 +1693,11 @@ function deleteWidget(attr, callback) {
 exports.deleteWidget = deleteWidget;
 
 function deleteEntityWidgets(attr, callback) {
-    var widgetTypes = ['stats', 'info'];
-    var deletePromises = [];
-
-    for (var i = 0; i < widgetTypes.length; i++)
-        deletePromises.push(new Promise(function(resolve, reject) {
-            var attrCpy = {
-                widgetType: widgetTypes[i],
-                entityTarget: attr.entityTarget,
-                widgetInputType: attr.widgetInputType,
-                id_application: attr.id_application
-            }
-            deleteWidget(attrCpy, function(err) {
-                if (err)
-                    return reject(err);
-                resolve();
-            });
-        }));
-
-    Promise.all(deletePromises).then(function() {
-        callback(null, {message: "structure.ui.widget.all_deleted"});
-    }).catch(function(err) {
-        callback(err);
+    attr.widgetTypes = ['info','stats', 'lastrecords'];
+    deleteWidget(attr, function(err) {
+        if (err)
+            callback(err);
+        callback(null, {message: "structure.ui.widget.all_deleted", messageParams: [attr.entityTarget]});
     });
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;

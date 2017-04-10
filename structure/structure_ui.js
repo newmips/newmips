@@ -109,7 +109,7 @@ exports.createWidget = function(attr, callback) {
 
     // Add widget's query to routes/default controller
     var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
-    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
+    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1);
     var insertCode = '';
     insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
     insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
@@ -169,7 +169,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var insertCode = '';
     insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
     insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
-    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+'}).then(function(result){\n';
+    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+', order: "id DESC"}).then(function(result){\n';
     insertCode += "\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': result});\n';
     insertCode += "\t\t});\n";
     insertCode += "\t}));\n";
@@ -184,7 +184,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-4'>\n";
+            newHtml += "<div id='"+widgetElemId+"' class='col-xs-"+(attr.columns.length > 4 ? 8 : 4)+"'>\n";
             newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
             newHtml +=      $2("body")[0].innerHTML+"\n";
             newHtml += '<!--{/entityAccess}-->';
@@ -221,11 +221,15 @@ exports.deleteWidget = function(attr, callback) {
 
     // Delete from view
     domHelper.read(workspacePath+'/views/default/'+attr.module.codeName+'.dust').then(function($) {
-        var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
-        // It is possible to have the same widgetType for the same entity
-        // It results in a duplication of the ID, so we loop until there is none left
-        while ($("#"+widgetElemId).length > 0)
-            $("#"+widgetElemId).remove();
+
+        for (var i = 0; i < attr.widgetTypes.length; i++) {
+            var widgetElemId = attr.widgetTypes[i]+'_'+attr.entity.codeName+'_widget';
+
+            // It is possible to have the same widgetType for the same entity
+            // It results in a duplication of the ID, so we loop until there is none left
+            while ($("#"+widgetElemId).length > 0)
+                $("#"+widgetElemId).remove();
+        }
 
         domHelper.write(workspacePath+'/views/default/'+attr.module.codeName+'.dust', $).then(function() {
             callback(null, {message: "structure.ui.widget.delete", messageParams: [attr.widgetInputType]});
