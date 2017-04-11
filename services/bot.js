@@ -150,6 +150,38 @@ exports.setColumnVisibility = function(result) {
     return attr;
 };
 
+exports.setColumnHidden = function(result) {
+
+    // Set entity name as the first option in options array
+    var options = {
+        value: result[1],
+        word: "hidden",
+        processValue: true
+    };
+
+    var attr = {
+        function: "setColumnVisibility",
+        options: options
+    };
+    return attr;
+};
+
+exports.setColumnVisible = function(result) {
+
+    // Set entity name as the first option in options array
+    var options = {
+        value: result[1],
+        word: "visible",
+        processValue: true
+    };
+
+    var attr = {
+        function: "setColumnVisibility",
+        options: options
+    };
+    return attr;
+};
+
 // ******* CREATE Actions ******* //
 exports.createNewProject = function(result) {
 
@@ -901,6 +933,16 @@ exports.parse = function(instruction) {
             "set column (.*) (.*)",
             "mettre la colonne (.*) en (.*)",
             "rendre la colonne (.*) (.*)"
+        ],
+        "setColumnHidden": [
+            "hide column (.*)",
+            "hide the column (.*)",
+            "cacher la colonne (.*)"
+        ],
+        "setColumnVisible": [
+            "show column (.*)",
+            "show the column (.*)",
+            "afficher la colonne (.*)"
         ],
         "createNewProject": [
             "create project (.*)",
