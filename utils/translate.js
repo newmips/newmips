@@ -250,6 +250,9 @@ module.exports = {
                     depth[keys[i]] = value;
                 else
                     depth = depth[keys[i]];
+            } else{
+                if(i+1 == keys.length)
+                    depth[keys[i]] = value;
             }
         }
         fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));

@@ -21,24 +21,41 @@ var wfs = require("webdav-fs")(
         webdav_conf.user_name,
         webdav_conf.password
         );
+// ===========================================
+// Redirection Home =====================
+// ===========================================
+
+// *** Dynamic Module | Do not remove ***
 
 // m_authentication
 router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
-    var data = {
-        profile: req.session.data
-    };
-    res.render('default/m_authentication', data);
-});
+    var widgetPromises = [];
 
+    // *** Widget module m_authentication | Do not remove ***
+
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_authentication', data);
+    });
+});
 
 // m_home
 router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function (req, res) {
-    var data = {
-        profile: req.session.data
-    };
-    res.render('default/m_home', data);
-});
+    var widgetPromises = [];
 
+    // *** Widget module m_home | Do not remove ***
+
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_home', data);
+    });
+});
 
 // Page non autorisée
 router.get('/unauthorized', function (req, res) {
@@ -55,12 +72,6 @@ router.post('/change_language', function (req, res) {
         success: true
     });
 });
-
-// ===========================================
-// Redirection Home =====================
-// ===========================================
-
-// *** Dynamic Module | Do not remove ***
 
 // Page non autorisée
 router.get('/unauthorized', function (req, res) {

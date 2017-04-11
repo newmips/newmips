@@ -727,7 +727,8 @@ function getRightWidgetType(originalType) {
 exports.createWidgetLastRecordsWithLimit = function(result) {
     var attr = {
         function: 'createWidgetLastRecords',
-        widgetType: getRightWidgetType
+        widgetType: 'lastrecords',
+        widgetInputType: 'last records'
     }
 
     if (result.length == 3) {
@@ -773,7 +774,7 @@ exports.createWidget = function(result) {
 exports.deleteWidget = function(result) {
     return {
         function: 'deleteWidget',
-        widgetType: getRightWidgetType(result[1]),
+        widgetTypes: [getRightWidgetType(result[1])],
         widgetInputType: result[1],
         entityTarget: result[2]
     }

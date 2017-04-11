@@ -139,7 +139,7 @@
     "defaults": {
         "widgets": {
             "lastrecords": {
-                "label": "Derniers enregistrements"
+                "label": "derniers enregistrements"
             }
         }
     },
