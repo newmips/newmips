@@ -2,6 +2,7 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
+var moment = require("moment");
 
 function setupComponentModel(idApplication, folderComponent, nameComponent, filename, callback){
 	// CREATE MODEL FILE
@@ -309,8 +310,8 @@ exports.newContactForm = function(attr, callback){
 			"'"+mailConfig.transport.auth.user+"',"+
 			"'"+mailConfig.transport.auth.pass+"',"+
 			"'"+mailConfig.administrateur+"',"+
-			"'0000-00-00 00:00:00',"+
-			"'0000-00-00 00:00:00');";
+			"'"+moment().format("YYYY-MM-DD HH:mm:ss")+"',"+
+			"'"+moment().format("YYYY-MM-DD HH:mm:ss")+"');";
 
     toSyncObject[idApp + "_" + codeNameSettings].queries.push(insertSettings);
 
@@ -370,10 +371,12 @@ exports.newContactForm = function(attr, callback){
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Send box");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "settings"], "Settings");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
 
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte d'envoi");
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
 
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");
