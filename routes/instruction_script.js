@@ -122,9 +122,16 @@ function recursiveExecute(req, instructions, idx) {
             // Api documentation
             docBuilder.build(req.session.id_application);
 
-            var toSyncFileName = './workspace/'+idApplication+'/models/toSync.json';
+            var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
+            var toSyncFile = fs.readFileSync(toSyncFileName);
+            var toSyncObject = JSON.parse(toSyncFile);
+
+            for(var entity in toSyncObject){
+                toSyncObject[entity].attributes = {};
+                delete toSyncObject[entity].options;
+            }
+
             var writeStream = fs.createWriteStream(toSyncFileName);
-            var toSyncObject = {};
             writeStream.write(JSON.stringify(toSyncObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
@@ -217,11 +224,11 @@ router.post('/execute', block_access.isLoggedIn, multer({
     var exception = {
         createNewProject : {
             value: 0,
-            errorMessage: "You can't create more than one project in the same script."
+            errorMessage: "You can't create or select more than one project in the same script."
         },
         createNewApplication : {
             value: 0,
-            errorMessage: "You can't create more than one application in the same script."
+            errorMessage: "You can't create or select more than one application in the same script."
         },
         createModuleHome: {
             value: 1,

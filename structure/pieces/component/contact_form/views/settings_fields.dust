@@ -1,0 +1,29 @@
+<div id="fields">
+    <div data-field="f_transport_host" class="form-group">
+        <label for="f_transport_host"> {@__ key="entity.CODE_VALUE_SETTINGS.f_transport_host"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_SETTINGS.f_transport_host" /}' name="f_transport_host" value="{f_transport_host}" type="text">
+    </div>
+    <div data-field="f_port" class="form-group">
+        <label for="f_port"> {@__ key="entity.CODE_VALUE_SETTINGS.f_port"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_SETTINGS.f_port" /}' name="f_port" value="{f_port}" type="number">
+    </div>
+    <div data-field="f_secure" class="form-group">
+        <label for="f_secure"> {@__ key="entity.CODE_VALUE_SETTINGS.f_secure"/} </label> &nbsp;
+        <br>
+        {@ifTrue key=f_secure}<input class="form-control input" name="f_secure" value="{f_secure}" type="checkbox" checked="">
+        {:else}<input class="form-control input" name="f_secure" value="{f_secure}" type="checkbox">
+        {/ifTrue}
+    </div>
+    <div data-field="f_user" class="form-group">
+        <label for="f_user"> {@__ key="entity.CODE_VALUE_SETTINGS.f_user"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_SETTINGS.f_user" /}' name="f_user" value="{f_user}" type="text">
+    </div>
+    <div data-field="f_pass" class="form-group">
+        <label for="f_pass"> {@__ key="entity.CODE_VALUE_SETTINGS.f_pass"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_SETTINGS.f_pass" /}' name="f_pass" value="{f_pass}" type="password">
+    </div>
+    <div data-field="f_form_recipient" class="form-group">
+        <label for="f_form_recipient"> {@__ key="entity.CODE_VALUE_SETTINGS.f_form_recipient"/} </label>
+        <input class="form-control input" placeholder='{@__ key="entity.CODE_VALUE_SETTINGS.f_form_recipient" /}' name="f_form_recipient" value="{f_form_recipient}" type="text">
+    </div>
+</div>
