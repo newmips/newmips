@@ -302,13 +302,15 @@ exports.newContactForm = function(attr, callback){
     delete require.cache[require.resolve(mailConfigPath)];
     var mailConfig = require(mailConfigPath);
 
-    var insertSettings = "INSERT INTO `"+idApp + "_" + codeNameSettings+"`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`)"+
-    	"VALUES (1,'"+mailConfig.transport.host+"',"+
+    var insertSettings = "INSERT INTO `"+idApp + "_" + codeNameSettings+"`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)"+
+    	" VALUES(1,'"+mailConfig.transport.host+"',"+
 			"'"+mailConfig.transport.port+"',"+
 			mailConfig.transport.secure+","+
 			"'"+mailConfig.transport.auth.user+"',"+
 			"'"+mailConfig.transport.auth.pass+"',"+
-			"'"+mailConfig.administrateur+"')";
+			"'"+mailConfig.administrateur+"',"+
+			"'0000-00-00 00:00:00',"+
+			"'0000-00-00 00:00:00');";
 
     toSyncObject[idApp + "_" + codeNameSettings].queries.push(insertSettings);
 
