@@ -86,7 +86,7 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
             if (req.body.storageType == 'local') {
                 var folder = req.file.originalname.split('-');
                 var dataEntity = req.body.dataEntity;
-                if (folder.length && !!dataEntity) {
+                if (folder.length>1 && !!dataEntity) {
                     var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
                     fse.mkdirs(basePath, function (err) {
                         if (!err) {
@@ -133,11 +133,11 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 
 
 router.get('/get_file', block_access.isLoggedIn, function (req, res) {
-    var entity = req.param('entity');
-    var src = req.param('src');
+    var entity = req.query('entity');
+    var src = req.query('src');
     if (!!entity && !!src) {
         var partOfFilepath = src.split('-');
-        if (partOfFilepath.length) {
+        if (partOfFilepath.length>1) {
             var base = partOfFilepath[0];
             var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + src;
             fs.readFile(completeFilePath, function (err, data) {
@@ -159,12 +159,12 @@ router.get('/get_file', block_access.isLoggedIn, function (req, res) {
 
 
 router.get('/download', block_access.isLoggedIn, function (req, res) {
-    var entity = req.param('entity');
-    var filepath = req.param('f');
+    var entity = req.query('entity');
+    var filepath = req.query('f');
     var p = new Promise(function (resolve, reject) {
         if (!!entity && !!filepath) {
             var partOfFilepath = filepath.split('-');
-            if (partOfFilepath.length) {
+            if (partOfFilepath.length>1) {
                 var base = partOfFilepath[0];
                 var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filepath;
                 res.download(completeFilePath, filepath, function (err) {
