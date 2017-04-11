@@ -22,7 +22,7 @@ exports.deleteEntityFile = function (options) {
 
 exports.getFileBuffer64 = function (path, callback) {
     if (typeof path == 'undefined')
-        return callback(false,'');
+        return callback(false, '');
     fs.readFile(global.localstorage + path, function (err, data) {
         if (!err)
             return callback(true, new Buffer(data).toString('base64'));
@@ -39,7 +39,10 @@ var deleteEntityLocalFile = function (options) {
                     if (options.type == 'picture') {
                         //remove thumbnail picture
                         var fileThumnailPath = global.localstorage + global.thumbnail.folder + options.entityName + '/' + partOfValue[0] + '/' + options.value;
-                        fs.unlinkSync(fileThumnailPath);
+                        fs.unlink(fileThumnailPath, function (err) {
+                            if (err)
+                                console.log(err);
+                        });
                     }
                 }
             });

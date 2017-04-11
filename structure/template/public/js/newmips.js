@@ -429,7 +429,7 @@ $(document).ready(function () {
                 this.on('removedfile', function (file) {
                     if (file.status != "error") {
                         var dropzone = this;
-                        x = confirm('Êtes-vous sûr de vouloir supprimer cette entité ?');
+                        x = confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?');
                         if (!x)
                             return false;
                         $.ajax({
