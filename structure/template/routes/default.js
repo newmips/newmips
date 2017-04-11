@@ -144,8 +144,8 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 
 
 router.get('/get_file', block_access.isLoggedIn, function (req, res) {
-    var entity = req.query('entity');
-    var src = req.query('src');
+    var entity = req.param('entity');
+    var src = req.param('src');
     if (!!entity && !!src) {
         var partOfFilepath = src.split('-');
         if (partOfFilepath.length>1) {
@@ -170,8 +170,8 @@ router.get('/get_file', block_access.isLoggedIn, function (req, res) {
 
 
 router.get('/download', block_access.isLoggedIn, function (req, res) {
-    var entity = req.query('entity');
-    var filepath = req.query('f');
+    var entity = req.param('entity');
+    var filepath = req.param('f');
     var p = new Promise(function (resolve, reject) {
         if (!!entity && !!filepath) {
             var partOfFilepath = filepath.split('-');
