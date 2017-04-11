@@ -217,7 +217,10 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
                 if (!err) {
                     req.session.toastr.push({level: 'success', message: "message.delete.success"});
                     res.json({result: 200, message: ''});
-                    fs.unlinkSync(completeThumbnailPath);
+                    fs.unlink(completeThumbnailPath,function (err) {
+                        if(err)
+                            console.log(err);
+                    });
                 } else {
                     req.session.toastr.push({level: 'error', message: "Internal error"});
                     res.json({result: 500, message: ''});
