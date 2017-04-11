@@ -157,6 +157,7 @@ router.get('/get_file', block_access.isLoggedIn, function (req, res) {
                     res.json({
                         result: 200,
                         data: buffer,
+                        file: src,
                         success: true
                     });
                 } else
