@@ -292,16 +292,11 @@ exports.newContactForm = function(attr, callback){
 	var workspacePath = __dirname+'/../workspace/'+idApp;
     var piecesPath = __dirname+'/../structure/pieces/component/contact_form';
 
-    var toSyncFileName = workspacePath+'/models/toSync.json';
-    var toSyncFile = fs.readFileSync(toSyncFileName);
-    var toSyncObject = JSON.parse(toSyncFile);
-
-    if (typeof toSyncObject[idApp + "_" + codeNameSettings] === "undefined") {
-        toSyncObject[idApp + "_" + codeNameSettings] = {};
-        toSyncObject[idApp + "_" + codeNameSettings].queries = [];
-    } else if (typeof toSyncObject[idApp + "_" + codeNameSettings].queries === "undefined") {
-        toSyncObject[idApp + "_" + codeNameSettings].queries = [];
-    }
+    /*var toSyncFileName = workspacePath+'/models/toSync.json';
+    var toSyncFile = fs.readFileSync(toSyncFileName);*/
+    var toSyncObject = {};
+    toSyncObject[idApp + "_" + codeNameSettings] = {};
+    toSyncObject[idApp + "_" + codeNameSettings].queries = [];
 
     var mailConfigPath = workspacePath + "/config/mail";
     delete require.cache[require.resolve(mailConfigPath)];
