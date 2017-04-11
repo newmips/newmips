@@ -755,6 +755,28 @@ exports.createWidgetLastRecordsWithLimit = function(result) {
     return attr;
 }
 
+exports.createWidgetLastRecords = function(result) {
+    var attr = {
+        function: 'createWidgetLastRecords',
+        widgetType: 'lastrecords',
+        widgetInputType: 'last records',
+        limit: 10
+    }
+
+    if (result.length == 2)
+        attr.columns = result[1].split(',');
+    else if (result.length == 3) {
+        attr.entityTarget = result[1];
+        attr.columns = result[2].split(',');
+    }
+
+    // Remove unwanted spaces from columns
+    for (var i = 0; i < attr.columns.length; i++)
+        attr.columns[i] = attr.columns[i].trim();
+
+    return attr;
+}
+
 exports.createWidgetOnEntity = function(result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
@@ -1357,11 +1379,18 @@ exports.parse = function(instruction) {
         ],
         "createWidgetLastRecordsWithLimit": [
             "add widget last records limited to (.*) records with columns (.*)",
-            "add widget last records on entity (.*) limited to (.*) records with columns (.*)"
+            "add widget last records on entity (.*) limited to (.*) records with columns (.*)",
+            "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+            "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
+            "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
         ],
         "createWidgetLastRecords": [
             "add widget last records with columns (.*)",
-            "add widget last records on entity (.*) with columns (.*)"
+            "add widget last records on entity (.*) with columns (.*)",
+            "ajouter un widget derniers enregistrements avec les colonnes (.*)",
+            "ajouter un widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)",
+            "créer un widget derniers enregistrements avec les colonnes (.*)",
+            "créer un widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)"
         ],
         "createWidgetOnEntity": [
             "créer une (.*) sur l'entité (.*)",
