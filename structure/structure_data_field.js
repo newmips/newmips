@@ -558,6 +558,7 @@ exports.setupDataField = function (attr, callback) {
         case "photo":
             typeForModel = "STRING";
             typeForDatalist = "picture";
+            type_data_field = 'picture';
             break;
         case "cloudfile" :
             typeForModel = "STRING";
