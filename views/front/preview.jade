@@ -43,6 +43,8 @@ block content
 				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("preview.title")}
 			li
 				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("menu.editor")}
+			li
+				a(role="primaryTab", data-toggle='tab', href='#ui-editor') #{__("menu.ui_editor")}
 
 		.tab-content
 			#preview.tab-pane.fade.in.active
@@ -207,6 +209,29 @@ block content
 							option(value="xq-light") xq-light
 							option(value="yeti") yeti
 							option(value="zenburn") zenburn
+			#ui-editor.tab-pane.fade.in
+				.row
+					.col-xs-12.col-sm-2.sidebar
+						h4
+							| #{__("entity.label")} :
+						ul#sortable.sidebar-menu
+							for module in modules
+								for entity in module.DataEntities
+									li
+										| #{entity.name}
+										ul
+											li
+												a(class='ui_editor_page' href='#' data-url='/ui_editor/getPage/#{entity.codeName}/create_fields.dust')
+													| create page
+											li
+												a(class='ui_editor_page' href='#' data-url='/ui_editor/getPage/#{entity.codeName}/update_fields.dust')
+													| update page
+											li
+												a(class='ui_editor_page' href='#' data-url='/ui_editor/getPage/#{entity.codeName}/show_fields.dust')
+													| show page
+					.col-xs-12.col-sm-10
+						#ui_editor_page
+
 
 block custom_js
 	// AdminLTE App
@@ -220,7 +245,22 @@ block custom_js
 		intro2 += "#{__('editor.intro3')}";
 	script(type='text/javascript').
 		$(document).ready(function(){
+			// UI Editor
+			$(".ui_editor_page").click(function() {
+				$.ajax({
+					url: $(this).data('url'),
+					success: function(pageHtml) {
+					console.log(pageHtml);
+						$("#ui_editor_page").html(pageHtml);
+					},
+					error: function(err) {
+						console.log(err);
+						toastr.error(err.messageText);
+					}
+				})
+			})
 
+			// Editor
 			var isEditorStarted = false;
 			$(document).on("click", "#start-editor", function(){
 				if(!isEditorStarted){

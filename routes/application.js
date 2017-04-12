@@ -181,7 +181,11 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             if(err)
                                 setChat(req, id_application, currentUserID, "Newmips", err.message, []);
                             data.chat = req.session.chat[id_application][currentUserID];
-                            res.render('front/preview', data);
+                            models.Module.findAll({where: {id_application: application.id}, include: [{model: models.DataEntity}]}).then(function(modules) {
+                                // Modules with entities for ui-editor
+                                data.modules = modules;
+                                res.render('front/preview', data);
+                            });
                         });
                     });
                 }
@@ -384,7 +388,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                                     setChat(req, currentAppID, currentUserID, "Newmips", err.message, []);
                                                 // Call preview page
                                                 data.chat = req.session.chat[currentAppID][currentUserID];
-                                                res.render('front/preview.jade', data);
+
+                                                models.Module.findAll({where: {id_application: application.id}, include: [{model: models.DataEntity}]}).then(function(modules) {
+                                                    // Modules with entities for ui-editor
+                                                    data.modules = modules;
+                                                    res.render('front/preview', data);
+                                                });
                                             });
                                         }
                                     });
