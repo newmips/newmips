@@ -5,6 +5,7 @@ var router = express.Router();
 var block_access = require('../utils/block_access');
 var auth = require('../utils/authStrategies');
 var helper = require('../utils/helpers');
+var fs = require("fs");
 
 //Sequelize
 var models = require('../models/');
@@ -79,5 +80,14 @@ router.get('/update_instruction_cpt', function(req, res) {
             pourcentInstruction: pourcentInstruction
         });
     });
+});
+
+router.get('/update_logs', function(req, res) {
+    try{
+        res.send(fs.readFileSync(__dirname + "/../all.log"));
+    } catch(e){
+        console.log(e);
+        res.send(false);
+    }
 });
 module.exports = router;
