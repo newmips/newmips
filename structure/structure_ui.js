@@ -1,6 +1,47 @@
 var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 
+exports.setColumnVisibility = function (attr, callback) {
+    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity;
+
+    var possibilityShow = ["show", "visible"];
+    var possibilityHide = ["hide", "hidden", "non visible", "caché"];
+
+    var attributes = attr.options.word.toLowerCase();
+    var hide;
+
+    if (possibilityHide.indexOf(attributes) != -1) {
+        hide = true;
+    } else if (possibilityShow.indexOf(attributes) != -1) {
+        hide = false;
+    } else {
+        var err = new Error();
+        err.message = "structure.field.attributes.notUnderstand";
+        return callback(err);
+    }
+
+    domHelper.read(pathToViews + '/list_fields.dust').then(function ($) {
+        if(attr.options.value == "f_id")
+            attr.options.value = "id";
+        if($("*[data-field='" + attr.options.value + "']").length > 0){
+            $("*[data-field='" + attr.options.value + "']")[hide ? 'hide' : 'show']();
+            domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
+                var info = {};
+                info.message = hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show";
+                info.messageParams = [attr.options.showValue];
+                callback(null, info);
+            });
+        } else{
+            var err = new Error();
+            err.message = "structure.ui.columnVisibility.noColumn";
+            err.messageParams = [attr.options.showValue];
+            return callback(err);
+        }
+    }).catch(function (err) {
+        callback(err, null);
+    });
+}
+
 exports.setSkin = function(attr, callback) {
 
     var idApplication = attr.id_application;

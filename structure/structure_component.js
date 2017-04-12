@@ -2,6 +2,7 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
+var moment = require("moment");
 
 function setupComponentModel(idApplication, folderComponent, nameComponent, filename, callback){
 	// CREATE MODEL FILE
@@ -302,13 +303,15 @@ exports.newContactForm = function(attr, callback){
     delete require.cache[require.resolve(mailConfigPath)];
     var mailConfig = require(mailConfigPath);
 
-    var insertSettings = "INSERT INTO `"+idApp + "_" + codeNameSettings+"`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`)"+
-    	"VALUES (1,'"+mailConfig.transport.host+"',"+
+    var insertSettings = "INSERT INTO `"+idApp + "_" + codeNameSettings+"`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)"+
+    	" VALUES(1,'"+mailConfig.transport.host+"',"+
 			"'"+mailConfig.transport.port+"',"+
 			mailConfig.transport.secure+","+
 			"'"+mailConfig.transport.auth.user+"',"+
 			"'"+mailConfig.transport.auth.pass+"',"+
-			"'"+mailConfig.administrateur+"')";
+			"'"+mailConfig.administrateur+"',"+
+			"'"+moment().format("YYYY-MM-DD HH:mm:ss")+"',"+
+			"'"+moment().format("YYYY-MM-DD HH:mm:ss")+"');";
 
     toSyncObject[idApp + "_" + codeNameSettings].queries.push(insertSettings);
 
@@ -368,10 +371,12 @@ exports.newContactForm = function(attr, callback){
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Send box");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "settings"], "Settings");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
 
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte d'envoi");
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
 
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");

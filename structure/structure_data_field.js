@@ -376,7 +376,7 @@ function updateFile(fileBase, file, string, callback) {
 function updateListFile(fileBase, file, thString, bodyString, callback) {
     fileToWrite = fileBase + '/' + file + '.dust';
     domHelper.read(fileToWrite).then(function ($) {
-// Count th to know where to insert new th (-3 because of actions th, show/update/delete)
+        // Count th to know where to insert new th (-3 because of actions th, show/update/delete)
         var thCount = $(".main").find('th').length - 3;
         // Add to header thead and filter thead
         $(".fields").each(function () {
@@ -393,7 +393,7 @@ function updateListFile(fileBase, file, thString, bodyString, callback) {
             $("#bodyTR").parents('tbody').find('tr:last').after(closingContext);
         }
 
-// Write back to file
+        // Write back to file
         domHelper.write(fileToWrite, $).then(callback);
     });
 }
@@ -434,7 +434,7 @@ exports.setupDataField = function (attr, callback) {
 
     /* ----------------- 2 - Update the entity model, add the attribute ----------------- */
 
-// attributes.json
+    // attributes.json
     var attributesFileName = './workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
     var attributesFile = fs.readFileSync(attributesFileName);
     var attributesObject = JSON.parse(attributesFile);
@@ -558,6 +558,7 @@ exports.setupDataField = function (attr, callback) {
         case "photo":
             typeForModel = "STRING";
             typeForDatalist = "picture";
+            type_data_field = 'picture';
             break;
         case "cloudfile" :
             typeForModel = "STRING";
@@ -734,38 +735,6 @@ exports.setUniqueField = function (attr, callback) {
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
     callback();
-}
-
-exports.setColumnVisibility = function (attr, callback) {
-
-    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity;
-
-    var possibilityShow = ["show", "visible"];
-    var possibilityHide = ["hide", "hidden", "non visible", "caché"];
-
-    var attributes = attr.options.word.toLowerCase();
-    var hide;
-
-    if (possibilityHide.indexOf(attributes) != -1) {
-        hide = true;
-    } else if (possibilityShow.indexOf(attributes) != -1) {
-        hide = false;
-    } else {
-        var err = new Error();
-        err.message = "structure.field.attributes.notUnderstand";
-        return callback(err);
-    }
-
-    domHelper.read(pathToViews + '/list_fields.dust').then(function ($) {
-        $("*[data-field='" + attr.options.value + "']")[hide ? 'hide' : 'show']();
-        domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
-            var info = {};
-            info.message = "Set column " + attr.options.showValue + " visibility to " + attributes;
-            callback(null, info);
-        });
-    }).catch(function (err) {
-        callback(err, null);
-    });
 }
 
 function addTab(attr, file, newLi, newTabContent) {
