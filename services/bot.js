@@ -724,6 +724,8 @@ function getRightWidgetType(originalType) {
 
         case "lastrecords":
         case "last records":
+        case "derniers enregistrements":
+        case "derniersenregistrements":
             return "lastrecords";
 
         default:
