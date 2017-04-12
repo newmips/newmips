@@ -427,23 +427,26 @@ $(document).ready(function () {
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
                 this.on('removedfile', function (file) {
-                    var dropzone = this;
-                    x = confirm('Êtes-vous sûr de vouloir supprimer cette entité ?');
-                    if (!x)
-                        return false;
-                    $.ajax({
-                        url: '/default/delete_file',
-                        type: 'post',
-                        data: {dataEntity: that.attr("data-entity"),
-                            dataStorage: that.attr("data-storage"),
-                            filename: $("#" + that.attr("id") + "_hidden").val()},
-                        success: function (success) {
-                            $("#" + that.attr("id") + "_hidden").val('');
-                            if (dropzone.files.length) {
-                                dropzone.removeAllFiles(true);
+                    if (file.status != "error") {
+                        var dropzone = this;
+                        x = confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?');
+                        if (!x)
+                            return false;
+                        $.ajax({
+                            url: '/default/delete_file',
+                            type: 'post',
+                            data: {dataEntity: that.attr("data-entity"),
+                                dataStorage: that.attr("data-storage"),
+                                filename: $("#" + that.attr("id") + "_hidden").val()},
+                            success: function (success) {
+                                $("#" + that.attr("id") + "_hidden").val('');
+                                if (dropzone.files.length) {
+                                    dropzone.removeAllFiles(true);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
+
                 });
             },
             renameFilename: function (filename) {

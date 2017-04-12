@@ -313,6 +313,11 @@
             }
         },
         "ui": {
+            "columnVisibility":{
+                "hide": "La colonne %s est désormais cachée.",
+                "show": "La colonne %s est désormais visible.",
+                "noColumn": "Impossible de trouver la colonne %s."
+            },
             "skin": {
                 "list": "Colorations disponibles:<br>%s<br>",
                 "cannotFind": "Impossible de trouver la coloration demandée. Colorations disponibles :<br>%s<br>"

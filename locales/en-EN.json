@@ -313,6 +313,11 @@
             }
         },
         "ui": {
+            "columnVisibility":{
+                "hide": "The column %s is now hidden.",
+                "show": "The column %s is now visible.",
+                "noColumn": "Cannot find the column %s."
+            },
             "skin": {
                 "list": "Available skin:<br>%s<br>",
                 "cannotFind": "Cannot find the asked skin. Available skin:<br> %s <br>"

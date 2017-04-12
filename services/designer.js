@@ -843,7 +843,7 @@ exports.setColumnVisibility = function(attr, callback) {
             return callback(err);
 
         attr.name_data_entity = dataEntity.codeName;
-        structure_data_field.setColumnVisibility(attr, function(err, infoStructure) {
+        structure_ui.setColumnVisibility(attr, function(err, infoStructure) {
             if (err)
                 return callback(err);
 

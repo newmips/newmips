@@ -259,7 +259,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
             models.MODEL_VALUE_CONTACT.create(createObject).then(function (CODE_VALUE_CONTACT) {
                 var redirect = '/URL_VALUE_CONTACT/create_form';
                 req.session.toastr = [{
-                    message: "Votre mail a bien été envoyé !",
+                    message: "entity.CODE_VALUE_CONTACT.successSendMail",
                     level: "success"
                 }];
 
