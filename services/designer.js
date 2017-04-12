@@ -1561,6 +1561,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add field User validated with type boolean",
             "add field Admin validated with type boolean",
             "add field Notification admin with type text",
+            "set icon calendar check o",
             "entity user has many CRA",
             "entity CRA has many CRA Task",
             "select entity CRA Task",

@@ -110,10 +110,13 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field email with type email");
     instructions.push("add field token_password_reset");
     instructions.push("add field enabled with type number");
+    instructions.push("set icon user");
     instructions.push("create entity Role");
     instructions.push("add field label");
+    instructions.push("set icon asterisk");
     instructions.push("create entity Group");
     instructions.push("add field label");
+    instructions.push("set icon users");
     instructions.push("select entity User");
     instructions.push("add field role related to Role using label");
     instructions.push("add field group related to Group using label");
@@ -121,6 +124,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Client Name");
     instructions.push("add field Client Key");
     instructions.push("add field Client Secret");
+    instructions.push("set icon unlink");
     instructions.push("add field role related to Role using label");
     instructions.push("add field group related to Group using label");
     instructions.push("add field Token");
