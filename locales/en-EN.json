@@ -29,6 +29,7 @@
         "module": "Module",
         "application": "Application",
         "editor": "Editor",
+        "ui_editor": "UI Editor",
         "live": "Live",
         "instruction": "Instruction",
         "import": "Import",
@@ -85,6 +86,9 @@
         "intro": "Hi Newmips user!",
         "intro2": "You can select a file on the sidebar on your left ;)",
         "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
+    },
+    "ui_editor": {
+        "page_not_found": "Couldn't find corresponding file"
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
