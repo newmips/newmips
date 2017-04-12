@@ -35,7 +35,8 @@
         "settings": "Settings",
         "error": "Error",
         "back": "Back office",
-        "users": "Users"
+        "users": "Users",
+        "logs": "Logs"
     },
     "button": {
         "generate": "Generate",
