@@ -22,6 +22,9 @@ var https = require('https');
 var fs = require('fs');
 var helper = require('./utils/helpers');
 var logger = require('./utils/logger');
+var split = require('split');
+var AnsiToHTML = require('ansi-to-html');
+var ansiToHtml = new AnsiToHTML();
 
 // configuration ===============================================================
 
@@ -32,13 +35,20 @@ require('./utils/authStrategies');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
 
-// Empeche l'apparition de certain log polluant.
+var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {flags: 'a'});
+
 app.use(morgan('dev', {
 	skip: function (req, res) {
-		// < 400 permet d'afficher que les erreurs dans les logs
-		//return res.statusCode < 400
-		return req.url == "/get_pourcent_generation"
-	}
+		// Empeche l'apparition de certain log polluant.
+		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status"];
+		if(skipArray.indexOf(req.url) != -1){
+			return true;
+		}
+	},
+	stream: split().on('data', function (line) {
+		allLogStream.write(ansiToHtml.toHtml(line)+"\n");
+		process.stdout.write(line+"\n");
+	})
 }));
 
 app.use(cookieParser()); // read cookies (needed for auth)

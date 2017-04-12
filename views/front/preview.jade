@@ -43,6 +43,8 @@ block content
 				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("preview.title")}
 			li
 				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("menu.editor")}
+			li
+				a#start-logs(role="primaryTab", data-toggle='tab', href='#logs') #{__("menu.logs")}
 
 		.tab-content
 			#preview.tab-pane.fade.in.active
@@ -207,7 +209,9 @@ block content
 							option(value="xq-light") xq-light
 							option(value="yeti") yeti
 							option(value="zenburn") zenburn
-
+			#logs.tab-pane.fade.in
+				.form-group
+					.form-control#logs-content(name='answers', style="white-space: pre-line;height: 700px;overflow:auto;background:black;color:#FFF;")
 block custom_js
 	// AdminLTE App
 	script(src='/js/AdminLTE/app.min.js', type='text/javascript')
@@ -317,5 +321,36 @@ block custom_js
 			$(document).on("click", "#restart-server", function(e){
 				$("#instruction").val("restart server");
 				$("#execute_instruction").trigger("click");
+			});
+
+			var scrolled = false;
+			function updateScroll(){
+			    if(!scrolled){
+			        var element = document.getElementById("logs-content");
+			        element.scrollTop = element.scrollHeight;
+			    }
+			}
+
+			function fetchStatus() {
+				updateScroll();
+			    $.ajax({
+			        url: '/default/update_logs',
+			        success: function(data) {
+		                $("#logs-content").html(data);
+		                setTimeout(fetchStatus, 1000);
+			        },
+			        error: function(err) {
+			            console.log(err);
+			        }
+			    });
+			}
+
+			$(document).on("click", "#start-logs", function(){
+				fetchStatus();
+				updateScroll();
+
+				$("#logs-content").on('click', function(){
+					scrolled=scrolled?false:true;
+				});
 			});
 		});
