@@ -27,6 +27,20 @@ exports.read = function(fileName) {
 	});
 }
 
+exports.loadFromHtml = function(html) {
+	return new Promise(function(resolve, reject) {
+		jsdom.env({
+			html: html,
+			src: [jquery],
+			done: function(err, window) {
+				if (err)
+					return reject(err);
+				resolve(window.$);
+			}
+		})
+	});
+}
+
 exports.write = function(fileName, $) {
 	return new Promise(function(resolve, reject) {
 		var newFileData = $("body")[0].innerHTML;

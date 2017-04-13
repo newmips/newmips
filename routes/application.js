@@ -134,64 +134,65 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 data.session = info;
                 data.workspaceFolder = initEditor(req.session.id_application);
 
-                var initialTimestamp = new Date().getTime();
-                function checkServer() {
-                    if (new Date().getTime() - initialTimestamp > 15000) {
-                        setChat(req, id_application, currentUserID, "Newmips", "structure.global.restart.error");
-                        data.iframe_url = -1;
-                        data.chat = req.session.chat[id_application][currentUserID];
-                        return res.render('front/preview', data);
-                    }
+                models.Module.findAll({where: {id_application: application.id}, include: [{model: models.DataEntity}]}).then(function(modules) {
+                    // Modules with entities for ui-editor
+                    data.modules = modules;
 
-                    var iframe_status_url = protocol_iframe + '://';
-                    if (globalConf.env == 'cloud')
-                        iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
-                    else
-                        iframe_status_url += host + ":" + port + "/status";
-                    request({
-                        "rejectUnauthorized": false,
-                        "url": iframe_status_url,
-                        "method": "GET"
-                    }, function(error, response, body) {
-                        if (error)
-                            return setTimeout(checkServer, 100);
-
-                        //Check for right status code
-                        if (response.statusCode !== 200) {
-                            console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                            return setTimeout(checkServer, 100);
+                    var initialTimestamp = new Date().getTime();
+                    function checkServer() {
+                        if (new Date().getTime() - initialTimestamp > 15000) {
+                            setChat(req, id_application, currentUserID, "Newmips", "structure.global.restart.error");
+                            data.iframe_url = -1;
+                            data.chat = req.session.chat[id_application][currentUserID];
+                            return res.render('front/preview', data);
                         }
 
-                        //All is good. Print the body
-                        console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
-
-                        data.error = 0;
-                        data.application = module;
-
-                        var iframe_home_url = protocol_iframe + '://';
+                        var iframe_status_url = protocol_iframe + '://';
                         if (globalConf.env == 'cloud')
-                            iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
+                            iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
                         else
-                            iframe_home_url += host + ":" + port + "/default/home";
+                            iframe_status_url += host + ":" + port + "/status";
+                        request({
+                            "rejectUnauthorized": false,
+                            "url": iframe_status_url,
+                            "method": "GET"
+                        }, function(error, response, body) {
+                            if (error)
+                                return setTimeout(checkServer, 100);
 
-                        data.iframe_url = iframe_home_url;
+                            //Check for right status code
+                            if (response.statusCode !== 200) {
+                                console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                return setTimeout(checkServer, 100);
+                            }
 
-                        // Let's do git init or commit depending the env (only on cloud env for now)
-                        gitHelper.doGit(attr, function(err){
-                            if(err)
-                                setChat(req, id_application, currentUserID, "Newmips", err.message, []);
-                            data.chat = req.session.chat[id_application][currentUserID];
-                            models.Module.findAll({where: {id_application: application.id}, include: [{model: models.DataEntity}]}).then(function(modules) {
-                                // Modules with entities for ui-editor
-                                data.modules = modules;
+                            //All is good. Print the body
+                            console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
+
+                            data.error = 0;
+                            data.application = module;
+
+                            var iframe_home_url = protocol_iframe + '://';
+                            if (globalConf.env == 'cloud')
+                                iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
+                            else
+                                iframe_home_url += host + ":" + port + "/default/home";
+
+                            data.iframe_url = iframe_home_url;
+
+                            // Let's do git init or commit depending the env (only on cloud env for now)
+                            gitHelper.doGit(attr, function(err){
+                                if(err)
+                                    setChat(req, id_application, currentUserID, "Newmips", err.message, []);
+                                data.chat = req.session.chat[id_application][currentUserID];
                                 res.render('front/preview', data);
                             });
                         });
-                    });
-                }
-                // Check server has started every 50 ms
-                console.log('Waiting for server to start');
-                checkServer();
+                    }
+                    // Check server has started every 50 ms
+                    console.log('Waiting for server to start');
+                    checkServer();
+                });
             });
         });
     }).catch(function(err) {
@@ -344,64 +345,65 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 data.session = info;
                                 data.workspaceFolder = initEditor(req.session.id_application);
 
-                                var initialTimestamp = new Date().getTime();
-                                function checkServer() {
-                                    if (new Date().getTime() - initialTimestamp > 15000) {
-                                        // req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
-                                        // return res.redirect('/default/home');
-                                        data.iframe_url = -1;
-                                        setChat(req, currentAppID, currentUserID, "Newmips", "structure.global.restart.error");
-                                        data.chat = req.session.chat[currentAppID][currentUserID];
-                                        return res.render('front/preview', data);
-                                    }
+                                models.Module.findAll({where: {id_application: application.id}, include: [{model: models.DataEntity}]}).then(function(modules) {
+                                    // Modules with entities for ui-editor
+                                    data.modules = modules;
 
-                                    var iframe_status_url = protocol_iframe + '://';
-                                    if (globalConf.env == 'cloud')
-                                        iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
-                                    else
-                                        iframe_status_url += host + ":" + port + "/status";
-                                    request({
-                                        "rejectUnauthorized": false,
-                                        "url": iframe_status_url,
-                                        "method": "GET"
-                                    }, function(error, response, body) {
-                                        //Check for error
-                                        if (error)
-                                            return setTimeout(checkServer, 100);
-
-                                        //Check for right status code
-                                        if (response.statusCode !== 200) {
-                                            console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                            return setTimeout(checkServer, 100);
+                                    var initialTimestamp = new Date().getTime();
+                                    function checkServer() {
+                                        if (new Date().getTime() - initialTimestamp > 15000) {
+                                            // req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
+                                            // return res.redirect('/default/home');
+                                            data.iframe_url = -1;
+                                            setChat(req, currentAppID, currentUserID, "Newmips", "structure.global.restart.error");
+                                            data.chat = req.session.chat[currentAppID][currentUserID];
+                                            return res.render('front/preview', data);
                                         }
 
-                                        //All is good. Print the body
-                                        console.log("Server status is OK");
+                                        var iframe_status_url = protocol_iframe + '://';
+                                        if (globalConf.env == 'cloud')
+                                            iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
+                                        else
+                                            iframe_status_url += host + ":" + port + "/status";
+                                        request({
+                                            "rejectUnauthorized": false,
+                                            "url": iframe_status_url,
+                                            "method": "GET"
+                                        }, function(error, response, body) {
+                                            //Check for error
+                                            if (error)
+                                                return setTimeout(checkServer, 100);
 
-                                        if(toRedirectRestart){
-                                            return res.redirect("/application/preview?id_application="+newAttr.id_application);
-                                        }
-                                        else{
-                                            // Let's do git init or commit depending the env (only on cloud env for now)
-                                            gitHelper.doGit(attr, function(err){
-                                                if(err)
-                                                    setChat(req, currentAppID, currentUserID, "Newmips", err.message, []);
-                                                // Call preview page
-                                                data.chat = req.session.chat[currentAppID][currentUserID];
+                                            //Check for right status code
+                                            if (response.statusCode !== 200) {
+                                                console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                                return setTimeout(checkServer, 100);
+                                            }
 
-                                                models.Module.findAll({where: {id_application: application.id}, include: [{model: models.DataEntity}]}).then(function(modules) {
-                                                    // Modules with entities for ui-editor
-                                                    data.modules = modules;
+                                            //All is good. Print the body
+                                            console.log("Server status is OK");
+
+                                            if(toRedirectRestart){
+                                                return res.redirect("/application/preview?id_application="+newAttr.id_application);
+                                            }
+                                            else{
+                                                // Let's do git init or commit depending the env (only on cloud env for now)
+                                                gitHelper.doGit(attr, function(err){
+                                                    if(err)
+                                                        setChat(req, currentAppID, currentUserID, "Newmips", err.message, []);
+                                                    // Call preview page
+                                                    data.chat = req.session.chat[currentAppID][currentUserID];
+
                                                     res.render('front/preview', data);
                                                 });
-                                            });
-                                        }
-                                    });
-                                }
-                                // Check server has started
-                                console.log('Waiting for server to start');
+                                            }
+                                        });
+                                    }
+                                    // Check server has started
+                                    console.log('Waiting for server to start');
 
-                                checkServer();
+                                    checkServer();
+                                });
                             });
                         });
                     }

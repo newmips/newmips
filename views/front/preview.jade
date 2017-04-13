@@ -33,6 +33,8 @@ block custom_css
 	link(href='/css/codemirror/codemirror.css', rel='stylesheet', type='text/css')
 	link(href='/css/codemirror/customcodemirror.css', rel='stylesheet', type='text/css')
 	// Addons CSS
+	link(href='/js/plugins/grid-editor/dist/grideditor.css', rel='stylesheet', type='text/css')
+	link(href='/js/plugins/grid-editor/dist/grideditor-font-awesome.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/dialog.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/fullscreen.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/simplescrollbars.css', rel='stylesheet', type='text/css')
@@ -42,9 +44,9 @@ block content
 			li.active
 				a(role="primaryTab", data-toggle='tab', href='#preview') #{__("preview.title")}
 			li
-				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("menu.editor")}
-			li
 				a(role="primaryTab", data-toggle='tab', href='#ui-editor') #{__("menu.ui_editor")}
+			li
+				a#start-editor(role="primaryTab", data-toggle='tab', href='#editor') #{__("menu.editor")}
 			li
 				a#start-logs(role="primaryTab", data-toggle='tab', href='#logs') #{__("menu.logs")}
 
@@ -219,20 +221,25 @@ block content
 						ul#sortable.sidebar-menu
 							for module in modules
 								for entity in module.DataEntities
-									li
-										| #{entity.name}
-										ul
+									li.ui-state-default.treeview(style='display:block;')
+										a
+											i.fa.fa-folder
+											span #{entity.name}
+											i.fa.fa-angle-left.pull-right
+										ul.treeview-menu
 											li
-												a(class='ui_editor_page' href='#' data-url='/ui_editor/getPage/#{entity.codeName}/create_fields.dust')
+												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='create_fields.dust')
 													| create page
 											li
-												a(class='ui_editor_page' href='#' data-url='/ui_editor/getPage/#{entity.codeName}/update_fields.dust')
+												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='update_fields.dust')
 													| update page
 											li
-												a(class='ui_editor_page' href='#' data-url='/ui_editor/getPage/#{entity.codeName}/show_fields.dust')
+												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='show_fields.dust')
 													| show page
 					.col-xs-12.col-sm-10
-						#ui_editor_page
+						#ui_editor
+						button#ui_editor_save.btn.btn-primary
+							| Save
 
 
 			#logs.tab-pane.fade.in
@@ -241,6 +248,9 @@ block content
 block custom_js
 	// AdminLTE App
 	script(src='/js/AdminLTE/app.min.js', type='text/javascript')
+	// UI-Editor
+	script(src='/js/UI/jquery-ui-1.10.3.min.js', type='text/javascript')
+	script(src='/js/plugins/grid-editor/dist/jquery.grideditor.min.js', type='text/javascript')
 	// Speech Recognition
 	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
 	// Editor
@@ -250,22 +260,61 @@ block custom_js
 		intro2 += "#{__('editor.intro3')}";
 	script(type='text/javascript').
 		$(document).ready(function(){
+			////////////
 			// UI Editor
+			////////////
+			function cleanEditor() {
+				// Remove unwanted buttons
+				$(".ge-add-column").remove();
+				$(".glyphicon-plus-sign, .glyphicon-trash").each(function() {
+					$(this).parent().remove();
+				});
+				$(".gm-edit-mode").remove();
+			}
+
+			var entity, page;
 			$(".ui_editor_page").click(function() {
+				entity = $(this).data('entity');
+				page = $(this).data('page')
 				$.ajax({
-					url: $(this).data('url'),
+					url: '/ui_editor/getPage/'+entity+'/'+page,
 					success: function(pageHtml) {
-					console.log(pageHtml);
-						$("#ui_editor_page").html(pageHtml);
+						$("#ui_editor").html(pageHtml);
+						// Remove mainControls who are not removed by modifying html
+						$(".ge-mainControls").remove();
+
+						// Enable gridEditor
+						$("#ui_editor").gridEditor({
+							new_row_layouts: false
+						});
+						cleanEditor();
 					},
 					error: function(err) {
 						console.log(err);
 						toastr.error(err.messageText);
 					}
-				})
-			})
+				});
+			});
+			$("#ui_editor_save").click(function() {
+				var html = $("#ui_editor").gridEditor('getHtml');
+				cleanEditor();
+				$.ajax({
+					url: '/ui_editor/setPage/'+entity+'/'+page,
+					method: 'post',
+					data: {html: html},
+					success: function(msg) {
+					console.log(msg);
+						toastr.success(msg);
+					},
+					error: function(err) {
+						toastr.error(err.messageText);
+					}
+				});
+			});
 
+			/////////
 			// Editor
+			/////////
 			var isEditorStarted = false;
 			$(document).on("click", "#start-editor", function(){
 				if(!isEditorStarted){
