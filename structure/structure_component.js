@@ -88,27 +88,6 @@ function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, va
 	});
 }
 
-function setupComponentView(idApplication, nameComponent, urlComponent, filename, nameModule, callback){
-
-	// CREATE VIEW FILE
-	fs.copySync(__dirname+'/pieces/component/'+filename+'/views', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase());
-
-	fs.rename(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/view_'+filename+'.dust', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', function(){
-		var viewTemplate = fs.readFileSync(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', 'utf8');
-		viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());
-		viewTemplate = viewTemplate.replace(/name_url_component/g, urlComponent.toLowerCase());
-		viewTemplate = viewTemplate.replace(/name_component/g, nameComponent.toLowerCase());
-
-		var writeStream = fs.createWriteStream(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust');
-		writeStream.write(viewTemplate);
-		writeStream.end();
-		writeStream.on('finish', function() {
-			//console.log('File => Component View file ------------------ CREATED')
-			callback();
-		});
-	});
-}
-
 function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, callback){
 
 	// Calendar View
@@ -239,11 +218,9 @@ exports.newLocalFileStorage = function(attr, callback){
 	var urlComponent = attr.options.urlValue.toLowerCase();
 
 	var showComponentName = attr.options.showValue;
-	var showComponentNameLower = showComponentName.toLowerCase();
 
 	var source = attr.options.source;
 	var sourceLower = source.toLowerCase();
-	var showSource = attr.options.showSource;
 	var urlSource = attr.options.urlSource;
 
 	var filename = "local_file_storage";
@@ -263,15 +240,75 @@ exports.newLocalFileStorage = function(attr, callback){
 						componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
 
 						var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
-
-						var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+sourceLower;
-						var file = fileBase+'/show_fields.dust';
+						var file = __dirname+'/../workspace/'+attr.id_application+'/views/'+sourceLower+'/show_fields.dust';
 
 						// CREATE THE TAB IN SHOW FIELDS
 						addTab(attr, file, newLi, componentContent).then(callback);
 					});
 				});
 			});
+		});
+	});
+}
+
+exports.newPrint = function(attr, callback){
+
+	var nameComponent = attr.options.value;
+	var nameComponentLower = nameComponent.toLowerCase();
+	var showComponentName = attr.options.showValue;
+	var entityLower = attr.options.source.toLowerCase();
+
+	translateHelper.writeLocales(attr.id_application, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
+
+		var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
+		var showFieldsPath = __dirname+'/../workspace/'+attr.id_application+'/views/'+entityLower+'/show_fields.dust';
+
+		domHelper.read(showFieldsPath).then(function($) {
+			var componentContent = "";
+			componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>";
+			componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>";
+			componentContent += "	<div id='"+nameComponent+"-content'>";
+
+			$("input").each(function() {
+				if($(this).attr("type") == "hidden")
+					$(this).remove();
+				else
+					$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+			});
+
+			$("select").each(function() {
+				$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+			});
+
+			$("textarea").each(function() {
+				$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+			});
+
+			$("button, .btn").each(function() {
+				$(this).remove();
+			});
+
+			$("form").each(function() {
+				$(this).remove();
+			});
+
+			$("a").each(function(){
+				console.log($(this).comments());
+				console.log($(this).html());
+			});
+
+			$("#tabs .tab-pane").each(function(){
+				var titleTab = $("a[href='#"+$(this).attr("id")+"']").text();
+				var contentToAdd = titleTab + "<br>" + $(this)[0].innerHTML + "<br>";
+
+				// Change ID to prevent JS errors in DOM
+				contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+				componentContent += contentToAdd;
+			});
+
+			componentContent += "	</div>";
+			componentContent += "</div>";
+			addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
 		});
 	});
 }
