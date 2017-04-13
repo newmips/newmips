@@ -66,7 +66,7 @@ block content
 									h4.box-title
 										i.fa.fa-comments-o
 										|  Instructions
-								#chat-box.box-body.chat(style="height:400px;")
+								#chat-box.box-body.chat(style="height:400px;max-height:400px;overflow-y:scroll;")
 									// Each item has : user, dateEmission, content
 									each msg in chat.items
 										hr
@@ -215,8 +215,13 @@ block content
 block custom_js
 	// Speech Recognition
 	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
+	// Slim scroll
+	script(src='/js/plugins/jquery.slimscroll.min.js', type='text/javascript')
 	// Editor
 	script(type='text/javascript').
+		$('#chat-box').slimScroll({
+			height: '400px'
+		});
 		var intro2 = "#{__('editor.intro')}" + "\n";
 		intro2 += "#{__('editor.intro2')}" + "\n";
 		intro2 += "#{__('editor.intro3')}";
