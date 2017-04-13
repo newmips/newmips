@@ -694,6 +694,18 @@ exports.createNewComponentCra = function(result) {
     };
 };
 
+/* PRINT */
+exports.createNewComponentPrint = function(result) {
+
+    var options = {};
+
+    var attr = {
+        function: "createNewComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
 // ******* INTERFACE Actions ******* //
 exports.setSkin = function(result) {
 
@@ -1381,6 +1393,19 @@ exports.parse = function(instruction) {
             "ajouter composant rapport d'activité",
             "créer composant compte-rendu d'activité",
             "ajouter composant compte-rendu d'activité"
+        ],
+        "createNewComponentPrint": [
+            "create component print",
+            "add component print",
+            "add print tab",
+            "create component print tab",
+            "add component print tab",
+            "créer un composant impression",
+            "ajouter un composant impression",
+            "créer composant impression",
+            "ajouter composant impression",
+            "créer un onglet impression",
+            "ajouter un onglet impression"
         ],
         "setSkin": [
             "set skin (.*)",
