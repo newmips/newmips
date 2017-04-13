@@ -66,24 +66,24 @@ block content
 									h4.box-title
 										i.fa.fa-comments-o
 										|  Instructions
-								#chat-box.box-body.chat
+								#chat-box.box-body.chat(style="height:400px;")
 									// Each item has : user, dateEmission, content
 									each msg in chat.items
-											hr
-											.item
-												if (msg.user == "Newmips")
-													img(src='/img/avatar.png', alt='user image')
-												else
-													img(src='/img/user.png', alt='user image')
-												p.message
-													a.name(href='#')
-														small.text-muted.pull-right
-															| #{msg.dateEmission}
-														if (msg.user == "Newmips")
-															| Newmips
-														else
-															| #{profile.first_name_user} #{profile.last_name_user}
-													| !{__(msg.content, msg.params)}
+										hr
+										.item
+											if (msg.user == "Newmips")
+												img(src='/img/avatar.png', alt='user image')
+											else
+												img(src='/img/user.png', alt='user image')
+											p.message
+												a.name(href='#')
+													small.text-muted.pull-right
+														| #{msg.dateEmission}
+													if (msg.user == "Newmips")
+														| Newmips
+													else
+														| #{profile.first_name_user} #{profile.last_name_user}
+												| !{__(msg.content, msg.params)}
 								.box-footer
 									.row
 										.col-xs-1
@@ -213,8 +213,6 @@ block content
 				.form-group
 					.form-control#logs-content(name='answers', style="white-space: pre-line;height: 700px;overflow:auto;background:black;color:#FFF;")
 block custom_js
-	// AdminLTE App
-	script(src='/js/AdminLTE/app.min.js', type='text/javascript')
 	// Speech Recognition
 	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
 	// Editor
