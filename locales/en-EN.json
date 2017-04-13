@@ -29,7 +29,7 @@
         "module": "Module",
         "application": "Application",
         "editor": "Editor",
-        "ui_editor": "UI Editor",
+        "ui_editor": "Designer",
         "live": "Live",
         "instruction": "Instruction",
         "import": "Import",
@@ -89,7 +89,8 @@
         "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
     },
     "ui_editor": {
-        "page_not_found": "Couldn't find corresponding file"
+        "page_not_found": "Couldn't find corresponding file",
+        "page_saved": "Your new design have been saved"
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
