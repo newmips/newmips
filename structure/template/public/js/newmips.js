@@ -378,11 +378,11 @@ $(document).ready(function () {
             $(this).parent().replaceWith(qrcode);
         }
     });
-    
-    var displayBarCode = function (element) {
+
+  var displayBarCode = function (element) {
         var jq_element = $(element);
         var id = jq_element.attr('name');
-        var img = '<br><img id="' + id + '"/>';
+        var img = '<br><img id="' + id + '" class="img img-responsive"/>';
         var barcodeType = jq_element.attr('data-customtype');
         if (typeof barcodeType != 'undefined') {
             jq_element.parent().after(img);
@@ -407,9 +407,11 @@ $(document).ready(function () {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
-            $(this).on('keyup', function () {
-                $(this).val($(this).val().toUpperCase());
-            });
+            if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
+                $(this).on('keyup', function () {
+                    $(this).val($(this).val().toUpperCase());
+                });
+            }
         }
     });
 
