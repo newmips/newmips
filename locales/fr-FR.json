@@ -29,6 +29,7 @@
         "module": "Module",
         "application": "Application",
         "editor": "Éditeur",
+        "ui_editor": "Designer",
         "live": "Direct",
         "instruction": "Instruction",
         "import": "Import",
@@ -86,6 +87,10 @@
         "intro": "Bonjour utilisateur Newmips!",
         "intro2": "Vous pouvez sélectionner un fichier à éditer sur le menu de gauche ;)",
         "intro3": "Et vous pouvez appuyer sur F11 quand vous êtes sur l'éditeur pour passer en plein écran!"
+    },
+    "ui_editor": {
+        "page_not_found": "Impossible de trouver le fichier",
+        "page_saved": "Votre nouveau design a été sauvergardé"
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",

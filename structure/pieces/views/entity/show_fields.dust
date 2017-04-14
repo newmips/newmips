@@ -1,4 +1,4 @@
-<div id='fields'></div>
+<div id='fields' class="row"></div>
 <div class='actions'>
     <form action="/custom_url_data_entity/delete" method="post">
         <div class="quicklinks">

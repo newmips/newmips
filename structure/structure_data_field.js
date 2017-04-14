@@ -65,7 +65,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
-    var str = "<div data-field='" + dataField + "' class='form-group'>\n";
+    var str = "<div data-field='" + dataField + "' class='col-xs-12'>\n<div class='form-group'>\n";
     str += "\t<label for='" + dataField + "'> {@__ key=\"entity." + dataEntity + "." + dataField + "\"/} </label>\n";
     // Check type of field
     switch (type) {
@@ -362,7 +362,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
     }
 
-    str += "</div>";
+    str += "</div>\n</div>";
     return str;
 }
 
