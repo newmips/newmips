@@ -1,46 +1,52 @@
-<div id="fields">
-    <div data-field="f_client_name" class="form-group">
-        <label for="f_client_name"> {@__ key="entity.e_api_credentials.f_client_name"/} </label>
-        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="{f_client_name}" type="text">
-    </div>
-    <div data-field="f_role" class="form-group">
-        <label for="f_role">{@__ key="entity.e_api_credentials.r_role" /}</label>
-        <select style="width:100%;" class="form-control" name="r_role">
-			{#r_role_global_list}
-				{#.f_label}
-					{@eq key=r_role.id value=id}
-						<option value="{id}" selected="">{f_label}</option>
+<div id="fields" class="row">
+	<div class="col-xs-12" data-field="f_client_name">
+	    <div class="form-group">
+	        <label for="f_client_name"> {@__ key="entity.e_api_credentials.f_client_name"/} </label>
+	        <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="{f_client_name}" type="text">
+	    </div>
+	</div>
+	<div class="col-xs-12" data-field="f_role">
+	    <div class="form-group">
+	        <label for="f_role">{@__ key="entity.e_api_credentials.r_role" /}</label>
+	        <select style="width:100%;" class="form-control" name="r_role">
+				{#r_role_global_list}
+					{#.f_label}
+						{@eq key=r_role.id value=id}
+							<option value="{id}" selected="">{f_label}</option>
+						{:else}
+							<option value="{id}">{f_label}</option>
+						{/eq}
 					{:else}
-						<option value="{id}">{f_label}</option>
-					{/eq}
-				{:else}
-					{@eq key=r_role.id value=id}
-						<option value="{id}" selected="">{id} - label not defined</option>
+						{@eq key=r_role.id value=id}
+							<option value="{id}" selected="">{id} - label not defined</option>
+						{:else}
+							<option value="{id}">{id} - label not defined</option>
+						{/eq}
+					{/.f_label}
+				{/r_role_global_list}
+			</select>
+	    </div>
+	</div>
+	<div class="col-xs-12" data-field="f_group">
+	    <div class="form-group">
+	        <label for="f_group">{@__ key="entity.e_api_credentials.r_group" /}</label>
+	        <select style="width:100%;" class="form-control" name="r_group">
+				{#r_group_global_list}
+					{#.f_label}
+						{@eq key=r_group.id value=id}
+							<option value="{id}" selected="">{f_label}</option>
+						{:else}
+							<option value="{id}">{f_label}</option>
+						{/eq}
 					{:else}
-						<option value="{id}">{id} - label not defined</option>
-					{/eq}
-				{/.f_label}
-			{/r_role_global_list}
-		</select>
-    </div>
-    <div data-field="f_group" class="form-group">
-        <label for="f_group">{@__ key="entity.e_api_credentials.r_group" /}</label>
-        <select style="width:100%;" class="form-control" name="r_group">
-			{#r_group_global_list}
-				{#.f_label}
-					{@eq key=r_group.id value=id}
-						<option value="{id}" selected="">{f_label}</option>
-					{:else}
-						<option value="{id}">{f_label}</option>
-					{/eq}
-				{:else}
-					{@eq key=r_group.id value=id}
-						<option value="{id}" selected="">{id} - label not defined</option>
-					{:else}
-						<option value="{id}">{id} - label not defined</option>
-					{/eq}
-				{/.f_label}
-			{/r_group_global_list}
-		</select>
-    </div>
+						{@eq key=r_group.id value=id}
+							<option value="{id}" selected="">{id} - label not defined</option>
+						{:else}
+							<option value="{id}">{id} - label not defined</option>
+						{/eq}
+					{/.f_label}
+				{/r_group_global_list}
+			</select>
+	    </div>
+	</div>
 </div>
