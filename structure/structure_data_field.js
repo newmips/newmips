@@ -88,10 +88,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
-        case "code barre":
-        case "codebarre":
         case "qrcode":
-        case "barcode":
             str += "	<div class='input-group'>\n";
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-qrcode'></i>\n";
@@ -100,6 +97,31 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text' data-type='qrcode' " + readOnly + "/>\n";
             else
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text'" + readOnly + "/>\n";
+            str += "	</div>\n";
+            break;
+        case "ean8":
+        case "ean13":
+        case "upc":
+        case "code39":
+        case "alpha39":
+        case "code128":
+//        case "codecip":
+//        case "cip":
+//        case "isbn":
+//        case "issn":
+//        case "hr":
+//        case "codehr":
+            var inputType = 'number';
+            if (type === "code39" || type === "alpha39" || type === "code128")
+                inputType = 'text';
+            str += "	<div class='input-group'>\n";
+            str += "		<div class='input-group-addon'>\n";
+            str += "			<i class='fa fa-barcode'></i>\n";
+            str += "		</div>\n";
+            if (file == "show")
+                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
+            else
+                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode'  type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "euro":
@@ -335,7 +357,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            console.log(type)
+            str += "	<input class='form-control inputt' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
     }
 
@@ -559,6 +582,22 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "STRING";
             typeForDatalist = "picture";
             type_data_field = 'picture';
+            break;
+        case "ean8":
+        case "ean13":
+        case "upca":
+        case "codecip":
+        case "cip":
+        case "isbn":
+        case "issn":
+            typeForModel = "STRING";
+            typeForDatalist = "barcode";
+            break;
+        case "code39":
+        case "alpha39":
+        case "code128":
+            typeForModel = "TEXT";
+            typeForDatalist = "barcode";
             break;
         case "cloudfile" :
             typeForModel = "STRING";

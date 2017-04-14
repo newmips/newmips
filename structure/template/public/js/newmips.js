@@ -1,6 +1,8 @@
 $(document).ready(function () {
 
     /* --------------- Gestion des Toastr (messages informatifs en bas à gauche) --------------- */
+
+    var maskMoneyPrecision = 2;
     try {
         toastr.options = {
             "closeButton": false,
@@ -375,12 +377,54 @@ $(document).ready(function () {
             });
             $(this).parent().replaceWith(qrcode);
         }
+    });
 
+  var displayBarCode = function (element) {
+        var jq_element = $(element);
+        var id = jq_element.attr('name');
+        var img = '<br><img id="' + id + '" class="img img-responsive"/>';
+        var barcodeType = jq_element.attr('data-customtype');
+        if (typeof barcodeType != 'undefined') {
+            jq_element.parent().after(img);
+            try {
+                JsBarcode('#' + id, jq_element.val(), {
+                    format: barcodeType,
+                    lineColor: "#000",
+                    width: 2,
+                    height: 40,
+                    displayValue: true
+                });
+                jq_element.parent().remove();
+            } catch (e) {
+                jq_element.parent().parent().find('br').remove();
+                jq_element.parent().parent().find('#' + id).remove();
+            }
+        }
+
+    };
+    //input barcode
+    $(this).find("input[data-type='barcode']").each(function () {
+        if ($(this).attr('show') == 'true' && $(this).val() != '') {
+            displayBarCode(this);
+        } else {
+            if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
+                $(this).on('keyup', function () {
+                    $(this).val($(this).val().toUpperCase());
+                });
+            }
+        }
+    });
+
+    //input barcode
+    $(this).find("input[data-type='code39'],input[data-type='alpha39']").each(function () {
+        $(this).on('keyup', function () {
+            $(this).val($(this).val().toUpperCase());
+        });
     });
 
     //Mask for data-type currency
     $(this).find("[data-type='currency']").each(function () {
-        $(this).maskMoney({thousands: ' ', decimal: ',', allowZero: true, suffix: ''}).maskMoney('mask');
+        $(this).maskMoney({thousands: ' ', decimal: ',', allowZero: true, suffix: '', precision: maskMoneyPrecision}).maskMoney('mask');
     });
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
     var dropzonesFieldArray = [];
@@ -578,6 +622,64 @@ $(document).ready(function () {
                 return false;
             }
         });
+        /* Vérification des types barcode */
+        $(this).find("input[data-type='barcode']").each(function () {
+            var val = $(this).val();
+            if (val != '') {
+                var customType = $(this).attr('data-customtype');
+                if (typeof customType != 'undefined') {
+                    var error = false;
+                    var len;
+                    var message = "";
+                    switch (customType) {
+                        case 'ean8':
+                            var len = 8;
+                            error = val.length === len ? false : true;
+                            if (error)
+                                message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
+                            break;
+                        case 'isbn':
+                        case 'issn':
+                        case 'ean13':
+                            len = 13;
+                            error = val.length === len ? false : true;
+                            if (error)
+                                message += "Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".<br>";
+                            if (customType === "issn" && !val.startsWith('977')) {
+                                error = true;
+                                message += "Le champ " + $(this).attr("placeholder") + " doit comencer par 977.";
+                            }
+                            break;
+
+                        case 'upca':
+                            len = 12;
+                            error = val.length === len ? false : true;
+                            if (error)
+                                message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
+                            break;
+                        case 'code39':
+                        case 'alpha39':
+//                             var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
+                            if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
+                                message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
+                                error = true;
+                            }
+                            break;
+                        case 'code128':
+                            if (!(/^[\x00-\x7F]*$/).test(val)) {
+                                message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code128.";
+                                error = true;
+                            }
+                            break;
+                    }
+                    if (error) {
+                        toastr.error(message);
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            }
+        });
         /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
         $(this).find("input[type='tel']").each(function () {
             if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
@@ -587,6 +689,7 @@ $(document).ready(function () {
             }
         });
         $(this).find("input[data-type='currency']").each(function () {
+            //replace number of zero par maskMoneyPrecision value, default 2
             $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
         });
         return true;
