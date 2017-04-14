@@ -390,9 +390,9 @@ $(document).ready(function () {
                 JsBarcode('#' + id, jq_element.val(), {
                     format: barcodeType,
                     lineColor: "#000",
-                    width: 4,
+                    width: 2,
                     height: 40,
-                    displayValue: false
+                    displayValue: true
                 });
                 jq_element.parent().remove();
             } catch (e) {
