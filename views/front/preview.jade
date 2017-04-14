@@ -222,23 +222,26 @@ block content
 							for module in modules
 								for entity in module.DataEntities
 									li.ui-state-default.treeview(style='display:block;')
-										a
+										a(href="#")
 											i.fa.fa-folder
 											span #{entity.name}
 											i.fa.fa-angle-left.pull-right
 										ul.treeview-menu
 											li
 												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='create_fields.dust')
+													i.fa.fa-file
 													| create page
 											li
 												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='update_fields.dust')
+													i.fa.fa-file
 													| update page
 											li
 												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='show_fields.dust')
+													i.fa.fa-file
 													| show page
 					.col-xs-12.col-sm-10
 						#ui_editor
-						button#ui_editor_save.btn.btn-primary
+						button#ui_editor_save.btn.btn-primary(style="display:none;")
 							| Save
 
 
@@ -274,6 +277,7 @@ block custom_js
 
 			var entity, page;
 			$(".ui_editor_page").click(function() {
+				var self = this;
 				entity = $(this).data('entity');
 				page = $(this).data('page')
 				$.ajax({
@@ -288,6 +292,9 @@ block custom_js
 							new_row_layouts: false
 						});
 						cleanEditor();
+						$("#ui_editor_save").show();
+						$(".ui_editor_page").parents('li').removeClass('active');
+						$(self).parents('li').addClass('active');
 					},
 					error: function(err) {
 						console.log(err);
