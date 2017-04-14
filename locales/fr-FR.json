@@ -5,7 +5,7 @@
     "login": {
         "log_in": "Se connecter",
         "reset_password": "Mot de passe oublié",
-        "emailResetSent": "Un email vous permettant de réinitialiser votre mot de passe vous à été envoyé.",
+        "emailResetSent": "Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.",
         "tokenNotFound": "Impossible de retrouver votre token, nous ne pouvons pas valider votre demande.",
         "passwordReset": "Votre mot de passe a été réinitialisé.",
         "first_connection": {
@@ -135,7 +135,7 @@
     },
     "error": {
         "oops": "Oups! Une erreur s'est produite :(",
-        "textone": "Vous devriez contact votre administrateur, et vous pouvez",
+        "textone": "Vous devriez contacter votre administrateur, et vous pouvez",
         "texttwo": "retourner à l'accueil",
         "or": "ou",
         "textthree": "simplement revenir en arrière.",
@@ -146,7 +146,7 @@
         "show": "Afficher le"
     },
     "chat": {
-        "welcome": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin ecrivez help pour avoir plus d'informations."
+        "welcome": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin tapez help pour avoir plus d'informations."
     },
     "database": {
         "project": {
@@ -187,7 +187,7 @@
             },
             "create": {
                 "success" : "Nouveau module %s (%s) créé.",
-                "alreadyExist": "Un module avec le même ou similaire nom %s existe déjà."
+                "alreadyExist": "Un module avec un nom identique ou similaire à %s existe déjà."
             },
             "list": {
                 "selectAppBefore": "S'il vous plaît, sélectionnez une application."
@@ -200,7 +200,7 @@
                 "withThisID": "Désolé, mais il n'y a pas de module avec cet ID : %s.",
                 "withThisName": "Désolé, mais il n'y a pas de module avec ce nom : %s.",
                 "noModuleInApp": "Désolé, il n'y a aucun module dans cette application.",
-                "notFoundHomeModule": "Impossible de trouver le module home dans l'application avec ID %s."
+                "notFoundHomeModule": "Impossible de trouver le module home dans l'application de numéro %s."
             }
         },
         "component":{
@@ -214,12 +214,12 @@
         "entity": {
             "select": {
                 "selected": "Entité %s (%s) sélectionnée.",
-                "valid": "Merci d'indiquer une nom/ID valide."
+                "valid": "Merci d'indiquer un nom ou ID valide."
             },
             "create": {
                 "success" : "Nouvelle entité %s (%s) créée.",
                 "alreadyExist": "Entité avec un nom (%s) identique ou similaire existe déjà.",
-                "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité avec le nom de code %s trouvé."
+                "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité trouvée avec le nom de code %s."
             },
             "delete": {
                 "deleted": "Entité %s supprimée !"
@@ -264,43 +264,43 @@
                 "success": "L'application a bien été chargée!"
             },
             "error": {
-                "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour executer une nouvelle instruction git.",
-                "notDoGit": "L'option 'doGit' dans config/gitlab.json est désactivée, l'instruction demandée ne fera donc rien du tout."
+                "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
+                "notDoGit": "L'option 'doGit' dans config/gitlab.json est désactivée, l'instruction demandée ne fera donc rien."
             }
         },
         "module": {
             "error": {
-                "notHome": "Vous ne pouvez pas supprimer le module Accueil."
+                "notHome": "Vous ne pouvez pas supprimer le module Accueil (home)."
             }
         },
         "field": {
             "attributes": {
-                "success": "Le champs %s est désormais %s.",
-                "notUnderstandGiveAvailable": "Désolé, je ne comprend pas ce que vous souhaitez. Possibilités :<br>%s<br>",
-                "notUnderstand": "Désolé, je ne comprend pas l'attribut demandé.",
-                "fieldNoFound": "Aucun champs avec le nom %s trouvé dans l'entité courante.",
-                "duplicateUnique": "Désolé, le champ a déjà des valeurs identiques, impossible de le rendre unique."
+                "success": "Le champ %s est désormais %s.",
+                "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
+                "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
+                "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
+                "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique."
             }
         },
         "association": {
             "hasOne": {
-                "successEntity": "Nouvelle assocation 'Has One' avec l'entité %s créée.",
-                "successSubEntity": "Nouvelle assocation 'Has One' avec la sous-entité %s créée."
+                "successEntity": "Nouvelle association 'Has One' avec l'entité %s créée.",
+                "successSubEntity": "Nouvelle association 'Has One' avec la sous-entité %s créée."
             },
             "hasMany": {
-                "successEntity": "Nouvelle assocation 'Has Many' avec l'entité %s créée.",
-                "successSubEntity": "Nouvelle assocation 'Has Many' avec la sous-entité %s créée."
+                "successEntity": "Nouvelle association 'Has Many' avec l'entité %s créée.",
+                "successSubEntity": "Nouvelle association 'Has Many' avec la sous-entité %s créée."
             },
             "fieldset":{
                 "success": "Nouvelle liste d'objets existants %s créée sur %s."
             },
             "relatedTo": {
-                "success": "Nouveau champs %s associé à %s créé."
+                "success": "Nouveau champ %s associé à %s créé."
             },
             "error":{
                 "alreadyHasMany": "L'entité source a déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
                 "alreadyHasOne": "L'entité source a déjà l'association 'Has One' avec l'entité cible, impossible de créer l'association 'Has Many'.",
-                "alreadySameAlias": "Une association avec cet alias existe déjà entre ces entités.",
+                "alreadySameAlias": "Une association avec cet alias existe déjà entre ces deux entités.",
                 "circularBelongsTo": "Désolé, vous ne pouvez pas faire d'association 'Has One' dans les deux sens.",
                 "circularHasMany": "Désolé, vous ne pouvez pas faire d'association 'Has Many' dans les deux sens.",
                 "unableTab": "Impossible de trouver le menu %s dans l'entité courante."
@@ -320,18 +320,18 @@
                 "noColumn": "Impossible de trouver la colonne %s."
             },
             "skin": {
-                "list": "Colorations disponibles:<br>%s<br>",
-                "cannotFind": "Impossible de trouver la coloration demandée. Colorations disponibles :<br>%s<br>"
+                "list": "Couleurs disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver la couleur demandée. Couleurs disponibles :<br>%s<br>"
             },
             "icon": {
                 "success": "L'entité %s a maintenant l'icône %s",
-                "list": "Suivez ce lien pour une liste complète des icônes disponibles:<br><a href='%s' target='_blank'>Font Awesome</a>"
+                "list": "Suivez ce lien pour avoir une liste complète des icônes disponibles:<br><a href='%s' target='_blank'>Font Awesome</a>"
             },
             "widget": {
                 "unknown": "Widget %s inconnu",
                 "success": "Widget %s ajouté au module %s",
                 "delete": "Widget %s supprimé avec succès",
-                "all_deleted": "Tous les widget de %s ont été supprimés"
+                "all_deleted": "Tous les widgets de %s ont été supprimés"
             }
         }
     }
