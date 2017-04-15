@@ -237,8 +237,8 @@ exports.createWidgetLastRecords = function(attr, callback) {
 
             var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr>';
             for (var i = 0; i < attr.columns.length; i++) {
-                thead += '<th><!--{@__ key="entity.'+attr.entity.codeName+'.f_'+attr.columns[i]+'" /}--></th>';
-                tbody += '<td>{f_'+attr.columns[i]+'}</td>';
+                thead += '<th><!--{@__ key="entity.'+attr.entity.codeName+'.f_'+attr.columns[i].toLowerCase()+'" /}--></th>';
+                tbody += '<td>{f_'+attr.columns[i].toLowerCase()+'}</td>';
             }
             thead += '</tr></thead>';
             tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
