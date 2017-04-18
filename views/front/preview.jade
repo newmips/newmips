@@ -249,21 +249,17 @@ block content
 				.form-group
 					.form-control#logs-content(name='answers', style="white-space: pre-line;height: 700px;overflow:auto;background:black;color:#FFF;")
 block custom_js
-	// AdminLTE App
-	script(src='/js/AdminLTE/app.min.js', type='text/javascript')
 	// UI-Editor
 	script(src='/js/UI/jquery-ui-1.10.3.min.js', type='text/javascript')
 	script(src='/js/plugins/grid-editor/dist/jquery.grideditor.min.js', type='text/javascript')
 	// Speech Recognition
 	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
 	// Slim scroll
-	//script(src='/js/plugins/jquery.slimscroll.min.js', type='text/javascript')
+	script(src='/js/plugins/jquery.slimscroll.min.js', type='text/javascript')
+	// Sidebar
+	script(src='/js/AdminLTE/sidebar.js', type='text/javascript')
 	// Editor
 	script(type='text/javascript').
-		//- $('#chat-box').slimScroll({
-		//- 	height: '400px',
-		//- 	start: 'bottom'
-		//- });
 		var intro2 = "#{__('editor.intro')}" + "\n";
 		intro2 += "#{__('editor.intro2')}" + "\n";
 		intro2 += "#{__('editor.intro3')}";
