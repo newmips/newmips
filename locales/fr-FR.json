@@ -205,7 +205,8 @@
         },
         "component":{
             "create": {
-                "success" : "Nouveau composant %s (%s) créé."
+                "success" : "Nouveau composant %s (%s) créé.",
+                "successOnEntity": "Nouveau composant %s (%s) créé sur l'entité %s."
             },
             "notFound": {
                 "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s."

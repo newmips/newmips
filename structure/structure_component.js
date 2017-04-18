@@ -177,7 +177,6 @@ function addTab(attr, file, newLi, newTabContent) {
             // Append created elements to `context` to handle presence of tab or not
             $(".nav-tabs", context).append(newLi);
             $(".tab-content", context).append(newTabContent);
-
             $('body').empty().append(context);
             domHelper.write(file, $).then(function () {
                 resolve();
@@ -257,58 +256,84 @@ exports.newPrint = function(attr, callback){
 	var nameComponentLower = nameComponent.toLowerCase();
 	var showComponentName = attr.options.showValue;
 	var entityLower = attr.options.source.toLowerCase();
+	var idApp = attr.id_application;
 
-	translateHelper.writeLocales(attr.id_application, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
+	translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
 
 		var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
-		var showFieldsPath = __dirname+'/../workspace/'+attr.id_application+'/views/'+entityLower+'/show_fields.dust';
+		var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
 
 		domHelper.read(showFieldsPath).then(function($) {
-			var componentContent = "";
-			componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>";
-			componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>";
-			componentContent += "	<div id='"+nameComponent+"-content'>";
 
-			$("input").each(function() {
-				if($(this).attr("type") == "hidden")
-					$(this).remove();
-				else
+			try{
+				var componentContent = "";
+				componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>";
+				componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>";
+				componentContent += "	<div id='"+nameComponent+"-content'>";
+
+				$("input").each(function() {
+					if($(this).attr("type") == "hidden")
+						$(this).remove();
+					else
+						$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+				});
+
+				$("select").each(function() {
 					$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
-			});
+				});
 
-			$("select").each(function() {
-				$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
-			});
+				$("textarea").each(function() {
+					$(this).replaceWith("<br><span>"+$(this).val()+"</span>");
+				});
 
-			$("textarea").each(function() {
-				$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
-			});
+				$("button, .btn").each(function() {
+					$(this).remove();
+				});
 
-			$("button, .btn").each(function() {
-				$(this).remove();
-			});
+				$("form").each(function() {
+					$(this).remove();
+				});
 
-			$("form").each(function() {
-				$(this).remove();
-			});
+				$("#tabs .tab-pane").each(function(){
+					var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
+					var match;
 
-			$("a").each(function(){
-				console.log($(this).comments());
-				console.log($(this).html());
-			});
+					// Find dust file inclusion with dust helper
+					var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
+					var matches = [];
 
-			$("#tabs .tab-pane").each(function(){
-				var titleTab = $("a[href='#"+$(this).attr("id")+"']").text();
-				var contentToAdd = titleTab + "<br>" + $(this)[0].innerHTML + "<br>";
+					while (match = maRegex.exec($(this)[0].innerHTML)) {
+						matches.push(match);
+					}
 
-				// Change ID to prevent JS errors in DOM
-				contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-				componentContent += contentToAdd;
-			});
+					var string = $(this)[0].innerHTML;
 
-			componentContent += "	</div>";
-			componentContent += "</div>";
-			addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
+					// Replace those inclusion with the real dust file content
+					for(var i=0; i<matches.length; i++){
+						//The path of the included dust file
+						var dustPath = matches[i][1];
+						var dustContent = fs.readFileSync(__dirname + "/../workspace/" + idApp + "/views/" + dustPath + ".dust", "utf8");
+
+						if(i > 0){
+							// String has been previously modify so the index aren't correct, we have to update them every time after the first modification
+							matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
+						}
+						string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
+					}
+					var contentToAdd = "<legend>" + titleTab + "</legend>" + string + "<br>";
+
+					// Change ID to prevent JS errors in DOM
+					contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+					componentContent += contentToAdd;
+				});
+
+				componentContent += "	</div>";
+				componentContent += "</div>";
+
+				addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
+			} catch(err){
+				callback(err, null);
+			}
 		});
 	});
 }

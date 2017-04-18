@@ -1300,15 +1300,15 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                     return callback(err, null);
                 }
                 else{
-                    // Create the component in newmips database
-                    db_component.createNewComponentOnEntity(attr, function(err, info){
-                        if(err)
-                            return callback(err, null);
-                        // Get Data Entity Name needed for structure
-                        db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
-                            attr.options.source = sourceEntity.codeName;
-                            attr.options.showSource = sourceEntity.name;
-                            attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                    // Get Data Entity Name needed for structure
+                    db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                        attr.options.source = sourceEntity.codeName;
+                        attr.options.showSource = sourceEntity.name;
+                        attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                        // Create the component in newmips database
+                        db_component.createNewComponentOnEntity(attr, function(err, info){
+                            if(err)
+                                return callback(err, null);
                             // Setup the hasMany association in the source entity
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
@@ -1612,16 +1612,15 @@ exports.createNewComponentPrint = function (attr, callback) {
             return callback(err, null);
         }
         else{
-            // Create the component in newmips database
-            db_component.createNewComponentOnEntity(attr, function(err, info){
-                if(err)
-                    return callback(err, null);
-                // Get Data Entity Name needed for structure
-                db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
-                    attr.options.source = sourceEntity.codeName;
-                    attr.options.showSource = sourceEntity.name;
-                    attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
-                    // Setup the hasMany association in the source entity
+            // Get Data Entity Name needed for structure
+            db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                // Create the component in newmips database
+                db_component.createNewComponentOnEntity(attr, function(err, info){
+                    if(err)
+                        return callback(err, null);
                     try{
                        // Get Dmodule info needed for structure
                         db_module.getModuleById(attr.id_module, function(err, module){
