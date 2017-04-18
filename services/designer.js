@@ -1696,7 +1696,7 @@ exports.createWidgetOnEntity = function(attr, callback) {
 
 function createWidget(attr, callback) {
     if (attr.widgetType == -1)
-        return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
+        return callback(null, {message: "structure.ui.widget.unknown", messageParams: [attr.widgetInputType]});
     db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
         if (err)
             return callback(err);

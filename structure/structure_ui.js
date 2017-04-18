@@ -257,6 +257,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
                     tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
 
                     $("#"+attr.entity.codeName.substring(2)+'_lastrecords').html(thead+tbody);
+                    $("#"+attr.entity.codeName.substring(2)+'_lastrecords').attr('data-entity', attr.entity.codeName);
                     domHelper.write(layout_view_filename, $).then(function() {
                         callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
                     });

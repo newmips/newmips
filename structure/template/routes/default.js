@@ -150,7 +150,7 @@ router.get('/get_file', block_access.isLoggedIn, function (req, res) {
         var partOfFilepath = src.split('-');
         if (partOfFilepath.length > 1) {
             var base = partOfFilepath[0];
-            var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + src;
+            var completeFilePath = globalConf.localstorage + 'thumbnail/' + entity + '/' + base + '/' + src;
             fs.readFile(completeFilePath, function (err, data) {
                 if (!err) {
                     var buffer = new Buffer(data).toString('base64');
