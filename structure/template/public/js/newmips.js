@@ -153,6 +153,17 @@ $(document).ready(function () {
             $(this).html("");
         }
     });
+    
+    $(this).find('img[data-type="picture"]').each(function () {
+        var src = $(this).attr('src');
+        //remove all pictures with null src value
+        if (typeof src != 'undefined' && src.split(',')[1] == '') {
+            var msg = 'No image selected';
+            if (lang_user == 'fr-FR')
+                msg = 'Aucune image choisie';
+            $(this).parent().replaceWith('<span>' + msg + '</span>');
+        }
+    });
 
     /* Show boolean with a square in datalist */
 
