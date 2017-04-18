@@ -899,8 +899,8 @@ exports.parse = function(instruction) {
             "push",
             "push on git",
             "save the application",
-            "sauvergarder",
-            "sauvergarder l'application",
+            "sauvegarder",
+            "sauvegarder l'application",
             "git push"
         ],
         "gitPull": [

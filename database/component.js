@@ -20,8 +20,8 @@ exports.createNewComponentOnEntity = function(attr, callback) {
             createdComponent.addDataEntity(attr.id_data_entity).then(function(){
                 var info = {
                     insertId: createdComponent.id,
-                    message: "database.component.create.success",
-                    messageParams: [createdComponent.name, createdComponent.id]
+                    message: "database.component.create.successOnEntity",
+                    messageParams: [createdComponent.name, createdComponent.id, attr.options.showSource]
                 };
                 callback(null, info);
             });

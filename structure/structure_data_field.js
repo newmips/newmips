@@ -150,14 +150,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
                 str += "	</div>\n";
             }
-            /*else if (file == "create") {
-             str += "	<div class='input-group'>\n";
-             str += "		<div class='input-group-addon'>\n";
-             str += "			<i class='fa fa-calendar'></i>\n";
-             str += "		</div>\n";
-             str += "		<input class='form-control input datepicker' value='" + value + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
-             str += "	</div>\n";
-             }*/
             break;
         case "time" :
         case "heure" :
@@ -300,6 +292,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
         case "text" :
         case "texte" :
+            value = "{" + dataField + "|s}";
             str += "	<textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' value='" + value + "' type='text' " + readOnly + ">" + value + "</textarea>\n";
             break;
         case "localfile" :
