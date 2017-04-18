@@ -60,7 +60,6 @@ function initPreviewData(idApplication, data){
         }));
 
         Promise.all(innerPromises).then(function() {
-            console.log(data);
             return resolve(data);
         }).catch(function(err) {
             console.log(err);
@@ -266,7 +265,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
             /* Parse the instruction to get an object for the designer */
             var attr = parser.parse(instruction);
-
             /* Rework the attr to get value for the code / url / show */
             attr = attrHelper.reworkAttr(attr);
 
@@ -294,7 +292,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             // "Options" and "Session values" are sent using the attr attribute
             designer[attr.function](attr, function(err, info) {
                 var answer;
-
                 /* If restart server then redirect to /application/preview?id_application=? */
                 var toRedirectRestart = false;
                 if (err) {
@@ -313,10 +310,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     session_manager.getSession(attr, function(err, infoSession) {
                         data.session = infoSession;
                         data.chat = req.session.chat[currentAppID][currentUserID];
-                        res.render('front/preview', data);
+                        initPreviewData(req.session.id_application, data).then(function(data) {
+                            res.render('front/preview', data);
+                        });
                     });
                 } else {
-
                     // Store key entities in session for futur instruction
                     session_manager.setSession(attr.function, req, info, data);
 

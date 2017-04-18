@@ -336,7 +336,8 @@
                 "unknown": "Unknown widget %s",
                 "success": "Widget %s added to module %s",
                 "delete": "Widget %s successfully deleted",
-                "all_deleted": "All widget of %s have been removed"
+                "all_deleted": "All widget of %s have been removed",
+                "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s"
             }
         }
     }

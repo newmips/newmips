@@ -772,10 +772,12 @@ exports.createWidgetLastRecordsWithLimit = function(result) {
         widgetInputType: 'last records'
     }
 
+    // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
         attr.columns = result[2].split(',');
     }
+    // Defined target entity
     else if (result.length == 4) {
         attr.entityTarget = result[1];
         attr.limit = result[2];
@@ -797,8 +799,10 @@ exports.createWidgetLastRecords = function(result) {
         limit: 10
     }
 
+    // Current entity as target
     if (result.length == 2)
         attr.columns = result[1].split(',');
+    // Defined target entity
     else if (result.length == 3) {
         attr.entityTarget = result[1];
         attr.columns = result[2].split(',');

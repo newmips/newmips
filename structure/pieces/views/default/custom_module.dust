@@ -21,3 +21,48 @@
 	<div id="widgets" class='row'>
 	</div>
 {/content}
+
+{<custom_js}
+<script type="text/javascript">
+    $(function() {
+        $("table td").each(function() {
+            var type = $(this).data('type');
+            var cellValue = $(this).html();
+
+            if (type == 'date') {
+                if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
+                    if (lang_user == "fr-FR")
+                        cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY");
+                    else
+                        cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD");
+                } else
+                    cellValue = "-";
+            } else if (type == 'datetime') {
+                if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
+                    if (lang_user == "fr-FR")
+                        cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm:ss");
+                    else
+                        cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm:ss");
+                } else
+                    cellValue = "-";
+            }
+            else if (type == 'color')
+                cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
+            else if (type == 'currency')
+                cellValue = '<span data-type="currency">' + cellValue + '</span>';
+            else if (type == 'email' && (cellValue != null && cellValue != ''))
+                cellValue = '<a href="mailto:' + cellValue + '">' + cellValue + '</a>';
+            else if (type == 'tel' && (cellValue != null && cellValue != ''))
+                cellValue = '<a href="tel:' + cellValue + '">' + cellValue + '</a>';
+            else if (type == 'picture') {
+                if (cellValue != null && cellValue.buffer != '')
+                    cellValue = '<img src=data:image/;base64,' + cellValue.buffer + ' />';
+                else
+                    cellValue = '';
+            }
+
+            $(this).html(cellValue);
+        });
+    });
+</script>
+{/custom_js}
