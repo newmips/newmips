@@ -204,6 +204,15 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
 
+    // Verify columns validity
+    var attributes = require(workspacePath+'/models/attributes/'+attr.entity.codeName+'.json');
+    var unknownFields = [];
+    for (var i = 0; i < attr.columns.length; i++)
+        if (!attributes['f_'+attr.columns[i]])
+            unknownFields.push(attr.columns[i]);
+    if (unknownFields.length)
+        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [unknownFields.join(', ')]});
+
     // Add widget's query to routes/default controller
     var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
     var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
@@ -222,12 +231,12 @@ exports.createWidgetLastRecords = function(attr, callback) {
 
     var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
     domHelper.read(layout_view_filename).then(function($) {
-        domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
+        domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
             newHtml += "<div id='"+widgetElemId+"' class='col-xs-"+(attr.columns.length > 4 ? 8 : 4)+"'>\n";
             newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
-            newHtml +=      $2("body")[0].innerHTML+"\n";
+            newHtml +=      $template("body")[0].innerHTML+"\n";
             newHtml += '<!--{/entityAccess}-->';
             newHtml += "</div>";
             newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
@@ -235,17 +244,26 @@ exports.createWidgetLastRecords = function(attr, callback) {
 
             $("#widgets").append(newHtml);
 
-            var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr>';
-            for (var i = 0; i < attr.columns.length; i++) {
-                thead += '<th><!--{@__ key="entity.'+attr.entity.codeName+'.f_'+attr.columns[i].toLowerCase()+'" /}--></th>';
-                tbody += '<td>{f_'+attr.columns[i].toLowerCase()+'}</td>';
-            }
-            thead += '</tr></thead>';
-            tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
+            domHelper.read(workspacePath+'/views/'+attr.entity.codeName+'/list_fields.dust').then(function($list) {
+                try {
+                    var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr>';
+                    for (var i = 0; i < attr.columns.length; i++) {
+                        var field = attr.columns[i].toLowerCase() != 'id' ? 'f_'+attr.columns[i].toLowerCase() : 'id';
+                        var type = $list('[data-field="'+field+'"]').data('type');
+                        thead += '<th data-type="'+type+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
+                        tbody += '<td data-type="'+type+'">{'+field+'}</td>';
+                    }
+                    thead += '</tr></thead>';
+                    tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
 
-            $("#"+attr.entity.codeName.substring(2)+'_lastrecords').html(thead+tbody);
-            domHelper.write(layout_view_filename, $).then(function() {
-                callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
+                    $("#"+attr.entity.codeName.substring(2)+'_lastrecords').html(thead+tbody);
+                    domHelper.write(layout_view_filename, $).then(function() {
+                        callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
+                    });
+                } catch(e) {
+                    console.log(e);
+                    callback(e);
+                }
             });
         });
     });
