@@ -362,7 +362,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
     }
 
-    str += "</div>\n</div>";
+    str += "</div>\n</div>\n";
     return str;
 }
 
@@ -920,7 +920,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += '			<!--{/' + alias + '}-->\n';
     select += '		</select>\n';
     /*select += '<!--{/associationFlag}-->';*/
-    select += '</div>\n</div>';
+    select += '</div>\n</div>\n';
 
     // Update create_fields file
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -947,7 +947,7 @@ exports.setupRelatedToField = function (attr, callback) {
         select += '			<!--{/.' + usingField + '}-->\n';
         select += '		<!--{/' + alias + '_global_list}-->\n';
         select += '</select>\n';
-        select += '</div>\n</div>';
+        select += '</div>\n</div>\n';
         file = 'update_fields';
 
         // Update update_fields file

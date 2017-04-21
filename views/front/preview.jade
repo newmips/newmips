@@ -228,15 +228,15 @@ block content
 											i.fa.fa-angle-left.pull-right
 										ul.treeview-menu
 											li
-												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='create_fields.dust')
+												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='create')
 													i.fa.fa-file
 													| create page
 											li
-												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='update_fields.dust')
+												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='update')
 													i.fa.fa-file
 													| update page
 											li
-												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='show_fields.dust')
+												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='show')
 													i.fa.fa-file
 													| show page
 					.col-xs-12.col-sm-10
@@ -270,8 +270,8 @@ block custom_js
 			////////////
 			function cleanEditor() {
 				// Remove unwanted buttons
-				$(".ge-add-column").remove();
-				$(".glyphicon-plus-sign, .glyphicon-trash").each(function() {
+				//- $(".ge-add-column").remove();
+				$(".glyphicon-trash").each(function() {
 					$(this).parent().remove();
 				});
 				$(".gm-edit-mode").remove();
