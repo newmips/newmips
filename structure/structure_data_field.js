@@ -3,6 +3,7 @@ var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
 var moment = require("moment");
+
 function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
     var dataField = nameDataField.toLowerCase();
     var dataEntity = nameDataEntity.toLowerCase();
@@ -357,7 +358,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
-            console.log(type)
             str += "	<input class='form-control inputt' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
     }
@@ -963,7 +963,7 @@ exports.setupRelatedToField = function (attr, callback) {
 
                 // Add read only field in show file. No tab required
                 var str = "";
-                str = "<div data-field='" + alias + "' class='col-xs-12'>\n</div>";
+                str = "<div data-field='" + alias + "' class='col-xs-12'>\n<div class='form-group'>";
                 str += "\t<label for='" + alias + "'> {@__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='{" + alias + "." + usingField + "}' type='text' readOnly />\n";
                 str += "</div>\n</div>\n";
