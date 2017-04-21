@@ -17,6 +17,10 @@ var models = require('../models/');
 // Homepage
 router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
 	var page = req.params.page;
+	if (!page || (page != 'create' && page != 'update' && page != 'show'))
+		return res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
+	page += '_fields.dust';
+
 	var entity = req.params.entity;
 	var generatorLanguage = language(req.session.lang_user);
 	var workspaceLanguage = require(__dirname+'/../workspace/'+req.session.id_application+'/services/language')(req.session.lang_user);
