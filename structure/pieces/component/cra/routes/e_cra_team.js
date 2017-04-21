@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
+var holidaysApi = require('public-holidays');
+var moment = require('moment');
+
 // Datalist
 var filterDataTable = require('../utils/filterDataTable');
 
@@ -230,6 +233,32 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
 
     }).catch(function (err) {
         error500(err, req, res, "/");
+    });
+});
+
+router.get('/generate_holidays/:team_id/:lang', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+    var lang = req.params.lang;
+    var team_id = req.params.team_id;
+    var yearStart = moment().startOf('year').toDate().getTime();
+    var yearEnd = moment().endOf('year').toDate().getTime();
+
+    holidaysApi({
+        country: lang,
+        lang: lang,
+        start: yearStart,
+        end: yearEnd
+    }, function(err, holidays) {
+        if (err)
+            return error500(err, req, res);
+        var exceptionPromises = [];
+        for (var i = 0; i < holidays.length; i++) {
+            var date = new Date(holidays[i].start);
+            models.E_cra_calendar_exception.create({f_date: date, f_id_cra_team: team_id});
+        }
+
+        Promise.all(exceptionPromises).then(function() {
+            res.redirect('/cra_team/show?id='+team_id);
+        });
     });
 });
 

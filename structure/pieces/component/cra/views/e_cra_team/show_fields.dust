@@ -24,10 +24,12 @@
     </ul>
     <div class="tab-content" style="min-height:275px;">
         <div id="home" class="tab-pane fade in active">
-            <div id="fields">
-                <div data-field="f_name" class="form-group">
-                    <label for="f_name"> {@__ key="entity.e_cra_team.f_name"/} </label>
-                    <input class="form-control input" placeholder='{@__ key="entity.e_cra_team.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+            <div id="fields" class="row">
+                <div data-field="f_name" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_name"> {@__ key="entity.e_cra_team.f_name"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_cra_team.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+                    </div>
                 </div>
             </div>
             <div class="actions">
