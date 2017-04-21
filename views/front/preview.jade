@@ -290,9 +290,7 @@ block custom_js
 						$(".ge-mainControls").remove();
 
 						// Enable gridEditor
-						$("#ui_editor").gridEditor({
-							new_row_layouts: false
-						});
+						$("#ui_editor").gridEditor();
 						cleanEditor();
 						$("#ui_editor_save").show();
 						$(".ui_editor_page").parents('li').removeClass('active');
