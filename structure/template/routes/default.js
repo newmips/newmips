@@ -28,7 +28,7 @@ var wfs = require("webdav-fs")(
 // *** Dynamic Module | Do not remove ***
 
 // m_authentication
-router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
+router.get('/authentication', block_access.moduleAccessMiddleware("authentication"), function (req, res) {
     var widgetPromises = [];
 
     // *** Widget module m_authentication | Do not remove ***
@@ -43,7 +43,7 @@ router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccess
 });
 
 // m_home
-router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function (req, res) {
+router.get('/home', block_access.moduleAccessMiddleware("home"), function (req, res) {
     var widgetPromises = [];
 
     // *** Widget module m_home | Do not remove ***
@@ -90,7 +90,7 @@ router.post('/change_language', function (req, res) {
 });
 
 /* Dropzone FIELD ajax upload file */
-router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
+router.post('/file_upload', function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
             // Everything went fine
@@ -143,7 +143,7 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 });
 
 
-router.get('/get_file', block_access.isLoggedIn, function (req, res) {
+router.get('/get_file', function (req, res) {
     var entity = req.query.entity;
     var src = req.query.src;
     if (!!entity && !!src) {
@@ -170,7 +170,7 @@ router.get('/get_file', block_access.isLoggedIn, function (req, res) {
 });
 
 
-router.get('/download', block_access.isLoggedIn, function (req, res) {
+router.get('/download', function (req, res) {
     var entity = req.query.entity;
     var filepath = req.query.f;
     var p = new Promise(function (resolve, reject) {
@@ -202,7 +202,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
 
 });
 
-router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
+router.post('/delete_file', function (req, res) {
     var entity = req.body.dataEntity;
     var dataStorage = req.body.dataStorage;
     var filename = req.body.filename;

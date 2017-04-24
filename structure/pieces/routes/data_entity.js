@@ -308,7 +308,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
-    id_ENTITY_NAME = req.query.id;
+    var id_ENTITY_NAME = req.query.id;
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "list_ENTITY_NAME",

@@ -337,6 +337,57 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
     });
 });
 
+router.get('/admin/getCra', block_access.actionAccessMiddleware("cra", 'read'), function(req, res) {
+    var data = {
+        menu: "e_cra",
+        sub_menu: "list_e_cra"
+    };
+
+    var id_cra = req.query.id;
+    models.E_cra.findOne({
+        where: {id: id_cra},
+        include: [{
+            model: models.E_cra_task,
+            as: 'r_cra_task',
+            include: [{
+                model: models.E_cra_activity,
+                as: 'r_cra_activity'
+            }]
+        }]
+    }).then(function(cra) {
+        if (!cra)
+            data.craExists = false;
+        else {
+            data.craExists = true;
+            data.cra = cra;
+        }
+        models.E_cra_activity.findAll().then(function(activities) {
+            data.activities = activities;
+            models.E_cra_team.findOne({
+                include: [{
+                    model: models.E_user,
+                    as: 'r_users',
+                    where: {id: cra.f_id_user}
+                }, {
+                    model: models.E_cra_calendar_settings,
+                    as: 'r_cra_calendar_settings'
+                }, {
+                    model: models.E_cra_calendar_exception,
+                    as: 'r_cra_calendar_exception'
+                }, {
+                    model: models.E_cra_activity,
+                    as: 'r_default_cra_activity'
+                }]
+            }).then(function(team) {
+                if (!team)
+                    return res.status(500).send("You need to be in a team");
+                data.team = team;
+                res.status(200).json(data);
+            })
+        });
+    });
+});
+
 router.get('/declare', block_access.actionAccessMiddleware("cra", 'read'), function(req, res) {
     var data = {
         menu: "e_cra",

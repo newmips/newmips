@@ -211,7 +211,7 @@ $(function() {
     var year = parseInt($("#year").text());
     // Look for exisiting data for month/year
     $.ajax({
-        url: '/cra/getData/' + month + '/' + year,
+        url: '/cra/admin/getCra?id='+$("#id_cra").val(),
         success: function(data) {
             globalData = data;
             data.month = month;

@@ -915,8 +915,7 @@ exports.setupRelatedToField = function (attr, callback) {
         }
     }
 
-    select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>";
-    /*select += '<!--{^associationFlag}-->';*/
+    select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '		<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '		<select style="width:100%;" class="form-control" name="' + alias + '">\n';
     select += '			<!--{#' + alias + '}-->\n';
@@ -927,7 +926,6 @@ exports.setupRelatedToField = function (attr, callback) {
     select += '				<!--{/.' + usingField + '}-->\n';
     select += '			<!--{/' + alias + '}-->\n';
     select += '		</select>\n';
-    /*select += '<!--{/associationFlag}-->';*/
     select += '</div>\n</div>\n';
 
     // Update create_fields file
@@ -936,7 +934,7 @@ exports.setupRelatedToField = function (attr, callback) {
     updateFile(fileBase, file, select, function () {
 
         // Setup association field for update_fields
-        select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>";
+        select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
         select += '		<!--{#' + alias + '_global_list}-->\n';
@@ -971,7 +969,7 @@ exports.setupRelatedToField = function (attr, callback) {
 
                 // Add read only field in show file. No tab required
                 var str = "";
-                str = "<div data-field='" + alias + "' class='col-xs-12'>\n<div class='form-group'>";
+                str = "<div data-field='" + alias + "' class='col-xs-12'>\n<div class='form-group'>\n";
                 str += "\t<label for='" + alias + "'> {@__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='{" + alias + "." + usingField + "}' type='text' readOnly />\n";
                 str += "</div>\n</div>\n";
