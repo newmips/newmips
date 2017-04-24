@@ -110,10 +110,13 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field email with type email");
     instructions.push("add field token_password_reset");
     instructions.push("add field enabled with type number");
+    instructions.push("set icon user");
     instructions.push("create entity Role");
     instructions.push("add field label");
+    instructions.push("set icon asterisk");
     instructions.push("create entity Group");
     instructions.push("add field label");
+    instructions.push("set icon users");
     instructions.push("select entity User");
     instructions.push("add field role related to Role using label");
     instructions.push("add field group related to Group using label");
@@ -121,6 +124,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Client Name");
     instructions.push("add field Client Key");
     instructions.push("add field Client Secret");
+    instructions.push("set icon unlink");
     instructions.push("add field role related to Role using label");
     instructions.push("add field group related to Group using label");
     instructions.push("add field Token");
@@ -144,7 +148,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
         execute(req, recurInstructions[idx]).then(function(){
 
-            pourcent_generation[req.session.passport.user.id] = idx == 0 ? 5 : Math.floor(idx * 100 / recurInstructions.length);
+            pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
             recursiveExecute(recurInstructions, ++idx);
         }).catch(function(err){
             req.session.toastr = [{
@@ -177,11 +181,12 @@ function execute(req, instruction) {
             attr.id_data_entity = req.session.id_data_entity;
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
+            attr.currentUser = req.session.passport.user;
 
             if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.idUserGitlab = req.session.gitlab.user.id;
+                attr.gitlabUser = req.session.gitlab.user;
             else
-                attr.idUserGitlab = null;
+                attr.gitlabUser = null;
 
             var __ = require("../services/language")(req.session.lang_user).__;
 

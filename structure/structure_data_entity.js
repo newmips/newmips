@@ -325,13 +325,3 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
         })
     })
 };
-
-exports.getPasswordFields=function (object,callback){
-    var filePath = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module + '.dust';
-    domHelper.read(filePath).then(function ($) {
-        $("#" + url_name_data_entity + '_menu_item').remove();
-        domHelper.write(filePath, $).then(function () {
-            callback();
-        })
-    })
-};

@@ -1,73 +1,89 @@
-<div id="fields">
-    <div data-field="f_title" class="form-group">
-        <label for="f_title" class="required"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/} </label>
-        <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title" /}' name="f_title" value="{f_title}" type="text" required="">
-    </div>
-    <div data-field="f_description" class="form-group">
-        <label for="f_description"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_description"/} </label>
-        <textarea class="form-control textarea" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" value="{f_description}" type="text">{f_description}</textarea>
-    </div>
-    <div data-field="f_place" class="form-group">
-        <label for="f_place"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_place"/} </label>
-        <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text">
-    </div>
-    <div data-field="f_start_date" class="form-group">
-        <label for="f_start_date" class="required"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/} </label>
-        <div class="input-group">
-            <div class="input-group-addon">
-                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
-            </div>
-            <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' name="f_start_date" value="{f_start_date}" type="text" required="">
+<div id="fields" class="row">
+    <div data-field="f_title" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_title" class="required"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title" /}' name="f_title" value="{f_title}" type="text" required="">
         </div>
     </div>
-    <div data-field="f_end_date" class="form-group">
-        <label for="f_end_date"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/} </label>
-        <div class="input-group">
-            <div class="input-group-addon">
-                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
-            </div>
-            <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' name="f_end_date" value="{f_end_date}" type="text">
+    <div data-field="f_description" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_description"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_description"/} </label>
+            <textarea class="form-control textarea" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" value="{f_description}" type="text">{f_description}</textarea>
         </div>
     </div>
-    <div data-field="f_all_day" class="form-group">
-        <label for="f_all_day"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/} </label> &nbsp;
-        <br>
-        {@ifTrue key=f_all_day}
-            <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" checked="">
-        {:else}
-            <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox">
-        {/ifTrue}
+    <div data-field="f_place" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_place"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_place"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text">
+        </div>
     </div>
-    <div data-field="f_category" class="form-group">
-        <label for="f_category">{@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}</label>
-        <select style="width:100%;" class="form-control" name="r_category">
-    		{#r_category_global_list}
-    			{#.f_label}
-    				{@eq key=r_category.id value=id}
-    					<option value="{id}" selected="">{f_label}</option>
-    				{:else}
-    					<option value="{id}">{f_label}</option>
-    				{/eq}
-    			{:else}
-    				{@eq key=r_category.id value=id}
-    					<option value="{id}" selected="">{id} - Label not defined</option>
-    				{:else}
-    					<option value="{id}">{id} - Label not defined</option>
-    				{/eq}
-    			{/.f_label}
-    		{/r_category_global_list}
-        </select>
+    <div data-field="f_start_date" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_start_date" class="required"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/} </label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+                </div>
+                <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' name="f_start_date" value="{f_start_date}" type="text" required="">
+            </div>
+        </div>
     </div>
-    <div data-field="f_users" class="form-group">
-        <label for="f_users">{@__ key="entity.e_user.plural_entity" /}</label>
-        <select multiple="multiple" style="width:100%;" class="form-control" name="r_users">
-            {#r_users_global_list}
-                {@existInContextById ofContext=r_users key=id}
-                    <option value="{id}" selected="">{f_login} - {f_email}</option>
-                {:else}
-                    <option value="{id}">{f_login} - {f_email}</option>
-                {/existInContextById}
-            {/r_users_global_list}
-        </select>
+    <div data-field="f_end_date" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_end_date"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/} </label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+                </div>
+                <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' name="f_end_date" value="{f_end_date}" type="text">
+            </div>
+        </div>
+    </div>
+    <div data-field="f_all_day" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_all_day"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/} </label> &nbsp;
+            <br>
+            {@ifTrue key=f_all_day}
+                <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" checked="">
+            {:else}
+                <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox">
+            {/ifTrue}
+        </div>
+    </div>
+    <div data-field="f_category" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_category">{@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}</label>
+            <select style="width:100%;" class="form-control" name="r_category">
+        		{#r_category_global_list}
+        			{#.f_label}
+        				{@eq key=r_category.id value=id}
+        					<option value="{id}" selected="">{f_label}</option>
+        				{:else}
+        					<option value="{id}">{f_label}</option>
+        				{/eq}
+        			{:else}
+        				{@eq key=r_category.id value=id}
+        					<option value="{id}" selected="">{id} - Label not defined</option>
+        				{:else}
+        					<option value="{id}">{id} - Label not defined</option>
+        				{/eq}
+        			{/.f_label}
+        		{/r_category_global_list}
+            </select>
+        </div>
+    </div>
+    <div data-field="f_users" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_users">{@__ key="entity.e_user.plural_entity" /}</label>
+            <select multiple="multiple" style="width:100%;" class="form-control" name="r_users">
+                {#r_users_global_list}
+                    {@existInContextById ofContext=r_users key=id}
+                        <option value="{id}" selected="">{f_login} - {f_email}</option>
+                    {:else}
+                        <option value="{id}">{f_login} - {f_email}</option>
+                    {/existInContextById}
+                {/r_users_global_list}
+            </select>
+        </div>
     </div>
 </div>

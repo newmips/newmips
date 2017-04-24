@@ -1,6 +1,8 @@
 var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
+var helpers = require("../utils/helpers");
+var moment = require("moment");
 
 function setupComponentModel(idApplication, folderComponent, nameComponent, filename, callback){
 	// CREATE MODEL FILE
@@ -223,6 +225,13 @@ function addAccessManagment(idApplication, urlComponent, urlModule, callback){
     });
 }
 
+function replaceValuesInFile(filePath, valueToFind, replaceWith){
+	var fileContent = fs.readFileSync(filePath, 'utf8');
+	var reg = new RegExp(valueToFind, "g");
+	fileContent = fileContent.replace(reg, replaceWith);
+	fs.writeFileSync(filePath, fileContent);
+}
+
 exports.newLocalFileStorage = function(attr, callback){
 
 	var nameComponent = attr.options.value;
@@ -269,43 +278,190 @@ exports.newLocalFileStorage = function(attr, callback){
 
 exports.newContactForm = function(attr, callback){
 
-	var nameComponent = attr.options.value;
-	var nameComponentLower = nameComponent.toLowerCase();
+	var idApp = attr.id_application;
 
-	var showComponentName = attr.options.showValue;
-	var showComponentNameLower = showComponentName.toLowerCase();
+	// Contact Form entity
+	var codeName = attr.options.value;
+	var showName = attr.options.showValue;
+	var urlName = attr.options.urlValue.toLowerCase();
 
-	var urlComponent = attr.options.urlValue.toLowerCase();
+	// Contact Form Settings entity
+	var codeNameSettings = attr.options.valueSettings;
+    var showNameSettings = attr.options.showValueSettings;
+    var urlNameSettings = attr.options.urlValueSettings;
 
-	var filename = "contact_form";
+	var workspacePath = __dirname+'/../workspace/'+idApp;
+    var piecesPath = __dirname+'/../structure/pieces/component/contact_form';
 
-	setupComponentView(attr.id_application, nameComponent, urlComponent, filename, attr.options.moduleName, function(){
-		setupComponentRoute(attr.id_application, filename, nameComponent, "", filename, "", function(){
-			translateHelper.writeLocales(attr.id_application, "component", nameComponentLower, showComponentName, attr.googleTranslate, function(){
-				var layoutFileName = __dirname+'/../workspace/'+attr.id_application+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
-				domHelper.read(layoutFileName).then(function($) {
-					var li = '';
-					li += "<li id='"+nameComponentLower+"_menu_item' class='ui-state-default'>\n";
-						li += '<a href="/'+urlComponent+'">\n';
-							li += '<i class="fa fa-envelope"></i>\n';
-							li += '<span><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></span>\n';
-						li += '</a>\n';
-					li += '</li>\n';
+    /*var toSyncFileName = workspacePath+'/models/toSync.json';
+    var toSyncFile = fs.readFileSync(toSyncFileName);*/
+    var toSyncObject = {};
+    toSyncObject[idApp + "_" + codeNameSettings] = {};
+    toSyncObject[idApp + "_" + codeNameSettings].queries = [];
 
-					// Add new html to document
-					$('#sortable').append(li);
+    var mailConfigPath = workspacePath + "/config/mail";
+    delete require.cache[require.resolve(mailConfigPath)];
+    var mailConfig = require(mailConfigPath);
 
-					// Write back to file
-					domHelper.write(layoutFileName, $).then(function() {
-						addAccessManagment(attr.id_application, urlComponent, attr.options.moduleName.substring(2), function(){
-							callback();
-						});
-					});
-				}).catch(function(err) {
-					callback(err, null);
-				});
+    var insertSettings = "INSERT INTO `"+idApp + "_" + codeNameSettings+"`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)"+
+    	" VALUES(1,'"+mailConfig.transport.host+"',"+
+			"'"+mailConfig.transport.port+"',"+
+			mailConfig.transport.secure+","+
+			"'"+mailConfig.transport.auth.user+"',"+
+			"'"+mailConfig.transport.auth.pass+"',"+
+			"'"+mailConfig.administrateur+"',"+
+			"'"+moment().format("YYYY-MM-DD HH:mm:ss")+"',"+
+			"'"+moment().format("YYYY-MM-DD HH:mm:ss")+"');";
+
+    toSyncObject[idApp + "_" + codeNameSettings].queries.push(insertSettings);
+
+    fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSyncObject, null, 4));
+
+    // Contact Form View
+    fs.copySync(piecesPath+'/views/', workspacePath+'/views/'+codeName+'/');
+    fs.unlinkSync(workspacePath+'/views/'+codeName+'/update.dust');
+    fs.unlinkSync(workspacePath+'/views/'+codeName+'/update_fields.dust');
+
+    // Contact Form Route
+    // Unlink generated route to replace with our custom route file
+    fs.unlinkSync(workspacePath+'/routes/'+codeName+'.js');
+    fs.copySync(piecesPath+'/routes/route_contact_form.js', workspacePath+'/routes/'+codeName+'.js');
+
+    replaceValuesInFile(workspacePath+'/routes/'+codeName+'.js', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspacePath+'/routes/'+codeName+'.js', "URL_VALUE_SETTINGS", urlNameSettings);
+    replaceValuesInFile(workspacePath+'/routes/'+codeName+'.js', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspacePath+'/routes/'+codeName+'.js', "CODE_VALUE_SETTINGS", codeNameSettings);
+    replaceValuesInFile(workspacePath+'/routes/'+codeName+'.js', "MODEL_VALUE_CONTACT", codeName.charAt(0).toUpperCase() + codeName.toLowerCase().slice(1));
+    replaceValuesInFile(workspacePath+'/routes/'+codeName+'.js', "MODEL_VALUE_SETTINGS", codeNameSettings.charAt(0).toUpperCase() + codeNameSettings.toLowerCase().slice(1));
+
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/create.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/create.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/create.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/create_fields.dust', "CODE_VALUE_CONTACT", codeName);
+
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/show_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/show_fields.dust', "URL_VALUE_CONTACT", urlName);
+
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/list.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/list.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/list.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/list_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/list_fields.dust', "URL_VALUE_CONTACT", urlName);
+
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/settings.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/settings.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/settings.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+
+    replaceValuesInFile(workspacePath+'/views/'+codeName+'/settings_fields.dust', "CODE_VALUE_SETTINGS", codeNameSettings);
+
+    // Delete Contact Form Settings Route and Views
+    fs.unlinkSync(workspacePath+'/routes/'+codeNameSettings+'.js');
+    helpers.rmdirSyncRecursive(workspacePath+'/views/'+codeNameSettings+'/');
+
+    // Locales FR
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_name"], "Nom");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_sender"], "Expediteur");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_recipient"], "Destinataire");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "r_user"], "Utilisateur");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_title"], "Titre");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_content"], "Contenu");
+
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Send box");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "settings"], "Settings");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
+
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte d'envoi");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
+
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "plural_entity"], "Settings");
+
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "label_entity"], "Paramètres");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "name_entity"], "Paramètres");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "plural_entity"], "Paramètres");
+
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_transport_host"], "Hôte");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_port"], "Port");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_secure"], "Sécurisé");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_user"], "Utilisateur");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_pass"], "Mot de passe");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_form_recipient"], "Destinataire du formulaire");
+
+	// If default name
+	if(codeName == "e_contact_form")
+		translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "label_entity"], "Formulaire de contact");
+		translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "name_entity"], "Formulaire de contact");
+		translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "plural_entity"], "Formulaires de contact");
+
+    var layoutFileName = __dirname+'/../workspace/'+idApp+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
+	domHelper.read(layoutFileName).then(function($) {
+
+		$("#"+urlName+"_menu_item").remove();
+		$("#"+urlNameSettings+"_menu_item").remove();
+
+		var li = '';
+		li += "<!--{@entityAccess entity=\""+urlName+"\"}-->";
+    	li += "		<li id=\""+urlName+"_menu_item\" style=\"display:block;\" class=\"treeview\">";
+		li += "			<a href=\"#\">";
+        li += "    			<i class=\"fa fa-envelope\"></i>";
+        li += "    			<span><!--{@__ key=\"entity."+codeName+".label_entity\" /}--></span>";
+        li += "    			<i class=\"fa fa-angle-left pull-right\"></i>";
+        li += "			</a>";
+        li += "			<ul class=\"treeview-menu\">";
+        li += "    			<!--{@actionAccess entity=\""+urlName+"\" action=\"write\"}-->";
+        li += "    			<li>";
+        li += "        			<a href=\"/"+urlName+"/create_form\">";
+        li += "            			<i class=\"fa fa-paper-plane\"></i>";
+        li += "            			<!--{@__ key=\"entity."+codeName+".sendMail\" /}-->";
+        li += "        			</a>";
+        li += "    			</li>";
+        li += "    			<!--{/actionAccess}-->";
+        li += "    			<!--{@actionAccess entity=\""+urlName+"\" action=\"read\"}-->";
+        li += "    			<li>";
+        li += "        			<a href=\"/"+urlName+"/list\">";
+        li += "            			<i class=\"fa fa-inbox\"></i>";
+        li += "            			<!--{@__ key=\"entity."+codeName+".inbox\" /}-->";
+        li += "        			</a>";
+        li += "    			</li>";
+        li += "    			<!--{/actionAccess}-->";
+        li += "    			<!--{@actionAccess entity=\""+urlNameSettings+"\" action=\"write\"}-->";
+        li += "    			<li>";
+        li += "        			<a href=\"/"+urlName+"/settings\">";
+        li += "            			<i class=\"fa fa-cog\"></i>";
+        li += "            			<!--{@__ key=\"entity."+codeName+".settings\" /}-->";
+        li += "        			</a>";
+        li += "    			</li>";
+        li += "    			<!--{/actionAccess}-->";
+        li += "			</ul>";
+        li += "		</li>\n";
+        li += "<!--{/entityAccess}-->"
+
+		// Add new html to document
+		$('#sortable').append(li);
+
+		// Write back to file
+		domHelper.write(layoutFileName, $).then(function() {
+			// Clean empty and useless dust helper created by removing <li>
+			var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+
+			// Remove empty dust helper
+			layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+
+			var writeStream = fs.createWriteStream(layoutFileName);
+			writeStream.write(layoutContent);
+			writeStream.end();
+			writeStream.on('finish', function() {
+				callback();
 			});
 		});
+	}).catch(function(err) {
+		callback(err, null);
 	});
 }
 
@@ -435,4 +591,63 @@ exports.newAgenda = function(attr, callback){
 			});
 		});
 	});
+}
+
+exports.newCra = function(attr, callback){
+	try {
+        var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+        var piecesPath = __dirname+'/../structure/pieces/component/cra';
+
+        // Clean toSync file, add custom fields
+        var toSync = {};
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+
+        // Copy pieces
+        fs.copySync(piecesPath+'/routes/e_cra.js', workspacePath+'/routes/e_cra.js');
+        fs.copySync(piecesPath+'/routes/e_cra_team.js', workspacePath+'/routes/e_cra_team.js');
+        fs.copySync(piecesPath+'/views/e_cra/', workspacePath+'/views/e_cra/');
+        fs.copySync(piecesPath+'/views/e_cra_team/', workspacePath+'/views/e_cra_team/');
+        fs.copySync(piecesPath+'/views/layout_m_cra.dust', workspacePath+'/views/layout_m_cra.dust');
+        fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
+
+        // Replace locales
+        // fr-FR
+        var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
+        var frLocales = require(piecesPath+'/locales/fr-FR.json');
+        for (var entity in frLocales)
+            workspaceFrLocales.entity[entity] = frLocales[entity];
+        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+
+        // en-EN
+        var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
+        var enLocales = require(piecesPath+'/locales/en-EN.json');
+        for (var entity in enLocales)
+            workspaceEnLocales.entity[entity] = enLocales[entity];
+        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+
+        // Update user translations
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+
+        // Update module name
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "C.R.A");
+        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "A.R");
+
+        // Remove unwanted tab from user
+        domHelper.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
+            $("#r_cra-click").parents('li').remove();
+            $("#r_cra").remove();
+            domHelper.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
+                // Check activity activate field in create field
+                domHelper.read(workspacePath+'/views/e_cra_activity/create_fields.dust').then(function($) {
+                    $("input[name='f_active']").attr("checked", "checked");
+                    domHelper.write(workspacePath+'/views/e_cra_activity/create_fields.dust', $).then(function(){
+                        callback(null, {message: 'Module C.R.A created'});
+                    });
+                });
+            });
+        });
+    } catch(err) {
+        callback(err);
+    }
 }

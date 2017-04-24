@@ -2,26 +2,72 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
+var moment = require("moment");
 
-function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values) {
+function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
     var dataField = nameDataField.toLowerCase();
     var dataEntity = nameDataEntity.toLowerCase();
-
+    /* Value in input managment */
     var value = "";
     var value2 = "";
     if (file != "create") {
         value = "{" + dataField + "}";
         value2 = dataField;
+    } else if (defaultValue != null) {
+        switch (type) {
+            case "number" :
+            case "nombre" :
+            case "int" :
+            case "integer" :
+                defaultValue = defaultValue.replace(/\.|\,/g, "");
+                if (!isNaN(defaultValue))
+                    value = defaultValue;
+                else
+                    console.log("ERROR: Invalid default value " + defaultValue + " for number input.")
+                break;
+            case "decimal" :
+            case "double" :
+            case "float" :
+            case "figures" :
+                defaultValue = defaultValue.replace(/\,/g, ".");
+                if (!isNaN(defaultValue))
+                    value = defaultValue;
+                else
+                    console.log("ERROR: Invalid default value " + defaultValue + " for decimal input.")
+                break;
+            case "date" :
+                if (moment(defaultValue, "YYYY-MM-DD", true).isValid()) {
+                    value = moment(defaultValue, "YYYY-MM-DD").format("YYYY-MM-DD");
+                } else if (moment(defaultValue, "DD/MM/YYYY", true).isValid()) {
+                    value = moment(defaultValue, "DD/MM/YYYY").format("YYYY-MM-DD");
+                } else if (["today", "now", "aujourd'hui"].indexOf(defaultValue.toLowerCase()) != -1) {
+                    value = moment().format("YYYY-MM-DD");
+                } else {
+                    console.log("ERROR: Invalide date '" + defaultValue + "' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
+                }
+                break;
+            case "boolean" :
+            case "checkbox" :
+            case "case à cocher" :
+                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                    value = true;
+                } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                    value = false;
+                } else {
+                    console.log("ERROR: Invalid default value " + defaultValue + " for boolean input.")
+                }
+                break;
+            default :
+                value = defaultValue;
+                break;
+        }
     }
-
-    readOnly = readOnly ? "readOnly" : "";
 
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
-
-    var str = "<div data-field='" + dataField + "' class='form-group'>\n";
+    readOnly = readOnly ? "readOnly" : "";
+    var str = "<div data-field='" + dataField + "' class='col-xs-12'>\n<div class='form-group'>\n";
     str += "\t<label for='" + dataField + "'> {@__ key=\"entity." + dataEntity + "." + dataField + "\"/} </label>\n";
-
     // Check type of field
     switch (type) {
         case "string" :
@@ -43,10 +89,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
-        case "code barre":
-        case "codebarre":
         case "qrcode":
-        case "barcode":
             str += "	<div class='input-group'>\n";
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-qrcode'></i>\n";
@@ -55,7 +98,31 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text' data-type='qrcode' " + readOnly + "/>\n";
             else
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text'" + readOnly + "/>\n";
-
+            str += "	</div>\n";
+            break;
+        case "ean8":
+        case "ean13":
+        case "upc":
+        case "code39":
+        case "alpha39":
+        case "code128":
+//        case "codecip":
+//        case "cip":
+//        case "isbn":
+//        case "issn":
+//        case "hr":
+//        case "codehr":
+            var inputType = 'number';
+            if (type === "code39" || type === "alpha39" || type === "code128")
+                inputType = 'text';
+            str += "	<div class='input-group'>\n";
+            str += "		<div class='input-group-addon'>\n";
+            str += "			<i class='fa fa-barcode'></i>\n";
+            str += "		</div>\n";
+            if (file == "show")
+                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
+            else
+                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode'  type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "euro":
@@ -98,21 +165,22 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		</div>\n";
                 str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
                 str += "	</div>\n";
-            } else if (file == "update") {
+            } else if (file == "update" || file == "create") {
                 str += "	<div class='input-group'>\n";
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-calendar'></i>\n";
                 str += "		</div>\n";
                 str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
                 str += "	</div>\n";
-            } else if (file == "create") {
-                str += "	<div class='input-group'>\n";
-                str += "		<div class='input-group-addon'>\n";
-                str += "			<i class='fa fa-calendar'></i>\n";
-                str += "		</div>\n";
-                str += "		<input class='form-control input datepicker' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
-                str += "	</div>\n";
             }
+            /*else if (file == "create") {
+             str += "	<div class='input-group'>\n";
+             str += "		<div class='input-group-addon'>\n";
+             str += "			<i class='fa fa-calendar'></i>\n";
+             str += "		</div>\n";
+             str += "		<input class='form-control input datepicker' value='" + value + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
+             str += "	</div>\n";
+             }*/
             break;
         case "time" :
         case "heure" :
@@ -183,16 +251,32 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "boolean" :
         case "checkbox" :
         case "case à cocher" :
-            str += "	&nbsp;\n<br>\n";
-            str += "	{@ifTrue key=" + dataField + "}";
-            str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
-            str += "	{:else}";
-            str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
-            str += "	{/ifTrue}";
+            str += "    &nbsp;\n<br>\n";
+            if (file == "create") {
+                if (value === true) {
+                    str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' checked />\n";
+                } else {
+                    str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' />\n";
+                }
+            } else {
+                str += "	{@ifTrue key=" + dataField + "}";
+                str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
+                str += "	{:else}";
+                str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
+                str += "	{/ifTrue}";
+            }
             break;
         case "radio" :
         case "case à sélectionner" :
-            if (file != "create") {
+            if (file == "create") {
+                for (var i = 0; i < values.length; i++) {
+                    str += "    &nbsp;\n<br>\n";
+                    if (values[i] == defaultValue)
+                        str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' checked type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
+                    else
+                        str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
+                }
+            } else {
                 for (var i = 0; i < values.length; i++) {
                     str += "	&nbsp;\n<br>\n";
                     str += "	{@eq key=" + value2 + " value=\"" + values[i] + "\" }";
@@ -200,11 +284,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     str += "	{:else}";
                     str += "		<input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
                     str += "	{/eq}";
-                }
-            } else {
-                for (var i = 0; i < values.length; i++) {
-                    str += "	&nbsp;\n<br>\n";
-                    str += "	<input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
                 }
             }
             break;
@@ -215,20 +294,31 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum." + dataField + "}\n";
-                str += "			{@eq key=" + value2 + " value=\"{.value}\" }";
+                str += "			{@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "				<option value=\"{.translation}\" selected> {.translation} </option>\n";
-                str += "			{:else}"
+                str += "			{:else}\n"
                 str += "				<option value=\"{.translation}\"> {.translation} </option>\n";
-                str += "			{/eq}"
+                str += "			{/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
-            } else {
+            } else if (value != "") {
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum." + dataField + "}\n";
-                str += "			<option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "            {@eq key=\"" + value + "\" value=\"{.value}\" }\n";
+                str += "                <option value=\"{.translation}\" selected> {.translation} </option>\n";
+                str += "            {:else}\n"
+                str += "                <option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "            {/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
+            } else {
+                str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+                str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
+                str += "        {#enum." + dataField + "}\n";
+                str += "            <option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "        {/enum." + dataField + "}\n";
+                str += "    </select>";
             }
             break;
         case "text" :
@@ -250,35 +340,35 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	</div>\n";
             }
             break;
-//        case "img":
-//        case "picture":
-//        case "image":
-//            if (file != 'show') {
-//                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-//                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
-//            } else {
-//                str += "	<div class='input-group'>\n";
-//                str += "		<img src=img/"+dataEntity+"/"+value.split('-')[0]+'/'+ value + " class='img img-responsive' alt="+value+" name=" + dataField + "  " + readOnly + "/>\n";
-//                str += "	</div>\n";
-//            }
-//            break;
+        case "img":
+        case "picture":
+        case "image":
+        case "photo":
+            if (file != 'show') {
+                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+            } else {
+                str += "	<div class='input-group'>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height=200 width=200/></a>\n";
+                str += "	</div>\n";
+            }
+            break;
         case "cloudfile" :
             str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "	<input class='form-control inputt' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
     }
 
-    str += "</div>";
+    str += "</div>\n</div>\n";
     return str;
 }
 
 function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     var dataEntity = nameDataEntity.toLowerCase();
     var dataField = nameDataField.toLowerCase();
-
     var ret = {headers: '', body: ''};
     /* ------------- Add new FIELD in headers ------------- */
     var str = '<th data-field="' + dataField + '" data-col="' + dataField + '"';
@@ -287,7 +377,6 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
     str += '</th>\n';
     ret.headers = str;
-
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
     str = '<td data-field="' + dataField + '"';
     str += ' data-type="' + type + '"';
@@ -312,15 +401,12 @@ function updateListFile(fileBase, file, thString, bodyString, callback) {
     domHelper.read(fileToWrite).then(function ($) {
         // Count th to know where to insert new th (-3 because of actions th, show/update/delete)
         var thCount = $(".main").find('th').length - 3;
-
         // Add to header thead and filter thead
         $(".fields").each(function () {
             $(this).find('th').eq(thCount).before(thString);
         });
-
         // Add td to tbody, this will be used in case of belongsToMany or hasMany show association
         $("#bodyTR").find('td').eq(thCount).before(bodyString);
-
         // jsDom have difficulties parsing the context inside <tr> tag. We need to extract the content of
         // a bad <tr> that jsDom generates, place this content at the right place, then remove the extra <tr>
         // generated by jsDom.
@@ -338,20 +424,18 @@ function updateListFile(fileBase, file, thString, bodyString, callback) {
 exports.setupDataField = function (attr, callback) {
 
     var id_application = attr.id_application;
-
     var name_module = attr.name_module;
     var name_data_entity = attr.name_data_entity;
     var codeName_data_entity = attr.codeName_data_entity;
-
     var type_data_field;
     var values_data_field;
-
     /* ----------------- 1 - Initialize variables according to options ----------------- */
     var options = attr.options;
-
     var name_data_field = options.value;
-    var show_name_data_field = attr.options.showValue;
-
+    var show_name_data_field = options.showValue;
+    var defaultValue = null;
+    if (typeof options.defaultValue !== "undefined")
+        defaultValue = options.defaultValue;
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
         type_data_field = options.type.toLowerCase();
@@ -377,12 +461,10 @@ exports.setupDataField = function (attr, callback) {
     var attributesFileName = './workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
     var attributesFile = fs.readFileSync(attributesFileName);
     var attributesObject = JSON.parse(attributesFile);
-
     // toSync.json
     var toSyncFileName = './workspace/' + id_application + '/models/toSync.json';
     var toSyncFile = fs.readFileSync(toSyncFileName);
     var toSyncObject = JSON.parse(toSyncFile);
-
     if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] === "undefined") {
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] = {};
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes = {};
@@ -392,7 +474,6 @@ exports.setupDataField = function (attr, callback) {
 
     var typeForModel = "STRING";
     var typeForDatalist = "string";
-
     switch (type_data_field) {
         case "password" :
         case "mot de passe":
@@ -494,12 +575,30 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "STRING";
             typeForDatalist = "file";
             break;
-//        case "img":
-//        case "image":
-//        case "picture":
-//            typeForModel = "STRING";
-//            typeForDatalist = "picture";
-//            break;
+        case "img":
+        case "image":
+        case "picture":
+        case "photo":
+            typeForModel = "STRING";
+            typeForDatalist = "picture";
+            type_data_field = 'picture';
+            break;
+        case "ean8":
+        case "ean13":
+        case "upca":
+        case "codecip":
+        case "cip":
+        case "isbn":
+        case "issn":
+            typeForModel = "STRING";
+            typeForDatalist = "barcode";
+            break;
+        case "code39":
+        case "alpha39":
+        case "code128":
+            typeForModel = "TEXT";
+            typeForDatalist = "barcode";
+            break;
         case "cloudfile" :
             typeForModel = "STRING";
             break;
@@ -557,13 +656,13 @@ exports.setupDataField = function (attr, callback) {
     /* ----------------- 4 - Add the fields in all the views  ----------------- */
     var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + codeName_data_entity.toLowerCase();
     /* Update the show_fields.dust file with a disabled input */
-    var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field);
+    var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field, defaultValue);
     updateFile(fileBase, "show_fields", stringToWrite, function () {
         /* Update the create_fields.dust file */
-        stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field);
+        stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field, defaultValue);
         updateFile(fileBase, "create_fields", stringToWrite, function () {
             /* Update the update_fields.dust file */
-            stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field);
+            stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field, defaultValue);
             updateFile(fileBase, "update_fields", stringToWrite, function () {
                 /* Update the list_fields.dust file */
                 stringToWrite = getFieldInHeaderListHtml(typeForDatalist, name_data_field, codeName_data_entity);
@@ -601,7 +700,6 @@ exports.setRequiredAttribute = function (attr, callback) {
 
     // Update create_fields.dust file
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
-
         if ($("*[data-field='" + attr.options.value + "']").length > 0) {
             if (set)
                 $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
@@ -620,21 +718,30 @@ exports.setRequiredAttribute = function (attr, callback) {
                     else
                         $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
+                    $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
+
                     domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
 
                         // Update the Sequelize attributes.json to set allowNull
                         var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.name_data_entity.toLowerCase() + ".json";
-                        var attributesContent = fs.readFileSync(pathToAttributesJson);
-                        var attributesObj = JSON.parse(attributesContent);
+                        var attributesObj = require(pathToAttributesJson);
 
-                        attributesObj[attr.options.value].allowNull = set ? false : true;
-                        fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
-
+                        if (attributesObj[attr.options.value]) {
+                            attributesObj[attr.options.value].allowNull = set ? false : true;
+                            fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+                        }
                         callback();
                     });
                 });
+            }).catch(function(e) {
+                console.log(e);
+                var err = new Error();
+                err.message = "structure.field.attributes.fieldNoFound";
+                err.messageParams = [attr.options.showValue];
+                callback(err, null);
             });
         } else {
+            console.log('Dans le else');
             var err = new Error();
             err.message = "structure.field.attributes.fieldNoFound";
             err.messageParams = [attr.options.showValue];
@@ -675,38 +782,6 @@ exports.setUniqueField = function (attr, callback) {
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
     callback();
-}
-
-exports.setColumnVisibility = function (attr, callback) {
-
-    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity;
-
-    var possibilityShow = ["show", "visible"];
-    var possibilityHide = ["hide", "hidden", "non visible", "caché"];
-
-    var attributes = attr.options.word.toLowerCase();
-    var hide;
-
-    if (possibilityHide.indexOf(attributes) != -1) {
-        hide = true;
-    } else if (possibilityShow.indexOf(attributes) != -1) {
-        hide = false;
-    } else {
-        var err = new Error();
-        err.message = "structure.field.attributes.notUnderstand";
-        return callback(err);
-    }
-
-    domHelper.read(pathToViews + '/list_fields.dust').then(function ($) {
-        $("*[data-field='" + attr.options.value + "']")[hide ? 'hide' : 'show']();
-        domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
-            var info = {};
-            info.message = "Set column " + attr.options.showValue + " visibility to " + attributes;
-            callback(null, info);
-        });
-    }).catch(function (err) {
-        callback(err, null);
-    });
 }
 
 function addTab(attr, file, newLi, newTabContent) {
@@ -840,7 +915,7 @@ exports.setupRelatedToField = function (attr, callback) {
         }
     }
 
-    select += "<div data-field='f_" + urlAs + "' class='form-group'>\n";
+    select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>";
     /*select += '<!--{^associationFlag}-->';*/
     select += '		<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '		<select style="width:100%;" class="form-control" name="' + alias + '">\n';
@@ -853,7 +928,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += '			<!--{/' + alias + '}-->\n';
     select += '		</select>\n';
     /*select += '<!--{/associationFlag}-->';*/
-    select += '</div>\n';
+    select += '</div>\n</div>\n';
 
     // Update create_fields file
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -861,7 +936,7 @@ exports.setupRelatedToField = function (attr, callback) {
     updateFile(fileBase, file, select, function () {
 
         // Setup association field for update_fields
-        select = "<div data-field='f_" + urlAs + "' class='form-group'>\n";
+        select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
         select += '		<!--{#' + alias + '_global_list}-->\n';
@@ -880,7 +955,7 @@ exports.setupRelatedToField = function (attr, callback) {
         select += '			<!--{/.' + usingField + '}-->\n';
         select += '		<!--{/' + alias + '_global_list}-->\n';
         select += '</select>\n';
-        select += '</div>\n';
+        select += '</div>\n</div>\n';
         file = 'update_fields';
 
         // Update update_fields file
@@ -896,10 +971,10 @@ exports.setupRelatedToField = function (attr, callback) {
 
                 // Add read only field in show file. No tab required
                 var str = "";
-                str = "<div data-field='" + alias + "' class='form-group'>\n";
+                str = "<div data-field='" + alias + "' class='col-xs-12'>\n<div class='form-group'>";
                 str += "\t<label for='" + alias + "'> {@__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='{" + alias + "." + usingField + "}' type='text' readOnly />\n";
-                str += "</div>";
+                str += "</div>\n</div>\n";
                 $("#fields").append(str);
 
                 domHelper.write(file, $).then(function () {
@@ -1124,7 +1199,7 @@ exports.deleteDataField = function (attr, callback) {
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
 
     // Clear the require cache
-    delete require.cache[require.resolve(jsonPath)]
+    delete require.cache[require.resolve(jsonPath)];
     var dataToWrite = require(jsonPath);
 
     for (var i = 0; i < dataToWrite.length; i++) {
@@ -1247,9 +1322,9 @@ exports.deleteTab = function (attr, callback) {
         var showFile = __dirname + '/../workspace/' + attr.id_application + '/views/' + name_data_entity + '/show_fields.dust';
         domHelper.read(showFile).then(function ($) {
             // Remove tab (<li>)
-            $("#" + "r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
+            $("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
             // Remove tab content
-            $("#" + "r_" + tabNameWithoutPrefix).remove();
+            $("#r_" + tabNameWithoutPrefix).remove();
 
             domHelper.write(showFile, $).then(function () {
                 callback(null, option.foreignKey, target);

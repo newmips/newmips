@@ -4,6 +4,7 @@ var databaseConf = {
 	develop: {
 		connection: {
                   host: '127.0.0.1',
+                  port: '3306',
                   user: 'newmips',
                   password: 'newmips',
                   database: 'newmips',
@@ -14,6 +15,7 @@ var databaseConf = {
       recette: {
             connection: {
                   host: '127.0.0.1',
+                  port: '3306',
                   user: 'newmips',
                   password: 'newmips',
                   database: 'newmips',
@@ -24,6 +26,7 @@ var databaseConf = {
 	production: {
 		connection: {
                   host: '127.0.0.1',
+                  port: '3306',
                   user: 'newmips',
                   password: 'newmips',
                   database: 'newmips',

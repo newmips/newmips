@@ -4,8 +4,20 @@
     },
     "login": {
         "log_in": "Log in",
-        "reset_password": "Mot de passe oublié",
-        "first_connection": "Première connexion",
+        "reset_password": {
+            "title": "Mot de passe oublié",
+            "success": "Votre mot de passe a bien été reinitialisé.",
+            "successMail": "Un email vous permettant de réinitialiser votre mot de passe vous a bien été envoyé.",
+            "userNotExist": "Erreur, cet utilisateur n'existe pas.",
+            "cannotFindToken": "Erreur, impossible de retrouver votre token de réinitialisation."
+        },
+        "first_connection": {
+            "title": "Première connexion",
+            "success": "Mise à jour effectuée, vous pouvez désormais vous connecter avec vos identifiants.",
+            "userNotExist": "Erreur, cet utilisateur n'existe pas ou a déjà été activé.",
+            "alreadyHavePassword": "Opération impossible, cet utilisateur possède déjà un mot de passe.",
+            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 4 caractères."
+        },
         "authentication": "Connexion",
         "login": "Login",
         "password": "Mot de passe",
@@ -29,8 +41,8 @@
             "api_status": "Status de l'API",
             "api_doc": "Documentation de l'API",
             "action": {
-                "read": "Lire",
-                "write": "Ecrire",
+                "read": "Afficher",
+                "write": "Créer",
                 "delete": "Supprimer"
             }
         },
@@ -77,14 +89,15 @@
         "settings": "Paramètres",
         "download": "Télécharger",
         "search": "Rechercher",
-        "send": "Envoyer"
+        "send": "Envoyer",
+        "validation": "Valider"
     },
     "operation": {
         "show": "Afficher une entité ",
         "update": "Modifier une entité ",
         "create": "Créer une entité ",
         "delete": "Supprimer une entité ",
-        "list": "Lister toutes les entités ",
+        "list": "Lister les ",
         "add": "Ajouter une entité "
     },
     "message": {
@@ -123,6 +136,16 @@
         }
     },
     "component": {},
+    "defaults": {
+        "widgets": {
+            "lastrecords": {
+                "label": "derniers enregistrements"
+            },
+            "stats": {
+                "more_info": "Plus d'infos"
+            }
+        }
+    },
     "error": {
         "title": "Erreur",
         "contactAdmin": "Merci de contacter votre administrateur.",

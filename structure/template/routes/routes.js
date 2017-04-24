@@ -6,8 +6,6 @@ var auth = require('../utils/authStrategies');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
-var menu_manager = require('../services/menu');
-var valid = require('validator');
 
 //Sequelize
 var models = require('../models/');
@@ -32,9 +30,9 @@ router.get('/', function(req, res) {
 
 router.get('/login', block_access.loginAccess, function(req, res) {
     var redirect = req.params.redirect;
-    if (typeof redirect === 'undefined') {
+    if (typeof redirect === 'undefined')
         redirect = "/default/home";
-    }
+
     res.render('login/login', {
         message: req.flash('loginMessage'),
         redirect: redirect
@@ -42,24 +40,17 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 });
 
 router.post('/login', auth.isLoggedIn, function(req, res) {
-    var redirect_to = req.session.redirect_to ? req.session.redirect_to : '/default/home';
-    delete req.session.redirect_to;
 
-    if (req.body.remember) {
-        req.session.cookie.maxAge = 1000 * 60 * 3;
-    } else {
+    if (req.body.remember)
+        req.session.cookie.maxAge = 30 * 60 * 1000; // 30min
+    else
         req.session.cookie.expires = false;
-    }
-    req.session.message = "";
-    req.session.error = 0;
 
-    res.redirect(redirect_to);
+    res.redirect("/default/home");
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
-    res.render('login/first_connection', {
-        message: ""
-    });
+    res.render('login/first_connection');
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
@@ -68,27 +59,36 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
     models.E_user.findOne({
         where: {
             f_login: login_user,
-            f_password: null,
+            $or: [{f_password: ""}, {f_password: null}],
             f_enabled: 0
         }
     }).then(function(user){
         if(!user){
-            req.flash('loginMessage', "Erreur. Cet utilisateur n'éxiste pas ou ne réponds pas aux conditions pour définir un mot de passe.");
-            return res.redirect('/login');
-        }
-        if(user.f_password != "" && user.f_password != null){
-            req.flash('loginMessage', 'Mise à jour impossible. Cet utilisateur possède déjà un mot de passe. Contactez votre Administrateur.');
-            return res.redirect('/login');
-        }
-        var password = bcrypt.hashSync(req.body.password_user2, null, null);
-        models.E_user.update({f_password: password, f_enabled: 1}, {
-            where: {id: user.id}
-        }).then(function(){
-            req.flash('loginMessage', 'Mise à jour faite. Vous pouvez désormais vous connecter.');
+            req.flash('loginMessage', "login.first_connection.userNotExist");
             res.redirect('/login');
-        });
+        }
+        else if(user.f_password != "" && user.f_password != null){
+            req.flash('loginMessage', "login.first_connection.alreadyHavePassword");
+            res.redirect('/login');
+        }
+        else{
+            var password = bcrypt.hashSync(req.body.password_user2, null, null);
+
+            models.E_user.update({
+                f_password: password,
+                f_enabled: 1
+            }, {
+                where: {
+                    id: user.id
+                }
+            }).then(function(){
+                req.flash('loginMessage', "login.first_connection.success");
+                res.redirect('/login');
+            });
+        }
+
     }).catch(function(err){
-        req.flash('loginMessage', 'Erreur. Veuillez contactez votre Administrateur.');
+        req.flash('loginMessage', err.message);
         res.redirect('/login');
     });
 });
@@ -100,8 +100,7 @@ router.get('/reset_password', block_access.loginAccess, function(req, res) {
     });
 });
 
-// Reset password
-// Generate token, insert into DB, send email
+// Reset password, Generate token, insert into DB, send email
 router.post('/reset_password', block_access.loginAccess, function(req, res) {
     var login_user = req.body.login;
     var given_mail = req.body.mail;
@@ -118,12 +117,12 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             }
         }).then(function(){
             // Send email with generated token
-            mail.sendMail_Reset_Password({
-                mail_user: email,
+            mail.sendMailResetPassword({
+                email: given_mail,
                 token: token
             }).then(function(success) {
                 res.render('login/reset_password', {
-                    message: 'Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.'
+                    message: "login.reset_password.successMail"
                 });
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
@@ -135,13 +134,13 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                     }
                 }).then(function(){
                     res.render('login/reset_password', {
-                        message: 'Erreur lors de l\'envoi de l\'email.'
+                        message: err.message
                     });
                 });
             });
         }).catch(function(err){
             res.render('login/reset_password', {
-                message: 'Probleme de creation du token.'
+                message: err.message
             });
         });
     }
@@ -157,12 +156,12 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         }
         else{
             res.render('login/reset_password', {
-                message: "Erreur. L'utilisateur n'existe pas."
+                message: "login.reset_password.userNotExist"
             });
         }
     }).catch(function(err){
         res.render('login/reset_password', {
-            message: "Une erreur s'est produite."
+            message: err.message
         });
     });
 });
@@ -177,13 +176,14 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
     }).then(function(user){
         if(!user){
             res.render('login/reset_password', {
-                message: 'Impossible de trouver votre token.'
+                message: "login.reset_password.cannotFindToken"
             });
         }
         else{
             models.E_user.update({
-                f_password: "",
-                f_token_password_reset: ""
+                f_password: null,
+                f_token_password_reset: null,
+                f_enabled: 0
             }, {
                 where: {
                     id: user.id
@@ -191,13 +191,13 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
             }).then(function(){
                 // Redirect to firt connection page
                 res.render('login/first_connection', {
-                    message: 'Votre mot de passe a été reinitialisé.'
+                    message: "login.reset_password.success"
                 });
             });
         }
     }).catch(function(err){
         res.render('login/reset_password', {
-            message: 'Une erreur est survenue lors de la réinitialisation du mot de passe.'
+            message: err.message
         });
     });
 });
@@ -209,20 +209,6 @@ router.get('/logout', function(req, res) {
     req.session.autologin = false;
     req.logout();
     res.redirect('/login');
-});
-
-// =====================================
-// SORT MENU ===========================
-// =====================================
-router.get('/sort_menu', function(req, res) {
-
-    var dragged_item = req.query.dragged_item;
-    var dropped_item = req.query.dropped_item;
-
-    menu_manager.sort_menu(dragged_item, dropped_item);
-
-    // No answer is returned
-
 });
 
 module.exports = router;

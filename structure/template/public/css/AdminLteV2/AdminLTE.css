@@ -2,7 +2,7 @@
 /*!
  *   AdminLTE v2.3.8
  *   Author: Almsaeed Studio
- *	 Website: Almsaeed Studio <http://almsaeedstudio.com>
+ *   Website: Almsaeed Studio <http://almsaeedstudio.com>
  *   License: Open source - MIT
  *           Please visit http://opensource.org/licenses/MIT for more information
 !*/
@@ -483,7 +483,7 @@ a:focus {
 }
 .user-panel > .image > img {
   width: 100%;
-  max-width: 45px;
+  max-width: 180px;
   height: auto;
 }
 .user-panel > .info {
@@ -4903,6 +4903,7 @@ table.text-center th {
  * -----------
  */
 @media print {
+  /* General print classes */
   .no-print,
   .main-sidebar,
   .left-side,

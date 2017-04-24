@@ -29,13 +29,15 @@
         "module": "Module",
         "application": "Application",
         "editor": "Editor",
+        "ui_editor": "Designer",
         "live": "Live",
         "instruction": "Instruction",
         "import": "Import",
         "settings": "Settings",
         "error": "Error",
         "back": "Back office",
-        "users": "Users"
+        "users": "Users",
+        "logs": "Logs"
     },
     "button": {
         "generate": "Generate",
@@ -85,6 +87,10 @@
         "intro": "Hi Newmips user!",
         "intro2": "You can select a file on the sidebar on your left ;)",
         "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
+    },
+    "ui_editor": {
+        "page_not_found": "Couldn't find corresponding file",
+        "page_saved": "Your new design have been saved"
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
@@ -253,7 +259,8 @@
     "structure": {
         "global": {
             "restart": {
-                "success": "Server restarded!"
+                "success": "Server restarded!",
+                "error": "Couldn't start server due to critical error."
             },
             "gitPush": {
                 "success": "The application has been saved!"
@@ -312,9 +319,25 @@
             }
         },
         "ui": {
+            "columnVisibility":{
+                "hide": "The column %s is now hidden.",
+                "show": "The column %s is now visible.",
+                "noColumn": "Cannot find the column %s."
+            },
             "skin": {
                 "list": "Available skin:<br>%s<br>",
                 "cannotFind": "Cannot find the asked skin. Available skin:<br> %s <br>"
+            },
+            "icon": {
+                "success": "Entity %s now have icon %s",
+                "list": "Follow this link to see the icon list:<br><a href='%s' target='_blank'>Font Awesome</a>"
+            },
+            "widget": {
+                "unknown": "Unknown widget %s",
+                "success": "Widget %s added to module %s",
+                "delete": "Widget %s successfully deleted",
+                "all_deleted": "All widget of %s have been removed",
+                "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s"
             }
         }
     }

@@ -1,0 +1,78 @@
+{
+    "e_cra": {
+        "label_entity": "C.R.A",
+        "name_entity": "C.R.A",
+        "plural_entity": "C.R.A",
+        "id_entity": "ID",
+        "f_month": "Mois",
+        "f_year": "Année",
+        "f_open_days_in_month": "Jours ouvrés dans le mois",
+        "f_user_validated": "Validation utilisateur",
+        "f_admin_validated": "Validation administrateur",
+        "f_notification_admin": "Notification administrateur",
+        "custom_button_declare": "Déclarer",
+        "custom_button_admin_validate": "Voir déclaration",
+        "as_r_cra": "C.R.A",
+        "validate": "Valider",
+        "export": "Export PDF",
+        "no_activities": "Vous n'avez pas d'activités. Vous avez besoin d'activités pour déclarer votre C.R.A",
+        "no_calendar_settings": "Votre C.R.A équipe n'a pas définie son calendrier. Il est nécessaire pour afficher les jours de travail.",
+        "waiting_validation_list": "C.R.A en attente de validation",
+        "noTeam": "Vous devez être associé à une équipe pour pouvoir déclarer votre C.R.A.",
+        "saveSuccess": "Le C.R.A a bien été sauvegardé.",
+        "validateSuccess": "Le C.R.A a bien été validé."
+    },
+    "e_cra_team": {
+        "label_entity": "Équipe",
+        "name_entity": "Équipe",
+        "plural_entity": "Équipes",
+        "id_entity": "ID",
+        "f_name": "Nom",
+        "f_id_admin_user": "ID Admin",
+        "admin_only": "Vous devez être administrateur de votre équipe pour accéder à cette page."
+    },
+    "e_cra_calendar_settings": {
+        "label_entity": "Jours ouvrés",
+        "name_entity": "Jours ouvrés",
+        "plural_entity": "Jours ouvrés",
+        "id_entity": "ID",
+        "as_r_cra_calendar_settings": "Jours ouvrés",
+        "f_monday": "Lundi",
+        "f_tuesday": "Mardi",
+        "f_wednesday": "Mercredi",
+        "f_thursday": "Jeudi",
+        "f_friday": "Vendredi",
+        "f_saturday": "Samedi",
+        "f_sunday": "Dimanche"
+    },
+    "e_cra_calendar_exception": {
+        "label_entity": "Exception",
+        "name_entity": "Exception",
+        "plural_entity": "Exceptions",
+        "id_entity": "ID",
+        "as_r_cra_calendar_exception": "Exception",
+        "f_date": "Date"
+    },
+    "e_cra_activity": {
+        "label_entity": "Activité",
+        "name_entity": "Activité",
+        "plural_entity": "Activités",
+        "id_entity": "ID",
+        "f_name": "Nom",
+        "f_description": "Description",
+        "f_client": "Client",
+        "f_active": "Active",
+        "as_r_default_cra_activity": "Activités par défaut",
+        "as_r_cra_activity": "Activité",
+        "select_activity": "Sélectionner"
+    },
+    "e_cra_task": {
+        "label_entity": "Tâche",
+        "name_entity": "Tâche",
+        "plural_entity": "Tâches",
+        "id_entity": "ID",
+        "as_r_cra_task": "Tâche",
+        "f_date": "Date",
+        "f_duration": "Durée"
+    }
+}
