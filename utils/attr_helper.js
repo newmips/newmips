@@ -110,6 +110,7 @@ function addPrefix(string, instructionFunction){
         case 'createNewHasMany':
         case 'createNewFieldset':
         case 'createNewFieldRelatedTo':
+        case 'createNewComponentContactForm':
             return "e_"+string;
             break;
         case 'createNewDataField':
@@ -126,7 +127,6 @@ function addPrefix(string, instructionFunction){
             return "r_"+string;
             break;
         case 'createNewComponentLocalFileStorage':
-        case 'createNewComponentContactForm':
         case 'createNewComponentAgenda':
             return "c_"+string;
             break;

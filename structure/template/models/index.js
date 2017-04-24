@@ -66,12 +66,10 @@ sequelize.customAfterSync = function() {
             for (var item in attributObject) {
                 (function(sourceAttr, itemAttr) {
                     promises.push(new Promise(function(resolve0, reject0) {
-
                         /* Check if field already exist - New version */
                         if(typeof toSyncObject[sourceAttr] !== "undefined" &&
                             typeof toSyncObject[sourceAttr].attributes !== "undefined" &&
                             typeof toSyncObject[sourceAttr].attributes[itemAttr] !== "undefined"){
-
                             var type = "";
                             switch (attributObject[itemAttr]) {
                                 case "STRING":
@@ -99,7 +97,6 @@ sequelize.customAfterSync = function() {
                                     type = "VARCHAR(255)";
                                     break;
                             }
-
 
                             request = "ALTER TABLE ";
                             request += sourceAttr;
@@ -237,6 +234,44 @@ sequelize.customAfterSync = function() {
                     })(sourceName, targetName, foreignKey);
                 }
             }
+
+            /* ----------------- CUSTOM QUERY -----------------*/
+            (function(currentEntity) {
+                promises.push(new Promise(function(resolveQuery, rejectQuery) {
+                    if(typeof toSyncObject[currentEntity] !== "undefined" &&
+                        typeof toSyncObject[currentEntity].queries !== "undefined" &&
+                        toSyncObject[currentEntity].queries.length > 0){
+
+                        var cptDone = 0;
+                        var arrayQueryLength = toSyncObject[currentEntity].queries.length;
+
+                        function doneQuery(){
+                            if(cptDone == arrayQueryLength){
+                                resolveQuery();
+                            }
+                        }
+
+                        for(var i=0; i<toSyncObject[currentEntity].queries.length; i++){
+                            (function(ibis) {
+                                sequelize.query(toSyncObject[currentEntity].queries[ibis]).then(function() {
+                                    var writeStream = fs.createWriteStream(toSyncFileName);
+                                    toSyncObject[currentEntity].queries.splice(ibis, 1);
+                                    writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                    writeStream.end();
+                                    writeStream.on('finish', function() {
+                                        cptDone++;
+                                        doneQuery();
+                                    });
+                                }).catch(function(err){
+                                    rejectQuery(err);
+                                });
+                            })(i);
+                        }
+                    } else{
+                        resolveQuery();
+                    }
+                }));
+            })(sourceName);
         }
 
         Promise.all(promises).then(function() {

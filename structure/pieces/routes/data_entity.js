@@ -10,6 +10,8 @@ var attributes = require('../models/attributes/ENTITY_NAME');
 var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
+var file_helper = require('../utils/file_helper');
+var global = require('../config/global');
 // ENUM managment
 var enums = require('../utils/enum.js');
 
@@ -35,7 +37,7 @@ function error500(err, req, res, redirect) {
 
     } finally {
         if (isKnownError)
-            return res.redirect(redirect);
+            return res.redirect(redirect || '/');
         else
             console.error(err);
         logger.debug(err);
@@ -66,24 +68,57 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options);
-
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
         var enumsTranslation = enums.translated("ENTITY_NAME", req.session.lang_user);
+        var todo = [];
         for (var i = 0; i < data.data.length; i++) {
             for (var field in data.data[i].dataValues) {
-                for (var enumField in enumsTranslation) {
-                    if (field == enumField) {
-                        for (var j = 0; j < enumsTranslation[enumField].length; j++) {
-                            if (data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value) {
-                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][j].translation;
-                            }
-                        }
+                for (var enumField in enumsTranslation)
+                    if (field == enumField)
+                        for (var k = 0; k < enumsTranslation[enumField].length; k++)
+                            if (data.data[i].dataValues[enumField] == enumsTranslation[enumField][k].value)
+                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][k].translation;
+                //get attribute value
+                var value = data.data[i].dataValues[field];
+                //for type picture, get thumbnail picture
+                if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
+                    var partOfFile = value.split('-');
+                    if (partOfFile.length > 1) {
+                        //if field value have valide picture name, add new task in todo list
+                        //we will use todo list to get all pictures binary
+                        var thumbnailFolder = global.thumbnail.folder;
+                        var filePath = thumbnailFolder + 'ENTITY_NAME/' + partOfFile[0] + '/' + value;
+                        todo.push({
+                            value: value,
+                            file: filePath,
+                            field: field,
+                            dataIndex: i
+                        });
                     }
                 }
             }
         }
-        res.send(data).end();
+        //check if we have to get some picture buffer before send data
+        if (todo.length) {
+            var counter=0;
+            for (var i = 0; i < todo.length; i++) {
+                var _todo = todo[i];
+                (function (task) {
+                    file_helper.getFileBuffer64(task.file, function (success, buffer) {
+                        counter++;
+                        data.data[task.dataIndex].dataValues[task.field] = {
+                            value: task.value,
+                            buffer: buffer
+                        };
+                        if (counter === todo.length) 
+                            res.send(data).end();
+                        
+                    });
+                }(_todo));
+            }
+        } else
+            res.send(data).end();
     }).catch(function (err) {
         console.log(err);
         logger.debug(err);
@@ -173,17 +208,13 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         }
 
         /* Modify ENTITY_NAME value with the translated enum value in show result */
-        for (var item in data.enum) {
-            for (var field in ENTITY_NAME.dataValues) {
-                if (item == field) {
-                    for (var value in data.enum[item]) {
-                        if (data.enum[item][value].value == ENTITY_NAME[field]) {
+        for (var item in data.enum)
+            for (var field in ENTITY_NAME.dataValues)
+                if (item == field)
+                    for (var value in data.enum[item])
+                        if (data.enum[item][value].value == ENTITY_NAME[field])
                             ENTITY_NAME[field] = data.enum[item][value].translation;
-                        }
-                    }
-                }
-            }
-        }
+
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         var associationsFinder = model_builder.associationsFinder(models, options);
@@ -196,6 +227,8 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 
             data.toastr = req.session.toastr;
             req.session.toastr = [];
+            // Update some data before show, e.g get picture binary
+            ENTITY_NAME = entity_helper.update_local_data(ENTITY_NAME, attributes, "ENTITY_NAME");
             res.render('ENTITY_NAME/show', data);
         });
 
@@ -267,37 +300,6 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
         // because those values are not updated for now
         model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options);
-
-        /*var foreignKeyArray = [];
-         var asArray = [];
-         for (var j = 0; j < options.length; j++) {
-         if (typeof options[j].foreignKey != "undefined")
-         foreignKeyArray.push(options[j].foreignKey.toLowerCase());
-         if (typeof options[j].as != "undefined")
-         asArray.push(options[j].as.toLowerCase());
-         }
-         
-         first: for (var prop in req.body) {
-         if (prop.indexOf('id_') != 0 && asArray.indexOf(prop.toLowerCase()) == -1)
-         continue;
-         //BELONGS TO with foreignKey naming
-         second: for (var i = 0; i < options.length; i++) {
-         if (typeof options[i].foreignKey != "undefined" && options[i].foreignKey == prop)
-         continue first;
-         }
-         if (foreignKeyArray.indexOf(prop.toLowerCase()) != -1)
-         continue;
-         
-         var target = prop.substr(3);
-         //HAS MANY with as naming
-         for (var k = 0; k < options.length; k++) {
-         if (typeof options[k].as != "undefined" && options[k].as.toLowerCase() == prop.toLowerCase())
-         target = options[k].as;
-         }
-         
-         target = target.charAt(0).toUpperCase() + target.toLowerCase().slice(1);
-         ENTITY_NAME['set' + target](req.body[prop]);
-         }*/
 
         res.redirect(redirect);
     }).catch(function (err) {
@@ -427,14 +429,13 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("ENTITY_NAME",deleteObject,attributes);
+            entity_helper.remove_files("ENTITY_NAME", deleteObject, attributes);
         }).catch(function (err) {
             error500(err, req, res, '/ENTITY_URL_NAME/list');
         });
     }).catch(function (err) {
         error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
-
 });
 
 module.exports = router;

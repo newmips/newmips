@@ -28,7 +28,7 @@ var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
 var gitHelper = require("../utils/git_helper");
 
-var fs = require('fs');
+var fs = require('fs-extra');
 var sequelize = require('../models/').sequelize;
 
 /* --------------------------------------------------------------- */
@@ -38,7 +38,7 @@ var sequelize = require('../models/').sequelize;
 exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, callback) {
 
     if (instructions.length == idx)
-        callback(null);
+        return callback(null);
 
     var exportsContext = this;
 
@@ -576,22 +576,28 @@ function deleteDataEntity(attr, callback) {
                     }
                 });
 
-                Promise.all(promises).then(function() {
-                    db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
-                        if (err){
-                            return callback(err, null);
-                        }
-                        database.dropDataEntity(id_application, name_data_entity, function(err) {
-                            if (err)
-                                return callback(err);
-                            attr.name_data_entity = name_data_entity;
-                            attr.show_name_data_entity = show_name_data_entity;
-                            db_entity.deleteDataEntity(attr, function(err, infoDB) {
+                attr.entityTarget = name_data_entity.substring(2);
+                deleteEntityWidgets(attr, function(err) {
+                    if (err)
+                        return callback(err);
+
+                    Promise.all(promises).then(function() {
+                        db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
+                            if (err){
+                                return callback(err, null);
+                            }
+                            database.dropDataEntity(id_application, name_data_entity, function(err) {
                                 if (err)
                                     return callback(err);
-                                var url_name_data_entity = attr.options.urlValue;
-                                structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
-                                    callback(null, infoDB);
+                                attr.name_data_entity = name_data_entity;
+                                attr.show_name_data_entity = show_name_data_entity;
+                                db_entity.deleteDataEntity(attr, function(err, infoDB) {
+                                    if (err)
+                                        return callback(err);
+                                    var url_name_data_entity = attr.options.urlValue;
+                                    structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
+                                        callback(null, infoDB);
+                                    });
                                 });
                             });
                         });
@@ -837,7 +843,7 @@ exports.setColumnVisibility = function(attr, callback) {
             return callback(err);
 
         attr.name_data_entity = dataEntity.codeName;
-        structure_data_field.setColumnVisibility(attr, function(err, infoStructure) {
+        structure_ui.setColumnVisibility(attr, function(err, infoStructure) {
             if (err)
                 return callback(err);
 
@@ -1335,9 +1341,11 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
 // Componant to create a contact form in a module
 exports.createNewComponentContactForm = function (attr, callback) {
 
+    var exportsContext = this;
+
     /* If there is no defined name for the module */
     if(typeof attr.options.value === "undefined"){
-        attr.options.value = "c_contact_form";
+        attr.options.value = "e_contact_form";
         attr.options.urlValue = "contact_form";
         attr.options.showValue = "Contact Form";
     }
@@ -1356,18 +1364,61 @@ exports.createNewComponentContactForm = function (attr, callback) {
                     err = new Error();
                     err.message = "structure.component.error.alreadyExistInApp";
                     return callback(err, null);
-                }
-                else{
-                    // Create the component in newmips database
-                    db_component.createNewComponentOnModule(attr, function(err, info){
-                        // Get Data Entity Name needed for structure
-                        db_module.getModuleById(attr.id_module, function(err, module){
-                            attr.options.moduleName = module.codeName;
-                            structure_component.newContactForm(attr, function(err){
+                } else{
+
+                    attr.options.valueSettings = attr.options.value + "_settings";
+                    attr.options.urlValueSettings = attr.options.urlValue + "_settings";
+                    attr.options.showValueSettings = attr.options.showValue + " Settings";
+
+                    var instructions = [
+                        "add entity "+attr.options.showValue,
+                        "add field Name",
+                        "set field Name required",
+                        "add field Sender with type email",
+                        "set field Sender required",
+                        "add field Recipient with type email",
+                        "add field User related to user using f_login",
+                        "add field Title",
+                        "set field Title required",
+                        "add field Content with type text",
+                        "set field Content required",
+                        "add entity "+attr.options.showValueSettings,
+                        "add field Transport Host",
+                        "add field Port with type number",
+                        "add field Secure with type boolean and default value true",
+                        "add field User",
+                        "add field Pass",
+                        "add field Form Recipient",
+                        "set field Transport Host required",
+                        "set field Port required",
+                        "set field User required",
+                        "set field Pass required",
+                        "set field Form Recipient required"
+                    ];
+
+
+                    // Start doing necessary instruction for component creation
+                    exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+                        if(err)
+                            return callback(err, null);
+
+                        // Create the component in newmips database
+                        db_component.createNewComponentOnModule(attr, function(err, info){
+                            if(err)
+                                return callback(err, null);
+
+                            // Get Data Entity Name needed for structure
+                            db_module.getModuleById(attr.id_module, function(err, module){
                                 if(err)
                                     return callback(err, null);
 
-                                callback(null, info);
+                                attr.options.moduleName = module.codeName;
+                                structure_component.newContactForm(attr, function(err){
+                                    if(err)
+                                        return callback(err, null);
+
+                                    callback(null, info);
+                                });
                             });
                         });
                     });
@@ -1464,6 +1515,80 @@ exports.createNewComponentAgenda = function(attr, callback) {
     });
 }
 
+// Component to create a C.R.A module
+exports.createNewComponentCra = function(attr, callback) {
+
+    var exportsContext = this;
+
+    // Check if component with this name is already created on this module
+    db_module.getModuleByCodename(attr.id_application, 'm_cra', function(err, module){
+        if(module){
+            var err = new Error();
+            err.message = "Sorry, a C.R.A module already exists.";
+            return callback(err, null);
+        }
+        var instructions = [
+            "add module CRA",
+            "add entity CRA Team",
+            "add field Name",
+            "set field Name required",
+            "add field id_admin_user",
+            "add fieldset Users related to user using login",
+            "entity CRA Team has one CRA Calendar Settings",
+            "select entity CRA Calendar Settings",
+            "add field Monday with type boolean",
+            "add field Tuesday with type boolean",
+            "add field Wednesday with type boolean",
+            "add field Thursday with type boolean",
+            "add field Friday with type boolean",
+            "add field Saturday with type boolean",
+            "add field Sunday with type boolean",
+            "entity CRA Team has many CRA Calendar Exception",
+            "select entity CRA Calendar Exception",
+            "add field Date with type date",
+            "add entity CRA Activity",
+            "add field Name",
+            "set field Name required",
+            "add field Description with type text",
+            "add field Client",
+            "add field Active with type boolean",
+            "select entity CRA Team",
+            "add fieldset Default CRA Activity related to CRA Activity using Name",
+            "add entity CRA",
+            "add field Month with type number",
+            "add field Year with type number",
+            "add field Open days in month with type number",
+            "add field User validated with type boolean",
+            "add field Admin validated with type boolean",
+            "add field Notification admin with type text",
+            "set icon calendar check o",
+            "entity user has many CRA",
+            "entity CRA has many CRA Task",
+            "select entity CRA Task",
+            "add field Date with type date",
+            "add field Duration with type float",
+            "entity CRA Task has one CRA Activity",
+            "entity CRA has one user"
+        ];
+
+        // Start doing necessary instruction for component creation
+        exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+            if(err)
+                return callback(err, null);
+
+            // Add fieldset ID in user entity that already exist so toSync doesn't work
+            var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_cra_team_users` INT DEFAULT NULL;";
+            sequelize.query(request).then(function(){
+                structure_component.newCra(attr, function(err, infoStructure){
+                    if(err)
+                        return callback(err, null);
+                    callback(null, infoStructure);
+                });
+            });
+        });
+    });
+}
+
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */
@@ -1485,5 +1610,143 @@ exports.listSkin = function(attr, callback) {
         callback(null, infoStructure);
     });
 }
+
+exports.listIcon = function(attr, callback) {
+    callback(null, {
+        message: "structure.ui.icon.list",
+        messageParams: ['http://fontawesome.io/icons']
+    });
+}
+
+exports.setIcon = function(attr, callback) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+
+            attr.module = module;
+            attr.entity = entity;
+            structure_ui.setIcon(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            });
+        });
+    });
+}
+
+exports.setIconToEntity = function(attr, callback) {
+    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+
+            attr.module = module;
+            attr.entity = entity;
+            structure_ui.setIcon(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            });
+        });
+    });
+}
+
+exports.createWidgetLastRecords = function(attr, callback) {
+    var entityDbFunction = '', param = '';
+    if (attr.entityTarget) {
+        entityDbFunction = 'getDataEntityByName';
+        param = attr.entityTarget;
+    }
+    else {
+        entityDbFunction = 'getDataEntityById';
+        param = attr.id_data_entity;
+    }
+
+    db_entity[entityDbFunction](param, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+            attr.entity = entity;
+            attr.module = module;
+
+            structure_ui.createWidgetLastRecords(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            })
+        });
+    });
+}
+
+exports.createWidgetOnEntity = function(attr, callback) {
+    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+        if (err)
+            return callback(err);
+        attr.id_data_entity = entity.id;
+        createWidget(attr, callback);
+    });
+}
+
+function createWidget(attr, callback) {
+    if (attr.widgetType == -1)
+        return callback(null, {message: "structure.ui.widget.unknown", messageParams: [attr.widgetInputType]});
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+
+            attr.module = module;
+            attr.entity = entity;
+            structure_ui.createWidget(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            });
+        });
+    });
+}
+exports.createWidget = createWidget;
+
+function deleteWidget(attr, callback) {
+    if (attr.widgetType == -1)
+        return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
+    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+        if (err)
+            return callback(err);
+        db_module.getModuleById(entity.id_module, function(err, module) {
+            if (err)
+                return callback(err);
+
+            attr.module = module;
+            attr.entity = entity;
+            structure_ui.deleteWidget(attr, function(err, info) {
+                if (err)
+                    return callback(err);
+                callback(null, info);
+            });
+        });
+    });
+}
+exports.deleteWidget = deleteWidget;
+
+function deleteEntityWidgets(attr, callback) {
+    attr.widgetTypes = ['info','stats', 'lastrecords'];
+    deleteWidget(attr, function(err) {
+        if (err)
+            callback(err);
+        callback(null, {message: "structure.ui.widget.all_deleted", messageParams: [attr.entityTarget]});
+    });
+}
+exports.deleteEntityWidgets = deleteEntityWidgets;
+
 
 return designer;

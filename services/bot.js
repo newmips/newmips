@@ -150,6 +150,38 @@ exports.setColumnVisibility = function(result) {
     return attr;
 };
 
+exports.setColumnHidden = function(result) {
+
+    // Set entity name as the first option in options array
+    var options = {
+        value: result[1],
+        word: "hidden",
+        processValue: true
+    };
+
+    var attr = {
+        function: "setColumnVisibility",
+        options: options
+    };
+    return attr;
+};
+
+exports.setColumnVisible = function(result) {
+
+    // Set entity name as the first option in options array
+    var options = {
+        value: result[1],
+        word: "visible",
+        processValue: true
+    };
+
+    var attr = {
+        function: "setColumnVisibility",
+        options: options
+    };
+    return attr;
+};
+
 // ******* CREATE Actions ******* //
 exports.createNewProject = function(result) {
 
@@ -199,24 +231,36 @@ exports.createNewDataField = function(result) {
 
     // Field name has not been defined
     var value = result[1];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[2] !== "undefined")
+        defaultValue = result[2];
+
     var options = {
         value: value,
+        defaultValue: defaultValue,
         processValue: true
     };
 
     return checkAndCreateAttr("createNewDataField", options, value);
-
 };
 
 exports.createNewDataFieldWithType = function(result) {
 
     var value = result[1];
     var type = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     // Preparing Options
     var options = {
         value: value,
         type: type,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -226,13 +270,18 @@ exports.createNewDataFieldWithType = function(result) {
 exports.createNewDataFieldWithTypeEnum = function(result) {
 
     var value = result[1];
-    var type = "enum";
     var allValues = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     var options = {
         value: value,
-        type: type,
+        type: "enum",
         allValues: allValues,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -242,13 +291,18 @@ exports.createNewDataFieldWithTypeEnum = function(result) {
 exports.createNewDataFieldWithTypeRadio = function(result) {
 
     var value = result[1];
-    var type = "radio";
     var allValues = result[2];
+    var defaultValue = null;
+
+    // Default value ?
+    if(typeof result[3] !== "undefined")
+        defaultValue = result[3];
 
     var options = {
         value: value,
-        type: type,
+        type: "radio",
         allValues: allValues,
+        defaultValue: defaultValue,
         processValue: true
     };
 
@@ -633,6 +687,13 @@ exports.createNewComponentAgendaWithName = function(result) {
     return checkAndCreateAttr("createNewComponentAgenda", options, value);
 };
 
+/* CRA */
+exports.createNewComponentCra = function(result) {
+    return {
+        function: "createNewComponentCra"
+    };
+};
+
 // ******* INTERFACE Actions ******* //
 exports.setSkin = function(result) {
 
@@ -655,6 +716,143 @@ exports.listSkin = function(result) {
     };
     return attr;
 };
+
+exports.listIcon = function(result) {
+    return {function: 'listIcon'};
+}
+
+exports.setIcon = function(result) {
+    var attr = {
+        function: "setIcon",
+        iconValue: result[1]
+    };
+    return attr;
+}
+
+exports.setIconToEntity = function(result) {
+    var attr = {
+        function: "setIconToEntity",
+        iconValue: result[1],
+        entityTarget: result[2]
+    };
+
+    return attr;
+}
+
+function getRightWidgetType(originalType) {
+    switch (originalType) {
+        case "boîte d'information":
+        case "info box":
+        case "info":
+        case "information":
+            return "info";
+
+        case "boîte de statistiques":
+        case "stats box":
+        case "stats":
+        case "stat":
+        case "statistique":
+            return "stats";
+
+        case "lastrecords":
+        case "last records":
+        case "derniers enregistrements":
+        case "derniersenregistrements":
+            return "lastrecords";
+
+        default:
+            return -1;
+    }
+}
+
+exports.createWidgetLastRecordsWithLimit = function(result) {
+    var attr = {
+        function: 'createWidgetLastRecords',
+        widgetType: 'lastrecords',
+        widgetInputType: 'last records'
+    }
+
+    // Current entity as target
+    if (result.length == 3) {
+        attr.limit = result[1];
+        attr.columns = result[2].split(',');
+    }
+    // Defined target entity
+    else if (result.length == 4) {
+        attr.entityTarget = result[1];
+        attr.limit = result[2];
+        attr.columns = result[3].split(',');
+    }
+
+    // Remove unwanted spaces from columns
+    for (var i = 0; i < attr.columns.length; i++)
+        attr.columns[i] = attr.columns[i].trim();
+
+    return attr;
+}
+
+exports.createWidgetLastRecords = function(result) {
+    var attr = {
+        function: 'createWidgetLastRecords',
+        widgetType: 'lastrecords',
+        widgetInputType: 'last records',
+        limit: 10
+    }
+
+    // Current entity as target
+    if (result.length == 2)
+        attr.columns = result[1].split(',');
+    // Defined target entity
+    else if (result.length == 3) {
+        attr.entityTarget = result[1];
+        attr.columns = result[2].split(',');
+    }
+
+    // Remove unwanted spaces from columns
+    for (var i = 0; i < attr.columns.length; i++)
+        attr.columns[i] = attr.columns[i].trim();
+
+    return attr;
+}
+
+exports.createWidgetOnEntity = function(result) {
+    var originalType = result[1];
+    var finalType = getRightWidgetType(originalType);
+
+    return {
+        function: 'createWidgetOnEntity',
+        widgetInputType: originalType,
+        widgetType: finalType,
+        entityTarget: result[2]
+    }
+}
+
+exports.createWidget = function(result) {
+    var originalType = result[1];
+    var finalType = getRightWidgetType(originalType);
+
+    return {
+        function: 'createWidget',
+        widgetInputType: originalType,
+        widgetType: finalType
+    }
+}
+
+exports.deleteWidget = function(result) {
+    return {
+        function: 'deleteWidget',
+        widgetTypes: [getRightWidgetType(result[1])],
+        widgetInputType: result[1],
+        entityTarget: result[2]
+    }
+}
+
+exports.deleteEntityWidgets = function(result) {
+    return {
+        function: 'deleteEntityWidgets',
+        entityTarget: result[1]
+    }
+}
 
 // ******* Parse *******
 exports.parse = function(instruction) {
@@ -742,6 +940,16 @@ exports.parse = function(instruction) {
             "mettre la colonne (.*) en (.*)",
             "rendre la colonne (.*) (.*)"
         ],
+        "setColumnHidden": [
+            "hide column (.*)",
+            "hide the column (.*)",
+            "cacher la colonne (.*)"
+        ],
+        "setColumnVisible": [
+            "show column (.*)",
+            "show the column (.*)",
+            "afficher la colonne (.*)"
+        ],
         "createNewProject": [
             "create project (.*)",
             "add project (.*)",
@@ -788,7 +996,24 @@ exports.parse = function(instruction) {
             "créer un champ (.*) de type enum avec les valeurs (.*)",
             "ajouter champ (.*) de type enum avec les valeurs (.*)",
             "ajouter un champ (.*) de type enum avec les valeurs (.*)",
-            "ajouter le champ (.*) de type enum avec les valeurs (.*)"
+            "ajouter le champ (.*) de type enum avec les valeurs (.*)",
+            "create field (.*) with type enum and values (.*) and default value (.*)",
+            "create data field (.*) with type enum and values (.*) and default value (.*)",
+            "add field (.*) with type enum and values (.*) and default value (.*)",
+            "add data field (.*) with type enum and values (.*) and default value (.*)",
+            "create field (.*) with type enum with values (.*) and default value (.*)",
+            "create data field (.*) with type enum with values (.*) and default value (.*)",
+            "add field (.*) with type enum with values (.*) and default value (.*)",
+            "add data field (.*) with type enum with values (.*) and default value (.*)",
+            "create field (.*) with type enum and values (.*) with default value (.*)",
+            "create data field (.*) with type enum and values (.*) with default value (.*)",
+            "add field (.*) with type enum and values (.*) with default value (.*)",
+            "add data field (.*) with type enum and values (.*) with default value (.*)",
+            "créer champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)"
         ],
         "createNewDataFieldWithTypeRadio": [
             "create field (.*) with type radio and values (.*)",
@@ -799,7 +1024,24 @@ exports.parse = function(instruction) {
             "créer un champ (.*) de type radio avec les valeurs (.*)",
             "ajouter champ (.*) de type radio avec les valeurs (.*)",
             "ajouter un champ (.*) de type radio avec les valeurs (.*)",
-            "ajouter le champ (.*) de type radio avec les valeurs (.*)"
+            "ajouter le champ (.*) de type radio avec les valeurs (.*)",
+            "create field (.*) with type radio with values (.*) and default value (.*)",
+            "create data field (.*) with type radio with values (.*) and default value (.*)",
+            "add field (.*) with type radio with values (.*) and default value (.*)",
+            "add data field (.*) with type radio with values (.*) and default value (.*)",
+            "create field (.*) with type radio and values (.*) with default value (.*)",
+            "create data field (.*) with type radio and values (.*) with default value (.*)",
+            "add field (.*) with type radio and values (.*) with default value (.*)",
+            "add data field (.*) with type radio and values (.*) with default value (.*)",
+            "create field (.*) with type radio and values (.*) and default value (.*)",
+            "create data field (.*) with type radio and values (.*) and default value (.*)",
+            "add field (.*) with type radio and values (.*) and default value (.*)",
+            "add data field (.*) with type radio and values (.*) and default value (.*)",
+            "créer champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "ajouter le champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)"
         ],
         "createNewDataFieldWithType": [
             "create field (.*) with type (.*)",
@@ -810,7 +1052,16 @@ exports.parse = function(instruction) {
             "créer un champ (.*) de type (.*)",
             "ajouter champ (.*) de type (.*)",
             "ajouter un champ (.*) de type (.*)",
-            "ajouter le champ (.*) de type (.*)"
+            "ajouter le champ (.*) de type (.*)",
+            "create field (.*) with type (.*) and default value (.*)",
+            "create data field (.*) with type (.*) and default value (.*)",
+            "add field (.*) with type (.*) and default value (.*)",
+            "add data field (.*) with type (.*) and default value (.*)",
+            "créer champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "créer un champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "ajouter champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "ajouter un champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "ajouter le champ (.*) de type (.*) avec la valeur par défaut (.*)"
         ],
         "createNewDataField": [
             "create field ?(.*)",
@@ -821,7 +1072,20 @@ exports.parse = function(instruction) {
             "créer un champ (.*)",
             "ajouter champ (.*)",
             "ajouter un champ (.*)",
-            "ajouter le champ (.*)"
+            "ajouter le champ (.*)",
+            "create field ?(.*) and default value (.*)",
+            "create data field (.*) and default value (.*)",
+            "add field (.*) and default value (.*)",
+            "add data field (.*) and default value (.*)",
+            "create field ?(.*) with default value (.*)",
+            "create data field (.*) with default value (.*)",
+            "add field (.*) with default value (.*)",
+            "add data field (.*) with default value (.*)",
+            "créer champ (.*) avec la valeur par défaut (.*)",
+            "créer un champ (.*) avec la valeur par défaut (.*)",
+            "ajouter champ (.*) avec la valeur par défaut (.*)",
+            "ajouter un champ (.*) avec la valeur par défaut (.*)",
+            "ajouter le champ (.*) avec la valeur par défaut (.*)"
         ],
         "deleteProject": [
             "delete project (.*)",
@@ -1104,6 +1368,24 @@ exports.parse = function(instruction) {
             "créer une ligne de temps appelé (.*)",
             "ajouter une ligne de temps appelé (.*)"
         ],
+        "createNewComponentCra": [
+            "create component cra",
+            "add component cra",
+            "create component activity report",
+            "add component activity report",
+            "créer un composant cra",
+            "ajouter un composant cra",
+            "créer composant cra",
+            "ajouter composant cra",
+            "créer un composant rapport d'activité",
+            "ajouter un composant rapport d'activité",
+            "créer un composant compte-rendu d'activité",
+            "ajouter un composant compte-rendu d'activité",
+            "créer composant rapport d'activité",
+            "ajouter composant rapport d'activité",
+            "créer composant compte-rendu d'activité",
+            "ajouter composant compte-rendu d'activité"
+        ],
         "setSkin": [
             "set skin (.*)",
             "set color (.*)",
@@ -1113,11 +1395,83 @@ exports.parse = function(instruction) {
             "mettre la couleur (.*)",
             "appliquer la coloration (.*)",
             "mettre la coloration (.*)"
+        ],
+        "listIcon" : [
+            "list icon",
+            "list icons",
+            "lister les icones",
+            "lister icones",
+            "lister icone",
+            "lister icon",
+            "lister icônes",
+            "lister icône"
+        ],
+        "setIconToEntity": [
+            "set icon (.*) to entity (.*)",
+            "set icon (.*) on entity (.*)",
+            "set icon (.*) on (.*)",
+            "set icon (.*) to (.*)",
+            "mettre l'icône (.*) sur l'entité (.*)",
+            "mettre l'icone (.*) sur l'entité (.*)",
+            "mettre l'icone (.*) a l'entité (.*)",
+            "mettre l'icône (.*) à l'entité (.*)",
+            "mettre l'icône (.*) à (.*)",
+            "mettre l'icône (.*) sur (.*)",
+            "mettre l'icone (.*) à (.*)",
+            "mettre l'icone (.*) sur (.*)"
+        ],
+        "setIcon": [
+            "set icon (.*)",
+            "mettre l'icône (.*)",
+            "mettre l'icone (.*)"
+        ],
+        "createWidgetLastRecordsWithLimit": [
+            "add widget last records limited to (.*) records with columns (.*)",
+            "add widget last records on entity (.*) limited to (.*) records with columns (.*)",
+            "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+            "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
+            "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
+        ],
+        "createWidgetLastRecords": [
+            "add widget last records with columns (.*)",
+            "add widget last records on entity (.*) with columns (.*)",
+            "ajouter un widget derniers enregistrements avec les colonnes (.*)",
+            "ajouter un widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)",
+            "créer un widget derniers enregistrements avec les colonnes (.*)",
+            "créer un widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)"
+        ],
+        "createWidgetOnEntity": [
+            "créer une (.*) sur l'entité (.*)",
+            "créer un widget (.*) sur l'entité (.*)",
+            "ajouter une (.*) sur l'entité (.*)",
+            "ajouter un widget (.*) sur l'entité (.*)",
+            "add widget (.*) on entity (.*)",
+            "create widget (.*) on entity (.*)"
+        ],
+        "createWidget": [
+            "add widget (.*)",
+            "create widget (.*)",
+            "ajouter une (.*)",
+            "ajouter un widget (.*)",
+            "créer une (.*)",
+            "créer un widget (.*)"
+        ],
+        "deleteWidget": [
+            "delete widget (.*) of entity (.*)",
+            "delete widget (.*) for entity (.*)",
+            "delete widget (.*) of (.*)",
+            "delete widget (.*) for (.*)"
+        ],
+        "deleteEntityWidgets": [
+            "delete widgets of (.*)",
+            "delete widgets of entity (.*)",
+            "delete all widgets of entity (.*)",
+            "delete all widgets of (.*)"
         ]
     };
 
     var instructionResult = {
-        insctructionLength: 0
+        instructionLength: 0
     };
 
     for (var action in training) {
@@ -1127,13 +1481,12 @@ exports.parse = function(instruction) {
 
             var result = regExp.exec(instruction);
             if (result !== null){
-
                 /* Get the most complicated instruction found */
-                if(instructionResult.insctructionLength < regStr.length){
+                if(instructionResult.instructionLength < regStr.length){
                     instructionResult = {
                         action: action,
                         result: result,
-                        insctructionLength: regStr.length
+                        instructionLength: regStr.length
                     };
                 }
             }

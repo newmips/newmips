@@ -322,7 +322,7 @@ exports.deleteDataEntity = function(attr, callback) {
 	});
 }
 
-// Get a DataEntity with a given name
+// Get a DataEntity with a given codename
 exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) {
 
     models.DataEntity.findOne({
@@ -330,6 +330,24 @@ exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) 
             codeName: nameEntity,
             id_application: idApplication
     	}
+    }).then(function(dataEntity) {
+        if (!dataEntity) {
+            var err = new Error();
+            err.message = "database.entity.notFound.withThisName";
+            err.messageParams = [nameEntity];
+            return callback(err, null);
+        }
+        callback(null, dataEntity);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+// Get a DataEntity with a given name
+exports.getDataEntityByName = function(nameEntity, callback) {
+
+    models.DataEntity.findOne({
+    	where: {name: nameEntity}
     }).then(function(dataEntity) {
         if (!dataEntity) {
             var err = new Error();

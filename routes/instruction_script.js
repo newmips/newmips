@@ -26,6 +26,7 @@ var attrHelper = require('../utils/attr_helper');
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
         var userId = req.session.passport.user.id;
+        var __ = require("../services/language")(req.session.lang_user).__;
         try {
 
             /* Lower the first word for the basic parser jison */
@@ -42,13 +43,17 @@ function execute(req, instruction) {
             attr.id_data_entity = scriptData[userId].ids.id_data_entity;
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
+            attr.currentUser = req.session.passport.user;
+
+            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+                attr.gitlabUser = req.session.gitlab.user;
+            else
+                attr.gitlabUser = null;
 
             if (typeof attr.error !== 'undefined')
                 throw new Error(attr.error);
 
             return designer[attr.function](attr, function(err, info) {
-
-                var __ = require("../services/language")(req.session.lang_user).__;
 
                 if (err) {
                     // Error handling code goes here
@@ -89,10 +94,13 @@ var mandatoryInstructions = [
     "add field email with type email",
     "add field token_password_reset",
     "add field enabled with type number",
+    "set icon user",
     "create entity Role",
     "add field label",
+    "set icon asterisk",
     "create entity Group",
     "add field label",
+    "set icon users",
     "select entity User",
     "add field role related to Role using label",
     "add field group related to Group using label",
@@ -101,6 +109,7 @@ var mandatoryInstructions = [
     "add field Client Secret",
     "add field Token",
     "add field Token timeout TMSP",
+    "set icon unlink",
     "add field role related to Role using label",
     "add field group related to Group using label",
     "select module home"
@@ -117,9 +126,16 @@ function recursiveExecute(req, instructions, idx) {
             // Api documentation
             docBuilder.build(req.session.id_application);
 
-            var toSyncFileName = './workspace/'+idApplication+'/models/toSync.json';
+            var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
+            var toSyncFile = fs.readFileSync(toSyncFileName);
+            var toSyncObject = JSON.parse(toSyncFile);
+
+            for(var entity in toSyncObject){
+                toSyncObject[entity].attributes = {};
+                delete toSyncObject[entity].options;
+            }
+
             var writeStream = fs.createWriteStream(toSyncFileName);
-            var toSyncObject = {};
             writeStream.write(JSON.stringify(toSyncObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
@@ -134,7 +150,7 @@ function recursiveExecute(req, instructions, idx) {
                 idxAtMandatoryInstructionStart = idx;
             }
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
-            if (idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
+            if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
                 structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
@@ -176,7 +192,8 @@ router.get('/index', block_access.isLoggedIn, function(req, res) {
 router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
-
+    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
+    idxAtMandatoryInstructionStart = -1;
     var extensionFile = req.file.originalname.split(".");
     extensionFile = extensionFile[extensionFile.length -1];
 
@@ -188,6 +205,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
         answers: [],
         doneInstruction: 0,
         totalInstruction: 0,
+        authInstructions: false,
         ids: {
             id_project: -1,
             id_application: -1,
@@ -204,7 +222,6 @@ router.post('/execute', block_access.isLoggedIn, multer({
     // Read file line by line, check for empty line, line comment, scope comment
     var fileLines = [],
         commenting = false,
-        authInstructions = false,
         invalidScript = false;
 
     /* If one of theses value is to 2 after readings all lines then there is an error,
@@ -212,11 +229,11 @@ router.post('/execute', block_access.isLoggedIn, multer({
     var exception = {
         createNewProject : {
             value: 0,
-            errorMessage: "You can't create more than one project in the same script."
+            errorMessage: "You can't create or select more than one project in the same script."
         },
         createNewApplication : {
             value: 0,
-            errorMessage: "You can't create more than one application in the same script."
+            errorMessage: "You can't create or select more than one application in the same script."
         },
         createModuleHome: {
             value: 1,
@@ -269,7 +286,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 exception.createNewProject.value += 1;
             }
             if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
-                authInstructions = true;
+                if (designerFunction == "createNewApplication")
+                    scriptData[userId].authInstructions = true;
                 exception.createNewApplication.value += 1;
             }
             if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home"){
@@ -320,7 +338,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
             });
             scriptData[userId].over = true;
         } else{
-            scriptData[userId].totalInstruction = authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
+            scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 scriptData[userId].over = true;
             }).catch(function(err) {

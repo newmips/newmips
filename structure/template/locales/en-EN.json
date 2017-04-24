@@ -4,8 +4,20 @@
 	},
 	"login": {
 		"log_in": "Log in",
-		"reset_password": "Forgotten password",
-		"first_connection": "First connection",
+		"reset_password": {
+            "title": "Forgotten password",
+            "success": "Your password has been reset..",
+            "successMail": "An email allowing you to reset your password has been sent to you.",
+            "userNotExist": "Error, this user does not exist.",
+            "cannotFindToken": "Error, can not find your reset token."
+        },
+        "first_connection": {
+            "title": "First connection",
+            "success": "Update done, you can now log in with your credentials.",
+            "userNotExist": "Error, this user does not exist or has already been activated.",
+            "alreadyHavePassword": "Operation is not possible, this user already has a password.",
+            "passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 4 characters."
+        },
 		"authentication": "Connection",
 		"login": "Login",
 		"password": "Password",
@@ -29,8 +41,8 @@
             "api_status": "API Status",
             "api_doc": "API Documentation",
 			"action":{
-				"read": "Read",
-				"write": "Write",
+				"read": "Show",
+				"write": "Create",
 				"delete": "Delete"
 			}
 		},
@@ -77,14 +89,15 @@
     	"settings": "Settings",
     	"download": "Download",
     	"search": "Search",
-    	"send": "Send"
+    	"send": "Send",
+    	"validation": "Validate"
 	},
 	"operation": {
 		"show": "Show entity ",
 		"update": "Modify entity ",
 		"create": "Create entity ",
 		"delete": "Delete entity ",
-		"list": "List all entities ",
+		"list": "List all ",
     	"add": "Add entity "
 	},
 	"message": {
@@ -123,6 +136,16 @@
 		}
 	},
 	"component": {},
+	"defaults": {
+		"widgets": {
+			"lastrecords": {
+				"label": "last records"
+			},
+			"stats": {
+				"more_info": "More info"
+			}
+		}
+	},
 	"error": {
         "title": "Error",
         "contactAdmin": "Merci de contacter votre administrateur.",

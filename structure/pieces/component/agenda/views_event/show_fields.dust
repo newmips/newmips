@@ -1,54 +1,70 @@
-<div id="fields">
-    <div data-field="f_title" class="form-group">
-        <label for="f_title"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/} </label>
-        <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
-    </div>
-    <div data-field="f_description" class="form-group">
-        <label for="f_description"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_description"/} </label>
-        <textarea class="form-control textarea" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" value="{f_description}" type="text" readonly="">{f_description}</textarea>
-    </div>
-    <div data-field="f_place" class="form-group">
-        <label for="f_place"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_place"/} </label>
-        <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text" readonly="">
-    </div>
-    <div data-field="f_start_date" class="form-group">
-        <label for="f_start_date"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/} </label>
-        <div class="input-group">
-            <div class="input-group-addon">
-                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
-            </div>
-            <input class="form-control input datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' value="{f_start_date}" type="text" readonly="">
+<div id="fields" class="row">
+    <div data-field="f_title" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_title"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
         </div>
     </div>
-    <div data-field="f_end_date" class="form-group">
-        <label for="f_end_date"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/} </label>
-        <div class="input-group">
-            <div class="input-group-addon">
-                <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
-            </div>
-            <input class="form-control input datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' value="{f_end_date}" type="text" readonly="">
+    <div data-field="f_description" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_description"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_description"/} </label>
+            <textarea class="form-control textarea" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" value="{f_description}" type="text" readonly="">{f_description}</textarea>
         </div>
     </div>
-    <div data-field="f_all_day" class="form-group">
-        <label for="f_all_day"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/} </label> &nbsp;
-        <br>
-        {@ifTrue key=f_all_day}
-            <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" checked="" disabled="">
-        {:else}
-            <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" disabled="">
-        {/ifTrue}
+    <div data-field="f_place" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_place"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_place"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text" readonly="">
+        </div>
     </div>
-    <div data-field="r_category" class="form-group">
-        <label for="r_category"> {@__ key="entity.CODE_NAME_EVENT_LOWER.r_category"/} </label>
-        <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}' name="r_category" value="{r_category.f_label}" type="text" readonly="">
+    <div data-field="f_start_date" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_start_date"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/} </label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+                </div>
+                <input class="form-control input datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' value="{f_start_date}" type="text" readonly="">
+            </div>
+        </div>
     </div>
-    <div data-field="f_users" class="form-group">
-        <label for="f_users">{@__ key="entity.e_user.plural_entity" /}</label>
-        <select multiple="multiple" style="width:100%;" class="form-control" name="r_users" readonly="readonly" disabled="disabled">
-            {#r_users}
-                <option value="{id}" selected="">{f_login} - {f_email}</option>
-            {/r_users}
-        </select>
+    <div data-field="f_end_date" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_end_date"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/} </label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i> + <i class="fa fa-clock-o"></i>
+                </div>
+                <input class="form-control input datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' value="{f_end_date}" type="text" readonly="">
+            </div>
+        </div>
+    </div>
+    <div data-field="f_all_day" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_all_day"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/} </label> &nbsp;
+            <br>
+            {@ifTrue key=f_all_day}
+                <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" checked="" disabled="">
+            {:else}
+                <input class="form-control input" name="f_all_day" value="{f_all_day}" type="checkbox" disabled="">
+            {/ifTrue}
+        </div>
+    </div>
+    <div data-field="r_category" class="col-xs-12">
+        <div class="form-group">
+            <label for="r_category"> {@__ key="entity.CODE_NAME_EVENT_LOWER.r_category"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}' name="r_category" value="{r_category.f_label}" type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_users" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_users">{@__ key="entity.e_user.plural_entity" /}</label>
+            <select multiple="multiple" style="width:100%;" class="form-control" name="r_users" readonly="readonly" disabled="disabled">
+                {#r_users}
+                    <option value="{id}" selected="">{f_login} - {f_email}</option>
+                {/r_users}
+            </select>
+        </div>
     </div>
 </div>
 <div class="actions">

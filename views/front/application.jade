@@ -91,10 +91,7 @@ block content
 										span #{__("button.delete")}
 									input(type="hidden", name="instruction", value="delete project #{project.id}")
 block custom_js
-	// AdminLTE App
-	script(src='/js/AdminLTE/app.js', type='text/javascript')
 	script(type='text/javascript').
-
 		function updateInstructionCount(){
 			$.ajax({
 				url: '/default/update_instruction_cpt',
