@@ -700,7 +700,6 @@ exports.setRequiredAttribute = function (attr, callback) {
 
     // Update create_fields.dust file
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
-
         if ($("*[data-field='" + attr.options.value + "']").length > 0) {
             if (set)
                 $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
@@ -719,21 +718,30 @@ exports.setRequiredAttribute = function (attr, callback) {
                     else
                         $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
+                    $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
+
                     domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
 
                         // Update the Sequelize attributes.json to set allowNull
                         var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.name_data_entity.toLowerCase() + ".json";
-                        var attributesContent = fs.readFileSync(pathToAttributesJson);
-                        var attributesObj = JSON.parse(attributesContent);
+                        var attributesObj = require(pathToAttributesJson);
 
-                        attributesObj[attr.options.value].allowNull = set ? false : true;
-                        fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
-
+                        if (attributesObj[attr.options.value]) {
+                            attributesObj[attr.options.value].allowNull = set ? false : true;
+                            fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+                        }
                         callback();
                     });
                 });
+            }).catch(function(e) {
+                console.log(e);
+                var err = new Error();
+                err.message = "structure.field.attributes.fieldNoFound";
+                err.messageParams = [attr.options.showValue];
+                callback(err, null);
             });
         } else {
+            console.log('Dans le else');
             var err = new Error();
             err.message = "structure.field.attributes.fieldNoFound";
             err.messageParams = [attr.options.showValue];
