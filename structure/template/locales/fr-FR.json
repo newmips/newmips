@@ -140,6 +140,9 @@
         "widgets": {
             "lastrecords": {
                 "label": "derniers enregistrements"
+            },
+            "stats": {
+                "more_info": "Plus d'infos"
             }
         }
     },
