@@ -305,6 +305,8 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "write"),
         f_wednesday: true,
         f_thursday: true,
         f_friday: true,
+        f_saturday: false,
+        f_sunday: false
     }).then(function(settings) {
         createObject.f_id_cra_calendar_settings = settings.id;
         models.E_cra_team.create(createObject).then(function (e_cra_team) {
