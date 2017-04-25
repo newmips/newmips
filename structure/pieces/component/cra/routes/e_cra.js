@@ -770,13 +770,15 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                     return error500(err, req, res);
 
                 var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
+                var myfileName = "CRA_"+user.f_login+"_"+cra.f_year+'_'+cra.f_month+'.pdf';
+
                 pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
                     if (err)
                         return error500(err, req, res);
                     fs.readFile(fileName, function(err, data) {
                         if (err)
                             return error500(err, req, res);
-                        res.writeHead(200, {"Content-Type": "application/pdf"});
+                        res.writeHead(200, {'Content-disposition': 'attachment; filename='+myfileName, "Content-Type": "application/pdf"});
                         res.write(data);
                         res.end();
 
