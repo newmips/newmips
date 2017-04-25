@@ -24,14 +24,14 @@ function isDayOpen(day, settings, exceptions) {
         return $("#noSettings").show();
     }
     if (!settings['f_' + englishDaysLabel[day.getDay()].toLowerCase()])
-        return false;
+        return '';
     var dayCopy = new Date(day);
     dayCopy.setHours(0, 0, 0, 0);
     for (var i = 0; i < exceptions.length; i++) {
         var exceptionDate = new Date(exceptions[i].f_date);
         exceptionDate.setHours(0, 0, 0, 0);
         if (dayCopy.getTime() == exceptionDate.getTime())
-            return false;
+            return exceptions[i].f_label;
     }
 
     openDaysCount++;
@@ -89,11 +89,11 @@ function generateAddActivityRow(data) {
     var newSelect = generateSelect();
     //var newSelect = $("#activitiesSelect").find('select').clone().attr('name', "select." + (++selectCount));
     var row = "<tr><td></td>";
-    var j = -1;
+    var j = -1, dayOffLabel = '';
     while (++j < days.length)
-        row += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception) ?
+        row += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
         '<td><input class="openDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled ></td>' :
-        '<td><input class="closedDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled></td>';
+        '<td title="'+dayOffLabel+'"><input class="closedDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled></td>';
     row += '</tr>';
     // No default activity, only total tr in tbody (prev().after() won't work)
     if ($("#craTable").find('tr').length == 2) {
@@ -126,11 +126,11 @@ function generateEmptyCRA(data) {
     for (var i = 0; i < data.team.r_default_cra_activity.length; i++) {
         openDaysCount = 0;
         craTable += '<tr><td>' + data.team.r_default_cra_activity[i].f_name + '</td>';
-        var j = -1;
+        var j = -1, dayOffLabel = '';
         while (++j < days.length)
-            craTable += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception) ?
+            craTable += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
             '<td><input class="small-font openDay taskInput" autocomplete="off" name="task.' + data.team.r_default_cra_activity[i].id + '.' + days[j].getDate() + '"></td>' :
-            '<td><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + data.team.r_default_cra_activity[i].id + '.' + days[j].getDate() + '" disabled></td>';
+            '<td title="'+dayOffLabel+'"><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + data.team.r_default_cra_activity[i].id + '.' + days[j].getDate() + '" disabled></td>';
 
         craTable += '</tr>';
     }
@@ -161,28 +161,32 @@ function generateExistingCRA(data) {
             knownActivities[data.team.r_default_cra_activity[i].id] = data.team.r_default_cra_activity[i];
 
     for (var acty in knownActivities) {
+        for (var i = 0; i < selectOptionArray.length; i++)
+            if (selectOptionArray[i].id == knownActivities[acty].id)
+                selectOptionArray[i].available = false;
         openDaysCount = 0;
         craTable += '<tr><td>' + knownActivities[acty].f_name + '</td>';
         var j = -1;
         while (++j < days.length) {
             var taskExists = false;
+            var dayOffLabel = '';
             for (var k = 0; k < data.cra.r_cra_task.length; k++) {
                 var task = data.cra.r_cra_task[k];
                 if (task.f_id_cra_activity == knownActivities[acty].id) {
                     var date = new Date(task.f_date);
                     if (date.getDate() == days[j].getDate()) {
                         taskExists = true;
-                        craTable += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception) ?
+                        craTable += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
                             '<td><input class="small-font openDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" value="' + task.f_duration + '"></td>' :
-                            '<td><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" value="' + task.f_duration + '"></td>';
+                            '<td title="'+dayOffLabel+'"><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" value="' + task.f_duration + '"></td>';
                         break;
                     }
                 }
             }
             if (!taskExists)
-                craTable += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception) ?
+                craTable += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
                 '<td><input class="small-font openDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '"></td>' :
-                '<td><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '"></td>';
+                '<td title="'+dayOffLabel+'"><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '"></td>';
         }
         craTable += '</tr>';
     }

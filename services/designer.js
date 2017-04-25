@@ -1546,6 +1546,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "entity CRA Team has many CRA Calendar Exception",
             "select entity CRA Calendar Exception",
             "add field Date with type date",
+            "add field Label",
             "add entity CRA Activity",
             "add field Name",
             "set field Name required",
