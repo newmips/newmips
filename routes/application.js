@@ -210,9 +210,10 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         });
     }).catch(function(err) {
         data.code = 500;
-        data.workspaceFolder = initEditor(req.session.id_application);
-        console.log(err);
-        res.render('common/error', data);
+        initPreviewData(req.session.id_application, data).then(function(data) {
+            console.log(err);
+            res.render('common/error', data);
+        });
     });
 });
 

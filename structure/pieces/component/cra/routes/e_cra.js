@@ -710,7 +710,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         }]
     }).then(function(user) {
         var cra = user.r_cra[0];
-        var workedDays = cra.r_cra_task.length;
+        var workedDays = 0.;
         var activitiesById = [];
         // Organize array with activity > tasks instead of tasks > activity
         for (var i = 0; i < cra.r_cra_task.length; i++) {
@@ -742,6 +742,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                 for (var j = 0; j < activitiesById[acti].filledTasks.length; j++) {
                     var filledTask = activitiesById[acti].filledTasks[j];
                     if (origiTask.f_date.getDate() == filledTask.f_date.getDate()) {
+                        workedDays += parseFloat(origiTask.f_duration);
                         activitiesById[acti].filledTasks[j].f_duration = origiTask.f_duration;
                     }
                 }

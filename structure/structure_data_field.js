@@ -1076,7 +1076,7 @@ exports.setupHasOneTab = function (attr, callback) {
             newTab += '			<a style="margin-right:8px;" href="/' + urlTarget + '/update_form?id={id}&associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-warning">\n';
             newTab += '				<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>\n';
             newTab += '			</a>\n';
-            newTab += '			<button onclick="return confirm("Etes-vous sûr de vouloir supprimer cet enregistrement ?");" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
+            newTab += '			<button onclick=\'return confirm("Etes-vous sûr de vouloir supprimer cet enregistrement ?")\' class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
             newTab += '				<span>{@__ key="button.delete" /}</span>\n';
             newTab += '				<input name="id" value="{id}" type="hidden"/>\n';
             newTab += '				<input name="associationAlias" value="' + alias + '" type="hidden"/>\n';
