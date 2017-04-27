@@ -203,13 +203,13 @@ exports.createWidget = function(attr, callback) {
 exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
-console.log(attr.columns);
+
     // Verify columns validity
     var attributes = require(workspacePath+'/models/attributes/'+attr.entity.codeName+'.json');
     var unknownFields = [];
     for (var i = 0; i < attr.columns.length; i++)
-        if (!attributes['f_'+attr.columns[i]])
-            unknownFields.push(attr.columns[i]);
+        if (!attributes[attr.columns[i].codeName])
+            unknownFields.push(attr.columns[i].codeName);
     if (unknownFields.length)
         return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [unknownFields.join(', ')]});
 
@@ -248,7 +248,7 @@ console.log(attr.columns);
                 try {
                     var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr>';
                     for (var i = 0; i < attr.columns.length; i++) {
-                        var field = attr.columns[i].toLowerCase() != 'id' ? 'f_'+attr.columns[i].toLowerCase() : 'id';
+                        var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('[data-field="'+field+'"]').data('type');
                         thead += '<th data-type="'+type+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
                         tbody += '<td data-type="'+type+'">{'+field+'}</td>';

@@ -200,3 +200,20 @@ exports.getNameDataFieldById = function (idField, callback) {
         callback(err, null);
     });
 }
+
+exports.getCodeNameByNameArray = function(names, callback) {
+    var columns = [];
+    for (var i = 0; i < names.length; i++)
+        columns.push({name: names[i]});
+    models.DataField.findAll({
+        attributes: ['codeName'],
+        where: {
+            $or: columns
+        },
+        raw: true
+    }).then(function(results) {
+        callback(null, results);
+    }).catch(function(err) {
+        callback(err);
+    });
+}

@@ -1677,11 +1677,18 @@ exports.createWidgetLastRecords = function(attr, callback) {
             attr.entity = entity;
             attr.module = module;
 
-            structure_ui.createWidgetLastRecords(attr, function(err, info) {
+            db_field.getCodeNameByNameArray(attr.columns, function(err, columns) {
                 if (err)
                     return callback(err);
-                callback(null, info);
-            })
+
+                attr.columns = columns;
+                structure_ui.createWidgetLastRecords(attr, function(err, info) {
+                    if (err)
+                        return callback(err);
+                    callback(null, info);
+                });
+            });
+
         });
     });
 }
