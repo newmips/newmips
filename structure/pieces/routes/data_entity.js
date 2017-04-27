@@ -412,7 +412,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
-    var id_ENTITY_NAME = req.body.id;
+    var id_ENTITY_NAME = parseInt(req.body.id);
 
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (deleteObject) {
         models.MODEL_NAME.destroy({
