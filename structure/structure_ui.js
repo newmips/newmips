@@ -203,7 +203,7 @@ exports.createWidget = function(attr, callback) {
 exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
-
+console.log(attr.columns);
     // Verify columns validity
     var attributes = require(workspacePath+'/models/attributes/'+attr.entity.codeName+'.json');
     var unknownFields = [];

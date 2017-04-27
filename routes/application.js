@@ -209,8 +209,12 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             });
         });
     }).catch(function(err) {
-        data.code = 500;
         initPreviewData(req.session.id_application, data).then(function(data) {
+            data.code = 500;
+            console.log(err);
+            res.render('common/error', data);
+        }).catch(function(err) {
+            data.code = 500;
             console.log(err);
             res.render('common/error', data);
         });
