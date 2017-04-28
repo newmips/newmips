@@ -983,7 +983,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), 
 router.post('/update', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
     var id_e_cra = parseInt(req.body.id);
 
-    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
+    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
         req.body.version = parseInt(req.body.version) + 1;
     else
         req.body.version = 0;
