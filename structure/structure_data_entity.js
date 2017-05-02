@@ -317,11 +317,20 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
 
     name_module = name_module.toLowerCase();
 
+    // Clean up access config
+    var access = require(baseFolder+'/config/access.json');
+    for (var i = 0; i < access[name_module.substring(2)].entities.length; i++) {
+        if (access[name_module.substring(2)].entities[i].name == url_name_data_entity)
+            access[name_module.substring(2)].entities.splice(i, 1);
+    }
+    fs.writeFileSync(baseFolder+'/config/access.json', JSON.stringify(access, null, 4));
+
+    // Remove entity entry from layout select
     var filePath = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module + '.dust';
     domHelper.read(filePath).then(function ($) {
         $("#" + url_name_data_entity + '_menu_item').remove();
         domHelper.write(filePath, $).then(function () {
             callback();
-        })
-    })
+        });
+    });
 };
