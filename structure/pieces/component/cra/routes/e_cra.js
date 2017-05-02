@@ -742,7 +742,8 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                 for (var j = 0; j < activitiesById[acti].filledTasks.length; j++) {
                     var filledTask = activitiesById[acti].filledTasks[j];
                     if (origiTask.f_date.getDate() == filledTask.f_date.getDate()) {
-                        workedDays += parseFloat(origiTask.f_duration);
+                        var duration = origiTask.f_duration.replace(/,/, '.');
+                        workedDays += parseFloat(duration);
                         activitiesById[acti].filledTasks[j].f_duration = origiTask.f_duration;
                     }
                 }
