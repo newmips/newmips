@@ -125,6 +125,14 @@ exports.deleteModule = function(attr, callback) {
 
     fs.unlinkSync(layoutsPath+moduleFilename);
 
+    // Clean up access config
+    var access = require(__dirname + '/../workspace/'+attr.id_application+'/config/access.json');
+    for (var module in access) {
+        if (module == attr.module_name.toLowerCase().substring(2))
+            delete access[module];
+    }
+    fs.writeFileSync(__dirname + '/../workspace/'+attr.id_application+'/config/access.json', JSON.stringify(access, null, 4));
+
     function done(cpt, lenght){
         if(cpt == lenght){
             callback();

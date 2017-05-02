@@ -95,6 +95,7 @@ function generateAddActivityRow(data) {
         row += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
         '<td><input class="openDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled ></td>' :
         '<td title="'+dayOffLabel+'"><input class="closedDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled></td>';
+    row += '<td>0</td>';
     row += '</tr>';
     // No default activity, only total tr in tbody (prev().after() won't work)
     if ($("#craTable").find('tr').length == 2) {
@@ -122,6 +123,7 @@ function generateExistingCRA(data) {
     for (var i = 0; i < days.length; i++) {
         craTable += "<th>" + daysLabel[days[i].getDay()].substring(0, 3) + " " + days[i].getDate() + '</th>';
     }
+    craTable += '<th>Total</th>';
     craTable += '</tr></thead><tbody>';
 
     var knownActivities = [];
@@ -161,6 +163,7 @@ function generateExistingCRA(data) {
                 '<td><input class="openDay taskInput small-font" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" ></td>' :
                 '<td title="'+dayOffLabel+'"><input class="closedDay taskInput small-font" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" ></td>';
         }
+        craTable += '<td>0</td>';
         craTable += '</tr>';
     }
 
@@ -258,6 +261,16 @@ $(function() {
             if (!isNaN(parseFloat(inputVal)))
                 count += parseFloat(inputVal);
         });
+
+        // Calculate row's total
+        var rowCount = 0;
+        $(self).parents('tr').find('td:not(:last):not(:first)').each(function() {
+            var inputVal = $(this).find('input').val();
+            inputVal = inputVal.replace(/,/, '.');
+            if (!isNaN(parseFloat(inputVal)))
+                rowCount += parseFloat(inputVal);
+        });
+        $(self).parents('tr').find('td:last').text(rowCount);
 
         // Color red if column total is superior to one (one day)
         if (count > 1)

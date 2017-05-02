@@ -41,7 +41,7 @@ function isDayOpen(day, settings, exceptions) {
 function generateTotalRow(days) {
     var row = '<tr><td><b>Total</b></td>';
     for (var i = 0; i < days.length; i++)
-        row += '<td>0</td>';
+        row += '<td class="activityTotal">0</td>';
     row += '</tr>';
     return row;
 }
@@ -94,6 +94,7 @@ function generateAddActivityRow(data) {
         row += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
         '<td><input class="openDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled ></td>' :
         '<td title="'+dayOffLabel+'"><input class="closedDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled></td>';
+    row += '<td class="activityTotal">0</td>';
     row += '</tr>';
     // No default activity, only total tr in tbody (prev().after() won't work)
     if ($("#craTable").find('tr').length == 2) {
@@ -120,6 +121,7 @@ function generateEmptyCRA(data) {
     for (var i = 0; i < days.length; i++) {
         craTable += "<th>" + daysLabel[days[i].getDay()].substring(0, 3) + " " + days[i].getDate() + '</th>';
     }
+    craTable += '<th>Total</th>>';
     craTable += '</tr></thead><tbody>';
 
     // Activities
@@ -131,7 +133,7 @@ function generateEmptyCRA(data) {
             craTable += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
             '<td><input class="small-font openDay taskInput" autocomplete="off" name="task.' + data.team.r_default_cra_activity[i].id + '.' + days[j].getDate() + '"></td>' :
             '<td title="'+dayOffLabel+'"><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + data.team.r_default_cra_activity[i].id + '.' + days[j].getDate() + '" disabled></td>';
-
+        craTable += '<td class="activityTotal">0</td>';
         craTable += '</tr>';
     }
 
@@ -150,6 +152,7 @@ function generateExistingCRA(data) {
     for (var i = 0; i < days.length; i++) {
         craTable += "<th>" + daysLabel[days[i].getDay()].substring(0, 3) + " " + days[i].getDate() + '</th>';
     }
+    craTable += '<th>Total</th>';
     craTable += '</tr></thead><tbody>';
 
     var knownActivities = [];
@@ -188,6 +191,7 @@ function generateExistingCRA(data) {
                 '<td><input class="small-font openDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '"></td>' :
                 '<td title="'+dayOffLabel+'"><input class="small-font closedDay taskInput" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '"></td>';
         }
+        craTable += '<td class="activityTotal">0</td>';
         craTable += '</tr>';
     }
 
@@ -350,6 +354,16 @@ $(function() {
             if (!isNaN(parseFloat(inputVal)))
                 count += parseFloat(inputVal);
         });
+
+        // Calculate row's total
+        var rowCount = 0;
+        $(self).parents('tr').find('td:not(:last):not(:first)').each(function() {
+            var inputVal = $(this).find('input').val();
+            inputVal = inputVal.replace(/,/, '.');
+            if (!isNaN(parseFloat(inputVal)))
+                rowCount += parseFloat(inputVal);
+        });
+        $(self).parents('tr').find('td:last').text(rowCount);
 
         // Color red if column total is superior to one (one day)
         if (count > 1) {
