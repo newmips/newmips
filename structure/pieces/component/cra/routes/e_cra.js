@@ -731,6 +731,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         for (var acti in activitiesById) {
             var i = 0;
             activitiesById[acti].filledTasks = [];
+            activitiesById[acti].rowTotal = 0;
             while (i++ < totalDays) {
                 var tmp = new Date(cra.f_year, cra.f_month-1, i);
                 if (daysAndLabels.length < totalDays)
@@ -744,6 +745,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                     if (origiTask.f_date.getDate() == filledTask.f_date.getDate()) {
                         var duration = origiTask.f_duration.replace(/,/, '.');
                         workedDays += parseFloat(duration);
+                        activitiesById[acti].rowTotal += parseFloat(duration);
                         activitiesById[acti].filledTasks[j].f_duration = origiTask.f_duration;
                     }
                 }

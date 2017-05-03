@@ -230,6 +230,7 @@ $(function() {
             $("#craTable").find("tr:nth-child(2)").find('.taskInput').each(function() {
                 $(this).trigger('keyup');
             });
+            $("#craTable tr:not(:first):not(:last)").find(".taskInput").eq(2).trigger('keyup');
         },
         error: function(err, st, rest) {
             toastr.error(err.responseText);
