@@ -140,8 +140,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "link" :
             if (file == 'show')
                 str += "    <a href='"+value+"' target='_blank' type='url' data-type='url'>"+value+"</a>\n";
-            else
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
+            else{
+                str += "    <div class='input-group'>\n";
+                str += "        <div class='input-group-addon'>\n";
+                str += "            <i class='fa fa-link'></i>\n";
+                str += "        </div>\n";
+                str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
+                str += "    </div>\n";
+            }
             break;
         case "password" :
         case "mot de passe":
