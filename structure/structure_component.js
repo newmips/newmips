@@ -609,6 +609,19 @@ exports.newCra = function(attr, callback){
         fs.copySync(piecesPath+'/views/e_cra_team/', workspacePath+'/views/e_cra_team/');
         fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
 
+		// Create belongsToMany relation between team and activity for default activities
+		var teamOptionsPath = workspacePath + '/models/options/e_cra_team.json';
+	    var teamOptionObj = require(teamOptionsPath);
+	    teamOptionObj.push({
+	    	"target": "e_cra_activity",
+	        "relation": "belongsToMany",
+	        "through": attr.id_application+"_cra_activity_team",
+	        "as": "r_default_cra_activity",
+	        "foreignKey": "team_id",
+	        "otherKey": "activity_id"
+	    });
+	    fs.writeFileSync(teamOptionsPath, JSON.stringify(teamOptionObj, null, 4));
+
         // Get select of module before copying pieces
         domHelper.read(workspacePath+'/views/layout_m_cra.dust').then(function($workS) {
         	var select = $workS("#dynamic_select").html();
@@ -616,6 +629,7 @@ exports.newCra = function(attr, callback){
 	        domHelper.read(workspacePath+'/views/layout_m_cra.dust').then(function($newWorkS) {
 	        	// Insert select of module to copied pieces
 	        	$newWorkS("#dynamic_select").html(select);
+
 	        	domHelper.write(workspacePath+'/views/layout_m_cra.dust', $newWorkS).then(function() {
 			        // Replace locales
 			        // fr-FR
