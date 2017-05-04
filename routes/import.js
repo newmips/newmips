@@ -83,6 +83,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
                 }
 
                 columnsInRequest = columnsInRequest.substring(0, columnsInRequest.length - 2);
+                columnsInRequest += ',`createdAt`,`updatedAt`';
 
                 sheet.eachRow({
                     includeEmpty: false
@@ -265,6 +266,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
 
                                         // Remove last ,
                                         valuesInrequest = valuesInrequest.substring(0, valuesInrequest.length - 2);
+                                        valuesInrequest += ', NOW(), NOW()';
 
                                         request = "INSERT INTO ";
                                         request += appID + "_" + entityName;
