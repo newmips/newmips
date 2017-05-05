@@ -152,9 +152,9 @@ module.exports = {
                             .commit("First commit!")
                             .addRemote(originName, repoUrl)
                             .push(['-u', originName, 'master'], function(err, answer){
+                                gitProcesses[originName] = false;
                                 if(err)
                                     return callback(err, null);
-                                gitProcesses[originName] = false;
                                 callback(null, answer);
                             });
                         } else{
@@ -171,12 +171,12 @@ module.exports = {
                             // Set gitProcesses to prevent any other git command during this process
                             gitProcesses[originName] = true;
                             simpleGit.push(['-u', originName, 'master'], function(err, answer){
+                                gitProcesses[originName] = false;
                                 if(err){
                                     console.log(err);
                                     return callback(err, null);
                                 }
                                 console.log(answer);
-                                gitProcesses[originName] = false;
                                 callback(null, answer);
                             });
                         } else{
@@ -225,12 +225,12 @@ module.exports = {
                     // Set gitProcesses to prevent any other git command during this process
                     gitProcesses[originName] = true;
                     simpleGit.pull(originName, "master", function(err, answer){
+                        gitProcesses[originName] = false;
                         if(err){
                             console.log(err);
                             return callback(err, null);
                         }
                         console.log(answer);
-                        gitProcesses[originName] = false;
                         callback(null, answer);
                     });
                 } else{
