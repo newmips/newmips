@@ -153,7 +153,7 @@ $(document).ready(function () {
             $(this).html("");
         }
     });
-    
+
     $(this).find('img[data-type="picture"]').each(function () {
         var src = $(this).attr('src');
         //remove all pictures with null src value
@@ -272,7 +272,7 @@ $(document).ready(function () {
      console.log("2");
      inputDecimalValues[nameObj] = $(this).val();
      }
-     
+
      console.log("FIN");
      console.log(inputDecimalValues);
      });
