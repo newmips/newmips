@@ -231,7 +231,7 @@ function init_datatable(tableID) {
                         else
                             cellValue = '';
                     }
-                    else if (columns[meta.col].type == 'url')
+                    else if (columns[meta.col].type == 'url' && cellValue!=null)
                         cellValue = '<a target="_blank" href="'+cellValue+'">'+cellValue+'</a>';
                 }
                 return cellValue;
