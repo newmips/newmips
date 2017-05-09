@@ -107,7 +107,12 @@ app.use(function(req, res, next) {
     	if(typeof locals === "undefined")
     		locals = {};
     	if (req.session.toastr && req.session.toastr.length > 0) {
-	        locals.toastr = req.session.toastr;
+    		locals.toastr = [];
+    		for (var i = 0; i < req.session.toastr.length; i++) {
+    			var toast = req.session.toastr[i];
+    			var traductedToast = {message: language(req.session.lang_user).__(toast.message), level: toast.level};
+    			locals.toastr.push(traductedToast);
+    		}
 	        req.session.toastr = [];
         }
         helper.getNbInstruction(function(totalInstruction){

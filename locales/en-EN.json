@@ -128,7 +128,8 @@
         "label": "Application",
         "create": "Create a new application",
         "selectExisting": "Select an existing application",
-        "plural": "Applications"
+        "plural": "Applications",
+        "not_started": "There is no application running. Select one in the list."
     },
     "module": {
         "label": "Module"

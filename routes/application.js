@@ -108,6 +108,11 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         session: ""
     };
 
+    if (!id_application && typeof process_server[req.session.id_application] === 'undefined') {
+        req.session.toastr.push({level: "warning", message: "application.not_started"});
+        return res.redirect('/application/list');
+    }
+
     setChat(req, id_application, currentUserID, "Newmips", "chat.welcome", []);
 
     models.Application.findOne({where: {id: id_application}}).then(function(application) {
