@@ -128,7 +128,8 @@
         "label": "Application",
         "create": "Créer une nouvelle application",
         "selectExisting": "Sélectionner une application existante",
-        "plural": "Applications"
+        "plural": "Applications",
+        "not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste."
     },
     "module": {
         "label": "Module"
