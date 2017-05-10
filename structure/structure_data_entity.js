@@ -315,6 +315,18 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
     // Delete attributes
     fs.unlinkSync(baseFolder + '/models/attributes/' + name_data_entity + '.json');
 
+    // Remove relationships in options.json files
+    var optionFiles = fs.readdirSync(baseFolder+ '/models/options/');
+    for (var file in optionFiles) {
+        var options = require(baseFolder+ '/models/options/'+optionFiles[file]);
+        var optionsCpy = [];
+        for (var i = 0; i < options.length; i++)
+            if (options[i].target != name_data_entity)
+                optionsCpy.push(options[i]);
+        if (optionsCpy.length != options.length)
+            fs.writeFileSync(baseFolder+ '/models/options/'+optionFiles[file], JSON.stringify(optionsCpy, null, 4));
+    }
+
     name_module = name_module.toLowerCase();
 
     // Clean up access config
