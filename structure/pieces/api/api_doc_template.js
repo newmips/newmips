@@ -20,6 +20,30 @@
  *
  * Set your HTTP header like so with basic64 encoding : <code>Authorization clientID:clientSecret</code>
 
+ * @apiExample {node} Example
+ * var request = require('request');
+ *
+ * // API credentials
+ * var clientKey = 'THcfYQ7sGW3jRdq';
+ * var clientSecret = 'dexXLYNwdhezlxk';
+ *
+ * // Base64 encoding
+ * var auth = 'Basic ' + new Buffer(clientKey + ':' + clientSecret).toString('base64');
+ *
+ * // API request
+ * request(
+ *     {
+ *         url : 'http://127.0.0.1:9034/api/getToken',
+ *         headers : {
+ *             "Authorization" : auth
+ *         }
+ *     },
+ *     function (error, response, body) {
+ *     	body = JSON.parse(body);
+ *         console.log(body.token);
+ *     }
+ * );
+
  * @apiHeader {String} ClientID Generated application's API credentials
  * @apiHeader {String} ClientSecret Generated application's API credentials
 
