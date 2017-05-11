@@ -10,11 +10,6 @@ var language = require('../services/language');
 //Sequelize
 var models = require('../models/');
 
-// ===========================================
-// Redirection Editor =====================
-// ===========================================
-
-// Homepage
 router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
 	var page = req.params.page;
 	if (!page || (page != 'create' && page != 'update' && page != 'show'))
@@ -56,7 +51,6 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 	var entity = req.params.entity;
 	var html = req.body.html;
 	var generatorLanguage = language(req.session.lang_user);
-
 	var pageUri = __dirname+'/../workspace/'+req.session.id_application+'/views/'+entity+'/'+page;
 	domHelper.loadFromHtml(html).then(function($) {
 		// Remove "forced" traduction
@@ -67,8 +61,15 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			$(this).replaceWith($(this).html());
 		});
 
-		// Show action buttons
-		$(".actions").show();
+		// Remove grid-editor left overs (div.ge-content, .column)
+		$(".ge-content").each(function() {
+			var toExtract = $(this).html();
+			$(this).parent().removeClass('column').html(toExtract);
+		});
+
+		// Show and re-position action buttons
+		var actions = $(".actions").show().detach();
+		$(actions).appendTo($("body"));
 
 		// Write back to file
 		domHelper.write(pageUri, $).then(function() {
