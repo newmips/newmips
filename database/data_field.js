@@ -206,7 +206,7 @@ exports.getCodeNameByNameArray = function(names, callback) {
     for (var i = 0; i < names.length; i++)
         columns.push({name: names[i]});
     models.DataField.findAll({
-        attributes: ['codeName'],
+        attributes: ['codeName', 'name'],
         where: {
             $or: columns
         },

@@ -1679,6 +1679,24 @@ exports.createWidgetLastRecords = function(attr, callback) {
                 if (err)
                     return callback(err);
 
+                // Check for not found fields and build error message
+                if (attr.columns.length != columns.length) {
+                    var notFound = [];
+                    for (var k = 0; k < attr.columns.length; k++) {
+                        var kFound = false;
+                        for (var i = 0; i < columns.length; i++) {
+                            if (attr.columns[k] == columns[i].name) {
+                                kFound = true;
+                                break;
+                            }
+                        }
+                        if (!kFound)
+                            notFound.push(attr.columns[k]);
+                    }
+                    console.log(notFound);
+                    return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [notFound.join(', ')]});
+                }
+
                 attr.columns = columns;
                 structure_ui.createWidgetLastRecords(attr, function(err, info) {
                     if (err)
