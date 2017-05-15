@@ -204,15 +204,6 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
 
-    // Verify columns validity
-    var attributes = require(workspacePath+'/models/attributes/'+attr.entity.codeName+'.json');
-    var unknownFields = [];
-    for (var i = 0; i < attr.columns.length; i++)
-        if (!attributes[attr.columns[i].codeName])
-            unknownFields.push(attr.columns[i].codeName);
-    if (unknownFields.length)
-        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [unknownFields.join(', ')]});
-
     // Add widget's query to routes/default controller
     var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
     var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
