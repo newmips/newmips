@@ -116,7 +116,9 @@
     "preview": {
         "title": "Prévisualisation",
         "reload": "Redémarrer le serveur",
-        "issue-button": "Signaler un bug"
+        "issue-button": "Signaler un bug",
+        "help-button": "Besoin d'aide ?",
+        "help-disabled": "Le chat slack est désactivé. Activez-le dans config/global.js et fournissez les informations slack dans config/slack.js"
     },
     "project": {
         "label": "Projet",
