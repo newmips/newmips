@@ -177,7 +177,7 @@ exports.createWidget = function(attr, callback) {
 
                 // Create widget's html
                 var newHtml = "";
-                newHtml += "<div id='"+widgetElemId+"' class='col-xs-3'>\n";
+                newHtml += "<div id='"+widgetElemId+"' class='col-sm-3 col-xs-12'>\n";
                 newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
                 newHtml +=      $2("body")[0].innerHTML+"\n";
                 newHtml += '<!--{/entityAccess}-->';
@@ -225,7 +225,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-"+(attr.columns.length > 4 ? 6 : 3)+"'>\n";
+            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '6' : '3')+"'>\n";
             newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
             newHtml +=      $template("body")[0].innerHTML+"\n";
             newHtml += '<!--{/entityAccess}-->';
