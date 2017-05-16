@@ -115,6 +115,7 @@ app.use(function(req, res, next) {
     		}
 	        req.session.toastr = [];
         }
+        locals.isSlackChatEnabled = globalConf.slack_chat_enabled;
         helper.getNbInstruction(function(totalInstruction){
         	// Get nbInstruction
             locals.cptInstruction = totalInstruction;

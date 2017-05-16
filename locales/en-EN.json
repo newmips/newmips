@@ -116,7 +116,9 @@
     "preview":{
         "title": "Preview",
         "reload": "Restart server",
-        "issue-button": "Report an issue"
+        "issue-button": "Report an issue",
+        "help-button": "Need help ?",
+        "help-disabled": "Slack chat is disabled. Activate it in config/global.js and provide slack information in config/slack.js"
     },
     "project":{
         "label": "Project",

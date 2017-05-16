@@ -126,6 +126,11 @@ block content
 									a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
 										i.fa.fa-lg.fa-github
 										|&nbsp; #{__("preview.issue-button")}
+									div.btn.btn-warning#message-box(style="margin-top:10px;", title="", data-toggle="tooltip", data-original-title="Talk bubble")
+										i.fa.fa-fw.fa-comment
+										div(class="badge badge-danger slack-message-count", style="display: none;")
+										| &nbsp;#{__("preview.help-button")}
+
 			#editor.tab-pane.fade.in
 				.row
 					#codemirror-menu.col-xs-12.col-sm-2.sidebar
