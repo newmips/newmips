@@ -56,7 +56,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
 	echo "Please type the mysql.exe path (Maybe something like : c:/wamp/bin/mysql/mysql5.6.17/bin/mysql.exe)"
 	read mysqlpath
 
-	echo "Do you have a root password ? (If you are using WAMP you shouldn't have on) type 'Yes' or 'No'"
+	echo "Do you have a root password ? (If you are using WAMP you shouldn't have one) type 'Yes' or 'No'"
 	read havePass
 
 	if [[ "$havePass" == "Yes" ]]; then

@@ -8,7 +8,8 @@ var config = {
 		protocol: 'http',
 		protocol_iframe: 'http',
 		host: '127.0.0.1',
-		port: process.env.PORT || 1337
+		port: process.env.PORT || 1337,
+		slack_chat_enabled: false
 	},
 	'recette': {
 		env: 'recette',
@@ -20,7 +21,8 @@ var config = {
 			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
 			passphrase : ''
-		}
+		},
+		slack_chat_enabled: false
 	},
 	'production': {
 		env: 'production',
@@ -32,7 +34,8 @@ var config = {
 			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
 			passphrase : ''
-		}
+		},
+		slack_chat_enabled: false
 	},
 	'cloud': {
 		env: 'cloud',
@@ -40,7 +43,8 @@ var config = {
 		protocol_iframe: 'https',
 		host: process.env.HOSTNAME,
 		dns: '.newmips.cloud',
-		port: process.env.PORT || 1337
+		port: process.env.PORT || 1337,
+		slack_chat_enabled: false
 	}
 }
 

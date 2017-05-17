@@ -90,4 +90,5 @@ router.get('/update_logs', function(req, res) {
         res.send(false);
     }
 });
+
 module.exports = router;

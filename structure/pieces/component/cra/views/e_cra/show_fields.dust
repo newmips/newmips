@@ -9,28 +9,36 @@
     </ul>
     <div class="tab-content" style="min-height:275px;">
         <div id="home" class="tab-pane fade in active">
-            <div id="fields">
-                <div data-field="f_month" class="form-group">
-                    <label for="f_month"> {@__ key="entity.e_cra.f_month"/} </label>
-                    <input class="form-control input" placeholder='{@__ key="entity.e_cra.f_month" /}' name="f_month" value="{f_month}" type="number" readonly="">
+            <div id="fields" class="row">
+                <div data-field="f_month" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_month"> {@__ key="entity.e_cra.f_month"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_cra.f_month" /}' name="f_month" value="{f_month}" type="number" readonly="">
+                    </div>
                 </div>
-                <div data-field="f_year" class="form-group">
-                    <label for="f_year"> {@__ key="entity.e_cra.f_year"/} </label>
-                    <input class="form-control input" placeholder='{@__ key="entity.e_cra.f_year" /}' name="f_year" value="{f_year}" type="number" readonly="">
+                <div data-field="f_year" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_year"> {@__ key="entity.e_cra.f_year"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_cra.f_year" /}' name="f_year" value="{f_year}" type="number" readonly="">
+                    </div>
                 </div>
-                <div data-field="f_user_validated" class="form-group">
-                    <label for="f_user_validated"> {@__ key="entity.e_cra.f_user_validated"/} </label> &nbsp;
-                    <br>
-                    {@ifTrue key=f_user_validated}<input class="form-control input" name="f_user_validated" value="{f_user_validated}" type="checkbox" checked="" disabled="">
-                    {:else}<input class="form-control input" name="f_user_validated" value="{f_user_validated}" type="checkbox" disabled="">
-                    {/ifTrue}
+                <div data-field="f_user_validated" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_user_validated"> {@__ key="entity.e_cra.f_user_validated"/} </label> &nbsp;
+                        <br>
+                        {@ifTrue key=f_user_validated}<input class="form-control input" name="f_user_validated" value="{f_user_validated}" type="checkbox" checked="" disabled="">
+                        {:else}<input class="form-control input" name="f_user_validated" value="{f_user_validated}" type="checkbox" disabled="">
+                        {/ifTrue}
+                    </div>
                 </div>
-                <div data-field="f_admin_validated" class="form-group">
-                    <label for="f_admin_validated"> {@__ key="entity.e_cra.f_admin_validated"/} </label> &nbsp;
-                    <br>
-                    {@ifTrue key=f_admin_validated}<input class="form-control input" name="f_admin_validated" value="{f_admin_validated}" type="checkbox" checked="" disabled="">
-                    {:else}<input class="form-control input" name="f_admin_validated" value="{f_admin_validated}" type="checkbox" disabled="">
-                    {/ifTrue}
+                <div data-field="f_admin_validated" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_admin_validated"> {@__ key="entity.e_cra.f_admin_validated"/} </label> &nbsp;
+                        <br>
+                        {@ifTrue key=f_admin_validated}<input class="form-control input" name="f_admin_validated" value="{f_admin_validated}" type="checkbox" checked="" disabled="">
+                        {:else}<input class="form-control input" name="f_admin_validated" value="{f_admin_validated}" type="checkbox" disabled="">
+                        {/ifTrue}
+                    </div>
                 </div>
             </div>
             <div class="actions">

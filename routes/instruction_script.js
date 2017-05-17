@@ -150,7 +150,7 @@ function recursiveExecute(req, instructions, idx) {
                 idxAtMandatoryInstructionStart = idx;
             }
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
-            if (idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
+            if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
                 structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
@@ -192,7 +192,8 @@ router.get('/index', block_access.isLoggedIn, function(req, res) {
 router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
-
+    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
+    idxAtMandatoryInstructionStart = -1;
     var extensionFile = req.file.originalname.split(".");
     extensionFile = extensionFile[extensionFile.length -1];
 
@@ -204,6 +205,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
         answers: [],
         doneInstruction: 0,
         totalInstruction: 0,
+        authInstructions: false,
         ids: {
             id_project: -1,
             id_application: -1,
@@ -220,7 +222,6 @@ router.post('/execute', block_access.isLoggedIn, multer({
     // Read file line by line, check for empty line, line comment, scope comment
     var fileLines = [],
         commenting = false,
-        authInstructions = false,
         invalidScript = false;
 
     /* If one of theses value is to 2 after readings all lines then there is an error,
@@ -285,7 +286,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 exception.createNewProject.value += 1;
             }
             if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
-                authInstructions = true;
+                if (designerFunction == "createNewApplication")
+                    scriptData[userId].authInstructions = true;
                 exception.createNewApplication.value += 1;
             }
             if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home"){
@@ -336,7 +338,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
             });
             scriptData[userId].over = true;
         } else{
-            scriptData[userId].totalInstruction = authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
+            scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 scriptData[userId].over = true;
             }).catch(function(err) {

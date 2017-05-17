@@ -23,14 +23,14 @@ function isDayOpen(day, settings, exceptions) {
         return $("#noSettings").show();
     }
     if (!settings['f_' + englishDaysLabel[day.getDay()].toLowerCase()])
-        return false;
+        return '';
     var dayCopy = new Date(day);
     dayCopy.setHours(0, 0, 0, 0);
     for (var i = 0; i < exceptions.length; i++) {
         var exceptionDate = new Date(exceptions[i].f_date);
         exceptionDate.setHours(0, 0, 0, 0);
         if (dayCopy.getTime() == exceptionDate.getTime())
-            return false;
+            return exceptions[i].f_label;
     }
 
     openDaysCount++;
@@ -46,7 +46,6 @@ function generateTotalRow(days) {
 }
 
 function updateSelectOptionArray() {
-
     for (var i = 0; i < selectOptionArray.length; i++) {
         var available = true;
         for (var j = 0; j < $('.activitiesSelect').length; j++) {
@@ -91,11 +90,12 @@ function generateAddActivityRow(data) {
     var days = daysOfMonth(data.month - 1, data.year);
     var newSelect = generateSelect();
     var row = "<tr><td></td>";
-    var j = -1;
+    var j = -1, dayOffLabel = '';
     while (++j < days.length)
-        row += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception) ?
+        row += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
         '<td><input class="openDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled ></td>' :
-        '<td><input class="closedDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled></td>';
+        '<td title="'+dayOffLabel+'"><input class="closedDay taskInput" autocomplete="off" name="task.activityIDplaceholder.' + days[j].getDate() + '" disabled></td>';
+    row += '<td>0</td>';
     row += '</tr>';
     // No default activity, only total tr in tbody (prev().after() won't work)
     if ($("#craTable").find('tr').length == 2) {
@@ -123,6 +123,7 @@ function generateExistingCRA(data) {
     for (var i = 0; i < days.length; i++) {
         craTable += "<th>" + daysLabel[days[i].getDay()].substring(0, 3) + " " + days[i].getDate() + '</th>';
     }
+    craTable += '<th>Total</th>';
     craTable += '</tr></thead><tbody>';
 
     var knownActivities = [];
@@ -143,24 +144,26 @@ function generateExistingCRA(data) {
         var j = -1;
         while (++j < days.length) {
             var taskExists = false;
+            var dayOffLabel = '';
             for (var k = 0; k < data.cra.r_cra_task.length; k++) {
                 var task = data.cra.r_cra_task[k];
                 if (task.f_id_cra_activity == knownActivities[acty].id) {
                     var date = new Date(task.f_date);
                     if (date.getDate() == days[j].getDate()) {
                         taskExists = true;
-                        craTable += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception) ?
+                        craTable += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
                             '<td><input class="openDay taskInput small-font" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" value="' + task.f_duration + '" ></td>' :
-                            '<td><input class="closedDay taskInput small-font" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" value="' + task.f_duration + '" ></td>';
+                            '<td title="'+dayOffLabel+'"><input class="closedDay taskInput small-font" autocomplete="off" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" value="' + task.f_duration + '" ></td>';
                         break;
                     }
                 }
             }
             if (!taskExists)
-                craTable += isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception) ?
+                craTable += (dayOffLabel = isDayOpen(days[j], data.team.r_cra_calendar_settings, data.team.r_cra_calendar_exception)) == true ?
                 '<td><input class="openDay taskInput small-font" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" ></td>' :
-                '<td><input class="closedDay taskInput small-font" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" ></td>';
+                '<td title="'+dayOffLabel+'"><input class="closedDay taskInput small-font" name="task.' + knownActivities[acty].id + '.' + days[j].getDate() + '" ></td>';
         }
+        craTable += '<td>0</td>';
         craTable += '</tr>';
     }
 
@@ -211,7 +214,7 @@ $(function() {
     var year = parseInt($("#year").text());
     // Look for exisiting data for month/year
     $.ajax({
-        url: '/cra/getData/' + month + '/' + year,
+        url: '/cra/admin/getCra?id='+$("#id_cra").val(),
         success: function(data) {
             globalData = data;
             data.month = month;
@@ -227,6 +230,7 @@ $(function() {
             $("#craTable").find("tr:nth-child(2)").find('.taskInput').each(function() {
                 $(this).trigger('keyup');
             });
+            $("#craTable tr:not(:first):not(:last)").find(".taskInput").eq(2).trigger('keyup');
         },
         error: function(err, st, rest) {
             toastr.error(err.responseText);
@@ -258,6 +262,16 @@ $(function() {
             if (!isNaN(parseFloat(inputVal)))
                 count += parseFloat(inputVal);
         });
+
+        // Calculate row's total
+        var rowCount = 0;
+        $(self).parents('tr').find('td:not(:last):not(:first)').each(function() {
+            var inputVal = $(this).find('input').val();
+            inputVal = inputVal.replace(/,/, '.');
+            if (!isNaN(parseFloat(inputVal)))
+                rowCount += parseFloat(inputVal);
+        });
+        $(self).parents('tr').find('td:last').text(rowCount);
 
         // Color red if column total is superior to one (one day)
         if (count > 1)

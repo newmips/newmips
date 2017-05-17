@@ -65,7 +65,7 @@
                             <br>
                             <h4>{@__ key="entity.e_cra.f_notification_admin"/}</h4>
                             <textarea style="width: 50%;" rows="5" id="notificationAdmin" class="regular-textarea" name="notificationAdmin">{user.r_cra[0].f_notification_admin}</textarea>
-                            <input type="hidden" name="id_cra" value="{user.r_cra[0].id}">
+                            <input type="hidden" id="id_cra" name="id_cra" value="{user.r_cra[0].id}">
                             <br><br>
                             <div id="buttonGroup" class="no-print">
                                 <button class="btn btn-warning" type="submit">{@__ key="button.save"/}</button>&nbsp;&nbsp;

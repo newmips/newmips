@@ -308,7 +308,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
-    id_ENTITY_NAME = req.query.id;
+    var id_ENTITY_NAME = req.query.id;
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "list_ENTITY_NAME",
@@ -372,7 +372,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
-    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
+    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
         req.body.version = parseInt(req.body.version) + 1;
     else
         req.body.version = 0;
@@ -412,7 +412,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
-    var id_ENTITY_NAME = req.body.id;
+    var id_ENTITY_NAME = parseInt(req.body.id);
 
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (deleteObject) {
         models.MODEL_NAME.destroy({

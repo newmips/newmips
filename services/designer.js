@@ -1546,14 +1546,13 @@ exports.createNewComponentCra = function(attr, callback) {
             "entity CRA Team has many CRA Calendar Exception",
             "select entity CRA Calendar Exception",
             "add field Date with type date",
+            "add field Label",
             "add entity CRA Activity",
             "add field Name",
             "set field Name required",
             "add field Description with type text",
             "add field Client",
             "add field Active with type boolean",
-            "select entity CRA Team",
-            "add fieldset Default CRA Activity related to CRA Activity using Name",
             "add entity CRA",
             "add field Month with type number",
             "add field Year with type number",
@@ -1730,11 +1729,36 @@ exports.createWidgetLastRecords = function(attr, callback) {
             attr.entity = entity;
             attr.module = module;
 
-            structure_ui.createWidgetLastRecords(attr, function(err, info) {
+            db_field.getCodeNameByNameArray(attr.columns, function(err, columns) {
                 if (err)
                     return callback(err);
-                callback(null, info);
-            })
+
+                // Check for not found fields and build error message
+                if (attr.columns.length != columns.length) {
+                    var notFound = [];
+                    for (var k = 0; k < attr.columns.length; k++) {
+                        var kFound = false;
+                        for (var i = 0; i < columns.length; i++) {
+                            if (attr.columns[k] == columns[i].name) {
+                                kFound = true;
+                                break;
+                            }
+                        }
+                        if (!kFound)
+                            notFound.push(attr.columns[k]);
+                    }
+                    console.log(notFound);
+                    return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [notFound.join(', ')]});
+                }
+
+                attr.columns = columns;
+                structure_ui.createWidgetLastRecords(attr, function(err, info) {
+                    if (err)
+                        return callback(err);
+                    callback(null, info);
+                });
+            });
+
         });
     });
 }
@@ -1750,7 +1774,7 @@ exports.createWidgetOnEntity = function(attr, callback) {
 
 function createWidget(attr, callback) {
     if (attr.widgetType == -1)
-        return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
+        return callback(null, {message: "structure.ui.widget.unknown", messageParams: [attr.widgetInputType]});
     db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
         if (err)
             return callback(err);

@@ -60,7 +60,6 @@ exports.setupModule = function(attr, callback) {
                         if(err){
                             return callback(err, null);
                         }
-                        //console.log('File => views/default/'+name_module.toLowerCase()+'.dust ------------------ CREATED');
 
                         translateHelper.writeLocales(id_application, "module", name_module, show_name_module, attr.googleTranslate, function(){
                             // Create module's layout file
@@ -69,7 +68,6 @@ exports.setupModule = function(attr, callback) {
                                 if(err){
                                     return callback(err, null);
                                 }
-                                //console.log("File => layout_"+name_module.toLowerCase()+'.dust ------------------ CREATED');
 
                                 // Loop over module list to add new module's <option> tag in all modules <select> tags
                                 var promises = [];
@@ -94,7 +92,6 @@ exports.setupModule = function(attr, callback) {
                                                 $("#dynamic_select").append(option);
 
                                                 domHelper.write(fileName, $).then(function() {
-                                                    //console.log('File => layout_' + modules[ibis].name.toLowerCase() + '.dust ------------------ UPDATED');
                                                     resolve();
                                                 });
                                             });
@@ -127,6 +124,14 @@ exports.deleteModule = function(attr, callback) {
     var layoutsPath = __dirname + '/../workspace/'+attr.id_application+'/views/';
 
     fs.unlinkSync(layoutsPath+moduleFilename);
+
+    // Clean up access config
+    var access = require(__dirname + '/../workspace/'+attr.id_application+'/config/access.json');
+    for (var module in access) {
+        if (module == attr.module_name.toLowerCase().substring(2))
+            delete access[module];
+    }
+    fs.writeFileSync(__dirname + '/../workspace/'+attr.id_application+'/config/access.json', JSON.stringify(access, null, 4));
 
     function done(cpt, lenght){
         if(cpt == lenght){

@@ -669,45 +669,69 @@ exports.newCra = function(attr, callback){
         fs.copySync(piecesPath+'/routes/e_cra_team.js', workspacePath+'/routes/e_cra_team.js');
         fs.copySync(piecesPath+'/views/e_cra/', workspacePath+'/views/e_cra/');
         fs.copySync(piecesPath+'/views/e_cra_team/', workspacePath+'/views/e_cra_team/');
-        fs.copySync(piecesPath+'/views/layout_m_cra.dust', workspacePath+'/views/layout_m_cra.dust');
         fs.copySync(piecesPath+'/js/', workspacePath+'/public/js/Newmips/component/');
 
-        // Replace locales
-        // fr-FR
-        var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
-        var frLocales = require(piecesPath+'/locales/fr-FR.json');
-        for (var entity in frLocales)
-            workspaceFrLocales.entity[entity] = frLocales[entity];
-        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+		// Create belongsToMany relation between team and activity for default activities
+		var teamOptionsPath = workspacePath + '/models/options/e_cra_team.json';
+	    var teamOptionObj = require(teamOptionsPath);
+	    teamOptionObj.push({
+	    	"target": "e_cra_activity",
+	        "relation": "belongsToMany",
+	        "through": attr.id_application+"_cra_activity_team",
+	        "as": "r_default_cra_activity",
+	        "foreignKey": "team_id",
+	        "otherKey": "activity_id"
+	    });
+	    fs.writeFileSync(teamOptionsPath, JSON.stringify(teamOptionObj, null, 4));
 
-        // en-EN
-        var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
-        var enLocales = require(piecesPath+'/locales/en-EN.json');
-        for (var entity in enLocales)
-            workspaceEnLocales.entity[entity] = enLocales[entity];
-        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+        // Get select of module before copying pieces
+        domHelper.read(workspacePath+'/views/layout_m_cra.dust').then(function($workS) {
+        	var select = $workS("#dynamic_select").html();
+	        fs.copySync(piecesPath+'/views/layout_m_cra.dust', workspacePath+'/views/layout_m_cra.dust');
+	        domHelper.read(workspacePath+'/views/layout_m_cra.dust').then(function($newWorkS) {
+	        	// Insert select of module to copied pieces
+	        	$newWorkS("#dynamic_select").html(select);
 
-        // Update user translations
-        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
-        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+	        	domHelper.write(workspacePath+'/views/layout_m_cra.dust', $newWorkS).then(function() {
+			        // Replace locales
+			        // fr-FR
+			        var workspaceFrLocales = require(workspacePath+'/locales/fr-FR.json');
+			        var frLocales = require(piecesPath+'/locales/fr-FR.json');
+			        for (var entity in frLocales)
+			            workspaceFrLocales.entity[entity] = frLocales[entity];
+			        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
 
-        // Update module name
-        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "C.R.A");
-        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "A.R");
+			        // en-EN
+			        var workspaceEnLocales = require(workspacePath+'/locales/en-EN.json');
+			        var enLocales = require(piecesPath+'/locales/en-EN.json');
+			        for (var entity in enLocales)
+			            workspaceEnLocales.entity[entity] = enLocales[entity];
+			        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
 
-        // Remove unwanted tab from user
-        domHelper.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
-            $("#r_cra-click").parents('li').remove();
-            $("#r_cra").remove();
-            domHelper.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
-                // Check activity activate field in create field
-                domHelper.read(workspacePath+'/views/e_cra_activity/create_fields.dust').then(function($) {
-                    $("input[name='f_active']").attr("checked", "checked");
-                    domHelper.write(workspacePath+'/views/e_cra_activity/create_fields.dust', $).then(function(){
-                        callback(null, {message: 'Module C.R.A created'});
-                    });
-                });
-            });
+			        // Update user translations
+			        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
+			        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+
+			        // Update module name
+			        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "C.R.A");
+			        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "A.R");
+
+			        // Remove unwanted tab from user
+			        domHelper.read(workspacePath+'/views/e_user/show_fields.dust').then(function($) {
+			            $("#r_cra-click").parents('li').remove();
+			            $("#r_cra").remove();
+			            domHelper.write(workspacePath+'/views/e_user/show_fields.dust', $).then(function(){
+			                // Check activity activate field in create field
+			                domHelper.read(workspacePath+'/views/e_cra_activity/create_fields.dust').then(function($) {
+			                    $("input[name='f_active']").attr("checked", "checked");
+			                    domHelper.write(workspacePath+'/views/e_cra_activity/create_fields.dust', $).then(function(){
+			                        callback(null, {message: 'Module C.R.A created'});
+			                    });
+			                });
+			            });
+			        });
+	        	});
+	        });
         });
     } catch(err) {
         callback(err);
