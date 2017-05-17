@@ -104,4 +104,5 @@ else
 	echo "Sorry, we can't recognize your Operating System :("
 fi
 
+node modules_handle.js
 echo "Newmips ready to be started -> node server.js"

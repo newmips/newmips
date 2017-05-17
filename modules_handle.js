@@ -8,6 +8,9 @@ exec(cmd, {cwd: 'structure/template/'}, function(error, stdout, stderr) {
 	if (!fs.existsSync('workspace'))
 		fs.mkdirSync('workspace');
 	exec(cmd, function(error, stdout, stderr) {
-		console.log('node_modules successfuly initialized');
+		if(error)
+			console.log(error);
+		else
+			console.log('node_modules successfuly initialized');
 	});
 });
