@@ -115,7 +115,10 @@ app.use(function(req, res, next) {
     		}
 	        req.session.toastr = [];
         }
-        locals.isSlackChatEnabled = globalConf.slack_chat_enabled;
+        if (locals.isSlackChatEnabled = globalConf.slack_chat_enabled) {
+        	var slackConf = require('./config/slack');
+        	locals.slackApiToken = slackConf.SLACK_API_TOKEN;
+        }
         helper.getNbInstruction(function(totalInstruction){
         	// Get nbInstruction
             locals.cptInstruction = totalInstruction;
