@@ -69,8 +69,9 @@ html
 					userId = localStorage.getItem("dixit_id_user_slack");
 				}
 
+				var userUrlName = window.location.href.replace(/(^\w+:|^)\/\//, '');
 				var slackChatOptions = {
-					apiToken: 'xoxp-50295596435-50344094965-67235315557-8ff2c3d284', /*#Slack Auth token. Required.*/
+					apiToken: '#{slackApiToken}', /*#Slack Auth token. Required.*/
 					channelId: '',      /*#Slack channel ID. Required.*/
 					user: 'Newmips User',           /*name of the user. Required.*/
 					userLink: '',       /*link to the user in the application - shown in #Slack*/
@@ -82,7 +83,7 @@ html
 					chatBoxHeader: "Need help? Talk to our support team right here",
 					slackColor: "#36a64f",
 					messageFetchCount: 100,
-					botUser: 'Newmips user',        /*username to post to #Slack. Required.*/
+					botUser: userUrlName, /*username to post to #Slack. Required.*/
 					sendOnEnter: true,
 					disableIfAway: false,
 					elementToDisable: null,
