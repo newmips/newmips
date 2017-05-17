@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
+var holidaysApi = require('public-holidays');
+var moment = require('moment');
+
 // Datalist
 var filterDataTable = require('../utils/filterDataTable');
 
@@ -233,6 +236,37 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
     });
 });
 
+router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+    var countryLang = req.body.lang.split('-');
+    var country = countryLang[1];
+    var lang = countryLang[0];
+    var team_id = req.body.team_id;
+    var yearStart = moment().startOf('year').toDate().getTime();
+    var yearEnd = moment().endOf('year').toDate().getTime();
+
+    holidaysApi({
+        country: country,
+        lang: lang,
+        start: yearStart,
+        end: yearEnd
+    }, function(err, holidays) {
+        if (err) {
+            console.log(err);
+            return error500(err, req, res);
+        }
+
+        var bulkCreate = [];
+        for (var i = 0; i < holidays.length; i++) {
+            var date = new Date(holidays[i].start);
+            bulkCreate.push({f_date: date, f_id_cra_team: team_id, f_label: holidays[i].summary});
+        }
+
+        models.E_cra_calendar_exception.bulkCreate(bulkCreate).then(function() {
+            res.redirect('/cra_team/show?id='+team_id+'/#r_cra_calendar_exception');
+        });
+    });
+});
+
 router.get('/create_form', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
     var data = {
         menu: "e_cra_team",
@@ -276,6 +310,8 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "write"),
         f_wednesday: true,
         f_thursday: true,
         f_friday: true,
+        f_saturday: false,
+        f_sunday: false
     }).then(function(settings) {
         createObject.f_id_cra_calendar_settings = settings.id;
         models.E_cra_team.create(createObject).then(function (e_cra_team) {

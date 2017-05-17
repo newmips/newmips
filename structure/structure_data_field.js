@@ -3,6 +3,7 @@ var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
 var moment = require("moment");
+
 function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
     var dataField = nameDataField.toLowerCase();
     var dataEntity = nameDataEntity.toLowerCase();
@@ -65,7 +66,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
-    var str = "<div data-field='" + dataField + "' class='form-group'>\n";
+    var str = "<div data-field='" + dataField + "' class='col-xs-12'>\n<div class='form-group'>\n";
     str += "\t<label for='" + dataField + "'> {@__ key=\"entity." + dataEntity + "." + dataField + "\"/} </label>\n";
     // Check type of field
     switch (type) {
@@ -88,10 +89,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
-        case "code barre":
-        case "codebarre":
         case "qrcode":
-        case "barcode":
             str += "	<div class='input-group'>\n";
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-qrcode'></i>\n";
@@ -100,6 +98,31 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text' data-type='qrcode' " + readOnly + "/>\n";
             else
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text'" + readOnly + "/>\n";
+            str += "	</div>\n";
+            break;
+        case "ean8":
+        case "ean13":
+        case "upc":
+        case "code39":
+        case "alpha39":
+        case "code128":
+//        case "codecip":
+//        case "cip":
+//        case "isbn":
+//        case "issn":
+//        case "hr":
+//        case "codehr":
+            var inputType = 'number';
+            if (type === "code39" || type === "alpha39" || type === "code128")
+                inputType = 'text';
+            str += "	<div class='input-group'>\n";
+            str += "		<div class='input-group-addon'>\n";
+            str += "			<i class='fa fa-barcode'></i>\n";
+            str += "		</div>\n";
+            if (file == "show")
+                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
+            else
+                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode'  type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "euro":
@@ -115,7 +138,16 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "url" :
         case "lien" :
         case "link" :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
+            if (file == 'show')
+                str += "    <br><a href='"+value+"' target='_blank' type='url' data-type='url'>"+value+"</a>\n";
+            else{
+                str += "    <div class='input-group'>\n";
+                str += "        <div class='input-group-addon'>\n";
+                str += "            <i class='fa fa-link'></i>\n";
+                str += "        </div>\n";
+                str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
+                str += "    </div>\n";
+            }
             break;
         case "password" :
         case "mot de passe":
@@ -319,7 +351,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
             } else {
                 str += "	<div class='input-group'>\n";
-                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-small' data-type='image' alt=" + value + " name=" + dataField + "  " + readOnly + " height=200 width=200/></a>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height=200 width=200/></a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -328,11 +360,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "	<input class='form-control inputt' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
     }
 
-    str += "</div>";
+    str += "</div>\n</div>\n";
     return str;
 }
 
@@ -553,6 +585,22 @@ exports.setupDataField = function (attr, callback) {
             typeForDatalist = "picture";
             type_data_field = 'picture';
             break;
+        case "ean8":
+        case "ean13":
+        case "upca":
+        case "codecip":
+        case "cip":
+        case "isbn":
+        case "issn":
+            typeForModel = "STRING";
+            typeForDatalist = "barcode";
+            break;
+        case "code39":
+        case "alpha39":
+        case "code128":
+            typeForModel = "TEXT";
+            typeForDatalist = "barcode";
+            break;
         case "cloudfile" :
             typeForModel = "STRING";
             break;
@@ -654,7 +702,6 @@ exports.setRequiredAttribute = function (attr, callback) {
 
     // Update create_fields.dust file
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
-
         if ($("*[data-field='" + attr.options.value + "']").length > 0) {
             if (set)
                 $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
@@ -673,21 +720,30 @@ exports.setRequiredAttribute = function (attr, callback) {
                     else
                         $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
+                    $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
+
                     domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
 
                         // Update the Sequelize attributes.json to set allowNull
                         var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.name_data_entity.toLowerCase() + ".json";
-                        var attributesContent = fs.readFileSync(pathToAttributesJson);
-                        var attributesObj = JSON.parse(attributesContent);
+                        var attributesObj = require(pathToAttributesJson);
 
-                        attributesObj[attr.options.value].allowNull = set ? false : true;
-                        fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
-
+                        if (attributesObj[attr.options.value]) {
+                            attributesObj[attr.options.value].allowNull = set ? false : true;
+                            fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+                        }
                         callback();
                     });
                 });
+            }).catch(function(e) {
+                console.log(e);
+                var err = new Error();
+                err.message = "structure.field.attributes.fieldNoFound";
+                err.messageParams = [attr.options.showValue];
+                callback(err, null);
             });
         } else {
+            console.log('Dans le else');
             var err = new Error();
             err.message = "structure.field.attributes.fieldNoFound";
             err.messageParams = [attr.options.showValue];
@@ -861,8 +917,7 @@ exports.setupRelatedToField = function (attr, callback) {
         }
     }
 
-    select += "<div data-field='f_" + urlAs + "' class='form-group'>\n";
-    /*select += '<!--{^associationFlag}-->';*/
+    select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '		<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '		<select style="width:100%;" class="form-control" name="' + alias + '">\n';
     select += '			<!--{#' + alias + '}-->\n';
@@ -873,8 +928,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += '				<!--{/.' + usingField + '}-->\n';
     select += '			<!--{/' + alias + '}-->\n';
     select += '		</select>\n';
-    /*select += '<!--{/associationFlag}-->';*/
-    select += '</div>\n';
+    select += '</div>\n</div>\n';
 
     // Update create_fields file
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
@@ -882,7 +936,7 @@ exports.setupRelatedToField = function (attr, callback) {
     updateFile(fileBase, file, select, function () {
 
         // Setup association field for update_fields
-        select = "<div data-field='f_" + urlAs + "' class='form-group'>\n";
+        select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
         select += '		<!--{#' + alias + '_global_list}-->\n';
@@ -901,7 +955,7 @@ exports.setupRelatedToField = function (attr, callback) {
         select += '			<!--{/.' + usingField + '}-->\n';
         select += '		<!--{/' + alias + '_global_list}-->\n';
         select += '</select>\n';
-        select += '</div>\n';
+        select += '</div>\n</div>\n';
         file = 'update_fields';
 
         // Update update_fields file
@@ -917,10 +971,10 @@ exports.setupRelatedToField = function (attr, callback) {
 
                 // Add read only field in show file. No tab required
                 var str = "";
-                str = "<div data-field='" + alias + "' class='form-group'>\n";
+                str = "<div data-field='" + alias + "' class='col-xs-12'>\n<div class='form-group'>\n";
                 str += "\t<label for='" + alias + "'> {@__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='{" + alias + "." + usingField + "}' type='text' readOnly />\n";
-                str += "</div>";
+                str += "</div>\n</div>\n";
                 $("#fields").append(str);
 
                 domHelper.write(file, $).then(function () {
@@ -1024,7 +1078,7 @@ exports.setupHasOneTab = function (attr, callback) {
             newTab += '			<a style="margin-right:8px;" href="/' + urlTarget + '/update_form?id={id}&associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-warning">\n';
             newTab += '				<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>\n';
             newTab += '			</a>\n';
-            newTab += '			<button onclick="return confirm("Etes-vous sûr de vouloir supprimer cet enregistrement ?");" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
+            newTab += '			<button onclick=\'return confirm("Etes-vous sûr de vouloir supprimer cet enregistrement ?")\' class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
             newTab += '				<span>{@__ key="button.delete" /}</span>\n';
             newTab += '				<input name="id" value="{id}" type="hidden"/>\n';
             newTab += '				<input name="associationAlias" value="' + alias + '" type="hidden"/>\n';
@@ -1268,9 +1322,9 @@ exports.deleteTab = function (attr, callback) {
         var showFile = __dirname + '/../workspace/' + attr.id_application + '/views/' + name_data_entity + '/show_fields.dust';
         domHelper.read(showFile).then(function ($) {
             // Remove tab (<li>)
-            $("#" + "r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
+            $("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
             // Remove tab content
-            $("#" + "r_" + tabNameWithoutPrefix).remove();
+            $("#r_" + tabNameWithoutPrefix).remove();
 
             domHelper.write(showFile, $).then(function () {
                 callback(null, option.foreignKey, target);

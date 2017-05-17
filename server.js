@@ -107,9 +107,15 @@ app.use(function(req, res, next) {
     	if(typeof locals === "undefined")
     		locals = {};
     	if (req.session.toastr && req.session.toastr.length > 0) {
-	        locals.toastr = req.session.toastr;
+    		locals.toastr = [];
+    		for (var i = 0; i < req.session.toastr.length; i++) {
+    			var toast = req.session.toastr[i];
+    			var traductedToast = {message: language(req.session.lang_user).__(toast.message), level: toast.level};
+    			locals.toastr.push(traductedToast);
+    		}
 	        req.session.toastr = [];
         }
+        locals.isSlackChatEnabled = globalConf.slack_chat_enabled;
         helper.getNbInstruction(function(totalInstruction){
         	// Get nbInstruction
             locals.cptInstruction = totalInstruction;
@@ -133,6 +139,7 @@ app.use('/users', require('./routes/users'));
 app.use('/instruction_script', require('./routes/instruction_script'));
 app.use('/import', require('./routes/import'));
 app.use('/editor', require('./routes/editor'));
+app.use('/ui_editor', require('./routes/ui_editor'));
 
 // Handle 404
 app.use(function(req, res) {

@@ -51,7 +51,9 @@
         "plural_entity": "Exceptions",
         "id_entity": "ID",
         "as_r_cra_calendar_exception": "Exception",
-        "f_date": "Date"
+        "f_date": "Date",
+        "f_label": "Label",
+        "generate_holidays": "Generate holidays exceptions"
     },
     "e_cra_activity": {
         "label_entity": "Activity",

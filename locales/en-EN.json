@@ -29,6 +29,7 @@
         "module": "Module",
         "application": "Application",
         "editor": "Editor",
+        "ui_editor": "Designer",
         "live": "Live",
         "instruction": "Instruction",
         "import": "Import",
@@ -87,6 +88,10 @@
         "intro2": "You can select a file on the sidebar on your left ;)",
         "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
     },
+    "ui_editor": {
+        "page_not_found": "Couldn't find corresponding file",
+        "page_saved": "Your new design have been saved"
+    },
     "instructionScript": {
         "legend": "Execute a Newmips script",
         "redirecting": "Redirecting..."
@@ -111,7 +116,9 @@
     "preview":{
         "title": "Preview",
         "reload": "Restart server",
-        "issue-button": "Report an issue"
+        "issue-button": "Report an issue",
+        "help-button": "Need help ?",
+        "help-disabled": "Slack chat is disabled. Activate it in config/global.js and provide slack information in config/slack.js"
     },
     "project":{
         "label": "Project",
@@ -123,7 +130,8 @@
         "label": "Application",
         "create": "Create a new application",
         "selectExisting": "Select an existing application",
-        "plural": "Applications"
+        "plural": "Applications",
+        "not_started": "There is no application running. Select one in the list."
     },
     "module": {
         "label": "Module"
@@ -332,7 +340,8 @@
                 "unknown": "Unknown widget %s",
                 "success": "Widget %s added to module %s",
                 "delete": "Widget %s successfully deleted",
-                "all_deleted": "All widget of %s have been removed"
+                "all_deleted": "All widget of %s have been removed",
+                "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s"
             }
         }
     }

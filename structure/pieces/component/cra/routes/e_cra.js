@@ -337,6 +337,57 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
     });
 });
 
+router.get('/admin/getCra', block_access.actionAccessMiddleware("cra", 'read'), function(req, res) {
+    var data = {
+        menu: "e_cra",
+        sub_menu: "list_e_cra"
+    };
+
+    var id_cra = req.query.id;
+    models.E_cra.findOne({
+        where: {id: id_cra},
+        include: [{
+            model: models.E_cra_task,
+            as: 'r_cra_task',
+            include: [{
+                model: models.E_cra_activity,
+                as: 'r_cra_activity'
+            }]
+        }]
+    }).then(function(cra) {
+        if (!cra)
+            data.craExists = false;
+        else {
+            data.craExists = true;
+            data.cra = cra;
+        }
+        models.E_cra_activity.findAll().then(function(activities) {
+            data.activities = activities;
+            models.E_cra_team.findOne({
+                include: [{
+                    model: models.E_user,
+                    as: 'r_users',
+                    where: {id: cra.f_id_user}
+                }, {
+                    model: models.E_cra_calendar_settings,
+                    as: 'r_cra_calendar_settings'
+                }, {
+                    model: models.E_cra_calendar_exception,
+                    as: 'r_cra_calendar_exception'
+                }, {
+                    model: models.E_cra_activity,
+                    as: 'r_default_cra_activity'
+                }]
+            }).then(function(team) {
+                if (!team)
+                    return res.status(500).send("You need to be in a team");
+                data.team = team;
+                res.status(200).json(data);
+            })
+        });
+    });
+});
+
 router.get('/declare', block_access.actionAccessMiddleware("cra", 'read'), function(req, res) {
     var data = {
         menu: "e_cra",
@@ -659,7 +710,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         }]
     }).then(function(user) {
         var cra = user.r_cra[0];
-        var workedDays = cra.r_cra_task.length;
+        var workedDays = 0.;
         var activitiesById = [];
         // Organize array with activity > tasks instead of tasks > activity
         for (var i = 0; i < cra.r_cra_task.length; i++) {
@@ -680,6 +731,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         for (var acti in activitiesById) {
             var i = 0;
             activitiesById[acti].filledTasks = [];
+            activitiesById[acti].rowTotal = 0;
             while (i++ < totalDays) {
                 var tmp = new Date(cra.f_year, cra.f_month-1, i);
                 if (daysAndLabels.length < totalDays)
@@ -691,6 +743,9 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                 for (var j = 0; j < activitiesById[acti].filledTasks.length; j++) {
                     var filledTask = activitiesById[acti].filledTasks[j];
                     if (origiTask.f_date.getDate() == filledTask.f_date.getDate()) {
+                        var duration = origiTask.f_duration.replace(/,/, '.');
+                        workedDays += parseFloat(duration);
+                        activitiesById[acti].rowTotal += parseFloat(duration);
                         activitiesById[acti].filledTasks[j].f_duration = origiTask.f_duration;
                     }
                 }
@@ -719,13 +774,15 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                     return error500(err, req, res);
 
                 var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
+                var myfileName = "CRA_"+user.f_login+"_"+cra.f_year+'_'+cra.f_month+'.pdf';
+
                 pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
                     if (err)
                         return error500(err, req, res);
                     fs.readFile(fileName, function(err, data) {
                         if (err)
                             return error500(err, req, res);
-                        res.writeHead(200, {"Content-Type": "application/pdf"});
+                        res.writeHead(200, {'Content-disposition': 'attachment; filename='+myfileName, "Content-Type": "application/pdf"});
                         res.write(data);
                         res.end();
 
@@ -929,7 +986,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), 
 router.post('/update', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
     var id_e_cra = parseInt(req.body.id);
 
-    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
+    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
         req.body.version = parseInt(req.body.version) + 1;
     else
         req.body.version = 0;

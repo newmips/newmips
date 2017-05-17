@@ -1,23 +1,27 @@
-<div id="fields">
-    <div data-field="f_login" class="form-group">
-        <label class="required" for="f_login">
-            {@__ key="entity.e_user.f_login"/}
-        </label>
-        <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text" required>
+<div id="fields" class="row">
+    <div class="col-xs-12" data-field="f_login">
+        <div class="form-group">
+            <label class="required" for="f_login">
+                {@__ key="entity.e_user.f_login"/}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text" required>
+        </div>
     </div>
-    <div data-field="f_email" class="form-group">
-        <label for="f_email">
-            {@__ key="entity.e_user.f_email"/}
-        </label>
-        <div class="input-group">
-            <div class="input-group-addon"> <i class="fa fa-envelope"></i>
-
+    <div class="col-xs-12" data-field="f_email">
+        <div class="form-group">
+            <label for="f_email">
+                {@__ key="entity.e_user.f_email"/}
+            </label>
+            <div class="input-group">
+                <div class="input-group-addon"> <i class="fa fa-envelope"></i>
+                </div>
+                <input class="form-control input" placeholder='{@__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email">
             </div>
-            <input class="form-control input" placeholder='{@__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email">
         </div>
     </div>
     {^isSettings}
-        <div data-field="r_role" class="form-group">
+    <div class="col-xs-12" data-field="r_role">
+        <div class="form-group">
             <label class="required" for="r_role">
                 {@__ key="entity.e_user.r_role" /}
             </label>
@@ -39,7 +43,9 @@
                 {/r_role_global_list}
             </select>
         </div>
-        <div data-field="r_group" class="form-group">
+    </div>
+    <div class="col-xs-12" data-field="r_group">
+        <div class="form-group">
             <label class="required" for="r_group">{@__ key="entity.e_user.r_group" /}</label>
             <select class="form-control" name="r_group" required>
                 {#r_group_global_list}
@@ -59,5 +65,6 @@
                 {/r_group_global_list}
             </select>
         </div>
+    </div>
     {/isSettings}
 </div>

@@ -784,10 +784,12 @@ exports.createWidgetLastRecordsWithLimit = function(result) {
         widgetInputType: 'last records'
     }
 
+    // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
         attr.columns = result[2].split(',');
     }
+    // Defined target entity
     else if (result.length == 4) {
         attr.entityTarget = result[1];
         attr.limit = result[2];
@@ -809,8 +811,10 @@ exports.createWidgetLastRecords = function(result) {
         limit: 10
     }
 
+    // Current entity as target
     if (result.length == 2)
         attr.columns = result[1].split(',');
+    // Defined target entity
     else if (result.length == 3) {
         attr.entityTarget = result[1];
         attr.columns = result[2].split(',');
@@ -884,7 +888,7 @@ exports.parse = function(instruction) {
         "deploy": [
             "deploy",
             "déployer",
-            "déploiment"
+            "déploiement"
         ],
         "restart": [
             "restart server",
@@ -901,6 +905,7 @@ exports.parse = function(instruction) {
             "save the application",
             "sauvegarder",
             "sauvegarder l'application",
+            "sauvegarder application",
             "git push"
         ],
         "gitPull": [
@@ -908,7 +913,8 @@ exports.parse = function(instruction) {
             "reload",
             "pull",
             "git pull",
-            "fetch"
+            "fetch",
+            "recharger"
         ],
         "selectProject": [
             "select project (.*)",
@@ -951,12 +957,14 @@ exports.parse = function(instruction) {
         "setColumnHidden": [
             "hide column (.*)",
             "hide the column (.*)",
-            "cacher la colonne (.*)"
+            "cacher la colonne (.*)",
+            "cacher colonne (.*)"
         ],
         "setColumnVisible": [
             "show column (.*)",
             "show the column (.*)",
-            "afficher la colonne (.*)"
+            "afficher la colonne (.*)",
+            "afficher colonne (.*)"
         ],
         "createNewProject": [
             "create project (.*)",
@@ -981,8 +989,10 @@ exports.parse = function(instruction) {
             "add module (.*)",
             "créer module (.*)",
             "créer un module (.*)",
+            "créer le module (.*)",
             "ajouter module (.*)",
-            "ajouter un module (.*)"
+            "ajouter un module (.*)",
+            "ajouter le module (.*)"
         ],
         "createNewDataEntity": [
             "create entity (.*)",
@@ -991,6 +1001,7 @@ exports.parse = function(instruction) {
             "add data entity (.*)",
             "créer entité (.*)",
             "créer une entité (.*)",
+            "créer l'entité (.*)",
             "ajouter entité (.*)",
             "ajouter une entité (.*)",
             "ajouter l'entité (.*)"
@@ -1019,6 +1030,7 @@ exports.parse = function(instruction) {
             "add data field (.*) with type enum and values (.*) with default value (.*)",
             "créer champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
             "créer un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)"
@@ -1030,6 +1042,7 @@ exports.parse = function(instruction) {
             "add data field (.*) with type radio and values (.*)",
             "créer champ (.*) de type radio avec les valeurs (.*)",
             "créer un champ (.*) de type radio avec les valeurs (.*)",
+            "créer le champ (.*) de type radio avec les valeurs (.*)",
             "ajouter champ (.*) de type radio avec les valeurs (.*)",
             "ajouter un champ (.*) de type radio avec les valeurs (.*)",
             "ajouter le champ (.*) de type radio avec les valeurs (.*)",
@@ -1047,6 +1060,7 @@ exports.parse = function(instruction) {
             "add data field (.*) with type radio and values (.*) and default value (.*)",
             "créer champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
             "créer un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer le champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter le champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)"
@@ -1067,6 +1081,7 @@ exports.parse = function(instruction) {
             "add data field (.*) with type (.*) and default value (.*)",
             "créer champ (.*) de type (.*) avec la valeur par défaut (.*)",
             "créer un champ (.*) de type (.*) avec la valeur par défaut (.*)",
+            "créer le champ (.*) de type (.*) avec la valeur par défaut (.*)",
             "ajouter champ (.*) de type (.*) avec la valeur par défaut (.*)",
             "ajouter un champ (.*) de type (.*) avec la valeur par défaut (.*)",
             "ajouter le champ (.*) de type (.*) avec la valeur par défaut (.*)"
@@ -1078,6 +1093,7 @@ exports.parse = function(instruction) {
             "add data field (.*)",
             "créer champ (.*)",
             "créer un champ (.*)",
+            "créer le champ (.*)",
             "ajouter champ (.*)",
             "ajouter un champ (.*)",
             "ajouter le champ (.*)",
@@ -1091,6 +1107,7 @@ exports.parse = function(instruction) {
             "add data field (.*) with default value (.*)",
             "créer champ (.*) avec la valeur par défaut (.*)",
             "créer un champ (.*) avec la valeur par défaut (.*)",
+            "créer le champ (.*) avec la valeur par défaut (.*)",
             "ajouter champ (.*) avec la valeur par défaut (.*)",
             "ajouter un champ (.*) avec la valeur par défaut (.*)",
             "ajouter le champ (.*) avec la valeur par défaut (.*)"
@@ -1190,23 +1207,27 @@ exports.parse = function(instruction) {
             "lister les skin",
             "lister skin",
             "lister skins",
-            "lister les couleurs",
-            "lister colorations",
-            "lister les colorations"
+            "lister les couleurs"
         ],
         "relationshipHasOne": [
             "entity (.*) has one (.*)",
             "entité (.*) possède un (.*)",
             "entité (.*) possède une (.*)",
+            "entité (.*) possède (.*)",
             "entité (.*) a un (.*)",
-            "entité (.*) a une (.*)"
+            "entité (.*) a une (.*)",
+            "entité (.*) a (.*)"
         ],
         "relationshipHasOneWithName": [
             "entity (.*) has one (.*) called (.*)",
             "entité (.*) possède un (.*) appelé (.*)",
             "entité (.*) possède une (.*) appelée (.*)",
+            "entité (.*) possède (.*) appelé (.*)",
+            "entité (.*) possède (.*) appelée (.*)",
             "entité (.*) a un (.*) appelé (.*)",
-            "entité (.*) a une (.*) appelée (.*)"
+            "entité (.*) a une (.*) appelée (.*)",
+            "entité (.*) a (.*) appelé (.*)",
+            "entité (.*) a (.*) appelée (.*)"
         ],
         "createFieldRelatedTo": [
             "create field (.*) related to (.*)",
@@ -1214,7 +1235,9 @@ exports.parse = function(instruction) {
             "create data field (.*) related to (.*)",
             "add data field (.*) related to (.*)",
             "créer un champ (.*) relié à (.*)",
-            "ajouter un champ (.*) relié à (.*)"
+            "ajouter un champ (.*) relié à (.*)",
+            "créer champ (.*) relié à (.*)",
+            "ajouter champ (.*) relié à (.*)"
         ],
         "createFieldRelatedToUsing": [
             "create field (.*) related to (.*) using (.*)",
@@ -1222,9 +1245,13 @@ exports.parse = function(instruction) {
             "create data field (.*) related to (.*) using (.*)",
             "add data field (.*) related to (.*) using (.*)",
             "créer un champ (.*) relié à (.*) en utilisant (.*)",
+            "créer champ (.*) relié à (.*) en utilisant (.*)",
             "créer un champ (.*) relié à (.*) en affichant (.*)",
+            "créer champ (.*) relié à (.*) en affichant (.*)",
             "ajouter un champ (.*) relié à (.*) en utilisant (.*)",
-            "ajouter un champ (.*) relié à (.*) en affichant (.*)"
+            "ajouter un champ (.*) relié à (.*) en affichant (.*)",
+            "ajouter champ (.*) relié à (.*) en utilisant (.*)",
+            "ajouter champ (.*) relié à (.*) en affichant (.*)"
         ],
         "relationshipHasMany": [
             "entity (.*) has many (.*)",
@@ -1234,7 +1261,11 @@ exports.parse = function(instruction) {
         "relationshipHasManyWithName": [
             "entity (.*) has many (.*) called (.*)",
             "entité (.*) possède plusieurs (.*) appelés (.*)",
-            "entité (.*) a plusieurs (.*) appelés (.*)"
+            "entité (.*) a plusieurs (.*) appelés (.*)",
+            "entité (.*) possède plusieurs (.*) appelées (.*)",
+            "entité (.*) a plusieurs (.*) appelées (.*)",
+            "entité (.*) possède plusieurs (.*) appelé (.*)",
+            "entité (.*) a plusieurs (.*) appelé (.*)"
         ],
         "relationshipHasManyPreset": [
             "entity (.*) has many preset (.*)",
@@ -1269,18 +1300,30 @@ exports.parse = function(instruction) {
         "createFieldset": [
             "create fieldset (.*) related to (.*)",
             "add fieldset (.*) related to (.*)",
-            "créer une liste de (.*) reliée à (.*)",
+            "create list of (.*) related to (.*)",
+            "add list of (.*) related to (.*)",
+            "créer une liste de (.*) lié à (.*)",
             "créer une liste de (.*) liée à (.*)",
-            "ajouter une liste de (.*) reliée à (.*)",
-            "ajouter une liste de (.*) liée à (.*)"
+            "créer liste de (.*) liée à (.*)",
+            "créer liste de (.*) lié à (.*)",
+            "ajouter une liste de (.*) lié à (.*)",
+            "ajouter une liste de (.*) liée à (.*)",
+            "ajouter liste de (.*) liée à (.*)",
+            "ajouter liste de (.*) lié à (.*)",
         ],
         "createFieldsetUsing": [
             "create fieldset (.*) related to (.*) using (.*)",
             "add fieldset (.*) related to (.*) using (.*)",
-            "créer une liste de (.*) reliée à (.*) en affichant (.*)",
+            "create list of (.*) related to (.*) using (.*)",
+            "add list of (.*) related to (.*) using (.*)",
+            "créer une liste de (.*) lié à (.*) en affichant (.*)",
             "créer une liste de (.*) liée à (.*) en affichant (.*)",
-            "ajouter une liste de (.*) reliée à (.*) en affichant (.*)",
-            "ajouter une liste de (.*) liée à (.*) en affichant (.*)"
+            "créer liste de (.*) lié à (.*) en affichant (.*)",
+            "créer liste de (.*) liée à (.*) en affichant (.*)",
+            "ajouter une liste de (.*) lié à (.*) en affichant (.*)",
+            "ajouter une liste de (.*) liée à (.*) en affichant (.*)",
+            "ajouter liste de (.*) lié à (.*) en affichant (.*)",
+            "ajouter liste de (.*) liée à (.*) en affichant (.*)"
         ],
         "createNewComponentLocalFileStorageWithName": [
             "create component local file storage with name (.*)",
@@ -1291,13 +1334,28 @@ exports.parse = function(instruction) {
             "ajouter composant localfilestorage appelé (.*)",
             "créer un composant localfilestorage appelé (.*)",
             "ajouter un composant localfilestorage appelé (.*)",
+            "créer le composant localfilestorage appelé (.*)",
+            "ajouter le composant localfilestorage appelé (.*)",
             "créer composant de stockage de fichier appelé (.*)",
             "ajouter composant de stockage de fichier appelé (.*)",
+            "créer uncomposant de stockage de fichier appelé (.*)",
+            "ajouter un composant de stockage de fichier appelé (.*)",
+            "créer le composant de stockage de fichier appelé (.*)",
+            "ajouter le composant de stockage de fichier appelé (.*)",
             "créer composant de stockage appelé (.*)",
             "ajouter composant de stockage appelé (.*)",
-            "ajouter le composant de stockage de fichier appelé (.*)",
+            "créer un composant de stockage appelé (.*)",
+            "ajouter un composant de stockage appelé (.*)",
+            "créer le composant de stockage appelé (.*)",
             "ajouter le composant de stockage appelé (.*)",
-            "ajouter le composant localfilestorage appelé (.*)"
+            "ajouter composant stockage fichier appelé (.*)",
+            "ajouter composant de stockage appelé (.*)",
+            "ajouter composant de stockage de fichier appelé (.*)",
+            "ajouter un composant stockage fichier appelé (.*)",
+            "ajouter un composant de stockage appelé (.*)",
+            "ajouter un composant de stockage de fichier appelé (.*)",
+            "ajouter le composant de stockage de fichier appelé (.*)",
+            "ajouter le composant de stockage appelé (.*)"
         ],
         "createNewComponentLocalFileStorage": [
             "create component local file storage",
@@ -1308,21 +1366,48 @@ exports.parse = function(instruction) {
             "ajouter composant localfilestorage",
             "créer un composant localfilestorage",
             "ajouter un composant localfilestorage",
+            "créer le composant localfilestorage",
+            "ajouter le composant localfilestorage",
             "créer composant de stockage de fichier local",
             "ajouter composant de stockage de fichier local",
+            "créer un composant de stockage de fichier local",
+            "ajouter un composant de stockage de fichier local",
+            "créer le composant de stockage de fichier local",
+            "ajouter le composant de stockage de fichier local",
+            "créer composant de stockage de fichier",
+            "ajouter composant de stockage de fichier",
+            "créer un composant de stockage de fichier",
+            "ajouter un composant de stockage de fichier",
+            "créer le composant de stockage de fichier",
+            "ajouter le composant de stockage de fichier",
             "créer composant de stockage local",
             "ajouter composant de stockage local",
-            "ajouter un stockage de documents"
+            "créer un composant de stockage local",
+            "ajouter un composant de stockage local",
+            "créer le composant de stockage local",
+            "ajouter le composant de stockage local",
+            "ajouter un stockage de documents",
+            "créer un stockage de documents",
+            "ajouter stockage de documents",
+            "créer stockage de documents"
         ],
         "createNewComponentContactFormWithName": [
             "create component contactform with name (.*)",
             "create component contact form with name (.*)",
             "add component contactform with name (.*)",
             "add component contact form with name (.*)",
-            "créer un composant formulaire de contact nommé (.*)",
-            "ajouter un composant formulaire de contact nommé (.*)",
-            "créer un formulaire de contact nommé (.*)",
-            "ajouter un formulaire de contact nommé (.*)"
+            "créer un composant formulaire de contact appelé (.*)",
+            "ajouter un composant formulaire de contact appelé (.*)",
+            "créer composant formulaire de contact appelé (.*)",
+            "ajouter composant formulaire de contact appelé (.*)",
+            "créer le composant formulaire de contact appelé (.*)",
+            "ajouter le composant formulaire de contact appelé (.*)",
+            "créer un formulaire de contact appelé (.*)",
+            "ajouter un formulaire de contact appelé (.*)",
+            "créer le formulaire de contact appelé (.*)",
+            "ajouter le formulaire de contact appelé (.*)",
+            "créer formulaire de contact appelé (.*)",
+            "ajouter formulaire de contact appelé (.*)"
         ],
         "createNewComponentContactForm": [
             "create component contactform",
@@ -1333,6 +1418,10 @@ exports.parse = function(instruction) {
             "ajouter un composant formulaire de contact",
             "créer un formulaire de contact",
             "ajouter un formulaire de contact",
+            "créer composant formulaire de contact",
+            "ajouter composant formulaire de contact",
+            "créer formulaire de contact",
+            "ajouter formulaire de contact"
         ],
         "createNewComponentAgenda": [
             "create component agenda",
@@ -1343,6 +1432,14 @@ exports.parse = function(instruction) {
             "ajouter un composant agenda",
             "créer un agenda",
             "ajouter un agenda",
+            "créer le composant agenda",
+            "ajouter le composant agenda",
+            "créer l'agenda",
+            "ajouter l'agenda",
+            "créer composant agenda",
+            "ajouter composant agenda",
+            "créer agenda",
+            "ajouter agenda",
             "create component timeline",
             "add component timeline",
             "add an timeline",
@@ -1356,14 +1453,18 @@ exports.parse = function(instruction) {
             "create component agenda with name (.*)",
             "add component agenda with name (.*)",
             "add agenda with name (.*)",
-            "créer un composant agenda nommé (.*)",
-            "ajouter un composant agenda nommé (.*)",
-            "créer un agenda nommé (.*)",
-            "ajouter un agenda nommé (.*)",
-            "créer un agenda avec le nom (.*)",
-            "ajouter un agenda avec le nom (.*)",
+            "créer un composant agenda appelé (.*)",
+            "ajouter un composant agenda appelé (.*)",
+            "créer le composant agenda appelé (.*)",
+            "ajouter le composant agenda appelé (.*)",
+            "créer composant agenda appelé (.*)",
+            "ajouter composant agenda appelé (.*)",
             "créer un agenda appelé (.*)",
             "ajouter un agenda appelé (.*)",
+            "créer l'agenda appelé (.*)",
+            "ajouter l'agenda appelé (.*)",
+            "créer agenda appelé (.*)",
+            "ajouter agenda appelé (.*)",
             "create component timeline with name (.*)",
             "add component timeline with name (.*)",
             "add timeline with name (.*)",
@@ -1385,14 +1486,16 @@ exports.parse = function(instruction) {
             "ajouter un composant cra",
             "créer composant cra",
             "ajouter composant cra",
-            "créer un composant rapport d'activité",
-            "ajouter un composant rapport d'activité",
+            "créer le composant cra",
+            "ajouter le composant cra",
             "créer un composant compte-rendu d'activité",
             "ajouter un composant compte-rendu d'activité",
-            "créer composant rapport d'activité",
-            "ajouter composant rapport d'activité",
             "créer composant compte-rendu d'activité",
-            "ajouter composant compte-rendu d'activité"
+            "ajouter composant compte-rendu d'activité",
+            "créer un composant compte-rendu d'activités",
+            "ajouter un composant compte-rendu d'activités",
+            "créer composant compte-rendu d'activités",
+            "ajouter composant compte-rendu d'activités"
         ],
         "createNewComponentPrint": [
             "create component print",
@@ -1413,9 +1516,7 @@ exports.parse = function(instruction) {
             "set colour (.*)",
             "appliquer le style (.*)",
             "appliquer la couleur (.*)",
-            "mettre la couleur (.*)",
-            "appliquer la coloration (.*)",
-            "mettre la coloration (.*)"
+            "mettre la couleur (.*)"
         ],
         "listIcon" : [
             "list icon",
@@ -1434,9 +1535,15 @@ exports.parse = function(instruction) {
             "set icon (.*) to (.*)",
             "mettre l'icône (.*) sur l'entité (.*)",
             "mettre l'icone (.*) sur l'entité (.*)",
+            "mettre l'icône (.*) sur (.*)",
+            "mettre l'icone (.*) sur (.*)",
             "mettre l'icone (.*) a l'entité (.*)",
             "mettre l'icône (.*) à l'entité (.*)",
             "mettre l'icône (.*) à (.*)",
+            "mettre une icône (.*) à (.*)",
+            "mettre une icône (.*) sur (.*)",
+            "mettre icône (.*) à (.*)",
+            "mettre icône (.*) sur (.*)",
             "mettre l'icône (.*) sur (.*)",
             "mettre l'icone (.*) à (.*)",
             "mettre l'icone (.*) sur (.*)"
@@ -1444,7 +1551,11 @@ exports.parse = function(instruction) {
         "setIcon": [
             "set icon (.*)",
             "mettre l'icône (.*)",
-            "mettre l'icone (.*)"
+            "mettre l'icone (.*)",
+            "mettre icône (.*)",
+            "mettre icone (.*)",
+            "mettre une icône (.*)",
+            "mettre une icone (.*)"
         ],
         "createWidgetLastRecordsWithLimit": [
             "add widget last records limited to (.*) records with columns (.*)",
@@ -1458,8 +1569,12 @@ exports.parse = function(instruction) {
             "add widget last records on entity (.*) with columns (.*)",
             "ajouter un widget derniers enregistrements avec les colonnes (.*)",
             "ajouter un widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)",
+            "ajouter widget derniers enregistrements avec les colonnes (.*)",
+            "ajouter widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)",
             "créer un widget derniers enregistrements avec les colonnes (.*)",
-            "créer un widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)"
+            "créer un widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)",
+            "créer widget derniers enregistrements avec les colonnes (.*)",
+            "créer widget derniers enregistrements sur l'entité (.*) avec les colonnes (.*)"
         ],
         "createWidgetOnEntity": [
             "créer une (.*) sur l'entité (.*)",
@@ -1481,13 +1596,20 @@ exports.parse = function(instruction) {
             "delete widget (.*) of entity (.*)",
             "delete widget (.*) for entity (.*)",
             "delete widget (.*) of (.*)",
-            "delete widget (.*) for (.*)"
+            "delete widget (.*) for (.*)",
+            "supprimer widget (.*) de (.*)",
+            "supprimer le widget (.*) de (.*)",
+            "supprimer le widget (.*) de l'entité (.*)"
         ],
         "deleteEntityWidgets": [
             "delete widgets of (.*)",
             "delete widgets of entity (.*)",
             "delete all widgets of entity (.*)",
-            "delete all widgets of (.*)"
+            "delete all widgets of (.*)",
+            "supprimer les widgets de (.*)",
+            "supprimer tous les widgets de (.*)",
+            "supprimer les widgets de l'entité (.*)",
+            "supprimer tous les widgets de l'entité (.*)"
         ]
     };
 

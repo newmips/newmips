@@ -17,6 +17,11 @@
 				padding: 5px;
 				width: 97%;
 				margin: auto;
+				border-collapse:collapse;
+			}
+			td {
+				border-top: 1px solid grey;
+				border-left: 1px solid grey;
 			}
 			.dayLetter{
 				font-size: 8px;
@@ -63,6 +68,7 @@
 					{#daysAndLabels}
 						<th class="daysTh"><span class="dayLetter">{f_day}</span><br>{f_date}</th>
 					{/daysAndLabels}
+					<th>Total</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -72,6 +78,7 @@
 						{#filledTasks}
 							<td class="task">{f_duration}</td>
 						{/filledTasks}
+						<td>{rowTotal}</td>
 					</tr>
 				{/activities}
 			</tbody>

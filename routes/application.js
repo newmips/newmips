@@ -36,19 +36,36 @@ var gitHelper = require('../utils/git_helper');
 var models = require('../models/');
 
 // Exclude from Editor
-var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload"];
+var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload", ".git"];
 
 // ====================================================
 // Redirection application =====================
 // ====================================================
 
-function initEditor(idApplication){
-    // Editor
-    var workspacePath = __dirname + "/../workspace/" + idApplication + "/";
-    var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
-    /* Sort folder first, file after */
-    folder = helpers.sortEditorFolder(folder);
-    return folder;
+function initPreviewData(idApplication, data){
+    return new Promise(function(resolve, reject) {
+        var innerPromises = [];
+
+        // Editor
+        var workspacePath = __dirname + "/../workspace/" + idApplication + "/";
+        var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+        /* Sort folder first, file after */
+        data.workspaceFolder = helpers.sortEditorFolder(folder);
+
+        innerPromises.push(new Promise(function(innerResolve, innerReject) {
+            models.Module.findAll({where: {id_application: idApplication}, include: [{model: models.DataEntity}]}).then(function(modules) {
+                data.modules = modules;
+                innerResolve();
+            });
+        }));
+
+        Promise.all(innerPromises).then(function() {
+            return resolve(data);
+        }).catch(function(err) {
+            console.log(err);
+            reject(err);
+        });
+    });
 }
 
 function setChat(req, idApp, idUser, user, content, params){
@@ -91,6 +108,11 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         session: ""
     };
 
+    if (!id_application && typeof process_server[req.session.id_application] === 'undefined') {
+        req.session.toastr.push({level: "warning", message: "application.not_started"});
+        return res.redirect('/application/list');
+    }
+
     setChat(req, id_application, currentUserID, "Newmips", "chat.welcome", []);
 
     models.Application.findOne({where: {id: id_application}}).then(function(application) {
@@ -132,69 +154,75 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 docBuilder.build(req.session.id_application);
 
                 data.session = info;
-                data.workspaceFolder = initEditor(req.session.id_application);
 
-                var initialTimestamp = new Date().getTime();
-                function checkServer() {
-                    if (new Date().getTime() - initialTimestamp > 15000) {
-                        setChat(req, id_application, currentUserID, "Newmips", "structure.global.restart.error");
-                        data.iframe_url = -1;
-                        data.chat = req.session.chat[id_application][currentUserID];
-                        return res.render('front/preview', data);
-                    }
-
-                    var iframe_status_url = protocol_iframe + '://';
-                    if (globalConf.env == 'cloud')
-                        iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
-                    else
-                        iframe_status_url += host + ":" + port + "/status";
-                    request({
-                        "rejectUnauthorized": false,
-                        "url": iframe_status_url,
-                        "method": "GET"
-                    }, function(error, response, body) {
-                        if (error)
-                            return setTimeout(checkServer, 100);
-
-                        //Check for right status code
-                        if (response.statusCode !== 200) {
-                            console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                            return setTimeout(checkServer, 100);
+                initPreviewData(req.session.id_application, data).then(function(data) {
+                    var initialTimestamp = new Date().getTime();
+                    function checkServer() {
+                        if (new Date().getTime() - initialTimestamp > 15000) {
+                            setChat(req, id_application, currentUserID, "Newmips", "structure.global.restart.error");
+                            data.iframe_url = -1;
+                            data.chat = req.session.chat[id_application][currentUserID];
+                            return res.render('front/preview', data);
                         }
 
-                        //All is good. Print the body
-                        console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
-
-                        data.error = 0;
-                        data.application = module;
-
-                        var iframe_home_url = protocol_iframe + '://';
+                        var iframe_status_url = protocol_iframe + '://';
                         if (globalConf.env == 'cloud')
-                            iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
+                            iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
                         else
-                            iframe_home_url += host + ":" + port + "/default/home";
+                            iframe_status_url += host + ":" + port + "/status";
+                        request({
+                            "rejectUnauthorized": false,
+                            "url": iframe_status_url,
+                            "method": "GET"
+                        }, function(error, response, body) {
+                            if (error)
+                                return setTimeout(checkServer, 100);
 
-                        data.iframe_url = iframe_home_url;
+                            //Check for right status code
+                            if (response.statusCode !== 200) {
+                                console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                return setTimeout(checkServer, 100);
+                            }
 
-                        // Let's do git init or commit depending the env (only on cloud env for now)
-                        gitHelper.doGit(attr, function(err){
-                            if(err)
-                                setChat(req, id_application, currentUserID, "Newmips", err.message, []);
-                            data.chat = req.session.chat[id_application][currentUserID];
-                            res.render('front/preview', data);
+                            //All is good. Print the body
+                            console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
+
+                            data.error = 0;
+                            data.application = module;
+
+                            var iframe_home_url = protocol_iframe + '://';
+                            if (globalConf.env == 'cloud')
+                                iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
+                            else
+                                iframe_home_url += host + ":" + port + "/default/home";
+
+                            data.iframe_url = iframe_home_url;
+
+                            // Let's do git init or commit depending the env (only on cloud env for now)
+                            gitHelper.doGit(attr, function(err){
+                                if(err)
+                                    setChat(req, id_application, currentUserID, "Newmips", err.message, []);
+                                data.chat = req.session.chat[id_application][currentUserID];
+                                res.render('front/preview', data);
+                            });
                         });
-                    });
-                }
-                // Check server has started every 50 ms
-                console.log('Waiting for server to start');
-                checkServer();
+                    }
+                    // Check server has started every 50 ms
+                    console.log('Waiting for server to start');
+                    checkServer();
+                });
             });
         });
     }).catch(function(err) {
-        data.code = 500;
-        data.workspaceFolder = initEditor(req.session.id_application);
-        console.log(err);
-        res.render('common/error', data);
+        initPreviewData(req.session.id_application, data).then(function(data) {
+            data.code = 500;
+            console.log(err);
+            res.render('common/error', data);
+        }).catch(function(err) {
+            data.code = 500;
+            console.log(err);
+            res.render('common/error', data);
+        });
     });
 });
 
@@ -247,7 +275,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
             /* Parse the instruction to get an object for the designer */
             var attr = parser.parse(instruction);
-
             /* Rework the attr to get value for the code / url / show */
             attr = attrHelper.reworkAttr(attr);
 
@@ -275,7 +302,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             // "Options" and "Session values" are sent using the attr attribute
             designer[attr.function](attr, function(err, info) {
                 var answer;
-
                 /* If restart server then redirect to /application/preview?id_application=? */
                 var toRedirectRestart = false;
                 if (err) {
@@ -294,10 +320,11 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     session_manager.getSession(attr, function(err, infoSession) {
                         data.session = infoSession;
                         data.chat = req.session.chat[currentAppID][currentUserID];
-                        res.render('front/preview', data);
+                        initPreviewData(req.session.id_application, data).then(function(data) {
+                            res.render('front/preview', data);
+                        });
                     });
                 } else {
-
                     // Store key entities in session for futur instruction
                     session_manager.setSession(attr.function, req, info, data);
 
@@ -320,25 +347,27 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     env.PORT = port;
 
                     // If we stop the server manually we loose some stored data, so we just need to redirect.
-                    if(typeof process_server[req.session.id_application] !== "undefined"){
-                        // Kill server first
-                        process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
+                    if(typeof process_server[req.session.id_application] === "undefined")
+                        return res.redirect("/application/preview?id_application="+req.session.id_application);
+                    // Kill server first
+                    process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
 
-                            // Launch a new server instance to reload resources
-                            process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                        // Launch a new server instance to reload resources
+                        process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
-                            // Load session values
-                            var newAttr = {};
-                            newAttr.id_project = req.session.id_project;
-                            newAttr.id_application = req.session.id_application;
-                            newAttr.id_module = req.session.id_module;
-                            newAttr.id_data_entity = req.session.id_data_entity;
+                        // Load session values
+                        var newAttr = {};
+                        newAttr.id_project = req.session.id_project;
+                        newAttr.id_application = req.session.id_application;
+                        newAttr.id_module = req.session.id_module;
+                        newAttr.id_data_entity = req.session.id_data_entity;
 
-                            session_manager.getSession(newAttr, function(err, info) {
+                        session_manager.getSession(newAttr, function(err, info) {
 
-                                docBuilder.build(req.session.id_application);
-                                data.session = info;
-                                data.workspaceFolder = initEditor(req.session.id_application);
+                            docBuilder.build(req.session.id_application);
+                            data.session = info;
+
+                            initPreviewData(req.session.id_application, data).then(function(data) {
 
                                 var initialTimestamp = new Date().getTime();
                                 function checkServer() {
@@ -384,7 +413,8 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                                     setChat(req, currentAppID, currentUserID, "Newmips", err.message, []);
                                                 // Call preview page
                                                 data.chat = req.session.chat[currentAppID][currentUserID];
-                                                res.render('front/preview.jade', data);
+
+                                                res.render('front/preview', data);
                                             });
                                         }
                                     });
@@ -395,10 +425,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 checkServer();
                             });
                         });
-                    }
-                    else{
-                        res.redirect("/application/preview?id_application="+req.session.id_application);
-                    }
+                    });
                 }
             });
         } catch(e){
@@ -422,8 +449,10 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             session_manager.getSession(attr, function(err, info) {
                 data.chat = req.session.chat[currentAppID][currentUserID];
                 data.session = info;
-                data.workspaceFolder = initEditor(req.session.id_application);
-                res.render('front/preview', data);
+
+                initPreviewData(req.session.id_application, data).then(function(data) {
+                    res.render('front/preview', data);
+                });
             });
         }
     });

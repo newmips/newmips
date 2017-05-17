@@ -140,6 +140,9 @@
 		"widgets": {
 			"lastrecords": {
 				"label": "last records"
+			},
+			"stats": {
+				"more_info": "More info"
 			}
 		}
 	},
