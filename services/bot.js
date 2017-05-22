@@ -694,6 +694,13 @@ exports.createNewComponentCra = function(result) {
     };
 };
 
+/* CHAT */
+exports.createComponentChat = function(result) {
+    return {
+        function: "createComponentChat"
+    }
+}
+
 // ******* INTERFACE Actions ******* //
 exports.setSkin = function(result) {
 
@@ -1484,6 +1491,10 @@ exports.parse = function(instruction) {
             "ajouter un composant compte-rendu d'activités",
             "créer composant compte-rendu d'activités",
             "ajouter composant compte-rendu d'activités"
+        ],
+        "createComponentChat": [
+            "add component chat",
+            "create component chat"
         ],
         "setSkin": [
             "set skin (.*)",

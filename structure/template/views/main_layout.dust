@@ -158,7 +158,21 @@
         <script src="/js/plugins/maskmoney/maskmoney.js"></script>
         {! JSBarCode !}
         <script src="/js/plugins/jsbarcode/jsbarcode.all.min.js"></script>
-        <script>var toastrArray = [];</script>
+
+        {! SocketIO !}
+        {#config.socket.enabled}
+        <script src="/js/plugins/socketio/socket.io.js" type="text/javascript"></script>
+        <script>
+            var socket = io();
+        </script>
+        {/config.socket.enabled}
+        {#config.socket.chat}
+            <script src="/js/Newmips/component/chat.js" type="text/javascript"></script>
+        {/config.socket.chat}
+
+        <script>
+            var toastrArray = [];
+        </script>
         {#toastr}
         <script>
             toastrArray.push({

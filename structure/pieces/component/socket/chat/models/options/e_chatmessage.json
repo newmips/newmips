@@ -1,0 +1,14 @@
+[
+    {
+        "target": "e_user",
+        "relation": "belongsTo",
+        "foreignKey": "f_id_user_sender",
+        "as": "r_sender"
+    },
+    {
+        "target": "e_user",
+        "relation": "belongsTo",
+        "foreignKey": "f_id_user_receiver",
+        "as": "r_receiver"
+    }
+]
