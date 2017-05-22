@@ -1,0 +1,10 @@
+[
+    {
+        "target": "e_user",
+        "relation": "belongsToMany",
+        "foreignKey": "id_channel",
+        "otherKey": "id_user",
+        "through": "ID_APPLICATION_chat_user_channel",
+        "as": "r_user_channel"
+    }
+]

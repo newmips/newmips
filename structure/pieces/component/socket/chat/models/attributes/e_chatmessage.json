@@ -1,0 +1,18 @@
+{
+    "id": {
+        "type": "INTEGER",
+        "autoIncrement": true,
+        "primaryKey": true
+    },
+    "version": {
+        "type": "INTEGER"
+    },
+    "f_message": {
+        "type": "TEXT",
+        "newmipsType": "text"
+    },
+    "f_seen": {
+        "type": "STRING",
+        "newmipsType": "bool"
+    }
+}
