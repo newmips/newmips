@@ -6,5 +6,11 @@
         "otherKey": "id_user",
         "through": "ID_APPLICATION_chat_user_channel",
         "as": "r_user_channel"
+    },
+    {
+    	"target": "e_channelmessage",
+    	"relation": "hasMany",
+    	"foreignKey": "f_id_channel",
+    	"as": "r_channelmessage"
     }
 ]
