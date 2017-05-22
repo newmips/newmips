@@ -702,6 +702,30 @@ exports.setupChat = function(attr, callback) {
 		// Copy options
 		fs.copySync(piecesPath+'/chat/models/options/', workspacePath+'/models/options/');
 
+		// Add belongsToMany with e_channel to e_user, hasOne with chatmessage
+		var userOptions = require(workspacePath+'/models/options/e_user');
+		userOptions.push({
+	        target: "e_channel",
+	        relation: "belongsToMany",
+	        foreignKey: "id_user",
+	        otherKey: "id_channel",
+	        through: attr.id_application+"_chat_user_channel",
+	        as: "r_user_channel"
+    	});
+    	userOptions.push({
+	        "target": "e_chatmessage",
+	        "relation": "hasMany",
+	        "foreignKey": "f_id_user_receiver",
+	        "as": "r_received"
+	    });
+    	userOptions.push({
+	        "target": "e_chatmessage",
+	        "relation": "hasMany",
+	        "foreignKey": "f_id_user_sender",
+	        "as": "r_sent"
+	    });
+    	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
+
 		// Replace ID_APPLICATION in channel.json
 		var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');
 		option = option.replace(/ID_APPLICATION/g, attr.id_application);

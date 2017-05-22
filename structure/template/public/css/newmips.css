@@ -8,6 +8,10 @@
 ----------------------------
 */
 
+.hover:hover {
+  cursor: pointer;
+}
+
 /* required field */
 label.required:after {
   color: #e32;
