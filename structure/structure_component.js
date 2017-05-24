@@ -690,7 +690,7 @@ exports.setupChat = function(attr, callback) {
 		fs.copySync(piecesPath+'/chat/chat_utils.js', workspacePath+'/utils/chat.js');
 
 		// Copy chat models
-		var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel'];
+		var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
 		for (var i = 0; i < chatModels.length; i++) {
 			fs.copySync(piecesPath+'/chat/models/'+chatModels[i]+'.js', workspacePath+'/models/'+chatModels[i]+'.js');
 			var model = fs.readFileSync(workspacePath+'/models/'+chatModels[i]+'.js', 'utf8');
@@ -702,8 +702,16 @@ exports.setupChat = function(attr, callback) {
 		// Copy options
 		fs.copySync(piecesPath+'/chat/models/options/', workspacePath+'/models/options/');
 
-		// Add belongsToMany with e_channel to e_user, hasOne with chatmessage
+		// Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
 		var userOptions = require(workspacePath+'/models/options/e_user');
+		userOptions.push({
+			target: 'e_chat',
+			relation: 'belongsToMany',
+			foreignKey: 'id_user',
+			otherKey: 'id_chat',
+			through: attr.id_application+'_chat_user_chat',
+			as: 'r_chat'
+		});
 		userOptions.push({
 	        target: "e_channel",
 	        relation: "belongsToMany",
@@ -712,24 +720,16 @@ exports.setupChat = function(attr, callback) {
 	        through: attr.id_application+"_chat_user_channel",
 	        as: "r_user_channel"
     	});
-    	userOptions.push({
-	        "target": "e_chatmessage",
-	        "relation": "hasMany",
-	        "foreignKey": "f_id_user_receiver",
-	        "as": "r_received"
-	    });
-    	userOptions.push({
-	        "target": "e_chatmessage",
-	        "relation": "hasMany",
-	        "foreignKey": "f_id_user_sender",
-	        "as": "r_sent"
-	    });
+
     	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
 
-		// Replace ID_APPLICATION in channel.json
+		// Replace ID_APPLICATION in channel.json and chat.json
 		var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');
 		option = option.replace(/ID_APPLICATION/g, attr.id_application);
 		fs.writeFileSync(workspacePath+'/models/options/e_channel.json', option, 'utf8');
+		var option = fs.readFileSync(workspacePath+'/models/options/e_chat.json', 'utf8');
+		option = option.replace(/ID_APPLICATION/g, attr.id_application);
+		fs.writeFileSync(workspacePath+'/models/options/e_chat.json', option, 'utf8');
 
 		// Set socket and chat config to enabled/true
 		var appConf = require(workspacePath+'/config/application');
@@ -737,13 +737,18 @@ exports.setupChat = function(attr, callback) {
 		appConf.socket.chat = true;
 		fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
 
-		// Add custom user_channel columns to toSync file
+		// Add custom user_channel/user_chat columns to toSync file
 		var toSync = require(workspacePath+'/models/toSync.json');
 		toSync[attr.id_application+'_chat_user_channel'] = {
 			attributes: {
 				id_last_seen_message: {type: 'INTEGER'}
 			}
-		}
+		};
+		toSync[attr.id_application+'_chat_user_channel'] = {
+			attributes: {
+				id_last_seen_message: {type: 'INTEGER'}
+			}
+		};
 		fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
 
 		callback(null);

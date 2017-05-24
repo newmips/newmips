@@ -10,5 +10,11 @@
         "relation": "belongsTo",
         "foreignKey": "f_id_user_receiver",
         "as": "r_receiver"
+    },
+    {
+        "target": "e_chat",
+        "relation": "belongsTo",
+        "foreignKey": "f_id_chat",
+        "as": "r_chat"
     }
 ]

@@ -1,0 +1,22 @@
+{
+    "id": {
+        "type": "INTEGER",
+        "autoIncrement": true,
+        "primaryKey": true
+    },
+    "version": {
+        "type": "INTEGER"
+    },
+    "id_last_seen_message": {
+        "type": "INTEGER",
+        "newmipsType": "integer"
+    },
+    "id_user": {
+        "type": "INTEGER",
+        "newmipsType": "integer"
+    },
+    "id_chat": {
+        "type": "INTEGER",
+        "newmipsType": "integer"
+    }
+}
