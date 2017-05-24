@@ -126,12 +126,14 @@
                 </section>
             </div>
         </div>
-        <div class="box box-warning direct-chat" style="position: fixed; bottom: 0; right: 0;max-width: 500px;">
+
+        <!-- CHAT -->
+        <div id="chat" class="box box-primary direct-chat direct-chat-primary" style="position: fixed; bottom: 0; right: 0;max-width: 500px;">
             <div class="box-header with-border">
                 <h3 class="box-title">Direct Chat</h3>
 
                 <div class="box-tools pull-right">
-                    <span data-toggle="tooltip" title="" class="badge bg-yellow" data-original-title="3 New Messages">3</span>
+                    <span data-toggle="tooltip" title="" class="badge bg-light-blue" data-original-title="3 New Messages">3</span>
                     <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Contacts">
                         <i class="fa fa-comments"></i>
                     </button>
@@ -141,49 +143,12 @@
             </div>
 
             <div class="box-body">
-                <div class="direct-chat-messages">
-                    <div class="direct-chat-msg">
-                        <div class="direct-chat-info clearfix">
-                            <span class="direct-chat-name pull-left">Alexander Pierce</span>
-                            <span class="direct-chat-timestamp pull-right">23 Jan 2:00 pm</span>
-                        </div>
-                        <div class="direct-chat-text">
-                            Is this template really for free? That's unbelievable!
-                        </div>
-                    </div>
-
-                    <div class="direct-chat-msg right">
-                        <div class="direct-chat-info clearfix">
-                            <span class="direct-chat-name pull-right">Sarah Bullock</span>
-                            <span class="direct-chat-timestamp pull-left">23 Jan 2:05 pm</span>
-                        </div>
-                        <div class="direct-chat-text">
-                            You better believe it!
-                        </div>
-                    </div>
-
-                    <div class="direct-chat-msg">
-                        <div class="direct-chat-info clearfix">
-                            <span class="direct-chat-name pull-left">Alexander Pierce</span>
-                            <span class="direct-chat-timestamp pull-right">23 Jan 5:37 pm</span>
-                        </div>
-                        <div class="direct-chat-text">
-                            Working with AdminLTE on a great new app! Wanna join?
-                        </div>
-                    </div>
-
-                    <div class="direct-chat-msg right">
-                        <div class="direct-chat-info clearfix">
-                            <span class="direct-chat-name pull-right">Sarah Bullock</span>
-                            <span class="direct-chat-timestamp pull-left">23 Jan 6:10 pm</span>
-                        </div>
-                        <div class="direct-chat-text">
-                            I would love to.
-                        </div>
-                    </div>
+                <div id='discussion' class="direct-chat-messages">
                 </div>
 
+                <!-- CONTACT LIST -->
                 <div class="direct-chat-contacts">
+                    <!-- CHANNELS -->
                     <h4 class="contacts-list-name" style="margin-left:10px;">Channels<i id="createChannelBtn" class="fa fa-plus hover" style="margin-left:5px;"></i></h4>
                     <div id="createChannel" class="row" style="display:none;">
                         <div class="col-xs-4">
@@ -195,18 +160,28 @@
                     </div>
                     <ul id="channelsList" class="contacts-list">
                     </ul>
-                    <h4 class="contacts-list-name" style="margin-left:10px;">Chats</h4>
+
+                    <!-- CHATS -->
+                    <h4 class="contacts-list-name" style="margin-left:10px;">Chats<i id="createChatBtn" class="fa fa-plus hover" style="margin-left:5px;"></i></h4>
+                    <div id="createChat" class="row" style="display:none;">
+                        <div class="col-xs-4">
+                            <input id="createChatId" type="text" class="from-control">
+                        </div>
+                        <div class="col-xs-4">
+                            <button id="doCreateChat" class="btn btn-primary btn-xs">Create</button>
+                        </div>
+                    </div>
                     <ul id="chatsList" class="contacts-list">
                     </ul>
                 </div>
             </div>
             <!-- /.box-body -->
             <div class="box-footer">
-                <form action="#" method="post">
+                <form id="messageForm" action="#" method="post">
                     <div class="input-group">
-                        <input name="message" placeholder="Type Message ..." class="form-control" type="text">
+                        <input name="chat-message" placeholder="Type Message ..." class="form-control" type="text">
                         <span class="input-group-btn">
-                            <button type="button" class="btn btn-warning btn-flat">Send</button>
+                            <button type="button" class="btn btn-primary btn-flat">Send</button>
                         </span>
                     </div>
                 </form>
