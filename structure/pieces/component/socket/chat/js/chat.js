@@ -67,7 +67,7 @@ var socket = io();
 		if (!chats[id_chat])
 			chats[id_chat] = {limit: 5, offset: 0, messages: []};
 		// 'chat-load' answered through 'chat-messages'
-		socket.emit('chat-load', {id_chat: id_chat, id_contact: id_contact, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
+		socket.emit('chat-load', {id_chat: id_chat, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
 		discussion = {id: id_chat, id_contact: id_contact, messages: chats[id_chat].messages, type: 'chat'};
 	}
 	function selectChannel(id) {
@@ -78,6 +78,11 @@ var socket = io();
 			socket.emit('channel-load', {id: id, limit: channels[id].limit, offset: channels[id].offset});
 		}
 		discussion = {id: id, id_contact: id_contact, messages: channels[id].messages, type: 'channel'};
+	}
+
+	function loadPreviousChatMessage(id_chat) {
+		chats[id_chat].offset = chats[id_chat].messages.length;
+		socket.emit('chat-load', {id_chat: id_chat, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
 	}
 }
 
@@ -104,13 +109,19 @@ var socket = io();
 	}
 
 	function appendToDiscussion(data) {
+		// If message is not for current discussion, return
 		if (!(discussion.id == data.f_id_user_sender || discussion.id == data.f_id_user_receiver))
 			return;
 		var msgTemplate = discussionMessage(data, data.r_sender.id == discussion.id_contact);
 		$("#discussion").append(msgTemplate);
-		$("#discussion").animate({
-			scrollTop: $('#chat .box-body')[0].scrollHeight
-		}, 1000);
+		scroll(true);
+	}
+
+	function scroll(goDown) {
+		if (goDown)
+			$("#discussion").animate({scrollTop: $("#discussion").prop('scrollHeight')}, 500);
+		else
+			$("#discussion").animate({scrollTop: 0}, 500);
 	}
 }
 
@@ -125,21 +136,15 @@ $(function() {
 		socket.on('initialize', createContactList);
 
 		socket.on('chat-messages', function(data) {
-			var scrollTop = false;
-			// If event is triggered to init discussion messages, don't scroll to top of discussion
-			if (chats[data.id_chat].messages.length != 0)
-				scrollTop = true;
+			var baseMessagesLength = chats[data.id_chat].messages.length;
 
 			chats[data.id_chat].messages = data.messages.concat(chats[data.id_chat].messages);
 			prependToDiscussion(data);
-			$("#discussion").animate({
-				scrollTop: $('#chat .box-body').offset().top
-			}, 1000);
+			if (baseMessagesLength == 0)
+				scroll(true);
 		});
 
 		socket.on('chat-message', function(data) {
-			console.log("CHAT-MESSAGE");
-			console.log(data);
 			appendToDiscussion(data);
 		});
 
@@ -171,6 +176,7 @@ $(function() {
 			if ($("#createChannelName").val() == '')
 				return;
 			socket.emit('channel-create', {name: $("#createChannelName").val()});
+			$("#createChannelBtn").click();
 		});
 
 		// Chat creation bindings
@@ -188,6 +194,7 @@ $(function() {
 			if ($("#createChatId").val() == '')
 				return;
 			socket.emit('chat-create', {receiver: $("#createChatId").val()});
+			$("#createChatBtn").click();
 		});
 
 		// Contact list bindings
@@ -199,11 +206,10 @@ $(function() {
 			$("#contactsBtn").click();
 		});
 
+		// Discussion scrolled to max top, load previous messages
 		$("#discussion").scroll(function() {
-			if ($(this).scrollTop() == $(this).offset().top) {
-				;
-			}
-
-		})
+			if ($(this).scrollTop() == 0)
+				loadPreviousChatMessage(discussion.id);
+		});
 	}
 });

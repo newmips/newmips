@@ -17,11 +17,8 @@ function sendChatChannelList(user, socket) {
 					model: models.E_user,
 					as: 'r_user'
 				}]
-			}, {
-				model: models.E_
 			}]
 		}).then(function(chatAndChannel) {
-			console.log(chatAndChannel);
 			// Remove self from chat user array to simplify client side operations
 			for (var i = 0; i < chatAndChannel.r_chat.length; i++) {
 				var chatUsers = chatAndChannel.r_chat[i].r_user;
@@ -48,9 +45,14 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			f_name: data.name
 		}).then(function(channel) {
 			models.E_user.findById(user.id).then(function(userObj) {
-				userObj.addR_user_channel(channel);
+				userObj.addR_user_channel(channel).then(function() {
+					// Refresh contact list
+					sendChatChannelList(user, socket);
+				});
 			});
-		});
+		}).catch(function(e) {
+			console.log(e);
+		});;
 	});
 
 	// Chat creation
@@ -66,12 +68,17 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			if (chat && chat.r_user && chat.r_user.length == 2)
 				return 'Existe deja, il a joue avec les ID';
 			models.E_chat.create().then(function(chat) {
-				chat.setR_user(chatUserIds);
+				chat.setR_user(chatUserIds).then(function() {
+					// Refresh contact list
+					sendChatChannelList(user, socket);
+				});
 			});
+		}).catch(function(e) {
+			console.log(e);
 		});
 	});
 
-	// Message received
+	// Chat message received
 	socket.on('chat-message', function(data) {
 		data.id_contact = parseInt(data.id_contact);
 		data.id_chat = parseInt(data.id_chat);
@@ -102,7 +109,9 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					socket.emit('chat-message', chatmessage);
 				});
 			});
-		});
+		}).catch(function(e) {
+			console.log(e);
+		});;
 	});
 
 	// Load messages of chat
@@ -124,6 +133,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 		}).then(function(chat) {
 			if (chat && chat.r_chatmessage && chat.r_chatmessage.length > 0)
 				socket.emit('chat-messages', {id_chat: data.id_chat, messages: chat.r_chatmessage});
-		});
+		}).catch(function(e) {
+			console.log(e);
+		});;
 	});
 }

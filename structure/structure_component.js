@@ -720,7 +720,6 @@ exports.setupChat = function(attr, callback) {
 	        through: attr.id_application+"_chat_user_channel",
 	        as: "r_user_channel"
     	});
-
     	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
 
 		// Replace ID_APPLICATION in channel.json and chat.json
@@ -751,7 +750,20 @@ exports.setupChat = function(attr, callback) {
 		};
 		fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
 
-		callback(null);
+		// Add chat dust template to main_layout
+		domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {
+			domHelper.read(piecesPath+'/chat/views/chat.dust').then(function($chat) {
+				$layout("#chat-placeholder").html($chat("body")[0].innerHTML);
+
+				domHelper.writeMainLayout(workspacePath+'/views/main_layout.dust', $layout).then(function() {
+					callback(null);
+				});
+			});
+		}).catch(function(e) {
+			console.log(e);
+			callback(e);
+		});
+
 	} catch(e) {
 		console.log(e);
 		callback(e);
