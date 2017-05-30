@@ -9,8 +9,7 @@ module.exports = function (sequelize, DataTypes) {
         tableName: 'ID_APPLICATION_chat_user_chat',
         classMethods: {
             associate: builder.buildAssociation('E_user_chat', associations)
-        },
-        timestamps: true
+        }
     };
 
     var Model = sequelize.define('E_user_chat', attributes, options);

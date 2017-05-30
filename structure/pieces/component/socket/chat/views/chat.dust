@@ -1,20 +1,18 @@
-<!-- CHAT -->
-<div id="chat" class="box box-primary direct-chat direct-chat-primary" style="position: fixed; bottom: 0; right: 0;max-width: 500px;">
+<div id="chat" class="box box-primary direct-chat direct-chat-primary direct-chat-contacts-open collapsed-box" style="z-index: 10;position: fixed; bottom: 0; right: 0;max-width: 500px;">
     <div class="box-header with-border">
         <h3 class="box-title">Direct Chat</h3>
 
         <div class="box-tools pull-right">
-            <span data-toggle="tooltip" title="" class="badge bg-light-blue" data-original-title="3 New Messages">3</span>
+            <span id="totalNotSeen" data-toggle="tooltip" title="" class="badge bg-light-blue"></span>
             <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Contacts">
                 <i class="fa fa-comments"></i>
             </button>
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            <button id="collapseChat" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
         </div>
     </div>
 
     <div class="box-body">
-        <div id='discussion' class="direct-chat-messages">
+        <div id="discussion" class="direct-chat-messages">
         </div>
 
         <!-- CONTACT LIST -->
@@ -50,7 +48,7 @@
     <div class="box-footer">
         <form id="messageForm" action="#" method="post">
             <div class="input-group">
-                <input name="chat-message" placeholder="Type Message ..." class="form-control" type="text">
+                <input name="chat-message" placeholder='Type Message ...' class="form-control" type="text">
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-primary btn-flat">Send</button>
                 </span>
