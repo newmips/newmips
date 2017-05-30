@@ -19,8 +19,28 @@ function sendChatChannelList(user, socket) {
 				}]
 			}]
 		}).then(function(chatAndChannel) {
-			// Remove self from chat user array to simplify client side operations
+			var lastSeenPromises = [];
 			for (var i = 0; i < chatAndChannel.r_chat.length; i++) {
+				// Build promise array that count the number of not seen messages for each chat
+				lastSeenPromises.push(new Promise(function(resolve, reject) {
+					models.E_user_chat.findOne({
+						where: {id_chat: chatAndChannel.r_chat[i].id, id_user: user.id}
+					}).then(function(userChat) {
+						if (userChat.id_last_seen_message == null)
+							userChat.id_last_seen_message = 0;
+						models.E_chatmessage.count({
+							where: {
+								f_id_chat: userChat.id_chat,
+								id: {$gt: userChat.id_last_seen_message},
+								f_id_user_sender: {$not: user.id}
+							}
+						}).then(function(notSeen) {
+							resolve({id_chat: userChat.id_chat, notSeen: notSeen});
+						});
+					});
+				}));
+
+				// Remove self from chat user array to simplify client side operations
 				var chatUsers = chatAndChannel.r_chat[i].r_user;
 				for (var j = 0; j < chatUsers.length; j++) {
 					if (chatUsers[j].id != user.id) {
@@ -30,14 +50,22 @@ function sendChatChannelList(user, socket) {
 				}
 			}
 
-			socket.emit('initialize', chatAndChannel);
+			Promise.all(lastSeenPromises).then(function(notSeens) {
+				// Attach notSeen count to corresponding chat
+				for (var i = 0; i < chatAndChannel.r_chat.length; i++)
+					chatAndChannel.r_chat[i].dataValues.notSeen = notSeens[i].notSeen;
+
+				socket.emit('contacts', chatAndChannel);
+			});
 		});
 	});
 }
 
 exports.bindSocket = function(user, socket, connectedUsers) {
 	// Init chat contacts list client side
-	sendChatChannelList(user, socket);
+	socket.on('initialize', function() {
+		sendChatChannelList(user, socket);
+	});
 
 	// Channel creation
 	socket.on('channel-create', function(data) {
@@ -131,10 +159,26 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				}]
 			}]
 		}).then(function(chat) {
-			if (chat && chat.r_chatmessage && chat.r_chatmessage.length > 0)
-				socket.emit('chat-messages', {id_chat: data.id_chat, messages: chat.r_chatmessage});
+			socket.emit('chat-messages', {id_chat: data.id_chat, messages: chat.r_chatmessage});
 		}).catch(function(e) {
 			console.log(e);
 		});;
+	});
+
+	socket.on('chat-update_last_seen', function(data) {
+		models.E_chatmessage.max('id', {
+			where: {
+				f_id_chat: data.id_chat,
+				f_id_user_sender: {$not: user.id}
+			}
+		}).then(function(newLastSeenId) {
+			if (isNaN(newLastSeenId))
+				newLastSeenId = 0;
+			models.E_user_chat.update({id_last_seen_message: newLastSeenId}, {
+				where: {id_chat: data.id_chat, id_user: user.id}
+			}).then(function() {
+				sendChatChannelList(user, socket);
+			});
+		});
 	});
 }

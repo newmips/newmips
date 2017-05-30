@@ -27,7 +27,8 @@ var socket = io();
 		chat += '        <div class="contacts-list-info">';
 		chat += '            <span class="contacts-list-name">';
 		chat += '                '+chatObj.contact.f_login;
-		chat += '                <small class="contacts-list-date pull-right">'+chatObj.updatedAt+'</small>';
+		chat += '                <small class="contacts-list-date pull-right">'+chatObj.updatedAt.substring(0, 10)+'</small>';
+		chat += '		 		 <span data-toggle="tooltip" style="margin-left:10px;" class="badge bg-light-blue">'+chatObj.notSeen+'</span>'
 		chat += '            </span>';
 		// chat += '            <span class="contacts-list-msg">'+chatObj.f_message+'</span>';
 		chat += '        </div>';
@@ -45,7 +46,7 @@ var socket = io();
 		message += '<div class="direct-chat-msg '+sideClass+'">';
 		message += '    <div class="direct-chat-info clearfix">';
 		message += '        <span class="direct-chat-name '+nameClass+'">'+messageObj.r_sender.f_login+'</span>';
-		message += '        <span class="direct-chat-timestamp '+dateClass+'">'+messageObj.createdAt+'</span>';
+		message += '        <span class="direct-chat-timestamp '+dateClass+'">'+messageObj.createdAt.substring(0, 10)+'</span>';
 		message += '    </div>';
 		message += '    <div class="direct-chat-text" style="word-wrap:break-word;width:50%;'+floatStyle+'">';
 		message += '        '+messageObj.f_message;
@@ -63,12 +64,19 @@ var socket = io();
 	function selectChat(id_chat, id_contact) {
 		if (discussion && discussion.id == id_chat)
 			return;
+
 		$("#discussion").html('');
-		if (!chats[id_chat])
+		if (chats[id_chat]) {
+			discussion = {id: id_chat, id_contact: id_contact, messages: chats[id_chat].messages, type: 'chat'};
+			prependToDiscussion(chats[id_chat]);
+		}
+		else if (!chats[id_chat]) {
 			chats[id_chat] = {limit: 5, offset: 0, messages: []};
-		// 'chat-load' answered through 'chat-messages'
-		socket.emit('chat-load', {id_chat: id_chat, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
-		discussion = {id: id_chat, id_contact: id_contact, messages: chats[id_chat].messages, type: 'chat'};
+			socket.emit('chat-load', {id_chat: id_chat, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
+			discussion = {id: id_chat, id_contact: id_contact, messages: chats[id_chat].messages, type: 'chat'};
+		}
+		socket.emit('chat-update_last_seen', {id_chat: id_chat});
+		scroll(true);
 	}
 	function selectChannel(id) {
 		$("#discussion").html('');
@@ -91,12 +99,17 @@ var socket = io();
 	function createContactList(data) {
 		if (!data)
 			return;
+		var totalNotSeen = 0;
 		$("#channelsList").html('');
 		$("#chatsList").html('');
 		for (var i = 0; i < data.r_user_channel.length; i++)
 			$("#channelsList").append(contactChannel(data.r_user_channel[i]));
-		for (var i = 0; i < data.r_chat.length; i++)
+		for (var i = 0; i < data.r_chat.length; i++) {
+			totalNotSeen += data.r_chat[i].notSeen;
 			$("#chatsList").append(contactChat(data.r_chat[i]));
+		}
+
+		$("#totalNotSeen").text(totalNotSeen);
 	}
 
 	function prependToDiscussion(data) {
@@ -109,9 +122,6 @@ var socket = io();
 	}
 
 	function appendToDiscussion(data) {
-		// If message is not for current discussion, return
-		if (!(discussion.id == data.f_id_user_sender || discussion.id == data.f_id_user_receiver))
-			return;
 		var msgTemplate = discussionMessage(data, data.r_sender.id == discussion.id_contact);
 		$("#discussion").append(msgTemplate);
 		scroll(true);
@@ -126,14 +136,9 @@ var socket = io();
 }
 
 $(function() {
-	// Display contact by default
-	setTimeout(function() {
-		$("#contactsBtn").click();
-	}, 100);
-
 	// Socket input bidings
 	{
-		socket.on('initialize', createContactList);
+		socket.on('contacts', createContactList);
 
 		socket.on('chat-messages', function(data) {
 			var baseMessagesLength = chats[data.id_chat].messages.length;
@@ -145,7 +150,11 @@ $(function() {
 		});
 
 		socket.on('chat-message', function(data) {
-			appendToDiscussion(data);
+			if (chats[data.f_id_chat])
+				chats[data.f_id_chat].messages.push(data);
+			// If message is not for current discussion, return
+			if (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver)
+				appendToDiscussion(data);
 		});
 
 		socket.on('chat-notifications', function(data) {
@@ -154,6 +163,15 @@ $(function() {
 
 	// UI bindings
 	{
+		// On first chat expand, initialize contacts
+		var initialized = false;
+		$("#collapseChat").click(function() {
+			if (initialized)
+				return;
+			initialized = true;
+			socket.emit('initialize');
+		});
+
 		// Send message
 		$("#messageForm").submit(function() {
 			socket.emit('chat-message', {message: $("input[name='chat-message']").val(), id_chat: discussion.id, id_contact: discussion.id_contact});

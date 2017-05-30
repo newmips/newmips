@@ -740,12 +740,17 @@ exports.setupChat = function(attr, callback) {
 		var toSync = require(workspacePath+'/models/toSync.json');
 		toSync[attr.id_application+'_chat_user_channel'] = {
 			attributes: {
-				id_last_seen_message: {type: 'INTEGER'}
+				id_last_seen_message: {type: 'INTEGER', default: 0}
 			}
 		};
-		toSync[attr.id_application+'_chat_user_channel'] = {
+		toSync[attr.id_application+'_chat_user_chat'] = {
 			attributes: {
-				id_last_seen_message: {type: 'INTEGER'}
+				id_last_seen_message: {type: 'INTEGER', default: 0},
+				id: {
+			        type: "INTEGER",
+			        autoIncrement: true,
+			        primaryKey: true
+			    }
 			}
 		};
 		fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
