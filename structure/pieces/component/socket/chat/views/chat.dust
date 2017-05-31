@@ -34,7 +34,7 @@
             <h4 class="contacts-list-name" style="margin-left:10px;">Chats<i id="createChatBtn" class="fa fa-plus hover" style="margin-left:5px;"></i></h4>
             <div id="createChat" class="row" style="display:none;width:100%;">
                 <div class="col-xs-4">
-                    <input id="createChatId" type="text" class="from-control">
+                    <select id="createChatId" style="width:100%;" data-choice-select2="0" class="form-control" required></select>
                 </div>
                 <div class="col-xs-4">
                     <button id="doCreateChat" class="btn btn-primary btn-xs">Create</button>
@@ -49,9 +49,6 @@
         <form id="messageForm" action="#" method="post">
             <div class="input-group">
                 <input name="chat-message" placeholder='Type Message ...' class="form-control" type="text">
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-primary btn-flat">Send</button>
-                </span>
             </div>
         </form>
     </div>
