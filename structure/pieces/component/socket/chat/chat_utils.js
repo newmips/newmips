@@ -62,123 +62,166 @@ function sendChatChannelList(user, socket) {
 }
 
 exports.bindSocket = function(user, socket, connectedUsers) {
-	// Init chat contacts list client side
-	socket.on('initialize', function() {
-		sendChatChannelList(user, socket);
-	});
-
-	// Channel creation
-	socket.on('channel-create', function(data) {
-		models.E_channel.create({
-			f_name: data.name
-		}).then(function(channel) {
-			models.E_user.findById(user.id).then(function(userObj) {
-				userObj.addR_user_channel(channel).then(function() {
-					// Refresh contact list
-					sendChatChannelList(user, socket);
-				});
-			});
-		}).catch(function(e) {
-			console.log(e);
-		});;
-	});
-
-	// Chat creation
-	socket.on('chat-create', function(data) {
-		var chatUserIds = [user.id, data.receiver];
-		models.E_chat.findAll({
-			include: [{
-				model: models.E_user,
-				as: 'r_user',
-				where: {id: {$in: chatUserIds}}
-			}]
-		}).then(function(chat) {
-			if (chat && chat.r_user && chat.r_user.length == 2)
-				return 'Existe deja, il a joue avec les ID';
-			models.E_chat.create().then(function(chat) {
-				chat.setR_user(chatUserIds).then(function() {
-					// Refresh contact list
-					sendChatChannelList(user, socket);
-				});
-			});
-		}).catch(function(e) {
-			console.log(e);
+	// Global bindings
+	{
+		// Init chat contacts list client side
+		socket.on('initialize', function() {
+			sendChatChannelList(user, socket);
 		});
-	});
 
-	// Chat message received
-	socket.on('chat-message', function(data) {
-		data.id_contact = parseInt(data.id_contact);
-		data.id_chat = parseInt(data.id_chat);
+		// Send only notifications total. This is used on client init, before the chat is expanded and the contacts loaded
+		socket.on('notifications-total', function() {
+			models.E_user_chat.findAll({
+				where: {id_user: user.id}
+			}).then(function(userChat) {
+				var notificationsPromises = [];
+				for (var i = 0; i < userChat.length; i++) {
+					notificationsPromises.push(new Promise(function(resolve, reject) {
+						if (userChat[i].id_last_seen_message == null)
+							userChat[i].id_last_seen_message = 0;
+						models.E_chatmessage.count({
+							where: {
+								f_id_chat: userChat[i].id_chat,
+								id: {$gt: userChat[i].id_last_seen_message},
+								f_id_user_sender: {$not: user.id}
+							}
+						}).then(function(notSeen) {
+							resolve(notSeen);
+						});
+					}));
+				}
 
-		models.E_chat.findOne({where: {id: data.id_chat}}).then(function(chat) {
-			if (!chat)
-				return 'Existe pas, il a joue avec les ID';
-			// Insert message into DataBase
-			models.E_chatmessage.create({
-				f_message: data.message,
-				f_seen: (connectedUsers[data.id_contact] ? true : false),
-				f_id_user_sender: user.id,
-				f_id_user_receiver: data.id_contact,
-				f_id_chat: data.id_chat
-			}).then(function(chatmessage) {
-				models.E_chatmessage.findOne({
-					where: {id: chatmessage.id},
-					include: [{
-						model: models.E_user,
-						as: 'r_sender'
-					}]
-				}).then(function(chatmessage) {
-					chatmessage.id_contact = chatmessage.f_id_user_sender;
-					// Send message to receiver if connected
-					if (connectedUsers[data.id_contact])
-						connectedUsers[data.id_contact].socket.emit('chat-message', chatmessage);
-					// Send back created message to sender (so client can use createdAt and common DB format)
-					socket.emit('chat-message', chatmessage);
+				Promise.all(notificationsPromises).then(function(notSeens) {
+					var total = 0;
+					for (var i = 0; i < notSeens.length; i++)
+						total += notSeens[i];
+					socket.emit('notifications-total', {total: total});
 				});
+			}).catch(function(e) {
+				console.log(e);
 			});
-		}).catch(function(e) {
-			console.log(e);
-		});;
-	});
+		});
+	}
 
-	// Load messages of chat
-	socket.on('chat-load', function(data) {
-		models.E_chat.findOne({
-			where: {id: data.id_chat},
-			include: [{
-				model: models.E_chatmessage,
-				as: 'r_chatmessage',
-				order: 'createdAt DESC',
-				limit: data.limit,
-				offset: data.offset,
+	// Channel bindings
+	{
+		// Channel creation
+		socket.on('channel-create', function(data) {
+			models.E_channel.create({
+				f_name: data.name
+			}).then(function(channel) {
+				models.E_user.findById(user.id).then(function(userObj) {
+					userObj.addR_user_channel(channel).then(function() {
+						// Refresh contact list
+						sendChatChannelList(user, socket);
+					});
+				});
+			}).catch(function(e) {
+				console.log(e);
+			});;
+		});
+
+	}
+
+	// Chat bindings
+	{
+		// Chat creation
+		socket.on('chat-create', function(data) {
+			var chatUserIds = [user.id, data.receiver];
+			models.E_chat.findAll({
 				include: [{
 					model: models.E_user,
-					as: 'r_sender',
-					attributes: ['id', 'f_login']
+					as: 'r_user',
+					where: {id: {$in: chatUserIds}}
 				}]
-			}]
-		}).then(function(chat) {
-			socket.emit('chat-messages', {id_chat: data.id_chat, messages: chat.r_chatmessage});
-		}).catch(function(e) {
-			console.log(e);
-		});;
-	});
-
-	socket.on('chat-update_last_seen', function(data) {
-		models.E_chatmessage.max('id', {
-			where: {
-				f_id_chat: data.id_chat,
-				f_id_user_sender: {$not: user.id}
-			}
-		}).then(function(newLastSeenId) {
-			if (isNaN(newLastSeenId))
-				newLastSeenId = 0;
-			models.E_user_chat.update({id_last_seen_message: newLastSeenId}, {
-				where: {id_chat: data.id_chat, id_user: user.id}
-			}).then(function() {
-				sendChatChannelList(user, socket);
+			}).then(function(chat) {
+				if (chat && chat.r_user && chat.r_user.length == 2)
+					return 'Existe deja, il a joue avec les ID';
+				models.E_chat.create().then(function(chat) {
+					chat.setR_user(chatUserIds).then(function() {
+						// Refresh contact list
+						sendChatChannelList(user, socket);
+					});
+				});
+			}).catch(function(e) {
+				console.log(e);
 			});
 		});
-	});
+
+		// Chat message received
+		socket.on('chat-message', function(data) {
+			data.id_contact = parseInt(data.id_contact);
+			data.id_chat = parseInt(data.id_chat);
+
+			models.E_chat.findOne({where: {id: data.id_chat}}).then(function(chat) {
+				if (!chat)
+					return 'Existe pas, il a joue avec les ID';
+				// Insert message into DataBase
+				models.E_chatmessage.create({
+					f_message: data.message,
+					f_seen: (connectedUsers[data.id_contact] ? true : false),
+					f_id_user_sender: user.id,
+					f_id_user_receiver: data.id_contact,
+					f_id_chat: data.id_chat
+				}).then(function(chatmessage) {
+					models.E_chatmessage.findOne({
+						where: {id: chatmessage.id},
+						include: [{
+							model: models.E_user,
+							as: 'r_sender'
+						}]
+					}).then(function(chatmessage) {
+						chatmessage.id_contact = chatmessage.f_id_user_sender;
+						// Send message to receiver if connected
+						if (connectedUsers[data.id_contact])
+							connectedUsers[data.id_contact].socket.emit('chat-message', chatmessage);
+						// Send back created message to sender (so client can use createdAt and common DB format)
+						socket.emit('chat-message', chatmessage);
+					});
+				});
+			}).catch(function(e) {
+				console.log(e);
+			});;
+		});
+
+		// Load messages of chat
+		socket.on('chat-load', function(data) {
+			models.E_chat.findOne({
+				where: {id: data.id_chat},
+				include: [{
+					model: models.E_chatmessage,
+					as: 'r_chatmessage',
+					order: 'createdAt DESC',
+					limit: data.limit,
+					offset: data.offset,
+					include: [{
+						model: models.E_user,
+						as: 'r_sender',
+						attributes: ['id', 'f_login']
+					}]
+				}]
+			}).then(function(chat) {
+				socket.emit('chat-messages', {id_chat: data.id_chat, messages: chat.r_chatmessage});
+			}).catch(function(e) {
+				console.log(e);
+			});;
+		});
+
+		socket.on('chat-update_last_seen', function(data) {
+			models.E_chatmessage.max('id', {
+				where: {
+					f_id_chat: data.id_chat,
+					f_id_user_sender: {$not: user.id}
+				}
+			}).then(function(newLastSeenId) {
+				if (isNaN(newLastSeenId))
+					newLastSeenId = 0;
+				models.E_user_chat.update({id_last_seen_message: newLastSeenId}, {
+					where: {id_chat: data.id_chat, id_user: user.id}
+				}).then(function() {
+					sendChatChannelList(user, socket);
+				});
+			});
+		});
+	}
 }

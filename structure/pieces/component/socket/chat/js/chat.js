@@ -10,7 +10,6 @@ var socket = io();
 	    channel += '        <div class="contacts-list-info">';
 	    channel += '            <span class="contacts-list-name">';
 	    channel += '                '+channelObj.f_name;
-	//    channel += '                <small class="contacts-list-date pull-right">'+chann+'</small>';
 	    channel += '            </span>';
 	    channel += '            <span class="contacts-list-msg"><!-- INSERT LAST MESSAGE --></span>';
 	    channel += '        </div>';
@@ -28,9 +27,8 @@ var socket = io();
 		chat += '            <span class="contacts-list-name">';
 		chat += '                '+chatObj.contact.f_login;
 		chat += '                <small class="contacts-list-date pull-right">'+chatObj.updatedAt.substring(0, 10)+'</small>';
-		chat += '		 		 <span data-toggle="tooltip" style="margin-left:10px;" class="badge bg-light-blue">'+chatObj.notSeen+'</span>'
+		chat += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((chatObj.notSeen && chatObj.notSeen > 0) ? '' : 'display:none;')+'">'+chatObj.notSeen+'</span>'
 		chat += '            </span>';
-		// chat += '            <span class="contacts-list-msg">'+chatObj.f_message+'</span>';
 		chat += '        </div>';
 		chat += '    </a>';
 		chat += '</li>';
@@ -66,10 +64,12 @@ var socket = io();
 			return;
 
 		$("#discussion").html('');
+		// Chat already loaded
 		if (chats[id_chat]) {
 			discussion = {id: id_chat, id_contact: id_contact, messages: chats[id_chat].messages, type: 'chat'};
 			prependToDiscussion(chats[id_chat]);
 		}
+		// Chat not loaded
 		else if (!chats[id_chat]) {
 			chats[id_chat] = {limit: 5, offset: 0, messages: []};
 			socket.emit('chat-load', {id_chat: id_chat, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
@@ -109,7 +109,10 @@ var socket = io();
 			$("#chatsList").append(contactChat(data.r_chat[i]));
 		}
 
-		$("#totalNotSeen").text(totalNotSeen);
+		if (totalNotSeen == 0)
+			$("#totalNotSeen").text('0').hide();
+		else
+			$("#totalNotSeen").text(totalNotSeen).show();
 	}
 
 	function prependToDiscussion(data) {
@@ -133,9 +136,22 @@ var socket = io();
 		else
 			$("#discussion").animate({scrollTop: 0}, 500);
 	}
+
+	function incrementNotifications(id, type) {
+		var selector = (type == 'chat') ? "*[data-id-chat='"+id+"']" : "*[data-id-channel='"+id+"']";
+		// Increment contact notif
+		var currentNotifForContact = parseInt($(selector).find('.contactNotifications').text()) || 0;
+		$(selector).find('.contactNotifications').text(currentNotifForContact+1).show();
+
+		// Increment total notif
+		var currentTotalNotif = parseInt($("#totalNotSeen").text()) || 0;
+		$("#totalNotSeen").text(currentTotalNotif+1).show();
+	}
 }
 
 $(function() {
+	socket.emit('notifications-total');
+
 	// Socket input bidings
 	{
 		socket.on('contacts', createContactList);
@@ -152,12 +168,16 @@ $(function() {
 		socket.on('chat-message', function(data) {
 			if (chats[data.f_id_chat])
 				chats[data.f_id_chat].messages.push(data);
-			// If message is not for current discussion, return
-			if (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver)
+
+			// If message is not for current discussion append it, if not increment notif
+			if (discussion && (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver))
 				appendToDiscussion(data);
+			else
+				incrementNotifications(data.f_id_chat, 'chat');
 		});
 
-		socket.on('chat-notifications', function(data) {
+		socket.on('notifications-total', function(data) {
+			$("#totalNotSeen").text(data.total);
 		});
 	}
 
@@ -166,11 +186,21 @@ $(function() {
 		// On first chat expand, initialize contacts
 		var initialized = false;
 		$("#collapseChat").click(function() {
+			localStorage.chatCollapsed = ""+(!JSON.parse(localStorage.chatCollapsed));
 			if (initialized)
 				return;
 			initialized = true;
 			socket.emit('initialize');
 		});
+		// Collapse or expend chat depending on last display state
+		if (typeof localStorage.chatCollapsed === 'undefined')
+			localStorage.chatCollapsed = "true";
+		// Not collapsed, display chat box and trigger contact init
+		if (localStorage.chatCollapsed == "false") {
+			$("#chat").removeClass('collapsed-box');
+			initialized = true;
+			socket.emit('initialize');
+		}
 
 		// Send message
 		$("#messageForm").submit(function() {
@@ -209,6 +239,7 @@ $(function() {
 			}
 		});
 		$("#doCreateChat").click(function() {
+			console.log($("#createChatId").val());
 			if ($("#createChatId").val() == '')
 				return;
 			socket.emit('chat-create', {receiver: $("#createChatId").val()});
@@ -229,5 +260,13 @@ $(function() {
 			if ($(this).scrollTop() == 0)
 				loadPreviousChatMessage(discussion.id);
 		});
+
+		$("#contactsBtn").click(function() {
+			if (!$("#chat").hasClass('direct-chat-contacts-open'))
+				discussion = undefined;
+		})
+
+		// Add contact select2
+		select2_ajaxsearch("#createChatId", "E_user", ["f_login"]);
 	}
 });
