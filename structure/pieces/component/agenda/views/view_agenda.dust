@@ -99,11 +99,15 @@
 	<script src='/js/plugins/fullcalendar/scheduler.js'></script>
 	<script>var calendarEvents = [];</script>
 	{#events}
-		<script>calendarEvents.push({title: "{title}", start: "{start}", end: "{end}", allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", resourceIds: "{ressourceIds}"});</script>
+		<script>var resourceIdsArray = [];</script>
+		{#.ressourceIds}
+			<script>resourceIdsArray.push({.})</script>
+		{/.ressourceIds}
+		<script>calendarEvents.push({eventId:{eventId}, title: "{title}", start: moment("{start}").format("YYYY-MM-DD HH:mm:ss"), end: moment("{end}").format("YYYY-MM-DD HH:mm:ss"), allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", resourceIds: resourceIdsArray});</script>
 	{/events}
 	<script>var usersRessources = [];</script>
 	{#users}
-		<script>usersRessources.push({id:"{id}", title: "{f_login}"});</script>
+		<script>usersRessources.push({id:{id}, title: "{f_login}"});</script>
 	{/users}
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -161,16 +165,29 @@
 				},
 		        buttonText: buttonTextObj,
 				navLinks: false,
-				editable: false,
+				editable: true,
 				eventLimit: true,
 				droppable: true,
 				resourceAreaWidth:"15%",
+				defaultTimedEventDuration: "04:00:00",
 		        eventReceive: function(event){
+
+		        	/*event.end is null, so set it to start + the number of hours you want*/
+		        	event.end = moment(event.start).add(4, "h");
+
+		        	/* Convert into good SQL format */
+		        	var startDate = moment(event.start).format("YYYY-MM-DD HH:mm:ss");
+        			var endDate = moment(event.end).format("YYYY-MM-DD HH:mm:ss");
+
+        			/* Convert the result in UTC, new newmips standard */
+        			startDate = moment.utc(new Date(startDate));
+        			endDate = moment.utc(new Date(endDate));
+
 		        	var ajaxData = {
 		        		title: event.title,
 		        		allday: event.allDay,
-		        		start: event.start,
-		        		end: event.end,
+		        		start: startDate,
+		        		end: endDate,
 		        		idCategory: event.idCategory,
 		        		idUser: event.resourceId || null
 		        	};
@@ -184,7 +201,73 @@
 						context: this,
 						success: function (data) {
 							event.url = "/URL_EVENT/show?id="+data.idEvent;
+							event.eventId = data.idEvent;
 							$('#calendar').fullCalendar('updateEvent', event);
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+		        },
+		        eventResize: function(event){
+
+		        	/* Convert into good SQL format */
+		        	var startDate = moment(event.start).format("YYYY-MM-DD HH:mm:ss");
+        			var endDate = moment(event.end).format("YYYY-MM-DD HH:mm:ss");
+
+        			/* Convert the result in UTC, new newmips standard */
+        			startDate = moment.utc(new Date(startDate));
+        			endDate = moment.utc(new Date(endDate));
+
+		        	var ajaxData = {
+		        		eventId: event.eventId,
+		        		start: startDate,
+		        		end: endDate
+		        	};
+
+		        	$.ajax({
+						url : '/URL_ROUTE/resize_event',
+						type : 'POST',
+						data : JSON.stringify(ajaxData),
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (data) {
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+		        },
+		        eventDrop: function(event){
+
+		        	/* Convert into good SQL format */
+		        	var startDate = moment(event.start).format("YYYY-MM-DD HH:mm:ss");
+        			var endDate = moment(event.end).format("YYYY-MM-DD HH:mm:ss");
+
+        			/* Convert the result in UTC, new newmips standard */
+        			startDate = moment.utc(new Date(startDate));
+        			endDate = moment.utc(new Date(endDate));
+
+		        	var ajaxData = {
+		        		eventId: event.eventId,
+		        		start: startDate,
+		        		end: endDate,
+		        		idUser: event.resourceId || null,
+		        		idUsers: event.resourceIds || null
+		        	};
+
+		        	$.ajax({
+						url : '/URL_ROUTE/update_event',
+						type : 'POST',
+						data : JSON.stringify(ajaxData),
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (data) {
+							/*event.url = "/agenda_event/show?id="+data.idEvent;
+							event.eventId = data.idEvent;
+							$('#calendar').fullCalendar('updateEvent', event);*/
 						},
 						error: function (error) {
 							console.log(error);
