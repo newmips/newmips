@@ -1592,7 +1592,7 @@ exports.createComponentChat = function(attr, callback) {
     structure_component.setupChat(attr, function(err) {
         if (err)
             return callback(err);
-        callback(null, {message: 'chat.success'});
+        callback(null, {message: 'structure.component.chat.success'});
     });
 }
 

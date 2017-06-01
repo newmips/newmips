@@ -150,12 +150,14 @@ var socket = io();
 }
 
 $(function() {
+	// Initialize only global notifications to ease server load when discussion collapsed
 	socket.emit('notifications-total');
 
 	// Socket input bidings
 	{
 		socket.on('contacts', createContactList);
 
+		var beforeLoadHeight;
 		socket.on('chat-messages', function(data) {
 			var baseMessagesLength = chats[data.id_chat].messages.length;
 
@@ -163,6 +165,15 @@ $(function() {
 			prependToDiscussion(data);
 			if (baseMessagesLength == 0)
 				scroll(true);
+			else {
+				// Scroll to position before new messages loaded to make the load visible
+				// `beforeLoadHeight` is set on the scroll event binding
+				if (beforeLoadHeight) {
+					var newScrollTop = $("#discussion").prop('scrollHeight') - beforeLoadHeight;
+					$("#discussion").scrollTop(newScrollTop);
+					beforeLoadHeight = undefined;
+				}
+			}
 		});
 
 		socket.on('chat-message', function(data) {
@@ -239,7 +250,6 @@ $(function() {
 			}
 		});
 		$("#doCreateChat").click(function() {
-			console.log($("#createChatId").val());
 			if ($("#createChatId").val() == '')
 				return;
 			socket.emit('chat-create', {receiver: $("#createChatId").val()});
@@ -257,8 +267,10 @@ $(function() {
 
 		// Discussion scrolled to max top, load previous messages
 		$("#discussion").scroll(function() {
-			if ($(this).scrollTop() == 0)
+			if ($(this).scrollTop() == 0) {
+				beforeLoadHeight = $("#discussion").prop('scrollHeight');
 				loadPreviousChatMessage(discussion.id);
+			}
 		});
 
 		$("#contactsBtn").click(function() {
