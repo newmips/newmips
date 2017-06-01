@@ -167,7 +167,7 @@ $(function() {
 
 		socket.on('chat-message', function(data) {
 			if (chats[data.f_id_chat])
-				chats[data.f_id_chat].messages.push(data);
+				chats[data.f_id_chat].messages.unshift(data);
 
 			// If message is not for current discussion append it, if not increment notif
 			if (discussion && (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver))
