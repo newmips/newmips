@@ -728,10 +728,16 @@ exports.setupChat = function(attr, callback) {
 		fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
 
 		// Add custom user_channel/user_chat columns to toSync file
+		// Id will not be used but is required by sequelize to be able to query on the junction table
 		var toSync = require(workspacePath+'/models/toSync.json');
 		toSync[attr.id_application+'_chat_user_channel'] = {
 			attributes: {
-				id_last_seen_message: {type: 'INTEGER', default: 0}
+				id_last_seen_message: {type: 'INTEGER', default: 0},
+				id: {
+			        type: "INTEGER",
+			        autoIncrement: true,
+			        primaryKey: true
+			    }
 			}
 		};
 		toSync[attr.id_application+'_chat_user_chat'] = {
