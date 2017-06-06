@@ -151,7 +151,9 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 attr.gitlabUser = null;
 
             session_manager.getSession(attr, function(err, info) {
-                docBuilder.build(req.session.id_application);
+                docBuilder.build(req.session.id_application).catch(function(err){
+                    console.log(err);
+                });
 
                 data.session = info;
 
@@ -364,7 +366,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
                         session_manager.getSession(newAttr, function(err, info) {
 
-                            docBuilder.build(req.session.id_application);
+                            docBuilder.build(req.session.id_application).catch(function(err){
+                                console.log(err);
+                            });
                             data.session = info;
 
                             initPreviewData(req.session.id_application, data).then(function(data) {
