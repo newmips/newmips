@@ -4,14 +4,15 @@
 
         <div class="box-tools pull-right">
             <span id="totalNotSeen" data-toggle="tooltip" title="" class="badge bg-light-blue"></span>
-            <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Contacts">
-        <i class="fa fa-comments"></i>
-    </button>
+            <button id="channelUsersBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" data-original-title="Channel contacts" style="display:none;"><i class="fa fa-users"></i></button>
+            <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Contacts"><i class="fa fa-comments"></i></button>
             <button id="collapseChat" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
         </div>
     </div>
 
     <div class="box-body">
+        <div id="channelUsers" style="width:100%; position:fixed;background-color: white;z-index:10;display:none;">
+        </div>
         <div id="discussion" class="direct-chat-messages">
         </div>
 

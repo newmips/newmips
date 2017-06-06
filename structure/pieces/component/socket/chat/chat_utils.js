@@ -203,6 +203,10 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)},
 				include: [{
+					attributes: ['f_login'],
+					model: models.E_user,
+					as: 'r_user_channel'
+				}, {
 					model: models.E_channelmessage,
 					as: 'r_channelmessage',
 					order: 'id DESC',
@@ -215,7 +219,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					}]
 				}]
 			}).then(function(channel) {
-				socket.emit('channel-messages', {id_channel: data.id_channel, id_self: user.id, messages: channel.r_channelmessage});
+				socket.emit('channel-messages', {contacts: channel.r_user_channel ,id_channel: data.id_channel, id_self: user.id, messages: channel.r_channelmessage});
 			}).catch(function(e) {
 				console.log(e);
 			});;

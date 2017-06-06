@@ -73,6 +73,15 @@ var socket = io();
 
 		return message;
 	}
+	function channelContacts(contacts) {
+		var contactsHtml = '';
+		contactsHtml += '<h4 class="contacts-list-name" style="margin-left:10px;">Channel contacts</h4>';
+		contactsHtml += '<ul class="contacts-list">';
+		for (var i = 0; i < contacts.length; i++)
+			contactsHtml += '<li>'+contacts[i].f_login+'</li>';
+		contactsHtml += '</ul><hr>';
+		$("#channelUsers").html(contactsHtml);
+	}
 }
 
 // Discussion handle
@@ -107,6 +116,7 @@ var socket = io();
 		if (channels[id_channel]) {
 			discussion = {id: id_channel, messages: channels[id_channel].messages, type: 'channel'};
 			prependToDiscussion(channels[id_channel]);
+			channelContacts(channels[id_channel].contacts);
 		}
 		// Chat not loaded
 		else if (!channels[id_channel]) {
@@ -116,6 +126,7 @@ var socket = io();
 		}
 		localStorage.channelId = id_channel;
 		socket.emit('channel-update_last_seen', {id_channel: id_channel});
+		$("#channelUsersBtn").show();
 		scroll(true);
 	}
 
@@ -240,7 +251,10 @@ $(function() {
 			var baseMessagesLength = channels[data.id_channel].messages.length;
 
 			channels[data.id_channel].messages = data.messages.concat(channels[data.id_channel].messages);
+			channels[data.id_channel].contacts = data.contacts;
+			channels[data.id_channel].id_self = data.id_self;
 			prependToDiscussion(data);
+			channelContacts(data.contacts);
 			if (baseMessagesLength == 0)
 				scroll(true);
 			else {
@@ -393,9 +407,15 @@ $(function() {
 			if (!$("#chat").hasClass('direct-chat-contacts-open')) {
 				localStorage.removeItem('chatId');
 				localStorage.removeItem('contactId');
+				localStorage.removeItem('channelId');
 				discussion = undefined;
+				$("#channelUsersBtn").hide();
 			}
-		})
+		});
+
+		$("#channelUsersBtn").click(function() {
+			$("#channelUsers").toggle();
+		});
 
 		// Add contact select2
 		select2_ajaxsearch("#createChatId", "E_user", ["f_login"]);
