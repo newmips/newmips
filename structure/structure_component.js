@@ -267,7 +267,7 @@ exports.newPrint = function(attr, callback){
 
 			try{
 				var componentContent = "";
-				componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>";
+				componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade print-tab'>";
 				componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>";
 				componentContent += "	<div id='"+nameComponent+"-content'>";
 
@@ -299,7 +299,7 @@ exports.newPrint = function(attr, callback){
 					var match;
 
 					// Find dust file inclusion with dust helper
-					var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
+					/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
 					var matches = [];
 
 					while (match = maRegex.exec($(this)[0].innerHTML)) {
@@ -319,8 +319,8 @@ exports.newPrint = function(attr, callback){
 							matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
 						}
 						string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
-					}
-					var contentToAdd = "<legend>" + titleTab + "</legend>" + string + "<br>";
+					}*/
+					var contentToAdd = "<legend>" + titleTab + "</legend>" + $(this)[0].innerHTML + "<br>";
 
 					// Change ID to prevent JS errors in DOM
 					contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");

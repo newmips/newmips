@@ -1621,7 +1621,7 @@ exports.createNewComponentPrint = function (attr, callback) {
                     if(err)
                         return callback(err, null);
                     try{
-                       // Get Dmodule info needed for structure
+                       // Get module info needed for structure
                         db_module.getModuleById(attr.id_module, function(err, module){
                             if(err)
                                 return callback(err, null);
