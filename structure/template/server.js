@@ -1,5 +1,5 @@
 // server.js
-
+process.env.TZ = 'UTC';
 // Set up ======================================================================
 // Get all the tools we need
 var path = require('path');

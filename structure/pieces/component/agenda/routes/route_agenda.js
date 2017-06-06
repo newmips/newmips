@@ -42,9 +42,10 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                 ressourceIds.push(events[i].r_users[j].id);
             }
             eventsArray.push({
+                eventId: events[i].id,
                 title: events[i].f_title,
-                start: moment(events[i].f_start_date).format("YYYY-MM-DD HH:mm:ss"),
-                end: moment(events[i].f_end_date).format("YYYY-MM-DD HH:mm:ss"),
+                start: events[i].f_start_date,
+                end: events[i].f_end_date,
                 allDay: events[i].f_all_day,
                 backgroundColor: events[i].r_category.f_color,
                 url: "/CODE_NAME_EVENT_URL/show?id="+events[i].id,
@@ -76,7 +77,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "writ
     var createObj = {
         version: 0,
         f_title: req.body.title,
-        f_start_date: moment(req.body.start).format("YYYY-MM-DD HH:mm:ss"),
+        f_start_date: req.body.start,
         f_end_date: req.body.end,
         f_all_day: req.body.allday,
         f_id_CODE_NAME_CATEGORY_URL_category: req.body.idCategory
@@ -90,6 +91,44 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "writ
             res.json({
                 success: true,
                 idEvent: createdEvent.id
+            });
+        });
+    });
+});
+
+router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE", "write"), function(req, res) {
+
+    var updateObj = {
+        f_start_date: req.body.start,
+        f_end_date: req.body.end
+    };
+
+    models.CODE_NAME_EVENT_MODEL.update(updateObj, {where: {id: req.body.eventId}}).then(function(updatedEvent){
+        res.json({
+            success: true
+        });
+    });
+});
+
+router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE", "write"), function(req, res) {
+
+    var updateObj = {
+        f_start_date: req.body.start,
+        f_end_date: req.body.end
+    };
+
+    models.CODE_NAME_EVENT_MODEL.findById(req.body.eventId).then(function(currentEvent){
+        currentEvent.update(updateObj, {where: {id: req.body.eventId}}).then(function(updateEvent){
+            var users = [];
+            if(req.body.idUsers != null){
+                users = req.body.idUsers;
+            } else if (req.body.idUser != null){
+                users.push(req.body.idUser);
+            }
+            currentEvent.setR_users(users).then(function(){
+                res.json({
+                    success: true
+                });
             });
         });
     });
