@@ -1,15 +1,35 @@
 var socket = io();
 
+// Utils
+{
+	function formatDate(d) {
+		return ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
+		    d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
+	}
+
+	function sortMessages(messages, idx) {
+		if (!messages[idx+1])
+			return messages;
+		if (messages[idx].id > messages[idx+1].id)
+			return sortMessages(messages, idx+1);
+		var tmp = messages[idx];
+		messages[idx] = messages[idx+1];
+		messages[idx+1] = tmp;
+		return sortMessages(messages, idx-1 <= 0 ? 0 : idx-1);
+	}
+}
+
 // Html templates
 {
 	function contactChannel(channelObj) {
 		var channel = '';
-	    channel += '<li data-id="'+channelObj.id+'" data-type="channel">';
+	    channel += '<li data-id-channel="'+channelObj.id+'" data-type="channel">';
 	    channel += '    <a href="#">';
 	    channel += '        <img class="contacts-list-img">';
 	    channel += '        <div class="contacts-list-info">';
 	    channel += '            <span class="contacts-list-name">';
 	    channel += '                '+channelObj.f_name;
+		channel += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((channelObj.notSeen && channelObj.notSeen > 0) ? '' : 'display:none;')+'">'+channelObj.notSeen+'</span>'
 	    channel += '            </span>';
 	    channel += '            <span class="contacts-list-msg"><!-- INSERT LAST MESSAGE --></span>';
 	    channel += '        </div>';
@@ -26,7 +46,7 @@ var socket = io();
 		chat += '        <div class="contacts-list-info">';
 		chat += '            <span class="contacts-list-name">';
 		chat += '                '+chatObj.contact.f_login;
-		chat += '                <small class="contacts-list-date pull-right">'+chatObj.updatedAt.substring(0, 10)+'</small>';
+		chat += '                <small class="contacts-list-date pull-right">'+ formatDate(new Date(chatObj.updatedAt))+'</small>';
 		chat += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((chatObj.notSeen && chatObj.notSeen > 0) ? '' : 'display:none;')+'">'+chatObj.notSeen+'</span>'
 		chat += '            </span>';
 		chat += '        </div>';
@@ -44,7 +64,7 @@ var socket = io();
 		message += '<div class="direct-chat-msg '+sideClass+'">';
 		message += '    <div class="direct-chat-info clearfix">';
 		message += '        <span class="direct-chat-name '+nameClass+'">'+messageObj.r_sender.f_login+'</span>';
-		message += '        <span class="direct-chat-timestamp '+dateClass+'">'+messageObj.createdAt.substring(0, 10)+'</span>';
+		message += '        <span class="direct-chat-timestamp '+dateClass+'">'+formatDate(new Date(messageObj.createdAt))+'</span>';
 		message += '    </div>';
 		message += '    <div class="direct-chat-text" style="word-wrap:break-word;width:50%;'+floatStyle+'">';
 		message += '        '+messageObj.f_message;
@@ -58,7 +78,7 @@ var socket = io();
 // Discussion handle
 {
 	var chats = [], channels = [];
-	var discussion;
+	var discussion;var defaultDiscussion;
 	function selectChat(id_chat, id_contact) {
 		if (discussion && discussion.id == id_chat)
 			return;
@@ -75,22 +95,39 @@ var socket = io();
 			socket.emit('chat-load', {id_chat: id_chat, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
 			discussion = {id: id_chat, id_contact: id_contact, messages: chats[id_chat].messages, type: 'chat'};
 		}
+		localStorage.chatId = id_chat;
+		localStorage.contactId = id_contact;
 		socket.emit('chat-update_last_seen', {id_chat: id_chat});
 		scroll(true);
 	}
-	function selectChannel(id) {
+	function selectChannel(id_channel) {
+		if (discussion && discussion.id == id_channel)
+			return;
 		$("#discussion").html('');
-		if (!channels[id]) {
-			channels[id] = {limit: 5, offset: 0, messages: []};
-			// 'channel-load' answers with 'channel-messages'
-			socket.emit('channel-load', {id: id, limit: channels[id].limit, offset: channels[id].offset});
+		if (channels[id_channel]) {
+			discussion = {id: id_channel, messages: channels[id_channel].messages, type: 'channel'};
+			prependToDiscussion(channels[id_channel]);
 		}
-		discussion = {id: id, id_contact: id_contact, messages: channels[id].messages, type: 'channel'};
+		// Chat not loaded
+		else if (!channels[id_channel]) {
+			channels[id_channel] = {limit: 5, offset: 0, messages: []};
+			socket.emit('channel-load', {id_channel: id_channel, limit: channels[id_channel].limit, offset: channels[id_channel].offset});
+			discussion = {id: id_channel, messages: channels[id_channel].messages, type: 'channel'};
+		}
+		localStorage.channelId = id_channel;
+		socket.emit('channel-update_last_seen', {id_channel: id_channel});
+		scroll(true);
 	}
 
-	function loadPreviousChatMessage(id_chat) {
-		chats[id_chat].offset = chats[id_chat].messages.length;
-		socket.emit('chat-load', {id_chat: id_chat, limit: chats[id_chat].limit, offset: chats[id_chat].offset});
+	function loadPreviousChatMessage(discussion) {
+		if (discussion.type == 'chat') {
+			chats[discussion.id].offset = chats[discussion.id].messages.length;
+			socket.emit('chat-load', {id_cha: discussion.id, limit: chats[discussion.id].limit, offset: chats[discussion.id].offset});
+		}
+		else if (discussion.type == 'channel') {
+			channels[discussion.id].offset = channels[discussion.id].messages.length;
+			socket.emit('channel-load', {id_channel: discussion.id, limit: channels[discussion.id].limit, offset: channels[discussion.id].offset});
+		}
 	}
 }
 
@@ -102,8 +139,10 @@ var socket = io();
 		var totalNotSeen = 0;
 		$("#channelsList").html('');
 		$("#chatsList").html('');
-		for (var i = 0; i < data.r_user_channel.length; i++)
+		for (var i = 0; i < data.r_user_channel.length; i++) {
+			totalNotSeen += data.r_user_channel[i].notSeen;
 			$("#channelsList").append(contactChannel(data.r_user_channel[i]));
+		}
 		for (var i = 0; i < data.r_chat.length; i++) {
 			totalNotSeen += data.r_chat[i].notSeen;
 			$("#chatsList").append(contactChat(data.r_chat[i]));
@@ -113,19 +152,37 @@ var socket = io();
 			$("#totalNotSeen").text('0').hide();
 		else
 			$("#totalNotSeen").text(totalNotSeen).show();
+
+		if (defaultDiscussion) {
+			$("#chat").removeClass('direct-chat-contacts-open');
+			if (defaultDiscussion.type == 'chat')
+				selectChat(defaultDiscussion.chatId, defaultDiscussion.contactId);
+			else if (defaultDiscussion.type == 'channel')
+				selectChannel(defaultDiscussion.channelId);
+			defaultDiscussion = undefined;
+		}
 	}
 
 	function prependToDiscussion(data) {
 		if (typeof data.messages === 'undefined')
 			data.messages = [data];
+
+		// Sort messages by ID (createdAt can be at the same second)
+		data.messages = sortMessages(data.messages, 0);
 		for (var i = 0; i < data.messages.length; i++) {
-			var msgTemplate = discussionMessage(data.messages[i], data.messages[i].r_sender.id == discussion.id_contact);
+			var messageSide = (discussion.type == 'chat')
+								? data.messages[i].r_sender.id == discussion.id_contact
+								: data.messages[i].r_sender.id != data.id_self;
+			var msgTemplate = discussionMessage(data.messages[i], messageSide);
 			$("#discussion").prepend(msgTemplate);
 		}
 	}
 
 	function appendToDiscussion(data) {
-		var msgTemplate = discussionMessage(data, data.r_sender.id == discussion.id_contact);
+		var messageSide = (discussion.type == 'chat')
+							? data.r_sender.id == discussion.id_contact
+							: data.r_sender.id != data.id_self;
+		var msgTemplate = discussionMessage(data, messageSide);
 		$("#discussion").append(msgTemplate);
 		scroll(true);
 	}
@@ -153,11 +210,62 @@ $(function() {
 	// Initialize only global notifications to ease server load when discussion collapsed
 	socket.emit('notifications-total');
 
+	var beforeLoadHeight;
+
 	// Socket input bidings
 	{
+		// GLOBAL
 		socket.on('contacts', createContactList);
 
-		var beforeLoadHeight;
+		socket.on('notifications-total', function(data) {
+			if (data.total == 0)
+				$("#totalNotSeen").text('0').hide();
+			else
+				$("#totalNotSeen").text(data.total).show();
+		});
+
+		// CHANNEL
+		socket.on('channel-message', function(data) {
+			if (channels[data.f_id_channel])
+				channels[data.f_id_channel].messages.unshift(data);
+
+			// If message is not for current discussion append it, if not increment notif
+			if (discussion && (discussion.id == data.f_id_channel))
+				appendToDiscussion(data);
+			else
+				incrementNotifications(data.f_id_channel, 'channel');
+		});
+
+		socket.on('channel-messages', function(data) {
+			var baseMessagesLength = channels[data.id_channel].messages.length;
+
+			channels[data.id_channel].messages = data.messages.concat(channels[data.id_channel].messages);
+			prependToDiscussion(data);
+			if (baseMessagesLength == 0)
+				scroll(true);
+			else {
+				// Scroll to position before new messages loaded to make the load visible
+				// `beforeLoadHeight` is set on the scroll event binding
+				if (beforeLoadHeight) {
+					var newScrollTop = $("#discussion").prop('scrollHeight') - beforeLoadHeight;
+					$("#discussion").scrollTop(newScrollTop);
+					beforeLoadHeight = undefined;
+				}
+			}
+		});
+
+		// CHAT
+		socket.on('chat-message', function(data) {
+			if (chats[data.f_id_chat])
+				chats[data.f_id_chat].messages.unshift(data);
+
+			// If message is not for current discussion append it, if not increment notif
+			if (discussion && (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver))
+				appendToDiscussion(data);
+			else
+				incrementNotifications(data.f_id_chat, 'chat');
+		});
+
 		socket.on('chat-messages', function(data) {
 			var baseMessagesLength = chats[data.id_chat].messages.length;
 
@@ -174,21 +282,6 @@ $(function() {
 					beforeLoadHeight = undefined;
 				}
 			}
-		});
-
-		socket.on('chat-message', function(data) {
-			if (chats[data.f_id_chat])
-				chats[data.f_id_chat].messages.unshift(data);
-
-			// If message is not for current discussion append it, if not increment notif
-			if (discussion && (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver))
-				appendToDiscussion(data);
-			else
-				incrementNotifications(data.f_id_chat, 'chat');
-		});
-
-		socket.on('notifications-total', function(data) {
-			$("#totalNotSeen").text(data.total);
 		});
 	}
 
@@ -210,13 +303,30 @@ $(function() {
 		if (localStorage.chatCollapsed == "false") {
 			$("#chat").removeClass('collapsed-box');
 			initialized = true;
+			// Show previously selected discussion if defined
+			if (localStorage.chatId || localStorage.channelId) {
+				defaultDiscussion = {};
+				if (localStorage.chatId) {
+					defaultDiscussion.type = 'chat';
+					defaultDiscussion.chatId = localStorage.chatId;
+					defaultDiscussion.contactId = localStorage.contactId;
+				}
+				else if (localStorage.channelId) {
+					defaultDiscussion.type = 'channel';
+					defaultDiscussion.channelId = localStorage.channelId;
+				}
+			}
 			socket.emit('initialize');
 		}
 
 		// Send message
 		$("#messageForm").submit(function() {
-			socket.emit('chat-message', {message: $("input[name='chat-message']").val(), id_chat: discussion.id, id_contact: discussion.id_contact});
-			$("input[name='chat-message']").val('');
+			var msg = $("input[name='discussion-message']").val();
+			if (discussion.type == 'chat')
+				socket.emit('chat-message', {message: msg, id_chat: discussion.id, id_contact: discussion.id_contact});
+			else if (discussion.type == 'channel')
+				socket.emit('channel-message', {message: msg, id_channel: discussion.id});
+			$("input[name='discussion-message']").val('');
 			return false;
 		});
 
@@ -235,6 +345,12 @@ $(function() {
 			if ($("#createChannelName").val() == '')
 				return;
 			socket.emit('channel-create', {name: $("#createChannelName").val()});
+			$("#createChannelBtn").click();
+		});
+		$("#doJoinChannel").click(function() {
+			if ($("#joinChannel").val() == '')
+				return;
+			socket.emit('channel-join', {id_channel: $("#joinChannel").val()});
 			$("#createChannelBtn").click();
 		});
 
@@ -259,7 +375,7 @@ $(function() {
 		// Contact list bindings
 		$(document).delegate("#channelsList li, #chatsList li", 'click', function() {
 			if ($(this).parent().attr('id') == 'channelsList')
-				selectChannel($(this).data('id-chat'), $(this).data('id-contact'));
+				selectChannel($(this).data('id-channel'));
 			else if ($(this).parent().attr('id') == 'chatsList')
 				selectChat($(this).data('id-chat'), $(this).data('id-contact'));
 			$("#contactsBtn").click();
@@ -269,16 +385,20 @@ $(function() {
 		$("#discussion").scroll(function() {
 			if ($(this).scrollTop() == 0) {
 				beforeLoadHeight = $("#discussion").prop('scrollHeight');
-				loadPreviousChatMessage(discussion.id);
+				loadPreviousChatMessage(discussion);
 			}
 		});
 
 		$("#contactsBtn").click(function() {
-			if (!$("#chat").hasClass('direct-chat-contacts-open'))
+			if (!$("#chat").hasClass('direct-chat-contacts-open')) {
+				localStorage.removeItem('chatId');
+				localStorage.removeItem('contactId');
 				discussion = undefined;
+			}
 		})
 
 		// Add contact select2
 		select2_ajaxsearch("#createChatId", "E_user", ["f_login"]);
+		select2_ajaxsearch("#joinChannel", "E_channel", ["f_name"]);
 	}
 });

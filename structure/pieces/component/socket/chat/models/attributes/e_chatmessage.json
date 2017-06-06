@@ -10,9 +10,5 @@
     "f_message": {
         "type": "TEXT",
         "newmipsType": "text"
-    },
-    "f_seen": {
-        "type": "STRING",
-        "newmipsType": "bool"
     }
 }

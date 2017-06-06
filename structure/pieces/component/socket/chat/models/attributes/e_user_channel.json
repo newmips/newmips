@@ -4,9 +4,6 @@
         "autoIncrement": true,
         "primaryKey": true
     },
-    "version": {
-        "type": "INTEGER"
-    },
     "id_last_seen_message": {
         "type": "INTEGER",
         "newmipsType": "integer"

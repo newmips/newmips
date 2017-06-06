@@ -9,7 +9,7 @@ function sendChatChannelList(user, socket) {
 			include: [{
 				model: models.E_channel,
 				as: 'r_user_channel',
-				order: ['createdAt DESC']
+				order: ['id DESC']
 			}, {
 				model: models.E_chat,
 				as: 'r_chat',
@@ -19,10 +19,10 @@ function sendChatChannelList(user, socket) {
 				}]
 			}]
 		}).then(function(chatAndChannel) {
-			var lastSeenPromises = [];
+			var lastSeenChatPromises = [];
 			for (var i = 0; i < chatAndChannel.r_chat.length; i++) {
 				// Build promise array that count the number of not seen messages for each chat
-				lastSeenPromises.push(new Promise(function(resolve, reject) {
+				lastSeenChatPromises.push(new Promise(function(resolve, reject) {
 					models.E_user_chat.findOne({
 						where: {id_chat: chatAndChannel.r_chat[i].id, id_user: user.id}
 					}).then(function(userChat) {
@@ -39,23 +39,49 @@ function sendChatChannelList(user, socket) {
 						});
 					});
 				}));
-
-				// Remove self from chat user array to simplify client side operations
-				var chatUsers = chatAndChannel.r_chat[i].r_user;
-				for (var j = 0; j < chatUsers.length; j++) {
-					if (chatUsers[j].id != user.id) {
-						chatAndChannel.r_chat[i].dataValues.contact = chatUsers[j];
-						break;
-					}
-				}
 			}
 
-			Promise.all(lastSeenPromises).then(function(notSeens) {
-				// Attach notSeen count to corresponding chat
-				for (var i = 0; i < chatAndChannel.r_chat.length; i++)
-					chatAndChannel.r_chat[i].dataValues.notSeen = notSeens[i].notSeen;
+			var lastSeenChannelPromises = [];
+			for (var i = 0; i < chatAndChannel.r_user_channel.length; i++) {
+				lastSeenChannelPromises.push(new Promise(function(resolve, reject) {
+					models.E_user_channel.findOne({
+						where: {id_channel: chatAndChannel.r_user_channel[i].id, id_user: user.id}
+					}).then(function(userChannel) {
+						if (userChannel.id_last_seen_message == null)
+							userChannel.id_last_seen_message = 0;
+						models.E_channelmessage.count({
+							where: {
+								f_id_channel: userChannel.id_channel,
+								id: {$gt: userChannel.id_last_seen_message},
+								f_id_user_sender: {$not: user.id}
+							}
+						}).then(function(notSeen) {
+							resolve({id_channel: userChannel.id_channel, notSeen: notSeen});
+						});
+					});
+				}));
+			}
 
-				socket.emit('contacts', chatAndChannel);
+			Promise.all(lastSeenChatPromises).then(function(notSeens) {
+				for (var i = 0; i < chatAndChannel.r_chat.length; i++) {
+					// Remove self from chat user array to simplify client side operations
+					var chatUsers = chatAndChannel.r_chat[i].r_user;
+					for (var j = 0; j < chatUsers.length; j++) {
+						if (chatUsers[j].id != user.id) {
+							chatAndChannel.r_chat[i].dataValues.contact = chatUsers[j];
+							break;
+						}
+					}
+					// Attach notSeen count to corresponding chat
+					chatAndChannel.r_chat[i].dataValues.notSeen = notSeens[i].notSeen;
+				}
+
+				Promise.all(lastSeenChannelPromises).then(function(notSeens) {
+					for (var i = 0; i < chatAndChannel.r_user_channel.length; i++)
+						chatAndChannel.r_user_channel[i].dataValues.notSeen = notSeens[i].notSeen;
+					socket.emit('contacts', chatAndChannel);
+				});
+
 			});
 		});
 	});
@@ -121,6 +147,96 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			});;
 		});
 
+		// Channel join
+		socket.on('channel-join', function(data) {
+			models.E_channel.findOne({
+				id: parseInt(data.id_channel)
+			}).then(function(channel) {
+				models.E_user.findById(user.id).then(function(userObj) {
+					userObj.addR_user_channel(channel).then(function() {
+						// Refresh contact list
+						sendChatChannelList(user, socket);
+					});
+				});
+			}).catch(function(e) {
+				console.log(e);
+			});;
+		});
+
+		// Channel message received
+		socket.on('channel-message', function(data) {
+			data.id_channel = parseInt(data.id_channel);
+
+			models.E_channel.findOne({where: {id: data.id_channel}}).then(function(channel) {
+				if (!channel)
+					return 'Existe pas, il a joue avec les ID';
+				// Insert message into DataBase
+				models.E_channelmessage.create({
+					f_message: data.message,
+					f_id_user_sender: user.id,
+					f_id_channel: data.id_channel
+				}).then(function(channelmessage) {
+					models.E_channelmessage.findOne({
+						where: {id: channelmessage.id},
+						include: [{
+							model: models.E_user,
+							as: 'r_sender'
+						}]
+					}).then(function(channelmessage) {
+						models.E_user_channel.findAll({
+							where: {id_channel: data.id_channel}
+						}).then(function(channelusers) {
+							for (var i = 0; i < channelusers.length; i++)
+								if (connectedUsers[channelusers[i].id_user]) {
+									channelmessage.dataValues.id_self = channelusers[i].id_user;
+									connectedUsers[channelusers[i].id_user].socket.emit('channel-message', channelmessage);
+								}
+						});
+					});
+				});
+			}).catch(function(e) {
+				console.log(e);
+			});;
+		});
+
+		socket.on('channel-load', function(data) {
+			models.E_channel.findOne({
+				where: {id: parseInt(data.id_channel)},
+				include: [{
+					model: models.E_channelmessage,
+					as: 'r_channelmessage',
+					order: 'id DESC',
+					limit: data.limit,
+					offset: data.offset,
+					include: [{
+						model: models.E_user,
+						as: 'r_sender',
+						attributes: ['id', 'f_login']
+					}]
+				}]
+			}).then(function(channel) {
+				socket.emit('channel-messages', {id_channel: data.id_channel, id_self: user.id, messages: channel.r_channelmessage});
+			}).catch(function(e) {
+				console.log(e);
+			});;
+		});
+
+		socket.on('channel-update_last_seen', function(data) {
+			models.E_channelmessage.max('id', {
+				where: {
+					f_id_channel: parseInt(data.id_channel),
+					f_id_user_sender: {$not: user.id}
+				}
+			}).then(function(newLastSeenId) {
+				if (isNaN(newLastSeenId))
+					newLastSeenId = 0;
+				models.E_user_channel.update({id_last_seen_message: newLastSeenId}, {
+					where: {id_channel: data.id_channel, id_user: user.id}
+				}).then(function() {
+					sendChatChannelList(user, socket);
+				});
+			});
+		});
 	}
 
 	// Chat bindings
@@ -159,7 +275,6 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				// Insert message into DataBase
 				models.E_chatmessage.create({
 					f_message: data.message,
-					f_seen: (connectedUsers[data.id_contact] ? true : false),
 					f_id_user_sender: user.id,
 					f_id_user_receiver: data.id_contact,
 					f_id_chat: data.id_chat
@@ -191,7 +306,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				include: [{
 					model: models.E_chatmessage,
 					as: 'r_chatmessage',
-					order: 'createdAt DESC',
+					order: 'id DESC',
 					limit: data.limit,
 					offset: data.offset,
 					include: [{
