@@ -3,6 +3,8 @@ var fs = require('fs-extra');
 var exec = require('child_process').exec;
 
 function capitalizeFirstLetter(word) {
+	if(typeof word === "undefined" || !word)
+		return "";
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
