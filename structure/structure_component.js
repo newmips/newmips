@@ -268,7 +268,7 @@ exports.newPrint = function(attr, callback){
 			try{
 				var componentContent = "";
 				componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade print-tab'>";
-				componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>";
+				//componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>";
 				componentContent += "	<div id='"+nameComponent+"-content'>";
 
 				$("input").each(function() {
@@ -320,7 +320,7 @@ exports.newPrint = function(attr, callback){
 						}
 						string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
 					}*/
-					var contentToAdd = "<legend>" + titleTab + "</legend>" + $(this)[0].innerHTML + "<br>";
+					var contentToAdd = "<legend>" + titleTab + "</legend>" + $(this)[0].innerHTML;
 
 					// Change ID to prevent JS errors in DOM
 					contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
@@ -329,6 +329,7 @@ exports.newPrint = function(attr, callback){
 
 				componentContent += "	</div>";
 				componentContent += "</div>";
+				componentContent = componentContent.replace("&nbsp;", "");
 
 				addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
 			} catch(err){
