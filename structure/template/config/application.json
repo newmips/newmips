@@ -1,3 +1,8 @@
 {
-	"api_enabled": true
+	"api_enabled": true,
+	"socket": {
+		"enabled": false,
+		"chat": false,
+		"notifications": false
+	}
 }

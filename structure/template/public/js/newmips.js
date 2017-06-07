@@ -1,3 +1,37 @@
+function select2_ajaxsearch(elementID, entity, searchFields) {
+    $(elementID).select2({
+        ajax: {
+            url: '/default/select2_search',
+            dataType: 'json',
+            method: 'POST',
+            delay: 250,
+            contentType: "application/json",
+            context: this,
+            data: function (params) {
+                var ajaxdata = {
+                    entity: entity,
+                    search: params.term,
+                    searchFields: searchFields
+                };
+                return JSON.stringify(ajaxdata);
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
+        },
+        minimumInputLength: 1,
+        escapeMarkup: function (markup) {
+            return markup;
+        },
+        templateResult: function (data) {
+            return data.text;
+        }
+    });
+}
+
 $(document).ready(function () {
 
     /* --------------- Gestion des Toastr (messages informatifs en bas à gauche) --------------- */
@@ -221,62 +255,6 @@ $(document).ready(function () {
             alias: "yyyy/mm/dd"
         });
     }
-
-    /* 1er Tentative */
-    /* Decimal input, remove . and insert a , */
-    /* Doesn't work at all */
-    /*$("input[type='number'][step='any']").each(function(){
-     $(this).keydown(function(e) {
-     if(e.key == "."){
-     e.key = ",";
-     }*/
-    /*var value = $(this).val();
-     var newValue = value.replace(".", ",");
-     $(this).val(newValue);*/
-    /*});
-     });*/
-
-    /* 2ème Tentative */
-    /* Decimal input, remove . and insert a , */
-    /* Doesn't work at all */
-    /*var inputDecimalValues = {};
-     $("input[type='number'][step='any']").each(function(){
-     $(this).keypress(function(e) {
-     var nameObj = $(this).attr("name");
-     
-     if($(this).val() == ""){
-     console.log("1");
-     if(typeof inputDecimalValues[nameObj] !== "undefined"){
-     console.log("11");
-     var newValue = "";
-     if(inputDecimalValues[nameObj].match(",.+") != null){
-     console.log("12");
-     newValue = inputDecimalValues[nameObj] + e.key;
-     inputDecimalValues[nameObj] = newValue;
-     console.log(newValue);
-     $(this).val(newValue);
-     }
-     else{
-     if(inputDecimalValues[nameObj].indexOf(",") == -1){
-     console.log("13");
-     inputDecimalValues[nameObj] = inputDecimalValues[nameObj] + ".";
-     }
-     else{
-     console.log("14");
-     inputDecimalValues[nameObj] = inputDecimalValues[nameObj] + e.key;
-     }
-     }
-     }
-     }
-     else{
-     console.log("2");
-     inputDecimalValues[nameObj] = $(this).val();
-     }
-
-     console.log("FIN");
-     console.log(inputDecimalValues);
-     });
-     });*/
 
     /* Avoid .dropzone to be automaticaly initialized */
     Dropzone.autoDiscover = false;

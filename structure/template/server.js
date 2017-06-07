@@ -73,7 +73,7 @@ var options = {
 };
 var sessionStore = new SessionStore(options);
 
-app.use(session({
+var sessionInstance = session({
 	store: sessionStore,
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
@@ -82,13 +82,17 @@ app.use(session({
 	maxAge: 360*5,
 	// We concat port for a workspace specific session, instead of generator specific
 	key: 'workspaceCookie'+port
- }));
- app.use(passport.initialize());
- // Persistent login sessions
- app.use(passport.session());
+});
+var socketSession = require('express-socket.io-session');
 
- // Use connect-flash for flash messages stored in session
- app.use(flash());
+app.use(sessionInstance);
+
+app.use(passport.initialize());
+// Persistent login sessions
+app.use(passport.session());
+
+// Use connect-flash for flash messages stored in session
+app.use(flash());
 
 // Locals global ======================================================================
 app.locals.moment = require('moment');
@@ -124,6 +128,7 @@ app.use(function(req, res, next) {
     	req.session.lang_user = lang;
 
     res.locals.lang_user = lang;
+    res.locals.config = globalConf;
 
     // When user is logged
 	if (req.isAuthenticated() || autologin) {
@@ -225,6 +230,12 @@ require('./routes/')(app);
 // Api routes ==================================================================
 require('./api/')(app);
 
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
 // Handle 404
 app.use(function(req, res) {
 	res.status(400);
@@ -251,6 +262,14 @@ if (protocol == 'https') {
                 }
 			});
 			var server = https.createServer(globalConf.ssl, app);
+
+			if (globalConf.socket.enabled) {
+				io = require('socket.io')(server);
+				// Provide shared express session to sockets
+				io.use(socketSession(sessionInstance));
+				require('./services/socket')(io);
+			}
+
 			server.listen(port);
 			console.log("Started https on "+port);
 		}).catch(function(err){
@@ -284,6 +303,14 @@ else {
                 }
 			});
 			var server = http.createServer(app);
+
+			if (globalConf.socket.enabled) {
+				io = require('socket.io')(server);
+				// Provide shared express session to sockets
+				io.use(socketSession(sessionInstance));
+				require('./services/socket')(io);
+			}
+
 			server.listen(port);
 			console.log("Started on "+port);
 		}).catch(function(err){
