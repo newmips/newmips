@@ -320,6 +320,9 @@
                 "alreadyExistOnEntity": "Sorry, a component with this name is already associate to this entity in this module.",
                 "alreadyExistInApp": "Sorry, an other entity with this component name already exist in this application.",
                 "alreadyExistOnModule": "Sorry, a component with this name is already associate to this module."
+            },
+            "chat": {
+                "success": "Chat component successfully added"
             }
         },
         "ui": {

@@ -706,6 +706,13 @@ exports.createNewComponentPrint = function(result) {
     return attr;
 };
 
+/* CHAT */
+exports.createComponentChat = function(result) {
+    return {
+        function: "createComponentChat"
+    }
+}
+
 // ******* INTERFACE Actions ******* //
 exports.setSkin = function(result) {
 
@@ -1509,6 +1516,10 @@ exports.parse = function(instruction) {
             "ajouter composant impression",
             "créer un onglet impression",
             "ajouter un onglet impression"
+        ],
+        "createComponentChat": [
+            "add component chat",
+            "create component chat"
         ],
         "setSkin": [
             "set skin (.*)",
