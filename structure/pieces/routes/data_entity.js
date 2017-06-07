@@ -18,7 +18,6 @@ var enums = require('../utils/enum.js');
 // Winston logger
 var logger = require('../utils/logger');
 
-
 function error500(err, req, res, redirect) {
     var isKnownError = false;
     try {
@@ -421,9 +420,9 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             }
         }).then(function () {
             req.session.toastr = [{
-                    message: 'message.delete.success',
-                    level: "success"
-                }];
+                message: 'message.delete.success',
+                level: "success"
+            }];
 
             var redirect = '/ENTITY_URL_NAME/list';
             if (typeof req.body.associationFlag !== 'undefined')
@@ -436,6 +435,31 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
     }).catch(function (err) {
         error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
+
+    // Check in the request come from an has one tab
+    /*if (typeof req.body.associationFlag !== 'undefined'){
+        var optionsSource = require('../models/options/'+req.body.associationSource);
+        var foundUpdateToDo = false;
+        for(var obj in optionsSource){
+            if(optionsSource[obj].target == "ENTITY_NAME" && optionsSource[obj].relation == "belongsTo" && !foundUpdateToDo){
+                var updateObj = {};
+                // Set to null the source obj foreign key to avoid constraint error when we destroy the target
+                updateObj[req.body.associationForeignKey] = null;
+                foundUpdateToDo = true;
+                models[capitalizeFirstLetter(req.body.associationSource)].update(updateObj, {
+                    where: {
+                        id: req.body.associationFlag
+                    }
+                }).then(function(){
+                    doDelete();
+                });
+            }
+        }
+        if(!foundUpdateToDo)
+            doDelete();
+    } else{
+        doDelete();
+    }*/
 });
 
 module.exports = router;
