@@ -14,7 +14,6 @@ function setupComponentModel(idApplication, folderComponent, nameComponent, file
 	writeStream.write(modelTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		//console.log('File => Component Model ------------------ CREATED');
 		callback();
 	});
 }
@@ -26,7 +25,6 @@ function createComponentAttributesAndOptionsFiles(idApplication, folderComponent
 	writeStream.write(attributesTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		//console.log("Model => Component attributes ------------------ CREATED");
 		// CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
 		var optionsTemplate = fs.readFileSync('./structure/pieces/component/'+folderComponent+'/models/options/options_'+filename+'.json', 'utf8');
 		optionsTemplate = optionsTemplate.replace(/SOURCE_ENTITY_LOWER/g, source);
@@ -35,7 +33,6 @@ function createComponentAttributesAndOptionsFiles(idApplication, folderComponent
 		writeStreamOption.write(optionsTemplate);
 		writeStreamOption.end();
 		writeStreamOption.on('finish', function() {
-			//console.log("Model => Component options/associations ------------------ CREATED");
 			callback();
 		});
 	});
@@ -54,7 +51,6 @@ function setupComponentRoute(idApplication, folderComponent, nameComponent, urlS
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		//console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -83,7 +79,6 @@ function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, va
 	writeStream.write(routeTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		//console.log('File => Component Route file ------------------ CREATED');
 		callback();
 	});
 }
@@ -110,7 +105,6 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 	writeStream.write(viewTemplate);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		//console.log('File => Component View file ------------------ CREATED');
 
 		// Copy the event view folder
 		var componentEventViewFolder = __dirname+'/pieces/component/agenda/views_event';
@@ -357,8 +351,6 @@ exports.newContactForm = function(attr, callback){
 	var workspacePath = __dirname+'/../workspace/'+idApp;
     var piecesPath = __dirname+'/../structure/pieces/component/contact_form';
 
-    /*var toSyncFileName = workspacePath+'/models/toSync.json';
-    var toSyncFile = fs.readFileSync(toSyncFileName);*/
     var toSyncObject = {};
     toSyncObject[idApp + "_" + codeNameSettings] = {};
     toSyncObject[idApp + "_" + codeNameSettings].queries = [];
@@ -738,4 +730,109 @@ exports.newCra = function(attr, callback){
     } catch(err) {
         callback(err);
     }
+}
+
+exports.setupChat = function(attr, callback) {
+	try {
+		var workspacePath = __dirname + '/../workspace/'+attr.id_application;
+		var piecesPath = __dirname + '/../structure/pieces/component/socket';
+
+		// Check if file exists (in case notification have been implemented first)
+		if (!fs.existsSync(workspacePath+'/services/socket.js'))
+			fs.copySync(piecesPath+'/socket.js', workspacePath+'/services/socket.js')
+
+		// Copy chat files
+		fs.copySync(piecesPath+'/chat/js/chat.js', workspacePath+'/public/js/Newmips/component/chat.js');
+		fs.copySync(piecesPath+'/chat/chat_utils.js', workspacePath+'/utils/chat.js');
+
+		// Copy chat models
+		var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
+		for (var i = 0; i < chatModels.length; i++) {
+			fs.copySync(piecesPath+'/chat/models/'+chatModels[i]+'.js', workspacePath+'/models/'+chatModels[i]+'.js');
+			var model = fs.readFileSync(workspacePath+'/models/'+chatModels[i]+'.js', 'utf8');
+			model = model.replace(/ID_APPLICATION/g, attr.id_application);
+			fs.writeFileSync(workspacePath+'/models/'+chatModels[i]+'.js', model, 'utf8');
+		}
+		// Copy attributes
+		fs.copySync(piecesPath+'/chat/models/attributes/', workspacePath+'/models/attributes/');
+		// Copy options
+		fs.copySync(piecesPath+'/chat/models/options/', workspacePath+'/models/options/');
+
+		// Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
+		var userOptions = require(workspacePath+'/models/options/e_user');
+		userOptions.push({
+			target: 'e_chat',
+			relation: 'belongsToMany',
+			foreignKey: 'id_user',
+			otherKey: 'id_chat',
+			through: attr.id_application+'_chat_user_chat',
+			as: 'r_chat'
+		});
+		userOptions.push({
+	        target: "e_channel",
+	        relation: "belongsToMany",
+	        foreignKey: "id_user",
+	        otherKey: "id_channel",
+	        through: attr.id_application+"_chat_user_channel",
+	        as: "r_user_channel"
+    	});
+    	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
+
+		// Replace ID_APPLICATION in channel.json and chat.json
+		var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');
+		option = option.replace(/ID_APPLICATION/g, attr.id_application);
+		fs.writeFileSync(workspacePath+'/models/options/e_channel.json', option, 'utf8');
+		var option = fs.readFileSync(workspacePath+'/models/options/e_chat.json', 'utf8');
+		option = option.replace(/ID_APPLICATION/g, attr.id_application);
+		fs.writeFileSync(workspacePath+'/models/options/e_chat.json', option, 'utf8');
+
+		// Set socket and chat config to enabled/true
+		var appConf = require(workspacePath+'/config/application');
+		appConf.socket.enabled = true;
+		appConf.socket.chat = true;
+		fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
+
+		// Add custom user_channel/user_chat columns to toSync file
+		// Id will not be used but is required by sequelize to be able to query on the junction table
+		var toSync = require(workspacePath+'/models/toSync.json');
+		toSync[attr.id_application+'_chat_user_channel'] = {
+			attributes: {
+				id_last_seen_message: {type: 'INTEGER', default: 0},
+				id: {
+			        type: "INTEGER",
+			        autoIncrement: true,
+			        primaryKey: true
+			    }
+			}
+		};
+		toSync[attr.id_application+'_chat_user_chat'] = {
+			attributes: {
+				id_last_seen_message: {type: 'INTEGER', default: 0},
+				id: {
+			        type: "INTEGER",
+			        autoIncrement: true,
+			        primaryKey: true
+			    }
+			}
+		};
+		fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+
+		// Add chat dust template to main_layout
+		domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {
+			domHelper.read(piecesPath+'/chat/views/chat.dust').then(function($chat) {
+				$layout("#chat-placeholder").html($chat("body")[0].innerHTML);
+
+				domHelper.writeMainLayout(workspacePath+'/views/main_layout.dust', $layout).then(function() {
+					callback(null);
+				});
+			});
+		}).catch(function(e) {
+			console.log(e);
+			callback(e);
+		});
+
+	} catch(e) {
+		console.log(e);
+		callback(e);
+	}
 }

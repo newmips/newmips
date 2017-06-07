@@ -93,6 +93,10 @@
 
             $("tbody").mouseup(function(e){down=false;});
             $("tbody").mouseleave(function(e){down=false;});
+
+            $('tbody').on('click', 'tr', function () {
+                window.location = $(this).find('td > a:first').attr('href');
+            });
         });
     </script>
 {/custom_js}

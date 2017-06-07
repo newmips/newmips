@@ -9,7 +9,7 @@ var config = {
 		protocol_iframe: 'http',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
-		slack_chat_enabled: true
+		slack_chat_enabled: false
 	},
 	'recette': {
 		env: 'recette',
