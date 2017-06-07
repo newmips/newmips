@@ -23,9 +23,6 @@ html
 		// iCheck
 		link(href='/css/iCheck/flat/blue.css', rel='stylesheet', type='text/css')
 		script(src='/js/Newmips/navigation.js', type='text/javascript')
-		// Slack chat
-		link(rel="stylesheet", href="/css/slack/slack-chat.css")
-		link(rel="stylesheet", href="/css/slack/skin-chat.css")
 
 		block custom_css
 
@@ -52,57 +49,6 @@ html
 		script(src='/js/plugins/toastr/toastr.min.js', type='text/javascript')
 		// Select2
 		script(src="/js/plugins/select2/dist/js/select2.full.min.js", type='text/javascript')
-		// Slack
-		if (isSlackChatEnabled)
-			script(src="/js/plugins/moment.js", type='text/javascript')
-			script(src="/js/plugins/slack/slack-chat.js", type='text/javascript')
-			script.
-				/***************** Slack chat ******************/
-				/* ID des user de Slack à inviter dans la channel crée */
-				var usersToInvite = ["U1GLD90GK", "U1GARP962", "U1GCYEKPX", "U1HD3C60L", "U28GY8LLW", "U3M2P085C"];
-				/*var usersToInvite = [];*/
-
-				var userId = localStorage.getItem("dixit_id_user_slack");
-
-				if(userId == null){
-					localStorage.setItem("dixit_id_user_slack", Math.random()*1000000)
-					userId = localStorage.getItem("dixit_id_user_slack");
-				}
-
-				var userUrlName = window.location.href.replace(/(^\w+:|^)\/\//, '');
-				var slackChatOptions = {
-					apiToken: '#{slackApiToken}', /*#Slack Auth token. Required.*/
-					channelId: '',      /*#Slack channel ID. Required.*/
-					user: 'Newmips User',           /*name of the user. Required.*/
-					userLink: '',       /*link to the user in the application - shown in #Slack*/
-					userImg: '',        /*image of the user*/
-					userId: userId,         /*id of the user in the application*/
-					defaultSysImg: 'img/logo/logo_newmips.png',         /*image to show when the support team replies*/
-					defaultSysUser: 'Newmips',                /*Required*/
-					queryInterval: 3000,
-					chatBoxHeader: "Need help? Talk to our support team right here",
-					slackColor: "#36a64f",
-					messageFetchCount: 100,
-					botUser: userUrlName, /*username to post to #Slack. Required.*/
-					sendOnEnter: true,
-					disableIfAway: false,
-					elementToDisable: null,
-					heightOffset: 75,
-					debug: false,
-					webCache: false,
-					privateChannel: true,
-					serverApiGateway: '/set_slack',
-					useUserDetails: true,
-					defaultInvitedUsers: usersToInvite
-				}
-
-				$("#message-box").slackChat(slackChatOptions);
-		else
-			script.
-				$("#message-box").click(function() {
-					var chatDisabledMsg = '#{__("preview.help-disabled")}';
-					toastr.info(chatDisabledMsg);
-				});
 		script.
 			var toastrArray = [];
 		if toastr
