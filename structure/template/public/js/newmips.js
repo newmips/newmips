@@ -598,6 +598,15 @@ $(document).ready(function () {
             });
         }
 
+        /* Convert all times in UTC */
+        $(this).find('.datetimepicker').each(function () {
+            if ($(this).val().length > 0) {
+                // Sécurité
+                $(this).prop("readOnly", true);
+                $(this).val(moment.utc(new Date($(this).val())));
+            }
+        });
+
         /* If a select multiple is empty we want to have an empty value in the req.body */
         $(this).find("select[multiple]").each(function () {
             if ($(this).val() == null) {
