@@ -358,7 +358,8 @@ $(function() {
 		$("#doCreateChannel").click(function() {
 			if ($("#createChannelName").val() == '')
 				return;
-			socket.emit('channel-create', {name: $("#createChannelName").val()});
+			var type = $("input[name='channelType']:checked").val();
+			socket.emit('channel-create', {name: $("#createChannelName").val(), type: type});
 			$("#createChannelBtn").click();
 		});
 		$("#doJoinChannel").click(function() {
@@ -410,6 +411,7 @@ $(function() {
 				localStorage.removeItem('channelId');
 				discussion = undefined;
 				$("#channelUsersBtn").hide();
+				$("#channelUsers").hide();
 			}
 		});
 

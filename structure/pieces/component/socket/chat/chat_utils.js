@@ -134,7 +134,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 		// Channel creation
 		socket.on('channel-create', function(data) {
 			models.E_channel.create({
-				f_name: data.name
+				f_name: data.name,
+				f_type: data.type
 			}).then(function(channel) {
 				models.E_user.findById(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel).then(function() {
