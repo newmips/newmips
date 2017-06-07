@@ -319,6 +319,9 @@
                 "alreadyExistOnEntity": "Désolé, un composant avec ce nom est déjà associé à cette entité dans ce module.",
                 "alreadyExistInApp": "Désolé, une autre entité avec le nom du composant existe déjà dans cette application.",
                 "alreadyExistOnModule": "Désolé, un composant avec ce nom existe déjà dans ce module."
+            },
+            "chat": {
+                "success": "Composant chat ajouté avec succès"
             }
         },
         "ui": {
