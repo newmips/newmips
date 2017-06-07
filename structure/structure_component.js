@@ -267,9 +267,10 @@ exports.newPrint = function(attr, callback){
 
 			try{
 				var componentContent = "";
-				componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade print-tab'>";
-				//componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>";
-				componentContent += "	<div id='"+nameComponent+"-content'>";
+				componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
+				componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>\n";
+				componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
+				componentContent += "	<div id='"+nameComponent+"-content' class='print-tab'>\n";
 
 				$("input").each(function() {
 					if($(this).attr("type") == "hidden")
