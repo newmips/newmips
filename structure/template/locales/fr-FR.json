@@ -132,7 +132,7 @@
             "menu": "Agenda",
             "add_event": "Ajouter un événement",
             "no_category": "Pas de catégorie",
-            "pending_event": "Évévement en attente"
+            "pending_event": "Événement(s) en attente"
         }
     },
     "component": {},
