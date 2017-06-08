@@ -46,8 +46,14 @@ app.use(morgan('dev', {
 		}
 	},
 	stream: split().on('data', function (line) {
-		allLogStream.write(ansiToHtml.toHtml(line)+"\n");
-		process.stdout.write(line+"\n");
+		if(allLogStream.bytesWritten < 100000){
+			allLogStream.write(ansiToHtml.toHtml(line)+"\n");
+			process.stdout.write(line+"\n");
+		} else{
+			/* Clear all.log if to much bytes are written */
+			fs.writeFileSync(path.join(__dirname, 'all.log'), '');
+			allLogStream.bytesWritten = 0;
+		}
 	})
 }));
 
