@@ -866,6 +866,7 @@ exports.createNewHasOne = function(attr, callback) {
         }
 
         var info = {};
+        var toSync = true;
         function structureCreation(attr, callback){
 
             // Vérification si une relation existe déjà de la source VERS la target
@@ -895,6 +896,9 @@ exports.createNewHasOne = function(attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
+                } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany"){
+                    // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
+                    toSync = false;
                 }
             }
 
@@ -905,7 +909,7 @@ exports.createNewHasOne = function(attr, callback) {
                     return callback(err, null);
                 }
                 // Créer le lien belongsTo en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function(){
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupHasOneTab(attr, function(err, data){
                         if(err){
@@ -1014,6 +1018,9 @@ exports.createNewHasMany = function(attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularHasMany";
                     return callback(err, null);
+                } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo"){
+                    // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
+                    toSync = false;
                 }
             }
 
@@ -1123,6 +1130,8 @@ exports.createNewFieldset = function(attr, callback) {
                 var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
                 var optionsSourceObject = JSON.parse(optionsSourceFile);
 
+                var toSync = true;
+
                 // Vérification si une relation existe déjà de la source VERS la target
                 for (var i=0; i<optionsSourceObject.length; i++) {
                     if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
@@ -1148,6 +1157,9 @@ exports.createNewFieldset = function(attr, callback) {
                         var err = new Error();
                         err.message = "structure.association.error.circularHasMany";
                         return callback(err, null);
+                    } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo"){
+                        // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
+                        toSync = false;
                     }
                 }
 
@@ -1175,7 +1187,7 @@ exports.createNewFieldset = function(attr, callback) {
                     newForeignKey = newForeignKey.toLowerCase();
 
                     // Créer le lien belongsTo en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, true, function() {
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupFieldsetTab(attr, function() {
 
@@ -1217,6 +1229,8 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
             var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
+            var toSync = true;
+
             for (var i=0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "hasMany") {
@@ -1239,6 +1253,9 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
+                } else if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany"){
+                    // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
+                    toSync = false;
                 }
             }
 
@@ -1247,7 +1264,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                 if(err)
                     return callback(err, null);
                 // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function() {
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function() {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToField(attr, function(err, data) {
                         if(err)

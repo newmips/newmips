@@ -45,11 +45,9 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
             writeStream2.write(JSON.stringify(toSyncObject, null, 4));
             writeStream2.end();
             writeStream2.on('finish', function () {
-                //console.log("Model => Options/Associations ------------------ COMPLETED");
                 callback();
             });
         } else {
-            //console.log("Model => Options/Associations ------------------ COMPLETED");
             callback();
         }
     });
