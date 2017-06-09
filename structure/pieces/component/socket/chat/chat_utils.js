@@ -117,12 +117,32 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					}));
 				}
 
-				Promise.all(notificationsPromises).then(function(notSeens) {
-					var total = 0;
-					for (var i = 0; i < notSeens.length; i++)
-						total += notSeens[i];
-					socket.emit('notifications-total', {total: total});
+				models.E_user_channel.findAll({
+					where: {id_user: user.id}
+				}).then(function(userChannels) {
+					for (var i = 0; i < userChannels.length; i++)
+						notificationsPromises.push(new Promise(function(resolve, reject) {
+							if (userChannels[i].id_last_seen_message == null)
+								userChannels[i].id_last_seen_message = 0;
+							models.E_channelmessage.count({
+								where: {
+									f_id_channel: userChannels[i].id,
+									f_id_user_sender: {$not: user.id},
+									id: {$gt: userChannels[i].id_last_seen_message}
+								}
+							}).then(function(notSeen) {
+								resolve(notSeen);
+							});
+						}));
+
+					Promise.all(notificationsPromises).then(function(notSeens) {
+						var total = 0;
+						for (var i = 0; i < notSeens.length; i++)
+							total += notSeens[i];
+						socket.emit('notifications-total', {total: total});
+					});
 				});
+
 			}).catch(function(e) {
 				console.log(e);
 			});
@@ -161,7 +181,34 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				});
 			}).catch(function(e) {
 				console.log(e);
-			});;
+			});
+		});
+
+		// Channel invite
+		socket.on('channel-invite', function(data) {
+			models.E_channel.findOne({
+				id: parseInt(data.id_channel)
+			}).then(function(channel) {
+				models.E_user.findById(parseInt(data.id_user)).then(function(userObj) {
+					userObj.addR_user_channel(channel).then(function() {
+						// Refresh contact list
+						sendChatChannelList(user, socket);
+					});
+				});
+			}).catch(function(e) {
+				console.log(e);
+			});
+		});
+
+		// Channel leave
+		socket.on('channel-leave', function(data) {
+			models.E_user_channel.destroy({
+				where: {id_user: user.id, id_channel: parseInt(data.id_channel)}
+			}).then(function() {
+				sendChatChannelList(user, socket);
+			}).catch(function(e) {
+				console.log(e);
+			});
 		});
 
 		// Channel message received

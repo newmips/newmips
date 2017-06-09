@@ -127,7 +127,9 @@
             </div>
         </div>
 
+        {#config.socket.chat}
         <div id="chat-placeholder"></div>
+        {/config.socket.chat}
 
         {! ---------------- JAVASCRIPT ---------------- // !}
         {! jQuery 2.0.2 !}
