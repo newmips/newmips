@@ -21,6 +21,7 @@
 		"authentication": "Connection",
 		"login": "Login",
 		"password": "Password",
+		"minimalLength": "(4 characters minimum)",
 		"confirm_password": "Confirm password",
 		"mail": "Email",
 		"remember_me": "Remember me",
