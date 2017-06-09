@@ -2,6 +2,10 @@ var socket = io();
 
 // Utils
 {
+	function toastIt(msgID, level) {
+		var msg =  $('#'+msgID).text();
+		toastr[level](msg);
+	}
 	function formatDate(d) {
 		return ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
 		    d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
@@ -16,6 +20,67 @@ var socket = io();
 		messages[idx] = messages[idx+1];
 		messages[idx+1] = tmp;
 		return sortMessages(messages, idx-1 <= 0 ? 0 : idx-1);
+	}
+
+	function userSelect() {
+	    $("#createChatId, #inviteUserChannel").select2({
+	        ajax: {
+	            url: '/chat/user_search',
+	            dataType: 'json',
+	            method: 'POST',
+	            delay: 250,
+	            contentType: "application/json",
+	            context: this,
+	            data: function (params) {
+	                return JSON.stringify({
+	                    search: params.term,
+	                });
+	            },
+	            processResults: function (data, params) {
+	                return {
+	                    results: data
+	                };
+	            },
+	            cache: true
+	        },
+	        minimumInputLength: 1,
+	        escapeMarkup: function (markup) {
+	            return markup;
+	        },
+	        templateResult: function (data) {
+	            return data.text;
+	        }
+	    });
+	}
+	function channelSelect() {
+	    $("#joinChannel").select2({
+	        ajax: {
+	            url: '/chat/channel_search',
+	            dataType: 'json',
+	            method: 'POST',
+	            delay: 250,
+	            contentType: "application/json",
+	            context: this,
+	            data: function (params) {
+	                return JSON.stringify({
+	                    search: params.term,
+	                });
+	            },
+	            processResults: function (data, params) {
+	                return {
+	                    results: data
+	                };
+	            },
+	            cache: true
+	        },
+	        minimumInputLength: 1,
+	        escapeMarkup: function (markup) {
+	            return markup;
+	        },
+	        templateResult: function (data) {
+	            return data.text;
+	        }
+	    });
 	}
 }
 
@@ -75,12 +140,12 @@ var socket = io();
 	}
 	function channelContacts(contacts) {
 		var contactsHtml = '';
-		contactsHtml += '<h4 class="contacts-list-name" style="margin-left:10px;">Channel contacts</h4>';
+		contactsHtml += '<h4 class="contacts-list-name" style="margin-left:10px;">'+$("#msg-channel_members").text()+'</h4>';
 		contactsHtml += '<ul class="contacts-list">';
 		for (var i = 0; i < contacts.length; i++)
 			contactsHtml += '<li>'+contacts[i].f_login+'</li>';
-		contactsHtml += '</ul><hr>';
-		$("#channelUsers").html(contactsHtml);
+		contactsHtml += '</ul><br>';
+		$("#channelUsersList").html(contactsHtml);
 	}
 }
 
@@ -344,7 +409,9 @@ $(function() {
 			return false;
 		});
 
-		// Channel creation bindings
+
+		// Channel creation/join bindings
+		// CREATE
 		$("#createChannelBtn").click(function() {
 			if ($(this).hasClass('fa-plus')) {
 				$("#createChannel").slideDown();
@@ -358,16 +425,33 @@ $(function() {
 		$("#doCreateChannel").click(function() {
 			if ($("#createChannelName").val() == '')
 				return;
-			var type = $("input[name='channelType']:checked").val();
+			var type = $("input[name='channelType']:checked").val() || 'public';
 			socket.emit('channel-create', {name: $("#createChannelName").val(), type: type});
+			toastIt('msg-channel_created', 'success');
 			$("#createChannelBtn").click();
 		});
+		// JOIN
 		$("#doJoinChannel").click(function() {
 			if ($("#joinChannel").val() == '')
 				return;
 			socket.emit('channel-join', {id_channel: $("#joinChannel").val()});
+			toastIt('msg-channel_joined', 'success');
 			$("#createChannelBtn").click();
 		});
+		$("#doInviteChannel").click(function() {
+			if ($("#inviteUserChannel").val() == '')
+				return;
+			socket.emit('channel-invite', {id_channel: discussion.id, id_user: $("#inviteUserChannel").val()});
+			toastIt('msg-user_invited', 'success');
+			$("#channelUsersBtn").click();
+		});
+		// LEAVE
+		$("#leaveChannel").click(function() {
+			socket.emit('channel-leave', {id_channel: discussion.id});
+			toastIt('msg-channel_left', 'success');
+			$("#contactsBtn").click();
+		});
+
 
 		// Chat creation bindings
 		$("#createChatBtn").click(function() {
@@ -384,8 +468,10 @@ $(function() {
 			if ($("#createChatId").val() == '')
 				return;
 			socket.emit('chat-create', {receiver: $("#createChatId").val()});
+			toastIt('msg-chat_created', 'success');
 			$("#createChatBtn").click();
 		});
+
 
 		// Contact list bindings
 		$(document).delegate("#channelsList li, #chatsList li", 'click', function() {
@@ -416,11 +502,13 @@ $(function() {
 		});
 
 		$("#channelUsersBtn").click(function() {
-			$("#channelUsers").toggle();
+			if ($("#channelUsers").is(':visible'))
+				$("#channelUsers").slideUp();
+			else
+				$("#channelUsers").slideDown();
 		});
-
-		// Add contact select2
-		select2_ajaxsearch("#createChatId", "E_user", ["f_login"]);
-		select2_ajaxsearch("#joinChannel", "E_channel", ["f_name"]);
 	}
+
+	userSelect();
+	channelSelect();
 });
