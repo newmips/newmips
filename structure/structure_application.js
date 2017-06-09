@@ -120,7 +120,6 @@ exports.setupApplication = function(attr, callback) {
                                 return callback(err, null);
                             }
                         });
-
                     }
                 }
                 else{
