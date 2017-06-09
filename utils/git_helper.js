@@ -244,5 +244,55 @@ module.exports = {
             err.message = "structure.global.error.notDoGit";
             callback(err, null);
         }
+    },
+    gitCommit: function(attr, callback){
+        // We push code on gitlab only in our cloud env
+        if(gitlabConf.doGit){
+            var idApplication = attr.id_application;
+
+            // Workspace path
+            var workspacePath = __dirname+'/../workspace/'+idApplication;
+
+            // Init simple-git in the workspace path
+            var simpleGit = require('simple-git')(workspacePath);
+
+            // Get current application values
+            models.Application.findOne({where:{id: idApplication}}).then(function(application){
+                // . becomes -
+                var cleanHost = globalConf.host.replace(/\./g, "-");
+
+                // Remove prefix
+                var nameApp = application.codeName.substring(2);
+                var nameRepo = cleanHost+"-"+nameApp;
+                var originName = "origin-"+cleanHost+"-"+nameApp;
+
+                if(typeof gitProcesses[originName] === "undefined")
+                    gitProcesses[originName] = false;
+
+                if(!gitProcesses[originName]){
+                    // Set gitProcesses to prevent any other git command during this process
+                    gitProcesses[originName] = true;
+                    var commitMsg = "New commit: Function:"+attr.function+" Project:"+attr.id_project+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
+                    simpleGit.add('.')
+                    .commit(commitMsg, function(err, answer){
+                        gitProcesses[originName] = false;
+                        if(err){
+                            console.log(err);
+                            return callback(err, null);
+                        }
+                        console.log(answer);
+                        callback(null, answer);
+                    });
+                } else{
+                    err = new Error();
+                    err.message = "structure.global.error.alreadyInProcess";
+                    return callback(err, null);
+                }
+            });
+        } else{
+            var err = new Error();
+            err.message = "structure.global.error.notDoGit";
+            callback(err, null);
+        }
     }
 }

@@ -266,10 +266,13 @@
                 "error": "Impossible de démarrer le serveur suite à une erreur critique."
             },
             "gitPush": {
-                "success": "L'application a bien été sauvergardée!"
+                "success": "L'application a bien été sauvergardée !"
             },
             "gitPull": {
-                "success": "L'application a bien été chargée!"
+                "success": "L'application a bien été chargée !"
+            },
+            "gitCommit": {
+                "success": "Le commit à bien été effectué !"
             },
             "error": {
                 "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",

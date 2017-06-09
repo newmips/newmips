@@ -135,6 +135,15 @@ exports.gitPull = function(attr, callback) {
     });
 }
 
+exports.gitCommit = function(attr, callback) {
+    gitHelper.gitCommit(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = "structure.global.gitCommit.success";
+        callback(null, info);
+    });
+}
 /* --------------------------------------------------------------- */
 /* ------------------------- Project ----------------------------- */
 /* --------------------------------------------------------------- */

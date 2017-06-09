@@ -271,6 +271,9 @@
             "gitPull": {
                 "success": "The application has been successfully loaded!"
             },
+            "gitCommit": {
+                "success": "The commit has been successfully done!"
+            },
             "error": {
                 "alreadyInProcess": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
                 "notDoGit": "You choose to not do git in config/gitlab.json, so this instruction will do nothing."

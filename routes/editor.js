@@ -5,6 +5,7 @@ var block_access = require('../utils/block_access');
 
 var fs = require('fs');
 var helpers = require('../utils/helpers');
+var gitHelper = require('../utils/git_helper');
 
 //Sequelize
 var models = require('../models/');
@@ -43,7 +44,12 @@ router.post('/update_file', block_access.isLoggedIn, function(req, res) {
 	writeStream.write(req.body.content);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		res.json(true);
+		gitHelper.gitCommit(attr, function(err, infoGit){
+	        if(err)
+	        	console.log(err);
+	        console.log(infoGit);
+	        res.json(true);
+	    });
 	});
 });
 
