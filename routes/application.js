@@ -29,7 +29,6 @@ var helpers = require('../utils/helpers');
 var attrHelper = require('../utils/attr_helper');
 
 // Use to connect workspaces with gitlab or other repo
-// Only working on our cloud ENV for now.
 var gitHelper = require('../utils/git_helper');
 
 // Sequelize
