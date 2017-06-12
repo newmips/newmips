@@ -57,13 +57,17 @@ exports.gitPull = function(result) {
     return attr;
 };
 
-exports.gitPull = function(result) {
+exports.gitCommit = function(result) {
     var attr = {};
     attr.function = "gitCommit";
     return attr;
 };
 
-
+exports.gitStatus = function(result) {
+    var attr = {};
+    attr.function = "gitStatus";
+    return attr;
+};
 
 // ******* SELECT Actions ******* //
 exports.selectProject = function(result) {
@@ -920,6 +924,10 @@ exports.parse = function(instruction) {
         "gitCommit": [
             "commit",
             "git commit"
+        ],
+        "gitStatus": [
+            "status",
+            "git status"
         ],
         "selectProject": [
             "select project (.*)",
