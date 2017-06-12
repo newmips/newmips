@@ -44,10 +44,18 @@ router.post('/update_file', block_access.isLoggedIn, function(req, res) {
 	writeStream.write(req.body.content);
 	writeStream.end();
 	writeStream.on('finish', function() {
+		var attr = {};
+
+        // We simply add session values in attributes array
+        attr.function = "Save a file from editor: "+req.body.path;
+        attr.id_project = req.session.id_project;
+        attr.id_application = req.session.id_application;
+        attr.id_module = "-";
+        attr.id_data_entity = "-";
+
 		gitHelper.gitCommit(attr, function(err, infoGit){
 	        if(err)
 	        	console.log(err);
-	        console.log(infoGit);
 	        res.json(true);
 	    });
 	});
