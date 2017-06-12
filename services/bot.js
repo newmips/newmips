@@ -706,6 +706,22 @@ exports.createNewComponentPrint = function(result) {
     return attr;
 };
 
+exports.createNewComponentPrintWithName = function(result) {
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
 /* CHAT */
 exports.createComponentChat = function(result) {
     return {
@@ -1507,7 +1523,6 @@ exports.parse = function(instruction) {
         "createNewComponentPrint": [
             "create component print",
             "add component print",
-            "add print tab",
             "create component print tab",
             "add component print tab",
             "créer un composant impression",
@@ -1516,6 +1531,23 @@ exports.parse = function(instruction) {
             "ajouter composant impression",
             "créer un onglet impression",
             "ajouter un onglet impression"
+        ],
+        "createNewComponentPrintWithName": [
+            "create component print with name (.*)",
+            "add component print with name (.*)",
+            "add print with name (.*)",
+            "créer un composant impression appelé (.*)",
+            "ajouter un composant impression appelé (.*)",
+            "créer le composant impression appelé (.*)",
+            "ajouter le composant impression appelé (.*)",
+            "créer composant impression appelé (.*)",
+            "ajouter composant impression appelé (.*)",
+            "créer un impression appelé (.*)",
+            "ajouter un impression appelé (.*)",
+            "créer impression appelé (.*)",
+            "ajouter impression appelé (.*)",
+            "créer impression appelé (.*)",
+            "ajouter impression appelé (.*)"
         ],
         "createComponentChat": [
             "add component chat",

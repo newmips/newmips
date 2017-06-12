@@ -35,6 +35,30 @@ function select2_ajaxsearch(elementID, entity, searchFields) {
 
 $(document).ready(function () {
 
+    /* Clear print tab component */
+    $(".print-tab input").each(function() {
+        if($(this).attr("type") == "hidden")
+            $(this).remove();
+        else
+            $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+    });
+
+    $(".print-tab select").each(function() {
+        $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+    });
+
+    $(".print-tab textarea").each(function() {
+        $(this).replaceWith("<br><span>"+$(this).val()+"</span>");
+    });
+
+    $(".print-tab button, .print-tab .btn").each(function() {
+        $(this).remove();
+    });
+
+    $(".print-tab form").each(function() {
+        $(this).remove();
+    });
+
     /* --------------- Gestion des Toastr (messages informatifs en bas à gauche) --------------- */
 
     var maskMoneyPrecision = 2;
