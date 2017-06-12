@@ -679,6 +679,7 @@ exports.setupChat = function(attr, callback) {
 		// Copy chat files
 		fs.copySync(piecesPath+'/chat/js/chat.js', workspacePath+'/public/js/Newmips/component/chat.js');
 		fs.copySync(piecesPath+'/chat/chat_utils.js', workspacePath+'/utils/chat.js');
+		fs.copySync(piecesPath+'/chat/routes/chat.js', workspacePath+'/routes/chat.js');
 
 		// Copy chat models
 		var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
@@ -751,6 +752,18 @@ exports.setupChat = function(attr, callback) {
 			}
 		};
 		fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+
+		// Add chat locales
+		// EN
+		var piecesLocalesEN = require(piecesPath+'/chat/locales/en-EN');
+		var workspaceLocalesEN = require(workspacePath+'/locales/en-EN');
+		workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
+		fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4));
+		// FR
+		var piecesLocalesFR = require(piecesPath+'/chat/locales/fr-FR');
+		var workspaceLocalesFR = require(workspacePath+'/locales/fr-FR');
+		workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
+		fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4));
 
 		// Add chat dust template to main_layout
 		domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {
