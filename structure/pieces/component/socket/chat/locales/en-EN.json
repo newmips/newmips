@@ -13,6 +13,7 @@
         "join": "Join",
         "channel_members": "Channel members",
         "channel_leave": "Leave channel",
-        "channel_left": "You left the channel"
+        "channel_left": "You left the channel",
+        "chat_create": "Chat with a user"
     }
 }
