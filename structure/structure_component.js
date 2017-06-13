@@ -257,135 +257,126 @@ exports.newPrint = function(attr, callback){
 	var idApp = attr.id_application;
 
 	translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
-
-		var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
 		var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
 
 		domHelper.read(showFieldsPath).then(function($) {
+			var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
+			var componentContent = "";
+			componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
+			componentContent += "<style>";
+			componentContent += "	@media print {";
+			componentContent += "		body{";
+			componentContent += "			height: 100%;";
+			componentContent += "		}";
+			componentContent += "		body * {";
+			componentContent += "			visibility: hidden;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		#"+nameComponentLower+"-content,";
+			componentContent += "		#"+nameComponentLower+"-content * {";
+			componentContent += "			visibility: visible;";
+			componentContent += "		}";
+			componentContent += "		#"+nameComponentLower+"-content {";
+			componentContent += "			position: absolute;";
+			componentContent += "			left: 0;";
+			componentContent += "			top: 0;";
+			componentContent += "			margin: 0px;";
+			componentContent += "			padding: 15px;";
+			componentContent += "			border: 0px;";
+			componentContent += "			width: 100%;";
+			componentContent += "			height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		#"+nameComponentLower+"{";
+			componentContent += "			height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		.tab-content{";
+			componentContent += "			height: 100%;";
+			componentContent += "			min-height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		.content-wrapper{";
+			componentContent += "			height: 100%;";
+			componentContent += "			min-height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		.wrapper{";
+			componentContent += "			height: 100%;";
+			componentContent += "			min-height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "	}";
+			componentContent += "</style>";
+			componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>\n";
+			componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
+			componentContent += "	<div id='"+nameComponent+"-content' class='print-tab'>\n";
 
-			try{
-				var componentContent = "";
-				componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
-				componentContent += "<style>";
-				componentContent += "	@media print {";
-				componentContent += "		body{";
-				componentContent += "			height: 100%;";
-				componentContent += "		}";
-				componentContent += "		body * {";
-				componentContent += "			visibility: hidden;";
-				componentContent += "			overflow: visible;";
-				componentContent += "		}";
-				componentContent += "		#"+nameComponentLower+"-content,";
-				componentContent += "		#"+nameComponentLower+"-content * {";
-				componentContent += "			visibility: visible;";
-				componentContent += "		}";
-				componentContent += "		#"+nameComponentLower+"-content {";
-				componentContent += "			position: absolute;";
-				componentContent += "			left: 0;";
-				componentContent += "			top: 0;";
-				componentContent += "			margin: 0px;";
-				componentContent += "			padding: 15px;";
-				componentContent += "			border: 0px;";
-				componentContent += "			width: 100%;";
-				componentContent += "			height: 100%;";
-				componentContent += "			overflow: visible;";
-				componentContent += "		}";
-				componentContent += "		#"+nameComponentLower+"{";
-				componentContent += "			height: 100%;";
-				componentContent += "			overflow: visible;";
-				componentContent += "		}";
-				componentContent += "		.tab-content{";
-				componentContent += "			height: 100%;";
-				componentContent += "			min-height: 100%;";
-				componentContent += "			overflow: visible;";
-				componentContent += "		}";
-				componentContent += "		.content-wrapper{";
-				componentContent += "			height: 100%;";
-				componentContent += "			min-height: 100%;";
-				componentContent += "			overflow: visible;";
-				componentContent += "		}";
-				componentContent += "		.wrapper{";
-				componentContent += "			height: 100%;";
-				componentContent += "			min-height: 100%;";
-				componentContent += "			overflow: visible;";
-				componentContent += "		}";
-				componentContent += "	}";
-				componentContent += "</style>";
-				componentContent += "	<legend> <!--{@__ key=\"component."+nameComponentLower+".label_component\"/}--> </legend>\n";
-				componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
-				componentContent += "	<div id='"+nameComponent+"-content' class='print-tab'>\n";
+			$("#tabs .tab-pane").each(function(){
+				var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
+				var htmlToInclude = "";
+				if($(this).attr("id") == "home"){
+					htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
+				} else {
+					htmlToInclude = $(this)[0].innerHTML;
+				}
+				//var match;
 
-				$("input").each(function() {
-					if($(this).attr("type") == "hidden")
-						$(this).remove();
-					else
-						$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
-				});
+				// Find dust file inclusion with dust helper
+				/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
+				var matches = [];
 
-				$("select").each(function() {
-					$(this).replaceWith("<br><span>" + $(this).val() + "</span>");
-				});
+				while (match = maRegex.exec($(this)[0].innerHTML)) {
+					matches.push(match);
+				}
 
-				$("textarea").each(function() {
-					$(this).replaceWith("<br><span>"+$(this).val()+"</span>");
-				});
+				var string = $(this)[0].innerHTML;
 
-				$("button, .btn").each(function() {
-					$(this).remove();
-				});
+				// Replace those inclusion with the real dust file content
+				for(var i=0; i<matches.length; i++){
+					//The path of the included dust file
+					var dustPath = matches[i][1];
+					var dustContent = fs.readFileSync(__dirname + "/../workspace/" + idApp + "/views/" + dustPath + ".dust", "utf8");
 
-				$("form").each(function() {
-					$(this).remove();
-				});
-
-				$("#tabs .tab-pane").each(function(){
-					var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
-					var htmlToInclude = "";
-					if($(this).attr("id") == "home"){
-						htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
-					} else {
-						htmlToInclude = $(this)[0].innerHTML;
+					if(i > 0){
+						// String has been previously modify so the index aren't correct, we have to update them every time after the first modification
+						matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
 					}
-					//var match;
+					string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
+				}*/
+				var contentToAdd = "<legend>" + titleTab + "</legend>" + htmlToInclude;
 
-					// Find dust file inclusion with dust helper
-					/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
-					var matches = [];
+				// Change ID to prevent JS errors in DOM
+				contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+				componentContent += contentToAdd;
+			});
 
-					while (match = maRegex.exec($(this)[0].innerHTML)) {
-						matches.push(match);
-					}
+			componentContent += "	</div>";
+			componentContent += "</div>";
+			componentContent = componentContent.replace("&nbsp;", "");
 
-					var string = $(this)[0].innerHTML;
-
-					// Replace those inclusion with the real dust file content
-					for(var i=0; i<matches.length; i++){
-						//The path of the included dust file
-						var dustPath = matches[i][1];
-						var dustContent = fs.readFileSync(__dirname + "/../workspace/" + idApp + "/views/" + dustPath + ".dust", "utf8");
-
-						if(i > 0){
-							// String has been previously modify so the index aren't correct, we have to update them every time after the first modification
-							matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
-						}
-						string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
-					}*/
-					var contentToAdd = "<legend>" + titleTab + "</legend>" + htmlToInclude;
-
-					// Change ID to prevent JS errors in DOM
-					contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-					componentContent += contentToAdd;
-				});
-
-				componentContent += "	</div>";
-				componentContent += "</div>";
-				componentContent = componentContent.replace("&nbsp;", "");
-
-				addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
-			} catch(err){
-				callback(err, null);
-			}
+			addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
 		});
+	});
+}
+
+exports.deletePrint = function(attr, callback){
+
+	var entityLower = attr.options.source.toLowerCase();
+	var idApp = attr.id_application;
+	var nameComponentLower = attr.options.value.toLowerCase();
+	var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
+
+	domHelper.read(showFieldsPath).then(function($) {
+		try{
+			$("#"+nameComponentLower).remove();
+			$("#"+nameComponentLower+"-click").parents("li").remove();
+			domHelper.write(showFieldsPath, $).then(function () {
+                callback();
+            });
+		} catch(err){
+			callback(err, null);
+		}
 	});
 }
 

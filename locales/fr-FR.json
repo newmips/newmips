@@ -218,6 +218,10 @@
             },
             "notFound": {
                 "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s."
+            },
+            "delete": {
+                "success": "Le composant a bien été supprimé !",
+                "error": "Une erreur est survenue lors de la suppression du composant."
             }
         },
         "entity": {
@@ -319,7 +323,8 @@
             "error": {
                 "alreadyExistOnEntity": "Désolé, un composant avec ce nom est déjà associé à cette entité dans ce module.",
                 "alreadyExistInApp": "Désolé, une autre entité avec le nom du composant existe déjà dans cette application.",
-                "alreadyExistOnModule": "Désolé, un composant avec ce nom existe déjà dans ce module."
+                "alreadyExistOnModule": "Désolé, un composant avec ce nom existe déjà dans ce module.",
+                "notExisting": "Désolé, mais ce composant n'existe pas sur l'entité courante."
             },
             "chat": {
                 "success": "Composant chat ajouté avec succès"
