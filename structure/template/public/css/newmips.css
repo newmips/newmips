@@ -55,7 +55,6 @@ div.dataTables_length select {
     padding: 25px;
     border: 1px solid lightgrey;
     overflow-y: auto;
-    height: 950px; //A4
 }
 .print-tab .dt-buttons, .print-tab .dataTables_length, .print-tab .dataTables_filter, .print-tab .dataTables_info, .print-tab .dataTables_paginate{
     display: none;
