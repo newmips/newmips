@@ -6,6 +6,7 @@ var block_access = require('../utils/block_access');
 var fs = require('fs');
 var domHelper = require('../utils/jsDomHelper');
 var language = require('../services/language');
+var gitHelper = require('../utils/git_helper');
 
 //Sequelize
 var models = require('../models/');
@@ -73,7 +74,19 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 
 		// Write back to file
 		domHelper.write(pageUri, $).then(function() {
-			res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
+			// We simply add session values in attributes array
+			var attr = {};
+	        attr.function = "Save a file from UI designer: "+pageUri;
+	        attr.id_project = req.session.id_project;
+	        attr.id_application = req.session.id_application;
+	        attr.id_module = "-";
+	        attr.id_data_entity = "-";
+
+			gitHelper.gitCommit(attr, function(err, infoGit){
+		        if(err)
+		        	console.log(err);
+		        res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
+		    });
 		});
 	}).catch(function(e) {
 		console.log(e);
