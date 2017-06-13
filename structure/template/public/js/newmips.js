@@ -744,24 +744,26 @@ $(document).ready(function () {
     /* --------------- Initialisation des select --------------- */
     $("select").select2();
 
-     /* Component print button action */
+    /* Component print button action */
     $(document).on("click", ".component-print-button", function(){
-        var mywindow = window.open('', 'PRINT', 'height=400,width=600');
+        // var mywindow = window.open('', 'PRINT', 'height=400,width=600');
 
-        mywindow.document.write('<html>');
-        mywindow.document.write($("head").html());
-        mywindow.document.write("<style>.component-print-button{display: none;}</style>");
-        mywindow.document.write('</head><body>');
-        mywindow.document.write('<div class="print-tab" id="'+$(this).attr("data-component")+'-content">');
-        mywindow.document.write(document.getElementById($(this).attr("data-component")+"-content").innerHTML);
-        mywindow.document.write('</div>');
-        mywindow.document.write('</body></html>');
+        // mywindow.document.write('<html>');
+        // mywindow.document.write($("head").html());
+        // mywindow.document.write("<style>.component-print-button{display: none;}</style>");
+        // mywindow.document.write('</head><body>');
+        // mywindow.document.write('<div class="print-tab" id="'+$(this).attr("data-component")+'-content">');
+        // mywindow.document.write(document.getElementById($(this).attr("data-component")+"-content").innerHTML);
+        // mywindow.document.write('</div>');
+        // mywindow.document.write('</body></html>');
 
-        mywindow.document.close();
-        mywindow.focus();
+        // mywindow.document.close();
+        // mywindow.focus();
 
-        mywindow.print();
-        mywindow.close();
+        // mywindow.print();
+        // mywindow.close();
+
+        window.print();
 
         return true;
     });
