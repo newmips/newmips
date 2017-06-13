@@ -105,19 +105,64 @@ exports.checkIfComponentCodeNameExistOnEntity = function(codeNameComponent, idMo
 
     models.DataEntity.findOne({
         where: {
-            id: idEntity
+            id: idEntity,
+            id_module: idModule
         }
     }).then(function(foundEntity){
-        var alreadyExist = false;
-
-        foundEntity.getComponents().then(function(components){
-            for(var i=0; i<components.length; i++){
-                if(components[i].codeName == codeNameComponent){
-                    alreadyExist = true;
+        if(foundEntity){
+            var alreadyExist = false;
+            foundEntity.getComponents().then(function(components){
+                for(var i=0; i<components.length; i++){
+                    if(components[i].codeName == codeNameComponent){
+                        alreadyExist = true;
+                    }
                 }
-            }
-            callback(null, alreadyExist);
-        });
+                callback(null, alreadyExist);
+            });
+        } else {
+            var err = new Error();
+            err.message = "database.entity.notFound.withThisName";
+            err.messageParams = [codeNameComponent];
+            return callback(err, null);
+        }
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+// Get a component codeName and the has many entity and check if the given ID entity is in
+exports.deleteComponentOnEntity = function(codeNameComponent, idModule, idEntity, callback) {
+
+    models.DataEntity.findOne({
+        where: {
+            id: idEntity,
+            id_module: idModule
+        }
+    }).then(function(foundEntity){
+        if(foundEntity){
+            var destroyed = false;
+            foundEntity.getComponents().then(function(components){
+                for(var i=0; i<components.length; i++){
+                    if(components[i].codeName == codeNameComponent){
+                        destroyed = true;
+                        components[i].destroy();
+                    }
+                }
+                if(!destroyed){
+                    var err = new Error();
+                    err.message = "database.component.delete.error";
+                    return callback(err, null);
+                }
+                var info = {
+                    message: "database.component.delete.success"
+                };
+                callback(null, info);
+            });
+        } else{
+            var err = new Error();
+            err.message = "database.component.delete.error";
+            return callback(err, null);
+        }
     }).catch(function(err) {
         callback(err, null);
     });

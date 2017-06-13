@@ -722,6 +722,33 @@ exports.createNewComponentPrintWithName = function(result) {
     return attr;
 };
 
+exports.deleteComponentPrint = function(result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentPrintWithName = function(result) {
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "deleteComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
 /* CHAT */
 exports.createComponentChat = function(result) {
     return {
@@ -1548,6 +1575,14 @@ exports.parse = function(instruction) {
             "ajouter impression appelé (.*)",
             "créer impression appelé (.*)",
             "ajouter impression appelé (.*)"
+        ],
+        "deleteComponentPrint": [
+            "delete component print",
+            "delete print component"
+        ],
+        "deleteComponentPrintWithName": [
+            "delete component print with name (.*)",
+            "delete print component with name (.*)"
         ],
         "createComponentChat": [
             "add component chat",
