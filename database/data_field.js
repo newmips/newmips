@@ -204,7 +204,7 @@ exports.getNameDataFieldById = function (idField, callback) {
 exports.getCodeNameByNameArray = function(names, callback) {
     var columns = [];
     for (var i = 0; i < names.length; i++)
-        columns.push({name: names[i]});
+        columns.push({name: names[i].toLowerCase()});
     models.DataField.findAll({
         attributes: ['codeName', 'name'],
         where: {
