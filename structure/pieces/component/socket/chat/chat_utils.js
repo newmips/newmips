@@ -171,7 +171,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 		// Channel join
 		socket.on('channel-join', function(data) {
 			models.E_channel.findOne({
-				id: parseInt(data.id_channel)
+				where: {id: parseInt(data.id_channel)}
 			}).then(function(channel) {
 				models.E_user.findById(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
@@ -187,7 +187,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 		// Channel invite
 		socket.on('channel-invite', function(data) {
 			models.E_channel.findOne({
-				id: parseInt(data.id_channel)
+				where: {id: parseInt(data.id_channel)}
 			}).then(function(channel) {
 				models.E_user.findById(parseInt(data.id_user)).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
