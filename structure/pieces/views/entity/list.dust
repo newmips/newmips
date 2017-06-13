@@ -33,7 +33,7 @@
         </div>
     </div>
     <div id="table_custom_data_entity_show" style="display:none;">
-        <a href="/custom_url_data_entity/show?id=">
+        <a class="btn-show" href="/custom_url_data_entity/show?id=">
             <button class="btn btn-primary">
                 <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
                 <span>{@__ key="button.show" /}</span>
@@ -95,7 +95,7 @@
             $("tbody").mouseleave(function(e){down=false;});
 
             $('tbody').on('click', 'tr', function () {
-                window.location = $(this).find('td > a:first').attr('href');
+                window.location = $(this).find('td > a.btn-show:first').attr('href');
             });
         });
     </script>
