@@ -154,9 +154,11 @@ function addTab(attr, file, newLi, newTabContent) {
             var context;
             if ($("#tabs").length == 0) {
                 tabs += '<div class="nav-tabs-custom" id="tabs">';
+                tabs += '   <!--{^hideTab}-->';
                 tabs += '	<ul class="nav nav-tabs">';
                 tabs += '		<li class="active"><a data-toggle="tab" href="#home">{@__ key="entity.' + source + '.label_entity" /}</a></li>';
                 tabs += '	</ul>';
+                tabs += '   <!--{/hideTab}-->';
                 tabs += '	<div class="tab-content" style="min-height:275px;">';
                 tabs += '		<div id="home" class="tab-pane fade in active"></div>';
                 tabs += '	</div>';
@@ -170,7 +172,9 @@ function addTab(attr, file, newLi, newTabContent) {
 
             // Append created elements to `context` to handle presence of tab or not
             $(".nav-tabs", context).append(newLi);
+            $(".tab-content", context).append('<!--{^hideTab}-->');
             $(".tab-content", context).append(newTabContent);
+            $(".tab-content", context).append('<!--{/hideTab}-->');
             $('body').empty().append(context);
             domHelper.write(file, $).then(function () {
                 resolve();
@@ -336,7 +340,13 @@ exports.newPrint = function(attr, callback){
 
 				$("#tabs .tab-pane").each(function(){
 					var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
-					var match;
+					var htmlToInclude = "";
+					if($(this).attr("id") == "home"){
+						htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
+					} else {
+						htmlToInclude = $(this)[0].innerHTML;
+					}
+					//var match;
 
 					// Find dust file inclusion with dust helper
 					/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
@@ -360,7 +370,7 @@ exports.newPrint = function(attr, callback){
 						}
 						string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
 					}*/
-					var contentToAdd = "<legend>" + titleTab + "</legend>" + $(this)[0].innerHTML;
+					var contentToAdd = "<legend>" + titleTab + "</legend>" + htmlToInclude;
 
 					// Change ID to prevent JS errors in DOM
 					contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
