@@ -18,6 +18,7 @@
         "authentication": "Connection",
         "login": "Login",
         "password": "Password",
+        "minimalLength": "(8 characters minimum)",
         "confirm_password": "Confirm password",
         "mail": "Email",
         "remember_me": "Remember me",
@@ -270,6 +271,9 @@
             },
             "gitPull": {
                 "success": "The application has been successfully loaded!"
+            },
+            "gitCommit": {
+                "success": "The commit has been successfully done!"
             },
             "error": {
                 "alreadyInProcess": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
