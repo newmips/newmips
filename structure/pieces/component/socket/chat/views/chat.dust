@@ -31,7 +31,7 @@
                     <select id="inviteUserChannel" style="width: 100%;" type="text" class="from-control"></select>
                 </div>
                 <div class="col-xs-4">
-                    <button id="doInviteChannel" class="btn btn-primary">{@__ key="component.chat.invite" /}</button>
+                    <button id="doInviteChannel" class="btn btn-default">{@__ key="component.chat.invite" /}</button>
                 </div>
             </div>
             <br>
@@ -59,14 +59,14 @@
                         <div class="col-xs-5">
                             <input style="width: 100%;" id="createChannelName" type="text" class="from-control">
                         </div>
-                        <div class="col-xs-5">
+                        <div class="col-xs-6">
                             <label style="margin-right:10px;">{@__ key="component.chat.private" /}</label>
                             <input type="radio" name="channelType" value="private">
                             <label style="margin-left:10px;margin-right:10px;">{@__ key="component.chat.public" /}</label>
                             <input type="radio" name="channelType" value="public">
                         </div>
-                        <div class="col-xs-2">
-                            <button id="doCreateChannel" class="btn btn-primary btn-xs" style="min-width: 40px;">{@__ key="button.create" /}</button>
+                        <div class="col-xs-1" style="margin-left: -20px;">
+                            <button id="doCreateChannel" class="btn btn-default btn-xs" style="min-width: 40px;">{@__ key="button.create" /}</button>
                         </div>
                     </div>
                     <br>
@@ -80,7 +80,7 @@
                             <select id="joinChannel" style="width: 100%;" data-choice-select2="0" class="form-control" required=""></select>
                         </div>
                         <div class="col-xs-4">
-                            <button id="doJoinChannel" class="btn btn-primary btn-xs" style="min-width: 40px;">{@__ key="component.chat.join" /}</button>
+                            <button id="doJoinChannel" class="btn btn-default btn-xs" style="min-width: 40px;">{@__ key="component.chat.join" /}</button>
                         </div>
                     </div>
                 </div>
@@ -91,11 +91,14 @@
             <!-- CHATS -->
             <h4 class="contacts-list-name" style="margin-left:10px;">Chats<i id="createChatBtn" class="fa fa-plus hover" style="margin-left:5px;"></i></h4>
             <div id="createChat" class="row" style="display:none;width:100%;">
+                <div class="col-xs-12">
+                    {@__ key="component.chat.chat_create" /}
+                </div>
                 <div class="col-xs-6">
                     <select id="createChatId" style="width:100%;" data-choice-select2="0" class="form-control" required=""></select>
                 </div>
                 <div class="col-xs-4">
-                    <button id="doCreateChat" class="btn btn-primary btn-xs">{@__ key="button.create" /}</button>
+                    <button id="doCreateChat" class="btn btn-default btn-xs">{@__ key="button.create" /}</button>
                 </div>
             </div>
             <ul id="chatsList" class="contacts-list">
