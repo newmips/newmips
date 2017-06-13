@@ -33,13 +33,6 @@ try{
 //Sequelize
 var models = require('../models/');
 
-// =====================================
-// HOME PAGE (with login links) ========
-// =====================================
-// =====================================
-// LOGIN ===============================
-// =====================================
-
 /* GET home page. */
 router.get('/', block_access.loginAccess, function(req, res) {
     res.redirect('/login');
@@ -84,14 +77,24 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                 email: email_user
                             }, {
                                 where: {
-                                    login: login_user
+                                    id: user.id
                                 }
                             }).then(function(){
-                                req.session.toastr = [{
-                                    message: "login.first_connection.success",
-                                    level: "success"
-                                }];
-                                res.redirect('/login');
+                                // Autologin after first connection form done
+                                models.User.findOne({
+                                    where: {
+                                        id: user.id
+                                    }
+                                }).then(function(connectedUser){
+                                    req.login(connectedUser, function(err) {
+                                        if (err) {
+                                            console.log(err);
+                                            res.redirect('/login');
+                                        } else{
+                                            res.redirect('/default/home');
+                                        }
+                                    });
+                                });
                             });
                         }
                     }
@@ -324,7 +327,7 @@ router.get('/login', block_access.loginAccess, function(req, res) {
     });
 });
 
-// process the login form
+// Process the login form
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
     if (req.body.remember)
@@ -373,9 +376,7 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     }
 });
 
-// =====================================
-// LOGOUT ==============================
-// =====================================
+// Logout
 router.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/login');
@@ -402,7 +403,7 @@ router.post('/set_slack', block_access.isLoggedIn, function (req, res) {
         "token": slack_conf.SLACK_API_USER_TOKEN,
         "name": channelName
     };
-console.log(payLoad);
+
     /* The return array to be sent to slackChat client */
     var returnArr = {
         "ok": false,

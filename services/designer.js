@@ -135,6 +135,27 @@ exports.gitPull = function(attr, callback) {
     });
 }
 
+exports.gitCommit = function(attr, callback) {
+    gitHelper.gitCommit(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = "structure.global.gitCommit.success";
+        callback(null, info);
+    });
+}
+
+exports.gitStatus = function(attr, callback) {
+    gitHelper.gitStatus(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = JSON.stringify(infoGit);
+        info.message = info.message.replace(/,/g, ",<br>");
+        callback(null, info);
+    });
+}
+
 /* --------------------------------------------------------------- */
 /* ------------------------- Project ----------------------------- */
 /* --------------------------------------------------------------- */

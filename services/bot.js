@@ -46,16 +46,26 @@ exports.restart = function(result) {
 };
 
 exports.gitPush = function(result) {
-
     var attr = {};
     attr.function = "gitPush";
     return attr;
 };
 
 exports.gitPull = function(result) {
-
     var attr = {};
     attr.function = "gitPull";
+    return attr;
+};
+
+exports.gitCommit = function(result) {
+    var attr = {};
+    attr.function = "gitCommit";
+    return attr;
+};
+
+exports.gitStatus = function(result) {
+    var attr = {};
+    attr.function = "gitStatus";
     return attr;
 };
 
@@ -910,6 +920,14 @@ exports.parse = function(instruction) {
             "git pull",
             "fetch",
             "recharger"
+        ],
+        "gitCommit": [
+            "commit",
+            "git commit"
+        ],
+        "gitStatus": [
+            "status",
+            "git status"
         ],
         "selectProject": [
             "select project (.*)",
