@@ -193,6 +193,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					userObj.addR_user_channel(channel).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
+						if (connectedUsers[data.id_user])
+							sendChatChannelList(connectedUsers[data.id_user].user, connectedUsers[data.id_user].socket);
 					});
 				});
 			}).catch(function(e) {
@@ -247,6 +249,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			});;
 		});
 
+		// Load message from offset until limit
 		socket.on('channel-load', function(data) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)},
@@ -273,6 +276,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			});;
 		});
 
+		// Update notifications
 		socket.on('channel-update_last_seen', function(data) {
 			models.E_channelmessage.max('id', {
 				where: {
@@ -309,6 +313,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					chat.setR_user(chatUserIds).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
+						if (connectedUsers[data.receiver])
+							sendChatChannelList(connectedUsers[data.receiver].user, connectedUsers[data.receiver].socket);
 					});
 				});
 			}).catch(function(e) {
@@ -374,6 +380,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			});;
 		});
 
+		// Update notifications
 		socket.on('chat-update_last_seen', function(data) {
 			models.E_chatmessage.max('id', {
 				where: {

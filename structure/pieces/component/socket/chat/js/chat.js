@@ -255,9 +255,15 @@ var socket = io();
 	}
 
 	function appendToDiscussion(data) {
-		var messageSide = (discussion.type == 'chat')
-							? data.r_sender.id == discussion.id_contact
-							: data.r_sender.id != data.id_self;
+		var messageSide;
+		if (discussion.type == 'chat') {
+			socket.emit('chat-update_last_seen', {id_chat: discussion.id});
+			messageSide = data.r_sender.id == discussion.id_contact;
+		}
+		else if (discussion.type == 'channel') {
+			socket.emit('channel-update_last_seen', {id_channel: discussion.id});
+			messageSide = data.r_sender.id != data.id_self;
+		}
 		var msgTemplate = discussionMessage(data, messageSide);
 		$("#discussion").append(msgTemplate);
 		scroll(true);
