@@ -1338,20 +1338,20 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                     return callback(err, null);
                 }
                 else{
-                    // Create the component in newmips database
-                    db_component.createNewComponentOnEntity(attr, function(err, info){
-                        if(err)
-                            return callback(err, null);
-                        // Get Data Entity Name needed for structure
-                        db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
-                            attr.options.source = sourceEntity.codeName;
-                            attr.options.showSource = sourceEntity.name;
-                            attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                    // Get Data Entity Name needed for structure
+                    db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                        attr.options.source = sourceEntity.codeName;
+                        attr.options.showSource = sourceEntity.name;
+                        attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                        // Create the component in newmips database
+                        db_component.createNewComponentOnEntity(attr, function(err, info){
+                            if(err)
+                                return callback(err, null);
                             // Setup the hasMany association in the source entity
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
                                     structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
-                                        // Get Data Entity Name needed for structure
+                                        // Get module info needed for structure
                                         db_module.getModuleById(attr.id_module, function(err, module){
                                             if(err)
                                                 return callback(err, null);
@@ -1626,6 +1626,128 @@ exports.createNewComponentCra = function(attr, callback) {
     });
 }
 
+// Componant that we can add on an entity to store local documents
+exports.createNewComponentPrint = function (attr, callback) {
+
+    /* If there is no defined name for the module */
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "c_print_"+attr.id_data_entity;
+        attr.options.urlValue = "print_"+attr.id_data_entity;
+        attr.options.showValue = "Print";
+    } else{
+        attr.options.value = attr.options.value+"_"+attr.id_data_entity;
+        attr.options.urlValue = attr.options.urlValue+"_"+attr.id_data_entity;
+    }
+
+    // Check if component with this name is already created on this entity
+    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function(err, alreadyExist){
+        if(err)
+            return callback(err, null);
+        if(alreadyExist){
+            var err = new Error();
+            err.message = "structure.component.error.alreadyExistOnEntity";
+            return callback(err, null);
+        }
+        else{
+            // Get Data Entity Name needed for structure
+            db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                // Create the component in newmips database
+                db_component.createNewComponentOnEntity(attr, function(err, info){
+                    if(err)
+                        return callback(err, null);
+                    try{
+                       // Get module info needed for structure
+                        db_module.getModuleById(attr.id_module, function(err, module){
+                            if(err)
+                                return callback(err, null);
+                            attr.options.moduleName = module.codeName;
+                            structure_component.newPrint(attr, function(err){
+                                if(err)
+                                    return callback(err, null);
+
+                                callback(null, info);
+                            });
+                        });
+                    } catch(err){
+                        return callback(err, null);
+                    }
+                });
+            });
+        }
+    });
+}
+
+exports.deleteComponentPrint = function (attr, callback) {
+
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "c_print_"+attr.id_data_entity;
+        attr.options.urlValue = "print_"+attr.id_data_entity;
+        attr.options.showValue = "Print";
+    } else{
+        attr.options.value = attr.options.value+"_"+attr.id_data_entity;
+        attr.options.urlValue = attr.options.urlValue+"_"+attr.id_data_entity;
+    }
+
+    // Check if component with this name is already created on this entity
+    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function(err, exist){
+        if(err)
+            return callback(err, null);
+        if(exist){
+            // Get Data Entity Name needed for structure
+            db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                structure_component.deletePrint(attr, function(err){
+                    if(err)
+                        return callback(err, null);
+                    db_component.deleteComponentOnEntity(attr.options.value, attr.id_module, sourceEntity.id, function(err, infoDB){
+                        if(err){
+                            return callback(err, null);
+                        }
+                        callback(null, infoDB);
+                    });
+                });
+            });
+            // Get Data Entity Name needed for structure
+            /*db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                // Create the component in newmips database
+                db_component.createNewComponentOnEntity(attr, function(err, info){
+                    if(err)
+                        return callback(err, null);
+                    try{
+                       // Get module info needed for structure
+                        db_module.getModuleById(attr.id_module, function(err, module){
+                            if(err)
+                                return callback(err, null);
+                            attr.options.moduleName = module.codeName;
+                            structure_component.newPrint(attr, function(err){
+                                if(err)
+                                    return callback(err, null);
+
+                                callback(null, info);
+                            });
+                        });
+                    } catch(err){
+                        return callback(err, null);
+                    }
+                });
+            });*/
+        }
+        else{
+            var err = new Error();
+            err.message = "structure.component.error.notExisting";
+            return callback(err, null);
+        }
+    });
+}
+
 exports.createComponentChat = function(attr, callback) {
     structure_component.setupChat(attr, function(err) {
         if (err)
@@ -1817,6 +1939,5 @@ function deleteEntityWidgets(attr, callback) {
     });
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;
-
 
 return designer;

@@ -83,26 +83,6 @@ function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, va
 	});
 }
 
-function setupComponentView(idApplication, nameComponent, urlComponent, filename, nameModule, callback){
-
-	// CREATE VIEW FILE
-	fs.copySync(__dirname+'/pieces/component/'+filename+'/views', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase());
-
-	fs.rename(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/view_'+filename+'.dust', __dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', function(){
-		var viewTemplate = fs.readFileSync(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust', 'utf8');
-		viewTemplate = viewTemplate.replace(/custom_module/g, nameModule.toLowerCase());
-		viewTemplate = viewTemplate.replace(/name_url_component/g, urlComponent.toLowerCase());
-		viewTemplate = viewTemplate.replace(/name_component/g, nameComponent.toLowerCase());
-
-		var writeStream = fs.createWriteStream(__dirname+'/../workspace/'+idApplication+'/views/'+nameComponent.toLowerCase()+'/'+nameComponent.toLowerCase()+'.dust');
-		writeStream.write(viewTemplate);
-		writeStream.end();
-		writeStream.on('finish', function() {
-			callback();
-		});
-	});
-}
-
 function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, callback){
 
 	// Calendar View
@@ -174,9 +154,11 @@ function addTab(attr, file, newLi, newTabContent) {
             var context;
             if ($("#tabs").length == 0) {
                 tabs += '<div class="nav-tabs-custom" id="tabs">';
+                tabs += '   <!--{^hideTab}-->';
                 tabs += '	<ul class="nav nav-tabs">';
                 tabs += '		<li class="active"><a data-toggle="tab" href="#home">{@__ key="entity.' + source + '.label_entity" /}</a></li>';
                 tabs += '	</ul>';
+                tabs += '   <!--{/hideTab}-->';
                 tabs += '	<div class="tab-content" style="min-height:275px;">';
                 tabs += '		<div id="home" class="tab-pane fade in active"></div>';
                 tabs += '	</div>';
@@ -190,8 +172,9 @@ function addTab(attr, file, newLi, newTabContent) {
 
             // Append created elements to `context` to handle presence of tab or not
             $(".nav-tabs", context).append(newLi);
+            $(".tab-content", context).append('<!--{^hideTab}-->');
             $(".tab-content", context).append(newTabContent);
-
+            $(".tab-content", context).append('<!--{/hideTab}-->');
             $('body').empty().append(context);
             domHelper.write(file, $).then(function () {
                 resolve();
@@ -232,11 +215,9 @@ exports.newLocalFileStorage = function(attr, callback){
 	var urlComponent = attr.options.urlValue.toLowerCase();
 
 	var showComponentName = attr.options.showValue;
-	var showComponentNameLower = showComponentName.toLowerCase();
 
 	var source = attr.options.source;
 	var sourceLower = source.toLowerCase();
-	var showSource = attr.options.showSource;
 	var urlSource = attr.options.urlSource;
 
 	var filename = "local_file_storage";
@@ -256,9 +237,7 @@ exports.newLocalFileStorage = function(attr, callback){
 						componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
 
 						var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'">{@__ key="component.'+nameComponentLower+'.label_component" /}</a></li>';
-
-						var fileBase = __dirname+'/../workspace/'+attr.id_application+'/views/'+sourceLower;
-						var file = fileBase+'/show_fields.dust';
+						var file = __dirname+'/../workspace/'+attr.id_application+'/views/'+sourceLower+'/show_fields.dust';
 
 						// CREATE THE TAB IN SHOW FIELDS
 						addTab(attr, file, newLi, componentContent).then(callback);
@@ -266,6 +245,137 @@ exports.newLocalFileStorage = function(attr, callback){
 				});
 			});
 		});
+	});
+}
+
+exports.newPrint = function(attr, callback){
+
+	var nameComponent = attr.options.value;
+	var nameComponentLower = nameComponent.toLowerCase();
+	var showComponentName = attr.options.showValue;
+	var entityLower = attr.options.source.toLowerCase();
+	var idApp = attr.id_application;
+
+	translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
+		var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
+
+		domHelper.read(showFieldsPath).then(function($) {
+			var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
+			var componentContent = "";
+			componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
+			componentContent += "<style>";
+			componentContent += "	@media print {";
+			componentContent += "		body{";
+			componentContent += "			height: 100%;";
+			componentContent += "		}";
+			componentContent += "		body * {";
+			componentContent += "			visibility: hidden;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		#"+nameComponentLower+"-content,";
+			componentContent += "		#"+nameComponentLower+"-content * {";
+			componentContent += "			visibility: visible;";
+			componentContent += "		}";
+			componentContent += "		#"+nameComponentLower+"-content {";
+			componentContent += "			position: absolute;";
+			componentContent += "			left: 0;";
+			componentContent += "			top: 0;";
+			componentContent += "			margin: 0px;";
+			componentContent += "			padding: 15px;";
+			componentContent += "			border: 0px;";
+			componentContent += "			width: 100%;";
+			componentContent += "			height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		#"+nameComponentLower+"{";
+			componentContent += "			height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		.tab-content{";
+			componentContent += "			height: 100%;";
+			componentContent += "			min-height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		.content-wrapper{";
+			componentContent += "			height: 100%;";
+			componentContent += "			min-height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "		.wrapper{";
+			componentContent += "			height: 100%;";
+			componentContent += "			min-height: 100%;";
+			componentContent += "			overflow: visible;";
+			componentContent += "		}";
+			componentContent += "	}";
+			componentContent += "</style>";
+			componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
+			componentContent += "	<div id='"+nameComponent+"-content' class='print-tab'>\n";
+
+			$("#tabs .tab-pane").each(function(){
+				var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
+				var htmlToInclude = "";
+				if($(this).attr("id") == "home"){
+					htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
+				} else {
+					htmlToInclude = $(this)[0].innerHTML;
+				}
+				//var match;
+
+				// Find dust file inclusion with dust helper
+				/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
+				var matches = [];
+
+				while (match = maRegex.exec($(this)[0].innerHTML)) {
+					matches.push(match);
+				}
+
+				var string = $(this)[0].innerHTML;
+
+				// Replace those inclusion with the real dust file content
+				for(var i=0; i<matches.length; i++){
+					//The path of the included dust file
+					var dustPath = matches[i][1];
+					var dustContent = fs.readFileSync(__dirname + "/../workspace/" + idApp + "/views/" + dustPath + ".dust", "utf8");
+
+					if(i > 0){
+						// String has been previously modify so the index aren't correct, we have to update them every time after the first modification
+						matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
+					}
+					string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
+				}*/
+				var contentToAdd = "<legend>" + titleTab + "</legend>" + htmlToInclude;
+
+				// Change ID to prevent JS errors in DOM
+				contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+				componentContent += contentToAdd;
+			});
+
+			componentContent += "	</div>";
+			componentContent += "</div>";
+			componentContent = componentContent.replace("&nbsp;", "");
+
+			addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
+		});
+	});
+}
+
+exports.deletePrint = function(attr, callback){
+
+	var entityLower = attr.options.source.toLowerCase();
+	var idApp = attr.id_application;
+	var nameComponentLower = attr.options.value.toLowerCase();
+	var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
+
+	domHelper.read(showFieldsPath).then(function($) {
+		try{
+			$("#"+nameComponentLower).remove();
+			$("#"+nameComponentLower+"-click").parents("li").remove();
+			domHelper.write(showFieldsPath, $).then(function () {
+                callback();
+            });
+		} catch(err){
+			callback(err, null);
+		}
 	});
 }
 

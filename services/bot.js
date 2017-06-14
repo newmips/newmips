@@ -704,6 +704,61 @@ exports.createNewComponentCra = function(result) {
     };
 };
 
+/* PRINT */
+exports.createNewComponentPrint = function(result) {
+
+    var options = {};
+
+    var attr = {
+        function: "createNewComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
+exports.createNewComponentPrintWithName = function(result) {
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "createNewComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentPrint = function(result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentPrintWithName = function(result) {
+
+    var value = result[1];
+
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    var attr = {
+        function: "deleteComponentPrint",
+        options: options
+    };
+    return attr;
+};
+
 /* CHAT */
 exports.createComponentChat = function(result) {
     return {
@@ -908,8 +963,8 @@ exports.parse = function(instruction) {
             "push",
             "push on git",
             "save the application",
-            "sauvergarder",
-            "sauvergarder l'application",
+            "sauvegarder",
+            "sauvegarder l'application",
             "sauvegarder application",
             "git push"
         ],
@@ -1513,6 +1568,43 @@ exports.parse = function(instruction) {
             "ajouter un composant compte-rendu d'activités",
             "créer composant compte-rendu d'activités",
             "ajouter composant compte-rendu d'activités"
+        ],
+        "createNewComponentPrint": [
+            "create component print",
+            "add component print",
+            "create component print tab",
+            "add component print tab",
+            "créer un composant impression",
+            "ajouter un composant impression",
+            "créer composant impression",
+            "ajouter composant impression",
+            "créer un onglet impression",
+            "ajouter un onglet impression"
+        ],
+        "createNewComponentPrintWithName": [
+            "create component print with name (.*)",
+            "add component print with name (.*)",
+            "add print with name (.*)",
+            "créer un composant impression appelé (.*)",
+            "ajouter un composant impression appelé (.*)",
+            "créer le composant impression appelé (.*)",
+            "ajouter le composant impression appelé (.*)",
+            "créer composant impression appelé (.*)",
+            "ajouter composant impression appelé (.*)",
+            "créer un impression appelé (.*)",
+            "ajouter un impression appelé (.*)",
+            "créer impression appelé (.*)",
+            "ajouter impression appelé (.*)",
+            "créer impression appelé (.*)",
+            "ajouter impression appelé (.*)"
+        ],
+        "deleteComponentPrint": [
+            "delete component print",
+            "delete print component"
+        ],
+        "deleteComponentPrintWithName": [
+            "delete component print with name (.*)",
+            "delete print component with name (.*)"
         ],
         "createComponentChat": [
             "add component chat",
