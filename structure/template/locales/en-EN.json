@@ -134,7 +134,10 @@
 			"add_event" : "Add new event",
 			"no_category": "No category",
 			"pending_event": "Pending event(s)"
-		}
+		},
+        "print": {
+            "action": "Print"
+        }
 	},
 	"component": {},
 	"defaults": {
