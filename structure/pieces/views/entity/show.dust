@@ -53,10 +53,10 @@
             $(".actions:not(:first)").hide();
             /* Avoid .tab inception in relation show tabs. Takes content of main tab of the association
             / and print it at .tab top level */
-            var tabContentToKeep = $("#tabs .tab-content").find(".tab-pane:first");
+            /*var tabContentToKeep = $("#tabs .tab-content").find(".tab-pane:first");
             for (var i = 1; i < tabContentToKeep.length; i++) {
                 $(tabContentToKeep[i]).parents('.tab-pane').find("#tabs").html($(tabContentToKeep[i]).html());
-            }
+            }*/ /* ==========> REPLACED BY hideTab param in dust inclusion of show fields */
 
             /* Check url to go on tabs */
             var url = document.location.toString();

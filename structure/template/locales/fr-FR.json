@@ -134,6 +134,9 @@
             "add_event": "Ajouter un événement",
             "no_category": "Pas de catégorie",
             "pending_event": "Événement(s) en attente"
+        },
+        "print": {
+            "action": "Imprimer"
         }
     },
     "component": {},

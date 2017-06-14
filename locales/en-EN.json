@@ -214,10 +214,15 @@
         },
         "component":{
             "create": {
-                "success" : "New component %s (%s) created."
+                "success" : "New component %s (%s) created.",
+                "successOnEntity": "New component %s (%s) created on entity %s."
             },
             "notFound": {
                 "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
+            },
+            "delete": {
+                "success": "The component has been successfully deleted!",
+                "error": "An error occured during the component deletion."
             }
         },
         "entity": {
@@ -322,7 +327,8 @@
             "error": {
                 "alreadyExistOnEntity": "Sorry, a component with this name is already associate to this entity in this module.",
                 "alreadyExistInApp": "Sorry, an other entity with this component name already exist in this application.",
-                "alreadyExistOnModule": "Sorry, a component with this name is already associate to this module."
+                "alreadyExistOnModule": "Sorry, a component with this name is already associate to this module.",
+                "notExisting": "Sorry, but this component does not exist on the current entity."
             },
             "chat": {
                 "success": "Chat component successfully added"
