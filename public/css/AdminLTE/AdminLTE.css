@@ -4141,3 +4141,6 @@ fieldset[disabled] .btn-vk.active {
     background: #efefef;
   }
 }
+.progress-bar {
+  background-color: #97646F;
+}
