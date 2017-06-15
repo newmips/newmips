@@ -201,14 +201,15 @@ exports.getNameDataFieldById = function (idField, callback) {
     });
 }
 
-exports.getCodeNameByNameArray = function(names, callback) {
+exports.getCodeNameByNameArray = function(names, id_entity, callback) {
     var columns = [];
     for (var i = 0; i < names.length; i++)
         columns.push({name: names[i].toLowerCase()});
     models.DataField.findAll({
         attributes: ['codeName', 'name'],
         where: {
-            $or: columns
+            $or: columns,
+            id_data_entity: id_entity
         },
         raw: true
     }).then(function(results) {
