@@ -1843,7 +1843,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
             attr.entity = entity;
             attr.module = module;
 
-            db_field.getCodeNameByNameArray(attr.columns, function(err, columns) {
+            db_field.getCodeNameByNameArray(attr.columns, entity.id, function(err, columns) {
                 if (err)
                     return callback(err);
 
@@ -1861,8 +1861,8 @@ exports.createWidgetLastRecords = function(attr, callback) {
                         if (!kFound)
                             notFound.push(attr.columns[k]);
                     }
-                    console.log(notFound);
-                    return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [notFound.join(', ')]});
+                    if (notFound.length > 0)
+                        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [notFound.join(', ')]});
                 }
 
                 attr.columns = columns;
