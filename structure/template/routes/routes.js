@@ -46,6 +46,11 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     else
         req.session.cookie.expires = false;
 
+    if (req.session.rejectedUrl) {
+        var url = req.session.rejectedUrl;
+        req.session.rejectedUrl = undefined;
+        return res.redirect(url);
+    }
     res.redirect("/default/home");
 });
 
