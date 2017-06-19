@@ -56,7 +56,8 @@
         "yes": "Oui",
         "no": "Non",
         "close": "Fermer",
-        "send": "Envoyer"
+        "send": "Envoyer",
+        "documentation": "Documentation"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
