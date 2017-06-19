@@ -17,27 +17,20 @@ block header
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
 				.progress-bar.progress-bar-striped#cptInstructionBar(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-3.col-lg-1(style="padding:0px;")
-			ol.breadcrumb
-				li
-					a(href='/default/home')
-						i.fa.fa-home
-						| #{__("menu.home")}
-				li.active #{__("menu.instruction")}
-		.col-header.col-xs-3.col-lg-1
-			a.btn.btn-default.pull-right(href='/logout')
-				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
-				span #{__("button.disconnect")}
+		.col-header.col-xs-6.col-lg-2
+			.btn-group.pull-right(role="group")
+				a.btn.btn-default(href='/default/home')
+					i.fa.fa-home(style="margin-right:5px;")
+					| #{__("menu.home")}
+				a.btn.btn-default.pull-right(href='/logout')
+					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
+					span #{__("button.disconnect")}
+
 block content
 	legend #{__("instructionScript.legend")}
 	.row
 		.col-xs-12.connectedSortable
 			.box-body
-				a.btn.btn-default.pull-right(href='/default/home')
-					i.fa.fa-arrow-left.fa-md &nbsp;&nbsp;
-					span #{__("button.backtohome")}
-				br
-				br
 				.row
 					.col-xs-12
 						form(action='/instruction_script/execute', id='instructionsScript', method='post', enctype="multipart/form-data")

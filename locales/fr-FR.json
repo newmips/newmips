@@ -56,17 +56,18 @@
         "yes": "Oui",
         "no": "Non",
         "close": "Fermer",
-        "send": "Envoyer"
+        "send": "Envoyer",
+        "documentation": "Documentation"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
         "title": "Créez ou sélectionnez un Projet ainsi qu'une Application.",
         "subtitle": "Et nous nous occupons du reste !",
         "directlinks": {
-            "title": "Liens directs",
+            "title": "Gestion des Applications",
             "script": "Script",
             "live": "Direct",
-            "import": "Import",
+            "import": "Import de données",
             "settings": "Paramètres"
         }
     },
