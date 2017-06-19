@@ -160,7 +160,7 @@ sequelize.customAfterSync = function() {
                                 request = "ALTER TABLE ";
                                 request += sourceBelongsTo;
                                 request += " ADD COLUMN `" +foreignBelongsTo+ "` INT DEFAULT NULL;";
-                                request2 = "ALTER TABLE `" +sourceBelongsTo+ "` ADD FOREIGN KEY (" +foreignBelongsTo+ ") REFERENCES `" +targetBelongsTo+ "` (id);";
+                                request2 = "ALTER TABLE `" +sourceBelongsTo+ "` ADD FOREIGN KEY (" +foreignBelongsTo+ ") REFERENCES `" +targetBelongsTo+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
                                 sequelize.query(request).then(function() {
                                     sequelize.query(request2).then(function() {
                                         var writeStream = fs.createWriteStream(toSyncFileName);

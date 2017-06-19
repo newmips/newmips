@@ -1,18 +1,20 @@
 /*!
- *   Newmips CSS V0.1
- *   Author: Newmips
+*   Newmips CSS V0.1
+*   Author: Newmips
 !*/
-
 /*
-    Core: General style
+Core: General style
 ----------------------------
 */
+.hover:hover {
+  cursor: pointer;
+}
 
 /* required field */
 label.required:after {
-  color: #e32;
-  content: ' *';
-  display:inline;
+    color: #e32;
+    content: ' *';
+    display:inline;
 }
 .text-left{
     text-align: left;
@@ -21,29 +23,53 @@ label.required:after {
     padding-bottom: 10px;
 }
 .quicklinks span{
-	margin-right: 6px;
+    margin-right: 6px;
 }
 .dataTable thead{
-	background-color: #FFF;
+    background-color: #FFF;
 }
 div.dataTables_filter input {
-	margin-left: 7px;
-	border-radius: 5px;
+    margin-left: 7px;
+    border-radius: 5px;
 }
 div.dataTables_length select {
     border-radius: 5px;
 }
 .dt-button{
-	border-radius: 5px !important;
+    border-radius: 5px !important;
 }
 .content-header{
-  background: #F9FAFC none repeat scroll 0 0 !important;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-  padding: 15px;
+    background: #F9FAFC none repeat scroll 0 0 !important;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 15px;
 }
 .skin-black .main-header > .logo {
     color: #333 !important;
 }
 .content-wrapper{
-  background-color: #F4F4F5;
+    background-color: #F4F4F5;
+}
+/* PRINT COMPONENT */
+.print-tab{
+    margin: 20px;
+    padding: 25px;
+    border: 1px solid lightgrey;
+    overflow-y: auto;
+}
+.print-tab .dt-buttons, .print-tab .dataTables_length, .print-tab .dataTables_filter, .print-tab .dataTables_info, .print-tab .dataTables_paginate{
+    display: none;
+}
+.print-tab table.dataTable thead .sorting, .print-tab table.dataTable thead .sorting_desc, .print-tab table.dataTable thead .sorting_asc {
+    background: transparent;
+}
+.print-tab input{
+    background: transparent !important;
+    border: 0px !important;
+    -moz-appearance:textfield !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    margin: 0 !important;
+}
+.print-tab button, .print-tab a.btn{
+    display: none;
 }

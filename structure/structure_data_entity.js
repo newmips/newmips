@@ -45,11 +45,9 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
             writeStream2.write(JSON.stringify(toSyncObject, null, 4));
             writeStream2.end();
             writeStream2.on('finish', function () {
-                //console.log("Model => Options/Associations ------------------ COMPLETED");
                 callback();
             });
         } else {
-            //console.log("Model => Options/Associations ------------------ COMPLETED");
             callback();
         }
     });
@@ -164,11 +162,11 @@ exports.setupDataEntity = function (attr, callback) {
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
             li += '                         <!--{@__ key="operation.create" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.name_entity" /}-->\n';
-            li += '                     </a>';
+            li += '                     </a>\n';
             li += '                 </li>';
             li += '             <!--{/actionAccess}-->';
             li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}-->';
-            li += '                 <li>';
+            li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
             li += '                         <!--{@__ key="operation.list" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.plural_entity" /}-->\n';
@@ -315,13 +313,34 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
     // Delete attributes
     fs.unlinkSync(baseFolder + '/models/attributes/' + name_data_entity + '.json');
 
+    // Remove relationships in options.json files
+    var optionFiles = fs.readdirSync(baseFolder+ '/models/options/');
+    for (var file in optionFiles) {
+        var options = require(baseFolder+ '/models/options/'+optionFiles[file]);
+        var optionsCpy = [];
+        for (var i = 0; i < options.length; i++)
+            if (options[i].target != name_data_entity)
+                optionsCpy.push(options[i]);
+        if (optionsCpy.length != options.length)
+            fs.writeFileSync(baseFolder+ '/models/options/'+optionFiles[file], JSON.stringify(optionsCpy, null, 4));
+    }
+
     name_module = name_module.toLowerCase();
 
+    // Clean up access config
+    var access = require(baseFolder+'/config/access.json');
+    for (var i = 0; i < access[name_module.substring(2)].entities.length; i++) {
+        if (access[name_module.substring(2)].entities[i].name == url_name_data_entity)
+            access[name_module.substring(2)].entities.splice(i, 1);
+    }
+    fs.writeFileSync(baseFolder+'/config/access.json', JSON.stringify(access, null, 4));
+
+    // Remove entity entry from layout select
     var filePath = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module + '.dust';
     domHelper.read(filePath).then(function ($) {
         $("#" + url_name_data_entity + '_menu_item').remove();
         domHelper.write(filePath, $).then(function () {
             callback();
-        })
-    })
+        });
+    });
 };

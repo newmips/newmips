@@ -68,6 +68,8 @@ var config = {
     }
 }
 
+// Merge applicationConf with the returned globalConf object
+// After requiring config/global.js, the returned object contain the properties of config/application.json
 var currentConfig = config[env];
 for (var appConf in applicationConf) {
     currentConfig[appConf] = applicationConf[appConf];

@@ -1,0 +1,19 @@
+{
+	"chat": {
+		"user_invited": "L'utilisateur a été invité",
+		"chat_created": "Chat crée",
+		"channel_created": "Channel crée",
+		"channel_joined": "Vous avez rejoins une channel",
+		"invite_users": "Inviter des utilisateurs",
+		"invite": "Inviter",
+		"channel_create": "Créer une channel",
+		"private": "Privée",
+		"public": "Publique",
+		"channel_join": "Rejoindre une channel",
+		"join": "Rejoindre",
+        "channel_members": "Membres de la channel",
+        "channel_leave": "Quitter la channel",
+        "channel_left": "Vous avez quitté la channel",
+        "chat_create": "Discuter avec un utilisateur"
+	}
+}

@@ -29,7 +29,6 @@ var helpers = require('../utils/helpers');
 var attrHelper = require('../utils/attr_helper');
 
 // Use to connect workspaces with gitlab or other repo
-// Only working on our cloud ENV for now.
 var gitHelper = require('../utils/git_helper');
 
 // Sequelize
@@ -108,6 +107,11 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         session: ""
     };
 
+    if (!id_application && typeof process_server[req.session.id_application] === 'undefined') {
+        req.session.toastr.push({level: "warning", message: "application.not_started"});
+        return res.redirect('/application/list');
+    }
+
     setChat(req, id_application, currentUserID, "Newmips", "chat.welcome", []);
 
     models.Application.findOne({where: {id: id_application}}).then(function(application) {
@@ -146,7 +150,9 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 attr.gitlabUser = null;
 
             session_manager.getSession(attr, function(err, info) {
-                docBuilder.build(req.session.id_application);
+                docBuilder.build(req.session.id_application).catch(function(err){
+                    console.log(err);
+                });
 
                 data.session = info;
 
@@ -209,10 +215,15 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             });
         });
     }).catch(function(err) {
-        data.code = 500;
-        data.workspaceFolder = initEditor(req.session.id_application);
-        console.log(err);
-        res.render('common/error', data);
+        initPreviewData(req.session.id_application, data).then(function(data) {
+            data.code = 500;
+            console.log(err);
+            res.render('common/error', data);
+        }).catch(function(err) {
+            data.code = 500;
+            console.log(err);
+            res.render('common/error', data);
+        });
     });
 });
 
@@ -354,7 +365,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
                         session_manager.getSession(newAttr, function(err, info) {
 
-                            docBuilder.build(req.session.id_application);
+                            docBuilder.build(req.session.id_application).catch(function(err){
+                                console.log(err);
+                            });
                             data.session = info;
 
                             initPreviewData(req.session.id_application, data).then(function(data) {

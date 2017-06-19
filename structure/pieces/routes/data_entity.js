@@ -18,7 +18,6 @@ var enums = require('../utils/enum.js');
 // Winston logger
 var logger = require('../utils/logger');
 
-
 function error500(err, req, res, redirect) {
     var isKnownError = false;
     try {
@@ -372,7 +371,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
-    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
+    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
         req.body.version = parseInt(req.body.version) + 1;
     else
         req.body.version = 0;
@@ -412,7 +411,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
-    var id_ENTITY_NAME = req.body.id;
+    var id_ENTITY_NAME = parseInt(req.body.id);
 
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (deleteObject) {
         models.MODEL_NAME.destroy({
@@ -421,9 +420,9 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             }
         }).then(function () {
             req.session.toastr = [{
-                    message: 'message.delete.success',
-                    level: "success"
-                }];
+                message: 'message.delete.success',
+                level: "success"
+            }];
 
             var redirect = '/ENTITY_URL_NAME/list';
             if (typeof req.body.associationFlag !== 'undefined')

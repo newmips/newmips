@@ -1,0 +1,51 @@
+
+.row.rowTop {
+	margin-top: 20px;
+}
+
+.center-txt {
+	text-align: center;
+}
+
+.message-box {
+	position: fixed;
+	bottom: 40px;
+	right: 50px;
+	font-size: 28px;
+	color: #fff;
+	background: #DC4A38;
+	border-radius: 50%;
+	padding: 5px;
+	z-index: 80000;
+	height: 50px;
+  	width: 50px;
+  	text-align: center;
+}
+
+.message-box:hover {
+	background: #cb3927;
+}
+
+.message-box > a,
+.message-box > a:active,
+.message-box > a:focus,
+.message-box > a:hover {
+	color: #fff;
+}
+
+.message-box > a .slack-message-count {
+	position: absolute;
+  	top: 0;
+  	right: -5px;
+	display: none;
+}
+
+@media screen and (max-width: 768px) {
+	.message-box {
+		bottom: 25px;
+		right: 25px;
+		font-size: 20px;
+		height: 40px;
+		width: 40px;
+	}
+}

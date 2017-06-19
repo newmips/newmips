@@ -138,7 +138,16 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "url" :
         case "lien" :
         case "link" :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
+            if (file == 'show')
+                str += "    <br><a href='"+value+"' target='_blank' type='url' data-type='url'>"+value+"</a>\n";
+            else{
+                str += "    <div class='input-group'>\n";
+                str += "        <div class='input-group-addon'>\n";
+                str += "            <i class='fa fa-link'></i>\n";
+                str += "        </div>\n";
+                str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
+                str += "    </div>\n";
+            }
             break;
         case "password" :
         case "mot de passe":
@@ -173,14 +182,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
                 str += "	</div>\n";
             }
-            /*else if (file == "create") {
-             str += "	<div class='input-group'>\n";
-             str += "		<div class='input-group-addon'>\n";
-             str += "			<i class='fa fa-calendar'></i>\n";
-             str += "		</div>\n";
-             str += "		<input class='form-control input datepicker' value='" + value + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
-             str += "	</div>\n";
-             }*/
             break;
         case "time" :
         case "heure" :
@@ -323,6 +324,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
         case "text" :
         case "texte" :
+            value = "{" + dataField + "|s}";
             str += "	<textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' value='" + value + "' type='text' " + readOnly + ">" + value + "</textarea>\n";
             break;
         case "localfile" :
@@ -793,9 +795,11 @@ function addTab(attr, file, newLi, newTabContent) {
             var context;
             if ($("#tabs").length == 0) {
                 tabs += '<div class="nav-tabs-custom" id="tabs">';
+                tabs += '   <!--{^hideTab}-->';
                 tabs += '	<ul class="nav nav-tabs">';
                 tabs += '		<li class="active"><a data-toggle="tab" href="#home">{@__ key="entity.' + source + '.label_entity" /}</a></li>';
                 tabs += '	</ul>';
+                tabs += '   <!--{/hideTab}-->';
 
                 tabs += '	<div class="tab-content" style="min-height:275px;">';
                 tabs += '		<div id="home" class="tab-pane fade in active"></div>';
@@ -810,7 +814,9 @@ function addTab(attr, file, newLi, newTabContent) {
 
             // Append created elements to `context` to handle presence of tab or not
             $(".nav-tabs", context).append(newLi);
+            $(".tab-content", context).append('<!--{^hideTab}-->');
             $(".tab-content", context).append(newTabContent);
+            $(".tab-content", context).append('<!--{/hideTab}-->');
 
             $('body').empty().append(context);
             domHelper.write(file, $).then(function () {
@@ -1066,7 +1072,7 @@ exports.setupHasOneTab = function (attr, callback) {
 
             // Include association's fields
             newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '	{>"' + target + '/show_fields" /}\n';
+            newTab += '	{>"' + target + '/show_fields" hideTab="true"/}\n';
             newTab += '<!--{:else}-->\n';
             newTab += ' {@__ key="message.empty" /}<br><br>\n';
             newTab += '<!--{/' + alias + '}-->\n';
@@ -1076,7 +1082,7 @@ exports.setupHasOneTab = function (attr, callback) {
             newTab += '			<a style="margin-right:8px;" href="/' + urlTarget + '/update_form?id={id}&associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-warning">\n';
             newTab += '				<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>\n';
             newTab += '			</a>\n';
-            newTab += '			<button onclick="return confirm("Etes-vous sûr de vouloir supprimer cet enregistrement ?");" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
+            newTab += '			<button onclick="return confirm(\'Êtes-vous sûr de vouloir supprimer cet enregistrement ?\');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
             newTab += '				<span>{@__ key="button.delete" /}</span>\n';
             newTab += '				<input name="id" value="{id}" type="hidden"/>\n';
             newTab += '				<input name="associationAlias" value="' + alias + '" type="hidden"/>\n';
@@ -1151,20 +1157,20 @@ exports.setupFieldsetTab = function (attr, callback) {
             var newTabContent = '';
             // Create select to add elements
             newTabContent += '<div id="' + alias + '" class="tab-pane fade">\n';
-            newTabContent += '	<form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post">\n';
-            newTabContent += '		<select style="width:200px;" class="form-control" name="ids" multiple>\n';
-            newTabContent += '			<!--{#' + alias + '_global_list}-->\n';
-            newTabContent += '				<!--{#.' + usingField + '}-->\n';
-            newTabContent += '						<option value="{id}">{' + usingField + '}</option>\n';
-            newTabContent += '				<!--{:else}-->\n';
-            newTabContent += '						<option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-            newTabContent += '				<!--{/.' + usingField + '}-->\n';
-            newTabContent += '			<!--{/' + alias + '_global_list}-->\n';
-            newTabContent += '		</select>\n';
-            newTabContent += '		<button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
-            newTabContent += '		<input type="hidden" value="{' + source + '.id}" name="idEntity">\n';
-            newTabContent += '	</form>\n';
-            newTabContent += '	<br>\n';
+            newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
+            newTabContent += '      <select style="width:200px;" class="form-control" name="ids" multiple>\n';
+            newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
+            newTabContent += '              <!--{#.' + usingField + '}-->\n';
+            newTabContent += '                  <option value="{id}">{' + usingField + '}</option>\n';
+            newTabContent += '              <!--{:else}-->\n';
+            newTabContent += '                  <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
+            newTabContent += '              <!--{/.' + usingField + '}-->\n';
+            newTabContent += '          <!--{/' + alias + '_global_list}-->\n';
+            newTabContent += '      </select>\n';
+            newTabContent += '      <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
+            newTabContent += '      <input type="hidden" value="{' + source + '.id}" name="idEntity">\n';
+            newTabContent += '  </form>\n';
+            //newTabContent += '	<br>\n';
             // Include association's fields
             newTabContent += '	<!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
             newTabContent += '			<!--{@eq key=id value=' + target + '[0].id}-->\n';
@@ -1220,7 +1226,9 @@ exports.deleteDataField = function (attr, callback) {
     if (!isInOptions) {
         jsonPath = __dirname + '/../workspace/' + id_application + '/models/attributes/' + name_data_entity + '.json';
         dataToWrite = require(jsonPath);
-        dataToWrite[name_data_field] = undefined;
+
+        delete dataToWrite[name_data_field];
+
         info.fieldToDrop = name_data_field;
         info.isConstraint = false;
     }
