@@ -64,10 +64,10 @@
         "title": "Create or select a Project and an Application.",
         "subtitle": "We take care of the rest !",
         "directlinks": {
-            "title": "Direct links",
+            "title": "Application manager",
             "script": "Script",
             "live": "Live",
-            "import": "Import",
+            "import": "Data Import",
             "settings": "Settings"
         }
     },
