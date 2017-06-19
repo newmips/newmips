@@ -106,6 +106,12 @@ app.use(function(req, res, next) {
 	next();
 });
 
+// Give access to globalConf through locals
+app.use(function(req, res, next) {
+	res.locals.globalConf = globalConf;
+	next();
+});
+
 // Overload res.render to always get and reset toastr
 app.use(function(req, res, next) {
     var render = res.render;
