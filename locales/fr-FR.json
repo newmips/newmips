@@ -18,6 +18,7 @@
         "authentication": "Connexion",
         "login": "Login",
         "password": "Mot de passe",
+        "minimalLength": "(8 caractères minimum)",
         "confirm_password": "Confirmer le mot de passe",
         "mail": "Email",
         "remember_me": "Se souvenir de moi",
@@ -55,17 +56,18 @@
         "yes": "Oui",
         "no": "Non",
         "close": "Fermer",
-        "send": "Envoyer"
+        "send": "Envoyer",
+        "documentation": "Documentation"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
         "title": "Créez ou sélectionnez un Projet ainsi qu'une Application.",
         "subtitle": "Et nous nous occupons du reste !",
         "directlinks": {
-            "title": "Liens directs",
+            "title": "Gestion des Applications",
             "script": "Script",
             "live": "Direct",
-            "import": "Import",
+            "import": "Import de données",
             "settings": "Paramètres"
         }
     },
@@ -116,7 +118,9 @@
     "preview": {
         "title": "Prévisualisation",
         "reload": "Redémarrer le serveur",
-        "issue-button": "Signaler un bug"
+        "issue-button": "Signaler un bug",
+        "help-button": "Besoin d'aide ?",
+        "help-disabled": "Le chat slack est désactivé. Activez-le dans config/global.js et fournissez les informations slack dans config/slack.js"
     },
     "project": {
         "label": "Projet",
@@ -128,7 +132,8 @@
         "label": "Application",
         "create": "Créer une nouvelle application",
         "selectExisting": "Sélectionner une application existante",
-        "plural": "Applications"
+        "plural": "Applications",
+        "not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste."
     },
     "module": {
         "label": "Module"
@@ -210,10 +215,15 @@
         },
         "component":{
             "create": {
-                "success" : "Nouveau composant %s (%s) créé."
+                "success" : "Nouveau composant %s (%s) créé.",
+                "successOnEntity": "Nouveau composant %s (%s) créé sur l'entité %s."
             },
             "notFound": {
                 "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s."
+            },
+            "delete": {
+                "success": "Le composant a bien été supprimé !",
+                "error": "Une erreur est survenue lors de la suppression du composant."
             }
         },
         "entity": {
@@ -263,10 +273,13 @@
                 "error": "Impossible de démarrer le serveur suite à une erreur critique."
             },
             "gitPush": {
-                "success": "L'application a bien été sauvergardée!"
+                "success": "L'application a bien été sauvergardée !"
             },
             "gitPull": {
-                "success": "L'application a bien été chargée!"
+                "success": "L'application a bien été chargée !"
+            },
+            "gitCommit": {
+                "success": "Le commit à bien été effectué !"
             },
             "error": {
                 "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
@@ -315,7 +328,11 @@
             "error": {
                 "alreadyExistOnEntity": "Désolé, un composant avec ce nom est déjà associé à cette entité dans ce module.",
                 "alreadyExistInApp": "Désolé, une autre entité avec le nom du composant existe déjà dans cette application.",
-                "alreadyExistOnModule": "Désolé, un composant avec ce nom existe déjà dans ce module."
+                "alreadyExistOnModule": "Désolé, un composant avec ce nom existe déjà dans ce module.",
+                "notExisting": "Désolé, mais ce composant n'existe pas sur l'entité courante."
+            },
+            "chat": {
+                "success": "Composant chat ajouté avec succès"
             }
         },
         "ui": {

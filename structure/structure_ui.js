@@ -177,7 +177,7 @@ exports.createWidget = function(attr, callback) {
 
                 // Create widget's html
                 var newHtml = "";
-                newHtml += "<div id='"+widgetElemId+"' class='col-xs-3'>\n";
+                newHtml += "<div id='"+widgetElemId+"' class='col-sm-3 col-xs-12'>\n";
                 newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
                 newHtml +=      $2("body")[0].innerHTML+"\n";
                 newHtml += '<!--{/entityAccess}-->';
@@ -204,15 +204,6 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
 
-    // Verify columns validity
-    var attributes = require(workspacePath+'/models/attributes/'+attr.entity.codeName+'.json');
-    var unknownFields = [];
-    for (var i = 0; i < attr.columns.length; i++)
-        if (!attributes['f_'+attr.columns[i]])
-            unknownFields.push(attr.columns[i]);
-    if (unknownFields.length)
-        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [unknownFields.join(', ')]});
-
     // Add widget's query to routes/default controller
     var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
     var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
@@ -234,7 +225,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-"+(attr.columns.length > 4 ? 6 : 3)+"'>\n";
+            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '6' : '3')+"'>\n";
             newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
             newHtml +=      $template("body")[0].innerHTML+"\n";
             newHtml += '<!--{/entityAccess}-->';
@@ -248,7 +239,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
                 try {
                     var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr>';
                     for (var i = 0; i < attr.columns.length; i++) {
-                        var field = attr.columns[i].toLowerCase() != 'id' ? 'f_'+attr.columns[i].toLowerCase() : 'id';
+                        var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('[data-field="'+field+'"]').data('type');
                         thead += '<th data-type="'+type+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
                         tbody += '<td data-type="'+type+'">{'+field+'}</td>';

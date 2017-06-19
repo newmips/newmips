@@ -710,7 +710,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         }]
     }).then(function(user) {
         var cra = user.r_cra[0];
-        var workedDays = cra.r_cra_task.length;
+        var workedDays = 0.;
         var activitiesById = [];
         // Organize array with activity > tasks instead of tasks > activity
         for (var i = 0; i < cra.r_cra_task.length; i++) {
@@ -731,6 +731,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         for (var acti in activitiesById) {
             var i = 0;
             activitiesById[acti].filledTasks = [];
+            activitiesById[acti].rowTotal = 0;
             while (i++ < totalDays) {
                 var tmp = new Date(cra.f_year, cra.f_month-1, i);
                 if (daysAndLabels.length < totalDays)
@@ -742,6 +743,9 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                 for (var j = 0; j < activitiesById[acti].filledTasks.length; j++) {
                     var filledTask = activitiesById[acti].filledTasks[j];
                     if (origiTask.f_date.getDate() == filledTask.f_date.getDate()) {
+                        var duration = origiTask.f_duration.replace(/,/, '.');
+                        workedDays += parseFloat(duration);
+                        activitiesById[acti].rowTotal += parseFloat(duration);
                         activitiesById[acti].filledTasks[j].f_duration = origiTask.f_duration;
                     }
                 }
@@ -770,13 +774,15 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                     return error500(err, req, res);
 
                 var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
+                var myfileName = "CRA_"+user.f_login+"_"+cra.f_year+'_'+cra.f_month+'.pdf';
+
                 pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
                     if (err)
                         return error500(err, req, res);
                     fs.readFile(fileName, function(err, data) {
                         if (err)
                             return error500(err, req, res);
-                        res.writeHead(200, {"Content-Type": "application/pdf"});
+                        res.writeHead(200, {'Content-disposition': 'attachment; filename='+myfileName, "Content-Type": "application/pdf"});
                         res.write(data);
                         res.end();
 
@@ -980,7 +986,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), 
 router.post('/update', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
     var id_e_cra = parseInt(req.body.id);
 
-    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
+    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
         req.body.version = parseInt(req.body.version) + 1;
     else
         req.body.version = 0;

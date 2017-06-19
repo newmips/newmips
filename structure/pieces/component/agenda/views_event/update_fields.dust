@@ -54,6 +54,7 @@
         <div class="form-group">
             <label for="f_category">{@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}</label>
             <select style="width:100%;" class="form-control" name="r_category">
+                <option value="" selected>{@__ key="global_component.agenda.no_category"/}</option>
         		{#r_category_global_list}
         			{#.f_label}
         				{@eq key=r_category.id value=id}

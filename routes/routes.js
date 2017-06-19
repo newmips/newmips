@@ -5,6 +5,10 @@ var auth = require('../utils/authStrategies');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
+var slack_conf = require('../config/slack');
+var Curl = require('node-libcurl').Curl;
+var slack = require('slack');
+var querystring = require('querystring');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -28,13 +32,6 @@ try{
 
 //Sequelize
 var models = require('../models/');
-
-// =====================================
-// HOME PAGE (with login links) ========
-// =====================================
-// =====================================
-// LOGIN ===============================
-// =====================================
 
 /* GET home page. */
 router.get('/', block_access.loginAccess, function(req, res) {
@@ -80,14 +77,24 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                 email: email_user
                             }, {
                                 where: {
-                                    login: login_user
+                                    id: user.id
                                 }
                             }).then(function(){
-                                req.session.toastr = [{
-                                    message: "login.first_connection.success",
-                                    level: "success"
-                                }];
-                                res.redirect('/login');
+                                // Autologin after first connection form done
+                                models.User.findOne({
+                                    where: {
+                                        id: user.id
+                                    }
+                                }).then(function(connectedUser){
+                                    req.login(connectedUser, function(err) {
+                                        if (err) {
+                                            console.log(err);
+                                            res.redirect('/login');
+                                        } else{
+                                            res.redirect('/default/home');
+                                        }
+                                    });
+                                });
                             });
                         }
                     }
@@ -320,7 +327,7 @@ router.get('/login', block_access.loginAccess, function(req, res) {
     });
 });
 
-// process the login form
+// Process the login form
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
     if (req.body.remember)
@@ -369,12 +376,110 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     }
 });
 
-// =====================================
-// LOGOUT ==============================
-// =====================================
+// Logout
 router.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/login');
+});
+
+/****
+ * Code for creating a channel when private channels are used in SlackChat.
+ * The API Token used must be that of a user with Create permissions.
+ */
+router.post('/set_slack', block_access.isLoggedIn, function (req, res) {
+
+    var curl = new Curl(),
+        close = curl.close.bind(curl);
+
+    var channelName = req.body.channelName;
+    var invitedUsers = [];
+
+    if (req.body.invitedUsers != null) {
+        invitedUsers = JSON.parse(req.body.invitedUsers);
+    }
+
+    /* Define the payload to be sent to Slack to create the channel */
+    var payLoad = {
+        "token": slack_conf.SLACK_API_USER_TOKEN,
+        "name": channelName
+    };
+
+    /* The return array to be sent to slackChat client */
+    var returnArr = {
+        "ok": false,
+        "data": "",
+        "err": ""
+    };
+
+    var cpt = 0;
+
+    function done() {
+        cpt++;
+        if (cpt == invitedUsers.length + 1) {
+            res.json(returnArr);
+        }
+    }
+
+    payLoad = querystring.stringify(payLoad);
+
+    try {
+        /* Send the request to Slack API */
+        curl.setOpt(Curl.option.URL, slack_conf.SLACK_API_URL);
+        curl.setOpt(Curl.option.HEADER, "0");
+        curl.setOpt(Curl.option.POSTFIELDS, payLoad);
+        curl.setOpt(Curl.option.SSL_VERIFYPEER, false);
+
+        curl.perform();
+
+        curl.on('end', function (statusCode, slackData) {
+            slackData = JSON.parse(slackData);
+            if (slackData.ok == true) {
+                console.log("Channel Slack created : " + slackData.channel.name);
+                /* Channel created or joined. Return the channel ID */
+                returnArr.data = {"id": slackData.channel.id};
+
+                var user;
+                /* Invite users to join the #Slack channel created */
+                for (var i = 0; i < invitedUsers.length; i++) {
+                    user = invitedUsers[i];
+
+                    var payLoadInvite = {
+                        "token": slack_conf.SLACK_API_USER_TOKEN,
+                        "channel": slackData.channel.id,
+                        "user": user
+                    };
+
+                    payLoadInvite = querystring.stringify(payLoadInvite);
+
+                    var curl = new Curl(),
+                            close = curl.close.bind(curl);
+
+                    curl.setOpt(Curl.option.URL, slack_conf.SLACK_API_INVITE_URL);
+                    curl.setOpt(Curl.option.HEADER, "0");
+                    curl.setOpt(Curl.option.POSTFIELDS, payLoadInvite);
+                    curl.setOpt(Curl.option.SSL_VERIFYPEER, false);
+
+                    curl.perform();
+
+                    curl.on('end', function (statusCode, slackDataInvite) {
+                        slackDataInvite = JSON.parse(slackDataInvite);
+                        if (!slackDataInvite.ok) {
+                            console.log("Failed to invite user: " + user);
+                            console.log(slackDataInvite);
+                        }
+                        this.close();
+                        done();
+                    });
+                }
+                returnArr.ok = true;
+                this.close();
+            }
+            done();
+        });
+    } catch (e) {
+        console.log(e);
+        res.json(returnArr);
+    }
 });
 
 module.exports = router;

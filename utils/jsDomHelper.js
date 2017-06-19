@@ -45,6 +45,10 @@ exports.write = function(fileName, $) {
 	return new Promise(function(resolve, reject) {
 		var newFileData = $("body")[0].innerHTML;
 
+		// Fix a bug cause by JSDOM that append &nbsp; at the beginning of the document
+		if (newFileData.substring(0, 6) == "&nbsp;")
+			newFileData = newFileData.substring(6);
+
 		// Replace escaped characters and script inclusion
 		newFileData = newFileData.replace(/&gt;/g, '>');
 		newFileData = newFileData.replace(/&quot;/g, "\"");

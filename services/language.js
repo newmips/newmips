@@ -3,6 +3,9 @@ var languages = [];
 
 function fetchText(key, params, lang) {
 
+	if(typeof key !== "string"){
+		return "Sorry, I can't handle the error message.";
+	}
 	var keys = key.split('.');
 	if (typeof languages[lang] === 'undefined') {
 		try {
@@ -30,6 +33,7 @@ function fetchText(key, params, lang) {
 	}
 
 	return depth;
+
 }
 
 function capitalizeFirstLetters(key, params, lang) {

@@ -7,6 +7,7 @@ var basename = path.basename(module.filename);
 var env = require('../config/global');
 var config = require('../config/database');
 var db = {};
+var moment_timezone = require('moment-timezone');
 
 var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
     host: config.connection.host,
@@ -17,7 +18,8 @@ var sequelize = new Sequelize(config.connection.database, config.connection.user
     },
     define: {
         timestamps: false
-    }
+    },
+    timezone: moment_timezone.tz.guess()
 });
 
 fs.readdirSync(__dirname).filter(function(file) {

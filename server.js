@@ -1,5 +1,5 @@
 // server.js
-
+process.env.TZ = 'UTC';
 // set up ======================================================================
 // get all the tools we need
 var path = require('path');
@@ -40,14 +40,20 @@ var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {flags:
 app.use(morgan('dev', {
 	skip: function (req, res) {
 		// Empeche l'apparition de certain log polluant.
-		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status"];
+		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status", "/"];
 		if(skipArray.indexOf(req.url) != -1){
 			return true;
 		}
 	},
 	stream: split().on('data', function (line) {
-		allLogStream.write(ansiToHtml.toHtml(line)+"\n");
-		process.stdout.write(line+"\n");
+		if(allLogStream.bytesWritten < 200000){
+			allLogStream.write(ansiToHtml.toHtml(line)+"\n");
+			process.stdout.write(line+"\n");
+		} else{
+			/* Clear all.log if to much bytes are written */
+			fs.writeFileSync(path.join(__dirname, 'all.log'), '');
+			allLogStream.bytesWritten = 0;
+		}
 	})
 }));
 
@@ -100,6 +106,12 @@ app.use(function(req, res, next) {
 	next();
 });
 
+// Give access to globalConf through locals
+app.use(function(req, res, next) {
+	res.locals.globalConf = globalConf;
+	next();
+});
+
 // Overload res.render to always get and reset toastr
 app.use(function(req, res, next) {
     var render = res.render;
@@ -107,8 +119,17 @@ app.use(function(req, res, next) {
     	if(typeof locals === "undefined")
     		locals = {};
     	if (req.session.toastr && req.session.toastr.length > 0) {
-	        locals.toastr = req.session.toastr;
+    		locals.toastr = [];
+    		for (var i = 0; i < req.session.toastr.length; i++) {
+    			var toast = req.session.toastr[i];
+    			var traductedToast = {message: language(req.session.lang_user).__(toast.message), level: toast.level};
+    			locals.toastr.push(traductedToast);
+    		}
 	        req.session.toastr = [];
+        }
+        if (locals.isSlackChatEnabled = globalConf.slack_chat_enabled) {
+        	var slackConf = require('./config/slack');
+        	locals.slackApiToken = slackConf.SLACK_API_TOKEN;
         }
         helper.getNbInstruction(function(totalInstruction){
         	// Get nbInstruction

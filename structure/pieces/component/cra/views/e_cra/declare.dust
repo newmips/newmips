@@ -148,6 +148,11 @@ thead{
                 f_name: "{f_name}",
                 available: true
             });
+
+            $("#monthYearPicker").change(function() {
+                for (var i = 0; i < selectOptionArray.length; i++)
+                    selectOptionArray[i].available = true;
+            });
         </script>
     {/activities}
     <script src="/js/Newmips/component/cra.js" type="text/javascript"></script>

@@ -135,6 +135,27 @@ exports.gitPull = function(attr, callback) {
     });
 }
 
+exports.gitCommit = function(attr, callback) {
+    gitHelper.gitCommit(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = "structure.global.gitCommit.success";
+        callback(null, info);
+    });
+}
+
+exports.gitStatus = function(attr, callback) {
+    gitHelper.gitStatus(attr, function(err, infoGit){
+        if(err)
+            return callback(err, null);
+        var info = {};
+        info.message = JSON.stringify(infoGit);
+        info.message = info.message.replace(/,/g, ",<br>");
+        callback(null, info);
+    });
+}
+
 /* --------------------------------------------------------------- */
 /* ------------------------- Project ----------------------------- */
 /* --------------------------------------------------------------- */
@@ -866,6 +887,7 @@ exports.createNewHasOne = function(attr, callback) {
         }
 
         var info = {};
+        var toSync = true;
         function structureCreation(attr, callback){
 
             // Vérification si une relation existe déjà de la source VERS la target
@@ -895,6 +917,9 @@ exports.createNewHasOne = function(attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
+                } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany"){
+                    // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
+                    toSync = false;
                 }
             }
 
@@ -905,7 +930,7 @@ exports.createNewHasOne = function(attr, callback) {
                     return callback(err, null);
                 }
                 // Créer le lien belongsTo en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function(){
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupHasOneTab(attr, function(err, data){
                         if(err){
@@ -1014,6 +1039,9 @@ exports.createNewHasMany = function(attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularHasMany";
                     return callback(err, null);
+                } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo"){
+                    // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
+                    toSync = false;
                 }
             }
 
@@ -1123,6 +1151,8 @@ exports.createNewFieldset = function(attr, callback) {
                 var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
                 var optionsSourceObject = JSON.parse(optionsSourceFile);
 
+                var toSync = true;
+
                 // Vérification si une relation existe déjà de la source VERS la target
                 for (var i=0; i<optionsSourceObject.length; i++) {
                     if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
@@ -1148,6 +1178,9 @@ exports.createNewFieldset = function(attr, callback) {
                         var err = new Error();
                         err.message = "structure.association.error.circularHasMany";
                         return callback(err, null);
+                    } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo"){
+                        // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
+                        toSync = false;
                     }
                 }
 
@@ -1175,7 +1208,7 @@ exports.createNewFieldset = function(attr, callback) {
                     newForeignKey = newForeignKey.toLowerCase();
 
                     // Créer le lien belongsTo en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, true, function() {
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, function() {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupFieldsetTab(attr, function() {
 
@@ -1217,6 +1250,8 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
             var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
+            var toSync = true;
+
             for (var i=0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "hasMany") {
@@ -1239,6 +1274,9 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
+                } else if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany"){
+                    // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
+                    toSync = false;
                 }
             }
 
@@ -1247,7 +1285,7 @@ exports.createNewFieldRelatedTo = function(attr, callback) {
                 if(err)
                     return callback(err, null);
                 // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function() {
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function() {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToField(attr, function(err, data) {
                         if(err)
@@ -1300,20 +1338,20 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                     return callback(err, null);
                 }
                 else{
-                    // Create the component in newmips database
-                    db_component.createNewComponentOnEntity(attr, function(err, info){
-                        if(err)
-                            return callback(err, null);
-                        // Get Data Entity Name needed for structure
-                        db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
-                            attr.options.source = sourceEntity.codeName;
-                            attr.options.showSource = sourceEntity.name;
-                            attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                    // Get Data Entity Name needed for structure
+                    db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                        attr.options.source = sourceEntity.codeName;
+                        attr.options.showSource = sourceEntity.name;
+                        attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                        // Create the component in newmips database
+                        db_component.createNewComponentOnEntity(attr, function(err, info){
+                            if(err)
+                                return callback(err, null);
                             // Setup the hasMany association in the source entity
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
                                     structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
-                                        // Get Data Entity Name needed for structure
+                                        // Get module info needed for structure
                                         db_module.getModuleById(attr.id_module, function(err, module){
                                             if(err)
                                                 return callback(err, null);
@@ -1546,14 +1584,13 @@ exports.createNewComponentCra = function(attr, callback) {
             "entity CRA Team has many CRA Calendar Exception",
             "select entity CRA Calendar Exception",
             "add field Date with type date",
+            "add field Label",
             "add entity CRA Activity",
             "add field Name",
             "set field Name required",
             "add field Description with type text",
             "add field Client",
             "add field Active with type boolean",
-            "select entity CRA Team",
-            "add fieldset Default CRA Activity related to CRA Activity using Name",
             "add entity CRA",
             "add field Month with type number",
             "add field Year with type number",
@@ -1586,6 +1623,136 @@ exports.createNewComponentCra = function(attr, callback) {
                 });
             });
         });
+    });
+}
+
+// Componant that we can add on an entity to store local documents
+exports.createNewComponentPrint = function (attr, callback) {
+
+    /* If there is no defined name for the module */
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "c_print_"+attr.id_data_entity;
+        attr.options.urlValue = "print_"+attr.id_data_entity;
+        attr.options.showValue = "Print";
+    } else{
+        attr.options.value = attr.options.value+"_"+attr.id_data_entity;
+        attr.options.urlValue = attr.options.urlValue+"_"+attr.id_data_entity;
+    }
+
+    // Check if component with this name is already created on this entity
+    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function(err, alreadyExist){
+        if(err)
+            return callback(err, null);
+        if(alreadyExist){
+            var err = new Error();
+            err.message = "structure.component.error.alreadyExistOnEntity";
+            return callback(err, null);
+        }
+        else{
+            // Get Data Entity Name needed for structure
+            db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                // Create the component in newmips database
+                db_component.createNewComponentOnEntity(attr, function(err, info){
+                    if(err)
+                        return callback(err, null);
+                    try{
+                       // Get module info needed for structure
+                        db_module.getModuleById(attr.id_module, function(err, module){
+                            if(err)
+                                return callback(err, null);
+                            attr.options.moduleName = module.codeName;
+                            structure_component.newPrint(attr, function(err){
+                                if(err)
+                                    return callback(err, null);
+
+                                callback(null, info);
+                            });
+                        });
+                    } catch(err){
+                        return callback(err, null);
+                    }
+                });
+            });
+        }
+    });
+}
+
+exports.deleteComponentPrint = function (attr, callback) {
+
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "c_print_"+attr.id_data_entity;
+        attr.options.urlValue = "print_"+attr.id_data_entity;
+        attr.options.showValue = "Print";
+    } else{
+        attr.options.value = attr.options.value+"_"+attr.id_data_entity;
+        attr.options.urlValue = attr.options.urlValue+"_"+attr.id_data_entity;
+    }
+
+    // Check if component with this name is already created on this entity
+    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function(err, exist){
+        if(err)
+            return callback(err, null);
+        if(exist){
+            // Get Data Entity Name needed for structure
+            db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                structure_component.deletePrint(attr, function(err){
+                    if(err)
+                        return callback(err, null);
+                    db_component.deleteComponentOnEntity(attr.options.value, attr.id_module, sourceEntity.id, function(err, infoDB){
+                        if(err){
+                            return callback(err, null);
+                        }
+                        callback(null, infoDB);
+                    });
+                });
+            });
+            // Get Data Entity Name needed for structure
+            /*db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                // Create the component in newmips database
+                db_component.createNewComponentOnEntity(attr, function(err, info){
+                    if(err)
+                        return callback(err, null);
+                    try{
+                       // Get module info needed for structure
+                        db_module.getModuleById(attr.id_module, function(err, module){
+                            if(err)
+                                return callback(err, null);
+                            attr.options.moduleName = module.codeName;
+                            structure_component.newPrint(attr, function(err){
+                                if(err)
+                                    return callback(err, null);
+
+                                callback(null, info);
+                            });
+                        });
+                    } catch(err){
+                        return callback(err, null);
+                    }
+                });
+            });*/
+        }
+        else{
+            var err = new Error();
+            err.message = "structure.component.error.notExisting";
+            return callback(err, null);
+        }
+    });
+}
+
+exports.createComponentChat = function(attr, callback) {
+    structure_component.setupChat(attr, function(err) {
+        if (err)
+            return callback(err);
+        callback(null, {message: 'structure.component.chat.success'});
     });
 }
 
@@ -1676,11 +1843,36 @@ exports.createWidgetLastRecords = function(attr, callback) {
             attr.entity = entity;
             attr.module = module;
 
-            structure_ui.createWidgetLastRecords(attr, function(err, info) {
+            db_field.getCodeNameByNameArray(attr.columns, entity.id, function(err, columns) {
                 if (err)
                     return callback(err);
-                callback(null, info);
-            })
+
+                // Check for not found fields and build error message
+                if (attr.columns.length != columns.length) {
+                    var notFound = [];
+                    for (var k = 0; k < attr.columns.length; k++) {
+                        var kFound = false;
+                        for (var i = 0; i < columns.length; i++) {
+                            if (attr.columns[k] == columns[i].name) {
+                                kFound = true;
+                                break;
+                            }
+                        }
+                        if (!kFound)
+                            notFound.push(attr.columns[k]);
+                    }
+                    if (notFound.length > 0)
+                        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [notFound.join(', ')]});
+                }
+
+                attr.columns = columns;
+                structure_ui.createWidgetLastRecords(attr, function(err, info) {
+                    if (err)
+                        return callback(err);
+                    callback(null, info);
+                });
+            });
+
         });
     });
 }
@@ -1747,6 +1939,5 @@ function deleteEntityWidgets(attr, callback) {
     });
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;
-
 
 return designer;

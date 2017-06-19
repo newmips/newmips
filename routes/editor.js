@@ -5,6 +5,7 @@ var block_access = require('../utils/block_access');
 
 var fs = require('fs');
 var helpers = require('../utils/helpers');
+var gitHelper = require('../utils/git_helper');
 
 //Sequelize
 var models = require('../models/');
@@ -21,7 +22,7 @@ router.get('/:id_application', block_access.isLoggedIn, function(req, res) {
     var data = {};
     var id_application = req.params.id_application;
     var workspacePath = __dirname + "/../workspace/" + id_application + "/";
-    var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload"];
+    var exclude = ["node_modules", "config", "sql", "services", "models", "api", "utils", "upload", ".git"];
     var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
     /* Sort folder first, file after */
     folder = helpers.sortEditorFolder(folder);
@@ -43,7 +44,20 @@ router.post('/update_file', block_access.isLoggedIn, function(req, res) {
 	writeStream.write(req.body.content);
 	writeStream.end();
 	writeStream.on('finish', function() {
-		res.json(true);
+		var attr = {};
+
+        // We simply add session values in attributes array
+        attr.function = "Save a file from editor: "+req.body.path;
+        attr.id_project = req.session.id_project;
+        attr.id_application = req.session.id_application;
+        attr.id_module = "-";
+        attr.id_data_entity = "-";
+
+		gitHelper.gitCommit(attr, function(err, infoGit){
+	        if(err)
+	        	console.log(err);
+	        res.json(true);
+	    });
 	});
 });
 

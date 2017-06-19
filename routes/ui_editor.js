@@ -6,15 +6,11 @@ var block_access = require('../utils/block_access');
 var fs = require('fs');
 var domHelper = require('../utils/jsDomHelper');
 var language = require('../services/language');
+var gitHelper = require('../utils/git_helper');
 
 //Sequelize
 var models = require('../models/');
 
-// ===========================================
-// Redirection Editor =====================
-// ===========================================
-
-// Homepage
 router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
 	var page = req.params.page;
 	if (!page || (page != 'create' && page != 'update' && page != 'show'))
@@ -56,7 +52,6 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 	var entity = req.params.entity;
 	var html = req.body.html;
 	var generatorLanguage = language(req.session.lang_user);
-
 	var pageUri = __dirname+'/../workspace/'+req.session.id_application+'/views/'+entity+'/'+page;
 	domHelper.loadFromHtml(html).then(function($) {
 		// Remove "forced" traduction
@@ -67,12 +62,31 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			$(this).replaceWith($(this).html());
 		});
 
-		// Show action buttons
-		$(".actions").show();
+		// Remove grid-editor left overs (div.ge-content, .column)
+		$(".ge-content").each(function() {
+			var toExtract = $(this).html();
+			$(this).parent().removeClass('column').html(toExtract);
+		});
+
+		// Show and re-position action buttons
+		var actions = $(".actions").show().detach();
+		$(actions).appendTo($("body"));
 
 		// Write back to file
 		domHelper.write(pageUri, $).then(function() {
-			res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
+			// We simply add session values in attributes array
+			var attr = {};
+	        attr.function = "Save a file from UI designer: "+pageUri;
+	        attr.id_project = req.session.id_project;
+	        attr.id_application = req.session.id_application;
+	        attr.id_module = "-";
+	        attr.id_data_entity = "-";
+
+			gitHelper.gitCommit(attr, function(err, infoGit){
+		        if(err)
+		        	console.log(err);
+		        res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
+		    });
 		});
 	}).catch(function(e) {
 		console.log(e);

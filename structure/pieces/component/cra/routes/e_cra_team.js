@@ -236,28 +236,33 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
     });
 });
 
-router.get('/generate_holidays/:team_id/:lang', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
-    var lang = req.params.lang;
-    var team_id = req.params.team_id;
+router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+    var countryLang = req.body.lang.split('-');
+    var country = countryLang[1];
+    var lang = countryLang[0];
+    var team_id = req.body.team_id;
     var yearStart = moment().startOf('year').toDate().getTime();
     var yearEnd = moment().endOf('year').toDate().getTime();
 
     holidaysApi({
-        country: lang,
+        country: country,
         lang: lang,
         start: yearStart,
         end: yearEnd
     }, function(err, holidays) {
-        if (err)
+        if (err) {
+            console.log(err);
             return error500(err, req, res);
-        var exceptionPromises = [];
-        for (var i = 0; i < holidays.length; i++) {
-            var date = new Date(holidays[i].start);
-            models.E_cra_calendar_exception.create({f_date: date, f_id_cra_team: team_id});
         }
 
-        Promise.all(exceptionPromises).then(function() {
-            res.redirect('/cra_team/show?id='+team_id);
+        var bulkCreate = [];
+        for (var i = 0; i < holidays.length; i++) {
+            var date = new Date(holidays[i].start);
+            bulkCreate.push({f_date: date, f_id_cra_team: team_id, f_label: holidays[i].summary});
+        }
+
+        models.E_cra_calendar_exception.bulkCreate(bulkCreate).then(function() {
+            res.redirect('/cra_team/show?id='+team_id+'/#r_cra_calendar_exception');
         });
     });
 });

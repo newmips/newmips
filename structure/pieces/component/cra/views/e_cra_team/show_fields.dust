@@ -118,12 +118,28 @@
             {/r_cra_calendar_settings}
         </div>
         <div id="r_cra_calendar_exception" class="tab-pane fade">
+            <div class="form-group">
+                <form action="/cra_team/generate_holidays" method="post">
+                    <label>{@__ key="entity.e_cra_calendar_exception.generate_holidays" /}</label><br>
+                    <select name="lang" class="form-control">
+                        <option value="fr-fr">Francais</option>
+                        <option value="en-us">English</option>
+                        <option value="de-de">Germany</option>
+                        <option value="es-es">Spain</option>
+                        <option value="it-it">Italy</option>
+                        <option value="ch-ch">Switzerland</option>
+                        <option value="be-be">Belgique</option>
+                    </select>
+                    <input type="hidden" name="team_id" value="{id}">
+                    <button class="btn btn-primary" style="margin-left:10px;">Generate</button>
+                </form>
+            </div>
             {#r_cra_calendar_exception e_cra_calendar_exception=r_cra_calendar_exception}
-            {@eq key=id value=e_cra_calendar_exception[0].id}
-            {>"e_cra_calendar_exception/list_fields" associationAlias="r_cra_calendar_exception" associationForeignKey="f_id_cra_team" associationFlag="{e_cra_team.id}" associationSource="e_cra_team" associationUrl="cra_team" for="hasMany" /}
-            {/eq}
+                {@eq key=id value=e_cra_calendar_exception[0].id}
+                    {>"e_cra_calendar_exception/list_fields" associationAlias="r_cra_calendar_exception" associationForeignKey="f_id_cra_team" associationFlag="{e_cra_team.id}" associationSource="e_cra_team" associationUrl="cra_team" for="hasMany" /}
+                {/eq}
             {:else}
-            {>"e_cra_calendar_exception/list_fields" /}
+                {>"e_cra_calendar_exception/list_fields" /}
             {/r_cra_calendar_exception}
             <br>
             <a href="/cra_calendar_exception/create_form?associationAlias=r_cra_calendar_exception&amp;associationForeignKey=f_id_cra_team&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team" class="btn btn-success">

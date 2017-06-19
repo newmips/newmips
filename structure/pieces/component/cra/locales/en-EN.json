@@ -1,8 +1,8 @@
 {
     "e_cra": {
-        "label_entity": "Activity Report",
-        "name_entity": "Activity Report",
-        "plural_entity": "Activities Reports",
+        "label_entity": "Time Sheet",
+        "name_entity": "Time Sheet",
+        "plural_entity": "Time Sheets",
         "id_entity": "ID",
         "f_month": "Month",
         "f_year": "Year",
@@ -12,12 +12,12 @@
         "f_notification_admin": "Admin notification",
         "custom_button_declare": "Declare",
         "custom_button_admin_validate": "See declaration",
-        "as_r_cra": "Activity Report",
+        "as_r_cra": "Time Sheet",
         "validate": "Validate",
         "export": "Export PDF",
-        "no_activities": "You don't have any activities. You need activities to declare your Activity report.",
+        "no_activities": "You don't have any activities. You need activities to declare your Time Sheet.",
         "no_calendar_settings": "Your team didn't define its A.R settings. It is required to display working days.",
-        "waiting_validation_list": "Activity reports waiting for validation",
+        "waiting_validation_list": "Time Sheets waiting for validation",
         "noTeam": "You must be associated with a team in order to be able to declare your A.R.",
         "saveSuccess": "A.R successfully saved!",
         "validateSuccess": "A.R successfully validate."
@@ -51,7 +51,9 @@
         "plural_entity": "Exceptions",
         "id_entity": "ID",
         "as_r_cra_calendar_exception": "Exception",
-        "f_date": "Date"
+        "f_date": "Date",
+        "f_label": "Label",
+        "generate_holidays": "Generate holidays exceptions"
     },
     "e_cra_activity": {
         "label_entity": "Activity",
