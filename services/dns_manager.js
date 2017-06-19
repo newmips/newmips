@@ -39,6 +39,7 @@ exports.createApplicationDns = function(subdomain, name_application, id_applicat
 				'content-type' : 'application/json'
 			},
 			url: url,
+			rejectUnauthorized: false,
 		    form: {subdomain: subdomain, application_name: name_application, id_application: id_application}
 		}, function(error, response, body) {
 			if (error) {
@@ -62,6 +63,7 @@ exports.createCloudDns = function(subdomain, user) {
 				'content-type' : 'application/json'
 			},
 			url: url,
+			rejectUnauthorized: false,
 		    form: {subdomain: subdomain, user: user}
 		}, function(error, response, body) {
 			if (error) {

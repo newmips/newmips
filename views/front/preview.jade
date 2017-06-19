@@ -16,18 +16,16 @@ block header
 						b
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
-				.progress-bar.progress-bar-striped(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-3.col-lg-1(style="padding:0px;")
-			ol.breadcrumb
-				li
-					a(href='/default/home')
-						i.fa.fa-home
-						| #{__("menu.home")}
-				li.active #{__("menu.preview")}
-		.col-header.col-xs-3.col-lg-1
-			a.btn.btn-default.pull-right(href='/logout')
-				i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
-				span #{__("button.disconnect")}
+				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
+		.col-header.col-xs-6.col-lg-2
+			.btn-group.pull-right(role="group")
+				a.btn.btn-default(href='/default/home')
+					i.fa.fa-home(style="margin-right:5px;")
+					| #{__("menu.home")}
+				a.btn.btn-default.pull-right(href='/logout')
+					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
+					span #{__("button.disconnect")}
+
 block custom_css
 	// CodeMirror
 	link(href='/css/codemirror/codemirror.css', rel='stylesheet', type='text/css')
@@ -126,13 +124,18 @@ block content
 										i.fa.fa-refresh
 										|&nbsp; #{__("preview.reload")}
 									|&nbsp;&nbsp;
-									a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
-										i.fa.fa-lg.fa-github
-										|&nbsp; #{__("preview.issue-button")}
-									div.btn.btn-warning#message-box(style="margin-top:10px;", title="", data-toggle="tooltip", data-original-title="Talk bubble")
-										i.fa.fa-fw.fa-comment
-										div(class="badge badge-danger slack-message-count", style="display: none;")
-										| &nbsp;#{__("preview.help-button")}
+									if globalConf.env != 'cloud'
+										a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
+											i.fa.fa-lg.fa-github
+											|&nbsp; #{__("preview.issue-button")}
+									else if globalConf.env == 'cloud'
+										div.btn.btn-warning#message-box(style="margin-top:10px;", title="", data-toggle="tooltip", data-original-title="Talk bubble")
+											i.fa.fa-comment
+											div(class="badge badge-danger slack-message-count", style="display: none;")
+											| &nbsp;#{__("preview.help-button")}
+									a.btn.btn-warning(style="margin-top:10px;", target="_blank", href="http://docs.newmips.com")
+										i.fa.fa-lg.fa-book
+										|&nbsp; #{__("button.documentation")}
 
 			#editor.tab-pane.fade.in
 				.row
@@ -420,7 +423,7 @@ block custom_js
 				}
 			});
 
-			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ\-\,\ \'\!]/);
+			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
 			$("#instruction").keyup(function(e) {
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
