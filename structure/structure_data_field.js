@@ -1226,7 +1226,9 @@ exports.deleteDataField = function (attr, callback) {
     if (!isInOptions) {
         jsonPath = __dirname + '/../workspace/' + id_application + '/models/attributes/' + name_data_entity + '.json';
         dataToWrite = require(jsonPath);
-        dataToWrite[name_data_field] = undefined;
+
+        delete dataToWrite[name_data_field];
+
         info.fieldToDrop = name_data_field;
         info.isConstraint = false;
     }
