@@ -126,13 +126,15 @@ block content
 										i.fa.fa-refresh
 										|&nbsp; #{__("preview.reload")}
 									|&nbsp;&nbsp;
-									a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
-										i.fa.fa-lg.fa-github
-										|&nbsp; #{__("preview.issue-button")}
-									div.btn.btn-warning#message-box(style="margin-top:10px;", title="", data-toggle="tooltip", data-original-title="Talk bubble")
-										img(src="/img/BOT--01.png" width="20" height="22" style="margin-top: -10px;")
-										div(class="badge badge-danger slack-message-count", style="display: none;")
-										| &nbsp;#{__("preview.help-button")}
+									if globalConf.env != 'cloud'
+										a.btn.btn-warning(target="_blank", href="https://github.com/newmips/newmips/issues/new")
+											i.fa.fa-lg.fa-github
+											|&nbsp; #{__("preview.issue-button")}
+									else if globalConf.env == 'cloud'
+										div.btn.btn-warning#message-box(style="margin-top:10px;", title="", data-toggle="tooltip", data-original-title="Talk bubble")
+											i.fa.fa-comment
+											div(class="badge badge-danger slack-message-count", style="display: none;")
+											| &nbsp;#{__("preview.help-button")}
 
 			#editor.tab-pane.fade.in
 				.row
