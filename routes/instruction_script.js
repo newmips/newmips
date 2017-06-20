@@ -212,12 +212,17 @@ router.post('/execute', block_access.isLoggedIn, multer({
         }
     };
 
-    // Check file validity
+    // Get file extension
     var extensionFile = req.file.originalname.split(".");
     extensionFile = extensionFile[extensionFile.length -1];
-    if (extensionFile != 'txt' && extensionFile != 'nps') {
+    // Read file to determine encoding
+    var fileContent = fs.readFileSync(req.file.path);
+    var encoding = require('jschardet').detect(fileContent);
+    // If extension or encoding is not supported, send error
+    if ((extensionFile != 'txt' && extensionFile != 'nps')
+        || encoding.encoding.toLowerCase() != 'utf-8') {
         scriptData[userId].answers.push({
-            message: "File need to have .nps or .txt extension"
+            message: "File need to have .nps or .txt extension and utf8 encoding.<br>Your file have '"+extensionFile+"' extension and '"+encoding.encoding+"' encoding"
         });
         scriptData[userId].over = true;
         // Delete instructions file
@@ -269,12 +274,14 @@ router.post('/execute', block_access.isLoggedIn, multer({
     };
 
     rl.on('line', function(sourceLine) {
-        var line = '';
-        for (var i = 0; i < sourceLine.length; i++) {
-            var asciiValue = sourceLine.charCodeAt(i);
-            if (asciiValue >= 32 && asciiValue < 155)
-                line += sourceLine.charAt(i);
-        }
+        var line = sourceLine;
+        // for (var i = 0; i < sourceLine.length; i++) {
+        //     var asciiValue = sourceLine.charCodeAt(i);
+        //     if ((asciiValue >= 32 && asciiValue < 155))
+        //         line += sourceLine.charAt(i);
+        //     else if (asciiValue == 65533)
+        //         line += 'é';
+        // }
 
         // Empty line || One line comment scope
         if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1))
