@@ -26,7 +26,10 @@ function fetchStatus() {
                 $("#progressbar").width(str);
 
                 if (typeof data.text[0] !== "undefined") {
-                    $("#answers").html("<i>" + data.text[0].instruction + "</i>:<br><b>" + data.text[0].message + "</b><br><br>" + $("#answers").html());
+                    if (data.text[0].instruction)
+                        $("#answers").html("<i>" + data.text[0].instruction + "</i>:<br><b>" + data.text[0].message + "</b><br><br>" + $("#answers").html());
+                    else
+                        $("#answers").html("<b>" + data.text[0].message + "</b><br><br>" + $("#answers").html());
                 }
                 if (!data.over)
                     setTimeout(fetchStatus, 50);
