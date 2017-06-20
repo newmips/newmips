@@ -4,7 +4,7 @@
         "autoIncrement": true,
         "primaryKey": true
     },
-    "name": "STRING",
-    "filename": "STRING",
-    "version": "INTEGER"
+    "f_name": {"type":"STRING"},
+    "f_filename": {"type":"STRING"},
+    "version": {"type":"INTEGER"}
 }

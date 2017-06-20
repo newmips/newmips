@@ -194,8 +194,6 @@ router.post('/execute', block_access.isLoggedIn, multer({
 }).single('instructions'), function(req, res) {
     // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
     idxAtMandatoryInstructionStart = -1;
-    var extensionFile = req.file.originalname.split(".");
-    extensionFile = extensionFile[extensionFile.length -1];
 
     var userId = req.session.passport.user.id;
 
@@ -213,6 +211,19 @@ router.post('/execute', block_access.isLoggedIn, multer({
             id_data_entity: -1
         }
     };
+
+    // Check file validity
+    var extensionFile = req.file.originalname.split(".");
+    extensionFile = extensionFile[extensionFile.length -1];
+    if (extensionFile != 'txt' && extensionFile != 'nps') {
+        scriptData[userId].answers.push({
+            message: "File need to have .nps or .txt extension"
+        });
+        scriptData[userId].over = true;
+        // Delete instructions file
+        fs.unlinkSync(req.file.path);
+        return res.end();
+    }
 
     // Open file descriptor
     var rl = readline.createInterface({
@@ -257,7 +268,14 @@ router.post('/execute', block_access.isLoggedIn, multer({
         },
     };
 
-    rl.on('line', function(line) {
+    rl.on('line', function(sourceLine) {
+        var line = '';
+        for (var i = 0; i < sourceLine.length; i++) {
+            var asciiValue = sourceLine.charCodeAt(i);
+            if (asciiValue >= 32 && asciiValue < 155)
+                line += sourceLine.charAt(i);
+        }
+
         // Empty line || One line comment scope
         if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1))
             return;
@@ -324,11 +342,6 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 stringError += 'You have to create or select an application in your script.<br><br>';
                 isError = true;
             }
-        }
-
-        if(extensionFile != "txt" && extensionFile != "nps"){
-            stringError += 'Invalid file extension, please use .txt or .nps file.<br><br>';
-            isError = true;
         }
 
         if(isError){
