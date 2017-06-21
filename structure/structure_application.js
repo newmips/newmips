@@ -9,7 +9,7 @@ var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.json');
 
 var dns_manager;
-if (globalConf.env == 'cloud')
+if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
     dns_manager = require('../services/dns_manager');
 
 try{
@@ -242,7 +242,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                                     f_enabled: 1
                                                                 }).then(function() {
                                                                     // Create application's DNS through dns_manager
-                                                                    if (globalConf.env == 'cloud')
+                                                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
                                                                         dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
                                                                             resolve();
                                                                         });
