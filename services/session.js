@@ -6,7 +6,7 @@ var globalConf = require("../config/global.js");
 var gitHelper = require("../utils/git_helper");
 
 var manager;
-if (globalConf.env == 'cloud')
+if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
     manager = require('../services/dns_manager');
 
 //Sequelize
@@ -93,7 +93,7 @@ exports.deploy = function(attr, callback) {
     if (typeof(attr.id_application) !== 'undefined')
         id_application = attr.id_application;
 
-    if (globalConf.env == 'cloud') {
+    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette') {
             // Push on git before deploy
             gitHelper.gitPush(attr, function(err, infoGit){
                 if(err){
