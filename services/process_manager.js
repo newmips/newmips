@@ -43,7 +43,7 @@ exports.launchChildProcess = function(id_application, env) {
 }
 exports.childUrl = function(req) {
     var url = globalConf.protocol_iframe + '://' + globalConf.host;
-    if (globalConf.env == 'cloud')
+    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
         url += '-' +req.session.name_application + globalConf.dns + child_url;
     else
         url += ':' + (9000+parseInt(req.session.id_application)) + child_url;
