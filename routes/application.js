@@ -167,7 +167,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         }
 
                         var iframe_status_url = protocol_iframe + '://';
-                        if (globalConf.env == 'cloud')
+                        if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
                             iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
                         else
                             iframe_status_url += host + ":" + port + "/status";
@@ -192,7 +192,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             data.application = module;
 
                             var iframe_home_url = protocol_iframe + '://';
-                            if (globalConf.env == 'cloud')
+                            if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
                                 iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
                             else
                                 iframe_home_url += host + ":" + port + "/default/home";
@@ -384,7 +384,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                     }
 
                                     var iframe_status_url = protocol_iframe + '://';
-                                    if (globalConf.env == 'cloud')
+                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
                                         iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
                                     else
                                         iframe_status_url += host + ":" + port + "/status";
