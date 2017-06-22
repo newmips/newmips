@@ -1,0 +1,63 @@
+<table id="table_c_adress" data-url="/URL_COMPONENT_ADRESS/datalist" class="dataTable table table-bordered table-striped">
+    <thead class="main">
+        <tr class='fields'>
+            <th data-field="id" data-col="id">
+                    {@__ key="component.c_adress.id_component"/}&nbsp;{@__ key="component.c_adress.label_component"/}
+            </th>
+            INCLUDE_HEADER
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <thead class='filters'>
+    	<tr class='fields'>
+            <th data-field="id" data-col="id">
+                {@__ key="component.c_adress.id_component"/}&nbsp;{@__ key="component.c_adress.label_component"/}
+            </th>
+            INCLUDE_HEADER
+            <th></th>
+            <th></th>
+            <th></th>
+    	</tr>
+    </thead>
+    <tbody>
+        {#RELATION}
+            <tr id='bodyTR'>
+                <td data-field="id">{id}</td>
+                INCLUDE_TD
+                 <td>
+                    {@eq key=for value="fieldset"}
+                    <form class='fieldsetform'>
+                            <input type='hidden' value='{id}' name='idRemove'>
+                            <button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
+                    </form>
+                    {/eq}
+                    {@eq key=for value="hasMany"}
+                                <!--<a class="btn btn-primary" href="/URL_COMPONENT_ADRESS/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}</span></a>-->
+                        {/eq}
+                </td>
+                <td>
+                    {@eq key=for value="hasMany"}
+                            <a class="btn btn-warning" href="/URL_COMPONENT_ADRESS/update_form?id={id}&associationAlias={associationAlias}&associationForeignKey={associationForeignKey}&associationFlag={associationFlag}&associationSource={associationSource}&associationUrl={associationUrl}"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update" /}</span></a>
+                    {/eq}
+                </td>
+                <td>
+                    {@eq key=for value="hasMany"}
+                            <form action="/URL_COMPONENT_ADRESS/delete" method="post">
+                        <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                            <span>{@__ key="button.delete" /}</span>
+                            <input name="id" value="{id}" type="hidden"/>
+                            <input name="associationAlias" value="{associationAlias}" type="hidden"/>
+                            <input name="associationForeignKey" value="{associationForeignKey}" type="hidden"/>
+                            <input name="associationFlag" value="{associationFlag}" type="hidden"/>
+                            <input name="associationSource" value="{associationSource}" type="hidden"/>
+                            <input name="associationUrl" value="{associationUrl}" type="hidden"/>
+                        </button>
+                    </form>
+                    {/eq}
+                </td>
+            </tr>
+        {/RELATION}
+    </tbody>
+</table>
