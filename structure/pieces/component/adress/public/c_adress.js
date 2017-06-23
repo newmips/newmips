@@ -45,7 +45,8 @@ $(document).ready(function () {
                             });
                             if (ui.item.value == toReturn) {
                                 for (var key in _adress) {
-                                    $('#f_' + key).val(_adress[key]);
+                                    if (_adress[key] != '') //to prevent to replace default value
+                                        $('#f_' + key).val((_adress[key] + '').toUpperCase());
                                 }
                             }
                         });

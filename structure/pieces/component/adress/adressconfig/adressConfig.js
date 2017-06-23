@@ -6,10 +6,10 @@ var config = {
     endpoint: {
         url: "https://api-adresse.data.gouv.fr/search/",
         query_parm: 'q',
-        type: 'get',//HTTP request type
+        type: 'get', //HTTP request type
         arraydata: 'features', //objet name which contain list of result, if equal '.' whe take response as list, 
         whereisdata: 'properties', //objet name which contain attributes or '.' , 
-        autocomplete_field:'label',//field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
+        autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
         enable: true//If  enable, do query and get data, else data should be to set manually by user
     },
     language: 'fr',
@@ -21,7 +21,8 @@ var config = {
             addInForm: true, //if true add it in form
             type: 'number', //type of field,  must be html type, default input,
             maxLength: '',
-            label: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name 
+            label: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name
+            defaultValue: '',
             sql: {
                 type: 'INTEGER'
             },
@@ -37,12 +38,29 @@ var config = {
             type: 'text', //
             maxLength: '',
             label: 'street',
+            defaultValue: '',
             sql: {
                 type: 'STRING'
             },
             lang: {
                 fr: 'Nom rue',
                 en: ''
+            }
+        },
+        complement1: {
+            readonly: false,
+            required: false,
+            addInForm: true,
+            type: 'text', //
+            max: '',
+            label: 'complement1',
+            defaultValue: '',
+            sql: {
+                type: 'STRING'
+            },
+            lang: {
+                fr: 'Complément rue',
+                en: 'complement1'
             }
         },
         postcode: {
@@ -53,6 +71,7 @@ var config = {
             maxLength: '5',
             minLength: '5',
             label: 'postcode',
+            defaultValue: '',
             sql: {
                 type: 'INTEGER'
             },
@@ -67,8 +86,8 @@ var config = {
             addInForm: true,
             type: 'text', //
             max: '',
-            dataName: 'city',
             label: 'city',
+            defaultValue: '',
             sql: {
                 type: 'STRING'
 
@@ -78,19 +97,21 @@ var config = {
                 en: 'City'
             }
         },
-        complement1: {
-            readonly: false,
-            required: false,
-            addInForm: false,
+        country: {
+            readonly: true,
+            required: true,
+            addInForm: true,
             type: 'text', //
             max: '',
-            label: 'complement1',
+            label: 'country',
+            defaultValue: 'FRANCE',
             sql: {
                 type: 'STRING'
+
             },
             lang: {
-                fr: 'complement1',
-                en: 'complement1'
+                fr: 'Pays',
+                en: 'Country'
             }
         },
         complement2: {
@@ -107,29 +128,18 @@ var config = {
             type: 'text', //
             max: ''
         },
-        country: {
-            readonly: true,
+        state: {
+            readonly: false,
             required: false,
             addInForm: false,
             type: 'text', //
             max: '',
-            lang: '',
-            dataName: 'country'
-        },
-        state: {
-            readonly: true,
-            required: true,
-            addInForm: false,
-            type: 'text', //
-            max: '',
-            dataName: 'state'
         },
         type: {
             readonly: false,
             required: false,
             addInForm: false,
             type: 'text', //
-
             max: ''
         }, //house type
         place: {
@@ -145,7 +155,6 @@ var config = {
             required: false,
             addInForm: false,
             type: 'text', //
-
             max: ''
         }, //village
         description: {
@@ -167,7 +176,7 @@ var config = {
             required: false,
             addInForm: false,
             type: 'text', //
-            max: '',
+            max: ''
         }
 
     }

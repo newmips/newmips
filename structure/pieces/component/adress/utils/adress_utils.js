@@ -69,10 +69,11 @@ exports.generateFields = function () {
             var max = (typeof attribute.maxLength !== 'undefined' && attribute.maxLength !== '') ? 'maxlength="' + attribute.maxLength + '"' : '';
             var min = (typeof attribute.minLength !== 'undefined' && attribute.minLength !== '') ? 'maxlength="' + attribute.inLength + '"' : '';
             var pattern = max !== '' && min !== '' ? 'pattern=".{' + attribute.minLength + ',' + attribute.maxLength + '}"' : '';//for input min max digit 
+            var defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
             var type = typeof attribute.type !== 'undefined' ? attribute.type : 'text';
             createHtml += "\t<div data-field='" + label + "' class='col-xs-12'>\n\t<div class='form-group'>\n";
             createHtml += "\t\t<label for='" + label + "' class='" + required + "'> {@__ key=\"component.c_adress." + label + "\"/} </label>\n";
-            createHtml += "\t\t<input class='input form-control' " + max + " " + pattern + "  type='" + type + "' placeholder='{@__ key=\"component.c_adress." + label + "\"/}' name='" + label + "' id='" + label + "' " + required + " " + readonly + ">";
+            createHtml += "\t\t<input class='input form-control' " + max + " " + pattern + " "+defaultValue+"  type='" + type + "' placeholder='{@__ key=\"component.c_adress." + label + "\"/}' name='" + label + "' id='" + label + "' " + required + " " + readonly + ">";
             createHtml += "\n\t</div>\n\t</div>\n";
             //Update
             updateHtml += "\t<div data-field='" + label + "' class='col-xs-12'>\n\t<div class='form-group'>\n";
