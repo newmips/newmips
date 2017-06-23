@@ -1747,7 +1747,7 @@ exports.createNewComponentAdress = function (attr, callback) {
     db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function (err, alreadyExist) {
         if (!err) {
             if (!alreadyExist) {
-                db_module.getNameModuleById(attr.id_module, function (err, module) {
+                db_module.getModuleById(attr.id_module, function (err, module) {
                     if (!err) {
                         db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
                             if (!err) {
@@ -1755,14 +1755,14 @@ exports.createNewComponentAdress = function (attr, callback) {
                                 attr.options.showValue = attr.options.componentName;
                                 db_component.createNewComponentOnEntity(attr, function (err, info) {
                                     if (!err) {
-                                        attr.moduleName = module;
+                                        attr.moduleName = module.codeName;
                                         attr.entityName = entity.name;
                                         attr.options.target = componentCodeName;
                                         attr.options.source = entity.codeName;
                                         structure_component.addNewComponentAdress(attr, function (err) {
                                             if (err)
                                                 return callback(err);
-                                            callback(null, {message: 'database.component.create.success',messageParams:["Adresse",attr.options.componentName||'']});
+                                            callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
                                         });
                                     } else
                                         return callback(err);
@@ -1791,14 +1791,20 @@ exports.deleteComponentAdress = function (attr, callback) {
                 db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
                     if (!err) {
                         database.dropDataEntity(attr.id_application, componentName, function (err) {
-                            db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+                            db_module.getModuleById(attr.id_module, function (err, module) {
                                 if (!err) {
-                                    attr.entityName = entity.codeName;
-                                    structure_component.deleteComponentAdress(attr, function (err) {
-                                        if (err)
+                                    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+                                        if (!err) {
+                                            attr.entityName = entity.codeName;
+                                            attr.moduleName=module.codeName;
+                                            structure_component.deleteComponentAdress(attr, function (err) {
+                                                if (err)
+                                                    return callback(err);
+                                                else
+                                                    callback(null, {message: 'database.component.delete.success'});
+                                            });
+                                        } else
                                             return callback(err);
-                                        else
-                                            callback(null, {message: 'database.component.delete.success'});
                                     });
                                 } else
                                     return callback(err);

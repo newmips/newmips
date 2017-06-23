@@ -904,6 +904,7 @@ exports.addNewComponentAdress = function (attr, callback) {
         var componentName = 'c_adress_' + attr.id_data_entity;
         var source = attr.options.source;
         var componentUrl = source.replace('e_', '') + '_adress';
+        var moduleName=attr.moduleName.replace('m_','');
         //models
         var modelAttributes = JSON.parse(fs.readFileSync(c_adress_views_path + '../models/attributes/c_adress.json', 'utf8'));
         var routeContent = fs.readFileSync(__dirname + '/pieces/routes/data_entity.js', 'utf8');
@@ -918,10 +919,10 @@ exports.addNewComponentAdress = function (attr, callback) {
         var showFile = fs.readFileSync(c_adress_views_path + 'show.dust', 'utf8');
         var listFile = fs.readFileSync(c_adress_views_path + 'list.dust', 'utf8');
         var listFields = fs.readFileSync(c_adress_views_path + 'list_fields.dust', 'utf8');
-        createFile = createFile.replace(/COMPONENT_VALUE_MODULE/g, attr.moduleName).replace(/URL_COMPONENT_ADRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName);
-        updateFile = updateFile.replace(/COMPONENT_VALUE_MODULE/g, attr.moduleName).replace(/URL_COMPONENT_ADRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName).replace(/RELATION/g, 'r_' + componentName);
-        showFile = showFile.replace(/COMPONENT_VALUE_MODULE/g, attr.moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADRESS/g, componentUrl);
-        listFile = listFile.replace(/COMPONENT_VALUE_MODULE/g, attr.moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADRESS/g, componentUrl);
+        createFile = createFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName);
+        updateFile = updateFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName).replace(/RELATION/g, 'r_' + componentName);
+        showFile = showFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADRESS/g, componentUrl);
+        listFile = listFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADRESS/g, componentUrl);
         listFields = listFields.replace(/INCLUDE_HEADER/g, fields.headers).replace(/INCLUDE_TD/g, fields.tds).replace(/URL_COMPONENT_ADRESS/g, componentUrl).replace(/RELATION/g, 'r_' + componentName);
         //Update model attributes
         for (var attribute in fields.db_fields) {
@@ -952,7 +953,7 @@ exports.addNewComponentAdress = function (attr, callback) {
                 "delete": []
             }
         };
-        access[attr.moduleName].entities.push(newAccess);
+        access[moduleName].entities.push(newAccess);
         fs.writeFileSync(application_path + 'config/access.json', JSON.stringify(access, null, 4), 'utf8');
         //copy options
         fs.copySync(c_adress_views_path + '../models/options/c_adress.json', application_path + 'models/options/' + componentName + '.json');
@@ -1025,18 +1026,28 @@ exports.deleteComponentAdress = function (attr, callback) {
         fs.remove(application_path + 'models/options/' + componentName + '.json');
         //remove association
         var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + attr.entityName + '.json', 'utf8'));
-        var index = -1;
         for (var i = 0; i < relations.length; i++) {
             var relation = relations[i];
             if (relation.as == 'r_' + componentName) {
-                index = i;
+                relations.splice(i, 1);
                 break;
             }
         }
-        if (index != -1)
-            relations.splice(index, 1);
+            
         //update relation file
         fs.writeFileSync(application_path + 'models/options/' + attr.entityName + '.json', JSON.stringify(relations, null, 4), 'utf8');
+        //remove component in access file
+        var access = JSON.parse(fs.readFileSync(application_path + 'config/access.json', 'utf8'));
+        var moduleName=attr.moduleName.replace('m_','');
+        for(var i=0;i<access[moduleName].entities.length;i++){
+            var entity=access[moduleName].entities[i];
+            if(entity.name==attr.entityName.replace('e_','')+'_adress'){
+                access[moduleName].entities.splice(i,1);
+                break;
+            }
+        }
+        fs.writeFileSync(application_path + 'config/access.json', JSON.stringify(access, null, 4), 'utf8');
+        
         domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
             $showFieldsView('#r_' + componentName + '-click').parent().remove();//remove li tab
             $showFieldsView('#r_' + componentName).remove();//remove tab content div
