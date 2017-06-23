@@ -49,3 +49,6 @@
         </div>
     </div>
 {/content}
+{<custom_js}
+<script src="/js/c_adress.js" type="text/javascript"></script>
+{/custom_js}
