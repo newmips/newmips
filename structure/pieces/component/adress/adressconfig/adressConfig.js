@@ -1,7 +1,6 @@
 /**
- * Enable elements to addInForm on component
+ * Component config, we use BANO API
  */
-
 var config = {
     endpoint: {
         url: "https://api-adresse.data.gouv.fr/search/",
@@ -12,7 +11,6 @@ var config = {
         autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
         enable: true//If  enable, do query and get data, else data should be to set manually by user
     },
-    language: 'fr',
     attributes: {
         //set attribute in order
         housenumber: {
@@ -90,7 +88,6 @@ var config = {
             defaultValue: '',
             sql: {
                 type: 'STRING'
-
             },
             lang: {
                 fr: 'Ville',
@@ -107,11 +104,27 @@ var config = {
             defaultValue: 'FRANCE',
             sql: {
                 type: 'STRING'
-
             },
             lang: {
                 fr: 'Pays',
                 en: 'Country'
+            }
+        },
+         //house type
+        place: {
+            readonly: false,
+            required: false,
+            addInForm: false,
+            type: 'text', //
+            max: '',
+            label: 'place',
+            defaultValue: '',
+            sql: {
+                type: 'STRING'
+            },
+            lang: {
+                fr: 'Lieu dit',
+                en: 'Place'
             }
         },
         complement2: {
@@ -140,14 +153,6 @@ var config = {
             required: false,
             addInForm: false,
             type: 'text', //
-            max: ''
-        }, //house type
-        place: {
-            readonly: false,
-            required: false,
-            addInForm: false,
-            type: 'text', //
-
             max: ''
         }, //
         village: {
