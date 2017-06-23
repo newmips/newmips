@@ -904,7 +904,7 @@ exports.addNewComponentAdress = function (attr, callback) {
         var componentName = 'c_adress_' + attr.id_data_entity;
         var source = attr.options.source;
         var componentUrl = source.replace('e_', '') + '_adress';
-        var moduleName=attr.moduleName.replace('m_','');
+        var moduleName = attr.moduleName.replace('m_', '');
         //models
         var modelAttributes = JSON.parse(fs.readFileSync(c_adress_views_path + '../models/attributes/c_adress.json', 'utf8'));
         var routeContent = fs.readFileSync(__dirname + '/pieces/routes/data_entity.js', 'utf8');
@@ -934,13 +934,13 @@ exports.addNewComponentAdress = function (attr, callback) {
         var relation = {
             "target": componentName,
             "relation": "hasMany",
-            "foreignKey": "id_"+source,
+            "foreignKey": "id_" + source,
             "as": 'r_' + componentName
         };
         //Update relation file
-        var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/'+source + '.json', 'utf8'));
+        var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
         relations.push(relation);
-        fs.writeFileSync(application_path + 'models/options/'+source + '.json', JSON.stringify(relations, null, 4), 'utf8');
+        fs.writeFileSync(application_path + 'models/options/' + source + '.json', JSON.stringify(relations, null, 4), 'utf8');
 
         //add new entry for access
         var access = JSON.parse(fs.readFileSync(application_path + 'config/access.json', 'utf8'));
@@ -969,19 +969,19 @@ exports.addNewComponentAdress = function (attr, callback) {
         fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'show_fields.dust', fields.showHtml, 'utf8');
         fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'list_fields.dust', listFields, 'utf8');
         fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'list.dust', listFile, 'utf8');
-        var relationEntityFile = application_path + 'views' + '/'+source + '/show_fields.dust';
+        var relationEntityFile = application_path + 'views' + '/' + source + '/show_fields.dust';
         //new entry for source relation view
         var newLi = '<li><a id="r_' + componentName + '-click" data-toggle="tab" href="#r_' + componentName + '">{@__ key="component.c_adress.label_component" /}</a></li>';
         var newTabContent = '<div id=r_' + componentName + ' class="tab-pane fade">'
                 + '{#r_' + componentName + ' ' + componentName + '=r_' + componentName + '}'
                 + '{@eq key=id value=' + componentName + '[0].id}'
-                + '{>"' + componentName + '/list_fields" associationAlias="r_' + componentName + '" associationForeignKey="f_id_' + source.replace('e_','') + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + source.replace('e_','') + '" for="hasMany" /}'
+                + '{>"' + componentName + '/list_fields" associationAlias="r_' + componentName + '" associationForeignKey="f_id_' + source.replace('e_', '') + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + source.replace('e_', '') + '" for="hasMany" /}'
                 + '{/eq}'
                 + '{:else}'
                 + '{>"' + componentName + '/list_fields" /}'
                 + '{/r_' + componentName + '}'
                 + '<br>'
-                + '<a href="/' + componentUrl + '/create_form?associationAlias=r_' + componentName + '&amp;associationForeignKey=f_id_' + source + '&amp;associationFlag={' + source + '.id}&amp;associationSource=' + source + '&amp;associationUrl=' + source.replace('e_','') + '" class="btn btn-success">'
+                + '<a href="/' + componentUrl + '/create_form?associationAlias=r_' + componentName + '&amp;associationForeignKey=f_id_' + source + '&amp;associationFlag={' + source + '.id}&amp;associationSource=' + source + '&amp;associationUrl=' + source.replace('e_', '') + '" class="btn btn-success">'
                 + '    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>'
                 + '</a>'
                 + '</div>';
@@ -994,20 +994,7 @@ exports.addNewComponentAdress = function (attr, callback) {
         fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
         fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
         setupComponentModel(attr.id_application, 'adress', componentName, 'adress', function () {
-            //add new js inclusion in main_layout
-            domHelper.read(application_path + 'views/main_layout.dust').then(function ($layout) {
-                var all_include = $layout('#include_js');
-                //if don't exist
-                if (all_include.html().indexOf('/js/c_adress.js') < 0)
-                    $layout('#include_js').append('<script src="/js/c_adress.js" type="text/javascript"></script>');
-                domHelper.writeMainLayout(application_path + 'views/main_layout.dust', $layout).then(function () {
-                    callback(null);
-                }).catch(function (e) {
-                    return callback(e);
-                });
-            }).catch(function (e) {
-                return callback(e);
-            });
+            callback(null);
         });
     } catch (e) {
         callback(e);
@@ -1017,7 +1004,7 @@ exports.addNewComponentAdress = function (attr, callback) {
 exports.deleteComponentAdress = function (attr, callback) {
     try {
         var componentName = 'c_adress_' + attr.id_data_entity;
-        var componentUrl = attr.entityName.replace('e_','') + '_adress';
+        var componentUrl = attr.entityName.replace('e_', '') + '_adress';
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
         fs.remove(application_path + 'views/' + componentName);
         fs.remove(application_path + 'routes/' + componentUrl + '.js');
@@ -1033,21 +1020,21 @@ exports.deleteComponentAdress = function (attr, callback) {
                 break;
             }
         }
-            
+
         //update relation file
         fs.writeFileSync(application_path + 'models/options/' + attr.entityName + '.json', JSON.stringify(relations, null, 4), 'utf8');
         //remove component in access file
         var access = JSON.parse(fs.readFileSync(application_path + 'config/access.json', 'utf8'));
-        var moduleName=attr.moduleName.replace('m_','');
-        for(var i=0;i<access[moduleName].entities.length;i++){
-            var entity=access[moduleName].entities[i];
-            if(entity.name==attr.entityName.replace('e_','')+'_adress'){
-                access[moduleName].entities.splice(i,1);
+        var moduleName = attr.moduleName.replace('m_', '');
+        for (var i = 0; i < access[moduleName].entities.length; i++) {
+            var entity = access[moduleName].entities[i];
+            if (entity.name == attr.entityName.replace('e_', '') + '_adress') {
+                access[moduleName].entities.splice(i, 1);
                 break;
             }
         }
         fs.writeFileSync(application_path + 'config/access.json', JSON.stringify(access, null, 4), 'utf8');
-        
+
         domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
             $showFieldsView('#r_' + componentName + '-click').parent().remove();//remove li tab
             $showFieldsView('#r_' + componentName).remove();//remove tab content div
