@@ -27,7 +27,6 @@ var sequelize = new Sequelize(config.connection.database, config.connection.user
 });
 
 sequelize.customAfterSync = function() {
-
     return new Promise(function(resolve, reject) {
 
         var promises = [];
@@ -272,6 +271,38 @@ sequelize.customAfterSync = function() {
                     }
                 }));
             })(sourceName);
+        }
+
+        /* QUERIES */
+        if(typeof toSyncObject.queries !== "undefined" && toSyncObject.queries.length > 0){
+            promises.push(new Promise(function(resolveQueries, rejectQueries) {
+
+                var cptDone = 0;
+                var arrayQueryLength = toSyncObject.queries.length;
+                var writeStream = fs.createWriteStream(toSyncFileName);
+
+                function doneQuery(){
+                    if(cptDone == arrayQueryLength){
+                        writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                        writeStream.end();
+                        writeStream.on('finish', function() {
+                            resolveQueries();
+                        });
+                    }
+                }
+
+                for(var i=0; i<toSyncObject.queries.length; i++){
+                    (function(ibis) {
+                        sequelize.query(toSyncObject.queries[ibis]).then(function() {
+                            toSyncObject.queries = toSyncObject.queries.splice(ibis, 1);
+                            cptDone++;
+                            doneQuery();
+                        }).catch(function(err){
+                            rejectQueries(err);
+                        });
+                    })(i);
+                }
+            }));
         }
 
         Promise.all(promises).then(function() {

@@ -321,6 +321,8 @@
                 "alreadySameAlias": "Une association avec cet alias existe déjà entre ces deux entités.",
                 "circularBelongsTo": "Désolé, vous ne pouvez pas faire d'association 'Has One' dans les deux sens.",
                 "circularHasMany": "Désolé, vous ne pouvez pas faire d'association 'Has Many' dans les deux sens.",
+                "alreadyBelongsToMany": "Désolé, une relation multiple exite déjà entre ces deux entités, impossible d'en ajouter une nouvelle",
+                "tooMuchHasMany": "Désolé, plusieurs relation has many détectées de la cible vers la source, impossible de créer la relation multiple.",
                 "unableTab": "Impossible de trouver le menu %s dans l'entité courante."
             }
         },
