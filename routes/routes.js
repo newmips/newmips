@@ -39,7 +39,15 @@ router.get('/', block_access.loginAccess, function(req, res) {
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
-    res.render('login/first_connection');
+    var params = {
+        login: "",
+        email: ""
+    };
+    if(typeof req.query.login !== "undefined")
+        params.login = req.query.login;
+    if(typeof req.query.email !== "undefined")
+        params.email = req.query.email;
+    res.render('login/first_connection', params);
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
