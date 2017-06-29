@@ -25,7 +25,7 @@ body {
   overflow-x: hidden!important;
   font-family: 'Source Sans Pro', sans-serif;
   -webkit-font-smoothing: antialiased;
-  min-height: 100%;
+  height: 100%;
   background: #f9f9f9;
 }
 a {
@@ -250,8 +250,13 @@ img {
   background-color: #32495F !important;
 }
 .bg-newmips {
-  background: url(../../img/fond_header.png) no-repeat center center fixed;
+  background: #29668f;
+  background: -moz-linear-gradient(top, #29668f 0%, #ee4f45 100%);
+  background: -webkit-linear-gradient(top, #29668f 0%,#ee4f45 100%);
+  background: linear-gradient(to bottom, #29668f 0%,#ee4f45 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#29668f', endColorstr='#ee4f45',GradientType=0 );
   background-size: cover;
+  background-repeat: no-repeat;
 }
 /* Text colors */
 .text-red {

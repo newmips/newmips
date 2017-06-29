@@ -311,7 +311,7 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
                     message: "login.passwordReset",
                     level: "success"
                 }];
-                res.render('login/first_connection');
+                res.redirect('/first_connection');
             });
         }
     }).catch(function(err){
