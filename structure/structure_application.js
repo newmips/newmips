@@ -58,7 +58,22 @@ function node_modules_copy(){
             }
 
             // Then reinstall node_modules in structure/template folder
-            var cmd = 'npm install';
+            var cmd = 'cp '+dir+'/../structure/template/package.json '+dir+'/../workspace/';
+            exec(cmd, {cwd: process.cwd()}, function(error, stdout, stderr) {
+                if(error){
+                    reject(error);
+                }
+                cmd = 'npm install';
+                exec(cmd, {cwd: dir + '/../workspace/'}, function(error, stdout, stderr) {
+                    if(error){
+                        reject(error);
+                    }
+                    console.log('Node modules successfuly initialized.');
+                    resolve();
+                });
+            });
+
+            /*var cmd = 'npm install';
 
             exec(cmd, {cwd: dir + '/../structure/template/'}, function(error, stdout, stderr) {
                 if(error){
@@ -76,7 +91,7 @@ function node_modules_copy(){
                         resolve();
                     });
                 });
-            });
+            });*/
         }
     });
 }
