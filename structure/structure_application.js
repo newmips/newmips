@@ -28,6 +28,59 @@ try{
 //Sequelize
 var models = require('../models/');
 
+var exec = require('child_process').exec;
+
+function node_modules_copy(){
+    return new Promise(function(resolve, reject) {
+
+        var dir = __dirname;
+
+        // Mandatory workspace folder
+        if (!fs.existsSync(dir + '/../workspace'))
+            fs.mkdirSync(dir + '/../workspace');
+
+        if (fs.existsSync(dir + '/../workspace/node_modules') && !fs.existsSync(dir + '/../structure/template/node_modules')) {
+            // Node modules are already deleted in structure/template and exist in the workspace folder
+            console.log("Everything's ok about the node modules.");
+            resolve();
+        } else{
+            // We need to reinstall and copy node modules to be sure
+            console.log("Node modules initialization...");
+
+            // Delete if exist in workspace folder
+            if (fs.existsSync(dir + '/../workspace/node_modules')) {
+                helpers.rmdirSyncRecursive(dir + '/../workspace/node_modules');
+                fs.chmodSync(dir + '/../workspace', '0755');
+            }
+            // Delete if exist in structure/template folder
+            if (fs.existsSync(dir + '/../structure/template/node_modules')) {
+                helpers.rmdirSyncRecursive(dir + '/../structure/template/node_modules');
+            }
+
+            // Then reinstall node_modules in structure/template folder
+            var cmd = 'npm install';
+
+            exec(cmd, {cwd: dir + '/../structure/template/'}, function(error, stdout, stderr) {
+                if(error){
+                    reject(error);
+                }
+                // Copy it in workspace folder
+                cmd = 'cp -r '+dir+'/../structure/template/node_modules '+dir+'/../workspace/';
+                exec(cmd, {cwd: process.cwd()}, function(error, stdout, stderr) {
+                    if(error){
+                        reject(error);
+                    }
+                    // Delete it in structure template
+                    exec('rm -r '+dir+'/../structure/template/node_modules', function() {
+                        console.log('Node modules successfuly initialized.');
+                        resolve();
+                    });
+                });
+            });
+        }
+    });
+}
+
 // Application
 exports.setupApplication = function(attr, callback) {
 
@@ -38,96 +91,103 @@ exports.setupApplication = function(attr, callback) {
     var name_application = options.value;
     var show_name_application = options.showValue;
 
-    // *** Copy template folder to new workspace ***
-    fs.copy(__dirname+'/template/', __dirname+'/../workspace/'+id_application, function(err) {
-        if(err){
-            var err = new Error();
-            err.message = "An error occurred while copying template folder.";
-            return callback(err, null);
-        }
+    node_modules_copy().then(function(){
+        // *** Copy template folder to new workspace ***
+        fs.copy(__dirname+'/template/', __dirname+'/../workspace/'+id_application, function(err) {
+            if(err){
+                var err = new Error();
+                err.message = "An error occurred while copying template folder.";
+                return callback(err, null);
+            }
 
-        /* Save an instruction history in the history script in workspace folder */
-        var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
-        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-        historyScript += "create application "+show_name_application;
-        historyScript += "\ncreate module home\n";
-        fs.writeFileSync(historyScriptPath, historyScript);
+            /* Save an instruction history in the history script in workspace folder */
+            var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
+            var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+            historyScript += "create application "+show_name_application;
+            historyScript += "\ncreate module home\n";
+            fs.writeFileSync(historyScriptPath, historyScript);
 
-        /* --------------- New translation --------------- */
-        translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function(){
-            // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
-            var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
-            languageConfig.lang = attr.lang_user;
-            fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 4), function(err) {
+            /* --------------- New translation --------------- */
+            translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function(){
+                // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
+                var languageConfig = require(__dirname+'/../workspace/'+id_application+'/config/language');
+                languageConfig.lang = attr.lang_user;
+                fs.writeFile(__dirname+'/../workspace/'+id_application+'/config/language.json', JSON.stringify(languageConfig, null, 4), function(err) {
 
-                if(err){
-                    var err = new Error();
-                    err.message = "An error occurred while creating language.json.";
-                    return callback(err, null);
-                }
+                    if(err){
+                        var err = new Error();
+                        err.message = "An error occurred while creating language.json.";
+                        return callback(err, null);
+                    }
 
-                var nameAppWithoutPrefix = name_application.substring(2);
-                // Create the application repository in gitlab
-                if(gitlabConf.doGit){
+                    var nameAppWithoutPrefix = name_application.substring(2);
+                    // Create the application repository in gitlab
+                    if(gitlabConf.doGit){
 
-                    var idUserGitlab;
-                    function createGitlabProject(){
-                        var newGitlabProject = {
-                            user_id : idUserGitlab,
-                            name: globalConf.host+"-"+nameAppWithoutPrefix,
-                            description: "A generated Newmips workspace.",
-                            issues_enabled: false,
-                            merge_requests_enabled: false,
-                            wiki_enabled: false,
-                            snippets_enabled: false,
-                            public: false
-                        };
+                        var idUserGitlab;
+                        function createGitlabProject(){
+                            var newGitlabProject = {
+                                user_id : idUserGitlab,
+                                name: globalConf.host+"-"+nameAppWithoutPrefix,
+                                description: "A generated Newmips workspace.",
+                                issues_enabled: false,
+                                merge_requests_enabled: false,
+                                wiki_enabled: false,
+                                snippets_enabled: false,
+                                public: false
+                            };
 
-                        try{
-                            gitlab.projects.create_for_user(newGitlabProject, function(result){
-                                if(typeof result === "object"){
-                                    gitlab.projects.members.add(result.id, 1, 40, function(answer){
+                            try{
+                                gitlab.projects.create_for_user(newGitlabProject, function(result){
+                                    if(typeof result === "object"){
+                                        gitlab.projects.members.add(result.id, 1, 40, function(answer){
+                                            callback();
+                                        });
+                                    } else{
                                         callback();
-                                    });
-                                } else{
-                                    callback();
+                                    }
+                                });
+                            } catch(err){
+                                console.log("Error connection Gitlab repository: "+err);
+                                console.log("Please set doGit in config/gitlab.json to false");
+                                callback(err);
+                            }
+                        }
+
+                        if(attr.gitlabUser != null){
+                            idUserGitlab = attr.gitlabUser.id;
+                            createGitlabProject();
+                        } else{
+                            gitlab.users.all(function(gitlabUsers){
+                                var exist = false;
+                                for(var i=0; i<gitlabUsers.length; i++){
+                                    if(gitlabUsers[i].email == attr.currentUser.email){
+                                        exist = true;
+                                        idUserGitlab = gitlabUsers[i].id;
+                                    }
+                                }
+                                if(exist)
+                                    createGitlabProject();
+                                else{
+                                    var err = new Error();
+                                    err.message = "Cannot find your Gitlab account to create the project!";
+                                    return callback(err, null);
                                 }
                             });
-                        } catch(err){
-                            console.log("Error connection Gitlab repository: "+err);
-                            console.log("Please set doGit in config/gitlab.json to false");
-                            callback(err);
                         }
                     }
-
-                    if(attr.gitlabUser != null){
-                        idUserGitlab = attr.gitlabUser.id;
-                        createGitlabProject();
-                    } else{
-                        gitlab.users.all(function(gitlabUsers){
-                            var exist = false;
-                            for(var i=0; i<gitlabUsers.length; i++){
-                                if(gitlabUsers[i].email == attr.currentUser.email){
-                                    exist = true;
-                                    idUserGitlab = gitlabUsers[i].id;
-                                }
-                            }
-                            if(exist)
-                                createGitlabProject();
-                            else{
-                                var err = new Error();
-                                err.message = "Cannot find your Gitlab account to create the project!";
-                                return callback(err, null);
-                            }
-                        });
+                    else{
+                        // Direct callback as application has been installed in template folder
+                        callback();
                     }
-                }
-                else{
-                    // Direct callback as application has been installed in template folder
-                    callback();
-                }
+                });
             });
         });
+    }).catch(function(err){
+        console.log(err);
+        var err = new Error();
+        err.message = "An error occurred while initializing the node modules.";
+        return callback(err, null);
     });
 }
 
