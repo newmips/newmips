@@ -18,6 +18,7 @@
         "authentication": "Connexion",
         "login": "Login",
         "password": "Mot de passe",
+        "newpassword": "Nouveau mot de passe",
         "minimalLength": "(8 caractères minimum)",
         "confirm_password": "Confirmer le mot de passe",
         "mail": "Email",

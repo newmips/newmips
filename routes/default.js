@@ -37,10 +37,6 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
         models.Application.count().then(function(nbApplication){
             data.nb_application = nbApplication;
             data.projects = projects;
-            // Récupération des toastr en session
-            data.toastr = req.session.toastr;
-            // Nettoyage de la session
-            req.session.toastr = [];
             res.render('front/home', data);
         }).catch(function(err){
             data.code = 500;
