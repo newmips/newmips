@@ -99,6 +99,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                             console.log(err);
                                             res.redirect('/login');
                                         } else{
+                                            req.session.showytpopup = true;
                                             res.redirect('/default/home');
                                         }
                                     });

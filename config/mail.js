@@ -8,7 +8,7 @@ var mailConf = {
             secure: true,
             auth: {
                 user: '',
-                pass: '+'
+                pass: ''
             }
         },
         expediteur: 'NoReply <no-reply@newmips.com>',

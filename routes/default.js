@@ -37,6 +37,12 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
         models.Application.count().then(function(nbApplication){
             data.nb_application = nbApplication;
             data.projects = projects;
+            data.showytpopup = false;
+            // Check if we have to show the You Tube popup
+            if(req.session.showytpopup){
+                data.showytpopup = true;
+                req.session.showytpopup = false;
+            }
             res.render('front/home', data);
         }).catch(function(err){
             data.code = 500;
