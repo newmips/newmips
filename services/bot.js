@@ -1423,7 +1423,33 @@ exports.parse = function(instruction) {
             "ajouter un composant de stockage appelé (.*)",
             "ajouter un composant de stockage de fichier appelé (.*)",
             "ajouter le composant de stockage de fichier appelé (.*)",
-            "ajouter le composant de stockage appelé (.*)"
+            "ajouter le composant de stockage appelé (.*)",
+            "créer composant localfilestorage nommé (.*)",
+            "ajouter composant localfilestorage nommé (.*)",
+            "créer un composant localfilestorage nommé (.*)",
+            "ajouter un composant localfilestorage nommé (.*)",
+            "créer le composant localfilestorage nommé (.*)",
+            "ajouter le composant localfilestorage nommé (.*)",
+            "créer composant de stockage de fichier nommé (.*)",
+            "ajouter composant de stockage de fichier nommé (.*)",
+            "créer uncomposant de stockage de fichier nommé (.*)",
+            "ajouter un composant de stockage de fichier nommé (.*)",
+            "créer le composant de stockage de fichier nommé (.*)",
+            "ajouter le composant de stockage de fichier nommé (.*)",
+            "créer composant de stockage nommé (.*)",
+            "ajouter composant de stockage nommé (.*)",
+            "créer un composant de stockage nommé (.*)",
+            "ajouter un composant de stockage nommé (.*)",
+            "créer le composant de stockage nommé (.*)",
+            "ajouter le composant de stockage nommé (.*)",
+            "ajouter composant stockage fichier nommé (.*)",
+            "ajouter composant de stockage nommé (.*)",
+            "ajouter composant de stockage de fichier nommé (.*)",
+            "ajouter un composant stockage fichier nommé (.*)",
+            "ajouter un composant de stockage nommé (.*)",
+            "ajouter un composant de stockage de fichier nommé (.*)",
+            "ajouter le composant de stockage de fichier nommé (.*)",
+            "ajouter le composant de stockage nommé (.*)"
         ],
         "createNewComponentLocalFileStorage": [
             "create component local file storage",
@@ -1464,6 +1490,7 @@ exports.parse = function(instruction) {
             "create component contact form with name (.*)",
             "add component contactform with name (.*)",
             "add component contact form with name (.*)",
+
             "créer un composant formulaire de contact appelé (.*)",
             "ajouter un composant formulaire de contact appelé (.*)",
             "créer composant formulaire de contact appelé (.*)",
@@ -1475,7 +1502,21 @@ exports.parse = function(instruction) {
             "créer le formulaire de contact appelé (.*)",
             "ajouter le formulaire de contact appelé (.*)",
             "créer formulaire de contact appelé (.*)",
-            "ajouter formulaire de contact appelé (.*)"
+            "ajouter formulaire de contact appelé (.*)",
+
+            "créer un composant formulaire de contact nommé (.*)",
+            "ajouter un composant formulaire de contact nommé (.*)",
+            "créer composant formulaire de contact nommé (.*)",
+            "ajouter composant formulaire de contact nommé (.*)",
+            "créer le composant formulaire de contact nommé (.*)",
+            "ajouter le composant formulaire de contact nommé (.*)",
+            "créer un formulaire de contact nommé (.*)",
+            "ajouter un formulaire de contact nommé (.*)",
+            "créer le formulaire de contact nommé (.*)",
+            "ajouter le formulaire de contact nommé (.*)",
+            "créer formulaire de contact nommé (.*)",
+            "ajouter formulaire de contact nommé (.*)"
+
         ],
         "createNewComponentContactForm": [
             "create component contactform",
@@ -1533,6 +1574,18 @@ exports.parse = function(instruction) {
             "ajouter l'agenda appelé (.*)",
             "créer agenda appelé (.*)",
             "ajouter agenda appelé (.*)",
+            "créer un composant agenda nommé (.*)",
+            "ajouter un composant agenda nommé (.*)",
+            "créer le composant agenda nommé (.*)",
+            "ajouter le composant agenda nommé (.*)",
+            "créer composant agenda nommé (.*)",
+            "ajouter composant agenda nommé (.*)",
+            "créer un agenda nommé (.*)",
+            "ajouter un agenda nommé (.*)",
+            "créer l'agenda nommé (.*)",
+            "ajouter l'agenda nommé (.*)",
+            "créer agenda nommé (.*)",
+            "ajouter agenda nommé (.*)",
             "create component timeline with name (.*)",
             "add component timeline with name (.*)",
             "add timeline with name (.*)",
@@ -1572,14 +1625,10 @@ exports.parse = function(instruction) {
         "createNewComponentPrint": [
             "create component print",
             "add component print",
-            "create component print tab",
-            "add component print tab",
             "créer un composant impression",
             "ajouter un composant impression",
             "créer composant impression",
-            "ajouter composant impression",
-            "créer un onglet impression",
-            "ajouter un onglet impression"
+            "ajouter composant impression"
         ],
         "createNewComponentPrintWithName": [
             "create component print with name (.*)",
@@ -1596,15 +1645,33 @@ exports.parse = function(instruction) {
             "créer impression appelé (.*)",
             "ajouter impression appelé (.*)",
             "créer impression appelé (.*)",
-            "ajouter impression appelé (.*)"
+            "ajouter impression appelé (.*)",
+            "créer un composant impression nommé (.*)",
+            "ajouter un composant impression nommé (.*)",
+            "créer le composant impression nommé (.*)",
+            "ajouter le composant impression nommé (.*)",
+            "créer composant impression nommé (.*)",
+            "ajouter composant impression nommé (.*)",
+            "créer un impression nommé (.*)",
+            "ajouter un impression nommé (.*)",
+            "créer impression nommé (.*)",
+            "ajouter impression nommé (.*)",
+            "créer impression nommé (.*)",
+            "ajouter impression nommé (.*)"
         ],
         "deleteComponentPrint": [
             "delete component print",
-            "delete print component"
+            "delete print component",
+            "supprimer composant impression",
+            "supprimer le composant impression"
         ],
         "deleteComponentPrintWithName": [
             "delete component print with name (.*)",
-            "delete print component with name (.*)"
+            "delete print component with name (.*)",
+            "supprimer composant impression nommé (.*)",
+            "supprimer composant impression appelé (.*)",
+            "supprimer le composant impression nommé (.*)",
+            "supprimer le composant impression appelé (.*)"
         ],
         "createComponentChat": [
             "add component chat",
