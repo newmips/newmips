@@ -64,6 +64,9 @@
         "header": "Bienvenue sur Newmips !",
         "title": "Créez ou sélectionnez un Projet ainsi qu'une Application.",
         "subtitle": "Et nous nous occupons du reste !",
+        "ytmodaltitle": "Bienvenue sur le générateur Newmips",
+        "ytmodalcontent": "Pour bien démarrer, suivez nos tutoriels et apprenez rapidement à utiliser le générateur Newmips !",
+        "accessbuttonyt": "C'est parti !",
         "directlinks": {
             "title": "Gestion des Applications",
             "script": "Script",
