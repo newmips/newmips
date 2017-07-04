@@ -361,5 +361,10 @@
                 "unknown_fields": "Impossible d'ajouter le widget car les champs suivants sont inconnus :<br>%s"
             }
         }
+    },
+    "botresponse": {
+        "help" : "Vous avez demandé de l'aide. Accédez aux vidéos d'aide sur notre <a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ'>chaîne YouTube</a> ou à la documentation en ligne ici <a href='https://docs.newmips.com/' target='_blank'>https://docs.newmips.com/</a>",
+        "applicationavailable": "L'application est disponible ici : <br> <a href='%s' target='_blank'>%s</a>",
+        "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
     }
 }
