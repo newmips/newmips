@@ -4149,3 +4149,6 @@ fieldset[disabled] .btn-vk.active {
 .progress-bar {
   background-color: #00a65a;
 }
+b.click-instruction{
+  cursor: pointer;
+}
