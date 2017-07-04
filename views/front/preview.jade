@@ -39,6 +39,11 @@ block custom_css
 	// Slack chat
 	link(rel="stylesheet", href="/css/slack/slack-chat.css")
 	link(rel="stylesheet", href="/css/slack/skin-chat.css")
+	// Dynamic Writing
+	style.
+		.dynamic-writing{
+			display: none;
+		}
 block content
 	#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 		ul.nav.nav-tabs#primary-navtabs(role="tablist")
@@ -88,7 +93,12 @@ block content
 														| Newmips
 													else
 														| #{profile.first_name_user} #{profile.last_name_user}
-												| !{__(msg.content, msg.params)}
+												if (msg.content == "chat.welcome")
+													span.dynamic-writing
+														| !{__(msg.content, msg.params)}
+												else
+													span.standard-writing
+														| !{__(msg.content, msg.params)}
 								.box-footer
 									.row
 										.col-xs-1
@@ -269,6 +279,8 @@ block custom_js
 	script(src='/js/plugins/jquery.slimscroll.min.js', type='text/javascript')
 	// Sidebar
 	script(src='/js/AdminLTE/sidebar.js', type='text/javascript')
+	// Dynamic Writing
+	script(src='/js/Newmips/dynamic-writing.js', type='text/javascript')
 	// Slack
 	if (isSlackChatEnabled)
 		script(src="/js/plugins/moment.js", type='text/javascript')
