@@ -161,7 +161,7 @@
     },
     "chat": {
         "welcomeold": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin tapez help pour avoir plus d'informations.",
-        "welcome": "Bonjour et bienvenue ! Je suis Mipsy, votre assistant de création personnel. À tout moment je suis là pour vous guider dans la découverte du générateur Newmips.<br> Pour commencer voici un quelques instructions que vous pouvez executer ci-dessous:<br><br>- <b class='click-instruction'>ajouter une entité Personne</b><br>- <b class='click-instruction'>créer un champ Nom</b><br>- <b class='click-instruction'>créer un champ Anniversaire de type Date</b> <br><br>Et découvrez notre série de 5 tutoriels vidéos pour apprendre en détail à utiliser le générateur Newmips:<br><a href='https://google.fr'>Les tutoriels Newmips</a>"
+        "welcome": "Bonjour et bienvenue ! Je suis Mipsy, votre assistant personnel de création. À tout moment, je suis là pour vous guider dans la découverte du générateur Newmips.<br> Pour commencer, voici quelques instructions à exécuter ci-dessous:<br><br>- <b class='click-instruction'>ajouter une entité Personne</b><br>- <b class='click-instruction'>créer un champ Nom</b><br>- <b class='click-instruction'>créer un champ Anniversaire de type Date</b> <br><br>Et découvrez aussi notre série de tutoriels vidéos pour apprendre en détail à utiliser le générateur Newmips:<br><a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ'>Les tutoriels Newmips</a>"
     },
     "database": {
         "project": {
