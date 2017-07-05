@@ -1,7 +1,9 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-3.col-lg-9
+		.col-header.col-xs-1.col-lg-1(style="width: 4%;margin-left: 2%;")
+			img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:33px;display:block;")
+		.col-header.col-xs-2.col-lg-8
 			h1
 				| #{__("menu.home")}
 				small #{__("menu.module")}
@@ -25,8 +27,10 @@ block header
 				a.btn.btn-default.pull-right(href='/logout')
 					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 					span #{__("button.disconnect")}
-
 block content
+	.row
+		.col-xs-12
+			img(src="/img/newLogo.png", alt="Newmips Logo", style="width:200px;display:block;margin:auto;margin-bottom: 25px")
 	.row
 		.col-xs-12
 			section.col-xs-12.col-lg-offset-3.col-lg-6
