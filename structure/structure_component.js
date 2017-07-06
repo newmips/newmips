@@ -470,12 +470,12 @@ exports.newContactForm = function(attr, callback){
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_content"], "Contenu");
 
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Send box");
+	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Sent box");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "settings"], "Settings");
 	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
 
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte d'envoi");
+	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte de réception");
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
 	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
 

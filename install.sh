@@ -13,10 +13,11 @@ fi
 
 #Install Newmips structure template
 echo "Starting template nodes modules installation"
-cd structure/template
+cp structure/template/package.json workspace/
+cd workspace
 npm install
 
-cd ../../
+cd ../
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
 	echo "Linux OS"
@@ -104,5 +105,5 @@ else
 	echo "Sorry, we can't recognize your Operating System :("
 fi
 
-node modules_handle.js
+#node modules_handle.js
 echo "Newmips ready to be started -> node server.js"

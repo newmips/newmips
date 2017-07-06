@@ -40,7 +40,7 @@ exports.sendMail_Reset_Password = function(data, res) {
         '<br />' +
         'Si vous êtes à l\'origine de cette demande, veuillez cliquer sur le lien suivant :' +
         '<br />' +
-        '<a href="'+mailConfig.host+'/reset_password/'+data['token']+'">Réinitialisation du mot de passe</a>.'+
+        '<a href="'+mailConfig.host+'/reset_password_form/'+data['token']+'">Réinitialisation du mot de passe</a>.'+
         '<br />' +
         '<br />' +
         'Si vous n\'êtes pas à l\'origine de cette demande, veuillez ignorer cet email.' +

@@ -39,7 +39,15 @@ router.get('/', block_access.loginAccess, function(req, res) {
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
-    res.render('login/first_connection');
+    var params = {
+        login: "",
+        email: ""
+    };
+    if(typeof req.query.login !== "undefined")
+        params.login = req.query.login;
+    if(typeof req.query.email !== "undefined")
+        params.email = req.query.email;
+    res.render('login/first_connection', params);
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
@@ -70,7 +78,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                 message: gitlabError.message,
                                 level: "error"
                             }];
-                            res.redirect('/first_connection');
+                            res.redirect('/first_connection?login='+login_user+'&email='+email_user);
                         } else{
                             models.User.update({
                                 password: password,
@@ -91,6 +99,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                             console.log(err);
                                             res.redirect('/login');
                                         } else{
+                                            req.session.showytpopup = true;
                                             res.redirect('/default/home');
                                         }
                                     });
@@ -188,7 +197,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             message: "login.first_connection.passwordNotMatch",
             level: "error"
         }];
-        res.redirect('/first_connection');
+        res.redirect('/first_connection?login='+login_user+'&email='+email_user);
     }
 });
 
@@ -224,7 +233,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                     message: "login.emailResetSent",
                     level: "success"
                 }];
-                res.render('login/reset_password');
+                res.redirect('/');
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
                 models.User.update({
@@ -276,7 +285,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 });
 
 // Trigger password reset
-router.get('/reset_password/:token', block_access.loginAccess, function(req, res) {
+router.get('/reset_password_form/:token', block_access.loginAccess, function(req, res) {
 
     models.User.findOne({
         where: {
@@ -292,18 +301,16 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
         }
         else{
             models.User.update({
-                password: null,
-                token_password_reset: null
+                password: null
             }, {
                 where: {
                     id: user.id
                 }
             }).then(function(){
-                req.session.toastr = [{
-                    message: "login.passwordReset",
-                    level: "success"
-                }];
-                res.redirect('/first_connection');
+                var params = {
+                    resetUser: user
+                };
+                res.render('login/reset_password_form', params);
             });
         }
     }).catch(function(err){
@@ -312,6 +319,85 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
             level: "error"
         }];
         res.render('login/reset_password');
+    });
+});
+
+// Trigger password reset
+router.post('/reset_password_form', block_access.loginAccess, function(req, res) {
+
+    var login_user = req.body.login_user;
+    var email_user = req.body.email_user;
+
+    models.User.findOne({
+        where: {
+            login: login_user,
+            email: email_user,
+            $or: [{password: ""}, {password: null}]
+        }
+    }).then(function(user){
+        if(req.body.password_user == req.body.password_user2 && req.body.password_user.length >= 8){
+            var password = bcrypt.hashSync(req.body.password_user2, null, null);
+            if(user){
+                if(user.password == "" || user.password == null){
+                    models.User.update({
+                        password: password,
+                        token_password_reset: null
+                    }, {
+                        where: {
+                            id: user.id
+                        }
+                    }).then(function(){
+                        // Autologin after first connection form done
+                        models.User.findOne({
+                            where: {
+                                id: user.id
+                            }
+                        }).then(function(connectedUser){
+                            req.login(connectedUser, function(err) {
+                                if (err) {
+                                    console.log(err);
+                                    req.session.toastr = [{
+                                        message: err.message,
+                                        level: "error"
+                                    }];
+                                    res.redirect('/login');
+                                } else{
+                                    req.session.toastr = [{
+                                        message: "login.passwordReset",
+                                        level: "success"
+                                    }];
+                                    res.redirect('/default/home');
+                                }
+                            });
+                        });
+                    });
+                } else{
+                    req.session.toastr = [{
+                        message: "login.first_connection.hasAlreadyPassword",
+                        level: "error"
+                    }];
+                    res.redirect('/login');
+                }
+            } else{
+                req.session.toastr = [{
+                    message: "login.first_connection.userNotExist",
+                    level: "error"
+                }];
+                res.redirect('/login');
+            }
+        } else{
+            req.session.toastr = [{
+                message: "login.first_connection.passwordNotMatch",
+                level: "error"
+            }];
+            res.redirect('/reset_password_form/'+user.token_password_reset);
+        }
+    }).catch(function(err){
+        req.session.toastr = [{
+            message: err.message,
+            level: "error"
+        }];
+        res.redirect('/login');
     });
 });
 
