@@ -31,70 +31,55 @@ var models = require('../models/');
 var exec = require('child_process').exec;
 
 function node_modules_copy(){
-    return new Promise(function(resolve, reject) {
-
+    return new Promise( function(resolve, reject) {
+       
         var dir = __dirname;
+        console.log("mon dirname="+dir);
 
         // Mandatory workspace folder
         if (!fs.existsSync(dir + '/../workspace'))
             fs.mkdirSync(dir + '/../workspace');
 
-        if (fs.existsSync(dir + '/../workspace/node_modules') && !fs.existsSync(dir + '/../structure/template/node_modules')) {
-            // Node modules are already deleted in structure/template and exist in the workspace folder
+        if (fs.existsSync(dir + '/../workspace/node_modules')){
             console.log("Everything's ok about the node modules.");
             resolve();
-        } else{
-            // We need to reinstall and copy node modules to be sure
-            console.log("Node modules initialization...");
+        } else {
 
-            // Delete if exist in workspace folder
-            if (fs.existsSync(dir + '/../workspace/node_modules')) {
-                helpers.rmdirSyncRecursive(dir + '/../workspace/node_modules');
-                fs.chmodSync(dir + '/../workspace', '0755');
-            }
-            // Delete if exist in structure/template folder
             if (fs.existsSync(dir + '/../structure/template/node_modules')) {
-                helpers.rmdirSyncRecursive(dir + '/../structure/template/node_modules');
-            }
-
-            // Then reinstall node_modules in structure/template folder
-            var cmd = 'cp '+dir+'/../structure/template/package.json '+dir+'/../workspace/';
-            exec(cmd, {cwd: process.cwd()}, function(error, stdout, stderr) {
-                if(error){
-                    reject(error);
-                }
-                cmd = 'npm install';
-                exec(cmd, {cwd: dir + '/../workspace/'}, function(error, stdout, stderr) {
+            // Node modules are already in structure/template, need to move them to workspace
+                console.log("Move node modules...");
+           
+                exec("mv structure/template/node_modules workspace/", {cwd: dir + '/../'}, function(error, stdout, stderr) {
                     if(error){
                         reject(error);
                     }
-                    console.log('Node modules successfuly initialized.');
+                    console.log('Node modules successfully initialized.');
                     resolve();
                 });
-            });
 
-            /*var cmd = 'npm install';
-
-            exec(cmd, {cwd: dir + '/../structure/template/'}, function(error, stdout, stderr) {
-                if(error){
-                    reject(error);
-                }
-                // Copy it in workspace folder
-                cmd = 'cp -r '+dir+'/../structure/template/node_modules '+dir+'/../workspace/';
+            } else {
+                // We need to reinstall node modules properly
+                console.log("Node modules initialization...");
+                var cmd = 'cp '+dir+'/../structure/template/package.json '+dir+'/../workspace/';
+           
                 exec(cmd, {cwd: process.cwd()}, function(error, stdout, stderr) {
                     if(error){
                         reject(error);
                     }
-                    // Delete it in structure template
-                    exec('rm -r '+dir+'/../structure/template/node_modules', function() {
+                    
+                    cmd = 'npm -s install';
+                    exec(cmd, {cwd: dir + '/../workspace/'}, function(error, stdout, stderr) {
+                        if(error){
+                            reject(error);
+                        }
                         console.log('Node modules successfuly initialized.');
                         resolve();
                     });
                 });
-            });*/
+            }
         }
     });
-}
+};
 
 // Application
 exports.setupApplication = function(attr, callback) {
