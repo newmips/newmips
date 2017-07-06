@@ -1,11 +1,13 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-3.col-lg-9
+		.col-header.col-xs-2.col-sm-2.col-md-1.col-lg-1#header-icon
+			img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:33px;display:block;")
+		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-8#header-title
 			h1
 				| #{__("menu.home")}
 				small #{__("menu.module")}
-		.col-header.col-xs-3.col-lg-1
+		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
 			.clearfix
 				span.pull-left Instructions
 				small.pull-right
@@ -17,7 +19,7 @@ block header
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
 				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-6.col-lg-2
+		.col-header.col-xs-7.col-sm-4.col-md-3.col-lg-2#header-button
 			.btn-group.pull-right(role="group")
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
@@ -25,8 +27,10 @@ block header
 				a.btn.btn-default.pull-right(href='/logout')
 					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 					span #{__("button.disconnect")}
-
 block content
+	.row
+		.col-xs-12
+			img(src="/img/newLogo.png", alt="Newmips Logo", style="width:200px;display:block;margin:auto;margin-bottom: 25px")
 	.row
 		.col-xs-12
 			section.col-xs-12.col-lg-offset-3.col-lg-6
@@ -121,8 +125,34 @@ block content
 							a.btn.btn-app(href='/settings/index')
 								i.fa.fa-cog
 								| #{__("home.directlinks.settings")}
+	if showytpopup
+		.modal.fade#modalyttuto(tabindex='-1', role='dialog', aria-labelledby='You Tube Tuto')
+			.modal-dialog.modal-lg(role='document')
+				.modal-content
+					.modal-header
+						button.close(type='button', data-dismiss='modal', aria-label='Close')
+							span(aria-hidden='true') ×
+						h4.modal-title #{__("home.ytmodaltitle")}
+					.modal-body
+						p.text-center
+							img(src='/img/avatar.png', alt="Mipsy", style="display:block;margin:auto;")
+							br
+							|#{__("home.ytmodalcontent")}
+							br
+							br
+							a.btn.btn-primary(href='https://www.youtube.com/watch?v=C-5hPXpNu0A', target="_blank")
+								|#{__("home.accessbuttonyt")}
+					.modal-footer
+						button.btn.btn-default(type='button', data-dismiss='modal') #{__("button.close")}
+
+
 
 block custom_js
+	if showytpopup
+		script.
+			$(function() {
+				$('#modalyttuto').modal();
+			});
 	script.
 		$(function() {
 

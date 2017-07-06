@@ -18,6 +18,7 @@
         "authentication": "Connexion",
         "login": "Login",
         "password": "Mot de passe",
+        "newpassword": "Nouveau mot de passe",
         "minimalLength": "(8 caractères minimum)",
         "confirm_password": "Confirmer le mot de passe",
         "mail": "Email",
@@ -63,6 +64,9 @@
         "header": "Bienvenue sur Newmips !",
         "title": "Créez ou sélectionnez un Projet ainsi qu'une Application.",
         "subtitle": "Et nous nous occupons du reste !",
+        "ytmodaltitle": "Bienvenue sur le générateur Newmips",
+        "ytmodalcontent": "Pour bien démarrer, suivez nos tutoriels et apprenez rapidement à utiliser le générateur Newmips !",
+        "accessbuttonyt": "C'est parti !",
         "directlinks": {
             "title": "Gestion des Applications",
             "script": "Script",
@@ -156,7 +160,8 @@
         "show": "Afficher le"
     },
     "chat": {
-        "welcome": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin tapez help pour avoir plus d'informations."
+        "welcomeold": "Bienvenue ! Vous pouvez commencer à taper vos instructions ci-dessous, si besoin tapez help pour avoir plus d'informations.",
+        "welcome": "Bonjour et bienvenue ! Je suis Mipsy, votre assistant personnel de création. À tout moment, je suis là pour vous guider dans la découverte du générateur Newmips.<br> Pour commencer, voici quelques instructions à exécuter ci-dessous:<br><br>- <b class='click-instruction'>ajouter une entité Personne</b><br>- <b class='click-instruction'>créer un champ Nom</b><br>- <b class='click-instruction'>créer un champ Anniversaire de type Date</b> <br><br>Et découvrez aussi notre série de tutoriels vidéos pour apprendre en détail à utiliser le générateur Newmips:<br><a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>Les tutoriels Newmips</a>"
     },
     "database": {
         "project": {
@@ -357,5 +362,10 @@
                 "unknown_fields": "Impossible d'ajouter le widget car les champs suivants sont inconnus :<br>%s"
             }
         }
+    },
+    "botresponse": {
+        "help" : "Vous avez demandé de l'aide. Accédez aux vidéos d'aide sur notre <a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>chaîne YouTube</a> ou à la documentation en ligne ici <a href='https://docs.newmips.com/' target='_blank'>https://docs.newmips.com/</a>",
+        "applicationavailable": "L'application est disponible ici : <br> <a href='%s' target='_blank'>%s</a>",
+        "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
     }
 }
