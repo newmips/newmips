@@ -78,7 +78,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                 message: gitlabError.message,
                                 level: "error"
                             }];
-                            res.redirect('/first_connection');
+                            res.redirect('/first_connection?login='+login_user+'&email='+email_user);
                         } else{
                             models.User.update({
                                 password: password,
@@ -197,7 +197,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             message: "login.first_connection.passwordNotMatch",
             level: "error"
         }];
-        res.redirect('/first_connection');
+        res.redirect('/first_connection?login='+login_user+'&email='+email_user);
     }
 });
 
