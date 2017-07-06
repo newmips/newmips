@@ -4,7 +4,7 @@ var exec = require('child_process').exec;
 
 function capitalizeFirstLetter(word) {
 	if(typeof word === "undefined" || !word)
-		return "";
+		return "Integer";
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 

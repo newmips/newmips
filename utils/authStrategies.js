@@ -53,7 +53,6 @@ passport.use(new LocalStrategy({
                 return done(null, false);
             }
             else{
-                req.session.data = user;
                 return done(null, user);
             }
         });

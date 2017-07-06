@@ -33,6 +33,14 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 			$(this).text(workspaceLanguage.__(tradKey));
 		});
 
+		$("option").each(function() {
+			var comment = $(this).contents().filter(function() {
+		        return this.nodeType === 8;
+		    }).get(0);
+			if (typeof comment !== "undefined")
+				$(this).text(comment.nodeValue);
+		});
+
 		// Hide action buttons
 		$(".actions").hide();
 
@@ -54,6 +62,11 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 	var generatorLanguage = language(req.session.lang_user);
 	var pageUri = __dirname+'/../workspace/'+req.session.id_application+'/views/'+entity+'/'+page;
 	domHelper.loadFromHtml(html).then(function($) {
+		$("option").each(function() {
+			var trad = $(this).data('trad');
+			$(this).text(trad);
+		});
+
 		// Remove "forced" traduction
 		$(".trad-result").remove();
 

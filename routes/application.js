@@ -97,7 +97,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
     var data = {
         error: 1,
-        profile: req.session.data,
+        profile: req.session.passport.user,
         menu: "project",
         sub_menu: "list_project",
         application: "",
@@ -248,7 +248,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
         var data = {
             error: 1,
-            profile: req.session.data,
+            profile: req.session.passport.user,
             instruction: instruction,
             session: {
                 id_project: req.session.id_project,
