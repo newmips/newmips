@@ -178,7 +178,7 @@ router.get('/index', block_access.isLoggedIn, function(req, res) {
 
     var data = {
         error: 1,
-        profile: req.session.data,
+        profile: req.session.passport.user,
         menu: "script",
         msg: message,
         answers: "",
