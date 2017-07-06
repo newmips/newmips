@@ -6,6 +6,10 @@ call npm install
 REM Create workspace dir
 echo Create the workspace directory
 mkdir workspace
+copy structure\template\package.json workspace\
+cd workspace
+call npm install
+cd ..
 set /p mysqlpath="Please type the mysql.exe path (Maybe something like : c:/xampp/mysql/bin/mysql.exe) "
 echo Starting database creation
 REM echo %mysqlpath%
