@@ -18,6 +18,7 @@
 
 		recognition.onend = function() {
 			recognizing = false;
+
 		};
 
 		recognition.onresult = function(event) {
@@ -25,6 +26,9 @@
 			for (var i = event.resultIndex; i < event.results.length; ++i) {
 				if (event.results[i].isFinal) {
 					final_transcript += event.results[i][0].transcript;
+					recognition.stop();
+					$("#btn-speech").css({background: "#fafafa", color: "#666"});
+
 				} else {
 					interim_transcript += event.results[i][0].transcript;
 				}
@@ -48,16 +52,22 @@
 	function startDictation(event) {
 		if (recognizing) {
 			recognition.stop();
+			$("#btn-speech").css({background: "#fafafa", color: "#666"});
 			return;
 		}
 		final_transcript = '';
 		recognition.lang = user_lang;
 		recognition.start();
+
 	}
 
 	$(document).on("click", "#btn-speech", function(event){
-		if ('webkitSpeechRecognition' in window)
+		if ('webkitSpeechRecognition' in window) {
+
 			startDictation(event);
+			$("#btn-speech").css({background: "#ff3d00", color: "#fff"});
+
+		}
 		else
 			toastr.error("Votre naviguateur n'est pas compatible avec la reconnaissance vocale.");
 	});
