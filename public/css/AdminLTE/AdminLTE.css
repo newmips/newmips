@@ -10,6 +10,59 @@
  *   License: Open source - MIT
  *           Please visit http://opensource.org/licenses/MIT for more information
  !*/
+.ui-helper-hidden-accessible { display:none; }
+ .ui-autocomplete {
+     position: absolute;
+     top: 100%;
+     left: 0;
+     z-index: 1000;
+     float: left;
+     display: none;
+     width: 300px;
+     padding: 0px 0;
+     margin: 0 0 20px 25px;
+     list-style: none;
+     background-color: #ffffff;
+     border-color: #ccc;
+     border-color: rgba(0, 0, 0, 0.2);
+     border-style: solid;
+     border-width: 1px;
+
+     -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+     -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+     -webkit-background-clip: padding-box;
+     -moz-background-clip: padding;
+     background-clip: padding-box;
+     *border-right-width: 2px;
+     *border-bottom-width: 2px;
+ }
+
+ .ui-menu-item > a.ui-corner-all {
+     display: block;
+     clear: both;
+     font-weight: normal;
+     line-height: 18px;
+     color: #555555;
+     white-space: nowrap;
+     text-decoration: none;
+ }
+
+ .ui-menu-item-wrapper {
+   padding-left: 10px;
+ }
+
+ .ui-state-hover, .ui-state-active {
+     color: #ffffff;
+     text-decoration: none;
+     background-color: #0088cc;
+     border-radius: 0px;
+     -webkit-border-radius: 0px;
+     -moz-border-radius: 0px;
+     background-image: none;
+ }
+
+
 /*
     Core: General style
 ----------------------------
