@@ -506,10 +506,10 @@ block custom_js
 		        },
 		        select: function( event, ui ) {
 
-							var terms = this.value.split(" ");
-							terms.pop();
-							this.value = terms.join( " " );
-							this.value = this.value + " " + ui.item.value.replace("[variable]","").trim();
+							// var terms = this.value.split(" ");
+							// terms.pop();
+							// this.value = terms.join( " " );
+							this.value = this.value + " " + ui.item.value.split("[variable]").join("").trim();
 		          return false;
 		        }
 		      });
