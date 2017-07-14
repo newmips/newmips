@@ -2681,6 +2681,9 @@ exports.complete = function(instruction) {
         // Check each blocks
         for (var i=0; i<training[action].length; i++) {
 
+            // console.log(template);
+            // console.log(instr);
+
             // Template to compare to
             var template = training[action][i].split(" ");
 
@@ -2695,15 +2698,14 @@ exports.complete = function(instruction) {
 
             var answer = " ";
             var valid = true;
+            var variable = false;
             while ((m < l) && (k < n) && (valid)) {
-
-              // console.log(template[k]);
-              // console.log(instr[m]);
 
               // Check if words are the same, goto next word
               if (template[k] == instr[m]) {
+                if (training[action][i] == "add field (.*) related to (.*) using (.*)") console.log(template[k]);
+                variable = false;
                 k++;
-
               }
               else {
 
@@ -2712,23 +2714,30 @@ exports.complete = function(instruction) {
                 if (template[k].substring(0, sublen) == instr[m]) {
 
                   // Do not increment k, we are still on keyword
+                  variable = false;
                 }
                 else {
 
                   // If we parse the variable value
                   if (template[k] == "(.*)") {
 
+                    if (training[action][i] == "add field (.*) related to (.*) using (.*)") console.log("Found : (.*) " + k);
+
                     // Check next word
                     if (template[k+1]) {
 
-                      // Next chunck of keyword matches instruction, we continue
-                      if (template[k+1].substring(0, sublen) == instr[m]) {
-                        k++;
-                      }
+                      k++;
+                      variable = true;
+
                     }
                   }
                   else {
-                    valid = false;
+
+                    // If we are not parsing a variable, it means template is not appropriate => Exit
+                    if (!variable) {
+                      valid = false;
+                    }
+
                   }
                 }
               }
