@@ -185,7 +185,7 @@ $(document).ready(function() {
                 if (!$("li[data-path='"+data.path+"']").length || $("li[data-path='"+data.path+"']").length < 1) {
                     /* Add tab */
                     var tab = "<li role='fileTab' class='load-file active' data-path='" + data.path + "'>" +
-                        "<a href='#' data-toggle='tab'>" + $(this).attr("data-filename") +
+                        "<a style='cursor:pointer' data-toggle='tab'>" + $(this).attr("data-filename") +
                         "  <i class='fa fa-times close-tab' aria-hidden='true'></i>" +
                         "</a></li>";
                     $("ul.nav.nav-tabs#editor-navtabs").append(tab);

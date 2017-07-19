@@ -27,11 +27,7 @@ exports.help = function(attr, callback) {
 
     var info = new Array();
 
-    if (id_data_entity == null) {
-        info.message = "You are not yet working on any entity. Please select one or create a new entity using instruction: <br>'select entity Name_Or_ID_Of_Your_Entity' <br>or<br> 'add entity Name_Of_Your_Entity'. <br><br> You can also refer to our documentation: <a href='http://docs.newmips.com/' target='_blank'>http://docs.newmips.com/</a> to know more about basic instructions.";
-    } else {
-        info.message = "Please refer to documentation: <a href='http://docs.newmips.com/' target='_blank'>http://docs.newmips.com/</a> to know more about basic instructions.";
-    }
+    info.message = "botresponse.help";
 
     callback(null, info);
 }
@@ -72,7 +68,7 @@ exports.showSession = function(attr, callback) {
                     }
 
                     var info = new Array();
-                    info.message = "Session values (entity | id) :<br><ul>";
+                    info.message = "Session :<br><ul>";
                     info.message += "<li>Project : " + id_project + " | " + name_project + "</li>";
                     info.message += "<li>Application : " + id_application + " | " + name_application + "</li>";
                     info.message += "<li>Module : " + id_module + " | " + name_module + "</li>";
@@ -112,11 +108,11 @@ exports.deploy = function(attr, callback) {
 
                     manager.createCloudDns(subdomain, attr.gitlabUser).then(function(data) {
                         var url = data.body.url;
-                        var info = {
-                            message: "We're deploying your application...<br>\
-                                    Wait for its initialization on :<br>\
-                                    <a href='"+url+"' target='_blank'>"+url+"</a>"
-                        }
+                        var info = {};
+                            
+                        info.message = "botresponse.deployment";
+                        info.messageParams = [url,url];
+
 
                         callback(null, info);
                     }).catch(function(err) {
@@ -133,8 +129,9 @@ exports.deploy = function(attr, callback) {
         var port = math.add(9000, id_application);
         var url = protocol + "://" + host + ":" + port;
         var info = {};
-        info.message = "Application is now available on: <br>";
-        info.message += "<a href='"+url+"' target='_blank'>"+url+"</a>";
+        
+        info.message = "botresponse.applicationavailable";
+        info.messageParams = [url,url];     
 
         callback(null, info);
     }
