@@ -1,11 +1,13 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-3.col-lg-9
+		.col-header.col-xs-2.col-sm-2.col-md-1.col-lg-1#header-icon
+			img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:33px;display:block;")
+		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-8#header-title
 			h1
 				| #{__("menu.preview")}
 				small #{__("menu.module")}
-		.col-header.col-xs-3.col-lg-1
+		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
 			.clearfix
 				span.pull-left Instructions
 				small.pull-right
@@ -17,7 +19,7 @@ block header
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
 				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-6.col-lg-2
+		.col-header.col-xs-7.col-sm-4.col-md-3.col-lg-2#header-button
 			.btn-group.pull-right(role="group")
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
@@ -39,6 +41,11 @@ block custom_css
 	// Slack chat
 	link(rel="stylesheet", href="/css/slack/slack-chat.css")
 	link(rel="stylesheet", href="/css/slack/skin-chat.css")
+	// Dynamic Writing
+	style.
+		.dynamic-writing{
+			display: none;
+		}
 block content
 	#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 		ul.nav.nav-tabs#primary-navtabs(role="tablist")
@@ -87,8 +94,13 @@ block content
 													if (msg.user == "Newmips")
 														| Newmips
 													else
-														| #{profile.first_name_user} #{profile.last_name_user}
-												| !{__(msg.content, msg.params)}
+														| #{profile.login}
+												if (msg.content == "chat.welcome")
+													span.dynamic-writing
+														| !{__(msg.content, msg.params)}
+												else
+													span.standard-writing
+														| !{__(msg.content, msg.params)}
 								.box-footer
 									.row
 										.col-xs-1
@@ -269,6 +281,8 @@ block custom_js
 	script(src='/js/plugins/jquery.slimscroll.min.js', type='text/javascript')
 	// Sidebar
 	script(src='/js/AdminLTE/sidebar.js', type='text/javascript')
+	// Dynamic Writing
+	script(src='/js/Newmips/dynamic-writing.js', type='text/javascript')
 	// Slack
 	if (isSlackChatEnabled)
 		script(src="/js/plugins/moment.js", type='text/javascript')
