@@ -2703,7 +2703,6 @@ exports.complete = function(instruction) {
 
               // Check if words are the same, goto next word
               if (template[k] == instr[m]) {
-                if (training[action][i] == "add field (.*) related to (.*) using (.*)") console.log(template[k]);
                 variable = false;
                 k++;
               }
@@ -2720,8 +2719,6 @@ exports.complete = function(instruction) {
 
                   // If we parse the variable value
                   if (template[k] == "(.*)") {
-
-                    if (training[action][i] == "add field (.*) related to (.*) using (.*)") console.log("Found : (.*) " + k);
 
                     // Check next word
                     if (template[k+1]) {
@@ -2759,8 +2756,14 @@ exports.complete = function(instruction) {
                 }
                 else {
 
-                  // Return [variable] to explain this is something dynamic
-                  answer = answer + "[variable] ";
+                  if (template[k-1] == "type") {
+                    answer = answer + "[type] ";
+                  }
+                  else {
+                    // Return [variable] to explain this is something dynamic
+                    answer = answer + "[variable] ";
+                  }
+
 
                   // If first loop on variable, we need to display possible end of instruction
                   // Else, it means we have keyword at the beginning of suggestion, so we cut on variable step
@@ -2774,8 +2777,39 @@ exports.complete = function(instruction) {
                 k++;
               }
 
-              // Build array of string answers
-              answers.push(answer.trim());
+              if (answer.trim() == "[type]") {
+
+                // Add list of types to answer
+                answers.push("string");
+                answers.push("text");
+                answers.push("number");
+                answers.push("decimal");
+                answers.push("date");
+                answers.push("datetime");
+                answers.push("time");
+                answers.push("boolean");
+                answers.push("email");
+                answers.push("tel");
+                answers.push("fax");
+                answers.push("money");
+                answers.push("euro");
+                answers.push("qrcode");
+                answers.push("ean8");
+                answers.push("ean13");
+                answers.push("upc");
+                answers.push("code39");
+                answers.push("alpha39");
+                answers.push("code128");
+                answers.push("url");
+                answers.push("password");
+                answers.push("color");
+                answers.push("file");
+              }
+              else {
+                // Build array of string answers
+                answers.push(answer.trim());
+              }
+
             }
         }
     }

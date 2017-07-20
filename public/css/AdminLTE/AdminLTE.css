@@ -11,7 +11,7 @@
  *           Please visit http://opensource.org/licenses/MIT for more information
  !*/
 .ui-helper-hidden-accessible { display:none; }
- .ui-autocomplete {
+.ui-autocomplete {
      position: absolute;
      top: 100%;
      left: 0;
@@ -36,7 +36,12 @@
      background-clip: padding-box;
      *border-right-width: 2px;
      *border-bottom-width: 2px;
+
+     max-height: 200px;
+     overflow-y: auto;   /* prevent horizontal scrollbar */
+     overflow-x: hidden; /* add padding to account for vertical scrollbar */
  }
+
 
  .ui-menu-item > a.ui-corner-all {
      display: block;
