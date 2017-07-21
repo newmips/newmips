@@ -1827,7 +1827,7 @@ exports.complete = function(instruction) {
     for (var action in training) {
 
         // Check each blocks
-        for (var i = 0; i< training[action].length; i++) {
+        for (var i = 0; i < training[action].length; i++) {
 
             // console.log(template);
             // console.log(instr);
@@ -1848,128 +1848,104 @@ exports.complete = function(instruction) {
             var valid = true;
             var variable = false;
             while ((m < l) && (k < n) && (valid)) {
-
-              // Check if words are the same, goto next word
-              if (template[k] == instr[m]) {
-                variable = false;
-                k++;
-              }
-              else {
-
-                // Check if beginning of word are the same
-                var sublen = instr[m].length;
-                if (template[k].substring(0, sublen) == instr[m]) {
-
-                  // Do not increment k, we are still on keyword
-                  variable = false;
-                }
-                else {
-
-                  // If we parse the variable value
-                  if (template[k] == "(.*)") {
-
-                    // Check next word
-                    if (template[k+1]) {
-
-                      k++;
-                      variable = true;
-
+                // Check if words are the same, goto next word
+                if (template[k] == instr[m]) {
+                    variable = false;
+                    k++;
+                } else {
+                    // Check if beginning of word are the same
+                    var sublen = instr[m].length;
+                    if (template[k].substring(0, sublen) == instr[m]) {
+                        // Do not increment k, we are still on keyword
+                        variable = false;
+                    } else {
+                        // If we parse the variable value
+                        if (template[k] == "(.*)") {
+                            // Check next word
+                            if (template[k + 1]) {
+                                k++;
+                                variable = true;
+                            }
+                        } else {
+                            // If we are not parsing a variable, it means template is not appropriate => Exit
+                            if (!variable)
+                                valid = false;
+                        }
                     }
-                  }
-                  else {
-
-                    // If we are not parsing a variable, it means template is not appropriate => Exit
-                    if (!variable) {
-                      valid = false;
-                    }
-
-                  }
                 }
-              }
 
-              m++;
+                m++;
             }
 
             // Instruction has respected template, so send next keyword if any
             if ((valid) && (m == l)) {
+                var found = false;
+                var firstLoop = true;
 
-              var found = false;
-              var firstLoop = true;
+                while ((k < n) && !found) {
+                    // Return next keyword
+                    if (template[k] != "(.*)")
+                        answer = answer + template[k] + " ";
+                    else {
+                        if (template[k - 1] == "type")
+                            answer = answer + "[type] ";
+                        // Return [variable] to explain this is something dynamic
+                        else
+                            answer = answer + "[variable] ";
 
-              while ((k < n) && !found) {
+                        // If first loop on variable, we need to display possible end of instruction
+                        // Else, it means we have keyword at the beginning of suggestion, so we cut on variable step
+                        if (!firstLoop)
+                            found = true;
+                    }
 
-                // Return next keyword
-                if (template[k] != "(.*)") {
-                  answer = answer + template[k] + " ";
-                }
-                else {
-
-                  if (template[k-1] == "type") {
-                    answer = answer + "[type] ";
-                  }
-                  else {
-                    // Return [variable] to explain this is something dynamic
-                    answer = answer + "[variable] ";
-                  }
-
-
-                  // If first loop on variable, we need to display possible end of instruction
-                  // Else, it means we have keyword at the beginning of suggestion, so we cut on variable step
-                  if (!firstLoop) {
-                    found = true;
-                  }
-
+                    firstLoop = false;
+                    k++;
                 }
 
-                firstLoop = false;
-                k++;
-              }
+                if (answer.trim() == "[type]") {
 
-              if (answer.trim() == "[type]") {
-
-                // Add list of types to answer
-                answers.push("string");
-                answers.push("text");
-                answers.push("number");
-                answers.push("decimal");
-                answers.push("date");
-                answers.push("datetime");
-                answers.push("time");
-                answers.push("boolean");
-                answers.push("email");
-                answers.push("tel");
-                answers.push("fax");
-                answers.push("money");
-                answers.push("euro");
-                answers.push("qrcode");
-                answers.push("ean8");
-                answers.push("ean13");
-                answers.push("upc");
-                answers.push("code39");
-                answers.push("alpha39");
-                answers.push("code128");
-                answers.push("url");
-                answers.push("password");
-                answers.push("color");
-                answers.push("file");
-              }
-              else {
+                    // Add list of types to answer
+                    answers.push("string");
+                    answers.push("text");
+                    answers.push("number");
+                    answers.push("decimal");
+                    answers.push("date");
+                    answers.push("datetime");
+                    answers.push("time");
+                    answers.push("boolean");
+                    answers.push("email");
+                    answers.push("tel");
+                    answers.push("fax");
+                    answers.push("money");
+                    answers.push("euro");
+                    answers.push("qrcode");
+                    answers.push("ean8");
+                    answers.push("ean13");
+                    answers.push("upc");
+                    answers.push("code39");
+                    answers.push("alpha39");
+                    answers.push("code128");
+                    answers.push("url");
+                    answers.push("password");
+                    answers.push("color");
+                    answers.push("file");
+                }
                 // Build array of string answers
-                answers.push(answer.trim());
-              }
-
+                else
+                    answers.push(answer.trim());
             }
         }
     }
 
     // Filter array of results (remove double values)
-    var i, j, len = answers.length, out = [], obj = {};
-    for (i = 0; i < len; i++) {
-      obj[answers[i]] = 0;
-    }
-    for (j in obj) {
-      out.push(j);
-    }
+    var i, j, len = answers.length,
+        out = [],
+        obj = {};
+    for (i = 0; i < len; i++)
+        obj[answers[i]] = 0;
+    for (j in obj)
+        out.push(j);
 
     // Sort array of results
     out.sort();
