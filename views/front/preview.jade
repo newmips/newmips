@@ -453,37 +453,40 @@ block custom_js
 			$(document).on("keydown", "input#instruction", function(e){
 				if(instructionHistory != null){
 					/* UP ARROW */
-					if(e.which == "38"){
-						$("input#instruction").css("color", "rgba(255,255,255,0)");
-						if(--indexInstructionSelected < 0)
-							indexInstructionSelected = 0;
-						setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 200);
-						setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
-					}
-					/* DOWN ARROW */
-					else if(e.which == "40"){
-						$("input#instruction").css("color", "rgba(255,255,255,0)");
-						if(++indexInstructionSelected > instructionHistory.length-1){
-							indexInstructionSelected = instructionHistory.length;
-							$("input#instruction").val("");
-						}
-						else{
+					if (e.ctrlKey) {
+						if(e.which == "38"){
+							$("input#instruction").css("color", "rgba(255,255,255,0)");
+							if(--indexInstructionSelected < 0)
+								indexInstructionSelected = 0;
 							setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 200);
+							setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
 						}
-						setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
+						/* DOWN ARROW */
+						else if(e.which == "40"){
+							$("input#instruction").css("color", "rgba(255,255,255,0)");
+							if(++indexInstructionSelected > instructionHistory.length-1){
+								indexInstructionSelected = instructionHistory.length;
+								$("input#instruction").val("");
+							}
+							else{
+								setTimeout(function(){$("input#instruction").val(instructionHistory[indexInstructionSelected])}, 200);
+							}
+							setTimeout(function(){$("input#instruction").css("color", "#555")}, 300);
+						}
 					}
 				}
 			});
 
-
 			$(document).on("keyup", "input#instruction", function(e){
+				if (e.ctrlKey)
+					return;
 				var newstr = $("#instruction").val();
 
 				function split( val ) {
 			    	return val.split( /,\s*/ );
 			    }
 			    function extractLast( term ) {
-			      return split( term ).pop();
+			    	return split( term ).pop();
 			    }
 
 				$("#instruction").autocomplete({
@@ -500,13 +503,10 @@ block custom_js
 			          return false;
 			        },
 			        select: function( event, ui ) {
-						// var terms = this.value.split(" ");
-						// terms.pop();
-						// this.value = terms.join( " " );
 						this.value = this.value + " " + ui.item.value.split("[variable]").join("").trim();
 						return false;
 			        }
-		      });
+		    	});
 				// }
 			});
 

@@ -73,22 +73,6 @@ router.post('/change_language', function (req, res) {
     });
 });
 
-// Page non autorisée
-router.get('/unauthorized', function (req, res) {
-    res.render('common/unauthorized');
-});
-
-/* Fonction de changement du language */
-router.post('/change_language', function (req, res) {
-    req.session.lang_user = req.body.lang;
-    res.locals.lang_user = req.body.lang;
-    languageConfig.lang = req.body.lang;
-    fs.writeFileSync(__dirname + "/../config/language.json", JSON.stringify(languageConfig, null, 2));
-    res.json({
-        success: true
-    });
-});
-
 /* Dropzone FIELD ajax upload file */
 router.post('/file_upload', function (req, res) {
     upload(req, res, function (err) {
