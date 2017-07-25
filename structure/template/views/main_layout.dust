@@ -32,6 +32,8 @@
         <link href='/css/dropzone/dropzone.min.css' rel='stylesheet' type='text/css'>
         {! Newmips !}
         <link href='/css/newmips.css' rel='stylesheet' type='text/css'>
+
+        <link href="/FAVICON-COULEUR-01.png" rel="icon" type='image/png'>
         {! Custom Css  !}
         {+custom_css /}
         {! HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries !}
