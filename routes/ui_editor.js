@@ -85,8 +85,7 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 		var actions = $(".actions").show().detach();
 		$(actions).appendTo($("body"));
 
-		// Write back to file
-		domHelper.write(pageUri, $).then(function() {
+		function git(){
 			// We simply add session values in attributes array
 			var attr = {};
 	        attr.function = "Save a file from UI designer: "+pageUri;
@@ -100,7 +99,17 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 		        	console.log(err);
 		        res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
 		    });
-		});
+		}
+
+		// Write back to file
+		if (page == 'show_fields.dust')
+			domHelper.replace(pageUri, "#fields", $).then(function(){
+				git();
+			});
+		else
+			domHelper.write(pageUri, $).then(function() {
+				git();
+			});
 	}).catch(function(e) {
 		console.log(e);
 		res.status(500).send(generatorLanguage.__("ui_editor.page_not_found"));

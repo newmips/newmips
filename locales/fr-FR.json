@@ -96,7 +96,8 @@
     },
     "ui_editor": {
         "page_not_found": "Impossible de trouver le fichier",
-        "page_saved": "Votre nouveau design a été sauvergardé"
+        "page_saved": "Votre nouveau design a été sauvergardé",
+        "select_entity": "Sélectionnez une entité à éditer"
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",

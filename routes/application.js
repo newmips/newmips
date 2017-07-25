@@ -53,7 +53,11 @@ function initPreviewData(idApplication, data){
 
         innerPromises.push(new Promise(function(innerResolve, innerReject) {
             models.Module.findAll({where: {id_application: idApplication}, include: [{model: models.DataEntity}]}).then(function(modules) {
-                data.modules = modules;
+                data.entities = [];
+                for (var i = 0; i < modules.length; i++) {
+                    for (var j = 0; j < modules[i].DataEntities.length; j++)
+                        data.entities.push(modules[i].DataEntities[j]);
+                }
                 innerResolve();
             });
         }));

@@ -102,7 +102,6 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
         if (todo.length) {
             var counter=0;
             for (var i = 0; i < todo.length; i++) {
-                var _todo = todo[i];
                 (function (task) {
                     file_helper.getFileBuffer64(task.file, function (success, buffer) {
                         counter++;
@@ -110,11 +109,11 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
                             value: task.value,
                             buffer: buffer
                         };
-                        if (counter === todo.length) 
+                        if (counter === todo.length)
                             res.send(data).end();
-                        
+
                     });
-                }(_todo));
+                }(todo[i]));
             }
         } else
             res.send(data).end();
