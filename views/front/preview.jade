@@ -239,31 +239,54 @@ block content
 					.col-xs-12.col-sm-2.sidebar
 						h4
 							| #{__("entity.label")} :
-						ul#sortable.sidebar-menu
-							for module in modules
-								for entity in module.DataEntities
-									li.ui-state-default.treeview(style='display:block;')
-										a(href="#")
-											i.fa.fa-folder
-											span #{entity.name}
-											i.fa.fa-angle-left.pull-right
-										ul.treeview-menu
-											li
-												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='create')
-													i.fa.fa-file
-													| create page
-											li
-												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='update')
-													i.fa.fa-file
-													| update page
-											li
-												a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='show')
-													i.fa.fa-file
-													| show page
+
+						select#entitySelect(name="entitySelect")
+							option(default="true", value="")
+								| #{__("ui_editor.select_entity")}
+							for entity in entities
+								option(value="#{entity.codeName}")
+									| #{entity.name}
+						br
+						ul#pages.sidebar-menu(style="display:none;")
+							li.ui-state-default.treeview(style='display:block;')
+								a(class='ui_editor_page' href='#' data-entity='' data-page='create')
+									i.fa.fa-file
+									| create page
+							li.ui-state-default.treeview(style='display:block;')
+								a(class='ui_editor_page' href='#' data-entity='' data-page='update')
+									i.fa.fa-file
+									| update page
+							li.ui-state-default.treeview(style='display:block;')
+								a(class='ui_editor_page' href='#' data-entity='' data-page='show')
+									i.fa.fa-file
+									| show page
+
+
+						//- ul#sortable.sidebar-menu
+						//- 	for module in modules
+						//- 		for entity in module.DataEntities
+						//- 			li.ui-state-default.treeview(style='display:block;')
+						//- 				a(href="#")
+						//- 					i.fa.fa-folder
+						//- 					span #{entity.name}
+						//- 					i.fa.fa-angle-left.pull-right
+						//- 				ul.treeview-menu
+						//- 					li
+						//- 						a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='create')
+						//- 							i.fa.fa-file
+						//- 							| create page
+						//- 					li
+						//- 						a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='update')
+						//- 							i.fa.fa-file
+						//- 							| update page
+						//- 					li
+						//- 						a(class='ui_editor_page' href='#' data-entity='#{entity.codeName}' data-page='show')
+						//- 							i.fa.fa-file
+						//- 							| show page
 					.col-xs-12.col-sm-10
 						#ui_editor
 						button#ui_editor_save.btn.btn-primary(style="display:none;")
-							| Save
+							| #{__("button.save")}
 
 
 			#logs.tab-pane.fade.in
@@ -346,10 +369,6 @@ block custom_js
 			function cleanEditor() {
 				// Remove unwanted buttons
 				$(".ge-add-column").remove();
-				//- $(".glyphicon-trash").each(function() {
-				//- 	$(this).parent().remove();
-				//- });
-				//- $(".gm-edit-mode").remove();
 			}
 
 			$(document).delegate('.ge-add-row', 'click', function() {
@@ -363,6 +382,14 @@ block custom_js
 				newRow.find('.ge-content').remove();
 			});
 
+			$("#entitySelect").select2({width:'100%'});
+			$("#entitySelect").change(function() {
+				$("#pages").slideUp();
+				if ($(this).val()) {
+					$("#pages a").data('entity', $(this).val());
+					$("#pages").slideDown();
+				}
+			});
 			var entity, page;
 			$(".ui_editor_page").click(function() {
 				var self = this;

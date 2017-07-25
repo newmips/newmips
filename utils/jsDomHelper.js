@@ -6,7 +6,7 @@ var beautify_js = require('js-beautify').js;
 var jquery = fs.readFileSync(__dirname + "/../public/js/jQuery/jquery.min.js", "utf-8");
 var helpers = require("./helpers");
 
-exports.read = function(fileName) {
+function read(fileName) {
 	return new Promise(function(resolve, reject) {
 		var fileData = helpers.readFileSyncWithCatch(fileName);
 
@@ -26,6 +26,7 @@ exports.read = function(fileName) {
 		});
 	});
 }
+exports.read = read;
 
 exports.loadFromHtml = function(html) {
 	return new Promise(function(resolve, reject) {
@@ -41,11 +42,27 @@ exports.loadFromHtml = function(html) {
 	});
 }
 
-exports.write = function(fileName, $) {
+exports.replace = function(filename, element, $insert) {
+	return new Promise(function(resolve, reject) {
+		read(filename).then(function($) {
+			$(element).replaceWith($insert(element));
+
+			write(filename, $).then(function(){
+				resolve();
+			}).catch(function(err) {
+				reject(err);
+			});
+		}).catch(function(err) {
+			reject(err);
+		});
+	});
+}
+
+function write(fileName, $) {
 	return new Promise(function(resolve, reject) {
 		var newFileData = $("body")[0].innerHTML;
 
-		// Fix a bug cause by JSDOM that append &nbsp; at the beginning of the document
+		// Fix a bug caused by JSDOM that append &nbsp; at the beginning of the document
 		if (newFileData.substring(0, 6) == "&nbsp;")
 			newFileData = newFileData.substring(6);
 
@@ -56,8 +73,6 @@ exports.write = function(fileName, $) {
 
 		// Indent generated html
 		newFileData = beautify_html(newFileData, {indent_size: 4});
-		/* Remove this beautify because it cut the code and it is no doing well its job */
-		/*newFileData = html.prettyPrint(newFileData, {indent_size: 4});*/
 
 		// Uncomment dust tags
 		newFileData = newFileData.replace(/<!--({[<>@^:#\/].+?})-->/g, '$1');
@@ -78,6 +93,7 @@ exports.write = function(fileName, $) {
 		});
 	});
 }
+exports.write = write;
 
 exports.writeMainLayout = function(fileName, $) {
 	return new Promise(function(resolve, reject) {

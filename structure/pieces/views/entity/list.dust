@@ -95,6 +95,9 @@
             $("tbody").mouseleave(function(e){down=false;});
 
             $('tbody').on('click', 'tr', function () {
+                console.log($(this).find('.dataTables_empty').length );
+                if ($(this).find('.dataTables_empty').length > 0)
+                    return;
                 window.location = $(this).find('td > a.btn-show:first').attr('href');
             });
         });
