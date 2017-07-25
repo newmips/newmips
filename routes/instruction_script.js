@@ -220,9 +220,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
     var encoding = require('jschardet').detect(fileContent);
     // If extension or encoding is not supported, send error
     if ((extensionFile != 'txt' && extensionFile != 'nps')
-        || encoding.encoding.toLowerCase() != 'utf-8') {
+        || (encoding.encoding.toLowerCase() != 'utf-8' && encoding.encoding.toLowerCase() != 'ascii')) {
         scriptData[userId].answers.push({
-            message: "File need to have .nps or .txt extension and utf8 encoding.<br>Your file have '"+extensionFile+"' extension and '"+encoding.encoding+"' encoding"
+            message: "File need to have .nps or .txt extension and utf8 or ascii encoding.<br>Your file have '"+extensionFile+"' extension and '"+encoding.encoding+"' encoding"
         });
         scriptData[userId].over = true;
         // Delete instructions file
