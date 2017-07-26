@@ -73,19 +73,19 @@
 											{@__ key=tradKeyModule /}
 										</td>
 										<td></td>
-										{@ne key=name value="home"}
-											{#allGroups currentModule=.}
-												<td>
-													{@isGroupChecked source=currentModule target=f_label}
-														<input name="module.{name}.{f_label}" checked type="checkbox">
-													{:else}
-														<input name="module.{name}.{f_label}" type="checkbox">
-													{/isGroupChecked}
-												</td>
-											{/allGroups}
-										{:else}
-											<td><input name="module.{name}" style="display:none;" disabled readonly checked></td>
-										{/ne}
+										{#allGroups currentModule=.}
+											{@ne key=name value="home"}
+													<td>
+														{@isGroupChecked source=currentModule target=f_label}
+															<input name="module.{name}.{f_label}" checked type="checkbox">
+														{:else}
+															<input name="module.{name}.{f_label}" type="checkbox">
+														{/isGroupChecked}
+													</td>
+											{:else}
+												<td><input name="module.{name}" style="display:none;" disabled readonly checked></td>
+											{/ne}
+										{/allGroups}
 									</tr>
 									{#entities}
 										<tr>
