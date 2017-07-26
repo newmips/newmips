@@ -55,4 +55,5 @@ $("tbody").find("input").on('ifChanged',function(event) {
 		if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0)
 			current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
 	}
+	return true;
 });
