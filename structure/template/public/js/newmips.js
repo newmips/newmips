@@ -37,10 +37,27 @@ $(document).ready(function () {
 
     /* Clear print tab component */
     $(".print-tab input").each(function() {
+        $(this).prop("disabled", true);
+        $(this).attr("placeholder", "-");
+        $(this).css("cursor", "default");
+        $(this).css("padding", "0");
         if($(this).attr("type") == "hidden")
             $(this).remove();
-        else
-            $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+        /*else if()
+            $(this).replaceWith("<br><span>" + $(this).val() + "</span>");*/
+    });
+
+    $(".print-tab input[type='color']").each(function() {
+        $(this).css("width", "20%");
+    });
+
+    $(".print-tab a[data-type='url']").each(function() {
+        if($(this).text() == "")
+            $(this).replaceWith("-");
+    });
+
+    $(".print-tab .input-group-addon").each(function() {
+        $(this).remove();
     });
 
     $(".print-tab select").each(function() {
@@ -386,13 +403,14 @@ $(document).ready(function () {
     });
     /* ----------------data-type qrcode generation -------------------------*/
 
-
+    // Counter to avoid same id generation
+    var ctpQrCode = 0;
     $(this).find("input[data-type='qrcode']").each(function() {
         if ($(this).val() != '') {
             //Update View, set attr parent id, Qrcode only work with component Id
-            $(this).parent().parent().attr("id", $(this).attr('name'));
+            $(this).parent().parent().attr("id", $(this).attr('name')+ctpQrCode);
             //$(this).attr('name') = this parent id
-            var qrcode = new QRCode($(this).attr('name'), {
+            var qrcode = new QRCode($(this).attr('name')+ctpQrCode, {
                 text: $(this).val(),
                 width: 128,
                 height: 128,
@@ -401,6 +419,7 @@ $(document).ready(function () {
                 correctLevel: QRCode.CorrectLevel.H
             });
             $(this).parent().replaceWith(qrcode);
+            ctpQrCode++;
         }
     });
 
@@ -746,25 +765,7 @@ $(document).ready(function () {
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function(){
-        // var mywindow = window.open('', 'PRINT', 'height=400,width=600');
-
-        // mywindow.document.write('<html>');
-        // mywindow.document.write($("head").html());
-        // mywindow.document.write("<style>.component-print-button{display: none;}</style>");
-        // mywindow.document.write('</head><body>');
-        // mywindow.document.write('<div class="print-tab" id="'+$(this).attr("data-component")+'-content">');
-        // mywindow.document.write(document.getElementById($(this).attr("data-component")+"-content").innerHTML);
-        // mywindow.document.write('</div>');
-        // mywindow.document.write('</body></html>');
-
-        // mywindow.document.close();
-        // mywindow.focus();
-
-        // mywindow.print();
-        // mywindow.close();
-
         window.print();
-
         return true;
     });
 });

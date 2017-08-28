@@ -56,6 +56,12 @@ div.dataTables_length select {
     border: 1px solid lightgrey;
     overflow-y: auto;
 }
+.print-tab .form-group{
+    page-break-inside: avoid;
+}
+.dontbreakitplz{
+    page-break-inside: avoid;
+}
 .print-tab .dt-buttons, .print-tab .dataTables_length, .print-tab .dataTables_filter, .print-tab .dataTables_info, .print-tab .dataTables_paginate{
     display: none;
 }
