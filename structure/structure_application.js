@@ -30,27 +30,28 @@ var models = require('../models/');
 
 var exec = require('child_process').exec;
 
-function node_modules_copy(){
-    return new Promise( function(resolve, reject) {
-       
+function node_modules_copy() {
+    return new Promise(function(resolve, reject) {
+
         var dir = __dirname;
-        console.log("mon dirname="+dir);
 
         // Mandatory workspace folder
         if (!fs.existsSync(dir + '/../workspace'))
             fs.mkdirSync(dir + '/../workspace');
 
-        if (fs.existsSync(dir + '/../workspace/node_modules')){
+        if (fs.existsSync(dir + '/../workspace/node_modules')) {
             console.log("Everything's ok about the node modules.");
             resolve();
         } else {
 
             if (fs.existsSync(dir + '/../structure/template/node_modules')) {
-            // Node modules are already in structure/template, need to move them to workspace
+                // Node modules are already in structure/template, need to move them to workspace
                 console.log("Move node modules...");
-           
-                exec("mv structure/template/node_modules workspace/", {cwd: dir + '/../'}, function(error, stdout, stderr) {
-                    if(error){
+
+                exec("mv structure/template/node_modules workspace/", {
+                    cwd: dir + '/../'
+                }, function(error, stdout, stderr) {
+                    if (error) {
                         reject(error);
                     }
                     console.log('Node modules successfully initialized.');
@@ -60,16 +61,20 @@ function node_modules_copy(){
             } else {
                 // We need to reinstall node modules properly
                 console.log("Node modules initialization...");
-                var cmd = 'cp '+dir+'/../structure/template/package.json '+dir+'/../workspace/';
-           
-                exec(cmd, {cwd: process.cwd()}, function(error, stdout, stderr) {
-                    if(error){
+                var cmd = 'cp ' + dir + '/../structure/template/package.json ' + dir + '/../workspace/';
+
+                exec(cmd, {
+                    cwd: process.cwd()
+                }, function(error, stdout, stderr) {
+                    if (error) {
                         reject(error);
                     }
-                    
+
                     cmd = 'npm -s install';
-                    exec(cmd, {cwd: dir + '/../workspace/'}, function(error, stdout, stderr) {
-                        if(error){
+                    exec(cmd, {
+                        cwd: dir + '/../workspace/'
+                    }, function(error, stdout, stderr) {
+                        if (error) {
                             reject(error);
                         }
                         console.log('Node modules successfuly initialized.');
