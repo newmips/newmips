@@ -176,7 +176,7 @@ router.get('/download', function (req, res) {
             reject();
     });
     p.then(function () {
-        console.log("File downlaod with success");
+        console.log("The file "+filepath+" was successfully downloaded !");
     }).catch(function (err) {
         console.log(err);
         req.session.toastr.push({level: 'error', message: "File not found"});
