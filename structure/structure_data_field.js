@@ -37,7 +37,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     console.log("ERROR: Invalid default value " + defaultValue + " for decimal input.")
                 break;
             case "date" :
-                if (moment(defaultValue, "YYYY-MM-DD", true).isValid()) {
+                /*if (moment(defaultValue, "YYYY-MM-DD", true).isValid()) {
                     value = moment(defaultValue, "YYYY-MM-DD").format("YYYY-MM-DD");
                 } else if (moment(defaultValue, "DD/MM/YYYY", true).isValid()) {
                     value = moment(defaultValue, "DD/MM/YYYY").format("YYYY-MM-DD");
@@ -45,7 +45,20 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     value = moment().format("YYYY-MM-DD");
                 } else {
                     console.log("ERROR: Invalide date '" + defaultValue + "' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
-                }
+                }*/
+                value = "data-today=1";
+                break;
+            case "datetime" :
+                /*if (moment(defaultValue, "YYYY-MM-DD", true).isValid()) {
+                    value = moment(defaultValue, "YYYY-MM-DD").format("YYYY-MM-DD");
+                } else if (moment(defaultValue, "DD/MM/YYYY", true).isValid()) {
+                    value = moment(defaultValue, "DD/MM/YYYY").format("YYYY-MM-DD");
+                } else if (["today", "now", "aujourd'hui"].indexOf(defaultValue.toLowerCase()) != -1) {
+                    value = moment().format("YYYY-MM-DD");
+                } else {
+                    console.log("ERROR: Invalide date '" + defaultValue + "' for default value, please use this format: YYYY-MM-DD or DD/MM/YYYY");
+                }*/
+                value = "data-today=1";
                 break;
             case "boolean" :
             case "checkbox" :
@@ -168,21 +181,35 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
         case "date" :
+            str += "   <div class='input-group'>\n";
+            str += "        <div class='input-group-addon'>\n";
+            str += "            <i class='fa fa-calendar'></i>\n";
+            str += "        </div>\n";
             if (file == "show") {
-                str += "	<div class='input-group'>\n";
-                str += "		<div class='input-group-addon'>\n";
-                str += "			<i class='fa fa-calendar'></i>\n";
-                str += "		</div>\n";
                 str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
-                str += "	</div>\n";
-            } else if (file == "update" || file == "create") {
-                str += "	<div class='input-group'>\n";
-                str += "		<div class='input-group-addon'>\n";
-                str += "			<i class='fa fa-calendar'></i>\n";
-                str += "		</div>\n";
+            } else if (file == "update") {
                 str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
-                str += "	</div>\n";
+            } else if (file == "create"){
+                str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' " + value + " type='text' " + readOnly + "/>\n";
             }
+            str += "    </div>\n";
+            break;
+        case "datetime" :
+            str += "    <div class='input-group'>\n";
+            str += "        <div class='input-group-addon'>\n";
+            str += "            <i class='fa fa-calendar'></i> + <i class='fa fa-clock-o'></i>\n";
+            str += "        </div>\n";
+            if (file == "show") {
+                str += "        <input class='form-control input datetimepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
+            } else if (file == "update") {
+                str += "        <input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            } else if (file == "create"){
+                str += "        <input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' " + value + " type='text' " + readOnly + "/>\n";
+            }
+            // else if (file == "create") {
+            //     str += "     <input class='form-control input datetimepicker' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            // }
+            str += "    </div>\n";
             break;
         case "time" :
         case "heure" :
@@ -205,20 +232,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		</div>\n";
                 str += "	</div>\n";
             }
-            break;
-        case "datetime" :
-            str += "	<div class='input-group'>\n";
-            str += "		<div class='input-group-addon'>\n";
-            str += "			<i class='fa fa-calendar'></i> + <i class='fa fa-clock-o'></i>\n";
-            str += "		</div>\n";
-            if (file == "show") {
-                str += "		<input class='form-control input datetimepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
-            } else if (file == "update") {
-                str += "		<input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
-            } else if (file == "create") {
-                str += "		<input class='form-control input datetimepicker' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
-            }
-            str += "	</div>\n";
             break;
         case "email" :
         case "mail" :
