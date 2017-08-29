@@ -309,6 +309,17 @@ $(document).ready(function () {
         });
     }
 
+    /* Set default date if needed */
+    $('.datepicker').each(function(){
+        if($(this).attr("data-today") == 1)
+            $(this).datepicker("setDate", "0");
+    });
+
+    $('.datetimepicker').each(function(){
+        if($(this).attr("data-today") == 1)
+            $(this).data("DateTimePicker").defaultDate(moment());
+    });
+
     /* Avoid .dropzone to be automaticaly initialized */
     Dropzone.autoDiscover = false;
 
