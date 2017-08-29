@@ -13,9 +13,6 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck){
         attr.error = "The given value is too long (>30)."
     }
 
-    if(typeof options.allValues === "undefined" || options.allValues.length == 0)
-        attr.error = "I need at least one value to create an enum or radio.";
-
     return attr;
 }
 
