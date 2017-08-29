@@ -51,6 +51,7 @@ function initPreviewData(idApplication, data){
         /* Sort folder first, file after */
         data.workspaceFolder = helpers.sortEditorFolder(folder);
 
+        // UI designer entity list
         innerPromises.push(new Promise(function(innerResolve, innerReject) {
             models.Module.findAll({where: {id_application: idApplication}, include: [{model: models.DataEntity}]}).then(function(modules) {
                 data.entities = [];
@@ -58,6 +59,18 @@ function initPreviewData(idApplication, data){
                     for (var j = 0; j < modules[i].DataEntities.length; j++)
                         data.entities.push(modules[i].DataEntities[j]);
                 }
+                function sortEntities(entities, idx) {
+                    if (entities.length == 0 || !entities[idx+1])
+                        return entities;
+                    if (entities[idx].dataValues.name > entities[idx+1].dataValues.name) {
+                        var swap = entities[idx];
+                        entities[idx] = entities[idx+1];
+                        entities[idx+1] = swap;
+                        return sortEntities(entities, idx == 0 ? 0 : idx-1);
+                    }
+                    return sortEntities(entities, idx+1);
+                }
+                data.entities = sortEntities(data.entities, 0);
                 innerResolve();
             });
         }));

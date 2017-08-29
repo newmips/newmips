@@ -1225,6 +1225,7 @@ exports.deleteDataField = function (attr, callback) {
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
         jsonPath = __dirname + '/../workspace/' + id_application + '/models/attributes/' + name_data_entity + '.json';
+        delete require.cache[require.resolve(jsonPath)];
         dataToWrite = require(jsonPath);
 
         delete dataToWrite[name_data_field];
