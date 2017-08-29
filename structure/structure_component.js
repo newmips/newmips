@@ -835,7 +835,7 @@ exports.setupChat = function(attr, callback) {
 	        through: attr.id_application+"_chat_user_channel",
 	        as: "r_user_channel"
     	});
-    	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
+    	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
 
 		// Replace ID_APPLICATION in channel.json and chat.json
 		var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');
