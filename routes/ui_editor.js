@@ -44,7 +44,13 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 		// Hide action buttons
 		$(".actions").hide();
 
-		res.status(200).send($("body")[0].innerHTML);
+		var html;
+		if ($("#tabs").length > 0)
+			html = $("#home").html();
+		else
+			html = $("body")[0].innerHTML;
+
+		res.status(200).send(html);
 	}).catch(function(err) {
 		console.log(err);
 		res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
@@ -84,6 +90,19 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 		// Show and re-position action buttons
 		var actions = $(".actions").show().detach();
 		$(actions).appendTo($("body"));
+
+		// Check if the origin row with id "fields" has been removed or not.
+		// Regroup all rows into one and put id="fields" back to new grouped rows
+		var packedRow = '';
+		for (var i = 0; $("body").children('.row').length > 1, i < $("body").children('.row').length; i++){
+			packedRow += $("body").children('.row').eq(i).html();
+			if ($("body").children('.row').eq(i).prop('id') != 'fields' && $("body").children('.row').length != i)
+				$("body").children('.row').eq(i).remove();
+		}
+		if ($("#fields").length == 0)
+			$("body").prepend('<div id="fields" class="row"></div>');
+		if (packedRow != '')
+			$("#fields").html(packedRow);
 
 		function git(){
 			// We simply add session values in attributes array
