@@ -198,7 +198,7 @@ var socket = io();
 	function loadPreviousChatMessage(discussion) {
 		if (discussion.type == 'chat') {
 			chats[discussion.id].offset = chats[discussion.id].messages.length;
-			socket.emit('chat-load', {id_cha: discussion.id, limit: chats[discussion.id].limit, offset: chats[discussion.id].offset});
+			socket.emit('chat-load', {id_chat: discussion.id, limit: chats[discussion.id].limit, offset: chats[discussion.id].offset});
 		}
 		else if (discussion.type == 'channel') {
 			channels[discussion.id].offset = channels[discussion.id].messages.length;
