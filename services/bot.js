@@ -10,8 +10,11 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck){
     }
 
     if(valueToCheck.length > 30){
-        attr.error = "Sorry, the given value is too long (>30)."
+        attr.error = "The given value is too long (>30)."
     }
+
+    if(typeof options.allValues === "undefined" || options.allValues.length == 0)
+        attr.error = "I need at least one value to create an enum or radio.";
 
     return attr;
 }
@@ -1815,8 +1818,6 @@ exports.parse = function(instruction) {
     return attr;
 }
 
-
-
 // ******* Completion *******
 exports.complete = function(instruction) {
 
@@ -1951,7 +1952,6 @@ exports.complete = function(instruction) {
     out.sort();
 
     return out;
-
 }
 
 module.exports = exports;

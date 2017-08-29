@@ -2,6 +2,7 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
+var attrHelper = require("../utils/attr_helper");
 var moment = require("moment");
 
 function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
@@ -106,12 +107,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "code39":
         case "alpha39":
         case "code128":
-//        case "codecip":
-//        case "cip":
-//        case "isbn":
-//        case "issn":
-//        case "hr":
-//        case "codehr":
+        //case "codecip":
+        //case "cip":
+        //case "isbn":
+        //case "issn":
+        //case "hr":
+        //case "codehr":
             var inputType = 'number';
             if (type === "code39" || type === "alpha39" || type === "code128")
                 inputType = 'text';
@@ -296,9 +297,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum." + dataField + "}\n";
                 str += "			{@eq key=" + value2 + " value=\"{.value}\" }\n";
-                str += "				<option value=\"{.translation}\" selected> {.translation} </option>\n";
+                str += "				<option value=\"{.value}\" selected> {.translation} </option>\n";
                 str += "			{:else}\n"
-                str += "				<option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "				<option value=\"{.value}\"> {.translation} </option>\n";
                 str += "			{/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
@@ -307,9 +308,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum." + dataField + "}\n";
                 str += "            {@eq key=\"" + value + "\" value=\"{.value}\" }\n";
-                str += "                <option value=\"{.translation}\" selected> {.translation} </option>\n";
+                str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
                 str += "            {:else}\n"
-                str += "                <option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "                <option value=\"{.value}\"> {.translation} </option>\n";
                 str += "            {/eq}\n";
                 str += "		{/enum." + dataField + "}\n";
                 str += "	</select>";
@@ -317,7 +318,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "        {#enum." + dataField + "}\n";
-                str += "            <option value=\"{.translation}\"> {.translation} </option>\n";
+                str += "            <option value=\"{.value}\"> {.translation} </option>\n";
                 str += "        {/enum." + dataField + "}\n";
                 str += "    </select>";
             }
@@ -610,13 +611,18 @@ exports.setupDataField = function (attr, callback) {
     }
 
     if (typeForModel == "ENUM") {
+        // Remove all special caractere for all enum values
+        var cleanEnumValues = [];
+        for (var i = 0; i < values_data_field.length; i++) {
+            cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
+        }
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "values": values_data_field
+            "values": cleanEnumValues
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "values": values_data_field
+            "values": cleanEnumValues
         };
     } else {
         attributesObject[name_data_field.toLowerCase()] = {
@@ -640,7 +646,7 @@ exports.setupDataField = function (attr, callback) {
         json[key] = [];
         for (var i = 0; i < values_data_field.length; i++) {
             json[key].push({
-                value: values_data_field[i],
+                value: cleanEnumValues[i],
                 translations: {
                     "fr-FR": values_data_field[i],
                     "en-EN": values_data_field[i]
@@ -924,6 +930,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '		<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '		<select style="width:100%;" class="form-control" name="' + alias + '">\n';
+    select += '         <option value="" selected></option>\n';
     select += '			<!--{#' + alias + '}-->\n';
     select += '				<!--{#.' + usingField + '}-->\n';
     select += '						<option value="{id}">{' + usingField + '}</option>\n';
@@ -943,6 +950,7 @@ exports.setupRelatedToField = function (attr, callback) {
         select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
+        select += '     <option value=""></option>\n';
         select += '		<!--{#' + alias + '_global_list}-->\n';
         select += '			<!--{#.' + usingField + '}-->\n';
         select += '				<!--{@eq key=' + alias + '.id value=id}-->\n';
