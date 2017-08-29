@@ -37,10 +37,27 @@ $(document).ready(function () {
 
     /* Clear print tab component */
     $(".print-tab input").each(function() {
+        $(this).prop("disabled", true);
+        $(this).attr("placeholder", "-");
+        $(this).css("cursor", "default");
+        $(this).css("padding", "0");
         if($(this).attr("type") == "hidden")
             $(this).remove();
-        else
-            $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
+        /*else if()
+            $(this).replaceWith("<br><span>" + $(this).val() + "</span>");*/
+    });
+
+    $(".print-tab input[type='color']").each(function() {
+        $(this).css("width", "20%");
+    });
+
+    $(".print-tab a[data-type='url']").each(function() {
+        if($(this).text() == "")
+            $(this).replaceWith("-");
+    });
+
+    $(".print-tab .input-group-addon").each(function() {
+        $(this).remove();
     });
 
     $(".print-tab select").each(function() {
@@ -386,13 +403,14 @@ $(document).ready(function () {
     });
     /* ----------------data-type qrcode generation -------------------------*/
 
-
+    // Counter to avoid same id generation
+    var ctpQrCode = 0;
     $(this).find("input[data-type='qrcode']").each(function() {
         if ($(this).val() != '') {
             //Update View, set attr parent id, Qrcode only work with component Id
-            $(this).parent().parent().attr("id", $(this).attr('name'));
+            $(this).parent().parent().attr("id", $(this).attr('name')+ctpQrCode);
             //$(this).attr('name') = this parent id
-            var qrcode = new QRCode($(this).attr('name'), {
+            var qrcode = new QRCode($(this).attr('name')+ctpQrCode, {
                 text: $(this).val(),
                 width: 128,
                 height: 128,
@@ -401,6 +419,7 @@ $(document).ready(function () {
                 correctLevel: QRCode.CorrectLevel.H
             });
             $(this).parent().replaceWith(qrcode);
+            ctpQrCode++;
         }
     });
 
@@ -555,7 +574,6 @@ $(document).ready(function () {
     $(document).on("submit", "form", function(e) {
 
         var thatForm = $(this);
-
         if (!filesProceeded && dropzonesFieldArray.length > 0) {
             /* If there are files to write, stop submit and do this before */
             e.preventDefault();
@@ -583,160 +601,163 @@ $(document).ready(function () {
             }
         }
 
-        /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
-        if (lang_user == "fr-FR") {
-            /* Datepicker FR convert*/
-            $(this).find('.datepicker').each(function() {
-                if ($(this).val().length > 0) {
-                    // Sécurité
-                    $(this).prop("readOnly", true);
+        // If we are done with files upload
+        if(dropzonesFieldArray.length == 0){
+            /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
+            if (lang_user == "fr-FR") {
+                /* Datepicker FR convert*/
+                $(this).find('.datepicker').each(function() {
+                    if ($(this).val().length > 0) {
+                        // Sécurité
+                        $(this).prop("readOnly", true);
 
-                    var date = $(this).val().split("/");
-                    var newDate = date[2] + "-" + date[1] + "-" + date[0];
+                        var date = $(this).val().split("/");
+                        var newDate = date[2] + "-" + date[1] + "-" + date[0];
 
-                    // Remove mask to enable to transform the date
-                    $(this).inputmask('remove');
+                        // Remove mask to enable to transform the date
+                        $(this).inputmask('remove');
 
-                    $(this).val(newDate);
-                }
-            });
+                        $(this).val(newDate);
+                    }
+                });
 
-            /* Datetimepicer FR convert */
+                /* Datetimepicer FR convert */
+                $(this).find('.datetimepicker').each(function() {
+                    if ($(this).val().length > 0) {
+                        // Sécurité
+                        $(this).prop("readOnly", true);
+
+                        var date = $(this).val().split("/");
+                        var yearDate = date[2].split(" ");
+                        var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
+
+                        // Remove mask to enable to transform the date
+                        $(this).inputmask('remove');
+
+                        $(this).val(newDate);
+                    }
+                });
+            }
+
+            /* Convert all times in UTC */
             $(this).find('.datetimepicker').each(function() {
                 if ($(this).val().length > 0) {
                     // Sécurité
                     $(this).prop("readOnly", true);
-
-                    var date = $(this).val().split("/");
-                    var yearDate = date[2].split(" ");
-                    var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
-
-                    // Remove mask to enable to transform the date
-                    $(this).inputmask('remove');
-
-                    $(this).val(newDate);
+                    $(this).val(moment.utc(new Date($(this).val())));
                 }
             });
-        }
 
-        /* Convert all times in UTC */
-        $(this).find('.datetimepicker').each(function() {
-            if ($(this).val().length > 0) {
-                // Sécurité
-                $(this).prop("readOnly", true);
-                $(this).val(moment.utc(new Date($(this).val())));
-            }
-        });
+            /* If a select multiple is empty we want to have an empty value in the req.body */
+            $(this).find("select[multiple]").each(function() {
+                if ($(this).val() == null) {
+                    var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
+                    thatForm.append($(input));
+                }
+            });
 
-        /* If a select multiple is empty we want to have an empty value in the req.body */
-        $(this).find("select[multiple]").each(function() {
-            if ($(this).val() == null) {
-                var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
-                thatForm.append($(input));
-            }
-        });
+            /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
+            $(this).find("input[type='checkbox']").each(function() {
+                if ($(this).prop("checked")) {
+                    $(this).val(true);
+                } else {
+                    /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
+                    $(this).prop("checked", true);
+                    $(this).val(false);
+                }
+            });
 
-        /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
-        $(this).find("input[type='checkbox']").each(function() {
-            if ($(this).prop("checked")) {
-                $(this).val(true);
-            } else {
-                /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
-                $(this).prop("checked", true);
-                $(this).val(false);
-            }
-        });
+            /* Vérification que les input mask EMAIL sont bien complétés jusqu'au bout */
+            $(this).find("input[data-type='email']").each(function() {
+                if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
+                    $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
+                    e.preventDefault();
+                    return false;
+                }
+            });
 
-        /* Vérification que les input mask EMAIL sont bien complétés jusqu'au bout */
-        $(this).find("input[data-type='email']").each(function() {
-            if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
-                $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
-                e.preventDefault();
-                return false;
-            }
-        });
+            /* Vérification que les input mask URL sont bien complétés jusqu'au bout */
+            $(this).find("input[data-type='url']").each(function() {
+                if ($(this).val() != '' && !$(this).inputmask("isComplete")) {
+                    toastr.error(" Le champ " + $(this).attr("placeholder") + " est invalide");
+                    e.preventDefault();
+                    return false;
+                }
+            });
 
-        /* Vérification que les input mask URL sont bien complétés jusqu'au bout */
-        $(this).find("input[data-type='url']").each(function() {
-            if ($(this).val() != '' && !$(this).inputmask("isComplete")) {
-                toastr.error(" Le champ " + $(this).attr("placeholder") + " est invalide");
-                e.preventDefault();
-                return false;
-            }
-        });
+            /* Vérification des types barcode */
+            $(this).find("input[data-type='barcode']").each(function() {
+                var val = $(this).val();
+                if (val != '') {
+                    var customType = $(this).attr('data-customtype');
+                    if (typeof customType != 'undefined') {
+                        var error = false;
+                        var len;
+                        var message = "";
+                        switch (customType) {
+                            case 'ean8':
+                                var len = 8;
+                                error = val.length === len ? false : true;
+                                if (error)
+                                    message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
+                                break;
+                            case 'isbn':
+                            case 'issn':
+                            case 'ean13':
+                                len = 13;
+                                error = val.length === len ? false : true;
+                                if (error)
+                                    message += "Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".<br>";
+                                if (customType === "issn" && !val.startsWith('977')) {
+                                    error = true;
+                                    message += "Le champ " + $(this).attr("placeholder") + " doit comencer par 977.";
+                                }
+                                break;
 
-        /* Vérification des types barcode */
-        $(this).find("input[data-type='barcode']").each(function() {
-            var val = $(this).val();
-            if (val != '') {
-                var customType = $(this).attr('data-customtype');
-                if (typeof customType != 'undefined') {
-                    var error = false;
-                    var len;
-                    var message = "";
-                    switch (customType) {
-                        case 'ean8':
-                            var len = 8;
-                            error = val.length === len ? false : true;
-                            if (error)
-                                message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
-                            break;
-                        case 'isbn':
-                        case 'issn':
-                        case 'ean13':
-                            len = 13;
-                            error = val.length === len ? false : true;
-                            if (error)
-                                message += "Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".<br>";
-                            if (customType === "issn" && !val.startsWith('977')) {
-                                error = true;
-                                message += "Le champ " + $(this).attr("placeholder") + " doit comencer par 977.";
-                            }
-                            break;
-
-                        case 'upca':
-                            len = 12;
-                            error = val.length === len ? false : true;
-                            if (error)
-                                message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
-                            break;
-                        case 'code39':
-                        case 'alpha39':
-                            //                             var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
-                            if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
-                                message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
-                                error = true;
-                            }
-                            break;
-                        case 'code128':
-                            if (!(/^[\x00-\x7F]*$/).test(val)) {
-                                message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code128.";
-                                error = true;
-                            }
-                            break;
-                    }
-                    if (error) {
-                        toastr.error(message);
-                        e.preventDefault();
-                        return false;
+                            case 'upca':
+                                len = 12;
+                                error = val.length === len ? false : true;
+                                if (error)
+                                    message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
+                                break;
+                            case 'code39':
+                            case 'alpha39':
+                                //                             var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
+                                if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
+                                    message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
+                                    error = true;
+                                }
+                                break;
+                            case 'code128':
+                                if (!(/^[\x00-\x7F]*$/).test(val)) {
+                                    message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code128.";
+                                    error = true;
+                                }
+                                break;
+                        }
+                        if (error) {
+                            toastr.error(message);
+                            e.preventDefault();
+                            return false;
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
-        $(this).find("input[type='tel']").each(function() {
-            if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
-                $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
-                e.preventDefault();
-                return false;
-            }
-        });
+            /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
+            $(this).find("input[type='tel']").each(function() {
+                if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
+                    $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
+                    e.preventDefault();
+                    return false;
+                }
+            });
 
-        $(this).find("input[data-type='currency']").each(function() {
-            //replace number of zero par maskMoneyPrecision value, default 2
-            $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
-        });
+            $(this).find("input[data-type='currency']").each(function() {
+                //replace number of zero par maskMoneyPrecision value, default 2
+                $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
+            });
+        }
 
         return true;
     });
@@ -746,25 +767,7 @@ $(document).ready(function () {
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function(){
-        // var mywindow = window.open('', 'PRINT', 'height=400,width=600');
-
-        // mywindow.document.write('<html>');
-        // mywindow.document.write($("head").html());
-        // mywindow.document.write("<style>.component-print-button{display: none;}</style>");
-        // mywindow.document.write('</head><body>');
-        // mywindow.document.write('<div class="print-tab" id="'+$(this).attr("data-component")+'-content">');
-        // mywindow.document.write(document.getElementById($(this).attr("data-component")+"-content").innerHTML);
-        // mywindow.document.write('</div>');
-        // mywindow.document.write('</body></html>');
-
-        // mywindow.document.close();
-        // mywindow.focus();
-
-        // mywindow.print();
-        // mywindow.close();
-
         window.print();
-
         return true;
     });
 });
