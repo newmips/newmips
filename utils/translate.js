@@ -101,6 +101,7 @@ module.exports = {
 
         localesDir.forEach(function(file){
             var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
+            delete require.cache[require.resolve(urlFile)];
             var dataLocales = require(urlFile);
             var workingLocales = file.slice(0, -5);
             var workingLocales4Google = workingLocales.slice(0, -3);
@@ -227,6 +228,7 @@ module.exports = {
 
         localesDir.forEach(function(file){
             var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
+            delete require.cache[require.resolve(urlFile)];
             var dataLocales = require(urlFile);
 
             if(type == "field"){
