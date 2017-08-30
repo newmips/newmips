@@ -6,7 +6,7 @@ var models = require('../models/');
 var attributes = require('../models/attributes/ENTITY_NAME');
 var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
-var enums = require('../utils/enum.js');
+var enums_radios = require('../utils/enum_radio.js');
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -113,7 +113,7 @@ router.post('/', function(req, res) {
     };
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    createObject = enums.values("ENTITY_NAME", createObject, req.body)
+    //createObject = enums.values("ENTITY_NAME", createObject, req.body)
 
     models.MODEL_NAME.create(createObject).then(function(ENTITY_NAME) {
         answer["ENTITY_NAME".substring(2)] = ENTITY_NAME;
@@ -134,7 +134,7 @@ router.put('/:id', function(req, res) {
     };
     var id_ENTITY_NAME = parseInt(req.params.id);
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    updateObject = enums.values("ENTITY_NAME", updateObject, req.body);
+    //updateObject = enums.values("ENTITY_NAME", updateObject, req.body);
 
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
