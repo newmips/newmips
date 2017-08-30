@@ -1,4 +1,3 @@
-
 var languages = [];
 
 function fetchText(key, params, lang) {
@@ -33,7 +32,6 @@ function fetchText(key, params, lang) {
 	}
 
 	return depth;
-
 }
 
 function capitalizeFirstLetters(key, params, lang) {

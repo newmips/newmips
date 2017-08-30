@@ -10,8 +10,8 @@ var attributes = require('../models/attributes/e_api_credentials');
 var options = require('../models/options/e_api_credentials');
 var model_builder = require('../utils/model_builder');
 
-// ENUM managment
-var enums = require('../utils/enum.js');
+// Enum and radio managment
+var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -114,7 +114,7 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
         menu: "e_api_credentials",
         sub_menu: "list_e_api_credentials",
         tab: tab,
-        enum: enums.translated("e_api_credentials", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_api_credentials", req.session.lang_user)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
@@ -168,7 +168,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("api_credentials"
     var data = {
         menu: "e_api_credentials",
         sub_menu: "create_e_api_credentials",
-        enum: enums.translated("e_api_credentials", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_api_credentials", req.session.lang_user)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -195,7 +195,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("api_credentials"
 router.post('/create', block_access.actionAccessMiddleware("api_credentials", "write"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    createObject = enums.values("e_api_credentials", createObject, req.body);
+    //createObject = enums.values("e_api_credentials", createObject, req.body);
 
     // Generate client ID and client SECRET
     createObject.f_client_key = randomString.generate(15);
@@ -279,7 +279,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("api_credentials"
     var data = {
         menu: "e_api_credentials",
         sub_menu: "list_e_api_credentials",
-        enum: enums.translated("e_api_credentials", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_api_credentials", req.session.lang_user)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -343,7 +343,7 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "w
         req.body.version = parseInt(req.body.version) + 1;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    updateObject = enums.values("e_api_credentials", updateObject, req.body);
+    //updateObject = enums.values("e_api_credentials", updateObject, req.body);
 
     models.E_api_credentials.findOne({where: {id: id_e_api_credentials}}).then(function (e_api_credentials) {
         if (!e_api_credentials) {

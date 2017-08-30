@@ -71,6 +71,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     console.log("ERROR: Invalid default value " + defaultValue + " for boolean input.")
                 }
                 break;
+            case "enum" :
+                value = attrHelper.clearString(defaultValue);
+                break;
             default :
                 value = defaultValue;
                 break;
@@ -91,6 +94,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "color" :
         case "colour":
         case "couleur":
+            if(value == "")
+                value = "#000000";
             str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + "/>\n";
             break;
         case "money":
@@ -283,57 +288,80 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
         case "radio" :
         case "case à sélectionner" :
+            var clearValues = [];
+            var clearDefaultValue = "";
+            for (var i = 0; i < values.length; i++) {
+                clearValues[i] = attrHelper.clearString(values[i]);
+            }
+            if(typeof defaultValue !== "undefined" && defaultValue != "" && defaultValue != null)
+                clearDefaultValue = attrHelper.clearString(defaultValue);
+
             if (file == "create") {
-                for (var i = 0; i < values.length; i++) {
+                if(clearDefaultValue != ""){
+                    str += "{#enum_radio." + dataField + "}\n";
                     str += "    &nbsp;\n<br>\n";
-                    if (values[i] == defaultValue)
-                        str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' checked type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
-                    else
-                        str += "    <input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
+                    str += "    {@eq key=\"" + clearDefaultValue + "\" value=\"{.value}\" }\n";
+                    str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "    {:else}\n";
+                    str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "    {/eq}\n";
+                    str += "{/enum_radio." + dataField + "}\n";
+                } else {
+                    str += "{#enum_radio." + dataField + "}\n";
+                    str += "    &nbsp;\n<br>\n";
+                    str += "    <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "{/enum_radio." + dataField + "}\n";
                 }
             } else {
-                for (var i = 0; i < values.length; i++) {
-                    str += "	&nbsp;\n<br>\n";
-                    str += "	{@eq key=" + value2 + " value=\"" + values[i] + "\" }";
-                    str += "		<input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' checked " + disabled + "/>&nbsp;" + values[i] + "\n";
-                    str += "	{:else}";
-                    str += "		<input class='form-control input' name='" + dataField + "' value='" + values[i] + "' type='radio' " + disabled + "/>&nbsp;" + values[i] + "\n";
-                    str += "	{/eq}";
-                }
+                str += "{#enum_radio." + dataField + "}\n";
+                str += "    &nbsp;\n<br>\n";
+                str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
+                str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "    {:else}\n";
+                str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "    {/eq}\n";
+                str += "{/enum_radio." + dataField + "}\n";
             }
             break;
         case "enum" :
             if (file == "show") {
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "    {^" + value2 + "}\n";
+                str += "        <input class='form-control input' name='" + dataField + "' type='text' " + readOnly + "/>\n";
+                str += "    {/" + value2 + "}\n";
+                str += "    {#enum_radio." + dataField + "}\n";
+                str += "        {@eq key=" + value2 + " value=\"{.value}\" }\n";
+                str += "            <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='{.translation}' type='text' " + readOnly + "/>\n";
+                str += "        {/eq}\n";
+                str += "    {/enum_radio." + dataField + "}\n";
             } else if (file != "create") {
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
-                str += "		{#enum." + dataField + "}\n";
+                str += "		{#enum_radio." + dataField + "}\n";
                 str += "			{@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "				<option value=\"{.value}\" selected> {.translation} </option>\n";
                 str += "			{:else}\n"
                 str += "				<option value=\"{.value}\"> {.translation} </option>\n";
                 str += "			{/eq}\n";
-                str += "		{/enum." + dataField + "}\n";
-                str += "	</select>";
+                str += "		{/enum_radio." + dataField + "}\n";
+                str += "	</select>\n";
             } else if (value != "") {
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
-                str += "		{#enum." + dataField + "}\n";
+                str += "		{#enum_radio." + dataField + "}\n";
                 str += "            {@eq key=\"" + value + "\" value=\"{.value}\" }\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
                 str += "            {:else}\n"
                 str += "                <option value=\"{.value}\"> {.translation} </option>\n";
                 str += "            {/eq}\n";
-                str += "		{/enum." + dataField + "}\n";
-                str += "	</select>";
+                str += "		{/enum_radio." + dataField + "}\n";
+                str += "	</select>\n";
             } else {
                 str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
-                str += "        {#enum." + dataField + "}\n";
+                str += "        {#enum_radio." + dataField + "}\n";
                 str += "            <option value=\"{.value}\"> {.translation} </option>\n";
-                str += "        {/enum." + dataField + "}\n";
-                str += "    </select>";
+                str += "        {/enum_radio." + dataField + "}\n";
+                str += "    </select>\n";
             }
             break;
         case "text" :
@@ -374,7 +402,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
-            str += "	<input class='form-control inputt' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
     }
 
@@ -648,9 +676,9 @@ exports.setupDataField = function (attr, callback) {
     fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4));
 
-    /* ----------------- 3 - If it's a select/enum  ----------------- */
+    // Translation for enum and radio values
     if (typeForModel == "ENUM") {
-        var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum.json';
+        var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
         var enumData = require(fileEnum);
         var key = name_data_field.toLowerCase();
         var json = {};
@@ -672,6 +700,37 @@ exports.setupDataField = function (attr, callback) {
         var stream_fileEnum = fs.createWriteStream(fileEnum);
         stream_fileEnum.write(JSON.stringify(enumData, null, 4));
         stream_fileEnum.end();
+    }
+
+    // Translation for radio values
+    if (type_data_field == "radio" || type_data_field == "case à sélectionner") {
+        // Remove all special caractere for all enum values
+        var cleanRadioValues = [];
+        for (var i = 0; i < values_data_field.length; i++) {
+            cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
+        }
+        var fileRadio = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
+        var radioData = require(fileRadio);
+        var key = name_data_field.toLowerCase();
+        var json = {};
+        if (radioData[codeName_data_entity.toLowerCase()])
+            json = radioData[codeName_data_entity.toLowerCase()];
+        json[key] = [];
+        for (var i = 0; i < values_data_field.length; i++) {
+            json[key].push({
+                value: cleanRadioValues[i],
+                translations: {
+                    "fr-FR": values_data_field[i],
+                    "en-EN": values_data_field[i]
+                }
+            });
+        }
+        radioData[codeName_data_entity.toLowerCase()] = json;
+
+        // Write Enum file
+        var stream_fileRadio = fs.createWriteStream(fileRadio);
+        stream_fileRadio.write(JSON.stringify(radioData, null, 4));
+        stream_fileRadio.end();
     }
 
     /* ----------------- 4 - Add the fields in all the views  ----------------- */
@@ -1291,7 +1350,7 @@ exports.deleteDataField = function (attr, callback) {
         Promise.all(promises).then(function () {
 
             // Remove translation in enum locales
-            var enumsPath = __dirname + '/../workspace/' + id_application + '/locales/enum.json';
+            var enumsPath = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
             var enumJson = require(enumsPath);
 
             if (typeof enumJson[name_data_entity] !== "undefined") {

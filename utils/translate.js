@@ -90,7 +90,7 @@ module.exports = {
 
         // Get all the differents languages to handle
         var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
-            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum.json");
+            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
         });
 
         var nbLocales = localesDir.length;
@@ -223,7 +223,7 @@ module.exports = {
     removeLocales: function(idApplication, type, value, callback){
         // Get all the differents languages to handle
         var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
-            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum.json");
+            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
         });
 
         localesDir.forEach(function(file){
