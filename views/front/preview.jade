@@ -513,8 +513,12 @@ block custom_js
 			        	// If complete value have already typed string in it, dont concat with current value
 				        if (completeVal.indexOf(this.value) == 0)
 							this.value = completeVal.split("[variable]").join("").trim();
-						else
-							this.value = this.value + ' ' + completeVal.split("[variable]").join("").trim();
+						else {
+							// Remove the last word of already typed instruction because it is also in the completed value
+							var parts = this.value.split(' ');
+							parts.pop();
+							this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
+						}
 						return false;
 			        }
 		    	});
