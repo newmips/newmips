@@ -602,7 +602,8 @@ exports.setupDataField = function (attr, callback) {
             break;
         case "radio" :
         case "case à sélectionner" :
-            typeForModel = "STRING";
+            typeForModel = "ENUM";
+            typeForDatalist = "enum";
             break;
         case "enum" :
             typeForModel = "ENUM";
@@ -651,7 +652,7 @@ exports.setupDataField = function (attr, callback) {
             break;
     }
 
-    if (typeForModel == "ENUM") {
+    if (type_data_field == "enum") {
         // Remove all special caractere for all enum values
         var cleanEnumValues = [];
         for (var i = 0; i < values_data_field.length; i++) {
@@ -665,6 +666,20 @@ exports.setupDataField = function (attr, callback) {
             "type": typeForModel,
             "values": cleanEnumValues
         };
+    } else if(type_data_field == "radio"){
+        // Remove all special caractere for all enum values
+        var cleanRadioValues = [];
+        for (var i = 0; i < values_data_field.length; i++) {
+            cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
+        }
+        attributesObject[name_data_field.toLowerCase()] = {
+            "type": typeForModel,
+            "values": cleanRadioValues
+        };
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
+            "type": typeForModel,
+            "values": cleanRadioValues
+        };
     } else {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
@@ -677,7 +692,7 @@ exports.setupDataField = function (attr, callback) {
     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4));
 
     // Translation for enum and radio values
-    if (typeForModel == "ENUM") {
+    if (type_data_field == "enum") {
         var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
         var enumData = require(fileEnum);
         var key = name_data_field.toLowerCase();
@@ -703,12 +718,7 @@ exports.setupDataField = function (attr, callback) {
     }
 
     // Translation for radio values
-    if (type_data_field == "radio" || type_data_field == "case à sélectionner") {
-        // Remove all special caractere for all enum values
-        var cleanRadioValues = [];
-        for (var i = 0; i < values_data_field.length; i++) {
-            cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
-        }
+    if (type_data_field == "radio") {
         var fileRadio = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
         var radioData = require(fileRadio);
         var key = name_data_field.toLowerCase();
