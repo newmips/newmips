@@ -482,6 +482,7 @@ block custom_js
 				}
 			});
 
+			// Instruction Autocomplete
 			$(document).on("keyup", "input#instruction", function(e){
 				if (e.ctrlKey)
 					return;
@@ -508,7 +509,12 @@ block custom_js
 			          return false;
 			        },
 			        select: function( event, ui ) {
-						this.value = this.value + " " + ui.item.value.split("[variable]").join("").trim();
+			        	var completeVal = ui.item.value;
+			        	// If complete value have already typed string in it, dont concat with current value
+				        if (completeVal.indexOf(this.value) == 0)
+							this.value = completeVal.split("[variable]").join("").trim();
+						else
+							this.value = this.value + ' ' + completeVal.split("[variable]").join("").trim();
 						return false;
 			        }
 		    	});
