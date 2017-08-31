@@ -227,7 +227,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
             data.toastr = req.session.toastr;
             req.session.toastr = [];
             // Update some data before show, e.g get picture binary
-            ENTITY_NAME = entity_helper.update_local_data(ENTITY_NAME, attributes, "ENTITY_NAME");
+            ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
             res.render('ENTITY_NAME/show', data);
         });
 
