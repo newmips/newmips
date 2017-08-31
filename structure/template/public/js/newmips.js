@@ -613,7 +613,7 @@ $(document).ready(function () {
         }
 
         // If we are done with files upload
-        if(dropzonesFieldArray.length == 0){
+        if (filesProceeded || dropzonesFieldArray.length == 0) {
             /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
             if (lang_user == "fr-FR") {
                 /* Datepicker FR convert*/
