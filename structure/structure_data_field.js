@@ -1012,7 +1012,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '		<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '		<select style="width:100%;" class="form-control" name="' + alias + '">\n';
-    select += '         <option value="" selected></option>\n';
+    select += '         <option value="" selected>{@__ key=\"select.default\" /}</option>\n';
     select += '			<!--{#' + alias + '}-->\n';
     select += '				<!--{#.' + usingField + '}-->\n';
     select += '						<option value="{id}">{' + usingField + '}</option>\n';
@@ -1032,7 +1032,7 @@ exports.setupRelatedToField = function (attr, callback) {
         select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += '     <option value=""></option>\n';
+        select += '     <option value="">{@__ key=\"select.default\" /}</option>\n';
         select += '		<!--{#' + alias + '_global_list}-->\n';
         select += '			<!--{#.' + usingField + '}-->\n';
         select += '				<!--{@eq key=' + alias + '.id value=id}-->\n';
