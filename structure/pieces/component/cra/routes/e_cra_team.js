@@ -72,7 +72,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("cra_team", "read")
 
     filterDataTable("E_cra_team", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums_radios.translated("e_cra_team", req.session.lang_user);
+        var enumsTranslation = enums_radios.translated("e_cra_team", req.session.lang_user, options);
         for(var i=0; i<data.data.length; i++)
             for(var field in data.data[i].dataValues)
                 for(var enumField in enumsTranslation)
@@ -190,7 +190,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
         menu: "e_cra_team",
         sub_menu: "list_e_cra_team",
         tab: tab,
-        enum_radio: enums_radios.translated("e_cra_team", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra_team", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
@@ -271,7 +271,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra_team", "writ
     var data = {
         menu: "e_cra_team",
         sub_menu: "create_e_cra_team",
-        enum_radio: enums_radios.translated("e_cra_team", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra_team", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -358,7 +358,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra_team", "writ
     var data = {
         menu: "e_cra_team",
         sub_menu: "list_e_cra_team",
-        enum_radio: enums_radios.translated("e_cra_team", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra_team", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {

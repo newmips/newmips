@@ -127,7 +127,7 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
 
     filterDataTable("E_cra", req.body, include, where).then(function (data) {
         // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums_radios.translated("e_cra", req.session.lang_user);
+        var enumsTranslation = enums_radios.translated("e_cra", req.session.lang_user, options);
         for(var i=0; i<data.data.length; i++){
             for(var field in data.data[i].dataValues){
                 for(var enumField in enumsTranslation){
@@ -801,7 +801,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra", "read"), function
         menu: "e_cra",
         sub_menu: "list_e_cra",
         tab: tab,
-        enum_radio: enums_radios.translated("e_cra", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
@@ -855,7 +855,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "write"), 
     var data = {
         menu: "e_cra",
         sub_menu: "create_e_cra",
-        enum_radio: enums_radios.translated("e_cra", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -927,7 +927,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), 
     var data = {
         menu: "e_cra",
         sub_menu: "list_e_cra",
-        enum_radio: enums_radios.translated("e_cra", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
