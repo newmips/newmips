@@ -111,7 +111,7 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
         menu: "e_user",
         sub_menu: "list_e_user",
         tab: tab,
-        enum_radio: enums_radios.translated("e_user", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
     };
 
     models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function(e_user) {
@@ -158,7 +158,7 @@ router.get('/create_form', block_access.isLoggedIn, block_access.actionAccessMid
     var data = {
         menu: "e_user",
         sub_menu: "create_e_user",
-        enum_radio: enums_radios.translated("e_user", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -268,7 +268,7 @@ router.get('/update_form', block_access.isLoggedIn, block_access.actionAccessMid
     var data = {
         menu: "e_user",
         sub_menu: "list_e_user",
-        enum_radio: enums_radios.translated("e_user", req.session.lang_user),
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user), options,
         user: req.session.passport.user
     };
 
@@ -401,7 +401,7 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
     var data = {
         menu: "e_user",
         sub_menu: "list_e_user",
-        enum_radio: enums_radios.translated("e_user", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {

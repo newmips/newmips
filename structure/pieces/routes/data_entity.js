@@ -70,7 +70,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     var include = model_builder.getDatalistInclude(models, options);
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums_radios.translated("ENTITY_NAME", req.session.lang_user);
+        var enumsTranslation = enums_radios.translated("ENTITY_NAME", req.session.lang_user, options);
         var todo = [];
         for (var i = 0; i < data.data.length; i++) {
             for (var field in data.data[i].dataValues) {
@@ -188,7 +188,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         menu: "ENTITY_NAME",
         sub_menu: "list_ENTITY_NAME",
         tab: tab,
-        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user)
+        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
@@ -240,7 +240,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "create_ENTITY_NAME",
-        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user)
+        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -312,7 +312,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "list_ENTITY_NAME",
-        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user)
+        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
