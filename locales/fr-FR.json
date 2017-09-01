@@ -279,7 +279,7 @@
                 "error": "Impossible de démarrer le serveur suite à une erreur critique."
             },
             "gitPush": {
-                "success": "L'application a bien été sauvergardée !"
+                "success": "L'application a bien été sauvegardée !"
             },
             "gitPull": {
                 "success": "L'application a bien été chargée !"
