@@ -312,6 +312,15 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     str += "    <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "{/enum_radio." + dataField + "}\n";
                 }
+            } else if(file == "show") {
+                str += "{#enum_radio." + dataField + "}\n";
+                str += "    &nbsp;\n<br>\n";
+                str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
+                str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "    {:else}\n";
+                str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "    {/eq}\n";
+                str += "{/enum_radio." + dataField + "}\n";
             } else {
                 str += "{#enum_radio." + dataField + "}\n";
                 str += "    &nbsp;\n<br>\n";
