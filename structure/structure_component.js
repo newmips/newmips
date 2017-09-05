@@ -790,42 +790,41 @@ exports.newCra = function (attr, callback) {
     }
 };
 
-
-exports.setupChat = function (attr, callback) {
+exports.setupChat = function(attr, callback) {
     try {
-        var workspacePath = __dirname + '/../workspace/' + attr.id_application;
+        var workspacePath = __dirname + '/../workspace/'+attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/socket';
 
         // Check if file exists (in case notification have been implemented first)
-        if (!fs.existsSync(workspacePath + '/services/socket.js'))
-            fs.copySync(piecesPath + '/socket.js', workspacePath + '/services/socket.js')
+        if (!fs.existsSync(workspacePath+'/services/socket.js'))
+            fs.copySync(piecesPath+'/socket.js', workspacePath+'/services/socket.js')
 
         // Copy chat files
-        fs.copySync(piecesPath + '/chat/js/chat.js', workspacePath + '/public/js/Newmips/component/chat.js');
-        fs.copySync(piecesPath + '/chat/chat_utils.js', workspacePath + '/utils/chat.js');
-        fs.copySync(piecesPath + '/chat/routes/chat.js', workspacePath + '/routes/chat.js');
+        fs.copySync(piecesPath+'/chat/js/chat.js', workspacePath+'/public/js/Newmips/component/chat.js');
+        fs.copySync(piecesPath+'/chat/chat_utils.js', workspacePath+'/utils/chat.js');
+        fs.copySync(piecesPath+'/chat/routes/chat.js', workspacePath+'/routes/chat.js');
 
         // Copy chat models
         var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
         for (var i = 0; i < chatModels.length; i++) {
-            fs.copySync(piecesPath + '/chat/models/' + chatModels[i] + '.js', workspacePath + '/models/' + chatModels[i] + '.js');
-            var model = fs.readFileSync(workspacePath + '/models/' + chatModels[i] + '.js', 'utf8');
+            fs.copySync(piecesPath+'/chat/models/'+chatModels[i]+'.js', workspacePath+'/models/'+chatModels[i]+'.js');
+            var model = fs.readFileSync(workspacePath+'/models/'+chatModels[i]+'.js', 'utf8');
             model = model.replace(/ID_APPLICATION/g, attr.id_application);
-            fs.writeFileSync(workspacePath + '/models/' + chatModels[i] + '.js', model, 'utf8');
+            fs.writeFileSync(workspacePath+'/models/'+chatModels[i]+'.js', model, 'utf8');
         }
         // Copy attributes
-        fs.copySync(piecesPath + '/chat/models/attributes/', workspacePath + '/models/attributes/');
+        fs.copySync(piecesPath+'/chat/models/attributes/', workspacePath+'/models/attributes/');
         // Copy options
-        fs.copySync(piecesPath + '/chat/models/options/', workspacePath + '/models/options/');
+        fs.copySync(piecesPath+'/chat/models/options/', workspacePath+'/models/options/');
 
         // Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
-        var userOptions = require(workspacePath + '/models/options/e_user');
+        var userOptions = require(workspacePath+'/models/options/e_user');
         userOptions.push({
             target: 'e_chat',
             relation: 'belongsToMany',
             foreignKey: 'id_user',
             otherKey: 'id_chat',
-            through: attr.id_application + '_chat_user_chat',
+            through: attr.id_application+'_chat_user_chat',
             as: 'r_chat'
         });
         userOptions.push({
@@ -833,29 +832,29 @@ exports.setupChat = function (attr, callback) {
             relation: "belongsToMany",
             foreignKey: "id_user",
             otherKey: "id_channel",
-            through: attr.id_application + "_chat_user_channel",
+            through: attr.id_application+"_chat_user_channel",
             as: "r_user_channel"
         });
-        fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
+        fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
 
         // Replace ID_APPLICATION in channel.json and chat.json
-        var option = fs.readFileSync(workspacePath + '/models/options/e_channel.json', 'utf8');
+        var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');
         option = option.replace(/ID_APPLICATION/g, attr.id_application);
-        fs.writeFileSync(workspacePath + '/models/options/e_channel.json', option, 'utf8');
-        var option = fs.readFileSync(workspacePath + '/models/options/e_chat.json', 'utf8');
+        fs.writeFileSync(workspacePath+'/models/options/e_channel.json', option, 'utf8');
+        var option = fs.readFileSync(workspacePath+'/models/options/e_chat.json', 'utf8');
         option = option.replace(/ID_APPLICATION/g, attr.id_application);
-        fs.writeFileSync(workspacePath + '/models/options/e_chat.json', option, 'utf8');
+        fs.writeFileSync(workspacePath+'/models/options/e_chat.json', option, 'utf8');
 
         // Set socket and chat config to enabled/true
-        var appConf = require(workspacePath + '/config/application');
+        var appConf = require(workspacePath+'/config/application');
         appConf.socket.enabled = true;
         appConf.socket.chat = true;
-        fs.writeFileSync(workspacePath + '/config/application.json', JSON.stringify(appConf, null, 4));
+        fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
 
         // Add custom user_channel/user_chat columns to toSync file
         // Id will not be used but is required by sequelize to be able to query on the junction table
-        var toSync = require(workspacePath + '/models/toSync.json');
-        toSync[attr.id_application + '_chat_user_channel'] = {
+        var toSync = require(workspacePath+'/models/toSync.json');
+        toSync[attr.id_application+'_chat_user_channel'] = {
             attributes: {
                 id_last_seen_message: {type: 'INTEGER', default: 0},
                 id: {
@@ -865,7 +864,7 @@ exports.setupChat = function (attr, callback) {
                 }
             }
         };
-        toSync[attr.id_application + '_chat_user_chat'] = {
+        toSync[attr.id_application+'_chat_user_chat'] = {
             attributes: {
                 id_last_seen_message: {type: 'INTEGER', default: 0},
                 id: {
@@ -875,150 +874,38 @@ exports.setupChat = function (attr, callback) {
                 }
             }
         };
-        fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4));
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
 
         // Add chat locales
         // EN
-        var piecesLocalesEN = require(piecesPath + '/chat/locales/en-EN');
-        var workspaceLocalesEN = require(workspacePath + '/locales/en-EN');
+        var piecesLocalesEN = require(piecesPath+'/chat/locales/en-EN');
+        var workspaceLocalesEN = require(workspacePath+'/locales/en-EN');
         workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
-        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4));
+        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4));
         // FR
-        var piecesLocalesFR = require(piecesPath + '/chat/locales/fr-FR');
-        var workspaceLocalesFR = require(workspacePath + '/locales/fr-FR');
+        var piecesLocalesFR = require(piecesPath+'/chat/locales/fr-FR');
+        var workspaceLocalesFR = require(workspacePath+'/locales/fr-FR');
         workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
-        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4));
+        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4));
 
         // Add chat dust template to main_layout
-        domHelper.read(workspacePath + '/views/main_layout.dust').then(function ($layout) {
-            domHelper.read(piecesPath + '/chat/views/chat.dust').then(function ($chat) {
+        domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {
+            domHelper.read(piecesPath+'/chat/views/chat.dust').then(function($chat) {
                 $layout("#chat-placeholder").html($chat("body")[0].innerHTML);
 
-                domHelper.writeMainLayout(workspacePath + '/views/main_layout.dust', $layout).then(function () {
+                domHelper.writeMainLayout(workspacePath+'/views/main_layout.dust', $layout).then(function() {
                     callback(null);
                 });
             });
-        }).catch(function (e) {
+        }).catch(function(e) {
             console.log(e);
             callback(e);
         });
 
-exports.setupChat = function(attr, callback) {
-	try {
-		var workspacePath = __dirname + '/../workspace/'+attr.id_application;
-		var piecesPath = __dirname + '/../structure/pieces/component/socket';
-
-		// Check if file exists (in case notification have been implemented first)
-		if (!fs.existsSync(workspacePath+'/services/socket.js'))
-			fs.copySync(piecesPath+'/socket.js', workspacePath+'/services/socket.js')
-
-		// Copy chat files
-		fs.copySync(piecesPath+'/chat/js/chat.js', workspacePath+'/public/js/Newmips/component/chat.js');
-		fs.copySync(piecesPath+'/chat/chat_utils.js', workspacePath+'/utils/chat.js');
-		fs.copySync(piecesPath+'/chat/routes/chat.js', workspacePath+'/routes/chat.js');
-
-		// Copy chat models
-		var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
-		for (var i = 0; i < chatModels.length; i++) {
-			fs.copySync(piecesPath+'/chat/models/'+chatModels[i]+'.js', workspacePath+'/models/'+chatModels[i]+'.js');
-			var model = fs.readFileSync(workspacePath+'/models/'+chatModels[i]+'.js', 'utf8');
-			model = model.replace(/ID_APPLICATION/g, attr.id_application);
-			fs.writeFileSync(workspacePath+'/models/'+chatModels[i]+'.js', model, 'utf8');
-		}
-		// Copy attributes
-		fs.copySync(piecesPath+'/chat/models/attributes/', workspacePath+'/models/attributes/');
-		// Copy options
-		fs.copySync(piecesPath+'/chat/models/options/', workspacePath+'/models/options/');
-
-		// Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
-		var userOptions = require(workspacePath+'/models/options/e_user');
-		userOptions.push({
-			target: 'e_chat',
-			relation: 'belongsToMany',
-			foreignKey: 'id_user',
-			otherKey: 'id_chat',
-			through: attr.id_application+'_chat_user_chat',
-			as: 'r_chat'
-		});
-		userOptions.push({
-	        target: "e_channel",
-	        relation: "belongsToMany",
-	        foreignKey: "id_user",
-	        otherKey: "id_channel",
-	        through: attr.id_application+"_chat_user_channel",
-	        as: "r_user_channel"
-    	});
-    	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
-
-		// Replace ID_APPLICATION in channel.json and chat.json
-		var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');
-		option = option.replace(/ID_APPLICATION/g, attr.id_application);
-		fs.writeFileSync(workspacePath+'/models/options/e_channel.json', option, 'utf8');
-		var option = fs.readFileSync(workspacePath+'/models/options/e_chat.json', 'utf8');
-		option = option.replace(/ID_APPLICATION/g, attr.id_application);
-		fs.writeFileSync(workspacePath+'/models/options/e_chat.json', option, 'utf8');
-
-		// Set socket and chat config to enabled/true
-		var appConf = require(workspacePath+'/config/application');
-		appConf.socket.enabled = true;
-		appConf.socket.chat = true;
-		fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
-
-		// Add custom user_channel/user_chat columns to toSync file
-		// Id will not be used but is required by sequelize to be able to query on the junction table
-		var toSync = require(workspacePath+'/models/toSync.json');
-		toSync[attr.id_application+'_chat_user_channel'] = {
-			attributes: {
-				id_last_seen_message: {type: 'INTEGER', default: 0},
-				id: {
-			        type: "INTEGER",
-			        autoIncrement: true,
-			        primaryKey: true
-			    }
-			}
-		};
-		toSync[attr.id_application+'_chat_user_chat'] = {
-			attributes: {
-				id_last_seen_message: {type: 'INTEGER', default: 0},
-				id: {
-			        type: "INTEGER",
-			        autoIncrement: true,
-			        primaryKey: true
-			    }
-			}
-		};
-		fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
-
-		// Add chat locales
-		// EN
-		var piecesLocalesEN = require(piecesPath+'/chat/locales/en-EN');
-		var workspaceLocalesEN = require(workspacePath+'/locales/en-EN');
-		workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
-		fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4));
-		// FR
-		var piecesLocalesFR = require(piecesPath+'/chat/locales/fr-FR');
-		var workspaceLocalesFR = require(workspacePath+'/locales/fr-FR');
-		workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
-		fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4));
-
-		// Add chat dust template to main_layout
-		domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {
-			domHelper.read(piecesPath+'/chat/views/chat.dust').then(function($chat) {
-				$layout("#chat-placeholder").html($chat("body")[0].innerHTML);
-
-				domHelper.writeMainLayout(workspacePath+'/views/main_layout.dust', $layout).then(function() {
-					callback(null);
-				});
-			});
-		}).catch(function(e) {
-			console.log(e);
-			callback(e);
-		});
-
-	} catch(e) {
-		console.log(e);
-		callback(e);
-	}
+    } catch(e) {
+        console.log(e);
+        callback(e);
+    }
 };
 
 exports.addNewComponentAdress = function (attr, callback) {
