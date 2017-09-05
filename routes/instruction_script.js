@@ -259,7 +259,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
     rl.on('line', function(line) {
         // Empty line || One line comment scope
-        if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1))
+        if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
             return;
         // Comment scope start
         if (line.indexOf('/*') != -1 && !commenting)

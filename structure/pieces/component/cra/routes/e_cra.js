@@ -14,8 +14,8 @@ var attributes = require('../models/attributes/e_cra');
 var options = require('../models/options/e_cra');
 var model_builder = require('../utils/model_builder');
 
-// ENUM managment
-var enums = require('../utils/enum.js');
+// Enum and radio managment
+var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -127,7 +127,7 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
 
     filterDataTable("E_cra", req.body, include, where).then(function (data) {
         // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums.translated("e_cra", req.session.lang_user);
+        var enumsTranslation = enums_radios.translated("e_cra", req.session.lang_user, options);
         for(var i=0; i<data.data.length; i++){
             for(var field in data.data[i].dataValues){
                 for(var enumField in enumsTranslation){
@@ -801,7 +801,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra", "read"), function
         menu: "e_cra",
         sub_menu: "list_e_cra",
         tab: tab,
-        enum: enums.translated("e_cra", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
@@ -855,7 +855,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "write"), 
     var data = {
         menu: "e_cra",
         sub_menu: "create_e_cra",
-        enum: enums.translated("e_cra", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -882,7 +882,8 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "write"), 
 router.post('/create', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    createObject = enums.values("e_cra", createObject, req.body);
+    //createObject = enums.values("e_cra", createObject, req.body);
+
     models.E_cra.create(createObject).then(function (e_cra) {
         var redirect = '/cra/list';
         req.session.toastr = [{
@@ -926,7 +927,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), 
     var data = {
         menu: "e_cra",
         sub_menu: "list_e_cra",
-        enum: enums.translated("e_cra", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_cra", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -992,7 +993,7 @@ router.post('/update', block_access.actionAccessMiddleware("cra", "write"), func
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    updateObject = enums.values("e_cra", updateObject, req.body);
+    //updateObject = enums.values("e_cra", updateObject, req.body);
 
     models.E_cra.findOne({where: {id: id_e_cra}}).then(function (e_cra) {
         if (!e_cra) {

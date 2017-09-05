@@ -35,6 +35,7 @@ $("tbody").find("input").on('ifChanged',function(event) {
 		var current = $(self).parents('tr').next('tr');
 		var trIndex = $(self).parents('tbody').find('tr').index(current);
 
+		// Loop over module's <tr> to uncheck each checkbox
 		while (trIndex < tableBody.find('tr').length && current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
 			var newTd = current.find('td').eq(tdIndex);
 			newTd.find('input').eq(0).iCheck('uncheck');
@@ -46,13 +47,13 @@ $("tbody").find("input").on('ifChanged',function(event) {
 		var current = $(self).parents('tr');
 		var trIndex = $(self).parents('tbody').find('tr').index(current);
 
-		while (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
+		// Loop upward over <tr> until we find the entity's module <tr>
+		while (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0)
 			current = tableBody.find('tr').eq(trIndex-=1);
-			if (current.hasClass('home-row'))
-				return;
-		}
-		if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0) {
+
+		// If module is home don't check it since it doesn't have a checkbox
+		if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0)
 			current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
-		}
 	}
+	return true;
 });
