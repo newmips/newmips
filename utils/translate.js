@@ -18,6 +18,9 @@ module.exports = {
             value = value[1];
         }
 
+        // Replace euro sign from char code since javascript can't read `€`
+        value = value.replace(String.fromCharCode(65533), "€");
+
         // Current application language
         var languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/language.json');
         var appLang = JSON.parse(languageFileData);
