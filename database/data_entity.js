@@ -1,6 +1,10 @@
 // **** Database Generator Entity ****
 var models = require('../models/');
 
+function capitalizeFirstLetter(word) {
+    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+}
+
 // DataEntity
 exports.selectDataEntity = function(attr, callback) {
 
@@ -389,6 +393,26 @@ exports.getModuleCodeNameByEntityCodeName = function(nameEntity, callback){
 	});
 }
 
+exports.retrieveWorkspaceHasManyData = function(idApp, codeNameEntity, foreignKey, callback){
+	delete require.cache[require.resolve('../workspace/'+idApp+'/models/')];
+	var workspaceModels = require('../workspace/'+idApp+'/models/');
+	var where = {};
+	where[foreignKey] = {
+		$ne: null
+	};
+
+	workspaceModels[capitalizeFirstLetter(codeNameEntity)].findAll({
+		attributes: ["id", foreignKey],
+		where: where
+	}).then(function(result){
+		callback(result, null);
+	}).catch(function(err){
+		console.log("Warning: fail to retrieve has many data, maybe the table doesn't exist yet because we are in a script. Error:");
+		console.log(err.message);
+		callback([], err.original);
+	});
+}
+
 /* --- COMPONENT LINK --- */
 
 // Add a component ID on an already created entity found with a codeName
@@ -415,5 +439,3 @@ exports.addComponentOnEntityByCodeName = function(codeName, idComponent, idModul
 		callback(err, null);
 	});
 }
-
-
