@@ -328,6 +328,8 @@
                 "alreadySameAlias": "Association already exists between these entities with this alias.",
                 "circularBelongsTo": "Bad entity association, you can't set circular has one association.",
                 "circularHasMany": "Bad entity association, you can't set circular has many association.",
+                "alreadyBelongsToMany": "Sorry, a belongs to many association already exist between these entities.",
+                "tooMuchHasMany": "Sorry, too many association 'has many' from target to source, impossible to create belongs to many association.",
                 "unableTab": "Unable to find %s tab in current entity."
             }
         },

@@ -112,6 +112,7 @@ function addPrefix(string, instructionFunction){
         case 'createNewHasOne':
         case 'createNewHasMany':
         case 'createNewFieldset':
+        case 'createNewHasManyPreset':
         case 'createNewFieldRelatedTo':
         case 'createNewComponentContactForm':
             return "e_"+string;
@@ -267,13 +268,15 @@ module.exports = {
                 }
 
                 if(typeof attr.options.usingField !== "undefined"){
-                    attr.options.showUsingField = attr.options.usingField;
-                    attr.options.usingField = clearString(attr.options.usingField);
-                    attr.options.usingField = addPrefix(attr.options.usingField, "using");
-                    attr.options.usingField = attr.options.usingField.toLowerCase();
-
-                    //console.log("SHOW USINGFIELD   ------>   "+attr.options.showUsingField);
-                    //console.log("CODE USINGFIELD   ------>   "+attr.options.usingField);
+                    var usingFields = attr.options.usingField.split(",");
+                    attr.options.showUsingField = attr.options.usingField.split(",");
+                    for (var j = 0; j < usingFields.length; j++) {
+                        usingFields[j] = usingFields[j].trim();
+                        usingFields[j] = clearString(usingFields[j]);
+                        usingFields[j] = addPrefix(usingFields[j], "using");
+                        usingFields[j] = usingFields[j].toLowerCase();
+                    }
+                    attr.options.usingField = usingFields;
                 }
             }
         }

@@ -18,6 +18,7 @@ var passport = require('passport');
 var flash    = require('connect-flash');
 var block_access = require('./utils/block_access');
 var models = require('./models/');
+var moment = require('moment');
 
 // Language
 var language = require('./services/language');
@@ -205,6 +206,37 @@ app.use(function(req, res, next) {
 			return false;
 		}
 	}
+	dust.helpers.inArray = function(chunk, context, bodies, params) {
+		var value = params.value;
+		var field = params.field;
+		var array = params.array;
+
+		for(var i=0; i<array.length; i++){
+			if(array[i][field] == value)
+				return true
+		}
+		return false;
+	}
+	/* Filter DUST - example {myDate|convertToDateFormat} */
+	dust.filters.date = function(value) {
+		if (value != "") {
+            if (lang == "fr-FR")
+                return moment(new Date(value)).format("DD/MM/YYYY");
+            else
+                return moment(new Date(value)).format("YYYY-MM-DD");
+        }
+		return value;
+	};
+
+	dust.filters.datetime = function(value) {
+		if (value != "") {
+            if (lang == "fr-FR")
+                return moment(new Date(value)).format("DD/MM/YYYY HH:mm:ss");
+            else
+                return moment(new Date(value)).format("YYYY-MM-DD HH:mm:ss");
+        }
+		return value;
+	};
     next();
 });
 
