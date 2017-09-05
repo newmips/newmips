@@ -7,6 +7,9 @@ var auth = require('../utils/authStrategies');
 var helper = require('../utils/helpers');
 var fs = require("fs");
 
+// Bot completion
+var bot = require('../services/bot.js');
+
 //Sequelize
 var models = require('../models/');
 
@@ -87,6 +90,18 @@ router.get('/update_instruction_cpt', function(req, res) {
 router.get('/update_logs', function(req, res) {
     try{
         res.send(fs.readFileSync(__dirname + "/../all.log"));
+    } catch(e){
+        console.log(e);
+        res.send(false);
+    }
+});
+
+
+router.get('/completion', function(req, res) {
+    try{
+        var str = req.query.str;
+        res.send(bot.complete(str));
+
     } catch(e){
         console.log(e);
         res.send(false);

@@ -308,47 +308,60 @@ exports.newPrint = function(attr, callback){
 			componentContent += "		}";
 			componentContent += "	}";
 			componentContent += "</style>";
-			componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
+			componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
 			componentContent += "	<div id='"+nameComponent+"-content' class='print-tab'>\n";
 
-			$("#tabs .tab-pane").each(function(){
-				var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
-				var htmlToInclude = "";
-				if($(this).attr("id") == "home"){
-					htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
-				} else {
-					htmlToInclude = $(this)[0].innerHTML;
-				}
-				//var match;
-
-				// Find dust file inclusion with dust helper
-				/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
-				var matches = [];
-
-				while (match = maRegex.exec($(this)[0].innerHTML)) {
-					matches.push(match);
-				}
-
-				var string = $(this)[0].innerHTML;
-
-				// Replace those inclusion with the real dust file content
-				for(var i=0; i<matches.length; i++){
-					//The path of the included dust file
-					var dustPath = matches[i][1];
-					var dustContent = fs.readFileSync(__dirname + "/../workspace/" + idApp + "/views/" + dustPath + ".dust", "utf8");
-
-					if(i > 0){
-						// String has been previously modify so the index aren't correct, we have to update them every time after the first modification
-						matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
-					}
-					string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
-				}*/
-				var contentToAdd = "<legend>" + titleTab + "</legend>" + htmlToInclude;
+			if($("#tabs .tab-pane").length == 0){
+				var titleTab = attr.options.showSource;
+				var htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
+				var contentToAdd = "<div class='dontbreakitplz'><legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>";
 
 				// Change ID to prevent JS errors in DOM
 				contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
 				componentContent += contentToAdd;
-			});
+			} else{
+				$("#tabs .tab-pane").each(function(){
+					// Don't add other print tab in the new print tab
+					if($(this).find(".print-tab").length == 0){
+						var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
+						var htmlToInclude = "";
+						if($(this).attr("id") == "home"){
+							htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
+						} else {
+							htmlToInclude = $(this)[0].innerHTML;
+						}
+						//var match;
+
+						// Find dust file inclusion with dust helper
+						/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
+						var matches = [];
+
+						while (match = maRegex.exec($(this)[0].innerHTML)) {
+							matches.push(match);
+						}
+
+						var string = $(this)[0].innerHTML;
+
+						// Replace those inclusion with the real dust file content
+						for(var i=0; i<matches.length; i++){
+							//The path of the included dust file
+							var dustPath = matches[i][1];
+							var dustContent = fs.readFileSync(__dirname + "/../workspace/" + idApp + "/views/" + dustPath + ".dust", "utf8");
+
+							if(i > 0){
+								// String has been previously modify so the index aren't correct, we have to update them every time after the first modification
+								matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
+							}
+							string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
+						}*/
+						var contentToAdd = "<div class='dontbreakitplz'><legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>";
+
+						// Change ID to prevent JS errors in DOM
+						contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+						componentContent += contentToAdd;
+					}
+				});
+			}
 
 			componentContent += "	</div>";
 			componentContent += "</div>";
@@ -822,7 +835,7 @@ exports.setupChat = function(attr, callback) {
 	        through: attr.id_application+"_chat_user_channel",
 	        as: "r_user_channel"
     	});
-    	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
+    	fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
 
 		// Replace ID_APPLICATION in channel.json and chat.json
 		var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');

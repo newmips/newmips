@@ -6,7 +6,7 @@ var models = require('../models/');
 var attributes = require('../models/attributes/e_user');
 var options = require('../models/options/e_user');
 var model_builder = require('../utils/model_builder');
-var enums = require('../utils/enum.js');
+var enums_radios = require('../utils/enum_radio.js');
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -121,7 +121,7 @@ router.post('/', function(req, res) {
             publicFields[field] = req.body[field];
     }
     var createObject = model_builder.buildForRoute(attributes, options, publicFields);
-    createObject = enums.values("e_user", createObject, req.body)
+    //createObject = enums.values("e_user", createObject, req.body)
 
     models.E_user.create(createObject).then(function(e_user) {
         answer["e_user".substring(2)] = e_user;
@@ -147,7 +147,7 @@ router.put('/:id', function(req, res) {
             publicFields[field] = req.body[field];
     }
     var updateObject = model_builder.buildForRoute(attributes, options, publicFields);
-    updateObject = enums.values("e_user", updateObject, req.body);
+    //updateObject = enums.values("e_user", updateObject, req.body);
 
     models.E_user.findOne({where: {id: id_e_user}, attributes: publicAttributes}).then(function(e_user) {
         if (!e_user) {

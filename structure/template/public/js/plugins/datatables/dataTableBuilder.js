@@ -8,28 +8,28 @@
 // - La table DOIT avoir un attribut `data-url` definissant la route que devra utiliser le
 //  plugin DataTables
 // - La table DOIT avoir un tag `thead` ayant la class `.main`
-// 	 - Les tags `th` de cet element doivent avoir un attribut `data-col`
-// 		- Cet attribut `data-col` represente la colonne :
-// 			- ex: th(data-col='nom')
-// 	 - Si la colonne affiche des dates, ajouter un attribut `data-type='date'` pour formater
-// 	 la date
+//   - Les tags `th` de cet element doivent avoir un attribut `data-col`
+//      - Cet attribut `data-col` represente la colonne :
+//          - ex: th(data-col='nom')
+//   - Si la colonne affiche des dates, ajouter un attribut `data-type='date'` pour formater
+//   la date
 // - La table PEUX avoir un deuxieme tag `thead` ayant la class .filters
-// 	 - Les `th` compris dans cet element seront transforme en input de filtre
+//   - Les `th` compris dans cet element seront transforme en input de filtre
 //
 // 2 : Configuration des buttons d'action
 // ======================================
 // - 3 types d'action sont disponibles : show / update / delete
-// 	 - Chacun de ces boutons doit etre dans un div hidden ayant comme attribut `id` l'action
+//   - Chacun de ces boutons doit etre dans un div hidden ayant comme attribut `id` l'action
 //   attendue, le contenu sera copie au besoin lors de la generation de la table
-// 		- ex: div(id='show', style='display:none;')
-// 	 - Pour les bouton show et update, les parametres du href fonctionnent de la maniere suivante :
-// 		- href='/pdc/update_form?id=&'
-// 		- Lors de la generation du bouton, `id=&` sera automatiquement remplace
-// 		par	`id=1&`
-// 	 - Pour le bouton delete, inclure des input hidden pour chaque parametres. L'attribut `value`
-// 	 sera defini en fonction de l'attribut `name` :
-// 		- input(name='id', type='hidden') sera automatiquement remplace par
-// 		input(name='id', type='hidden', value='1') lors de la generation du bouton
+//      - ex: div(id='show', style='display:none;')
+//   - Pour les bouton show et update, les parametres du href fonctionnent de la maniere suivante :
+//      - href='/pdc/update_form?id=&'
+//      - Lors de la generation du bouton, `id=&` sera automatiquement remplace
+//      par `id=1&`
+//   - Pour le bouton delete, inclure des input hidden pour chaque parametres. L'attribut `value`
+//   sera defini en fonction de l'attribut `name` :
+//      - input(name='id', type='hidden') sera automatiquement remplace par
+//      input(name='id', type='hidden', value='1') lors de la generation du bouton
 //
 
 function formatDateTimeFR(value) {
@@ -171,6 +171,20 @@ function init_datatable(tableID) {
             columns.push({data: $(this).data('col'), type: $(this).data('type')});
     });
 
+    function getValue(cellArrayKeyValue, row) {
+        var i = 0;
+        var key = cellArrayKeyValue[i];
+        do {
+            if (row != null && typeof row[key] !== 'undefined') {
+                row = row[key];
+            } else
+                return '-';
+            i++;
+            key = cellArrayKeyValue[i];
+        } while (i < cellArrayKeyValue.length);
+        return row;
+    }
+
     // Columns rendering
     // Server's object doesn't include DB table's prefix, we need to remove it
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
@@ -182,17 +196,34 @@ function init_datatable(tableID) {
                 var cellValue;
                 // Associated field. Go down object to find the right value
                 if (columns[meta.col].data.indexOf('.') != -1) {
-                    var parts = columns[meta.col].data.split('.');
-                    var tmp = row[parts[0]];
-                    if (typeof tmp !== "undefined" && tmp != null) {
-                        for (var j = 1; j < parts.length; j++)
-                            tmp = tmp[parts[j]];
+                    var entityRelation = columns[meta.col].data.split(".")[0];
+                    var attributeRelation = columns[meta.col].data.split(".")[1];
+                    //Gestion des relation hasMAny dans un datalist
+                    if (row[entityRelation] != null && typeof row[entityRelation] === "object") {
+                        var valueFromArray = "";
+                        for (var attr in row[entityRelation]) {
+                            if (row[entityRelation][attr] != null && typeof row[entityRelation][attr] === "object") {
+                                for (var attr2 in row[entityRelation][attr]) {
+                                    if (attr2 == attributeRelation)
+                                        valueFromArray += "- " + row[entityRelation][attr][attr2] + "<br>";
+                                }
+                            } else {
+                                var parts = columns[meta.col].data.split('.');
+                                valueFromArray = getValue(parts, row);
+                            }
+
+                        }
+                        cellValue = valueFromArray;
+                    } else {
+                        // Has one sur une sous entité
+                        var parts = columns[meta.col].data.split('.');
+                        cellValue = getValue(parts, row);
                     }
-                    cellValue = tmp;
                 }
                 // Regular value
-                else
+                else{
                     cellValue = row[columns[meta.col].data];
+                }
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
@@ -522,4 +553,4 @@ $(function () {
     $(".dataTable").each(function () {
         init_datatable('#' + $(this).attr('id'));
     })
-})
+});

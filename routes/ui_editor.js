@@ -44,7 +44,13 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 		// Hide action buttons
 		$(".actions").hide();
 
-		res.status(200).send($("body")[0].innerHTML);
+		var html;
+		if ($("#tabs").length > 0)
+			html = $("#home").html();
+		else
+			html = $("body")[0].innerHTML;
+
+		res.status(200).send(html);
 	}).catch(function(err) {
 		console.log(err);
 		res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
@@ -85,8 +91,20 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 		var actions = $(".actions").show().detach();
 		$(actions).appendTo($("body"));
 
-		// Write back to file
-		domHelper.write(pageUri, $).then(function() {
+		// Check if the origin row with id "fields" has been removed or not.
+		// Regroup all rows into one and put id="fields" back to new grouped rows
+		var packedRow = '';
+		for (var i = 0; $("body").children('.row').length > 1, i < $("body").children('.row').length; i++){
+			packedRow += $("body").children('.row').eq(i).html();
+			if ($("body").children('.row').eq(i).prop('id') != 'fields' && $("body").children('.row').length != i)
+				$("body").children('.row').eq(i).remove();
+		}
+		if ($("#fields").length == 0)
+			$("body").prepend('<div id="fields" class="row"></div>');
+		if (packedRow != '')
+			$("#fields").html(packedRow);
+
+		function git(){
 			// We simply add session values in attributes array
 			var attr = {};
 	        attr.function = "Save a file from UI designer: "+pageUri;
@@ -100,7 +118,17 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 		        	console.log(err);
 		        res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
 		    });
-		});
+		}
+
+		// Write back to file
+		if (page == 'show_fields.dust')
+			domHelper.replace(pageUri, "#fields", $).then(function(){
+				git();
+			});
+		else
+			domHelper.write(pageUri, $).then(function() {
+				git();
+			});
 	}).catch(function(e) {
 		console.log(e);
 		res.status(500).send(generatorLanguage.__("ui_editor.page_not_found"));
