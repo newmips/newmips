@@ -11,8 +11,8 @@ var attributes = require('../models/attributes/e_user');
 var options = require('../models/options/e_user');
 var model_builder = require('../utils/model_builder');
 
-// ENUM managment
-var enums = require('../utils/enum.js');
+// Enum and radio managment
+var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -111,7 +111,7 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
         menu: "e_user",
         sub_menu: "list_e_user",
         tab: tab,
-        enum: enums.translated("e_user", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
     };
 
     models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function(e_user) {
@@ -158,7 +158,7 @@ router.get('/create_form', block_access.isLoggedIn, block_access.actionAccessMid
     var data = {
         menu: "e_user",
         sub_menu: "create_e_user",
-        enum: enums.translated("e_user", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -185,7 +185,7 @@ router.get('/create_form', block_access.isLoggedIn, block_access.actionAccessMid
 router.post('/create', block_access.isLoggedIn, block_access.actionAccessMiddleware("user", "write"), function(req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    createObject = enums.values("e_user", createObject, req.body)
+    //createObject = enums.values("e_user", createObject, req.body)
 
     createObject.f_enabled = 0;
     models.E_user.create(createObject).then(function(e_user) {
@@ -268,7 +268,7 @@ router.get('/update_form', block_access.isLoggedIn, block_access.actionAccessMid
     var data = {
         menu: "e_user",
         sub_menu: "list_e_user",
-        enum: enums.translated("e_user", req.session.lang_user),
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user), options,
         user: req.session.passport.user
     };
 
@@ -333,7 +333,7 @@ router.post('/update', block_access.isLoggedIn, block_access.actionAccessMiddlew
         req.body.version = parseInt(req.body.version) + 1;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    updateObject = enums.values("e_user", updateObject, req.body);
+    //updateObject = enums.values("e_user", updateObject, req.body);
 
     models.E_user.findOne({where: {id: id_e_user}}).then(function(e_user) {
         if (!e_user) {
@@ -401,7 +401,7 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
     var data = {
         menu: "e_user",
         sub_menu: "list_e_user",
-        enum: enums.translated("e_user", req.session.lang_user)
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {

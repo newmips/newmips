@@ -71,7 +71,10 @@ sequelize.customAfterSync = function() {
                             typeof toSyncObject[sourceAttr].attributes !== "undefined" &&
                             typeof toSyncObject[sourceAttr].attributes[itemAttr] !== "undefined"){
                             var type = "";
-                            switch (attributObject[itemAttr]) {
+
+                            console.log(itemAttr);
+
+                            switch (attributObject[itemAttr].type) {
                                 case "STRING":
                                     type = "VARCHAR(255)";
                                     break;
@@ -93,6 +96,15 @@ sequelize.customAfterSync = function() {
                                 case "DECIMAL":
                                     type = "VARCHAR(255)";
                                     break;
+                                case "ENUM":
+                                    type = "ENUM(";
+                                    for(var i=0; i<attributObject[itemAttr].values.length; i++){
+                                        type += "'"+attributObject[itemAttr].values[i]+"'";
+                                        if(i != attributObject[itemAttr].values.length-1)
+                                            type += ",";
+                                    }
+                                    type += ")";
+                                    break;
                                 default:
                                     type = "VARCHAR(255)";
                                     break;
@@ -101,6 +113,8 @@ sequelize.customAfterSync = function() {
                             request = "ALTER TABLE ";
                             request += sourceAttr;
                             request += " ADD COLUMN `" + itemAttr + "` " + type + " DEFAULT NULL;";
+
+                            console.log(request);
 
                             sequelize.query(request).then(function() {
                                 var writeStream = fs.createWriteStream(toSyncFileName);

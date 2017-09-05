@@ -6,16 +6,15 @@ block custom_css
 
 block header
 	.row
-		.col-header.col-xs-2.col-sm-2.col-md-1.col-lg-1#header-icon
-			img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:33px;display:block;")
-		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-8#header-title
+		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-9#header-title
 			h1
+				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
 				| #{__("menu.application")}
 				small #{__("menu.module")}
 		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
 			.clearfix
 				span.pull-left Instructions
-				small.pull-right
+				small.pull-right#cptInstructionNumber
 					if cptInstruction > 300
 						b
 							| 300+
@@ -23,7 +22,7 @@ block header
 						b
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
-				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
+				.progress-bar.progress-bar-striped.progress-bar-success#cptInstructionBar(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
 		.col-header.col-xs-7.col-sm-4.col-md-3.col-lg-2#header-button
 			.btn-group.pull-right(role="group")
 				a.btn.btn-default(href='/default/home')

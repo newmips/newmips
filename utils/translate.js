@@ -18,6 +18,9 @@ module.exports = {
             value = value[1];
         }
 
+        // Replace euro sign from char code since javascript can't read `€`
+        value = value.replace(String.fromCharCode(65533), "€");
+
         // Current application language
         var languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/language.json');
         var appLang = JSON.parse(languageFileData);
@@ -90,7 +93,7 @@ module.exports = {
 
         // Get all the differents languages to handle
         var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
-            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum.json");
+            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
         });
 
         var nbLocales = localesDir.length;
@@ -101,6 +104,7 @@ module.exports = {
 
         localesDir.forEach(function(file){
             var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
+            delete require.cache[require.resolve(urlFile)];
             var dataLocales = require(urlFile);
             var workingLocales = file.slice(0, -5);
             var workingLocales4Google = workingLocales.slice(0, -3);
@@ -222,11 +226,12 @@ module.exports = {
     removeLocales: function(idApplication, type, value, callback){
         // Get all the differents languages to handle
         var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
-            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum.json");
+            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
         });
 
         localesDir.forEach(function(file){
             var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
+            delete require.cache[require.resolve(urlFile)];
             var dataLocales = require(urlFile);
 
             if(type == "field"){

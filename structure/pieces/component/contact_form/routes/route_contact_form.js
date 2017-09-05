@@ -14,8 +14,8 @@ var optionsSettings = require('../models/options/CODE_VALUE_SETTINGS');
 
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
-// ENUM managment
-var enums = require('../utils/enum.js');
+// Enum and radio managment
+var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -74,7 +74,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("URL_VALUE_CONTACT"
 
     filterDataTable("MODEL_VALUE_CONTACT", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums.translated("CODE_VALUE_CONTACT", req.session.lang_user);
+        var enumsTranslation = enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options);
         for(var i=0; i<data.data.length; i++)
             for(var field in data.data[i].dataValues)
                 for(var enumField in enumsTranslation)
@@ -154,7 +154,7 @@ router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
         menu: "CODE_VALUE_CONTACT",
         sub_menu: "list_CODE_VALUE_CONTACT",
         tab: tab,
-        enum: enums.translated("CODE_VALUE_CONTACT", req.session.lang_user)
+        enum_radio: enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
@@ -204,7 +204,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
     var data = {
         menu: "CODE_VALUE_CONTACT",
         sub_menu: "create_CODE_VALUE_CONTACT",
-        enum: enums.translated("CODE_VALUE_CONTACT", req.session.lang_user)
+        enum_radio: enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -253,7 +253,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
         };
         mailer_helper.sendMailAsyncCustomTransport(mailOptions, mailSettings).then(function(success) {
             var createObject = model_builder.buildForRoute(attributes, options, req.body);
-            createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
+            //createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
             createObject.f_id_user_user = req.session.passport.user.id;
             createObject.f_recipient = settings.f_form_recipient;
             models.MODEL_VALUE_CONTACT.create(createObject).then(function (CODE_VALUE_CONTACT) {
@@ -329,7 +329,7 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
     var data = {
         menu: "CODE_VALUE_SETTINGS",
         sub_menu: "list_CODE_VALUE_SETTINGS",
-        enum: enums.translated("CODE_VALUE_SETTINGS", req.session.lang_user)
+        enum_radio: enums_radios.translated("CODE_VALUE_SETTINGS", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -395,7 +395,7 @@ router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributesSettings, optionsSettings, req.body);
-    updateObject = enums.values("CODE_VALUE_SETTINGS", updateObject, req.body);
+    //updateObject = enums.values("CODE_VALUE_SETTINGS", updateObject, req.body);
 
     models.MODEL_VALUE_SETTINGS.findOne({where: {id: id_CODE_VALUE_SETTINGS}}).then(function (CODE_VALUE_SETTINGS) {
         if (!CODE_VALUE_SETTINGS) {
