@@ -12,8 +12,9 @@ var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
 var global = require('../config/global');
-// ENUM managment
-var enums = require('../utils/enum.js');
+
+// Enum and radio managment
+var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -69,7 +70,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     var include = model_builder.getDatalistInclude(models, options);
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
         // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums.translated("ENTITY_NAME", req.session.lang_user);
+        var enumsTranslation = enums_radios.translated("ENTITY_NAME", req.session.lang_user, options);
         var todo = [];
         for (var i = 0; i < data.data.length; i++) {
             for (var field in data.data[i].dataValues) {
@@ -102,7 +103,6 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
         if (todo.length) {
             var counter=0;
             for (var i = 0; i < todo.length; i++) {
-                var _todo = todo[i];
                 (function (task) {
                     file_helper.getFileBuffer64(task.file, function (success, buffer) {
                         counter++;
@@ -110,11 +110,11 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
                             value: task.value,
                             buffer: buffer
                         };
-                        if (counter === todo.length) 
+                        if (counter === todo.length)
                             res.send(data).end();
-                        
+
                     });
-                }(_todo));
+                }(todo[i]));
             }
         } else
             res.send(data).end();
@@ -188,7 +188,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         menu: "ENTITY_NAME",
         sub_menu: "list_ENTITY_NAME",
         tab: tab,
-        enum: enums.translated("ENTITY_NAME", req.session.lang_user)
+        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
@@ -227,7 +227,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
             data.toastr = req.session.toastr;
             req.session.toastr = [];
             // Update some data before show, e.g get picture binary
-            ENTITY_NAME = entity_helper.update_local_data(ENTITY_NAME, attributes, "ENTITY_NAME");
+            ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
             res.render('ENTITY_NAME/show', data);
         });
 
@@ -240,7 +240,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "create_ENTITY_NAME",
-        enum: enums.translated("ENTITY_NAME", req.session.lang_user)
+        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -267,7 +267,8 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    createObject = enums.values("ENTITY_NAME", createObject, req.body);
+    //createObject = enums.values("ENTITY_NAME", createObject, req.body);
+
     models.MODEL_NAME.create(createObject).then(function (ENTITY_NAME) {
         var redirect = '/ENTITY_URL_NAME/list';
         req.session.toastr = [{
@@ -311,7 +312,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "list_ENTITY_NAME",
-        enum: enums.translated("ENTITY_NAME", req.session.lang_user)
+        enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 
     if (typeof req.query.associationFlag !== 'undefined') {
@@ -377,7 +378,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    updateObject = enums.values("ENTITY_NAME", updateObject, req.body);
+    //updateObject = enums.values("ENTITY_NAME", updateObject, req.body);
 
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME) {
