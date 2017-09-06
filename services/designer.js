@@ -1996,9 +1996,9 @@ exports.createComponentChat = function(attr, callback) {
     });
 }
 
-//Create new component adress
-exports.createNewComponentAdress = function (attr, callback) {
-    var componentCodeName = 'c_adress_' + attr.id_data_entity;
+//Create new component address
+exports.createNewComponentAddress = function (attr, callback) {
+    var componentCodeName = 'c_address_' + attr.id_data_entity;
     db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function (err, alreadyExist) {
         if (!err) {
             if (!alreadyExist) {
@@ -2014,7 +2014,7 @@ exports.createNewComponentAdress = function (attr, callback) {
                                         attr.entityName = entity.name;
                                         attr.options.target = componentCodeName;
                                         attr.options.source = entity.codeName;
-                                        structure_component.addNewComponentAdress(attr, function (err) {
+                                        structure_component.addNewComponentAddress(attr, function (err) {
                                             if (err)
                                                 return callback(err);
                                             callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
@@ -2038,8 +2038,8 @@ exports.createNewComponentAdress = function (attr, callback) {
     });
 };
 
-exports.deleteComponentAdress = function (attr, callback) {
-    var componentName = 'c_adress_' + attr.id_data_entity;
+exports.deleteComponentAddress = function (attr, callback) {
+    var componentName = 'c_address_' + attr.id_data_entity;
     db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
         if (!err) {
             if (componentExist) {
@@ -2052,7 +2052,7 @@ exports.deleteComponentAdress = function (attr, callback) {
                                         if (!err) {
                                             attr.entityName = entity.codeName;
                                             attr.moduleName=module.codeName;
-                                            structure_component.deleteComponentAdress(attr, function (err) {
+                                            structure_component.deleteComponentAddress(attr, function (err) {
                                                 if (err)
                                                     return callback(err);
                                                 else
