@@ -739,24 +739,24 @@ exports.createNewComponentCra = function (result) {
 };
 
 /**
- * Component Adress
+ * Component Address
  * @param {type} result of bot analyzer (this.parse)
  * @returns {function name and user instruction}
  */
-exports.createNewComponentAdress = function (result) {
+exports.createNewComponentAddress = function (result) {
     var options = {
         componentName: result[1].toLowerCase(),
         instruction: result[0]
     };
-    return checkAndCreateAttr("createNewComponentAdress", options, result[1]);
+    return checkAndCreateAttr("createNewComponentAddress", options, result[1]);
 };
 
 /**
- * Delete component adress
+ * Delete component address
  */
-exports.deleteComponentAdress = function (result) {
+exports.deleteComponentAddress = function (result) {
     return {
-        function :"deleteComponentAdress",
+        function :"deleteComponentAddress",
         options:result
     };
 };
@@ -2532,21 +2532,21 @@ exports.parse = function (instruction) {
             "add component chat",
             "create component chat"
         ],
-        "createNewComponentAdress": [
-            "ajouter composant adresse appelé (.*)",
-            "ajouter un composant adresse appelé (.*)",
-            "ajouter le composant adresse appelé (.*)",
-            "créer un composant adresse appelé (.*)",
-            "créer le composant adresse appelé (.*)",
-            "créer composant adresse appelé (.*)",
-            "add component adress with name (.*)",
-            "create component adress with name (.*)"
+        "createNewComponentAddress": [
+            "ajouter composant adress appelé (.*)",
+            "ajouter un composant address appelé (.*)",
+            "ajouter le composant address appelé (.*)",
+            "créer un composant address appelé (.*)",
+            "créer le composant address appelé (.*)",
+            "créer composant address appelé (.*)",
+            "add component address with name (.*)",
+            "create component address with name (.*)"
         ],
-        "deleteComponentAdress":[
-            "delete component adress",
-            "supprimer composant adress",
-            "supprimer le composant adress",
-            "supprimer un composant adress",
+        "deleteComponentAddress":[
+            "delete component address",
+            "supprimer composant address",
+            "supprimer le composant address",
+            "supprimer un composant address",
         ],
         "setSkin": [
             "set skin (.*)",

@@ -15,7 +15,7 @@
         <div class="col-xs-12 connectedSortable">
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="operation.show"/} {@__ key="component.c_adress.name_component" /}</h3>
+                    <h3 class="box-title">{@__ key="operation.show"/} {@__ key="component.c_address.name_component" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -24,7 +24,7 @@
                 <div class="box-body">
                     {#COMPONENT_NAME}
                         <div class="form-group">
-                            <label for="id">{@__ key="component.c_adress.id_component"/} {@__ key="component.c_adress.name_component"/}</label>
+                            <label for="id">{@__ key="component.c_address.id_component"/} {@__ key="component.c_address.name_component"/}</label>
                             <input type="text" value="{COMPONENT_NAME.id}" disabled="" class="form-control"/>
                         </div>
                         {>"COMPONENT_NAME/show_fields"/}
@@ -69,7 +69,7 @@
 
             $(".fieldsetform").submit(function() {
                 var alias = $(this).parents('.tab-pane').attr('id');
-                var url = '/URL_COMPONENT_ADRESS/fieldset/'+alias+'/remove';
+                var url = '/URL_COMPONENT_ADDRESS/fieldset/'+alias+'/remove';
                 var data = $(this).serialize();
                 data += '&idcomponent={COMPONENT_NAME.id}';
                 var form = this;
