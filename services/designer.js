@@ -1072,34 +1072,9 @@ exports.createNewHasMany = function (attr, callback) {
             }
         }
 
-        var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
-        var optionsObject = JSON.parse(optionsFile);
-
-        var cptExistingHasMany = 0;
-
-        // Vérification si une relation existe déjà de la target VERS la source
-        for(var i=0; i<optionsObject.length; i++){
-            if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
-                if(optionsObject[i].relation == "belongsToMany"){
-                    var err = new Error();
-                    err.message = "structure.association.error.alreadyBelongsToMany";
-                    return callback(err, null);
-                } else{
-                    cptExistingHasMany++;
-                }
-            }
-        }
-
-
-        /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
-        if(cptExistingHasMany > 1){
-            var err = new Error();
-            err.message = "structure.association.error.tooMuchHasMany";
-            return callback(err, null);
-        }
-
         var info = {};
         var toSync = true;
+        var optionsObject;
         function structureCreation(attr, callback){
             var doingBelongsToMany = false;
             // Vérification si une relation existe déjà de la target VERS la source
@@ -1206,6 +1181,8 @@ exports.createNewHasMany = function (attr, callback) {
                                 }
                                 // There is no need to custom sync the foreign key field because it will be created with the new data entity with Sequelize.sync()
                                 toSync = false;
+                                var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
+                                optionsObject = JSON.parse(optionsFile);
                                 structureCreation(attr, callback);
                             });
                         });
@@ -1216,7 +1193,29 @@ exports.createNewHasMany = function (attr, callback) {
             } else {
                 // KEEP - Select the target if it already exist
                 //info.insertId = dataEntity.id;
+                var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
+                optionsObject = JSON.parse(optionsFile);
 
+                var cptExistingHasMany = 0;
+
+                // Vérification si une relation existe déjà de la target VERS la source
+                for(var i=0; i<optionsObject.length; i++){
+                    if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
+                        if(optionsObject[i].relation == "belongsToMany"){
+                            var err = new Error();
+                            err.message = "structure.association.error.alreadyBelongsToMany";
+                            return callback(err, null);
+                        } else{
+                            cptExistingHasMany++;
+                        }
+                    }
+                }
+                /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
+                if(cptExistingHasMany > 1){
+                    var err = new Error();
+                    err.message = "structure.association.error.tooMuchHasMany";
+                    return callback(err, null);
+                }
                 // KEEP - Stay on the source entity
                 info.insertId = attr.id_data_entity;
 
