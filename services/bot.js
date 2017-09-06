@@ -2533,7 +2533,7 @@ exports.parse = function (instruction) {
             "create component chat"
         ],
         "createNewComponentAddress": [
-            "ajouter composant adress appelé (.*)",
+            "ajouter composant address appelé (.*)",
             "ajouter un composant address appelé (.*)",
             "ajouter le composant address appelé (.*)",
             "créer un composant address appelé (.*)",
