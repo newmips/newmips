@@ -1,0 +1,26 @@
+<div id='fields' class='c_address row'>
+	<div data-field='streetnumber' class='col-xs-12'>
+	<div class='form-group'>
+		<label for='streetnumber' class='required'> {@__ key="component.address.streetnumber"/} </label>
+		<input class='input form-control' placeholder='{@__ key="component.address.streetnumber"/}' name='streetnumber' required >
+	</div>
+	</div>
+	<div data-field='streetname' class='col-xs-12'>
+	<div class='form-group'>
+		<label for='streetname' class='required'> {@__ key="component.address.streetname"/} </label>
+		<input class='input form-control' placeholder='{@__ key="component.address.streetname"/}' name='streetname' required >
+	</div>
+	</div>
+	<div data-field='city' class='col-xs-12'>
+	<div class='form-group'>
+		<label for='city' class='required'> {@__ key="component.address.city"/} </label>
+		<input class='input form-control' placeholder='{@__ key="component.address.city"/}' name='city' required >
+	</div>
+	</div>
+	<div data-field='zipcode' class='col-xs-12'>
+	<div class='form-group'>
+		<label for='zipcode' class='required'> {@__ key="component.address.zipcode"/} </label>
+		<input class='input form-control' placeholder='{@__ key="component.address.zipcode"/}' name='zipcode' required >
+	</div>
+	</div>
+</div>
