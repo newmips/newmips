@@ -74,11 +74,16 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
         var todo = [];
         for (var i = 0; i < data.data.length; i++) {
             for (var field in data.data[i].dataValues) {
-                for (var enumField in enumsTranslation)
-                    if (field == enumField)
-                        for (var k = 0; k < enumsTranslation[enumField].length; k++)
-                            if (data.data[i].dataValues[enumField] == enumsTranslation[enumField][k].value)
-                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][k].translation;
+                // Look for enum translation
+                for (var enumEntity in enumsTranslation)
+                    for (var enumField in enumsTranslation[enumEntity])
+                        if (enumField == field)
+                            for (var j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
+                                if (enumsTranslation[enumEntity][enumField][j].value == data.data[i].dataValues[field]) {
+                                    data.data[i].dataValues[field] = enumsTranslation[enumEntity][enumField][j].translation;
+                                    break;
+                                }
+
                 //get attribute value
                 var value = data.data[i].dataValues[field];
                 //for type picture, get thumbnail picture
