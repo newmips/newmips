@@ -111,6 +111,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
     var id_application = req.query.id_application;
     var currentUserID = req.session.passport.user.id;
     req.session.id_application = id_application;
+    req.session.id_data_entity = null;
 
     var data = {
         error: 1,
