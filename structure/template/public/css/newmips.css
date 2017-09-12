@@ -79,3 +79,11 @@ div.dataTables_length select {
 .print-tab button, .print-tab a.btn{
     display: none;
 }
+
+/* Sub table in show fields, overflow x managment */
+.sub-tab-table .dataTables_wrapper{
+    overflow: auto;
+}
+.sub-tab-table .dataTable{
+    width: 99.9%;
+}
