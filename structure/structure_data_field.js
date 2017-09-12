@@ -1038,7 +1038,7 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             // Create select to add elements
             newTabContent += '<div id="' + alias + '" class="tab-pane fade">\n';
             newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
-            newTabContent += '      <select style="width:200px;" class="form-control" name="ids" multiple>\n';
+            newTabContent += '      <select style="width:200px;" class="form-control" name="ids" required multiple>\n';
             newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
             newTabContent += '              <!--{#.' + usingField + '}-->\n';
             newTabContent += '                  <option value="{id}">{' + usingField + '}</option>\n';
@@ -1052,13 +1052,15 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             newTabContent += '  </form>\n';
             //newTabContent += '    <br>\n';
             // Include association's fields
-            newTabContent += '  <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTabContent += '          <!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTabContent += '      {>"' + target + '/list_fields" for="fieldset" /}\n';
-            newTabContent += '          <!--{/eq}-->\n';
-            newTabContent += '  <!--{:else}-->\n';
-            newTabContent += '          {>"' + target + '/list_fields" /}\n';
-            newTabContent += '  <!--{/' + alias + '}-->\n';
+            newTabContent += '  <div class="sub-tab-table">\n';
+            newTabContent += '      <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
+            newTabContent += '              <!--{@eq key=id value=' + target + '[0].id}-->\n';
+            newTabContent += '          {>"' + target + '/list_fields" for="fieldset" /}\n';
+            newTabContent += '              <!--{/eq}-->\n';
+            newTabContent += '      <!--{:else}-->\n';
+            newTabContent += '              {>"' + target + '/list_fields" /}\n';
+            newTabContent += '      <!--{/' + alias + '}-->\n';
+            newTabContent += '  </div>\n';
             newTabContent += '</div>\n';
 
             addTab(attr, file, newLi, newTabContent).then(callback);
