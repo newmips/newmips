@@ -320,7 +320,8 @@
                 "success": "New fieldset of existing %s created on %s."
             },
             "relatedTo": {
-                "success": "New field %s related to %s created."
+                "success": "New field %s related to %s created.",
+                "missingField": "The field %s in the entity %s does not exist or is not usable."
             },
             "error":{
                 "alreadyHasMany": "Source entity already has many target entity, impossible to create belongs to association.",
