@@ -319,7 +319,8 @@
                 "success": "Nouvelle liste d'objets existants %s créée sur %s."
             },
             "relatedTo": {
-                "success": "Nouveau champ %s associé à %s créé."
+                "success": "Nouveau champ %s associé à %s créé.",
+                "missingField": "Le champ %s de l'entité %s n'existe pas ou n'est pas utilisable."
             },
             "error":{
                 "alreadyHasMany": "L'entité source a déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
