@@ -86,18 +86,18 @@ exports.deploy = function(attr, callback) {
     if (typeof(attr.id_application) !== 'undefined')
         id_application = attr.id_application;
 
-    if (!(globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')) {
-        var protocol = globalConf.protocol;
-        var host = globalConf.host;
-        var math = require('math');
-        var port = math.add(9000, id_application);
-        var url = protocol + "://" + host + ":" + port;
-        var info = {};
-        info.message = "botresponse.applicationavailable";
-        info.messageParams = [url,url];
+    // if (!(globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')) {
+    //     var protocol = globalConf.protocol;
+    //     var host = globalConf.host;
+    //     var math = require('math');
+    //     var port = math.add(9000, id_application);
+    //     var url = protocol + "://" + host + ":" + port;
+    //     var info = {};
+    //     info.message = "botresponse.applicationavailable";
+    //     info.messageParams = [url,url];
 
-        return callback(null, info);
-    }
+    //     return callback(null, info);
+    // }
 
     // Get and increment application's version
     var applicationPath = 'workspace/'+attr.id_application;
@@ -122,7 +122,7 @@ exports.deploy = function(attr, callback) {
             console.log(err);
             return callback(err);
         }
-        gitHelper.gitTag(applicationConf.version, applicationPath).then(function() {
+        gitHelper.gitTag(attr.id_application, applicationConf.version, applicationPath).then(function() {
             gitHelper.gitPush(attr, function(err, infoGit){
                 if(err){
                     console.log(err);
