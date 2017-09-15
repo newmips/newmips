@@ -28,6 +28,7 @@ var sequelize = new Sequelize(config.connection.database, config.connection.user
 
 sequelize.customAfterSync = function() {
     return new Promise(function(resolve, reject) {
+        var toSyncProdObject = JSON.parse(fs.readFileSync(__dirname + '/toSyncProd.json'));
 
         var promises = [];
 
@@ -71,8 +72,6 @@ sequelize.customAfterSync = function() {
                             typeof toSyncObject[sourceAttr].attributes[itemAttr] !== "undefined"){
                             var type = "";
 
-                            console.log(itemAttr);
-
                             switch (attributObject[itemAttr].type) {
                                 case "STRING":
                                     type = "VARCHAR(255)";
@@ -113,9 +112,8 @@ sequelize.customAfterSync = function() {
                             request += sourceAttr;
                             request += " ADD COLUMN `" + itemAttr + "` " + type + " DEFAULT NULL;";
 
-                            console.log(request);
-
                             sequelize.query(request).then(function() {
+                                toSyncProdObject.queries.push(request);
                                 var writeStream = fs.createWriteStream(toSyncFileName);
                                 delete toSyncObject[sourceAttr].attributes[itemAttr];
                                 writeStream.write(JSON.stringify(toSyncObject, null, 4));
@@ -150,7 +148,7 @@ sequelize.customAfterSync = function() {
                         var foreignKey = "id_" + optionsObject[j].target.toLowerCase();
                     }
 
-                    (function(sourceBelongsTo, targetBelongsTo, foreignBelongsTo) {
+                    (function(sourceBelongsTo, targetBelongsTo, foreignBelongsTo, option) {
 
                         promises.push(new Promise(function(resolve2, reject2) {
 
@@ -176,6 +174,8 @@ sequelize.customAfterSync = function() {
                                 request2 = "ALTER TABLE `" +sourceBelongsTo+ "` ADD FOREIGN KEY (" +foreignBelongsTo+ ") REFERENCES `" +targetBelongsTo+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
                                 sequelize.query(request).then(function() {
                                     sequelize.query(request2).then(function() {
+                                        toSyncProdObject.queries.push(request);
+                                        toSyncProdObject.queries.push(request2);
                                         var writeStream = fs.createWriteStream(toSyncFileName);
                                         toSyncObject[sourceBelongsTo].options.splice(indexToRemove, 1);
                                         writeStream.write(JSON.stringify(toSyncObject, null, 4));
@@ -192,7 +192,7 @@ sequelize.customAfterSync = function() {
                                 resolve2();
                             }
                         }));
-                    })(sourceName, targetName, foreignKey);
+                    })(sourceName, targetName, foreignKey, optionsObject[j]);
                 } else if (optionsObject[j].relation == "hasMany") {
 
                     var targetName = db[optionsObject[j].target.charAt(0).toUpperCase() + optionsObject[j].target.slice(1)].getTableName();
@@ -203,7 +203,7 @@ sequelize.customAfterSync = function() {
                         var foreignKey = "id_" + allModels[i].toLowerCase();
                     }
 
-                    (function(sourceHasMany, targetHasMany, foreignHasMany) {
+                    (function(sourceHasMany, targetHasMany, foreignHasMany, option) {
                         promises.push(new Promise(function(resolve3, reject3) {
 
                             var toSync = false;
@@ -228,6 +228,8 @@ sequelize.customAfterSync = function() {
                                 request2 = "ALTER TABLE `"+targetHasMany+"` ADD FOREIGN KEY ("+foreignHasMany+") REFERENCES `"+sourceHasMany+"` (id);";
                                 sequelize.query(request).then(function() {
                                     sequelize.query(request2).then(function() {
+                                        toSyncProdObject.queries.push(request);
+                                        toSyncProdObject.queries.push(request2);
                                         var writeStream = fs.createWriteStream(toSyncFileName);
                                         toSyncObject[sourceHasMany].options.splice(indexToRemove, 1);
                                         writeStream.write(JSON.stringify(toSyncObject, null, 4));
@@ -244,7 +246,7 @@ sequelize.customAfterSync = function() {
                                 resolve3();
                             }
                         }));
-                    })(sourceName, targetName, foreignKey);
+                    })(sourceName, targetName, foreignKey, optionsObject[j]);
                 }
             }
 
@@ -267,6 +269,7 @@ sequelize.customAfterSync = function() {
                         for(var i=0; i<toSyncObject[currentEntity].queries.length; i++){
                             (function(ibis) {
                                 sequelize.query(toSyncObject[currentEntity].queries[ibis]).then(function() {
+                                    toSyncProdObject.queries.push(toSyncObject[currentEntity].queries[ibis]);
                                     var writeStream = fs.createWriteStream(toSyncFileName);
                                     toSyncObject[currentEntity].queries.splice(ibis, 1);
                                     writeStream.write(JSON.stringify(toSyncObject, null, 4));
@@ -308,6 +311,7 @@ sequelize.customAfterSync = function() {
                 for(var i=0; i<toSyncObject.queries.length; i++){
                     (function(ibis) {
                         sequelize.query(toSyncObject.queries[ibis]).then(function() {
+                            toSyncProdObject.queries.push(toSyncObject.queries[ibis]);
                             toSyncObject.queries = toSyncObject.queries.splice(ibis, 1);
                             cptDone++;
                             doneQuery();
@@ -320,7 +324,12 @@ sequelize.customAfterSync = function() {
         }
 
         Promise.all(promises).then(function() {
-            resolve();
+            var writeStream = fs.createWriteStream(__dirname + '/toSyncProd.json');
+            writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
+            writeStream.end();
+            writeStream.on('finish', function() {
+                resolve();
+            });
         }).catch(function(err){
             reject(err);
         });

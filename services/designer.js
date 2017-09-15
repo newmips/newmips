@@ -66,11 +66,9 @@ exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, 
 /* --------------------------------------------------------------- */
 exports.help = function(attr, callback) {
     session.help(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
@@ -79,11 +77,9 @@ exports.help = function(attr, callback) {
 /* --------------------------------------------------------------- */
 exports.showSession = function(attr, callback) {
     session.showSession(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
@@ -92,11 +88,9 @@ exports.showSession = function(attr, callback) {
 /* --------------------------------------------------------------- */
 exports.deploy = function(attr, callback) {
     session.deploy(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
@@ -159,31 +153,25 @@ exports.gitStatus = function(attr, callback) {
 /* --------------------------------------------------------------- */
 exports.selectProject = function(attr, callback) {
     db_project.selectProject(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
 exports.createNewProject = function(attr, callback) {
     db_project.createNewProject(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
 exports.listProject = function(attr, callback) {
     db_project.listProject(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
@@ -253,11 +241,9 @@ exports.createNewApplication = function(attr, callback) {
 
 exports.listApplication = function(attr, callback) {
     db_application.listApplication(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
@@ -327,9 +313,8 @@ function deleteApplicationRecursive(appIds, idx) {
 
         deleteApplication(attr, function(err, info) {
             if(err)
-                reject(err);
-            else
-                return (appIds[++idx])?resolve(deleteApplicationRecursive(appIds, idx)):resolve();
+                return reject(err);
+            return (appIds[++idx])?resolve(deleteApplicationRecursive(appIds, idx)):resolve();
         });
     });
 }
@@ -339,47 +324,39 @@ function deleteApplicationRecursive(appIds, idx) {
 /* --------------------------------------------------------------- */
 exports.selectModule = function(attr, callback) {
     db_module.selectModule(attr, function(err, infoDB) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, infoDB);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, infoDB);
     });
 }
 
 exports.createNewModule = function(attr, callback) {
     db_module.createNewModule(attr, function(err, infoDB) {
-        if (err) {
-            callback(err, null);
-        } else {
-            infoDB.moduleName = attr.options.urlValue;
-            // Retrieve list of application modules to update them all
-            db_module.listModuleByApplication(attr, function(err, modules) {
-                if (err) {
-                    callback(err, null);
-                } else {
+        if (err)
+            return callback(err, null);
+        infoDB.moduleName = attr.options.urlValue;
+        // Retrieve list of application modules to update them all
+        db_module.listModuleByApplication(attr, function(err, modules) {
+            if (err)
+                return callback(err, null);
 
-                    // Assign list of existing application modules
-                    // Needed to recreate the dropdown list of modules in the interface
-                    attr.modules = modules;
+            // Assign list of existing application modules
+            // Needed to recreate the dropdown list of modules in the interface
+            attr.modules = modules;
 
-                    // Structure
-                    structure_module.setupModule(attr, function(err, data) {
-                        callback(null, infoDB);
-                    });
-                }
+            // Structure
+            structure_module.setupModule(attr, function(err, data) {
+                callback(null, infoDB);
             });
-        }
+        });
     });
 }
 
 exports.listModule = function(attr, callback) {
     db_module.listModule(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
@@ -478,11 +455,9 @@ exports.createNewDataEntity = function(attr, callback) {
 
 exports.listDataEntity = function(attr, callback) {
     db_entity.listDataEntity(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 
@@ -766,11 +741,9 @@ exports.deleteDataField = deleteDataField;
 
 exports.listDataField = function(attr, callback) {
     db_field.listDataField(attr, function(err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            callback(null, info);
-        }
+        if (err)
+            return callback(err, null);
+        callback(null, info);
     });
 }
 

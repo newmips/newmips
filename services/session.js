@@ -4,6 +4,7 @@ var db_module = require("../database/module");
 var db_entity = require("../database/data_entity");
 var globalConf = require("../config/global.js");
 var gitHelper = require("../utils/git_helper");
+var fs = require('fs-extra');
 
 var manager;
 if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
@@ -51,21 +52,17 @@ exports.showSession = function(attr, callback) {
     if (typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
 
     db_project.getNameProjectById(id_project, function(err, info) {
-        if (!err) {
+        if (!err)
             name_project = info;
-        }
         db_application.getNameApplicationById(id_application, function(err, info) {
-            if (!err) {
+            if (!err)
                 name_application = info;
-            }
             db_module.getNameModuleById(id_module, function(err, info) {
-                if (!err) {
+                if (!err)
                     name_module = info;
-                }
                 db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-                    if (!err) {
+                    if (!err)
                         name_data_entity = info;
-                    }
 
                     var info = new Array();
                     info.message = "Session :<br><ul>";
@@ -89,8 +86,39 @@ exports.deploy = function(attr, callback) {
     if (typeof(attr.id_application) !== 'undefined')
         id_application = attr.id_application;
 
-    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette') {
-            // Push on git before deploy
+    if (!(globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')) {
+        var protocol = globalConf.protocol;
+        var host = globalConf.host;
+        var math = require('math');
+        var port = math.add(9000, id_application);
+        var url = protocol + "://" + host + ":" + port;
+        var info = {};
+        info.message = "botresponse.applicationavailable";
+        info.messageParams = [url,url];
+
+        return callback(null, info);
+    }
+
+    // Get and increment application's version
+    var applicationPath = 'workspace/'+attr.id_application;
+    var applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
+    applicationConf.version++;
+    fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
+
+    // Create toSyncProd.lock file
+    if (fs.exists(applicationPath +'/models/toSyncProd.json'))
+        fs.unlink(applicationPath +'/models/toSyncProd.json');
+    fs.copySync(applicationPath +'/models/toSyncProd.json', applicationPath +'/models/toSyncProd.lock.json');
+
+    // Clear toSyncProd (not locked) file
+    fs.writeFileSync(applicationPath+'/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
+
+    // Create deploy.txt file to trigger cloud deploy actions
+    fs.writeFileSync(applicationPath+'/deploy.txt', applicationConf.version, 'utf8');
+
+    // Push on git before deploy
+    gitHelper.gitCommit(attr, function() {
+        gitHelper.gitTag(applicationConf.version).then(function() {
             gitHelper.gitPush(attr, function(err, infoGit){
                 if(err){
                     console.log(err);
@@ -109,10 +137,9 @@ exports.deploy = function(attr, callback) {
                     manager.createCloudDns(subdomain, attr.gitlabUser).then(function(data) {
                         var url = data.body.url;
                         var info = {};
-                            
+
                         info.message = "botresponse.deployment";
                         info.messageParams = [url,url];
-
 
                         callback(null, info);
                     }).catch(function(err) {
@@ -121,20 +148,8 @@ exports.deploy = function(attr, callback) {
                     });
                 });
             });
-    }
-    else {
-        var protocol = globalConf.protocol;
-        var host = globalConf.host;
-        var math = require('math');
-        var port = math.add(9000, id_application);
-        var url = protocol + "://" + host + ":" + port;
-        var info = {};
-        
-        info.message = "botresponse.applicationavailable";
-        info.messageParams = [url,url];     
-
-        callback(null, info);
-    }
+        });
+    });
 }
 
 // Get
@@ -156,21 +171,17 @@ exports.getSession = function(attr, callback) {
     if(typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
 
     db_project.getNameProjectById(id_project, function(err, info) {
-        if (!err) {
+        if (!err)
             name_project = info;
-        }
         db_application.getNameApplicationById(id_application, function(err, info) {
-            if (!err) {
+            if (!err)
                 name_application  = info;
-            }
             db_module.getNameModuleById(id_module, function(err, info) {
-                if(!err){
+                if(!err)
                     name_module = info;
-                }
                 db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-                    if(!err){
+                    if(!err)
                         name_data_entity = info;
-                    }
 
                     var returnInfo = {
                         "project": {
