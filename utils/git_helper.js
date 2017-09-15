@@ -25,7 +25,7 @@ function writeAllLogs(title, content, err){
 }
 
 module.exports = {
-    gitTag: function(tagName) {
+    gitTag: function(tagName, workspacePath) {
         return new Promise(function(resolve, reject) {
             if (!gitlabConf.doGit)
                 resolve();
