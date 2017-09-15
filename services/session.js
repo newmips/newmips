@@ -117,7 +117,11 @@ exports.deploy = function(attr, callback) {
     fs.writeFileSync(applicationPath+'/deploy.txt', applicationConf.version, 'utf8');
 
     // Push on git before deploy
-    gitHelper.gitCommit(attr, function() {
+    gitHelper.gitCommit(attr, function(err) {
+        if (err) {
+            console.log(err);
+            return callback(err);
+        }
         gitHelper.gitTag(applicationConf.version).then(function() {
             gitHelper.gitPush(attr, function(err, infoGit){
                 if(err){
@@ -148,6 +152,10 @@ exports.deploy = function(attr, callback) {
                     });
                 });
             });
+        }).catch(function(e) {
+            console.log("Deploy error");
+            console.log(e);
+            return callback(e);
         });
     });
 }
