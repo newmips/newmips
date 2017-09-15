@@ -140,14 +140,24 @@ $(document).ready(function() {
                 myEditor.setOption("mode", "xml");
                 break;
         }
-    }
+    };
+
+    var fileToDisable = ["/models/"];
+    function toDisable(path){
+        for(var i=0; i<fileToDisable.length; i++){
+            if(path.indexOf(fileToDisable[i]) != -1){
+                return true;
+            }
+        }
+        return false;
+    };
 
     /* -------- Load a file in the editor -------- */
     $(document).on("click", ".load-file", function() {
 
         var ajaxData = {
             path: $(this).attr("data-path")
-        }
+        };
 
         // Security
         $("#update-file").prop("disabled", true);
@@ -160,6 +170,10 @@ $(document).ready(function() {
             contentType: "application/json",
             context: this,
             success: function(data) {
+
+                // Is read only file ?
+                var isToDisable = toDisable($(this).attr("data-path"));
+
                 /* Save the current editor content in the OLD tab */
                 editorContent[$("#update-file").attr("data-path")] = myEditor.getValue();
 
@@ -176,8 +190,13 @@ $(document).ready(function() {
 
                 /* Update the save button */
                 data.path = data.path.replace(/\\/gi, '/');
-                $("#update-file").attr("data-path", data.path);
-                $("#update-file").removeAttr("disabled");
+                if(!isToDisable){
+                    $("#update-file").attr("data-path", data.path);
+                    $("#update-file").removeAttr("disabled");
+                } else{
+                    $("#update-file").attr("data-path", "");
+                    $("#update-file").prop("disabled", true);
+                }
 
                 /* Set good file editor mode */
                 setMode(data.extension);
@@ -194,11 +213,21 @@ $(document).ready(function() {
                     editorContent[data.path] = data.html;
                     editorSaveContent[data.path] = data.html;
                     myEditor.setValue(data.html);
+                    if(isToDisable)
+                        myEditor.setOption("readOnly", true);
+                    else
+                        myEditor.setOption("readOnly", false);
+
+
                 } else {
                     /* Tab already exist */
                     $("li[data-path='"+data.path+"']").addClass("active");
                     /* Get the old content */
                     myEditor.setValue(editorContent[data.path]);
+                    if(isToDisable)
+                        myEditor.setOption("readOnly", true);
+                    else
+                        myEditor.setOption("readOnly", false);
                 }
             },
             error: function(error) {
