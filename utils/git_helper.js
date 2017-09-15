@@ -25,6 +25,19 @@ function writeAllLogs(title, content, err){
 }
 
 module.exports = {
+    gitTag: function(tagName) {
+        return new Promise(function(resolve, reject) {
+            if (!gitlabConf.doGit)
+                resolve();
+            var simpleGit = require('simple-git')(workspacePath);
+            simpleGit.addAnnotatedTag(tagName, 'Tagging '+tagName)
+            .pushTags('origin').then(function() {
+                resolve();
+            }).catch(function(err){
+                reject(err);
+            });
+        });
+    },
     doGit: function(attr, callback){
         // We push code on gitlab only in our cloud env
         if(gitlabConf.doGit){

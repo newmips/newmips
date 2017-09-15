@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
