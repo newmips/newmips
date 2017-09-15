@@ -6,6 +6,7 @@ var block_access = require('../utils/block_access');
 var auth = require('../utils/authStrategies');
 var helper = require('../utils/helpers');
 var fs = require("fs");
+var language = require("../services/language");
 
 // Bot completion
 var bot = require('../services/bot.js');
@@ -96,7 +97,6 @@ router.get('/update_logs', function(req, res) {
     }
 });
 
-
 router.get('/completion', function(req, res) {
     try{
         var str = req.query.str;
@@ -108,4 +108,9 @@ router.get('/completion', function(req, res) {
     }
 });
 
+router.post('/ajaxtranslate', function(req, res) {
+    res.json({
+        value: language(req.body.lang).__(req.body.key, req.body.params)
+    });
+});
 module.exports = router;

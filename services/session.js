@@ -222,8 +222,8 @@ exports.setSession = function(attrFunction, req, info, data) {
             req.session.id_data_entity = null;
 
             // Redirect iframe to new module
-            var iframeUrl = data.iframe_url.split("/default/");
-            data.iframe_url = iframeUrl[0]+"/default/"+info.moduleName.toLowerCase();
+            var iframeUrl = data.iframe_url.split("/");
+            data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/default/"+info.moduleName.toLowerCase();
             break;
         case "createNewDataEntity":
         case "selectDataEntity":
