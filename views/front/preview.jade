@@ -274,6 +274,7 @@ block content
 			#logs.tab-pane.fade.in
 				.form-group
 					.form-control#logs-content(name='answers', style="white-space: pre-line;height: 700px;overflow:auto;background:black;color:#FFF;")
+
 block custom_js
 	// UI-Editor
 	script(src='https://code.jquery.com/ui/1.12.1/jquery-ui.js', type='text/javascript')
@@ -367,60 +368,6 @@ block custom_js
 		            }
 		        });
 			}
-
-			$(document).on("submit", "form#previewForm", function(e) {
-				$("#loadingIframe").show();
-				$.ajax({
-		            url: "/application/fastpreview",
-		            method: 'POST',
-		            data: $(this).serialize(),
-		            success: function(data) {
-		            	if(data.toRestart){
-		            		window.location.href = data.url;
-		            	} else{
-		            		// Reload iframe
-							var iframe = document.getElementById("iframe");
-							iframe.src = data.iframe_url;
-			            	// User instruction
-			            	var userItem = data.chat.items[data.chat.items.length-2];
-			            	$("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+userItem.dateEmission+"</small>"+userItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+userItem.content+"</span></p>");
-
-			            	// Mipsy answer
-			            	var mipsyItem = data.chat.items[data.chat.items.length-1];
-			            	getTranslation(mipsyItem.content, mipsyItem.params, function(mipsyAnswer){
-				            	$("#chat-box").append("<div class='item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+mipsyItem.dateEmission+"</small>"+mipsyItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+mipsyAnswer+"</span></p>");
-
-				            	$("#instruction").val("");
-				            	$("#instruction").blur();
-				            	$("#instruction").focus();
-				            	$("#execute_instruction").html("Executer");
-								$("#execute_instruction").prop("disabled", false);
-
-				            	var bottomCoord = $('#chat-box')[0].scrollHeight;
-								$('#chat-box').slimScroll({scrollTo: bottomCoord});
-
-								// Update UI Editor selector with new entities
-								var defaultUISelectorText = $("#entitySelect option")[0].text;
-								$("#entitySelect").empty();
-								$("#entitySelect").append("<option default value=''>"+defaultUISelectorText+"</option>");
-								for(var i=0; i<data.entities.length; i++){
-									$("#entitySelect").append("<option value='"+data.entities[i].codeName+"'>"+data.entities[i].name+"</option>");
-								}
-
-								// Wait a little for Iframe to refresh
-								setTimeout(function(){
-									$("#loadingIframe").hide();
-								}, 1500);
-			            	});
-		            	}
-		            },
-		            error: function(error) {
-		                console.log(error);
-		                toastr.error("Sorry, an error occured :/");
-		            }
-		        });
-		        return false;
-			});
 
 			////////////
 			// UI Editor
@@ -566,7 +513,7 @@ block custom_js
 				}
 			});
 
-			$(document).on("click", "#execute_instruction", function(e){
+			/*$(document).on("click", "#execute_instruction", function(e){
 				if($("#instruction").val() == ""){
 					toastr.error("Error, empty instruction.");
 					e.defaultPrevented();
@@ -587,6 +534,101 @@ block custom_js
 					$(this).html("Loading...");
 					$(this).prop("disabled", true);
 					//$(this).parents('form').submit();
+				}
+			});*/
+
+			$(document).on("submit", "form#previewForm", function(e) {
+				if($("#instruction").val() == ""){
+					toastr.error("Error, empty instruction.");
+					return false;
+				} else{
+				    if (instructionHistory == null) {
+				    	var instructionList = [];
+				    		if($("#instruction").val() != "restart server"){
+						    	instructionList.push($("#instruction").val());
+						        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionList));
+				    		}
+				    } else {
+				    	if($("#instruction").val() != "restart server"){
+				    		instructionHistory.push($("#instruction").val());
+				        	localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
+				    	}
+				    }
+					$("#execute_instruction").html("Loading...");
+					$("#execute_instruction").prop("disabled", true);
+					//$("#execute_instruction").parents('form').submit();
+					$("#loadingIframe").show();
+					$.ajax({
+			            url: "/application/fastpreview",
+			            method: 'POST',
+			            data: $(this).serialize(),
+			            success: function(data) {
+			            	if(data.toRestart){
+			            		window.location.href = data.url;
+			            	} else{
+			            		// Reload iframe
+								var iframe = document.getElementById("iframe");
+								iframe.src = data.iframe_url;
+				            	// User instruction
+				            	var userItem = data.chat.items[data.chat.items.length-2];
+				            	$("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+userItem.dateEmission+"</small>"+userItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+userItem.content+"</span></p>");
+
+				            	// Mipsy answer
+				            	var mipsyItem = data.chat.items[data.chat.items.length-1];
+				            	getTranslation(mipsyItem.content, mipsyItem.params, function(mipsyAnswer){
+					            	$("#chat-box").append("<div class='item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+mipsyItem.dateEmission+"</small>"+mipsyItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+mipsyAnswer+"</span></p>");
+
+					            	$("#instruction").val("");
+					            	$("#instruction").blur();
+					            	$("#instruction").focus();
+					            	$("#execute_instruction").html("Executer");
+									$("#execute_instruction").prop("disabled", false);
+
+					            	var bottomCoord = $('#chat-box')[0].scrollHeight;
+									$('#chat-box').slimScroll({scrollTo: bottomCoord});
+
+									// Update UI Editor selector with new entities
+									var defaultUISelectorText = $("#entitySelect option")[0].text;
+									$("#entitySelect").empty();
+									$("#entitySelect").append("<option default value=''>"+defaultUISelectorText+"</option>");
+									for(var i=0; i<data.entities.length; i++){
+										$("#entitySelect").append("<option value='"+data.entities[i].codeName+"'>"+data.entities[i].name+"</option>");
+									}
+
+									// Update Editor file selection
+									$("ul#sortable.sidebar-menu").empty();
+									function recursiveEditorFolders(folder){
+										var tmpContent = "";
+										if(folder){
+											for(var i=0; i<folder.length; i++){
+												var file = folder[i];
+												if (typeof file.path !== "undefined"){
+													tmpContent += "<li><a href='#' data-path='"+file.path+"' data-filename='"+file.title+"' class='load-file'><i class='fa fa-file'></i> "+file.title+"</a></li>";
+												} else if (typeof file.under !== "undefined"){
+													tmpContent += "<li style='display:block;' class='ui-state-default treeview'><a href='#'><i class='fa fa-folder'></i><span>"+file.title+"</span><i class='fa pull-right fa-angle-left'></i></a><ul class='treeview-menu'>";
+													tmpContent += recursiveEditorFolders(file.under);
+													tmpContent += "</ul></li>";
+												}
+											}
+										}
+										return tmpContent;
+									}
+									var content = recursiveEditorFolders(data.workspaceFolder);
+									$("ul#sortable.sidebar-menu").append(content);
+									$(".sidebar .treeview").tree();
+									// Wait a little for Iframe to refresh
+									setTimeout(function(){
+										$("#loadingIframe").hide();
+									}, 1500);
+				            	});
+			            	}
+			            },
+			            error: function(error) {
+			                console.log(error);
+			                toastr.error("Sorry, an error occured :/");
+			            }
+			        });
+			        return false;
 				}
 			});
 
