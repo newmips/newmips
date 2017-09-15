@@ -122,7 +122,7 @@ exports.deploy = function(attr, callback) {
             console.log(err);
             return callback(err);
         }
-        gitHelper.gitTag(applicationConf.version).then(function() {
+        gitHelper.gitTag(applicationConf.version, applicationPath).then(function() {
             gitHelper.gitPush(attr, function(err, infoGit){
                 if(err){
                     console.log(err);
