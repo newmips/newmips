@@ -596,8 +596,26 @@ block custom_js
 									}
 
 									// Update Editor file selection
-									console.log(data);
-
+									$("ul#sortable.sidebar-menu").empty();
+									function recursiveEditorFolders(folder){
+										var tmpContent = "";
+										if(folder){
+											for(var i=0; i<folder.length; i++){
+												var file = folder[i];
+												if (typeof file.path !== "undefined"){
+													tmpContent += "<li><a href='#' data-path='"+file.path+"' data-filename='"+file.title+"' class='load-file'><i class='fa fa-file'></i> "+file.title+"</a></li>";
+												} else if (typeof file.under !== "undefined"){
+													tmpContent += "<li style='display:block;' class='ui-state-default treeview'><a href='#'><i class='fa fa-folder'></i><span>"+file.title+"</span><i class='fa pull-right fa-angle-left'></i></a><ul class='treeview-menu'>";
+													tmpContent += recursiveEditorFolders(file.under);
+													tmpContent += "</ul></li>";
+												}
+											}
+										}
+										return tmpContent;
+									}
+									var content = recursiveEditorFolders(data.workspaceFolder);
+									$("ul#sortable.sidebar-menu").append(content);
+									$(".sidebar .treeview").tree();
 									// Wait a little for Iframe to refresh
 									setTimeout(function(){
 										$("#loadingIframe").hide();
