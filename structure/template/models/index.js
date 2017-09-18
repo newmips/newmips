@@ -4,9 +4,8 @@ var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
-var env = require('../config/global');
 var config = require('../config/database');
-var globalConf = require('../config/global')
+var globalConf = require('../config/global');
 var db = {};
 var allModels = [];
 var exec = require('child_process').exec;
@@ -51,7 +50,7 @@ sequelize.customAfterSync = function() {
         var request2 = "";
 
         /* ----------------- Récupération du toSync.json -----------------*/
-        var toSyncFileName = globalConf.env == 'production' ? __dirname + '/toSyncProd.lock.json' : __dirname + '/toSync.json';
+        var toSyncFileName = globalConf.env == 'cloud' || globalConf.env == 'cloud_recette' ? __dirname + '/toSyncProd.lock.json' : __dirname + '/toSync.json';
         toSyncFile = fs.readFileSync(toSyncFileName);
         toSyncObject = JSON.parse(toSyncFile);
 
@@ -325,14 +324,14 @@ sequelize.customAfterSync = function() {
         /* QUERIES */
         if(typeof toSyncObject.queries !== "undefined" && toSyncObject.queries.length > 0){
             promises.push(new Promise(function(resolveQueries, rejectQueries) {
-
                 var cptDone = 0;
                 var arrayQueryLength = toSyncObject.queries.length;
-                var writeStream = fs.createWriteStream(toSyncFileName);
+                var syncedObjectCpy = toSyncObject;
 
                 function doneQuery(){
-                    if(cptDone == arrayQueryLength){
-                        writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                    if(++cptDone == arrayQueryLength){
+                        var writeStream = fs.createWriteStream(toSyncFileName);
+                        writeStream.write(JSON.stringify(syncedObjectCpy, null, 4));
                         writeStream.end();
                         writeStream.on('finish', function() {
                             resolveQueries();
@@ -344,8 +343,7 @@ sequelize.customAfterSync = function() {
                     (function(ibis) {
                         sequelize.query(toSyncObject.queries[ibis]).then(function() {
                             toSyncProdObject.queries.push(toSyncObject.queries[ibis]);
-                            toSyncObject.queries = toSyncObject.queries.splice(ibis, 1);
-                            cptDone++;
+                            syncedObjectCpy.queries.splice(ibis, 1);
                             doneQuery();
                         }).catch(function(err){
                             rejectQueries(err);
