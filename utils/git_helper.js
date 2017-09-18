@@ -25,16 +25,27 @@ function writeAllLogs(title, content, err){
 }
 
 module.exports = {
-    gitTag: function(tagName) {
+    gitTag: function(idApplication, tagName, workspacePath) {
         return new Promise(function(resolve, reject) {
             if (!gitlabConf.doGit)
                 resolve();
             var simpleGit = require('simple-git')(workspacePath);
-            simpleGit.addAnnotatedTag(tagName, 'Tagging '+tagName)
-            .pushTags('origin').then(function() {
-                resolve();
-            }).catch(function(err){
-                reject(err);
+            models.Application.findOne({where:{id: idApplication}}).then(function(application){
+                // . becomes -
+                var cleanHost = globalConf.host.replace(/\./g, "-");
+
+                // Remove prefix
+                var nameApp = application.codeName.substring(2);
+                var nameRepo = cleanHost+"-"+nameApp;
+                var originName = "origin-"+cleanHost+"-"+nameApp;
+                simpleGit.addAnnotatedTag(tagName, 'Tagging '+tagName)
+                .pushTags(['-u', originName, 'master'], function(err) {
+                    if (err) {
+                        console.log(err);
+                        return reject(err);
+                    }
+                    resolve();
+                });
             });
         });
     },
