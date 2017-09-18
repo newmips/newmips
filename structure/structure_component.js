@@ -713,8 +713,8 @@ exports.newCra = function (attr, callback) {
         var piecesPath = __dirname + '/../structure/pieces/component/cra';
 
         // Clean toSync file, add custom fields
-        var toSync = {};
-        fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4));
+        //var toSync = {};
+        //fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4));
 
         // Copy pieces
         fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');

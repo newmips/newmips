@@ -1827,14 +1827,14 @@ exports.createNewComponentCra = function(attr, callback) {
                 return callback(err, null);
 
             // Add fieldset ID in user entity that already exist so toSync doesn't work
-            var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_cra_team_users` INT DEFAULT NULL;";
-            sequelize.query(request).then(function(){
+            //var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_cra_team_users` INT DEFAULT NULL;";
+            //sequelize.query(request).then(function(){
                 structure_component.newCra(attr, function(err, infoStructure){
                     if(err)
                         return callback(err, null);
                     callback(null, infoStructure);
                 });
-            });
+            //});
         });
     });
 }
