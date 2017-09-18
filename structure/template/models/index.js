@@ -51,7 +51,7 @@ sequelize.customAfterSync = function() {
         var request2 = "";
 
         /* ----------------- Récupération du toSync.json -----------------*/
-        var toSyncFileName = globalConf.env == 'production' ? 'toSync.json' : 'toSyncProd.lock.json';
+        var toSyncFileName = globalConf.env == 'production' ? __dirname + '/toSync.json' : __dirname + '/toSyncProd.lock.json';
         toSyncFile = fs.readFileSync(toSyncFileName);
         toSyncObject = JSON.parse(toSyncFile);
 
