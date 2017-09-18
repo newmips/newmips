@@ -130,9 +130,14 @@ function recursiveExecute(req, instructions, idx) {
             var toSyncFile = fs.readFileSync(toSyncFileName);
             var toSyncObject = JSON.parse(toSyncFile);
 
+            // Those table are generated in BDD with initializeApplication
+            var keepInToSync = [idApplication+"_e_user", idApplication+"_e_role", idApplication+"_e_group", idApplication+"_e_api_credentials"];
+
             for(var entity in toSyncObject){
-                toSyncObject[entity].attributes = {};
-                delete toSyncObject[entity].options;
+                if(keepInToSync.indexOf(entity) == -1){
+                    toSyncObject[entity].attributes = {};
+                    delete toSyncObject[entity].options;
+                }
             }
 
             var writeStream = fs.createWriteStream(toSyncFileName);
