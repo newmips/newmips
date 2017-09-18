@@ -122,7 +122,18 @@ sequelize.customAfterSync = function() {
                                     resolve0();
                                 });
                             }).catch(function(err) {
-                                reject0(err);
+                                if(err.parent.errno == 1060){
+                                    console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
+                                    var writeStream = fs.createWriteStream(toSyncFileName);
+                                    delete toSyncObject[sourceAttr].attributes[itemAttr];
+                                    writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                    writeStream.end();
+                                    writeStream.on('finish', function() {
+                                        resolve0();
+                                    });
+                                } else{
+                                    reject0(err);
+                                }
                             });
                         }
                         else{
@@ -185,10 +196,20 @@ sequelize.customAfterSync = function() {
                                         });
                                     });
                                 }).catch(function(err) {
-                                    reject2(err);
+                                    if(err.parent.errno == 1060){
+                                        console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
+                                        var writeStream = fs.createWriteStream(toSyncFileName);
+                                        toSyncObject[sourceBelongsTo].options.splice(indexToRemove, 1);
+                                        writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                        writeStream.end();
+                                        writeStream.on('finish', function() {
+                                            resolve2();
+                                        });
+                                    } else{
+                                        reject2(err);
+                                    }
                                 });
-                            }
-                            else{
+                            } else{
                                 resolve2();
                             }
                         }));
@@ -239,7 +260,18 @@ sequelize.customAfterSync = function() {
                                         });
                                     })
                                 }).catch(function(err) {
-                                    reject3(err);
+                                    if(err.parent.errno == 1060){
+                                        console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
+                                        var writeStream = fs.createWriteStream(toSyncFileName);
+                                        toSyncObject[sourceHasMany].options.splice(indexToRemove, 1);
+                                        writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                        writeStream.end();
+                                        writeStream.on('finish', function() {
+                                            resolve3();
+                                        });
+                                    } else{
+                                        reject3(err);
+                                    }
                                 });
                             }
                             else{
