@@ -132,11 +132,20 @@ function recursiveExecute(req, instructions, idx) {
 
             // Those table are generated in BDD with initializeApplication
             var keepInToSync = [idApplication+"_e_user", idApplication+"_e_role", idApplication+"_e_group", idApplication+"_e_api_credentials"];
+            var keepInToSync2 = ["e_user", "e_role", "e_group", "e_api_credentials"];
 
             for(var entity in toSyncObject){
+                // Remove attributes from tables that are going to be genereted by Sequelize sync()
                 if(keepInToSync.indexOf(entity) == -1){
                     toSyncObject[entity].attributes = {};
-                    delete toSyncObject[entity].options;
+                }
+                // Just keep hasMany for default entity (user, group, role, ...) options
+                if(typeof toSyncObject[entity].options !== "undefined"){
+                    for(var i=0; i< toSyncObject[entity].options.length; i++){
+                        if(keepInToSync2.indexOf(toSyncObject[entity].options[i].target) == -1 || toSyncObject[entity].options[i].relation == "belongsTo"){
+                            toSyncObject[entity].options.splice(i--, 1);
+                        }
+                    }
                 }
             }
 
