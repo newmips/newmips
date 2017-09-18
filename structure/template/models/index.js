@@ -6,6 +6,7 @@ var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
 var env = require('../config/global');
 var config = require('../config/database');
+var globalConf = require('../config/global')
 var db = {};
 var allModels = [];
 var exec = require('child_process').exec;
@@ -43,7 +44,6 @@ sequelize.customAfterSync = function() {
         var attributFileName;
         var attributFile;
         var attributObject;
-        var toSyncFileName;
         var toSyncFile;
         var toSyncObject;
         var promises = [];
@@ -51,7 +51,7 @@ sequelize.customAfterSync = function() {
         var request2 = "";
 
         /* ----------------- Récupération du toSync.json -----------------*/
-        toSyncFileName = __dirname + '/toSync.json';
+        var toSyncFileName = globalConf.env == 'production' ? __dirname + '/toSync.json' : __dirname + '/toSyncProd.lock.json';
         toSyncFile = fs.readFileSync(toSyncFileName);
         toSyncObject = JSON.parse(toSyncFile);
 
