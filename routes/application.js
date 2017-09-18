@@ -582,8 +582,13 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     // Store key entities in session for futur instruction
                     session_manager.setSession(attr.function, req, info, data);
 
-                    if (attr.function == "deleteApplication")
-                        return res.redirect("/default/home");
+                    if (attr.function == "deleteApplication"){
+                        //return res.redirect("/default/home");
+                        return res.send({
+                            toRestart: true,
+                            url: "/default/home"
+                        });
+                    }
 
                     if (attr.function == 'restart')
                         toRedirectRestart = true;
@@ -601,8 +606,13 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     env.PORT = port;
 
                     // If we stop the server manually we loose some stored data, so we just need to redirect.
-                    if(typeof process_server[req.session.id_application] === "undefined")
-                        return res.redirect("/application/preview?id_application="+req.session.id_application);
+                    if(typeof process_server[req.session.id_application] === "undefined"){
+                        //return res.redirect("/application/preview?id_application="+req.session.id_application);
+                        res.send({
+                            toRestart: true,
+                            url: "/application/preview?id_application="+req.session.id_application
+                        });
+                    }
                     // Kill server first
                     process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
 
@@ -666,8 +676,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                                 toRestart: true,
                                                 url: "/application/preview?id_application="+newAttr.id_application
                                             });
-                                        }
-                                        else{
+                                        } else{
                                             // Let's do git init or commit depending the env (only on cloud env for now)
                                             gitHelper.doGit(attr, function(err){
                                                 if(err)
