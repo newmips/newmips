@@ -32,6 +32,18 @@ sequelize.customAfterSync = function() {
 
         var promises = [];
 
+        var failures = {};
+        function addAttributeFailure(entity, attribute, element) {
+            if (!failures[entity])
+                failures[entity] = {attributes: {}, options: []};
+            failures[entity].attributes[attribute] = element;
+        }
+        function addOptionFailure(entity, element) {
+            if (!failures[entity])
+                failures[entity] = {attributes: {}, options: []};
+            failures[entity].options.push(element);
+        }
+
         /* ----------------- Récupération du toSync.json -----------------*/
         var toSyncFileName = globalConf.env == 'cloud' || globalConf.env == 'cloud_recette' ? __dirname + '/toSyncProd.lock.json' : __dirname + '/toSync.json';
         var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
@@ -84,26 +96,28 @@ sequelize.customAfterSync = function() {
                         promises.push(new Promise(function(resolve0, reject0) {
                             sequelize.query(query).then(function() {
                                 toSyncProdObject.queries.push(request);
-                                var writeStream = fs.createWriteStream(toSyncFileName);
-                                delete toSyncObject[entityB].attributes[attributeB];
-                                writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                writeStream.end();
-                                writeStream.on('finish', function() {
+                                // var writeStream = fs.createWriteStream(toSyncFileName);
+                                // delete toSyncObject[entityB].attributes[attributeB];
+                                // writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                // writeStream.end();
+                                // writeStream.on('finish', function() {
                                     resolve0();
-                                });
+                                // });
                             }).catch(function(err) {
                                 if(err.parent.errno == 1060){
                                     console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
-                                    var writeStream = fs.createWriteStream(toSyncFileName);
-                                    delete toSyncObject[entityB].attributes[attributeB];
-                                    writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                    writeStream.end();
-                                    writeStream.on('finish', function() {
+                                    // var writeStream = fs.createWriteStream(toSyncFileName);
+                                    // delete toSyncObject[entityB].attributes[attributeB];
+                                    // writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                    // writeStream.end();
+                                    // writeStream.on('finish', function() {
                                         resolve0();
-                                    });
+                                    // });
                                 }
-                                else
+                                else {
+                                    addAttributeFailure(entityB, attributeB, toSyncObject[entityB].attributes[attributeB]);
                                     reject0(err);
+                                }
                             });
                         }));
                     })(request, entity, attribute);
@@ -112,7 +126,7 @@ sequelize.customAfterSync = function() {
             // Sync options
             if (toSyncObject[entity].options)
                 for (var j = 0; j < toSyncObject[entity].options.length; j++) {
-                    (function(sourceEntity, option, idx) {
+                    (function(sourceEntity, option) {
                         promises.push(new Promise(function(resolve0, reject0) {
                             var tableName = sourceEntity.substring(sourceEntity.indexOf('_')+1);
                             var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
@@ -125,62 +139,55 @@ sequelize.customAfterSync = function() {
                                 request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
                                 request2 = "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
                             }
-                            else if (option == 'hasMany') {
+                            else if (option.relation == 'hasMany') {
                                 request = "ALTER TABLE ";
                                 request += targetName;
                                 request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
-                                request2 = "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceEntity+"` (id);";
+                                request2 = "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
                             }
 
                             sequelize.query(request).then(function() {
                                 sequelize.query(request2).then(function() {
                                     toSyncProdObject.queries.push(request);
                                     toSyncProdObject.queries.push(request2);
-                                    var writeStream = fs.createWriteStream(toSyncFileName);
-                                    toSyncObject[sourceEntity].options.splice(idx, 1);
-                                    writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                    writeStream.end();
-                                    writeStream.on('finish', function() {
-                                        resolve0();
-                                    });
+                                    resolve0();
                                 });
                             }).catch(function(err) {
-                                if(err.parent.errno == 1060){
-                                    console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
-                                    var writeStream = fs.createWriteStream(toSyncFileName);
-                                    toSyncObject[sourceEntity].options.splice(idx, 1);
-                                    writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                    writeStream.end();
-                                    writeStream.on('finish', function() {
-                                        resolve0();
-                                    });
-                                }
-                                else
+                                if(err.parent.errno == 1060)
+                                    resolve0();
+                                else {
+                                    console.log("CATCH DES RELATIONS");
+                                    console.log(err);
+                                    addOptionFailure(sourceEntity, option);
                                     reject0(err);
+                                }
                             });
                         }));
-                    })(entity, toSyncObject[entity].options[j], j);
+                    })(entity, toSyncObject[entity].options[j]);
                 }
 
             // Sync entity queries
             if (toSyncObject[entity].queries)
                 for (var j = 0; j < toSyncObject[entity].queries.length; j++) {
-                    (function(sourceEntity, query, idx) {
+                    (function(sourceEntity, query) {
                         promises.push(new Promise(function(resolve0, reject0) {
                             sequelize.query(query).then(function() {
                                 toSyncProdObject.queries.push(query);
-                                var writeStream = fs.createWriteStream(toSyncFileName);
-                                toSyncObject[currentEntity].queries.splice(idx, 1);
-                                writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                writeStream.end();
-                                writeStream.on('finish', function() {
+                                // var writeStream = fs.createWriteStream(toSyncFileName);
+                                // toSyncObject[currentEntity].queries.splice(idx, 1);
+                                // writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                                // writeStream.end();
+                                // writeStream.on('finish', function() {
                                     resolve0();
-                                });
+                                // });
                             }).catch(function(err){
+                                if (!failures[sourceEntity].queries)
+                                    failures[sourceEntity].queries = [];
+                                failures[sourceEntity].queries.push(query);
                                 reject0(err);
                             });
                         }));
-                    })(entity, toSyncObject[entity].queries[j], j);
+                    })(entity, toSyncObject[entity].queries[j]);
                 }
         }
 
@@ -191,14 +198,17 @@ sequelize.customAfterSync = function() {
                     promises.push(new Promise(function(resolve0, reject0) {
                         sequelize.query(query).then(function() {
                             toSyncProdObject.queries.push(query);
-                            toSyncObject.queries.splice(idx, 1);
-                            var writeStream = fs.createWriteStream(toSyncFileName);
-                            writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                            writeStream.end();
-                            writeStream.on('finish', function() {
+                            // toSyncObject.queries.splice(idx, 1);
+                            // var writeStream = fs.createWriteStream(toSyncFileName);
+                            // writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                            // writeStream.end();
+                            // writeStream.on('finish', function() {
                                 resolve0();
-                            });
+                            // });
                         }).catch(function(err){
+                            if (!failures.queries)
+                                failures.queries = [];
+                            failures.queries.push(query);
                             reject0(err);
                         });
                     }));
@@ -210,6 +220,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
+                fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
                 if (globalConf.hideModelInfo == true) {
                     var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname + '/../config/application.json'));
                     workspaceApplicationConf.hideModelInfo = false;
@@ -222,6 +233,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
+                fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
                 if (globalConf.hideModelInfo == true) {
                     var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname + '/../config/application.json'));
                     workspaceApplicationConf.hideModelInfo = false;

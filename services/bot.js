@@ -536,7 +536,6 @@ exports.createFieldset = function(result) {
     // Preparing Options
     var options = {
         target: target,
-        foreignKey: "id_"+as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -552,7 +551,6 @@ exports.createFieldsetUsing = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_"+as.toLowerCase(),
         as: as,
         usingField: usingField,
         processValue: true
@@ -2007,7 +2005,13 @@ exports.parse = function (instruction) {
             "créer le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
             "ajouter un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
-            "ajouter le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)"
+            "ajouter le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
+            "créer champ (.*) de type enum avec les valeurs (.*) et valeur par défaut (.*)",
+            "créer un champ (.*) de type enum avec les valeurs (.*) et valeur par défaut (.*)",
+            "créer le champ (.*) de type enum avec les valeurs (.*) et valeur par défaut (.*)",
+            "ajouter champ (.*) de type enum avec les valeurs (.*) et valeur par défaut (.*)",
+            "ajouter un champ (.*) de type enum avec les valeurs (.*) et valeur par défaut (.*)",
+            "ajouter le champ (.*) de type enum avec les valeurs (.*) et valeur par défaut (.*)"
         ],
         "createNewDataFieldWithTypeRadio": [
             "create field (.*) with type radio and values (.*)",
