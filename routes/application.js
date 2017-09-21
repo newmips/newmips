@@ -167,7 +167,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             else
                 attr.gitlabUser = null;
 
-            session_manager.getSession(attr, function(err, info) {
+            session_manager.getSession(attr, req, function(err, info) {
                 docBuilder.build(req.session.id_application).catch(function(err){
                     console.log(err);
                 });
@@ -336,7 +336,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams);
 
                     // Load session values
-                    session_manager.getSession(attr, function(err, infoSession) {
+                    session_manager.getSession(attr, req, function(err, infoSession) {
                         data.session = infoSession;
                         data.chat = req.session.chat[currentAppID][currentUserID];
                         initPreviewData(req.session.id_application, data).then(function(data) {
@@ -381,7 +381,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                         newAttr.id_module = req.session.id_module;
                         newAttr.id_data_entity = req.session.id_data_entity;
 
-                        session_manager.getSession(newAttr, function(err, info) {
+                        session_manager.getSession(newAttr, req, function(err, info) {
 
                             docBuilder.build(req.session.id_application).catch(function(err){
                                 console.log(err);
@@ -467,7 +467,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             attr.id_module = req.session.id_module;
             attr.id_data_entity = req.session.id_data_entity;
 
-            session_manager.getSession(attr, function(err, info) {
+            session_manager.getSession(attr, req, function(err, info) {
                 data.chat = req.session.chat[currentAppID][currentUserID];
                 data.session = info;
 
@@ -570,7 +570,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams);
 
                     // Load session values
-                    session_manager.getSession(attr, function(err, infoSession) {
+                    session_manager.getSession(attr, req, function(err, infoSession) {
                         data.session = infoSession;
                         data.chat = req.session.chat[currentAppID][currentUserID];
                         initPreviewData(req.session.id_application, data).then(function(data) {
@@ -626,7 +626,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                         newAttr.id_module = req.session.id_module;
                         newAttr.id_data_entity = req.session.id_data_entity;
 
-                        session_manager.getSession(newAttr, function(err, info) {
+                        session_manager.getSession(newAttr, req, function(err, info) {
 
                             docBuilder.build(req.session.id_application).catch(function(err){
                                 console.log(err);
@@ -717,7 +717,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             attr.id_module = req.session.id_module;
             attr.id_data_entity = req.session.id_data_entity;
 
-            session_manager.getSession(attr, function(err, info) {
+            session_manager.getSession(attr, req, function(err, info) {
                 data.chat = req.session.chat[currentAppID][currentUserID];
                 data.session = info;
 

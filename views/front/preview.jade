@@ -126,13 +126,41 @@ block content
 									|  Session
 							.box-body
 								.callout.callout-warning
-									| #{__("project.label")} : #{session.project.id_project} - #{session.project.name_project}
+									if (session.project.id_project != null)
+										| #{__("project.label")} :
+										b.sessionProjectInfo
+											|&nbsp;#{session.project.id_project} - #{session.project.name_project}
+									else
+										| #{__("project.label")} :
+										b.sessionProjectInfo
+											|&nbsp;#{__("preview.session.noProject")}
 									br
-									| #{__("application.label")} : #{session.application.id_application} - #{session.application.name_application}
+									if (session.application.id_application != null)
+										| #{__("application.label")} :
+										b.sessionApplicationInfo
+											|&nbsp;#{session.application.id_application} - #{session.application.name_application}
+									else
+										| #{__("application.label")} :
+										b.sessionApplicationInfo
+											|&nbsp;#{__("preview.session.noApplication")}
 									br
-									| #{__("module.label")} : #{session.module.id_module} - #{session.module.name_module}
+									if (session.module.id_module != null)
+										| #{__("module.label")} :
+										b.sessionModuleInfo
+											|&nbsp;#{session.module.id_module} - #{session.module.name_module}
+									else
+										| #{__("module.label")} :
+										b.sessionModuleInfo
+											|&nbsp;#{__("preview.session.noModule")}
 									br
-									| #{__("entity.label")} : #{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
+									if (session.data_entity.id_data_entity != null)
+										| #{__("entity.label")} :
+										b.sessionEntityInfo
+											|&nbsp;#{session.data_entity.id_data_entity} - #{session.data_entity.name_data_entity}
+									else
+										| #{__("entity.label")} :
+										b.sessionEntityInfo
+											|&nbsp;#{__("preview.session.noEntity")}
 							.box-footer
 								.text-center
 									a.btn.btn-app#restart-server(href="#")
@@ -536,6 +564,25 @@ block custom_js
 						// Reload iframe
 						var iframe = document.getElementById("iframe");
 						iframe.src = data.iframe_url;
+
+						// Update session screen
+						if(typeof data.session.project.id_project !== "undefined" && data.session.project.id_project != null)
+							$(".sessionProjectInfo").text(" "+data.session.project.id_project + " - " + data.session.project.name_project);
+						else
+							$(".sessionProjectInfo").text(" "+data.session.project.noProject);
+						if(typeof data.session.application.id_application !== "undefined" && data.session.application.id_application != null)
+							$(".sessionApplicationInfo").text(" "+data.session.application.id_application + " - " + data.session.application.name_application);
+						else
+							$(".sessionApplicationInfo").text(" "+data.session.application.noApplication);
+						if(typeof data.session.module.id_module !== "undefined" && data.session.module.id_module != null)
+							$(".sessionModuleInfo").text(" "+data.session.module.id_module + " - " + data.session.module.name_module);
+						else
+							$(".sessionModuleInfo").text(" "+data.session.module.noModule);
+						if(typeof data.session.data_entity.id_data_entity !== "undefined" && data.session.data_entity.id_data_entity != null)
+							$(".sessionEntityInfo").text(" "+data.session.data_entity.id_data_entity + " - " + data.session.data_entity.name_data_entity);
+						else
+							$(".sessionEntityInfo").text(" "+data.session.data_entity.noEntity);
+
 						// Keep instructionHistory up to date
 						instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_"+idApplication));
 						indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
