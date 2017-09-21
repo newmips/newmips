@@ -1421,7 +1421,8 @@ exports.createNewFieldset = function(attr, callback) {
             attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
         }
 
-        attr.options.foreignKey = "id_"+attr.options.urlSource+"_"+attr.options.as.toLowerCase();
+        // Now we know the source entity, so we can generate the foreign key
+        attr.options.foreignKey = "id_"+attr.options.urlSource+"_"+attrHelper.removePrefix(attr.options.as.toLowerCase(), "relation");;
 
         var allUsingExist = true;
 

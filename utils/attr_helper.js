@@ -169,6 +169,10 @@ function removePrefix(string, type){
             if(stringLower.substring(0,2) == "c_")
                 return string.substring(2);
             break;
+        case 'relation':
+            if(stringLower.substring(0,2) == "r_")
+                return string.substring(2);
+            break;
     }
 
     return string;
