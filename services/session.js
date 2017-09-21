@@ -5,6 +5,7 @@ var db_entity = require("../database/data_entity");
 var globalConf = require("../config/global.js");
 var gitHelper = require("../utils/git_helper");
 var fs = require('fs-extra');
+var language = require("../services/language");
 
 var manager;
 if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
@@ -161,22 +162,22 @@ exports.deploy = function(attr, callback) {
 }
 
 // Get
-exports.getSession = function(attr, callback) {
+exports.getSession = function(attr, req, callback) {
 
     var id_project = null;
     var id_application = null;
     var id_module = null;
     var id_data_entity = null;
 
-    var name_project = "None";
-    var name_application = "None";
-    var name_module = "None";
-    var name_data_entity = "None";
+    var name_project = null;
+    var name_application = null;
+    var name_module = null;
+    var name_data_entity = null;
 
-    if(typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
-    if(typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
-    if(typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
-    if(typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
+    if(typeof(attr.id_project) != 'undefined') id_project = attr.id_project;
+    if(typeof(attr.id_application) != 'undefined') id_application = attr.id_application;
+    if(typeof(attr.id_module) != 'undefined') id_module = attr.id_module;
+    if(typeof(attr.id_data_entity) != 'undefined') id_data_entity = attr.id_data_entity;
 
     db_project.getNameProjectById(id_project, function(err, info) {
         if (!err)
@@ -194,22 +195,25 @@ exports.getSession = function(attr, callback) {
                     var returnInfo = {
                         "project": {
                             "id_project": id_project,
-                            "name_project": name_project
+                            "name_project": name_project,
+                            "noProject": language(req.session.lang_user).__("preview.session.noProject")
                         },
                         "application": {
                             "id_application": id_application,
-                            "name_application": name_application
+                            "name_application": name_application,
+                            "noApplication": language(req.session.lang_user).__("preview.session.noApplication")
                         },
                         "module": {
                             "id_module": id_module,
-                            "name_module": name_module
+                            "name_module": name_module,
+                            "noModule": language(req.session.lang_user).__("preview.session.noModule")
                         },
                         "data_entity": {
                             "id_data_entity": id_data_entity,
-                            "name_data_entity": name_data_entity
+                            "name_data_entity": name_data_entity,
+                            "noEntity": language(req.session.lang_user).__("preview.session.noEntity")
                         }
                     };
-                    // console.log(info);
                     callback(null, returnInfo);
                 });
             });
