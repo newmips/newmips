@@ -997,7 +997,7 @@ function belongsToMany(attr){
                     };
 
                     var functionToDo;
-
+console.log(attr.tabType);
                     if(attr.tabType == "hasmany"){
                         structure_data_field.setupHasManyTab(reversedAttr, function(){
                             resolve();

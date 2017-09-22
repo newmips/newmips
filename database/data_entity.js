@@ -407,9 +407,7 @@ exports.retrieveWorkspaceHasManyData = function(idApp, codeNameEntity, foreignKe
 	}).then(function(result){
 		callback(result, null);
 	}).catch(function(err){
-		console.log("Warning: fail to retrieve has many data, maybe the table doesn't exist yet because we are in a script. Error:");
-		console.log(err.message);
-		callback([], err.original);
+		callback([]);
 	});
 }
 

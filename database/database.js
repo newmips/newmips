@@ -50,5 +50,7 @@ exports.dropFKDataField = function(attr, callback) {
         if (!pushToSyncQuery(attr.id_application, query))
             return callback("ERROR: Can't delete in database");
         callback();
+    }).catch(function(err) {
+        callback(err);
     });
 }
