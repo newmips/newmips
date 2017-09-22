@@ -325,35 +325,11 @@ exports.newPrint = function(attr, callback){
 					if($(this).find(".print-tab").length == 0){
 						var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
 						var htmlToInclude = "";
-						if($(this).attr("id") == "home"){
+						if($(this).attr("id") == "home")
 							htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
-						} else {
+						else
 							htmlToInclude = $(this)[0].innerHTML;
-						}
-						//var match;
 
-						// Find dust file inclusion with dust helper
-						/*var maRegex = new RegExp(/{&gt;["'](.[^"']*)["'].*\/}/g);
-						var matches = [];
-
-						while (match = maRegex.exec($(this)[0].innerHTML)) {
-							matches.push(match);
-						}
-
-						var string = $(this)[0].innerHTML;
-
-						// Replace those inclusion with the real dust file content
-						for(var i=0; i<matches.length; i++){
-							//The path of the included dust file
-							var dustPath = matches[i][1];
-							var dustContent = fs.readFileSync(__dirname + "/../workspace/" + idApp + "/views/" + dustPath + ".dust", "utf8");
-
-							if(i > 0){
-								// String has been previously modify so the index aren't correct, we have to update them every time after the first modification
-								matches[i].index = matches[i].index - matches[i-1][0].length + dustContent.length;
-							}
-							string = string.slice(0, matches[i].index) + dustContent + string.slice(matches[i].index + matches[i][0].length);
-						}*/
 						var contentToAdd = "<div class='dontbreakitplz'><legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>";
 
 						// Change ID to prevent JS errors in DOM
@@ -853,7 +829,7 @@ exports.setupChat = function(attr, callback) {
 
         // Add custom user_channel/user_chat columns to toSync file
         // Id will not be used but is required by sequelize to be able to query on the junction table
-        var toSync = require(workspacePath+'/models/toSync.json');
+        var toSync = JSON.parse(fs.readFileSync(workspacePath+'/models/toSync.json'));
         toSync[attr.id_application+'_chat_user_channel'] = {
             attributes: {
                 id_last_seen_message: {type: 'INTEGER', default: 0},

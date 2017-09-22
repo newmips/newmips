@@ -15,7 +15,7 @@ var moment_timezone = require('moment-timezone');
 
 var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
     host: config.connection.host,
-    logging: console.log,
+    logging: false,
     port: config.connection.port,
     dialectOptions: {
         multipleStatements: true
@@ -95,24 +95,12 @@ sequelize.customAfterSync = function() {
                     (function(query, entityB, attributeB) {
                         promises.push(new Promise(function(resolve0, reject0) {
                             sequelize.query(query).then(function() {
-                                toSyncProdObject.queries.push(request);
-                                // var writeStream = fs.createWriteStream(toSyncFileName);
-                                // delete toSyncObject[entityB].attributes[attributeB];
-                                // writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                // writeStream.end();
-                                // writeStream.on('finish', function() {
-                                    resolve0();
-                                // });
+                                toSyncProdObject.queries.push(query);
+                                resolve0();
                             }).catch(function(err) {
                                 if(err.parent.errno == 1060){
-                                    console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
-                                    // var writeStream = fs.createWriteStream(toSyncFileName);
-                                    // delete toSyncObject[entityB].attributes[attributeB];
-                                    // writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                    // writeStream.end();
-                                    // writeStream.on('finish', function() {
-                                        resolve0();
-                                    // });
+                                    console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
+                                    resolve0();
                                 }
                                 else {
                                     addAttributeFailure(entityB, attributeB, toSyncObject[entityB].attributes[attributeB]);
@@ -132,32 +120,27 @@ sequelize.customAfterSync = function() {
                             var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
                             var targetName = db[option.target.charAt(0).toUpperCase() + option.target.slice(1)].getTableName();
 
-                            var request, request2;
+                            var request;
                             if (option.relation == "belongsTo") {
                                 request = "ALTER TABLE ";
                                 request += sourceName;
                                 request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
-                                request2 = "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
                             }
                             else if (option.relation == 'hasMany') {
                                 request = "ALTER TABLE ";
                                 request += targetName;
                                 request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
-                                request2 = "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
+                                request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
                             }
 
                             sequelize.query(request).then(function() {
-                                sequelize.query(request2).then(function() {
-                                    toSyncProdObject.queries.push(request);
-                                    toSyncProdObject.queries.push(request2);
-                                    resolve0();
-                                });
+                                toSyncProdObject.queries.push(request);
+                                resolve0();
                             }).catch(function(err) {
                                 if(err.parent.errno == 1060)
                                     resolve0();
                                 else {
-                                    console.log("CATCH DES RELATIONS");
-                                    console.log(err);
                                     addOptionFailure(sourceEntity, option);
                                     reject0(err);
                                 }
@@ -173,13 +156,7 @@ sequelize.customAfterSync = function() {
                         promises.push(new Promise(function(resolve0, reject0) {
                             sequelize.query(query).then(function() {
                                 toSyncProdObject.queries.push(query);
-                                // var writeStream = fs.createWriteStream(toSyncFileName);
-                                // toSyncObject[currentEntity].queries.splice(idx, 1);
-                                // writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                                // writeStream.end();
-                                // writeStream.on('finish', function() {
-                                    resolve0();
-                                // });
+                                resolve0();
                             }).catch(function(err){
                                 if (!failures[sourceEntity].queries)
                                     failures[sourceEntity].queries = [];
@@ -198,13 +175,7 @@ sequelize.customAfterSync = function() {
                     promises.push(new Promise(function(resolve0, reject0) {
                         sequelize.query(query).then(function() {
                             toSyncProdObject.queries.push(query);
-                            // toSyncObject.queries.splice(idx, 1);
-                            // var writeStream = fs.createWriteStream(toSyncFileName);
-                            // writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                            // writeStream.end();
-                            // writeStream.on('finish', function() {
-                                resolve0();
-                            // });
+                            resolve0();
                         }).catch(function(err){
                             if (!failures.queries)
                                 failures.queries = [];
