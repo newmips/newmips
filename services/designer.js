@@ -889,7 +889,7 @@ exports.createNewHasOne = function(attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
-                } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany"){
+                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany")){
                     // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
                     toSync = false;
                 }
@@ -1087,7 +1087,7 @@ exports.createNewHasMany = function (attr, callback) {
                         });
                     })(i);
 
-                } else if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo"){
+                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")) {
 
                     // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
                     toSync = false;
@@ -1152,8 +1152,6 @@ exports.createNewHasMany = function (attr, callback) {
                                 if (err) {
                                     return callback(err, null);
                                 }
-                                // There is no need to custom sync the foreign key field because it will be created with the new data entity with Sequelize.sync()
-                                toSync = false;
                                 var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
                                 optionsObject = JSON.parse(optionsFile);
                                 structureCreation(attr, callback);
@@ -1252,7 +1250,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
                         var err = new Error();
                         err.message = "structure.association.error.circularHasMany";
                         return callback(err, null);
-                    } else if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo") {
+                    } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")) {
                         // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
                         toSync = false;
                     }
@@ -1377,7 +1375,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
-                } else if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany") {
+                } else if (attr.options.target.toLowerCase() != attr.options.source.toLowerCase() && optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany") {
                     // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
                     toSync = false;
                 }
@@ -1388,7 +1386,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 if (err)
                     return callback(err, null);
                 // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function () {
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function () {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToField(attr, function (err, data) {
                         if (err)
@@ -1482,7 +1480,7 @@ exports.createNewFieldset = function(attr, callback) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                     // TODO - belongsToMany
                     console.log("TODO - BelongsToMany");
-                } else if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo"){
+                } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")){
                     // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
                     toSync = false;
                 }
@@ -1730,12 +1728,12 @@ exports.createNewComponentAgenda = function(attr, callback) {
                     return callback(err, null);
 
                 // Clear toSync.json because all fields will be created with the entity creation
-                var toSyncFileName = './workspace/'+attr.id_application+'/models/toSync.json';
-                var writeStream = fs.createWriteStream(toSyncFileName);
-                var toSyncObject = {};
-                writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                writeStream.end();
-                writeStream.on('finish', function() {
+                // var toSyncFileName = './workspace/'+attr.id_application+'/models/toSync.json';
+                // var writeStream = fs.createWriteStream(toSyncFileName);
+                // var toSyncObject = {};
+                // writeStream.write(JSON.stringify(toSyncObject, null, 4));
+                // writeStream.end();
+                // writeStream.on('finish', function() {
                     // Create the component in newmips database
                     db_component.createNewComponentOnModule(attr, function(err, info){
                         if(err)
@@ -1761,7 +1759,7 @@ exports.createNewComponentAgenda = function(attr, callback) {
                             });
                         });
                     });
-                });
+                // });
             });
         }
     });
