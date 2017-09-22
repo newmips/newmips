@@ -7,9 +7,6 @@ var basename = path.basename(module.filename);
 var config = require('../config/database');
 var globalConf = require('../config/global');
 var db = {};
-var allModels = [];
-var exec = require('child_process').exec;
-var cmd = "";
 
 var moment_timezone = require('moment-timezone');
 
@@ -192,6 +189,8 @@ sequelize.customAfterSync = function() {
             writeStream.end();
             writeStream.on('finish', function() {
                 fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
+                delete require.cache[require.resolve(__dirname + '/../config/global')];
+                globalConf = require(__dirname + '/../config/global');
                 if (globalConf.hideModelInfo == true) {
                     var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname + '/../config/application.json'));
                     workspaceApplicationConf.hideModelInfo = false;
@@ -205,6 +204,8 @@ sequelize.customAfterSync = function() {
             writeStream.end();
             writeStream.on('finish', function() {
                 fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
+                delete require.cache[require.resolve(__dirname + '/../config/global')];
+                globalConf = require(__dirname + '/../config/global');
                 if (globalConf.hideModelInfo == true) {
                     var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname + '/../config/application.json'));
                     workspaceApplicationConf.hideModelInfo = false;
@@ -221,7 +222,6 @@ fs.readdirSync(__dirname).filter(function(file) {
 }).forEach(function(file) {
     var model = sequelize['import'](path.join(__dirname, file));
     db[model.name] = model;
-    allModels.push(model.name);
 });
 
 Object.keys(db).forEach(function(modelName) {

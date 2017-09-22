@@ -126,35 +126,7 @@ function recursiveExecute(req, instructions, idx) {
             // Api documentation
             docBuilder.build(req.session.id_application);
 
-            // var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
-            // var toSyncFile = fs.readFileSync(toSyncFileName);
-            // var toSyncObject = JSON.parse(toSyncFile);
-
-            // // Those table are generated in BDD with initializeApplication
-            // var keepInToSync = [idApplication+"_e_user", idApplication+"_e_role", idApplication+"_e_group", idApplication+"_e_api_credentials"];
-            // var keepInToSync2 = ["e_user", "e_role", "e_group", "e_api_credentials"];
-
-            // for(var entity in toSyncObject){
-            //     // Remove attributes from tables that are going to be genereted by Sequelize sync()
-            //     if(keepInToSync.indexOf(entity) == -1){
-            //         toSyncObject[entity].attributes = {};
-            //     }
-            //     // Just keep hasMany for default entity (user, group, role, ...) options
-            //     if(typeof toSyncObject[entity].options !== "undefined"){
-            //         for(var i=0; i< toSyncObject[entity].options.length; i++){
-            //             if(keepInToSync2.indexOf(toSyncObject[entity].options[i].target) == -1 || toSyncObject[entity].options[i].relation == "belongsTo"){
-            //                 toSyncObject[entity].options.splice(i--, 1);
-            //             }
-            //         }
-            //     }
-            // }
-
-            // var writeStream = fs.createWriteStream(toSyncFileName);
-            // writeStream.write(JSON.stringify(toSyncObject, null, 4));
-            // writeStream.end();
-            // writeStream.on('finish', function() {
-                resolve(idApplication);
-            // });
+            resolve(idApplication);
         }
         else {
             // If project and application are created and we're at the instruction that
@@ -288,13 +260,6 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
     rl.on('line', function(sourceLine) {
         var line = sourceLine;
-        // for (var i = 0; i < sourceLine.length; i++) {
-        //     var asciiValue = sourceLine.charCodeAt(i);
-        //     if ((asciiValue >= 32 && asciiValue < 155))
-        //         line += sourceLine.charAt(i);
-        //     else if (asciiValue == 65533)
-        //         line += 'é';
-        // }
 
         // Empty line || One line comment scope
         if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
@@ -373,10 +338,22 @@ router.post('/execute', block_access.isLoggedIn, multer({
         } else{
             scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
-                var workspaceApplicationConf = JSON.parse(fs.readFileSync('workspace/'+idApplication+'/config/application.json'));
-                workspaceApplicationConf.hideModelInfo = true;
-                fs.writeFileSync('workspace/'+idApplication+'/config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
-                scriptData[userId].over = true;
+                // var workspaceApplicationConf = JSON.parse(fs.readFileSync('workspace/'+idApplication+'/config/application.json'));
+                // workspaceApplicationConf.hideModelInfo = true;
+                // fs.writeFileSync('workspace/'+idApplication+'/config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
+                delete require.cache[require.resolve(__dirname+ '/../workspace/'+idApplication+'/models/')];
+                var workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
+                workspaceSequelize.sequelize.sync({ }).then(function(){
+                    workspaceSequelize.sequelize.customAfterSync().then(function(){
+                        scriptData[userId].over = true;
+                    }).catch(function(err) {
+                        console.log("ERROR DANS customAfterSync");
+                        console.log(err);
+                    });
+                }).catch(function(e) {
+                    console.log("AFTER SCRIP SYNC FAILED");
+                    scriptData[userId].over = true;
+                });
             }).catch(function(err) {
                 console.log(err);
                 scriptData[userId].over = true;
