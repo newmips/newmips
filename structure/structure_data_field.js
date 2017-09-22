@@ -518,12 +518,10 @@ exports.setupDataField = function (attr, callback) {
     var toSyncFileName = './workspace/' + id_application + '/models/toSync.json';
     var toSyncFile = fs.readFileSync(toSyncFileName);
     var toSyncObject = JSON.parse(toSyncFile);
-    if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] === "undefined") {
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] = {};
+    if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] === "undefined")
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] = {attributes: {}};
+    else if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes === "undefined")
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes = {};
-    } else if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes === "undefined") {
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes = {};
-    }
 
     var typeForModel = "STRING";
     var typeForDatalist = "string";
@@ -671,7 +669,7 @@ exports.setupDataField = function (attr, callback) {
             "type": typeForModel,
             "values": cleanEnumValues
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues
         };
@@ -685,7 +683,7 @@ exports.setupDataField = function (attr, callback) {
             "type": typeForModel,
             "values": cleanRadioValues
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = {
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues
         };
@@ -694,7 +692,7 @@ exports.setupDataField = function (attr, callback) {
             "type": typeForModel,
             "newmipsType": type_data_field
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()]["attributes"][name_data_field.toLowerCase()] = typeForModel;
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = typeForModel;
     }
 
     fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
