@@ -94,12 +94,12 @@
     	"validation": "Validate"
 	},
 	"operation": {
-		"show": "Show entity ",
-		"update": "Modify entity ",
-		"create": "Create entity ",
-		"delete": "Delete entity ",
-		"list": "List all ",
-    	"add": "Add entity "
+		"show": "Show",
+		"update": "Modify",
+		"create": "Create",
+		"delete": "Delete",
+		"list": "List",
+    	"add": "Add"
 	},
 	"message": {
 		"create": {

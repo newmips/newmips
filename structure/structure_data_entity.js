@@ -163,7 +163,7 @@ exports.setupDataEntity = function (attr, callback) {
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
-            li += '                         <!--{@__ key="operation.create" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.name_entity" /}-->\n';
+            li += '                         <!--{@__ key="operation.create" /}--> \n';
             li += '                     </a>\n';
             li += '                 </li>';
             li += '             <!--{/actionAccess}-->';
@@ -171,7 +171,7 @@ exports.setupDataEntity = function (attr, callback) {
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
-            li += '                         <!--{@__ key="operation.list" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.plural_entity" /}-->\n';
+            li += '                         <!--{@__ key="operation.list" /}--> \n';
             li += '                     </a>\n';
             li += '                 </li>\n';
             li += '             <!--{/actionAccess}-->';

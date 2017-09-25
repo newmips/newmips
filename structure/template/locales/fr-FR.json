@@ -94,12 +94,12 @@
         "validation": "Valider"
     },
     "operation": {
-        "show": "Afficher une entité ",
-        "update": "Modifier une entité ",
-        "create": "Créer une entité ",
-        "delete": "Supprimer une entité ",
-        "list": "Lister les ",
-        "add": "Ajouter une entité "
+        "show": "Afficher",
+        "update": "Modifier",
+        "create": "Créer",
+        "delete": "Supprimer",
+        "list": "Lister",
+        "add": "Ajouter"
     },
     "message": {
         "create": {
