@@ -338,9 +338,6 @@ router.post('/execute', block_access.isLoggedIn, multer({
         } else{
             scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
-                var workspaceApplicationConf = JSON.parse(fs.readFileSync('workspace/'+idApplication+'/config/application.json'));
-                workspaceApplicationConf.hideModelInfo = true;
-                fs.writeFileSync('workspace/'+idApplication+'/config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
                 delete require.cache[require.resolve(__dirname+ '/../workspace/'+idApplication+'/models/')];
                 var workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
                 workspaceSequelize.sequelize.sync({ }).then(function(){
