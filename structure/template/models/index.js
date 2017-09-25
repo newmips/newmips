@@ -189,12 +189,10 @@ sequelize.customAfterSync = function() {
             writeStream.end();
             writeStream.on('finish', function() {
                 fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
-                delete require.cache[require.resolve(__dirname + '/../config/global')];
-                globalConf = require(__dirname + '/../config/global');
-                if (globalConf.hideModelInfo == true) {
-                    var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname + '/../config/application.json'));
-                    workspaceApplicationConf.hideModelInfo = false;
-                    fs.writeFileSync(__dirname + '/../config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
+                var appConf = JSON.parse(fs.readFileSync(__dirname+'/../config/application.json'));
+                if (appConf.hideModelInfo == true) {
+                    appConf.hideModelInfo = false;
+                    fs.writeFileSync(__dirname + '/../config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
                 }
                 resolve();
             });
@@ -204,12 +202,10 @@ sequelize.customAfterSync = function() {
             writeStream.end();
             writeStream.on('finish', function() {
                 fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
-                delete require.cache[require.resolve(__dirname + '/../config/global')];
-                globalConf = require(__dirname + '/../config/global');
-                if (globalConf.hideModelInfo == true) {
-                    var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname + '/../config/application.json'));
-                    workspaceApplicationConf.hideModelInfo = false;
-                    fs.writeFileSync(__dirname + '/../config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
+                var appConf = JSON.parse(fs.readFileSync(__dirname+'/../config/application.json'));
+                if (appConf.hideModelInfo == true) {
+                    appConf.hideModelInfo = false;
+                    fs.writeFileSync(__dirname + '/../config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
                 }
                 reject(err);
             });

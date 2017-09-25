@@ -196,7 +196,7 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
-exports.initializeApplication = function(id_application, id_user, name_application) {
+exports.initializeApplication = function(id_application, id_user, name_application, hideModels) {
     return new Promise(function(resolve, reject) {
         // Copy authentication entities views
         var piecesPath = __dirname+'/pieces';
@@ -232,10 +232,6 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                         var groupModel = require(workspacePath+'/models/attributes/e_group.json');
                         groupModel.f_label.unique = true;
                         fs.writeFileSync(workspacePath+'/models/attributes/e_group.json', JSON.stringify(groupModel, null, 4), 'utf8');
-
-                        // Reset toSync to avoid double alter table resulting in error
-                        // var toSyncFileName = workspacePath+'/models/toSync.json';
-                        // fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
 
                         // Manualy add settings to access file because it's not a real entity
                         var access = require(workspacePath+'/config/access.json');
@@ -293,21 +289,21 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
-                                                models.User.findOne({where: {id: id_user}}).then(function(user) {
+                                                if (hideModels) {
                                                     var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname+'/../workspace/'+id_application+'/config/application.json'));
                                                     workspaceApplicationConf.hideModelInfo = true;
                                                     fs.writeFileSync(__dirname+'/../workspace/'+id_application+'/config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
+                                                }
 
-                                                    var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
-                                                    workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
-                                                        // Create application's DNS through dns_manager
-                                                        if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                                                            dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
-                                                                resolve();
-                                                            });
-                                                        else
+                                                var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
+                                                workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+                                                    // Create application's DNS through dns_manager
+                                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                                                        dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
                                                             resolve();
-                                                    });
+                                                        });
+                                                    else
+                                                        resolve();
                                                 });
                                             });
                                         });
