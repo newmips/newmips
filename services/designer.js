@@ -883,18 +883,22 @@ exports.createNewHasOne = function(attr, callback) {
 
             // Vérification si une relation existe déjà de la target VERS la source
             var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
-            var optionsObject = JSON.parse(optionsFile);
-            for(var i=0; i<optionsObject.length; i++){
-                if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany"){
+            var targetOptionsObject = JSON.parse(optionsFile);
+            for(var i=0; i<targetOptionsObject.length; i++){
+                if(targetOptionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && targetOptionsObject[i].relation != "hasMany"){
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
-                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany")){
+                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
+                    && (targetOptionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && targetOptionsObject[i].relation == "hasMany")
+                    && (targetOptionsObject[i].foreignKey == attr.options.foreignKey)){
                     // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
                     toSync = false;
                 }
             }
 
+            // For the newmips generator BDD, needed for db_field.createNewForeignKey
+            attr.id_data_entity = IDdataEntitySource;
 
             // Ajout de la foreign key dans la BDD Newmips
             db_field.createNewForeignKey(attr, function(err, created_foreignKey){
@@ -997,7 +1001,6 @@ function belongsToMany(attr){
                     };
 
                     var functionToDo;
-console.log(attr.tabType);
                     if(attr.tabType == "hasmany"){
                         structure_data_field.setupHasManyTab(reversedAttr, function(){
                             resolve();
@@ -1276,7 +1279,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
                     }
 
                     // Right now we have id_TARGET_as and we want id_SOURCE_as
-                    var newForeignKey = "id_" + attr.options.source + "_" + attr.options.as.substring(2);
+                    var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
                     newForeignKey = newForeignKey.toLowerCase();
 
                     // Créer le lien belongsTo en la source et la target
@@ -1420,7 +1423,7 @@ exports.createNewFieldset = function(attr, callback) {
         }
 
         // Now we know the source entity, so we can generate the foreign key
-        attr.options.foreignKey = "f_id_"+attr.options.urlSource+"_"+attrHelper.removePrefix(attr.options.as.toLowerCase(), "relation");
+        attr.options.foreignKey = "fk_id_"+attr.options.urlSource+"_"+attr.options.as.toLowerCase().substring(2);
 
         var allUsingExist = true;
 
@@ -1562,7 +1565,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                             // Setup the hasMany association in the source entity
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
-                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
+                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
                                         // Get module info needed for structure
                                         db_module.getModuleById(attr.id_module, function(err, module){
                                             if(err)

@@ -120,11 +120,13 @@ function addPrefix(string, instructionFunction){
         case 'createNewDataField':
         case 'deleteDataField':
         case 'deleteTab':
-        case 'foreignKey':
         case 'using':
         case 'setFieldAttribute':
         case 'setColumnVisibility':
             return "f_"+string;
+            break;
+        case 'foreignKey':
+            return "fk_"+string;
             break;
         case 'alias':
             /* R for Relation */
