@@ -89,14 +89,14 @@ exports.createNewForeignKey = function (attr, callback) {
             codeName: attr.options.source
         },
         include: [{
-                model: models.Module,
-                include: [{
-                        model: models.Application,
-                        where: {
-                            id: attr.id_application
-                        }
-                    }]
+            model: models.Module,
+            include: [{
+                model: models.Application,
+                where: {
+                    id: attr.id_application
+                }
             }]
+        }]
     }).then(function (dataEntity) {
         models.DataField.create({
             name: name,

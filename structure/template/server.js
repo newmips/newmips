@@ -285,8 +285,8 @@ if (protocol == 'https') {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                f_id_role_role: 1,
-                                f_id_group_group: 1,
+                                fk_id_role_role: 1,
+                                fk_id_group_group: 1,
                                 f_enabled: 0
                             });
                         });
@@ -325,8 +325,8 @@ else {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                f_id_role_role: 1,
-                                f_id_group_group: 1,
+                                fk_id_role_role: 1,
+                                fk_id_group_group: 1,
                                 f_enabled: 0,
                                 version: 0
                             });
