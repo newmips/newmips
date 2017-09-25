@@ -131,23 +131,17 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Token timeout TMSP");
     instructions.push("select module home");
 
-    function finishApplicationInitialization() {
-        structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
-            data.answers = req.session.answers.join('<br><br>');
-            return res.redirect('/application/preview?id_application=' + req.session.id_application);
-        });
-    }
-
     function recursiveExecute(recurInstructions, idx) {
         // All instructions executed
         if (recurInstructions.length == idx) {
-            finishApplicationInitialization();
-            docBuilder.build(req.session.id_application);
+            structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application, false).then(function() {
+                docBuilder.build(req.session.id_application);
+                res.redirect('/application/preview?id_application=' + req.session.id_application);
+            });
             return;
         }
 
         execute(req, recurInstructions[idx]).then(function(){
-
             pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
             recursiveExecute(recurInstructions, ++idx);
         }).catch(function(err){
@@ -156,7 +150,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
                 level: "error"
             }];
             return res.redirect('/default/home');
-        })
+        });
     }
     recursiveExecute(instructions, 0);
 });
