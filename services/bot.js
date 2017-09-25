@@ -1429,6 +1429,19 @@ var training = {
         "ajouter une liste de (.*) liée à (.*)",
         "ajouter liste de (.*) liée à (.*)",
         "ajouter liste de (.*) lié à (.*)",
+
+        "create field (.*) related to multiple (.*)",
+        "add field (.*) related to multiple (.*)",
+        "create data field (.*) related to multiple (.*)",
+        "add data field (.*) related to multiple (.*)",
+        "create field (.*) related to many (.*)",
+        "add field (.*) related to many (.*)",
+        "create data field (.*) related to many (.*)",
+        "add data field (.*) related to many (.*)",
+        "créer un champ (.*) relié à plusieurs (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*)",
+        "créer champ (.*) relié à plusieurs (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*)"
     ],
     "createFieldsetUsing": [
         "create fieldset (.*) related to (.*) using (.*)",
@@ -1442,7 +1455,24 @@ var training = {
         "ajouter une liste de (.*) lié à (.*) en affichant (.*)",
         "ajouter une liste de (.*) liée à (.*) en affichant (.*)",
         "ajouter liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter liste de (.*) liée à (.*) en affichant (.*)"
+        "ajouter liste de (.*) liée à (.*) en affichant (.*)",
+
+        "create field (.*) related to multiple (.*) using (.*)",
+        "add field (.*) related to multiple (.*) using (.*)",
+        "create data field (.*) related to multiple (.*) using (.*)",
+        "add data field (.*) related to multiple (.*) using (.*)",
+        "create field (.*) related to many (.*) using (.*)",
+        "add field (.*) related to many (.*) using (.*)",
+        "create data field (.*) related to many (.*) using (.*)",
+        "add data field (.*) related to many (.*) using (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) en affichant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) en affichant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) en affichant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) en affichant (.*)"
     ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",
