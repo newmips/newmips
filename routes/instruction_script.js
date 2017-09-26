@@ -334,13 +334,40 @@ router.post('/execute', block_access.isLoggedIn, multer({
         } else{
             scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
+
+                // Workspace sequelize instance
                 delete require.cache[require.resolve(__dirname+ '/../workspace/'+idApplication+'/models/')];
                 var workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
-                workspaceSequelize.sequelize.sync({}).then(function(){
-                    workspaceSequelize.sequelize.customAfterSync().then(function(){
-                        scriptData[userId].over = true;
-                    });
+
+                // We need to clear toSync.json
+                var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
+                var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+
+                // Looking for already exisiting table in workspace BDD
+                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
+                    var workspaceTables = [];
+                    for(var i=0; i<result.length; i++){
+                        if(result[i].TABLE_NAME.substring(0, result[i].TABLE_NAME.indexOf("_")+1) == idApplication+"_"){
+                            workspaceTables.push(result[i].TABLE_NAME);
+                        }
+                    }
+
+                    for(var entity in toSyncObject){
+                        if(workspaceTables.indexOf(entity) == -1){
+                            toSyncObject[entity].attributes = {};
+                            delete toSyncObject[entity].options;
+                        }
+                    }
+
+                    console.log(toSyncObject);
+                    fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
+                    scriptData[userId].over = true;
                 });
+                // workspaceSequelize.sequelize.sync({}).then(function(){
+                //     workspaceSequelize.sequelize.customAfterSync().then(function(){
+                //         scriptData[userId].over = true;
+                //     });
+                // });
             }).catch(function(err) {
                 console.log(err);
                 scriptData[userId].over = true;
