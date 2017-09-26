@@ -794,7 +794,7 @@ exports.setupChat = function(attr, callback) {
         fs.copySync(piecesPath+'/chat/models/options/', workspacePath+'/models/options/');
 
         // Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
-        var userOptions = require(workspacePath+'/models/options/e_user');
+        var userOptions = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_user.json'));
         userOptions.push({
             target: 'e_chat',
             relation: 'belongsToMany',
@@ -822,7 +822,7 @@ exports.setupChat = function(attr, callback) {
         fs.writeFileSync(workspacePath+'/models/options/e_chat.json', option, 'utf8');
 
         // Set socket and chat config to enabled/true
-        var appConf = require(workspacePath+'/config/application');
+        var appConf = JSON.parse(fs.readFileSync(workspacePath+'/config/application.json'));
         appConf.socket.enabled = true;
         appConf.socket.chat = true;
         fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
