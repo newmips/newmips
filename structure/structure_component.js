@@ -922,7 +922,7 @@ exports.addNewComponentAddress = function (attr, callback) {
         var relation = {
             "target": componentName,
             "relation": "hasMany",
-            "foreignKey": "id_" + source,
+            "foreignKey": "fk_id_" + source,
             "as": 'r_' + componentName
         };
         //Update relation file
@@ -963,13 +963,13 @@ exports.addNewComponentAddress = function (attr, callback) {
         var newTabContent = '<div id=r_' + componentName + ' class="tab-pane fade">'
                 + '{#r_' + componentName + ' ' + componentName + '=r_' + componentName + '}'
                 + '{@eq key=id value=' + componentName + '[0].id}'
-                + '{>"' + componentName + '/list_fields" associationAlias="r_' + componentName + '" associationForeignKey="f_id_' + source.replace('e_', '') + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + source.replace('e_', '') + '" for="hasMany" /}'
+                + '{>"' + componentName + '/list_fields" associationAlias="r_' + componentName + '" associationForeignKey="fk_id_' + source.replace('e_', '') + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + source.replace('e_', '') + '" for="hasMany" /}'
                 + '{/eq}'
                 + '{:else}'
                 + '{>"' + componentName + '/list_fields" /}'
                 + '{/r_' + componentName + '}'
                 + '<br>'
-                + '<a href="/' + componentUrl + '/create_form?associationAlias=r_' + componentName + '&amp;associationForeignKey=f_id_' + source + '&amp;associationFlag={' + source + '.id}&amp;associationSource=' + source + '&amp;associationUrl=' + source.replace('e_', '') + '" class="btn btn-success">'
+                + '<a href="/' + componentUrl + '/create_form?associationAlias=r_' + componentName + '&amp;associationForeignKey=fk_id_' + source + '&amp;associationFlag={' + source + '.id}&amp;associationSource=' + source + '&amp;associationUrl=' + source.replace('e_', '') + '" class="btn btn-success">'
                 + '    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>'
                 + '</a>'
                 + '</div>';
