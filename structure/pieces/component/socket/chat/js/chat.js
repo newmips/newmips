@@ -92,7 +92,7 @@ var socket = io();
 	    channel += '    <a href="#">';
 	    channel += '        <img class="contacts-list-img">';
 	    channel += '        <div class="contacts-list-info">';
-	    channel += '            <span class="contacts-list-name">';
+	    channel += '            <span class="contacts-list-name"><i class="fa fa-bullhorn"></i>&nbsp;&nbsp;';
 	    channel += '                '+channelObj.f_name;
 		channel += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((channelObj.notSeen && channelObj.notSeen > 0) ? '' : 'display:none;')+'">'+channelObj.notSeen+'</span>'
 	    channel += '            </span>';
@@ -109,7 +109,7 @@ var socket = io();
 		chat += '    <a href="#">';
 		chat += '        <img class="contacts-list-img">';
 		chat += '        <div class="contacts-list-info">';
-		chat += '            <span class="contacts-list-name">';
+		chat += '            <span class="contacts-list-name"><i class="fa fa-user"></i>&nbsp;&nbsp;';
 		chat += '                '+chatObj.contact.f_login;
 		chat += '                <small class="contacts-list-date pull-right">'+ formatDate(new Date(chatObj.updatedAt))+'</small>';
 		chat += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((chatObj.notSeen && chatObj.notSeen > 0) ? '' : 'display:none;')+'">'+chatObj.notSeen+'</span>'
@@ -198,7 +198,7 @@ var socket = io();
 	function loadPreviousChatMessage(discussion) {
 		if (discussion.type == 'chat') {
 			chats[discussion.id].offset = chats[discussion.id].messages.length;
-			socket.emit('chat-load', {id_chat: discussion.id, limit: chats[discussion.id].limit, offset: chats[discussion.id].offset});
+			socket.emit('chat-load', {id_cha: discussion.id, limit: chats[discussion.id].limit, offset: chats[discussion.id].offset});
 		}
 		else if (discussion.type == 'channel') {
 			channels[discussion.id].offset = channels[discussion.id].messages.length;
@@ -308,14 +308,14 @@ $(function() {
 
 		// CHANNEL
 		socket.on('channel-message', function(data) {
-			if (channels[data.f_id_channel])
-				channels[data.f_id_channel].messages.unshift(data);
+			if (channels[data.fk_id_channel])
+				channels[data.fk_id_channel].messages.unshift(data);
 
 			// If message is not for current discussion append it, if not increment notif
-			if (discussion && (discussion.id == data.f_id_channel))
+			if (discussion && (discussion.id == data.fk_id_channel))
 				appendToDiscussion(data);
 			else
-				incrementNotifications(data.f_id_channel, 'channel');
+				incrementNotifications(data.fk_id_channel, 'channel');
 		});
 
 		socket.on('channel-messages', function(data) {
@@ -341,14 +341,14 @@ $(function() {
 
 		// CHAT
 		socket.on('chat-message', function(data) {
-			if (chats[data.f_id_chat])
-				chats[data.f_id_chat].messages.unshift(data);
+			if (chats[data.fk_id_chat])
+				chats[data.fk_id_chat].messages.unshift(data);
 
 			// If message is not for current discussion append it, if not increment notif
-			if (discussion && (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver))
+			if (discussion && (discussion.id_contact == data.fk_id_user_sender || discussion.id_contact == data.fk_id_user_receiver))
 				appendToDiscussion(data);
 			else
-				incrementNotifications(data.f_id_chat, 'chat');
+				incrementNotifications(data.fk_id_chat, 'chat');
 		});
 
 		socket.on('chat-messages', function(data) {
