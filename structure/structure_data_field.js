@@ -1234,7 +1234,7 @@ exports.setupRelatedToField = function (attr, callback) {
     });
 }
 
-exports.setupFieldset = function (attr, callback) {
+exports.setupRelatedToMultipleField = function (attr, callback) {
     var target = attr.options.target.toLowerCase();
     var showTarget = attr.options.showTarget.toLowerCase();
     var urlTarget = attr.options.urlTarget.toLowerCase();

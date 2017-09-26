@@ -1054,7 +1054,6 @@ exports.createNewHasMany = function (attr, callback) {
         function structureCreation(attr, callback){
             var doingBelongsToMany = false;
             // Vérification si une relation existe déjà de la target VERS la source
-
             for(var i=0; i<optionsObject.length; i++){
                 if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                     doingBelongsToMany = true;
@@ -1089,10 +1088,10 @@ exports.createNewHasMany = function (attr, callback) {
                             });
                         });
                     })(i);
-
-                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")) {
-
-                    // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
+                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
+                    && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
+                    && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
+                    // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
                     toSync = false;
                 }
             }
@@ -1250,11 +1249,15 @@ exports.createNewHasManyPreset = function(attr, callback) {
                 // Vérification si une relation existe déjà de la target VERS la source
                 for (var i = 0; i < optionsObject.length; i++) {
                     if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+                        // TODO - belongsToMany
+                        console.log("TODO - BelongsToMany");
                         var err = new Error();
                         err.message = "structure.association.error.circularHasMany";
                         return callback(err, null);
-                    } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")) {
-                        // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
+                    } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
+                        && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
+                        && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
+                        // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
                         toSync = false;
                     }
                 }
@@ -1289,7 +1292,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
 
                             var info = {};
                             info.insertId = attr.id_data_entity;
-                            info.message = "structure.association.fieldset.success";
+                            info.message = "structure.association.hasManyExisting.success";
                             info.messageParams = [attr.options.showTarget, attr.options.showSource];
                             callback(null, info);
                         });
@@ -1378,8 +1381,10 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
-                } else if (attr.options.target.toLowerCase() != attr.options.source.toLowerCase() && optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany") {
-                    // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
+                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
+                    && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "hasMany")
+                    && (optionsObject[i].foreignKey == attr.options.foreignKey)){
+                    // We avoid the toSync to append because the already existing has many relation has already created the foreign key in BDD
                     toSync = false;
                 }
             }
@@ -1408,8 +1413,8 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
 }
 
 // Select multiple in create/show/update related to target entity
-exports.createNewFieldset = function(attr, callback) {
-    // Instruction is add fieldset _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name so we have to find it
+exports.createNewFieldRelatedToMultiple = function(attr, callback) {
+    // Instruction is add field _FOREIGNKEY_ related to multiple _TARGET_ -> We don't know the source entity name so we have to find it
     db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
         if(err && typeof attr.options.source === "undefined")
             return callback(err, null);
@@ -1483,8 +1488,13 @@ exports.createNewFieldset = function(attr, callback) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                     // TODO - belongsToMany
                     console.log("TODO - BelongsToMany");
-                } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase() || (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")){
-                    // We avoid the toSync to append because the already existing has one relation has already created the foreing key in BDD
+                    var err = new Error();
+                    err.message = "structure.association.error.circularHasMany";
+                    return callback(err, null);
+                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
+                    && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
+                    && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
+                    // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
                     toSync = false;
                 }
             }
@@ -1506,9 +1516,9 @@ exports.createNewFieldset = function(attr, callback) {
                 // Créer le lien hasMany en la source et la target
                 structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-                    structure_data_field.setupFieldset(attr, function(){
+                    structure_data_field.setupRelatedToMultipleField(attr, function(){
                         var info = {};
-                        info.message = "structure.association.fieldset.success";
+                        info.message = "structure.association.relatedToMultiple.success";
                         info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
                         callback(null, info);
                     });

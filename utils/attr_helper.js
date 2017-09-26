@@ -111,7 +111,7 @@ function addPrefix(string, instructionFunction){
         case 'deleteDataEntity':
         case 'createNewHasOne':
         case 'createNewHasMany':
-        case 'createNewFieldset':
+        case 'createNewFieldRelatedToMultiple':
         case 'createNewHasManyPreset':
         case 'createNewFieldRelatedTo':
         case 'createNewComponentContactForm':
