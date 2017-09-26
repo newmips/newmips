@@ -528,7 +528,7 @@ exports.createFieldRelatedToUsing = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
-exports.createFieldset = function(result) {
+exports.createFieldRelatedToMultiple = function(result) {
 
     var as = result[1];
     var target = result[2];
@@ -540,10 +540,10 @@ exports.createFieldset = function(result) {
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewFieldset", options, as);
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
-exports.createFieldsetUsing = function(result) {
+exports.createFieldRelatedToMultipleUsing = function(result) {
 
     var as = result[1];
     var target = result[2];
@@ -556,7 +556,7 @@ exports.createFieldsetUsing = function(result) {
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewFieldset", options, as);
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
 // --------- One to Many ---------
@@ -624,39 +624,6 @@ exports.relationshipHasManyPresetUsing = function (result) {
     };
 
     return checkAndCreateAttr("createNewHasManyPreset", options, target);
-};
-
-exports.relationshipHasManyPresetBis = function(result) {
-
-    var as = result[1];
-    var target = result[2];
-
-    // Preparing Options
-    var options = {
-        target: target,
-        foreignKey: "id_" + as.toLowerCase(),
-        as: as,
-        processValue: true
-    };
-
-    return checkAndCreateAttr("createNewHasManyPreset", options, as);
-};
-
-exports.relationshipHasManyPresetUsingBis = function(result) {
-
-    var as = result[1];
-    var target = result[2];
-    var usingField = result[3];
-
-    var options = {
-        target: target,
-        foreignKey: "id_" + as.toLowerCase(),
-        as: as,
-        usingField: usingField,
-        processValue: true
-    };
-
-    return checkAndCreateAttr("createNewHasManyPreset", options, as);
 };
 
 // ******* COMPONENT Actions ******* //
@@ -1416,7 +1383,7 @@ var training = {
         "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
     ],
-    "createFieldset": [
+    "createFieldRelatedToMultiple": [
         "create fieldset (.*) related to (.*)",
         "add fieldset (.*) related to (.*)",
         "create list of (.*) related to (.*)",
@@ -1443,7 +1410,7 @@ var training = {
         "créer champ (.*) relié à plusieurs (.*)",
         "ajouter champ (.*) relié à plusieurs (.*)"
     ],
-    "createFieldsetUsing": [
+    "createFieldRelatedToMultipleUsing": [
         "create fieldset (.*) related to (.*) using (.*)",
         "add fieldset (.*) related to (.*) using (.*)",
         "create list of (.*) related to (.*) using (.*)",
