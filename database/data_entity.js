@@ -251,6 +251,12 @@ exports.listDataEntityNameByApplicationId = function(id_application, callback) {
 // GetById
 exports.getNameDataEntityById = function(idEntity, callback) {
 
+	if(idEntity == null){
+		var err = new Error();
+        err.message = "database.field.error.selectOrCreateBefore";
+        return callback(err, null);
+	}
+
 	models.DataEntity.findOne({where: {id: idEntity}}).then(function(dataEntity) {
 		if (!dataEntity) {
 			var err = new Error();
@@ -267,6 +273,12 @@ exports.getNameDataEntityById = function(idEntity, callback) {
 
 // GetById
 exports.getDataEntityById = function(idEntity, callback) {
+
+	if(idEntity == null){
+		var err = new Error();
+        err.message = "database.field.error.selectOrCreateBefore";
+        return callback(err, null);
+	}
 
 	models.DataEntity.findOne({where: {id: idEntity}}).then(function(dataEntity) {
 		if (!dataEntity) {
