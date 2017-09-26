@@ -136,13 +136,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
         if (recurInstructions.length == idx) {
             structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
                 docBuilder.build(req.session.id_application);
-                delete require.cache[require.resolve(__dirname+ '/../workspace/'+req.session.id_application+'/models/')];
-                var workspaceSequelize = require(__dirname +'/../workspace/'+req.session.id_application+'/models/');
-                workspaceSequelize.sequelize.sync({}).then(function(){
-                    workspaceSequelize.sequelize.customAfterSync().then(function(){
-                        res.redirect('/application/preview?id_application=' + req.session.id_application);
-                    });
-                });
+                res.redirect('/application/preview?id_application=' + req.session.id_application);
             });
             return;
         }

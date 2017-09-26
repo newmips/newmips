@@ -119,7 +119,7 @@ var idxAtMandatoryInstructionStart = -1;
 function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
         // All instructions executed, mandatory instruction included
-        if (instructions.length == idx && idxAtMandatoryInstructionStart != -1){
+        if (scriptData[req.session.passport.user.id].totalInstruction == idx){
             var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
             // Api documentation
             docBuilder.build(req.session.id_application);
