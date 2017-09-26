@@ -1876,12 +1876,6 @@ exports.parse = function (instruction) {
             var result = regExp.exec(instruction);
             if (result !== null) {
                 /* Get the most complicated instruction found */
-                console.log(instructionResult.action);
-                console.log(regStr);
-                console.log("//////////");
-                console.log(instructionResult.instructionLength);
-                console.log(regStr.length);
-                console.log("----");
                 if (instructionResult.instructionLength < regStr.length) {
                     instructionResult = {
                         action: action,

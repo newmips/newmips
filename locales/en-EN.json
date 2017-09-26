@@ -323,7 +323,7 @@
                 "successSubEntity": "New relation has many with sub-entity %s created."
             },
             "fieldset":{
-                "success": "New fieldset of existing %s created on %s."
+                "success": "New field %s related to multiple %s created on %s."
             },
             "relatedTo": {
                 "success": "New field %s related to %s created.",
