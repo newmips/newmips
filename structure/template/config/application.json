@@ -5,6 +5,5 @@
 		"enabled": false,
 		"chat": false,
 		"notifications": false
-	},
-	"hideModelInfo": false
+	}
 }
