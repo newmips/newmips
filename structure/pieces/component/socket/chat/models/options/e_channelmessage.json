@@ -2,13 +2,13 @@
     {
         "target": "e_channel",
         "relation": "belongsTo",
-        "foreignKey": "f_id_channel",
+        "foreignKey": "fk_id_channel",
         "as": "r_channel"
     },
     {
         "target": "e_user",
         "relation": "belongsTo",
-        "foreignKey": "f_id_user_sender",
+        "foreignKey": "fk_id_user_sender",
         "as": "r_sender"
     }
 ]

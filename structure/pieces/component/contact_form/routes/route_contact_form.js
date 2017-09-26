@@ -254,7 +254,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
         mailer_helper.sendMailAsyncCustomTransport(mailOptions, mailSettings).then(function(success) {
             var createObject = model_builder.buildForRoute(attributes, options, req.body);
             //createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
-            createObject.f_id_user_user = req.session.passport.user.id;
+            createObject.fk_id_user_user = req.session.passport.user.id;
             createObject.f_recipient = settings.f_form_recipient;
             models.MODEL_VALUE_CONTACT.create(createObject).then(function (CODE_VALUE_CONTACT) {
                 var redirect = '/URL_VALUE_CONTACT/create_form';

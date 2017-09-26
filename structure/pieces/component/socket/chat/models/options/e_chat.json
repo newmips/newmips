@@ -10,7 +10,7 @@
     {
         "target": "e_chatmessage",
         "relation": "hasMany",
-        "foreignKey": "f_id_chat",
+        "foreignKey": "fk_id_chat",
         "as": "r_chatmessage"
     }
 ]

@@ -28,7 +28,7 @@
         "plural_entity": "Teams",
         "id_entity": "ID",
         "f_name": "name",
-        "f_id_admin_user": "ID Admin",
+        "fk_id_admin_user": "ID Admin",
         "admin_only": "You need to be admin of your A.R Team to access this page."
     },
     "e_cra_calendar_settings": {
