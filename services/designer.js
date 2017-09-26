@@ -985,7 +985,7 @@ function belongsToMany(attr){
                         options: {
                             target: attr.options.source,
                             source: attr.options.target,
-                            foreignKey: 'f_id_'+attr.options.target.substring(2),
+                            foreignKey: 'fk_id_'+attr.options.target.substring(2),
                             as: attr.options.as,
                             showTarget: attr.options.showSource,
                             urlTarget: attr.options.urlSource,

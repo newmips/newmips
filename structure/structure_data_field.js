@@ -1058,8 +1058,8 @@ exports.saveHasManyData = function (attr, data, foreignKey, callback){
     delete require.cache[require.resolve(jsonPath)];
     var toSync = require(jsonPath);
     toSync.queries = [];
-    var firstKey = "id_"+attr.options.source;
-    var secondKey = "id_"+attr.options.target;
+    var firstKey = "fk_id_"+attr.options.source;
+    var secondKey = "fk_id_"+attr.options.target;
     /* Insert value in toSync queries array to add values of the old has many in the belongs to many */
     for(var i=0; i<data.length; i++){
         toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
