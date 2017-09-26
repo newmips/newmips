@@ -128,8 +128,8 @@ function generateExistingCRA(data) {
 
     var knownActivities = [];
     for (var i = 0; i < data.cra.r_cra_task.length; i++)
-        if (!knownActivities[data.cra.r_cra_task[i].f_id_cra_activity])
-            knownActivities[data.cra.r_cra_task[i].f_id_cra_activity] = data.cra.r_cra_task[i].r_cra_activity;
+        if (!knownActivities[data.cra.r_cra_task[i].fk_id_cra_activity])
+            knownActivities[data.cra.r_cra_task[i].fk_id_cra_activity] = data.cra.r_cra_task[i].r_cra_activity;
     for (var i = 0; i < data.team.r_default_cra_activity.length; i++)
         if (!knownActivities[data.team.r_default_cra_activity[i].id])
             knownActivities[data.team.r_default_cra_activity[i].id] = data.team.r_default_cra_activity[i];
@@ -147,7 +147,7 @@ function generateExistingCRA(data) {
             var dayOffLabel = '';
             for (var k = 0; k < data.cra.r_cra_task.length; k++) {
                 var task = data.cra.r_cra_task[k];
-                if (task.f_id_cra_activity == knownActivities[acty].id) {
+                if (task.fk_id_cra_activity == knownActivities[acty].id) {
                     var date = new Date(task.f_date);
                     if (date.getDate() == days[j].getDate()) {
                         taskExists = true;

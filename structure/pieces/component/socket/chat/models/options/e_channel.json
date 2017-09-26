@@ -10,7 +10,7 @@
     {
     	"target": "e_channelmessage",
     	"relation": "hasMany",
-    	"foreignKey": "f_id_channel",
+    	"foreignKey": "fk_id_channel",
     	"as": "r_channelmessage"
     }
 ]

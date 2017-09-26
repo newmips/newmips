@@ -97,7 +97,7 @@
             {/r_cra_calendar_settings}
             {#r_cra_calendar_settings}
             <form action="/cra_calendar_settings/delete" method="post">
-                <a style="margin-right:8px;" href="/cra_calendar_settings/update_form?id={id}&amp;associationAlias=r_cra_calendar_settings&amp;associationForeignKey=f_id_cra_calendar_settings&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team"
+                <a style="margin-right:8px;" href="/cra_calendar_settings/update_form?id={id}&amp;associationAlias=r_cra_calendar_settings&amp;associationForeignKey=fk_id_cra_calendar_settings&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team"
                     class="btn btn-warning">
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>
                 </a>
@@ -105,14 +105,14 @@
                 <span>{@__ key="button.delete" /}</span>
                 <input name="id" value="{id}" type="hidden">
                 <input name="associationAlias" value="r_cra_calendar_settings" type="hidden">
-                <input name="associationForeignKey" value="f_id_cra_calendar_settings" type="hidden">
+                <input name="associationForeignKey" value="fk_id_cra_calendar_settings" type="hidden">
                 <input name="associationFlag" value="{e_cra_team.id}" type="hidden">
                 <input name="associationSource" value="e_cra_team" type="hidden">
                 <input name="associationUrl" value="cra_team" type="hidden">
             </button>
             </form>
             {:else}
-            <a href="/cra_calendar_settings/create_form?associationAlias=r_cra_calendar_settings&amp;associationForeignKey=f_id_cra_calendar_settings&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team" class="btn btn-success">
+            <a href="/cra_calendar_settings/create_form?associationAlias=r_cra_calendar_settings&amp;associationForeignKey=fk_id_cra_calendar_settings&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team" class="btn btn-success">
                 <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
             </a>
             {/r_cra_calendar_settings}
@@ -136,13 +136,13 @@
             </div>
             {#r_cra_calendar_exception e_cra_calendar_exception=r_cra_calendar_exception}
                 {@eq key=id value=e_cra_calendar_exception[0].id}
-                    {>"e_cra_calendar_exception/list_fields" associationAlias="r_cra_calendar_exception" associationForeignKey="f_id_cra_team" associationFlag="{e_cra_team.id}" associationSource="e_cra_team" associationUrl="cra_team" for="hasMany" /}
+                    {>"e_cra_calendar_exception/list_fields" associationAlias="r_cra_calendar_exception" associationForeignKey="fk_id_cra_team" associationFlag="{e_cra_team.id}" associationSource="e_cra_team" associationUrl="cra_team" for="hasMany" /}
                 {/eq}
             {:else}
                 {>"e_cra_calendar_exception/list_fields" /}
             {/r_cra_calendar_exception}
             <br>
-            <a href="/cra_calendar_exception/create_form?associationAlias=r_cra_calendar_exception&amp;associationForeignKey=f_id_cra_team&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team" class="btn btn-success">
+            <a href="/cra_calendar_exception/create_form?associationAlias=r_cra_calendar_exception&amp;associationForeignKey=fk_id_cra_team&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team" class="btn btn-success">
                 <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
             </a>
         </div>
