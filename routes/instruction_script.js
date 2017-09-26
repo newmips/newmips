@@ -118,17 +118,13 @@ var idxAtMandatoryInstructionStart = -1;
 
 function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
-        // All instructions executed
-        if (instructions.length == idx){
-            /* Reset toSync.json because in this situation it's the sequelize sync() that will do the job, not our custom sync */
+        // All instructions executed, mandatory instruction included
+        if (instructions.length == idx && idxAtMandatoryInstructionStart != -1){
             var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
-
             // Api documentation
             docBuilder.build(req.session.id_application);
-
             resolve(idApplication);
-        }
-        else {
+        } else {
             // If project and application are created and we're at the instruction that
             // follows create application, insert mandatory instructions to instruction array
             if (scriptData[req.session.passport.user.id].ids.id_project > 0 && scriptData[req.session.passport.user.id].ids.id_application > 0 && parser.parse(instructions[idx-1].toLowerCase())["function"] == "createNewApplication") {
@@ -137,7 +133,7 @@ function recursiveExecute(req, instructions, idx) {
             }
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
             if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
-                structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application, true).then(function(){
+                structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));
@@ -340,7 +336,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 delete require.cache[require.resolve(__dirname+ '/../workspace/'+idApplication+'/models/')];
                 var workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
-                workspaceSequelize.sequelize.sync({ }).then(function(){
+                workspaceSequelize.sequelize.sync({}).then(function(){
                     workspaceSequelize.sequelize.customAfterSync().then(function(){
                         scriptData[userId].over = true;
                     });

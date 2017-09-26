@@ -196,7 +196,7 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
-exports.initializeApplication = function(id_application, id_user, name_application, hideModels) {
+exports.initializeApplication = function(id_application, id_user, name_application) {
     return new Promise(function(resolve, reject) {
         // Copy authentication entities views
         var piecesPath = __dirname+'/pieces';
@@ -289,11 +289,9 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
-                                                if (hideModels) {
-                                                    var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname+'/../workspace/'+id_application+'/config/application.json'));
-                                                    workspaceApplicationConf.hideModelInfo = true;
-                                                    fs.writeFileSync(__dirname+'/../workspace/'+id_application+'/config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
-                                                }
+                                                var workspaceApplicationConf = JSON.parse(fs.readFileSync(__dirname+'/../workspace/'+id_application+'/config/application.json'));
+                                                workspaceApplicationConf.hideModelInfo = true;
+                                                fs.writeFileSync(__dirname+'/../workspace/'+id_application+'/config/application.json', JSON.stringify(workspaceApplicationConf, null, 4), 'utf8');
 
                                                 var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
                                                 workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
