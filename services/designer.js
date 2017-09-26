@@ -1509,7 +1509,7 @@ exports.createNewFieldset = function(attr, callback) {
                     structure_data_field.setupFieldset(attr, function(){
                         var info = {};
                         info.message = "structure.association.fieldset.success";
-                        info.messageParams = [attr.options.showAs, attr.options.showSource];
+                        info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
                         callback(null, info);
                     });
                 });
