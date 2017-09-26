@@ -321,7 +321,10 @@
                 "successEntity": "Nouvelle association 'Has Many' avec l'entité %s créée.",
                 "successSubEntity": "Nouvelle association 'Has Many' avec la sous-entité %s créée."
             },
-            "fieldset":{
+            "hasManyExisting": {
+                "success": "Nouvelle association 'Has Many Existing' avec l'entité %s créée sur %s."
+            },
+            "relatedToMultiple":{
                 "success": "Nouveau champ %s relié à plusieurs %s créé sur %s."
             },
             "relatedTo": {
