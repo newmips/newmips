@@ -469,7 +469,7 @@ exports.relationshipHasOne = function (result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + target.toLowerCase(),
+        foreignKey: "fk_id_" + target.toLowerCase(),
         as: target,
         processValue: true
     };
@@ -486,7 +486,7 @@ exports.relationshipHasOneWithName = function (result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
+        foreignKey: "fk_id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -503,7 +503,7 @@ exports.createFieldRelatedTo = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
+        foreignKey: "fk_id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -519,7 +519,7 @@ exports.createFieldRelatedToUsing = function (result) {
 
     var options = {
         target: target,
-        foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
+        foreignKey: "fk_id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         usingField: usingField,
         processValue: true
@@ -569,7 +569,7 @@ exports.relationshipHasMany = function (result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
+        foreignKey: "fk_id_" + source.toLowerCase(),
         as: target,
         processValue: true
     };
@@ -586,7 +586,7 @@ exports.relationshipHasManyWithName = function (result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase() + "_" + as.toLowerCase(),
+        foreignKey: "fk_id_" + source.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -601,7 +601,7 @@ exports.relationshipHasManyPreset = function (result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
+        foreignKey: "fk_id_" + source.toLowerCase(),
         as: target,
         processValue: true
     };
@@ -617,7 +617,7 @@ exports.relationshipHasManyPresetUsing = function (result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
+        foreignKey: "fk_id_" + source.toLowerCase(),
         as: target,
         usingField: usingField,
         processValue: true
@@ -634,7 +634,7 @@ exports.relationshipHasManyPresetBis = function(result) {
     // Preparing Options
     var options = {
         target: target,
-        foreignKey: "id_" + as.toLowerCase(),
+        foreignKey: "fk_id_" + as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -650,7 +650,7 @@ exports.relationshipHasManyPresetUsingBis = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_" + as.toLowerCase(),
+        foreignKey: "fk_id_" + as.toLowerCase(),
         as: as,
         usingField: usingField,
         processValue: true

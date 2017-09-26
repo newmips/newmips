@@ -17,8 +17,8 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
 
     if (relation == "belongsToMany") {
         baseOptions.through = through;
-        baseOptions.foreignKey = "id_"+sourceDataEntity;
-        baseOptions.otherKey = "id_"+targetDataEntity;
+        baseOptions.foreignKey = "fk_id_"+sourceDataEntity;
+        baseOptions.otherKey = "fk_id_"+targetDataEntity;
     }
 
     optionsObject.push(baseOptions);
