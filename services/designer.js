@@ -1398,7 +1398,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                         var info = {};
                         info.insertId = attr.id_data_entity;
                         info.message = "structure.association.relatedTo.success";
-                        info.messageParams = [attr.options.as, dataEntity.name];
+                        info.messageParams = [attr.options.showAs, attr.options.showTarget];
                         callback(null, info);
                     });
                 });
@@ -1509,7 +1509,7 @@ exports.createNewFieldset = function(attr, callback) {
                     structure_data_field.setupFieldset(attr, function(){
                         var info = {};
                         info.message = "structure.association.fieldset.success";
-                        info.messageParams = [attr.options.as, dataEntity.name];
+                        info.messageParams = [attr.options.showAs, attr.options.showSource];
                         callback(null, info);
                     });
                 });
