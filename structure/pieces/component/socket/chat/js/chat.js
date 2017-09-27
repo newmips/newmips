@@ -92,7 +92,7 @@ var socket = io();
 	    channel += '    <a href="#">';
 	    channel += '        <img class="contacts-list-img">';
 	    channel += '        <div class="contacts-list-info">';
-	    channel += '            <span class="contacts-list-name"><i class="fa fa-bullhorn"></i>&nbsp;&nbsp;';
+	    channel += '            <span class="contacts-list-name"><i class="fa fa-plus"></i>&nbsp;&nbsp;';
 	    channel += '                '+channelObj.f_name;
 		channel += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((channelObj.notSeen && channelObj.notSeen > 0) ? '' : 'display:none;')+'">'+channelObj.notSeen+'</span>'
 	    channel += '            </span>';
@@ -198,7 +198,7 @@ var socket = io();
 	function loadPreviousChatMessage(discussion) {
 		if (discussion.type == 'chat') {
 			chats[discussion.id].offset = chats[discussion.id].messages.length;
-			socket.emit('chat-load', {id_cha: discussion.id, limit: chats[discussion.id].limit, offset: chats[discussion.id].offset});
+			socket.emit('chat-load', {id_chat: discussion.id, limit: chats[discussion.id].limit, offset: chats[discussion.id].offset});
 		}
 		else if (discussion.type == 'channel') {
 			channels[discussion.id].offset = channels[discussion.id].messages.length;
