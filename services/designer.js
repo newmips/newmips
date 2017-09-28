@@ -922,9 +922,8 @@ exports.createNewHasOne = function(attr, callback) {
                 structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupHasOneTab(attr, function(err, data){
-                        if(err){
+                        if(err)
                             return callback(err, null);
-                        }
                         callback(null, info);
                     });
                 });
@@ -948,7 +947,7 @@ exports.createNewHasOne = function(attr, callback) {
                         // Stay on the source entity, even if the target has been created
                         info.insertId = attr.id_data_entity;
                         info.message = "structure.association.hasOne.successSubEntity";
-                        info.messageParams = [created_dataEntity.name];
+                        info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
 
                         db_module.getModuleById(attr.id_module, function(err, module) {
                             if(err){
@@ -977,9 +976,8 @@ exports.createNewHasOne = function(attr, callback) {
 
                 // KEEP - Stay on the source entity
                 info.insertId = attr.id_data_entity;
-
                 info.message = "structure.association.hasOne.successEntity";
-                info.messageParams = [dataEntity.name];
+                info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
                 structureCreation(attr, callback);
             }
         });
@@ -1153,7 +1151,7 @@ exports.createNewHasMany = function (attr, callback) {
                         info.insertId = attr.id_data_entity;
 
                         info.message = "structure.association.hasMany.successSubEntity";
-                        info.messageParams = [created_dataEntity.name];
+                        info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
 
                         db_module.getModuleById(attr.id_module, function (err, module) {
                             if (err) {
@@ -1206,7 +1204,7 @@ exports.createNewHasMany = function (attr, callback) {
                 info.insertId = attr.id_data_entity;
 
                 info.message = "structure.association.hasMany.successEntity";
-                info.messageParams = [dataEntity.name];
+                info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
                 structureCreation(attr, callback);
             }
         });
