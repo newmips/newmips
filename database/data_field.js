@@ -48,12 +48,14 @@ exports.createNewDataField = function (attr, callback) {
                     id_data_entity: id_data_entity,
                     version: version
                 }).then(function (dataField) {
-                    var info = {
-                        insertId: dataField.id,
-                        message: "database.field.create.created",
-                        messageParams: [showNameField, dataField.id]
-                    };
-                    callback(null, info);
+                    models.DataEntity.findById(id_data_entity).then(function(dataEntity){
+                        var info = {
+                            insertId: dataField.id,
+                            message: "database.field.create.created",
+                            messageParams: [showNameField, dataField.id, dataEntity.name, dataEntity.name, dataEntity.name, dataEntity.name]
+                        };
+                        callback(null, info);
+                    });
                 }).catch(function (err) {
                     callback(err, null);
                 });

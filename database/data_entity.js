@@ -154,8 +154,10 @@ exports.createNewDataEntity = function(attr, callback) {
 			var info = {};
 			info.insertId = newEntity.id;
 			info.message = "database.entity.create.success";
-			info.messageParams = [newEntity.name, newEntity.id];
-			callback(null,info);
+			models.Module.findById(id_module).then(function(module){
+				info.messageParams = [newEntity.name, newEntity.id, module.name, newEntity.name];
+				callback(null,info);
+			});
 		});
 	}).catch(function(err){
 		callback(err, null);
@@ -194,8 +196,10 @@ exports.createNewDataEntityTarget = function(attr, callback) {
 			info.name = createdEntity.name;
 			info.codeName = createdEntity.codeName;
 			info.message = "database.entity.create.success";
-			info.messageParams = [createdEntity.name, createdEntity.id];
-			callback(null, info);
+			models.Module.findById(attr.id_module).then(function(module){
+				info.messageParams = [createdEntity.name, createdEntity.id, module.name, createdEntity.name];
+				callback(null, info);
+			});
 		});
 	}).catch(function(err){
 		callback(err, null);
