@@ -583,7 +583,6 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     session_manager.setSession(attr.function, req, info, data);
 
                     if (attr.function == "deleteApplication"){
-                        //return res.redirect("/default/home");
                         return res.send({
                             toRestart: true,
                             url: "/default/home"
@@ -607,8 +606,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 
                     // If we stop the server manually we loose some stored data, so we just need to redirect.
                     if(typeof process_server_per_app[req.session.id_application] === "undefined"){
-                        //return res.redirect("/application/preview?id_application="+req.session.id_application);
-                        res.send({
+                        return res.send({
                             toRestart: true,
                             url: "/application/preview?id_application="+req.session.id_application
                         });
@@ -638,12 +636,9 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                 var initialTimestamp = new Date().getTime();
                                 function checkServer() {
                                     if (new Date().getTime() - initialTimestamp > 15000) {
-                                        // req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
-                                        // return res.redirect('/default/home');
                                         data.iframe_url = -1;
                                         setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error");
                                         data.chat = req.session.chat[currentAppID][currentUserID];
-                                        //return res.render('front/preview', data);
                                         return res.send(data);
                                     }
 
@@ -671,8 +666,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                         console.log("Server status is OK");
 
                                         if(toRedirectRestart){
-                                            //return res.redirect("/application/preview?id_application="+newAttr.id_application);
-                                            res.send({
+                                            return res.send({
                                                 toRestart: true,
                                                 url: "/application/preview?id_application="+newAttr.id_application
                                             });
@@ -683,8 +677,6 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                                     setChat(req, currentAppID, currentUserID, "Mipsy", err.message, []);
                                                 // Call preview page
                                                 data.chat = req.session.chat[currentAppID][currentUserID];
-
-                                                //res.render('front/preview', data);
                                                 res.send(data);
                                             });
                                         }
@@ -722,7 +714,6 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                 data.session = info;
 
                 initPreviewData(req.session.id_application, data).then(function(data) {
-                    //res.render('front/preview', data);
                     res.send(data);
                 });
             });
