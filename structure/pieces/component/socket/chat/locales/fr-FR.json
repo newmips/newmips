@@ -2,18 +2,18 @@
 	"chat": {
 		"user_invited": "L'utilisateur a été invité",
 		"chat_created": "Chat crée",
-		"channel_created": "Channel crée",
-		"channel_joined": "Vous avez rejoins une channel",
+		"channel_created": "Groupe de discussion crée",
+		"channel_joined": "Vous avez rejoins un groupe de discussion",
 		"invite_users": "Inviter des utilisateurs",
 		"invite": "Inviter",
-		"channel_create": "Créer une channel",
+		"channel_create": "Créer un groupe de discussion",
 		"private": "Privée",
 		"public": "Publique",
-		"channel_join": "Rejoindre une channel",
+		"channel_join": "Rejoindre un groupe de discussion",
 		"join": "Rejoindre",
-        "channel_members": "Membres de la channel",
-        "channel_leave": "Quitter la channel",
-        "channel_left": "Vous avez quitté la channel",
+        "channel_members": "Membres de le groupe de discussion",
+        "channel_leave": "Quitter le groupe de discussion",
+        "channel_left": "Vous avez quitté le groupe de discussion",
         "chat_create": "Discuter avec un utilisateur"
 	}
 }

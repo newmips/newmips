@@ -2840,11 +2840,11 @@ table.text-center th {
   height: 250px;
   width: 100%;
   background: #222d32;
-  color: #fff;
+  /* color: #fff; */
   overflow: auto;
 }
 .contacts-list > li {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  /* border-bottom: 1px solid rgba(0, 0, 0, 0.2); */
   padding: 10px;
   margin: 0;
 }
@@ -2865,8 +2865,8 @@ table.text-center th {
   float: left;
 }
 .contacts-list-info {
-  margin-left: 45px;
-  color: #fff;
+  margin-left: 10px;
+  /* color: #fff; */
 }
 .contacts-list-name,
 .contacts-list-status {
@@ -2929,6 +2929,40 @@ table.text-center th {
 .direct-chat-success .right > .direct-chat-text:after,
 .direct-chat-success .right > .direct-chat-text:before {
   border-left-color: #00a65a;
+}
+/*
+ * Component: Users List
+ * ---------------------
+ */
+.users-list > li {
+  width: 25%;
+  float: left;
+  padding: 10px;
+  text-align: center;
+}
+.users-list > li img {
+  border-radius: 50%;
+  max-width: 100%;
+  height: auto;
+}
+.users-list > li > a:hover,
+.users-list > li > a:hover .users-list-name {
+  color: #999;
+}
+.users-list-name,
+.users-list-date {
+  display: block;
+}
+.users-list-name {
+  font-weight: 600;
+  color: #444;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.users-list-date {
+  color: #999;
+  font-size: 12px;
 }
 /*
  * Component: Users List
