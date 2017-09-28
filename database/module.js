@@ -112,8 +112,8 @@ exports.createNewModule = function(attr, callback) {
                         var info = {
                             insertId: created_module.id,
                             message: "database.module.create.success",
-                            messageParams: [name_module, created_module.id]
-                        }
+                            messageParams: [show_name_module, created_module.id, show_name_module]
+                        };
                         callback(null, info);
                     }).catch(function(err) {
                         callback(err, null);
