@@ -15,7 +15,7 @@ function routeGet(entity, attributes) {
 	doc.push(' * @api {get} /api/'+name+'?token=TOKEN&limit=10&offset=0 1 - Find all');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Fetch records of <code>'+name+'</code> from <code>offset</code> until <code>limit</code>');
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
+	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiSuccess {Object[]} '+name+'s List of '+name);
 	for (var attr in attributes)
@@ -37,7 +37,7 @@ function routeGetId(entity, attributes) {
 	doc.push(' * @api {get} /api/'+name+'/:id?token=TOKEN 2 - Find one');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Fetch one record of <code>'+name+'</code> with <code>id</code>');
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
+	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id The <code>id</code> of '+name+' to fetch');
 	doc.push(' * @apiSuccess {Object} '+name+' Object of '+name);
@@ -57,7 +57,7 @@ function routeGetAssociation(entity, options) {
 	doc.push(' * @api {get} /api/'+name+'/:id/:association?token=TOKEN&limit=10&offset=0 2.a - Find association');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Fetch records of <code>'+name+'</code>\'s <code>association</code> from <code>offset</code> until <code>limit</code>');
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
+	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of the '+name+' to which <code>association</code> is related');
 
@@ -91,7 +91,7 @@ function routePost(entity, attributes, options) {
 	doc.push(' * @api {post} /api/'+name+'/?token=TOKEN 3 - Create');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Create a record of <code>'+name+'</code> using values defined in request\'s <code>body</code>');
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
+	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
 	for (var attr in attributes)
 		if (privateFields.indexOf(attr) == -1 && attr != 'id')
@@ -118,7 +118,7 @@ function routePut(entity, attributes, options) {
 	doc.push(' * @api {put} /api/'+name+'/:id?token=TOKEN 4 - Update');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Update record of <code>'+name+'</code> with <code>id</code> using values defined in request\'s <code>body</code>');
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
+	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of the '+name+' to update');
 	for (var attr in attributes)
@@ -148,7 +148,7 @@ function routeDelete(entity) {
 	doc.push(' * @api {delete} /api/'+name+'/:id?token=TOKEN 5 - Delete');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Permanently delete a record of <code>'+name+'</code> with <code>id</code>');
-	doc.push(' * @apiGroup '+capitalizeFirstLetter(entity.name));
+	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of '+name+' to delete');
 
@@ -168,6 +168,7 @@ function entityDocumentation(entity, attributes, options) {
 	entityDoc += ' * '+entity.name.toUpperCase()+'\n';
 	entityDoc += ' ********************************************\n';
 	entityDoc += ' *******************************************/\n';
+	entityDoc += '/** @apiDefine '+entity.codeName+' '+capitalizeFirstLetter(entity.name)+ ' */\n';
 	entityDoc += routeGet(entity, attributes);
 	entityDoc += routeGetId(entity, attributes);
 	entityDoc += routeGetAssociation(entity, options);
