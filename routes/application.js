@@ -11,8 +11,8 @@ var docBuilder = require('../utils/api_doc_builder');
 var logger = require('../utils/logger');
 
 // Process spawn
-var process_server = new Array();
 var process_manager = require('../services/process_manager.js');
+var process_server_per_app = process_manager.process_server_per_app;
 
 // Session
 var session_manager = require('../services/session.js');
@@ -125,7 +125,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         session: ""
     };
 
-    if (!id_application && typeof process_server[req.session.id_application] === 'undefined') {
+    if (!id_application && typeof process_server_per_app[req.session.id_application] === 'undefined') {
         req.session.toastr.push({level: "warning", message: "application.not_started"});
         return res.redirect('/application/list');
     }
@@ -145,9 +145,9 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
             var timer = 50;
             var serverCheckCount = 0;
-            if (process_server[application.id] == null) {
+            if (process_server_per_app[application.id] == null || typeof process_server_per_app[application.id] === "undefined") {
                 // Launch server for preview
-                process_server[application.id] = process_manager.launchChildProcess(application.id, env);
+                process_server_per_app[application.id] = process_manager.launchChildProcess(application.id, env);
                 timer = 500;
             }
 
@@ -366,13 +366,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     env.PORT = port;
 
                     // If we stop the server manually we loose some stored data, so we just need to redirect.
-                    if(typeof process_server[req.session.id_application] === "undefined")
+                    if(typeof process_server_per_app[req.session.id_application] === "undefined")
                         return res.redirect("/application/preview?id_application="+req.session.id_application);
                     // Kill server first
-                    process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
+                    process_manager.killChildProcess(process_server_per_app[req.session.id_application].pid, function() {
 
                         // Launch a new server instance to reload resources
-                        process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
                         // Load session values
                         var newAttr = {};
@@ -606,7 +606,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     env.PORT = port;
 
                     // If we stop the server manually we loose some stored data, so we just need to redirect.
-                    if(typeof process_server[req.session.id_application] === "undefined"){
+                    if(typeof process_server_per_app[req.session.id_application] === "undefined"){
                         //return res.redirect("/application/preview?id_application="+req.session.id_application);
                         res.send({
                             toRestart: true,
@@ -614,10 +614,10 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                         });
                     }
                     // Kill server first
-                    process_manager.killChildProcess(process_server[req.session.id_application].pid, function() {
+                    process_manager.killChildProcess(process_server_per_app[req.session.id_application].pid, function() {
 
                         // Launch a new server instance to reload resources
-                        process_server[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
 
                         // Load session values
                         var newAttr = {};

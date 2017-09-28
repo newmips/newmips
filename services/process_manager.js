@@ -1,4 +1,5 @@
 var process_server = null;
+var process_server_per_app = new Array();
 var spawn = require('cross-spawn');
 var psTree = require('ps-tree');
 var globalConf = require('../config/global.js');
@@ -9,6 +10,9 @@ var AnsiToHTML = require('ansi-to-html');
 var ansiToHtml = new AnsiToHTML();
 
 var child_url = '';
+
+exports.process_server_per_app = process_server_per_app;
+
 exports.launchChildProcess = function(id_application, env) {
 
     process_server = spawn('node', [__dirname + "/../workspace/" + id_application + "/server.js", 'autologin'], {
@@ -41,6 +45,7 @@ exports.launchChildProcess = function(id_application, env) {
     exports.process_server = process_server;
     return process_server;
 }
+
 exports.childUrl = function(req) {
     var url = globalConf.protocol_iframe + '://' + globalConf.host;
     if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')

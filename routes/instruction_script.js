@@ -359,7 +359,32 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     }
 
                     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
-                    scriptData[userId].over = true;
+
+                    // Restart the application server is already running
+                    var process_manager = require('../services/process_manager.js');
+                    //var process_server = process_manager.process_server;
+                    var process_server_per_app = process_manager.process_server_per_app;
+
+                    if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
+                        process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
+                            if(err)
+                                console.log(err);
+
+                            // Preparation to start a new child server
+                            var math = require('math');
+                            var port = math.add(9000, idApplication);
+                            var env = Object.create(process.env);
+                            env.PORT = port;
+
+                            // Launch server for preview
+                            process_server_per_app[idApplication] = process_manager.launchChildProcess(idApplication, env);
+
+                            // Finish and redirect to the application
+                            scriptData[userId].over = true;
+                        });
+                    } else {
+                        scriptData[userId].over = true;
+                    }
                 });
             }).catch(function(err) {
                 console.log(err);

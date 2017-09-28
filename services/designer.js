@@ -98,8 +98,9 @@ exports.deploy = function(attr, callback) {
 /* ------------------------- Restart ----------------------------- */
 /* --------------------------------------------------------------- */
 exports.restart = function(attr, callback) {
-    var info = {};
-    info.message = "structure.global.restart.success";
+    var info = {
+        message: "structure.global.restart.success"
+    };
     callback(null, info);
 }
 
@@ -200,12 +201,24 @@ exports.deleteProject = function(attr, callback) {
 /* ----------------------- Application --------------------------- */
 /* --------------------------------------------------------------- */
 exports.selectApplication = function(attr, callback) {
+    var exportsContext = this;
     db_application.selectApplication(attr, function(err, info) {
         if (err) {
             callback(err, null);
         } else {
-            info.name_application = attr.options.value;
-            callback(null, info);
+            var instructions = [
+                "select module home"
+            ];
+
+            attr.id_application = info.insertId;
+
+            // Select the module home automatically after selecting an application
+            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+                if(err)
+                    return callback(err, null);
+                info.name_application = attr.options.value;
+                callback(null, info);
+            });
         }
     });
 }
