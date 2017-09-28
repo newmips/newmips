@@ -209,7 +209,7 @@
                 "selected": "Module %s (%s) selected."
             },
             "create": {
-                "success" : "New module %s (%s) created.",
+                "success" : "You have just added a new module %s (%s)<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete module %s</b>.",
                 "alreadyExist": "A module with the same or similar name %s already exists."
             },
             "list": {
@@ -245,7 +245,7 @@
                 "valid": "Please, indicate a valid name/ID."
             },
             "create": {
-                "success" : "New entity %s (%s) created.",
+                "success": "You have just added a new entity %s (%s) in the module %s. To delete it, type the instruction:<br>- <b class='click-instruction'>delete entity %s</b>.",
                 "alreadyExist": "Entity with the same or similar name %s already exists.",
                 "addComponent": "Cannot add component on entity, no entity with code name %s found."
             },
@@ -268,7 +268,7 @@
                 "alreadyExist": "Sorry, a field with the same or similar name (%s) already exists."
             },
             "create": {
-                "created": "New field %s (%s) created.",
+                "created": "You have just added a new field %s (%s) to the entity %s.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it unique:<br>- <b class='click-instruction'>set field %s unique</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>",
                 "foreignKeyCreated": "New foreign key %s | %s created."
             },
             "delete": {
@@ -315,8 +315,8 @@
         },
         "association": {
             "hasOne": {
-                "successEntity": "New relation has one with entity %s created.",
-                "successSubEntity": "New relation has one with sub-entity %s created."
+                "successEntity": "A tab «%s» has just been added to the entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
+                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
             },
             "hasMany": {
                 "successEntity": "New relation has many with entity %s created.",
