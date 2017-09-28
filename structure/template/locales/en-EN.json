@@ -151,14 +151,17 @@
 		}
 	},
 	"error": {
+        "404": {
+            "title": "We could not find what you were looking for.",
+            "title2": "Page not found.",
+            "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+        },
         "title": "Error",
         "contactAdmin": "Merci de contacter votre administrateur.",
-        "meanwhile": "Meanwhile, you can ",
-        "goHome": "go back to home page",
-        "or": "or",
-        "goBack": " just go back.",
-        "404": {
-            "textone": "The link you followed may be broken, or the page may have been removed."
-        }
+        "meanwhile": "Entre temps, vous pouvez ",
+        "goHome": "If you wish to return to the homepage, click here",
+        "goBack": "If you want to go back, click here",
+        "goBackText": "Go back",
+        "home": "Home"
     }
 }
