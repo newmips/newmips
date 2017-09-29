@@ -276,7 +276,7 @@ app.use(function(req, res) {
 
 // Launch ======================================================================
 if (protocol == 'https') {
-	models.sequelize.sync({ logging: console.log, hooks: false }).then(function() {
+	models.sequelize.sync({ logging: false, hooks: false }).then(function() {
 		models.sequelize.customAfterSync().then(function(){
 			models.E_user.findAll().then(function(users) {
 				if (!users || users.length == 0) {

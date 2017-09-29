@@ -87,3 +87,11 @@ div.dataTables_length select {
 .sub-tab-table .dataTable{
     width: 99.9%;
 }
+
+.show-textarea{
+    border: 1px solid #d2d6de;
+    padding:5px;
+    width:100%;
+    height:200px;
+    border-radius: 2px;
+}

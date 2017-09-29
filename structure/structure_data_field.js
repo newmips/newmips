@@ -361,7 +361,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "text" :
         case "texte" :
             value = "{" + dataField + "|s}";
-            str += "	<textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' value='" + value + "' type='text' " + readOnly + ">" + value + "</textarea>\n";
+            if (file == 'show') {
+                str += "    <div class='show-textarea'>"+value+"</div>\n";
+            } else{
+                str += "    <textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
+            }
             break;
         case "localfile" :
         case "fichier":

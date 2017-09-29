@@ -162,9 +162,11 @@ $(document).ready(function () {
         disabledClass: ''
     });
 
-    /* --------------- Initialisation des CKEDITOR --------------- */
+    /* --------------- Initialisation des Textarea --------------- */
     $("textarea:not(.regular-textarea)").each(function() {
-        CKEDITOR.replace($(this).attr("id"));
+        $(this).summernote({
+            height: 200
+        });
     });
 
     /* --------------- Initialisation des timepicker --------------- */
