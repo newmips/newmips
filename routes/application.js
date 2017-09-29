@@ -109,6 +109,9 @@ function setChat(req, idApp, idUser, user, content, params){
 router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
     var id_application = req.query.id_application;
+    var timeoutServer = 15000;
+    if(typeof req.query.timeout !== "undefined")
+        timeoutServer = req.query.timeout;
     var currentUserID = req.session.passport.user.id;
     req.session.id_application = id_application;
     req.session.id_data_entity = null;
@@ -177,7 +180,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 initPreviewData(req.session.id_application, data).then(function(data) {
                     var initialTimestamp = new Date().getTime();
                     function checkServer() {
-                        if (new Date().getTime() - initialTimestamp > 15000) {
+                        if (new Date().getTime() - initialTimestamp > timeoutServer) {
                             setChat(req, id_application, currentUserID, "Mipsy", "structure.global.restart.error");
                             data.iframe_url = -1;
                             data.chat = req.session.chat[id_application][currentUserID];

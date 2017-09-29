@@ -649,6 +649,11 @@ exports.setupDataField = function (attr, callback) {
     if (type_data_field == "enum") {
         // Remove all special caractere for all enum values
         var cleanEnumValues = [];
+        if(typeof values_data_field === "undefined"){
+            var err = new Error();
+            err.message = "structure.field.attributes.missingValues";
+            return callback(err,null);
+        }
         for (var i = 0; i < values_data_field.length; i++) {
             cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
         }
@@ -663,6 +668,11 @@ exports.setupDataField = function (attr, callback) {
     } else if(type_data_field == "radio"){
         // Remove all special caractere for all enum values
         var cleanRadioValues = [];
+        if(typeof values_data_field === "undefined"){
+            var err = new Error();
+            err.message = "structure.field.attributes.missingValues";
+            return callback(err,null);
+        }
         for (var i = 0; i < values_data_field.length; i++) {
             cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
         }
@@ -679,7 +689,10 @@ exports.setupDataField = function (attr, callback) {
             "type": typeForModel,
             "newmipsType": type_data_field
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = typeForModel;
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
+            "type": typeForModel,
+            "newmipsType": type_data_field
+        }
     }
 
     fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));

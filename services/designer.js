@@ -641,7 +641,11 @@ exports.createNewDataField = function(attr, callback) {
                             attr.name_data_entity = data_entity.name;
                             attr.codeName_data_entity = data_entity.codeName;
                             structure_data_field.setupDataField(attr, function(err, data) {
-                                callback(null, info);
+                                if (err) {
+                                    callback(err, null);
+                                } else {
+                                    callback(null, info);
+                                }
                             });
                         }
                     });

@@ -45,13 +45,13 @@ router.post('/index', block_access.isLoggedIn, function(req, res) {
     var done = 0
     for (var i = 0; i < instruction.length; i++) {
         execute(req, instruction[i]).then(function() {
-            data.answers = req.session.answers.join('<br><br>');
+            //data.answers = req.session.answers.join('<br><br>');
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);
             }
         }).catch(function() {
-            data.answers = req.session.answers.join('<br><br>');
+            //data.answers = req.session.answers.join('<br><br>');
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);
@@ -157,7 +157,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
-        req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
+        //req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
         try {
 
             /* Lower the first word for the basic parser jison */
@@ -195,7 +195,7 @@ function execute(req, instruction) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
                     console.log("ERROR : ", msgErr);
-                    req.session.answers.unshift(instruction + " :<br>" + msgErr);
+                    //req.session.answers.unshift(instruction + " :<br>" + msgErr);
                     reject(msgErr);
                 } else {
 
@@ -247,12 +247,12 @@ function execute(req, instruction) {
 
                     var msgInfo = __(info.message, info.messageParams || []);
 
-                    req.session.answers.unshift(instruction + " :<br>" + msgInfo);
+                    //req.session.answers.unshift(instruction + " :<br>" + msgInfo);
                     resolve();
                 }
             });
         } catch (e) {
-            req.session.answers.unshift(instruction + " :<br>" + e.message);
+            //req.session.answers.unshift(instruction + " :<br>" + e.message);
             reject(e);
         }
     });
