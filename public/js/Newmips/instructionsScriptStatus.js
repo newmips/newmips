@@ -35,7 +35,7 @@ function fetchStatus() {
                     setTimeout(fetchStatus, 50);
                 else {
                     if (percent >= 100) {
-                        window.location.href = "/application/preview?id_application="+data.id_application;
+                        window.location.href = "/application/preview?id_application="+data.id_application+"&timeout=50000";
                         /*$("#goTo").attr('href', $("#goTo").attr('href')+data.id_application);*/
                         $("#goTo").show();
                         $("#scriptSubmit").prop('disabled', false);

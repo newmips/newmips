@@ -309,7 +309,8 @@
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
-                "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique."
+                "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique.",
+                "missingValues": "Erreur, vous devez spécifier les valeurs que vous souhaitez avoir dans le champ de type enum / radio."
             }
         },
         "association": {
