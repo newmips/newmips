@@ -317,7 +317,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "enum" :
             if (file == "show") {
                 str += "    {^" + value2 + "}\n";
-                str += "        <input class='form-control input' name='" + dataField + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
                 str += "    {/" + value2 + "}\n";
                 str += "    {#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "        {@eq key=" + value2 + " value=\"{.value}\" }\n";
@@ -1120,6 +1120,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
+    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
     select += '             <option value="{id}">';
     for(var i=0; i<usingField.length; i++){
@@ -1162,6 +1163,7 @@ exports.setupRelatedToField = function (attr, callback) {
         select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
+        select += "     <option value=''>{@__ key=\"select.default\" /}</option>\n";
         select += '     <!--{#' + alias + '_global_list}-->\n';
         select += '         <!--{@eq key=' + alias + '.id value=id}-->\n';
         select += '             <option value="{id}" selected>';
