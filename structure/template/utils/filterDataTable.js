@@ -46,6 +46,8 @@ module.exports = function(modelName, params, speInclude, speWhere) {
                     } else if (column.data.split('.').length > 1) {
                         //if we have to search in relation data
                         updateInclude(column);
+                    } else if (descriptor && descriptor.type == 'boolean') {
+                        orRow[column.data] = column.search.value;
                     } else {
                         orRow[column.data] = {
                             $like: '%' + column.search.value + '%'

@@ -84,19 +84,18 @@ function initPreviewData(idApplication, data){
     });
 }
 
+var chats = {};
 function setChat(req, idApp, idUser, user, content, params){
 
     // Init if necessary
-    if(typeof req.session.chat === "undefined")
-        req.session.chat = {};
-    if(typeof req.session.chat[idApp] === "undefined")
-        req.session.chat[idApp] = {};
-    if(typeof req.session.chat[idApp][idUser] === "undefined")
-        req.session.chat[idApp][idUser] = {items: []};
+    if(!chats[idApp])
+        chats[idApp] = {};
+    if(!chats[idApp][idUser])
+        chats[idApp][idUser] = {items: []};
 
     // Add chat
-    if(content != "chat.welcome" || req.session.chat[idApp][idUser].items.length < 1){
-        req.session.chat[idApp][idUser].items.push({
+    if(content != "chat.welcome" || chats[idApp][idUser].items.length < 1){
+        chats[idApp][idUser].items.push({
             user: user,
             dateEmission: moment().format("DD MMM HH:mm"),
             content: content,
@@ -180,7 +179,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                         if (new Date().getTime() - initialTimestamp > 15000) {
                             setChat(req, id_application, currentUserID, "Mipsy", "structure.global.restart.error");
                             data.iframe_url = -1;
-                            data.chat = req.session.chat[id_application][currentUserID];
+                            data.chat = chats[id_application][currentUserID];
                             return res.render('front/preview', data);
                         }
 
@@ -221,7 +220,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             gitHelper.doGit(attr, function(err){
                                 if(err)
                                     setChat(req, id_application, currentUserID, "Mipsy", err.message, []);
-                                data.chat = req.session.chat[id_application][currentUserID];
+                                data.chat = chats[id_application][currentUserID];
                                 res.render('front/preview', data);
                             });
                         });
@@ -338,7 +337,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     // Load session values
                     session_manager.getSession(attr, req, function(err, infoSession) {
                         data.session = infoSession;
-                        data.chat = req.session.chat[currentAppID][currentUserID];
+                        data.chat = chats[currentAppID][currentUserID];
                         initPreviewData(req.session.id_application, data).then(function(data) {
                             res.render('front/preview', data);
                         });
@@ -397,7 +396,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                         // return res.redirect('/default/home');
                                         data.iframe_url = -1;
                                         setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error");
-                                        data.chat = req.session.chat[currentAppID][currentUserID];
+                                        data.chat = chats[currentAppID][currentUserID];
                                         return res.render('front/preview', data);
                                     }
 
@@ -433,7 +432,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                                 if(err)
                                                     setChat(req, currentAppID, currentUserID, "Mipsy", err.message, []);
                                                 // Call preview page
-                                                data.chat = req.session.chat[currentAppID][currentUserID];
+                                                data.chat = chats[currentAppID][currentUserID];
 
                                                 res.render('front/preview', data);
                                             });
@@ -468,7 +467,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             attr.id_data_entity = req.session.id_data_entity;
 
             session_manager.getSession(attr, req, function(err, info) {
-                data.chat = req.session.chat[currentAppID][currentUserID];
+                data.chat = chats[currentAppID][currentUserID];
                 data.session = info;
 
                 initPreviewData(req.session.id_application, data).then(function(data) {
@@ -572,7 +571,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     // Load session values
                     session_manager.getSession(attr, req, function(err, infoSession) {
                         data.session = infoSession;
-                        data.chat = req.session.chat[currentAppID][currentUserID];
+                        data.chat = chats[currentAppID][currentUserID];
                         initPreviewData(req.session.id_application, data).then(function(data) {
                             //res.render('front/preview', data);
                             res.send(data);
@@ -638,7 +637,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                     if (new Date().getTime() - initialTimestamp > 15000) {
                                         data.iframe_url = -1;
                                         setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error");
-                                        data.chat = req.session.chat[currentAppID][currentUserID];
+                                        data.chat = chats[currentAppID][currentUserID];
                                         return res.send(data);
                                     }
 
@@ -676,7 +675,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                                 if(err)
                                                     setChat(req, currentAppID, currentUserID, "Mipsy", err.message, []);
                                                 // Call preview page
-                                                data.chat = req.session.chat[currentAppID][currentUserID];
+                                                data.chat = chats[currentAppID][currentUserID];
                                                 res.send(data);
                                             });
                                         }
@@ -710,7 +709,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             attr.id_data_entity = req.session.id_data_entity;
 
             session_manager.getSession(attr, req, function(err, info) {
-                data.chat = req.session.chat[currentAppID][currentUserID];
+                data.chat = chats[currentAppID][currentUserID];
                 data.session = info;
 
                 initPreviewData(req.session.id_application, data).then(function(data) {

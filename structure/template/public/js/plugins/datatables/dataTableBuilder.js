@@ -221,9 +221,8 @@ function init_datatable(tableID) {
                     }
                 }
                 // Regular value
-                else{
+                else
                     cellValue = row[columns[meta.col].data];
-                }
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
@@ -443,11 +442,17 @@ function init_datatable(tableID) {
     // Bind search fields
     $(tableID + ' .filters th').each(function (i) {
         var title = $(tableID + ' thead th').eq(i).text();
-        var search = '<input type="text" placeholder="' + title + '" />';
         var mainTh = $(tableID + ' .main th').eq(i);
+
+        var search;
+        if (mainTh.data('type') == 'boolean')
+            search = '<input data-boolean-filter="true" type="checkbox" placeholder="' + title + '" />';
+        else
+            search = '<input type="text" placeholder="' + title + '" />';
+
         if (title != '') {
             $(this).html('');
-            $(search).appendTo(this).keyup(function () {
+            $(search).appendTo(this).change(function () {
                 var searchValue = this.value;
                 var valueObject = {type: '', value: ''};
                 // Special data types re-formating for search
@@ -466,6 +471,10 @@ function init_datatable(tableID) {
                     else if (mainTh.data('type') == 'datetime') {
                         valueObject.type = 'datetime';
                         searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                    }
+                    else if (mainTh.data('type') == 'boolean') {
+                        valueObject.type = 'boolean';
+                        searchValue = $(tableID + " .filters th").eq(i).find("input").is(':checked') ? true : false;
                     }
                 }
                 valueObject.value = searchValue;
@@ -507,42 +516,43 @@ function init_datatable(tableID) {
         }
     });
 
+    $("[data-boolean-")
+
 
     //modal on click on picture cell
-    $(tableID + ' tbody')
-            .on('click', 'td img', function () {
-                var colIdx = table.cell($(this).parent()).index().column;
-                if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
-                    var entity = tableID.replace('#table_', '');
-                    var cellData = table.cell($(this).parent()).data();
-                    $.ajax({
-                        url: '/default/get_file',
-                        type: 'GET',
-                        data: {entity: entity, src: cellData.value},
-                        success: function (result) {
-                            if (result.success) {
-                                var text = '<div class="modal fade" tabindex="-1" role="dialog">'
-                                        + '<div class="modal-dialog" role="document">'
-                                        + '<div class="modal-content">'
-                                        + '<div class="modal-header skin-blue-light">'
-                                        + '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-                                        + '<h4 class="modal-title">' + result.file + '</h4>'
-                                        + '</div>'
-                                        + '<div class="modal-body">'
-                                        + '<p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
-                                        + '</div>'
-                                        + '<div class="modal-footer">'
-                                        + ' <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>'
-                                        + '</div>'
-                                        + '</div>'
-                                        + '</div>'
-                                        + '</div>';
-                                $(text).modal('show');
-                            }
-                        }
-                    });
+    $(tableID + ' tbody').on('click', 'td img', function () {
+        var colIdx = table.cell($(this).parent()).index().column;
+        if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
+            var entity = tableID.replace('#table_', '');
+            var cellData = table.cell($(this).parent()).data();
+            $.ajax({
+                url: '/default/get_file',
+                type: 'GET',
+                data: {entity: entity, src: cellData.value},
+                success: function (result) {
+                    if (result.success) {
+                        var text = '<div class="modal fade" tabindex="-1" role="dialog">'
+                                + '<div class="modal-dialog" role="document">'
+                                + '<div class="modal-content">'
+                                + '<div class="modal-header skin-blue-light">'
+                                + '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                                + '<h4 class="modal-title">' + result.file + '</h4>'
+                                + '</div>'
+                                + '<div class="modal-body">'
+                                + '<p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
+                                + '</div>'
+                                + '<div class="modal-footer">'
+                                + ' <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>'
+                                + '</div>'
+                                + '</div>'
+                                + '</div>'
+                                + '</div>';
+                        $(text).modal('show');
+                    }
                 }
             });
+        }
+    });
 
 
     //Les butons exports
