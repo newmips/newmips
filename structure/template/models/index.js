@@ -69,8 +69,14 @@ sequelize.customAfterSync = function() {
                         case "DATE":
                             type = "DATETIME";
                             break;
+                        case "FLOAT":
+                            type = "FLOAT";
+                            break;
+                        case "DOUBLE":
+                            type = "DOUBLE";
+                            break;
                         case "DECIMAL":
-                            type = "VARCHAR(255)";
+                            type = "DECIMAL(10,3)";
                             break;
                         case "ENUM":
                             type = "ENUM(";

@@ -549,7 +549,7 @@ exports.setupDataField = function (attr, callback) {
         case "devise":
         case "euro":
         case "argent":
-            typeForModel = "STRING";
+            typeForModel = "DOUBLE";
             typeForDatalist = "currency";
             break;
         case "float" :

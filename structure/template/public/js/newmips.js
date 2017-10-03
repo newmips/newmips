@@ -480,7 +480,7 @@ $(document).ready(function () {
     $(this).find("[data-type='currency']").each(function() {
         $(this).maskMoney({
             thousands: ' ',
-            decimal: ',',
+            decimal: '.',
             allowZero: true,
             suffix: '',
             precision: maskMoneyPrecision
