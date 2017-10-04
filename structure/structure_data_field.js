@@ -1556,7 +1556,8 @@ exports.deleteTab = function (attr, callback) {
     var target;
 
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
-    var options = require(jsonPath);
+    //var options = require(jsonPath);
+    var options = JSON.parse(fs.readFileSync(jsonPath));
     var found = false;
     var option;
 
