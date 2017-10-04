@@ -306,6 +306,12 @@ $(function() {
 				$("#totalNotSeen").text(data.total).show();
 		});
 
+		socket.on('error', function(reason) {
+			console.log(reason);
+			if (reason == 'Access denied')
+				("#contactsBtn").click();
+		});
+
 		// CHANNEL
 		socket.on('channel-message', function(data) {
 			if (channels[data.fk_id_channel])
