@@ -187,7 +187,8 @@
         {#config.socket.enabled}
         <script src="/js/plugins/socketio/socket.io.js" type="text/javascript"></script>
         <script>
-            var socket = io();
+            // Global var socket to be used at different places
+            socket = io();
         </script>
         {/config.socket.enabled}
         {#config.socket.chat}

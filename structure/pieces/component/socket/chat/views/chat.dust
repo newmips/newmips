@@ -5,7 +5,7 @@
         <div class="box-tools pull-right">
             <span id="totalNotSeen" data-toggle="tooltip" title="" class="badge bg-light-blue"></span>
             <button id="channelUsersBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" data-original-title="Channel options" style="display:none;"><i class="fa fa-cog"></i></button>
-            <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Configuration"><i class="fa fa-kog"></i></button>
+            <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Configuration"><i class="fa fa-cog"></i></button>
             <button id="collapseChat" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
         </div>
     </div>
