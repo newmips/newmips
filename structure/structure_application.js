@@ -201,7 +201,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
         // Copy authentication entities views
         var piecesPath = __dirname+'/pieces';
         var workspacePath = __dirname+'/../workspace/'+id_application;
-        fs.copy(piecesPath+'/authentication/views/e_user', workspacePath+'/views/e_user', function(err) {
+        fs.copy(piecesPath+'/administration/views/e_user', workspacePath+'/views/e_user', function(err) {
             if (err)
                 console.log(err);
 
@@ -210,11 +210,11 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                 if (err)
                     console.log(err);
                 // Copy js file for access settings
-                fs.copy(piecesPath+'/authentication/js/', workspacePath+'/public/js/Newmips/', function(err) {
+                fs.copy(piecesPath+'/administration/js/', workspacePath+'/public/js/Newmips/', function(err) {
                     if (err)
                         console.log(err);
                     // Copy authentication user entity route
-                    fs.copy(piecesPath+'/authentication/routes/e_user.js', workspacePath+'/routes/e_user.js', function(err) {
+                    fs.copy(piecesPath+'/administration/routes/e_user.js', workspacePath+'/routes/e_user.js', function(err) {
                         if (err)
                             console.log(err);
 
@@ -235,14 +235,14 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
                         // Manualy add settings to access file because it's not a real entity
                         var access = require(workspacePath+'/config/access.json');
-                        access.authentication.entities.push({
+                        access.administration.entities.push({
                             name: 'access_settings',
                             groups: [],
                             actions: {read: [], write: [], delete: []}
                         });
                         fs.writeFileSync(workspacePath+'/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
-                        domHelper.read(workspacePath+'/views/layout_m_authentication.dust').then(function($) {
+                        domHelper.read(workspacePath+'/views/layout_m_administration.dust').then(function($) {
                             var li = '';
                             li += '{@entityAccess entity="access_settings"}\n';
                             li += '     {@actionAccess entity="access_settings" action="read"}\n';
@@ -259,15 +259,15 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                             $("#sortable").append(li);
 
                             // Add settings entry into authentication module layout
-                            domHelper.write(workspacePath+'/views/layout_m_authentication.dust', $).then(function() {
+                            domHelper.write(workspacePath+'/views/layout_m_administration.dust', $).then(function() {
 
                                 // Copy routes settings pieces
-                                fs.copy(piecesPath+'/authentication/routes/e_access_settings.js', workspacePath+'/routes/e_access_settings.js', function(err) {
+                                fs.copy(piecesPath+'/administration/routes/e_access_settings.js', workspacePath+'/routes/e_access_settings.js', function(err) {
                                     if (err)
                                         console.log(err);
 
                                     // Copy view settings pieces
-                                    fs.copy(piecesPath+'/authentication/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
+                                    fs.copy(piecesPath+'/administration/views/e_access_settings/show.dust', workspacePath+'/views/e_access_settings/show.dust', function(err) {
                                         if (err)
                                             console.log(err);
 

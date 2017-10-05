@@ -103,7 +103,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create application " + name_application);
     instructions.push("create module home");
 
-    instructions.push("create module Authentication");
+    instructions.push("create module Administration");
     instructions.push("create entity User");
     instructions.push("add field login");
     instructions.push("add field password");

@@ -87,7 +87,7 @@ function execute(req, instruction) {
 
 var mandatoryInstructions = [
     "create module home",
-    "create module Authentication",
+    "create module Administration",
     "create entity User",
     "add field login",
     "add field password",
