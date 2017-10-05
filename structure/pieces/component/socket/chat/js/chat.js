@@ -1,5 +1,3 @@
-var socket = io();
-
 // Utils
 {
 	function toastIt(msgID, level) {
