@@ -520,6 +520,11 @@ $(function() {
 			else
 				$("#channelUsers").slideDown();
 		});
+
+		$(document).on("click", "#chat .box-header", function(e){
+			if(e.target.id != "collapseChat" && e.target.id != "contactsBtn")
+				$("#collapseChat").trigger("click");
+		});
 	}
 
 	userSelect();
