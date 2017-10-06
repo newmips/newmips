@@ -99,10 +99,12 @@ app.use(flash());
 app.locals.moment = require('moment');
 
 // Autologin for newmips's "iframe" live preview context
-var autologin = false;var autologinInited = false;var startedFromGenerator = false;
+var autologin = false;var startedFromGenerator = false;
+// Global var used in block_access
+AUTO_LOGIN_INITIALIZED = false;
 if (process.argv[2] == 'autologin') {
 	startedFromGenerator = true;
-	autologin = true;
+	AUTO_LOGIN_INITIALIZED = true;
 }
 
 // When application process is a child of generator process, log each routes for the generator
@@ -116,11 +118,6 @@ if (startedFromGenerator) {
 
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
-	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
-		autologinInited = true;
-		req.session.autologin = autologin;
-	}
-
     var lang = languageConfig.lang;
 
     if (req.session.lang_user)
@@ -132,7 +129,7 @@ app.use(function(req, res, next) {
     res.locals.config = globalConf;
 
     // When user is logged
-	if (req.isAuthenticated() || autologin) {
+	if (req.isAuthenticated() || AUTO_LOGIN_INITIALIZED) {
 		// Session
 		res.locals.session = req.session;
 
