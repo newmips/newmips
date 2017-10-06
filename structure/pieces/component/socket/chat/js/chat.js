@@ -521,9 +521,8 @@ $(function() {
 				$("#channelUsers").slideDown();
 		});
 
-		$(document).on("click", "#chat .box-header", function(e){
-			if(e.target.id != "collapseChat" && e.target.id != "contactsBtn")
-				$("#collapseChat").trigger("click");
+		$(document).on("click", "#chat .box-header .box-title", function(e){
+			$("#collapseChat").trigger("click");
 		});
 	}
 
