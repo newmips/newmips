@@ -1,9 +1,9 @@
 <div id="chat" class="box box-primary direct-chat direct-chat-primary direct-chat-contacts-open collapsed-box" style="z-index: 10;position: fixed; bottom: 0; right: 15px;max-width: 500px;">
-    <div class="box-header with-border" style="cursor:pointer;">
-        <h3 class="box-title">Discussion</h3>
+    <div class="box-header with-border">
+        <h3 class="box-title" style="cursor:pointer;">Discussion</h3>
         <div class="box-tools pull-right">
             <span id="totalNotSeen" data-toggle="tooltip" title="" class="badge bg-light-blue"></span>
-            <button id="channelUsersBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" data-original-title="Channel options" style="display:none;"><i class="fa fa-cog"></i></button>
+            <button id="channelUsersBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" data-original-title="Channel options" style="display:none;"><i class="fa fa-users"></i></button>
             <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Configuration"><i class="fa fa-cog"></i></button>
             <button id="collapseChat" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
         </div>
