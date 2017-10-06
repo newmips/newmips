@@ -10,6 +10,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     }
 
     if(valueToCheck.length > 30){
+        console.log("Value is too long => "+valueToCheck);
         attr.error = "The given value is too long (>30)."
     }
 
@@ -1337,7 +1338,9 @@ var training = {
         "ajouter un champ (.*) relié à (.*) en utilisant (.*)",
         "ajouter un champ (.*) relié à (.*) en affichant (.*)",
         "ajouter champ (.*) relié à (.*) en utilisant (.*)",
-        "ajouter champ (.*) relié à (.*) en affichant (.*)"
+        "ajouter champ (.*) relié à (.*) en affichant (.*)",
+        "ajouter le champ (.*) relié à (.*) en affichant (.*)",
+        "ajouter le champ (.*) relié à (.*) en utilisant (.*)"
     ],
     "relationshipHasMany": [
         "entity (.*) has many (.*)",
