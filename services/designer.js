@@ -1869,7 +1869,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add entity CRA Team",
             "add field Name",
             "set field Name required",
-            "add field id_admin_user",
+            // "add field fk_id_admin_user with type integer",
             "add fieldset Users related to user using login",
             "entity CRA Team has one CRA Calendar Settings",
             "select entity CRA Calendar Settings",

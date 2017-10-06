@@ -712,6 +712,11 @@ exports.newCra = function (attr, callback) {
         });
         fs.writeFileSync(teamOptionsPath, JSON.stringify(teamOptionObj, null, 4));
 
+        var teamAttributesPath = workspacePath + '/models/attributes/e_cra_team.json';
+        var teamAttributesObj = require(teamAttributesPath);
+        teamAttributesObj.fk_id_admin_user = {type:"INTEGER", newmipsType:"integer"};
+        fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
+
         // Get select of module before copying pieces
         domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($workS) {
             var select = $workS("#dynamic_select").html();
