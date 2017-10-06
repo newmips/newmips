@@ -192,6 +192,13 @@ $(document).ready(function () {
     /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
+    $('.simpledate-toconvert').each(function() {
+        if (lang_user == "fr-FR")
+            $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+        else
+            $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+    });
+
     $('.datepicker-toconvert').each(function() {
         if ($(this).val() != "" && $(this).val() != "Invalid date" && $(this).val() != "Invalid Date") {
             if (lang_user == "fr-FR")
