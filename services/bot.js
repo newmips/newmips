@@ -1734,9 +1734,9 @@ var training = {
 	"ajouter un composant Adresse nommé (.*)",
 	"ajouter un composant Adresse appelé (.*)",
 	"ajouter composant adresse nommé (.*)",
-	"ajouter composant adresse appelé (.*),
+	"ajouter composant adresse appelé (.*)",
 	"ajouter composant Adresse nommé (.*)",
-	"ajouter composant Adresse appelé (.*)
+	"ajouter composant Adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
 	"delete component address",
