@@ -688,16 +688,19 @@ exports.newCra = function (attr, callback) {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/cra';
 
-        // Clean toSync file, add custom fields
-        //var toSync = {};
-        //fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4));
-
         // Copy pieces
         fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');
         fs.copySync(piecesPath + '/routes/e_cra_team.js', workspacePath + '/routes/e_cra_team.js');
         fs.copySync(piecesPath + '/views/e_cra/', workspacePath + '/views/e_cra/');
         fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
         fs.copySync(piecesPath + '/js/', workspacePath + '/public/js/Newmips/component/');
+
+        var files = ['admin_declare.dust', 'declare.dust', 'list.dust'];
+        for (var i = 0; i < files.length; i++) {
+            var view = fs.readFileSync(piecesPath+'/views/e_cra/'+files[i], 'utf8');
+            view = view.replace(/MODULE_NAME/g, attr.module.codeName);
+            fs.writeFileSync(workspacePath+'/views/e_cra/'+files[i], view, 'utf8');
+        }
 
         // Create belongsToMany relation between team and activity for default activities
         var teamOptionsPath = workspacePath + '/models/options/e_cra_team.json';
@@ -711,16 +714,23 @@ exports.newCra = function (attr, callback) {
             "otherKey": "activity_id"
         });
         fs.writeFileSync(teamOptionsPath, JSON.stringify(teamOptionObj, null, 4));
+        // Add missing foreignKey
+        var teamAttrPath = workspacePath + '/models/options/e_cra_team.json';
+        var teamAttrObj = JSON.parse(fs.readFileSync(teamAttrPath));
+        teamAttrObj.fk_id_admin_user = {type: "INTEGER", newmipsType: 'integer'};
+        fs.writeFileSync(teamAttrPath, JSON.stringify(teamAttrObj, null, 4));
 
-        // Get select of module before copying pieces
-        domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($workS) {
-            var select = $workS("#dynamic_select").html();
-            fs.copySync(piecesPath + '/views/layout_m_cra.dust', workspacePath + '/views/layout_m_cra.dust');
-            domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($newWorkS) {
-                // Insert select of module to copied pieces
-                $newWorkS("#dynamic_select").html(select);
+        var toSync = JSON.parse(fs.readFileSync(workspacePath+'/models/toSync.json', 'utf8'));
+        toSync[attr.id_application+'_e_cra_team'].attributes.fk_id_admin_user = "INTEGER";
+        console.log(toSync);
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
-                domHelper.write(workspacePath + '/views/layout_m_cra.dust', $newWorkS).then(function () {
+        // Insert custom layout part for cra
+        var layoutName = "layout_"+attr.module.codeName+'.dust';
+        domHelper.read(workspacePath + '/views/'+layoutName).then(function ($works) {
+            domHelper.read(piecesPath + '/views/layout_m_cra.dust').then(function($pieceLayout) {
+                $works("#cra_menu_item").html($pieceLayout("#cra_menu_item").html());
+                domHelper.write(workspacePath + '/views/'+layoutName, $works).then(function () {
                     // Replace locales
                     // fr-FR
                     var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
