@@ -1,4 +1,4 @@
-{>"layout_MODULE_NAME"/}
+{>"layout_m_home"/}
 {<custom_css}
     <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>

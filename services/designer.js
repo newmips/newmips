@@ -1854,18 +1854,15 @@ exports.createNewComponentCra = function(attr, callback) {
     var exportsContext = this;
 
     // Check if component with this name is already created on this module
-    db_module.getModuleByCodename(attr.id_application, 'm_cra', function(err, module){
-        if(module){
-            var err = new Error();
-            err.message = "Sorry, a C.R.A module already exists.";
+    db_module.getModuleById(attr.id_module, function(err, module){
+        if(err)
             return callback(err, null);
-        }
+
+        attr.module = module;
         var instructions = [
-            "add module CRA",
             "add entity CRA Team",
             "add field Name",
             "set field Name required",
-            "add field id_admin_user",
             "add fieldset Users related to user using login",
             "entity CRA Team has one CRA Calendar Settings",
             "select entity CRA Calendar Settings",
