@@ -2235,7 +2235,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
                     for (var k = 0; k < attr.columns.length; k++) {
                         var kFound = false;
                         for (var i = 0; i < columns.length; i++) {
-                            if (attr.columns[k] == columns[i].name) {
+                            if (attr.columns[k].toLowerCase() == columns[i].name.toLowerCase()) {
                                 kFound = true;
                                 break;
                             }
