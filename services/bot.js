@@ -867,7 +867,8 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-
+console.log(result);
+console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
@@ -1801,6 +1802,7 @@ var training = {
         "add widget last records limited to (.*) records with columns (.*)",
         "add widget last records on entity (.*) limited to (.*) records with columns (.*)",
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+        "ajouter widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],
