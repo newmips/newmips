@@ -281,7 +281,7 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
         }]
     }).then(function(cra) {
         if (!cra)
-            return res.status(500).send("Couldn't find previously saved C.R.A");
+            return res.status(500).send("Couldn't find previously saved Timesheet");
 
         if (cra.f_user_validated && cra.f_admin_validated)
             return res.status(403).send("You can't update if admin validated");
@@ -474,7 +474,7 @@ router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra
 
     models.E_cra.update({f_user_validated: true}, {where: {id: id_cra}}).then(function(cra) {
         if (!cra)
-            return res.status(404).send("Couldn't find C.R.A with id "+id_cra);
+            return res.status(404).send("Couldn't find Timesheet with id "+id_cra);
         res.status(200).end();
     }).catch(function(err) {
         console.log(err);
@@ -555,7 +555,7 @@ router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write
                 cra.update({f_open_days_in_month: openDays});
             })
         }).catch(function(err) {
-            return res.status(500).send("Can't create your C.R.A");
+            return res.status(500).send("Can't create your Timesheet");
         });
     });
 });
@@ -582,7 +582,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
         }]
     }).then(function(cra) {
         if (!cra)
-            return res.status(500).send("Couldn't find previously saved C.R.A");
+            return res.status(500).send("Couldn't find previously saved Timesheet");
 
         if (cra.f_user_validated && cra.f_admin_validated)
             return res.status(403).send("You can't update if admin validated");

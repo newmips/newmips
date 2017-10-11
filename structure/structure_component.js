@@ -695,6 +695,7 @@ exports.newCra = function (attr, callback) {
         fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
         fs.copySync(piecesPath + '/js/', workspacePath + '/public/js/Newmips/component/');
 
+        // Replace layout to point to current module
         var files = ['admin_declare.dust', 'declare.dust', 'list.dust'];
         for (var i = 0; i < files.length; i++) {
             var view = fs.readFileSync(piecesPath+'/views/e_cra/'+files[i], 'utf8');
@@ -722,7 +723,6 @@ exports.newCra = function (attr, callback) {
 
         var toSync = JSON.parse(fs.readFileSync(workspacePath+'/models/toSync.json', 'utf8'));
         toSync[attr.id_application+'_e_cra_team'].attributes.fk_id_admin_user = "INTEGER";
-        console.log(toSync);
         fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
         // Insert custom layout part for cra
@@ -730,6 +730,8 @@ exports.newCra = function (attr, callback) {
         domHelper.read(workspacePath + '/views/'+layoutName).then(function ($works) {
             domHelper.read(piecesPath + '/views/layout_m_cra.dust').then(function($pieceLayout) {
                 $works("#cra_menu_item").html($pieceLayout("#cra_menu_item").html());
+                $works("#cra_team_menu_item").remove();
+                $works("#cra_activity_menu_item").remove();
                 domHelper.write(workspacePath + '/views/'+layoutName, $works).then(function () {
                     // Replace locales
                     // fr-FR
@@ -750,9 +752,9 @@ exports.newCra = function (attr, callback) {
                     translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
                     translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
 
-                    // Update module name
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "C.R.A");
-                    translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "A.R");
+                    // // Update module name
+                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "Gestion de temps");
+                    translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "Timesheet");
 
                     // Remove unwanted tab from user
                     domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {

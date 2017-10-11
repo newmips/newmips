@@ -322,7 +322,7 @@ $(function() {
         $("#monthYearPicker").datepicker('setDate', currentDate);
     });
 
-    // Create/Update C.R.A tasks
+    // Create/Update Timesheet tasks
     $("#craForm").on('submit', function() {
         $.ajax({
             url: $(this).attr('action'),

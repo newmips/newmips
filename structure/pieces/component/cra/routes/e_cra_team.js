@@ -156,7 +156,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra_tea
                 }));
 
         Promise.all(hasTeamPromise).then(function(isOkToAdd) {
-            var notOk = 'Following users already have a C.R.A Team : ';
+            var notOk = 'Following users already have a Team : ';
             var isEverythingOk = true;
             for (var i = 0; i < isOkToAdd.length; i++) {
                 if (isOkToAdd[i].isOkToAdd == false) {

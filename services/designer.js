@@ -2088,7 +2088,7 @@ exports.createNewComponentAddress = function (attr, callback) {
         } else
             return callback(err);
     });
-};
+}
 
 exports.deleteComponentAddress = function (attr, callback) {
     var componentName = 'c_address_' + attr.id_data_entity;
@@ -2129,12 +2129,11 @@ exports.deleteComponentAddress = function (attr, callback) {
             return callback(err);
 
     });
-};
+}
 
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */
-// Set adminLTE skin
 exports.setSkin = function(attr, callback) {
     structure_ui.setSkin(attr, function(err, infoStructure){
         if(err)

@@ -1647,6 +1647,8 @@ var training = {
         "ajouter une ligne de temps appelé (.*)"
     ],
     "createNewComponentCra": [
+        "ajouter composant gestion de temps",
+        "ajouter un composant gestion de temps",
         "create component cra",
         "add component cra",
         "create component activity report",
