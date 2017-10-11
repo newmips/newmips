@@ -1,27 +1,37 @@
-{@entityAccess entity="cra"}
-    <li id="cra_menu_item" style="display:block;" class="treeview">
-        <a href="#">
-            <i class="fa fa-folder"></i>
-            <span>{@__ key="entity.e_cra.label_entity" /}</span>
-            <i class="fa fa-angle-left pull-right"></i>
-        </a>
-        <ul class="treeview-menu">
-            {@actionAccess entity="cra" action="write"}
-            <li>
-                <a href="/cra/declare">
-                    <i class="fa fa-angle-double-right"></i>
-                    {@__ key="entity.e_cra.custom_button_declare" /}
+<li id="cra_menu_item" class="treeview">
+    <a href="#">
+        <i class="fa fa-folder"></i>
+        <span>{@__ key="entity.e_cra.label_entity" /}</span>
+        <i class="fa fa-angle-left pull-right"></i>
+    </a>
+    <ul class="treeview-menu">
+        <li><a href="/cra/declare"><i class="fa fa-plus"></i> {@__ key="entity.e_cra.custom_button_declare" /}</a></li>
+        <li><a href="/cra/list"><i class="fa fa-list"></i> {@__ key="operation.list" /}</a></li>
+        {@entityAccess entity="cra_team"}
+            <li id="cra_team_menu_item" class="treeview">
+                <a href="#"><i class="fa fa-users"></i> {@__ key="entity.e_cra_team.label_entity" /}
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
                 </a>
+                <ul class="treeview-menu">
+                    <li><a href="/cra_team/create_form"><i class="fa fa-plus"></i>{@__ key="operation.create" /}</a></li>
+                    <li><a href="/cra_team/list"><i class="fa fa-list"></i>{@__ key="operation.list" /}</a></li>
+                </ul>
             </li>
-            {/actionAccess}
-            {@actionAccess entity="cra" action="read"}
-            <li>
-                <a href="/cra/list">
-                    <i class="fa fa-angle-double-right"></i>
-                    {@__ key="operation.list" /}
-                </a>
-            </li>
-            {/actionAccess}
-        </ul>
-    </li>
-{/entityAccess}
+        {/entityAccess}
+        {@entityAccess entity="cra_activity"}
+        <li id="cra_activity_menu_item" class="treeview">
+            <a href="#"><i class="fa fa-cogs"></i> {@__ key="entity.e_cra_activity.label_entity" /}
+                <span class="pull-right-container">
+                    <i class="fa fa-angle-left pull-right"></i>
+                </span>
+            </a>
+            <ul class="treeview-menu">
+                <li><a href="/cra_activity/create_form"><i class="fa fa-plus"></i>{@__ key="operation.create" /}</a></li>
+                <li><a href="/cra_activity/list"><i class="fa fa-list"></i>{@__ key="operation.list" /}</a></li>
+            </ul>
+        </li>
+        {/entityAccess}
+    </ul>
+</li>
