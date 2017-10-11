@@ -225,7 +225,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '6' : '3')+"'>\n";
+            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
             newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
             newHtml +=      $template("body")[0].innerHTML+"\n";
             newHtml += '<!--{/entityAccess}-->';
@@ -237,7 +237,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
 
             domHelper.read(workspacePath+'/views/'+attr.entity.codeName+'/list_fields.dust').then(function($list) {
                 try {
-                    var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr>';
+                    var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr class="widget-row hover" data-href="/'+attr.entity.codeName.substring(2)+'/show?id={id}">';
                     for (var i = 0; i < attr.columns.length; i++) {
                         var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('[data-field="'+field+'"]').data('type');

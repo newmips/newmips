@@ -389,7 +389,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             }
             else {
                 str += "	<div class='input-group'>\n";
-                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height=200 width=200/></a>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='200' width='200' /></a>\n";
                 str += "	</div>\n";
             }
             break;
