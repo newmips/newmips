@@ -20,7 +20,8 @@
         "waiting_validation_list": "Feuille de temps en attente de validation",
         "noTeam": "Vous devez être associé à une équipe pour pouvoir déclarer votre Feuille de temps.",
         "saveSuccess": "La Feuille de temps a bien été sauvegardée.",
-        "validateSuccess": "La Feuille de temps a bien été validée."
+        "validateSuccess": "La Feuille de temps a bien été validée.",
+        "showItBro": "Voir les feuilles de temps"
     },
     "e_cra_team": {
         "label_entity": "Équipe",
