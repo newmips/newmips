@@ -119,7 +119,9 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
         where = {
             fk_id_user: {$in: idTeamUsers}
         }
-    } else{
+    }
+    // if admin, no speWhere parameter, all cra fetched
+    else if (req.session.passport.user.r_role.f_label != 'admin') {
         where = {
             fk_id_user: req.session.passport.user.id
         }

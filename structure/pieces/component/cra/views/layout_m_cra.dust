@@ -6,7 +6,7 @@
     </a>
     <ul class="treeview-menu">
         <li><a href="/cra/declare"><i class="fa fa-plus"></i> {@__ key="entity.e_cra.custom_button_declare" /}</a></li>
-        <li><a href="/cra/list"><i class="fa fa-list"></i> {@__ key="operation.list" /}</a></li>
+        <li><a href="/cra/list"><i class="fa fa-list"></i> {@__ key="entity.e_cra.showItBro" /}</a></li>
         {@entityAccess entity="cra_team"}
             <li id="cra_team_menu_item" class="treeview">
                 <a href="#"><i class="fa fa-users"></i> {@__ key="entity.e_cra_team.label_entity" /}

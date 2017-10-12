@@ -20,7 +20,8 @@
         "waiting_validation_list": "Timesheets waiting for validation",
         "noTeam": "You must be member of a team in order to be able to declare your timesheet",
         "saveSuccess": "Timesheet successfully saved!",
-        "validateSuccess": "Timesheet successfully validate."
+        "validateSuccess": "Timesheet successfully validate.",
+        "showItBro": "See timesheets"
     },
     "e_cra_team": {
         "label_entity": "Team",
