@@ -715,11 +715,12 @@ exports.newCra = function (attr, callback) {
             "otherKey": "activity_id"
         });
         fs.writeFileSync(teamOptionsPath, JSON.stringify(teamOptionObj, null, 4));
-        // Add missing foreignKey
-        var teamAttrPath = workspacePath + '/models/options/e_cra_team.json';
-        var teamAttrObj = JSON.parse(fs.readFileSync(teamAttrPath));
+
+        // Add missing foreignKey to attributes file
+        var teamAttrPath = workspacePath + '/models/attributes/e_cra_team.json';
+        var teamAttrObj = JSON.parse(fs.readFileSync(teamAttrPath, 'utf8'));
         teamAttrObj.fk_id_admin_user = {type: "INTEGER", newmipsType: 'integer'};
-        fs.writeFileSync(teamAttrPath, JSON.stringify(teamAttrObj, null, 4));
+        fs.writeFileSync(teamAttrPath, JSON.stringify(teamAttrObj, null, 4), 'utf8');
 
         var toSync = JSON.parse(fs.readFileSync(workspacePath+'/models/toSync.json', 'utf8'));
         toSync[attr.id_application+'_e_cra_team'].attributes.fk_id_admin_user = "INTEGER";
