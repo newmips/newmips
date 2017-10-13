@@ -61,31 +61,33 @@ function teamAdminMiddleware(req, res, next) {
             as: 'r_users'
         }]
     }).then(function(team) {
+        req.isAdmin = true;
         if (!team) {
-            if(req.originalUrl == "/cra/list" || req.originalUrl == "/cra/datalist"){
+            if(req.originalUrl == "/cra/list" || req.originalUrl == "/cra/datalist")
                 req.isAdmin = false;
-                next();
-            } else{
+            else if (req.originalUrl == '/cra/declare' && req.session.passport.user.r_group.f_label != 'admin')
+                req.isAdmin = true;
+            else {
                 req.session.toastr.push({level: 'error', message: 'entity.e_cra_team.admin_only'});
                 return res.redirect('/default/cra');
             }
-        } else{
-            req.isAdmin = true;
-            req.team = team;
-            next();
         }
+        else
+            req.team = team;
+        next();
     });
 }
 
 router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
     var data = {
         "menu": "e_cra",
-        "sub_menu": "list_e_cra"
+        "sub_menu": "list_e_cra",
+        isAdmin: req.isAdmin || req.session.passport.user.r_group.f_label == 'admin'
     };
-    data.toastr = req.session.toastr;
-    req.session.toastr = [];
 
+    // Team admin
     if(req.isAdmin){
+        // Get cra waiting to be validated for first list of page
         var idTeamUsers = [];
         for (var i = 0; i < req.team.r_users.length; i++)
             idTeamUsers.push(req.team.r_users[i].id);
@@ -98,9 +100,27 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
             }
         }).then(function(cra) {
             data.cra = cra;
+            data.users = req.team.r_users;
+
             res.render('e_cra/list', data);
         });
-    } else{
+    }
+    // Global admin
+    else if (data.isAdmin) {
+        models.E_cra.findAll({
+            where: {
+                f_admin_validated: false,
+                f_user_validated: true
+            }
+        }).then(function(cra) {
+            data.cra = cra;
+            models.E_user.findAll().then(function(users) {
+                data.users = users;
+                res.render('e_cra/list', data);
+            });
+        });
+    }
+    else {
         data.noAdmin = true;
         res.render('e_cra/list', data);
     }
@@ -396,12 +416,20 @@ router.get('/declare', block_access.actionAccessMiddleware("cra", 'read'), funct
         sub_menu: "create_e_cra"
     };
 
+    var userId;
+    if (req.query.idUser) {
+        userId = req.query.idUser
+        data.declareForUserId = userId;
+    }
+    else
+        userId = req.session.passport.user.id;
+
     models.E_cra_activity.findAll({where: {f_active: true}}).then(function(activities) {
         models.E_cra_team.findOne({
             include: [{
                 model: models.E_user,
                 as: 'r_users',
-                where: {id: req.session.passport.user.id}
+                where: {id: userId}
             }, {
                 model: models.E_cra_activity,
                 as: 'r_default_cra_activity'
@@ -488,7 +516,7 @@ router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write
     var body = req.body;
     body.year = parseInt(body.year);
     body.month = parseInt(body.month);
-    var id_user = req.session.passport.user.id;
+    var id_user = req.body.declareForUserId ? req.body.declareForUserId : req.session.passport.user.id;
 
     models.E_cra.create({
         f_month: body.month,
@@ -566,7 +594,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
     var body = req.body;
     body.year = parseInt(body.year);
     body.month = parseInt(body.month);
-    var id_user = req.session.passport.user.id;
+    var id_user = req.body.declareForUserId ? req.body.declareForUserId : req.session.passport.user.id;
 
     models.E_cra.findOne({
         where: {
@@ -636,9 +664,9 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
     });
 });
 
-router.get('/getData/:month/:year', function(req, res) {
+router.get('/getData/:month/:year/:forUserId*?', function(req, res) {
     var data = {};
-    var id_user = req.session.passport.user.id;
+    var id_user = req.params.forUserId ? req.params.forUserId : req.session.passport.user.id;
     var month = parseInt(req.params.month);
     var year = parseInt(req.params.year);
 
