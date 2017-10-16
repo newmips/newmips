@@ -202,7 +202,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "			<div class='input-group-addon'>\n";
                 str += "				<i class='fa fa-clock-o'></i>\n";
                 str += "			</div>\n";
-                str += "			<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "			<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='{" + value2 + "|time}' type='text' " + readOnly + "/>\n";
                 str += "		</div>\n";
                 str += "	</div>\n";
             }

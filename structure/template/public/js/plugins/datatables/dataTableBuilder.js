@@ -264,6 +264,10 @@ function init_datatable(tableID) {
                     }
                     else if (columns[meta.col].type == 'url' && cellValue!=null)
                         cellValue = '<a target="_blank" href="'+cellValue+'">'+cellValue+'</a>';
+                    else if (columns[meta.col].type == 'time' && cellValue != null){
+                        if(cellValue.length == 8)
+                            cellValue = cellValue.substring(0, cellValue.length - 3);
+                    }
                 }
                 return cellValue;
             }
