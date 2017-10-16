@@ -234,6 +234,14 @@ app.use(function(req, res, next) {
         }
 		return value;
 	};
+
+	dust.filters.time = function(value) {
+		if (value != "") {
+            if (value.length == 8)
+                return value.substring(0, value.length - 3);
+        }
+		return value;
+	};
     next();
 });
 
