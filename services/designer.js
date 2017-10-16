@@ -676,7 +676,9 @@ function deleteTab(attr, callback) {
                     if (err)
                         return callback(err, infoDesigner);
 
-                    infoDesigner.message = "Tab "+attr.options.showValue+" deleted.";
+                    infoDesigner.message = "structure.association.deleteTab";
+                    infoDesigner.messageParams = [attr.options.showValue];
+
                     callback(null, infoDesigner);
                 });
             });
