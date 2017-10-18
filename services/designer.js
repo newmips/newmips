@@ -1545,9 +1545,14 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 
             var toSync = true;
 
+            // Vérification si une relation existe déjà de la source VERS la target
             for (var i=0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
-                    if (attr.options.as == optionsSourceObject[i].as) {
+                    if(optionsSourceObject[i].relation == "belongsTo"){
+                        var err = new Error();
+                        err.message = "structure.association.error.alreadyRelatedTo";
+                        return callback(err, null);
+                    } else if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadySameAlias";
                         return callback(err, null);
