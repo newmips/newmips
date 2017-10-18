@@ -335,7 +335,8 @@
             },
             "error":{
                 "alreadyHasMany": "Source entity already has many target entity, impossible to create belongs to association.",
-                "alreadyHasOne": "Source entity already has the association has one with target entity, it's impossible to add has many association.",
+                "alreadyHasOne": "Source entity already has the association has one with target entity, so it's impossible to add has many association.",
+                "alreadyRelatedTo": "Source entity already has a related to field with target entity, so it's impossible to add a related to multiple field with this target.",
                 "alreadySameAlias": "Association already exists between these entities with this alias.",
                 "circularBelongsTo": "Bad entity association, you can't set circular has one association.",
                 "circularHasMany": "Bad entity association, you can't set circular has many association.",
