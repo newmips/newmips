@@ -1719,7 +1719,7 @@ exports.createNewComponentContactForm = function (attr, callback) {
                         "add field Sender with type email",
                         "set field Sender required",
                         "add field Recipient with type email",
-                        "add field User related to user using f_login",
+                        "add field User related to user using login",
                         "add field Title",
                         "set field Title required",
                         "add field Content with type text",
