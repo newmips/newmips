@@ -339,7 +339,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             }
             else if (value != "") {
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
-                str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
+                str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "            {@eq key=\"" + value + "\" value=\"{.value}\" }\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
