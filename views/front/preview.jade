@@ -678,12 +678,23 @@ block custom_js
 			        select: function( event, ui ) {
 			        	var completeVal = ui.item.value;
 			        	// If complete value have already typed string in it, dont concat with current value
-				        if (completeVal.indexOf(this.value) == 0)
+				        if (completeVal.indexOf(this.value) == 0){
 							this.value = completeVal.split("[variable]").join("").trim();
+				        }
 						else {
 							// Remove the last word of already typed instruction because it is also in the completed value
 							var parts = this.value.split(' ');
-							parts.pop();
+							if(parts[parts.length-1] == " ")
+								parts.pop();
+							else{
+								compareNum = 0;
+								l = Math.min(completeVal.length, parts[parts.length-1].length);
+								for( i=0; i<l; i++) {
+								    if( completeVal.charAt(i) == parts[parts.length-1].charAt(i)) compareNum++;
+								}
+								if(compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length-1])
+									parts.pop();
+							}
 							this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
 						}
 						return false;
