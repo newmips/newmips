@@ -1504,6 +1504,8 @@ exports.deleteDataField = function (attr, callback) {
                 (function (file) {
                     domHelper.read(file).then(function ($) {
                         $('*[data-field="' + name_data_field + '"]').remove();
+                        // In case of related to
+                        $('*[data-field="r_' + name_data_field.substring(2) + '"]').remove();
                         domHelper.write(file, $).then(function () {
                             resolve();
                         });
@@ -1516,6 +1518,10 @@ exports.deleteDataField = function (attr, callback) {
             domHelper.read(viewsPath + '/list_fields.dust').then(function ($) {
                 $("th[data-field='" + name_data_field + "']").remove();
                 $("td[data-field='" + name_data_field + "']").remove();
+
+                // In case of related to
+                $("th[data-field^='r_" + name_data_field.substring(2) + "']").remove();
+                $("td[data-field^='r_" + name_data_field.substring(2) + "']").remove();
                 domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
                     resolve();
                 });
