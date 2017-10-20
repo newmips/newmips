@@ -38,7 +38,19 @@ block content
 							.form-group
 								.row
 									.col-xs-12
-										input(type='file', required, name='instructions', style='float:left;')
+										input#addScriptInput(type='file', required, name='instructions', style='float:left;')
+										- var contentArea = "add project My Project\nadd application My Application\n\n"
+										textarea#createScriptTextarea(name='instructionsText', cols='150', rows='10', style='float:left;display: none;')
+											!{contentArea}
+
+								.row
+									.col-xs-12
+										a#createScript(href="#")
+											i.fa.fa-plus.fa-md &nbsp;
+											| Créer un script
+										a#addScript(href="#", style="display: none;")
+											i.fa.fa-file.fa-md &nbsp;
+											| Depuis un fichier
 								.row
 									.col-xs-3
 										button.btn.btn-primary(id='scriptSubmit', type='submit', style='float:left;margin-top: 15px;') #{__("button.execute")}
