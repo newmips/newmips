@@ -101,7 +101,9 @@
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",
-        "redirecting": "Redirection..."
+        "redirecting": "Redirection...",
+        "createScript": "Écrire un script",
+        "fromFile": "Depuis un fichier"
     },
     "live": {
         "legend": "Édition en direct"

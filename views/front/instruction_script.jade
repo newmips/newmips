@@ -47,10 +47,10 @@ block content
 									.col-xs-12
 										a#createScript(href="#")
 											i.fa.fa-plus.fa-md &nbsp;
-											| Créer un script
+											| #{__("instructionScript.createScript")}
 										a#addScript(href="#", style="display: none;")
 											i.fa.fa-file.fa-md &nbsp;
-											| Depuis un fichier
+											| #{__("instructionScript.fromFile")}
 								.row
 									.col-xs-3
 										button.btn.btn-primary(id='scriptSubmit', type='submit', style='float:left;margin-top: 15px;') #{__("button.execute")}

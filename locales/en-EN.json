@@ -101,7 +101,9 @@
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
-        "redirecting": "Redirecting..."
+        "redirecting": "Redirecting...",
+        "createScript": "Write a script",
+        "fromFile": "Upload a script"
     },
     "live":{
         "legend": "Live edition"
@@ -169,7 +171,6 @@
     "chat": {
         "welcomeold": "Welcome ! Please type your instructions in input field below or type 'help' if you need any support.",
         "welcome": "Hello and welcome ! I'm Mipsy, your personnal creation assistant. At any time, I am here to help you discover the Newmips generator.<br> To get started, here are few instructions that you can run below:<br><br>- <b class='click-instruction'>add entity Person</b><br>- <b class='click-instruction'>add field Name</b><br>- <b class='click-instruction'>add field Birthday with type date</b> <br><br>And follow us on our dedicated YouTube channel, you will find our playlist of video tutorials to learn in details how to use the Newmips generator:<br><a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>Newmips tutorials</a>"
-
     },
     "database": {
         "project": {
@@ -317,7 +318,7 @@
         "association": {
             "hasOne": {
                 "successEntity": "A tab «%s» has just been added to the entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
-                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
+                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasMany": {
                 "successEntity": "New relation has many with entity %s created.",
