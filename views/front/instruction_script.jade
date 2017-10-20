@@ -39,9 +39,9 @@ block content
 								.row
 									.col-xs-12
 										input#addScriptInput(type='file', required, name='instructions', style='float:left;')
-										- var contentArea = "add project My Project\nadd application My Application\n\n"
+										- var contentArea = "add project My Project\nadd application My Application\n\n";
 										textarea#createScriptTextarea(name='instructionsText', cols='150', rows='10', style='float:left;display: none;')
-											!{contentArea}
+											| !{contentArea}
 
 								.row
 									.col-xs-12
