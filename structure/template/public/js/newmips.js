@@ -213,9 +213,9 @@ $(document).ready(function () {
     $('.datetimepicker-toconvert').each(function() {
         if ($(this).attr("value") != "" && $(this).attr("value") != "Invalid date" && $(this).attr("value") != "Invalid Date") {
             if (lang_user == "fr-FR")
-                $(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm:ss")).change();
+                $(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm")).change();
             else
-                $(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm:ss")).change();
+                $(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm")).change();
         } else {
             $(this).val("");
         }
@@ -236,9 +236,9 @@ $(document).ready(function () {
     $("td[data-type='datetime']").each(function() {
         if ($(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
             if (lang_user == "fr-FR")
-                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm:ss"));
+                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
             else
-                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm:ss"));
+                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
         } else {
             $(this).html("");
         }
@@ -280,13 +280,13 @@ $(document).ready(function () {
         });
 
         $('.datetimepicker').datetimepicker({
-            format: "DD/MM/YYYY HH:mm:ss",
+            format: "DD/MM/YYYY HH:mm",
             sideBySide: true
         });
 
         $(".datetimepicker").inputmask({
-            mask: "1/2/y h:s:s",
-            placeholder: "dd/mm/yyyy hh:mm:ss",
+            mask: "1/2/y h:s",
+            placeholder: "dd/mm/yyyy hh:mm",
             alias: "datetime",
             timeseparator: ":",
             hourFormat: "24"
@@ -304,13 +304,13 @@ $(document).ready(function () {
         });
 
         $('.datetimepicker').datetimepicker({
-            format: "YYYY-MM-DD HH:mm:ss",
+            format: "YYYY-MM-DD HH:mm",
             sideBySide: true
         });
 
         $(".datetimepicker").inputmask({
-            mask: "y-1-2 h:s:s",
-            placeholder: "yyyy-mm-dd hh:mm:ss",
+            mask: "y-1-2 h:s",
+            placeholder: "yyyy-mm-dd hh:mm",
             separator: "-",
             alias: "yyyy/mm/dd"
         });
