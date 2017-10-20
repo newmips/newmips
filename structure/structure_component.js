@@ -112,7 +112,54 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 
         fs.copySync(componentEventViewFolder, eventViewsFolder);
 
-        var eventShowFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/show_fields.dust';
+        // Replace variable in each files
+        var fileToReplace = ["show_fields", "create_fields", "update_fields"];
+        var urlEvent = valueEvent.toLowerCase().substring(2);
+
+        for(var i=0; i<fileToReplace.length; i++){
+            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/'+fileToReplace[i]+'.dust';
+            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+            eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+            eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
+
+            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+        }
+
+        // Inject custom_js
+        var fileToInject = ["create", "update"];
+
+        for(var i=0; i<fileToInject.length; i++){
+            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/'+fileToInject[i]+'.dust';
+            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+            eventTemplate += "\n\n"+
+            "{<custom_js}\n"+
+            "    <script type='text/javascript'>\n"+
+            "        $(document).on(\"dp.change\", \"input[name='f_start_date']\", function(){\n"+
+            "            if($(this).val() != \"\" && $(\"input[name='f_end_date']\").val() != \"\"){\n"+
+            "                if($(this).val() > $(\"input[name='f_end_date']\").val()){\n"+
+            "                    $(this).val(\"\");\n"+
+            "                }\n"+
+            "            }\n"+
+            "        });\n"+
+            "        $(document).on(\"dp.change\", \"input[name='f_end_date']\", function(){\n"+
+            "            if($(this).val() != \"\" && $(\"input[name='f_start_date']\").val() != \"\"){\n"+
+            "                if($(this).val() < $(\"input[name='f_start_date']\").val()){\n"+
+            "                    $(this).val(\"\");\n"+
+            "                }\n"+
+            "            }\n"+
+            "        });\n"+
+            "    </script>\n"+
+            "{/custom_js}\n";
+
+            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+        }
+
+
+        callback();
+
+        /*var eventShowFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/show_fields.dust';
         var eventCreateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/create_fields.dust';
         var eventUpdateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/update_fields.dust'
 
@@ -141,7 +188,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 
         writeStreamEventUpdate.on('finish', function () {
             callback();
-        });
+        });*/
     });
 }
 
