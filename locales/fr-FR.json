@@ -312,7 +312,9 @@
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
                 "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique.",
-                "missingValues": "Erreur, vous devez spécifier les valeurs que vous souhaitez avoir dans le champ de type enum / radio."
+                "missingValues": "Erreur, vous devez spécifier les valeurs que vous souhaitez avoir dans le champ de type enum / radio.",
+                "noSpace": "Erreur, merci de séparer les valeurs dans un champ de type enum / radio par des virgules et non des espaces.",
+                "sameValue": "Erreur, vous ne pouvez pas spécifier 2 fois la même valeur dans un champ de type enum / radio."
             }
         },
         "association": {
