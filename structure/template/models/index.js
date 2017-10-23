@@ -194,7 +194,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
-                fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
+                console.log(failures);
                 resolve();
             });
         }).catch(function(err){
@@ -202,7 +202,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
-                fs.writeFileSync(__dirname + '/toSync.json', JSON.stringify(failures, null, 4), 'utf8');
+                console.log(failures);
                 reject(err);
             });
         });
