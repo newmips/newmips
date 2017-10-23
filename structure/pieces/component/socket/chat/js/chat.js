@@ -139,7 +139,7 @@ var socket = io();
 	}
 	function channelContacts(contacts) {
 		var contactsHtml = '';
-		contactsHtml += '<h4 class="contacts-list-name" style="margin-left:10px;">'+$("#msg-channel_members").text()+'</h4>';
+		contactsHtml += '<h4 class="contacts-list-name">'+$("#msg-channel_members").text()+'</h4>';
 		contactsHtml += '<ul class="contacts-list">';
 		for (var i = 0; i < contacts.length; i++)
 			contactsHtml += '<li>'+contacts[i].f_login+'</li>';
