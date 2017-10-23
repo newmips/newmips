@@ -7,6 +7,7 @@ var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
 var docBuilder = require('../utils/api_doc_builder');
+var moment = require('moment');
 
 // Parser
 var designer = require('../services/designer.js');
@@ -352,7 +353,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     }
 
                     for(var entity in toSyncObject){
-                        if(workspaceTables.indexOf(entity) == -1){
+                        if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
                             delete toSyncObject[entity].options;
                         }
@@ -420,7 +421,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         }
     };
 
-    var tmpFilename = new Date()+"_custom_script.txt";
+    var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
     var tmpPath = __dirname+'/../upload/'+tmpFilename;
 
     fs.openSync(tmpPath, 'w');
@@ -567,7 +568,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     }
 
                     for(var entity in toSyncObject){
-                        if(workspaceTables.indexOf(entity) == -1){
+                        if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
                             delete toSyncObject[entity].options;
                         }
