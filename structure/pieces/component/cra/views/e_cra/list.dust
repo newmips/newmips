@@ -104,13 +104,14 @@
                 {#isAdmin}
                 <div class="col-xs-12">
                     <select name="declareForUser">
-                        <option default>{@__ key="entity.e_cra.declare_for" /}</option>
+                        <option value="" default>{@__ key="entity.e_cra.declare_for" /}</option>
                         {#users}
                             <option value="{id}">{f_login}</option>
                         {/users}
                     </select>
                     <a id="declareForUserBtn" href="/cra/declare" class="btn btn-primary">{@__ key="entity.e_cra.custom_button_declare" /}</a>
                 </div>
+                <br>
                 {/isAdmin}
             </div>
         </div>
@@ -167,6 +168,8 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $("select[name='declareForUser']").change(function() {
+                if ($("select[name='declareForUser'] option:selected").val() == '')
+                    return;
                 $("#declareForUserBtn").attr('href', $("#declareForUserBtn").attr('href')+'?idUser='+$("select[name='declareForUser'] option:selected").val());
             });
 
