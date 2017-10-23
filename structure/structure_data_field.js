@@ -1199,7 +1199,6 @@ exports.setupRelatedToField = function (attr, callback) {
                 $("#fields").append(str);
 
                 domHelper.write(file, $).then(function () {
-
                     function done(){
                         translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
                             callback(null, "Field related to successfully created");
@@ -1211,13 +1210,15 @@ exports.setupRelatedToField = function (attr, callback) {
                             return true;
                         }
 
+                        var targetField = (usingField[cpt].value == "id") ? "id_entity" : usingField[cpt].value;
+
                         // Add <th> in list_field
                         var toAddInList = {headers: '', body: ''};
                         /* ------------- Add new FIELD in headers ------------- */
                         var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
                         str += ' data-type="'+usingField[cpt].type+'"';
                         str += '>\n';
-                        str += '{@__ key="entity.' + source + '.' + alias + '"/} - '+showUsingField[cpt]+'\n';
+                        str += '{@__ key="entity.' + source + '.' + alias + '"/}&nbsp;-&nbsp;{@__ key="entity.' + target + '.' + targetField + '"/}\n';
                         str += '</th>\n';
                         toAddInList.headers = str;
 
