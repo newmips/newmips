@@ -10,17 +10,16 @@
     </div>
 
     <div class="box-body">
-        <div id="channelUsers" style="max-height: 250px;overflow-y:auto;overflow-x: hidden;position:fixed;background-color: grey;color:black;z-index:10;display:none;border-radius: 0 0 10px 10px;width: 500px;">
-            <br>
+        <div id="channelUsers" style="max-height: 250px;overflow-y:auto;overflow-x: hidden;position:fixed;background-color: #F0F8FF;color:black;z-index:10;display:none;width: 500px;padding:15px;border-left: 1px solid lightgrey;border-bottom: 1px solid lightgrey;border-top: 1px solid lightgrey;">
             <div class="row">
                 <div class="col-xs-12">
-                    <button id="leaveChannel" class="btn btn-info" style="margin-left: 15px;"><i class="fa fa-sign-out"></i> {@__ key="component.chat.channel_leave" /}</button>
+                    <button id="leaveChannel" class="btn btn-info"><i class="fa fa-sign-out"></i> {@__ key="component.chat.channel_leave" /}</button>
                 </div>
             </div>
             <br>
             <div class="row">
                 <div class="col-xs-12">
-                    <h4 class="contacts-list-name" style="margin-left:10px;">
+                    <h4 class="contacts-list-name">
                         {@__ key="component.chat.invite_users" /}
                     </h4>
                 </div>
