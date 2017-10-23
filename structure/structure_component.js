@@ -735,10 +735,6 @@ exports.newCra = function (attr, callback) {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/cra';
 
-        // Clean toSync file, add custom fields
-        //var toSync = {};
-        //fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4));
-
         // Copy pieces
         fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');
         fs.copySync(piecesPath + '/routes/e_cra_team.js', workspacePath + '/routes/e_cra_team.js');
@@ -877,7 +873,7 @@ exports.setupChat = function(attr, callback) {
         var appConf = JSON.parse(fs.readFileSync(workspacePath+'/config/application.json'));
         appConf.socket.enabled = true;
         appConf.socket.chat = true;
-        fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
+        fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
 
         // Add custom user_channel/user_chat columns to toSync file
         // Id will not be used but is required by sequelize to be able to query on the junction table
@@ -902,19 +898,19 @@ exports.setupChat = function(attr, callback) {
                 }
             }
         };
-        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
         // Add chat locales
         // EN
         var piecesLocalesEN = require(piecesPath+'/chat/locales/en-EN');
         var workspaceLocalesEN = require(workspacePath+'/locales/en-EN');
         workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
-        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4));
+        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4), 'utf8');
         // FR
         var piecesLocalesFR = require(piecesPath+'/chat/locales/fr-FR');
         var workspaceLocalesFR = require(workspacePath+'/locales/fr-FR');
         workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
-        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4));
+        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4), 'utf8');
 
         // Add chat dust template to main_layout
         domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {

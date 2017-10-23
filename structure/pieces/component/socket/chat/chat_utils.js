@@ -119,7 +119,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					include: [{
 						model: models.E_user,
 						where: {id: user.id},
-						as: 'r_user',
+						as: 'r_user_channel',
 					}]
 				}).then(function(channel) {
 					if (!channel)
