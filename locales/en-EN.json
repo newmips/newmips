@@ -312,7 +312,9 @@
                 "notUnderstand": "Unable to understand the given attribute.",
                 "fieldNoFound": "No field with name %s found in the current entity.",
                 "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique.",
-                "missingValues": "Error, you have to specify the values you want in the field with type enum / radio."
+                "missingValues": "Error, you have to specify the values you want in the field with type enum / radio.",
+                "noSpace": "Error, please seperate each enum / radio value with a comma.",
+                "sameValue": "Error, you can't specify 2 times the same value for an enum / radio field."
             }
         },
         "association": {
