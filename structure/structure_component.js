@@ -886,7 +886,8 @@ exports.setupChat = function(attr, callback) {
                     autoIncrement: true,
                     primaryKey: true
                 }
-            }
+            },
+            force: true
         };
         toSync[attr.id_application+'_chat_user_chat'] = {
             attributes: {
@@ -896,7 +897,8 @@ exports.setupChat = function(attr, callback) {
                     autoIncrement: true,
                     primaryKey: true
                 }
-            }
+            },
+            force: true
         };
         fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
