@@ -491,7 +491,23 @@ exports.setupDataField = function (attr, callback) {
                 values_data_field[j] = values_data_field[j].trim();
             }
         } else {
-            values_data_field = values.split(" ");
+            var err = new Error();
+            err.message = "structure.field.attributes.noSpace";
+            return callback(err, null);
+        }
+
+        var sameResults_sorted = values_data_field.slice().sort();
+        var sameResults = [];
+        for (var i = 0; i < values_data_field.length - 1; i++) {
+            if (sameResults_sorted[i + 1] == sameResults_sorted[i]) {
+                sameResults.push(sameResults_sorted[i]);
+            }
+        }
+
+        if(sameResults.length > 0){
+            var err = new Error();
+            err.message = "structure.field.attributes.sameValue";
+            return callback(err, null);
         }
     }
 
@@ -652,7 +668,7 @@ exports.setupDataField = function (attr, callback) {
         if(typeof values_data_field === "undefined"){
             var err = new Error();
             err.message = "structure.field.attributes.missingValues";
-            return callback(err,null);
+            return callback(err, null);
         }
         for (var i = 0; i < values_data_field.length; i++) {
             cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
