@@ -21,7 +21,8 @@
         "noTeam": "You must be member of a team in order to be able to declare your timesheet",
         "saveSuccess": "Timesheet successfully saved!",
         "validateSuccess": "Timesheet successfully validate.",
-        "showItBro": "See timesheets"
+        "showItBro": "See timesheets",
+        "declare_for": "Declare for user..."
     },
     "e_cra_team": {
         "label_entity": "Team",
