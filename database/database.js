@@ -7,6 +7,7 @@ function pushToSyncQuery(id_application, query) {
         if (!toSync.queries)
             toSync.queries = [];
         toSync.queries.push(query);
+        console.log(query);
         fs.writeFileSync('workspace/'+id_application+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
     } catch(e){
         console.log(e);
@@ -41,8 +42,8 @@ exports.dropFKDataField = function(attr, callback) {
 
     // *** 1 - Initialize variables according to options ***
     var name_data_entity = attr.name_data_entity;
-
     var table_name = attr.id_application+"_"+name_data_entity.toLowerCase();
+
     var query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '"+attr.fieldToDrop+"' && `TABLE_NAME` = '"+table_name+"'";
 
     sequelize.query(query).then(function(constraintName) {

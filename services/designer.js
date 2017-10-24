@@ -509,23 +509,25 @@ function deleteDataEntity(attr, callback) {
         db_entity.getIdDataEntityByCodeName(attr.id_module, name_data_entity, function(err, entityId){
             if(err){
                 callback(err, null);
-            }
-            else{
+            } else {
                 var entityOptions = require(workspacePath+'/models/options/'+name_data_entity+'.json');
                 for (var i = 0; i < entityOptions.length; i++) {
                     if (entityOptions[i].relation == 'hasMany') {
                         var tmpAttr = {
                             options: {
-                                value: entityOptions[i].as
+                                value: entityOptions[i].as,
+                                urlValue: entityOptions[i].as.substring(2)
                             },
                             id_project: attr.id_project,
                             id_application: attr.id_application,
                             id_module: attr.id_module,
                             id_data_entity: entityId
-                        }
+                        };
                         promises.push(new Promise(function(resolve, reject) {
                             (function(tmpAttrIn) {
-                                deleteTab(tmpAttrIn, function() {
+                                deleteTab(tmpAttrIn, function(err) {
+                                    if(err)
+                                        console.log(err);
                                     resolve();
                                 })
                             })(tmpAttr);
@@ -544,7 +546,8 @@ function deleteDataEntity(attr, callback) {
                         if (options[i].relation == 'hasMany') {
                             var tmpAttr = {
                                 options: {
-                                    value: options[i].as
+                                    value: options[i].as,
+                                    urlValue: options[i].as.substring(2)
                                 },
                                 id_project: attr.id_project,
                                 id_application: attr.id_application,
@@ -554,7 +557,9 @@ function deleteDataEntity(attr, callback) {
                                 (function(tmpAttrIn) {
                                     db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                         tmpAttrIn.id_data_entity = sourceID;
-                                        deleteTab(tmpAttrIn, function() {
+                                        deleteTab(tmpAttrIn, function(err) {
+                                            if(err)
+                                                console.log(err);
                                             resolve();
                                         });
                                     });
@@ -563,18 +568,28 @@ function deleteDataEntity(attr, callback) {
                         } else if (options[i].relation == 'belongsTo') {
                             var tmpAttr = {
                                 options: {
-                                    value: options[i].as
+                                    value: options[i].as,
+                                    urlValue: options[i].as.substring(2)
                                 },
                                 id_project: attr.id_project,
                                 id_application: attr.id_application,
                                 id_module: attr.id_module
-                            }
+                            };
+                            console.log("ROLO");
                             promises.push(new Promise(function(resolve, reject) {
                                 (function(tmpAttrIn) {
                                     db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                         tmpAttrIn.id_data_entity = sourceID;
-                                        deleteDataField(tmpAttrIn, function() {
-                                            resolve();
+                                        console.log("RALA");
+                                        console.log(tmpAttrIn);
+                                        deleteDataField(tmpAttrIn, function(err) {
+                                            if(err)
+                                                console.log(err);
+                                            deleteTab(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
                                         });
                                     });
                                 })(tmpAttr)
@@ -658,27 +673,36 @@ exports.createNewDataField = function(attr, callback) {
 function deleteTab(attr, callback) {
     var infoDesigner = {};
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
-        if (err)
+        if (err){
+            console.log("1");
             return callback(err, infoDesigner);
+        }
 
         attr.name_data_entity = dataEntity.codeName;
         attr.show_name_data_entity = dataEntity.name;
+
         structure_data_field.deleteTab(attr, function(err, fk, target, tabType) {
-            if (err)
+            if (err){
+                console.log("2");
                 return callback(err, infoDesigner);
+            }
             infoDesigner.tabType = tabType;
 
             attr.fieldToDrop = fk;
             attr.name_data_entity = target;
             database.dropFKDataField(attr, function(err, infoDatabase){
-                if (err)
+                if (err){
+                    console.log("3");
                     return callback(err, infoDesigner);
+                }
 
                 // Missing id_ in attr.options.value, so we use fieldToDrop
                 attr.options.value = attr.fieldToDrop;
                 db_field.deleteDataField(attr, function(err, infoDB) {
-                    if (err)
+                    if (err){
+                        console.log("4");
                         return callback(err, infoDesigner);
+                    }
 
                     infoDesigner.message = "Tab "+attr.options.showValue+" deleted.";
                     callback(null, infoDesigner);
