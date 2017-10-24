@@ -151,43 +151,27 @@ sequelize.customAfterSync = function() {
                         }));
                     })(entity, toSyncObject[entity].options[j]);
                 }
-
-            // Sync entity queries
-            if (toSyncObject[entity].queries)
-                for (var j = 0; j < toSyncObject[entity].queries.length; j++) {
-                    (function(sourceEntity, query) {
-                        promises.push(new Promise(function(resolve0, reject0) {
-                            sequelize.query(query).then(function() {
-                                toSyncProdObject.queries.push(query);
-                                resolve0();
-                            }).catch(function(err){
-                                if (!failures[sourceEntity].queries)
-                                    failures[sourceEntity].queries = [];
-                                failures[sourceEntity].queries.push(query);
-                                reject0(err);
-                            });
-                        }));
-                    })(entity, toSyncObject[entity].queries[j]);
-                }
         }
 
-        // Sync queries
+        // Recursive execute raw sql queries to save queries order
+        function recursiveQueries(srcQueries) {
+            return new Promise(function(resolve, reject) {
+                function execQuery(queries, idx) {
+                    if (!queries[idx])
+                        return resolve();
+                    sequelize.query(queries[idx]).then(function() {
+                        toSyncProdObject.queries.push(queries[idx]);
+                        execQuery(queries, idx+1);
+                    }).catch(function(err){
+                        console.log(err);
+                        execQuery(queries, idx+1);
+                    });
+                }
+                execQuery(srcQueries, 0);
+            });
+        }
         if (toSyncObject.queries)
-            for (var j = 0; j < toSyncObject.queries.length; j++) {
-                (function(query, idx) {
-                    promises.push(new Promise(function(resolve0, reject0) {
-                        sequelize.query(query).then(function() {
-                            toSyncProdObject.queries.push(query);
-                            resolve0();
-                        }).catch(function(err){
-                            if (!failures.queries)
-                                failures.queries = [];
-                            failures.queries.push(query);
-                            reject0(err);
-                        });
-                    }));
-                })(toSyncObject.queries[j], j);
-            }
+            promises.push(recursiveQueries(toSyncObject.queries));
 
         Promise.all(promises).then(function() {
             var writeStream = fs.createWriteStream(__dirname + '/toSyncProd.json');
