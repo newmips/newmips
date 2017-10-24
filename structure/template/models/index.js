@@ -162,7 +162,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
-                fs.writefileSync(__dirname+'/toSync.json', '{}', 'utf8');
+                fs.writeFileSync(__dirname+'/toSync.json', '{}', 'utf8');
                 resolve();
             });
         }).catch(function(err){
@@ -170,7 +170,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
-                fs.writefileSync(__dirname+'/toSync.json', '{}', 'utf8');
+                fs.writeFileSync(__dirname+'/toSync.json', '{}', 'utf8');
                 reject(err);
             });
         });
