@@ -20,7 +20,6 @@ var models = require('../models/');
 
 // Homepage
 router.get('/home', block_access.isLoggedIn, function(req, res) {
-
     var data = {};
     // Set ReturnTo URL in cas of unauthenticated users trying to reach a page
     req.session.returnTo = req.protocol + '://' + req.get('host') + req.originalUrl;
