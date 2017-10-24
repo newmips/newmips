@@ -29,18 +29,6 @@ sequelize.customAfterSync = function() {
 
         var promises = [];
 
-        var failures = {};
-        function addAttributeFailure(entity, attribute, element) {
-            if (!failures[entity])
-                failures[entity] = {attributes: {}, options: []};
-            failures[entity].attributes[attribute] = element;
-        }
-        function addOptionFailure(entity, element) {
-            if (!failures[entity])
-                failures[entity] = {attributes: {}, options: []};
-            failures[entity].options.push(element);
-        }
-
         /* ----------------- Récupération du toSync.json -----------------*/
         var toSyncFileName = globalConf.env == 'cloud' || globalConf.env == 'cloud_recette' ? __dirname + '/toSyncProd.lock.json' : __dirname + '/toSync.json';
         var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
@@ -105,10 +93,8 @@ sequelize.customAfterSync = function() {
                                     console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
                                     resolve0();
                                 }
-                                else {
-                                    addAttributeFailure(entityB, attributeB, toSyncObject[entityB].attributes[attributeB]);
+                                else
                                     reject0(err);
-                                }
                             });
                         }));
                     })(request, entity, attribute);
@@ -143,10 +129,8 @@ sequelize.customAfterSync = function() {
                             }).catch(function(err) {
                                 if(err.parent.errno == 1060)
                                     resolve0();
-                                else {
-                                    addOptionFailure(sourceEntity, option);
+                                else
                                     reject0(err);
-                                }
                             });
                         }));
                     })(entity, toSyncObject[entity].options[j]);
@@ -178,7 +162,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
-                console.log(failures);
+                fs.writefileSync(__dirname+'/toSync.json', '{}', 'utf8');
                 resolve();
             });
         }).catch(function(err){
@@ -186,7 +170,7 @@ sequelize.customAfterSync = function() {
             writeStream.write(JSON.stringify(toSyncProdObject, null, 4));
             writeStream.end();
             writeStream.on('finish', function() {
-                console.log(failures);
+                fs.writefileSync(__dirname+'/toSync.json', '{}', 'utf8');
                 reject(err);
             });
         });
