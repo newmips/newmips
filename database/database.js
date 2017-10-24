@@ -55,3 +55,20 @@ exports.dropFKDataField = function(attr, callback) {
         callback(err);
     });
 }
+
+// Delete field related to multiple
+exports.dropFKMultipleDataField = function(attr, callback) {
+    // *** 1 - Initialize variables according to options ***
+    var name_data_entity = attr.name_data_entity;
+    var table_name = attr.id_application+"_"+attr.target.toLowerCase();
+
+    var query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '"+attr.fieldToDrop+"' && `TABLE_NAME` = '"+table_name+"'";
+    sequelize.query(query).then(function(constraintName) {
+        query = "ALTER TABLE "+table_name+" DROP FOREIGN KEY "+constraintName[0][0].constraint_name+"; ALTER TABLE "+table_name+" DROP "+attr.fieldToDrop.toLowerCase();
+        if (!pushToSyncQuery(attr.id_application, query))
+            return callback("ERROR: Can't delete in database");
+        callback();
+    }).catch(function(err) {
+        callback(err);
+    });
+}

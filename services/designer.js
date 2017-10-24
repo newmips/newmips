@@ -529,7 +529,7 @@ function deleteDataEntity(attr, callback) {
                                     if(err)
                                         console.log(err);
                                     resolve();
-                                })
+                                });
                             })(tmpAttr);
                         }));
                     }
@@ -764,6 +764,13 @@ function deleteDataField(attr, callback) {
                     // Alter database
                     attr.fieldToDrop = infoStructure.fieldToDrop;
                     var dropFunction = infoStructure.isConstraint?'dropFKDataField':'dropDataField';
+
+                    // Related To Multiple
+                    if(infoStructure.isMultipleConstraint){
+                        attr.target = infoStructure.target;
+                        dropFunction = 'dropFKMultipleDataField';
+                    }
+
                     database[dropFunction](attr, function(err, info) {
                         if (err)
                             return callback(err, null);
