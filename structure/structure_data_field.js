@@ -1479,7 +1479,7 @@ exports.deleteDataField = function (attr, callback) {
 
     for (var i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
-            if (dataToWrite[i].relation != 'belongsTo') {
+            if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple") {
                 var err = new Error();
                 err.message = name_data_entity + ' isn\'t a regular field. You might want to use `delete tab` instruction.';
                 return callback(err, null);
@@ -1488,6 +1488,13 @@ exports.deleteDataField = function (attr, callback) {
             // Modify the options.json file
             info.fieldToDrop = dataToWrite[i].foreignKey;
             info.isConstraint = true;
+
+            // Related To Multiple
+            if(dataToWrite[i].structureType == "relatedToMultiple"){
+                info.isMultipleConstraint = true;
+                info.target = dataToWrite[i].target;
+            }
+
             dataToWrite.splice(i, 1);
             isInOptions = true;
             break;
@@ -1577,11 +1584,7 @@ exports.deleteTab = function (attr, callback) {
     var found = false;
     var option;
 
-    console.log(options);
-
     for (var i = 0; i < options.length; i++) {
-        console.log(options[i].as);
-        console.log("r_" + tabNameWithoutPrefix);
         if (options[i].as.toLowerCase() !== "r_" + tabNameWithoutPrefix)
             continue;
         option = options[i];
