@@ -1459,9 +1459,8 @@ exports.setupHasOneTab = function (attr, callback) {
 }
 
 exports.deleteDataField = function (attr, callback) {
-    var id_application = attr.id_application;
+    var idApp = attr.id_application;
     var name_data_entity = attr.name_data_entity.toLowerCase();
-    var show_name_data_field = attr.options.showValue.toLowerCase();
     var name_data_field = attr.options.value.toLowerCase();
     var url_value = attr.options.urlValue.toLowerCase();
 
@@ -1472,7 +1471,7 @@ exports.deleteDataField = function (attr, callback) {
     var info = {};
 
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
-    var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
+    var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
 
     // Clear the require cache
     delete require.cache[require.resolve(jsonPath)];
@@ -1496,7 +1495,7 @@ exports.deleteDataField = function (attr, callback) {
     }
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
-        jsonPath = __dirname + '/../workspace/' + id_application + '/models/attributes/' + name_data_entity + '.json';
+        jsonPath = __dirname + '/../workspace/' + idApp + '/models/attributes/' + name_data_entity + '.json';
         delete require.cache[require.resolve(jsonPath)];
         dataToWrite = require(jsonPath);
 
@@ -1512,7 +1511,7 @@ exports.deleteDataField = function (attr, callback) {
     writeStream.end();
     writeStream.on('finish', function () {
         // Remove field from create/update/show views files
-        var viewsPath = __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity + '/';
+        var viewsPath = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/';
         var fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
         var promises = [];
         for (var i = 0; i < fieldsFiles.length; i++)
@@ -1548,7 +1547,7 @@ exports.deleteDataField = function (attr, callback) {
         Promise.all(promises).then(function () {
 
             // Remove translation in enum locales
-            var enumsPath = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
+            var enumsPath = __dirname + '/../workspace/' + idApp + '/locales/enum_radio.json';
             var enumJson = require(enumsPath);
 
             if (typeof enumJson[name_data_entity] !== "undefined") {
@@ -1560,7 +1559,7 @@ exports.deleteDataField = function (attr, callback) {
 
             // Remove translation in global locales
             var fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
-            translateHelper.removeLocales(id_application, "field", [name_data_entity, fieldToDropInTranslate], function () {
+            translateHelper.removeLocales(idApp, "field", [name_data_entity, fieldToDropInTranslate], function () {
                 callback(null, info);
             });
         });
@@ -1568,22 +1567,21 @@ exports.deleteDataField = function (attr, callback) {
 }
 
 exports.deleteTab = function (attr, callback) {
-    var tabName = attr.options.value.toLowerCase();
-    var showTabName = attr.options.showValue.toLowerCase();
     var tabNameWithoutPrefix = attr.options.urlValue.toLowerCase();
     var name_data_entity = attr.name_data_entity.toLowerCase();
-    var show_name_data_entity = attr.show_name_data_entity.toLowerCase();
-    var id_data_entity = attr.id_data_entity;
-    var id_application = attr.id_application;
+    var idApp = attr.id_application;
     var target;
 
-    var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
-    //var options = require(jsonPath);
+    var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
     var options = JSON.parse(fs.readFileSync(jsonPath));
     var found = false;
     var option;
 
+    console.log(options);
+
     for (var i = 0; i < options.length; i++) {
+        console.log(options[i].as);
+        console.log("r_" + tabNameWithoutPrefix);
         if (options[i].as.toLowerCase() !== "r_" + tabNameWithoutPrefix)
             continue;
         option = options[i];
@@ -1605,7 +1603,7 @@ exports.deleteTab = function (attr, callback) {
     writeStream.write(JSON.stringify(options, null, 4));
     writeStream.end();
     writeStream.on('finish', function () {
-        var showFile = __dirname + '/../workspace/' + attr.id_application + '/views/' + name_data_entity + '/show_fields.dust';
+        var showFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/show_fields.dust';
         domHelper.read(showFile).then(function ($) {
             // Get tab type before destroying it
             var tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');
