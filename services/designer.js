@@ -509,25 +509,41 @@ function deleteDataEntity(attr, callback) {
         db_entity.getIdDataEntityByCodeName(attr.id_module, name_data_entity, function(err, entityId){
             if(err){
                 callback(err, null);
-            }
-            else{
+            } else {
                 var entityOptions = require(workspacePath+'/models/options/'+name_data_entity+'.json');
                 for (var i = 0; i < entityOptions.length; i++) {
                     if (entityOptions[i].relation == 'hasMany') {
                         var tmpAttr = {
                             options: {
-                                value: entityOptions[i].as
+                                value: entityOptions[i].as,
+                                urlValue: entityOptions[i].as.substring(2)
                             },
                             id_project: attr.id_project,
                             id_application: attr.id_application,
                             id_module: attr.id_module,
-                            id_data_entity: entityId
-                        }
+                            id_data_entity: entityId,
+                            structureType: entityOptions[i].structureType
+                        };
                         promises.push(new Promise(function(resolve, reject) {
                             (function(tmpAttrIn) {
-                                deleteTab(tmpAttrIn, function() {
+                                if(tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset"){
+                                    deleteTab(tmpAttrIn, function(err) {
+                                        if(err)
+                                            console.log(err);
+                                        resolve();
+                                    });
+                                } else if(tmpAttrIn.structureType == "relatedToMultiple"){
+                                    tmpAttrIn.options.value = "f_"+tmpAttrIn.options.value.substring(2);
+                                    deleteDataField(tmpAttrIn, function(err) {
+                                        if(err)
+                                            console.log(err);
+                                        resolve();
+                                    });
+                                } else{
+                                    console.log("WARNING - Unknown option to delete !");
+                                    console.log(tmpAttrIn);
                                     resolve();
-                                })
+                                }
                             })(tmpAttr);
                         }));
                     }
@@ -544,38 +560,72 @@ function deleteDataEntity(attr, callback) {
                         if (options[i].relation == 'hasMany') {
                             var tmpAttr = {
                                 options: {
-                                    value: options[i].as
+                                    value: options[i].as,
+                                    urlValue: options[i].as.substring(2)
                                 },
                                 id_project: attr.id_project,
                                 id_application: attr.id_application,
-                                id_module: attr.id_module
+                                id_module: attr.id_module,
+                                structureType: options[i].structureType
                             }
                             promises.push(new Promise(function(resolve, reject) {
                                 (function(tmpAttrIn) {
                                     db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                         tmpAttrIn.id_data_entity = sourceID;
-                                        deleteTab(tmpAttrIn, function() {
+                                        if(tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset"){
+                                            deleteTab(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
+                                        } else if(tmpAttrIn.structureType == "relatedToMultiple"){
+                                            tmpAttrIn.options.value = "f_"+tmpAttrIn.options.value.substring(2);
+                                            deleteDataField(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
+                                        } else{
+                                            console.log("WARNING - Unknown option to delete !");
+                                            console.log(tmpAttrIn);
                                             resolve();
-                                        });
+                                        }
                                     });
                                 })(tmpAttr)
                             }));
                         } else if (options[i].relation == 'belongsTo') {
                             var tmpAttr = {
                                 options: {
-                                    value: options[i].as
+                                    value: options[i].as,
+                                    urlValue: options[i].as.substring(2)
                                 },
                                 id_project: attr.id_project,
                                 id_application: attr.id_application,
-                                id_module: attr.id_module
-                            }
+                                id_module: attr.id_module,
+                                structureType: options[i].structureType
+                            };
                             promises.push(new Promise(function(resolve, reject) {
                                 (function(tmpAttrIn) {
                                     db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                         tmpAttrIn.id_data_entity = sourceID;
-                                        deleteDataField(tmpAttrIn, function() {
+                                        if(tmpAttrIn.structureType == "relatedTo"){
+                                            tmpAttrIn.options.value = "f_"+tmpAttrIn.options.value.substring(2);
+                                            deleteDataField(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
+                                        } else if(tmpAttrIn.structureType == "hasOne"){
+                                            deleteTab(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
+                                        } else {
+                                            console.log("WARNING - Unknown option to delete !");
+                                            console.log(tmpAttrIn);
                                             resolve();
-                                        });
+                                        }
                                     });
                                 })(tmpAttr)
                             }));
@@ -588,7 +638,7 @@ function deleteDataEntity(attr, callback) {
                     if (err)
                         return callback(err);
 
-                    Promise.all(promises).then(function() {
+                    helpers.queuedPromises(promises).then(function() {
                         db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
                             if (err){
                                 return callback(err, null);
@@ -658,27 +708,32 @@ exports.createNewDataField = function(attr, callback) {
 function deleteTab(attr, callback) {
     var infoDesigner = {};
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
-        if (err)
+        if (err){
             return callback(err, infoDesigner);
+        }
 
         attr.name_data_entity = dataEntity.codeName;
         attr.show_name_data_entity = dataEntity.name;
+
         structure_data_field.deleteTab(attr, function(err, fk, target, tabType) {
-            if (err)
+            if (err){
                 return callback(err, infoDesigner);
+            }
             infoDesigner.tabType = tabType;
 
             attr.fieldToDrop = fk;
             attr.name_data_entity = target;
             database.dropFKDataField(attr, function(err, infoDatabase){
-                if (err)
+                if (err){
                     return callback(err, infoDesigner);
+                }
 
                 // Missing id_ in attr.options.value, so we use fieldToDrop
                 attr.options.value = attr.fieldToDrop;
                 db_field.deleteDataField(attr, function(err, infoDB) {
-                    if (err)
+                    if (err){
                         return callback(err, infoDesigner);
+                    }
 
                     infoDesigner.message = "Tab "+attr.options.showValue+" deleted.";
                     callback(null, infoDesigner);
@@ -733,6 +788,13 @@ function deleteDataField(attr, callback) {
                     // Alter database
                     attr.fieldToDrop = infoStructure.fieldToDrop;
                     var dropFunction = infoStructure.isConstraint?'dropFKDataField':'dropDataField';
+
+                    // Related To Multiple
+                    if(infoStructure.isMultipleConstraint){
+                        attr.target = infoStructure.target;
+                        dropFunction = 'dropFKMultipleDataField';
+                    }
+
                     database[dropFunction](attr, function(err, info) {
                         if (err)
                             return callback(err, null);
@@ -923,7 +985,7 @@ exports.createNewHasOne = function(attr, callback) {
                     return callback(err, null);
                 }
                 // Créer le lien belongsTo en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function(){
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, "hasOne", function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupHasOneTab(attr, function(err, data){
                         if(err)
@@ -993,8 +1055,8 @@ function belongsToMany(attr, setupFunction){
         var through = attr.options.through;
         /* We need the same alias for both relation */
         attr.options.as = "r_"+attr.options.source.substring(2)+ "_" + attr.options.target.substring(2);
-        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, function(){
-            structure_data_entity.setupAssociation(attr.id_application, attr.options.target, attr.options.source, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, function(){
+        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, null, function(){
+            structure_data_entity.setupAssociation(attr.id_application, attr.options.target, attr.options.source, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, null, function(){
                 structure_data_field[setupFunction](attr, function(){
                     var reversedAttr = {
                         options: {
@@ -1128,7 +1190,7 @@ exports.createNewHasMany = function (attr, callback) {
 
                 db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
                     // Créer le lien hasMany en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, function(){
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "hasMany", function(){
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupHasManyTab(attr, function(){
                             callback(null, info);
@@ -1359,7 +1421,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
                         newForeignKey = newForeignKey.toLowerCase();
 
                         // Créer le lien belongsTo en la source et la target
-                        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, function () {
+                        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, "hasManyPreset", function () {
                             // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                             structure_data_field.setupHasManyPresetTab(attr, function() {
 
@@ -1468,7 +1530,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 if (err)
                     return callback(err, null);
                 // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function () {
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, "relatedTo", function () {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToField(attr, function (err, data) {
                         if (err)
@@ -1593,7 +1655,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 
             db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
                 // Créer le lien hasMany en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, function(){
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "relatedToMultiple", function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToMultipleField(attr, function(){
                         var info = {};
@@ -1654,7 +1716,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                             // Setup the hasMany association in the source entity
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
-                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
+                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, null, function(){
                                         // Get module info needed for structure
                                         db_module.getModuleById(attr.id_module, function(err, module){
                                             if(err)
