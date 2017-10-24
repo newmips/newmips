@@ -521,15 +521,29 @@ function deleteDataEntity(attr, callback) {
                             id_project: attr.id_project,
                             id_application: attr.id_application,
                             id_module: attr.id_module,
-                            id_data_entity: entityId
+                            id_data_entity: entityId,
+                            structureType: entityOptions[i].structureType
                         };
                         promises.push(new Promise(function(resolve, reject) {
                             (function(tmpAttrIn) {
-                                deleteTab(tmpAttrIn, function(err) {
-                                    if(err)
-                                        console.log(err);
+                                if(tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset"){
+                                    deleteTab(tmpAttrIn, function(err) {
+                                        if(err)
+                                            console.log(err);
+                                        resolve();
+                                    });
+                                } else if(tmpAttrIn.structureType == "relatedToMultiple"){
+                                    tmpAttrIn.options.value = "f_"+tmpAttrIn.options.value.substring(2);
+                                    deleteDataField(tmpAttrIn, function(err) {
+                                        if(err)
+                                            console.log(err);
+                                        resolve();
+                                    });
+                                } else{
+                                    console.log("WARNING - Unknown option to delete !");
+                                    console.log(tmpAttrIn);
                                     resolve();
-                                });
+                                }
                             })(tmpAttr);
                         }));
                     }
@@ -551,17 +565,31 @@ function deleteDataEntity(attr, callback) {
                                 },
                                 id_project: attr.id_project,
                                 id_application: attr.id_application,
-                                id_module: attr.id_module
+                                id_module: attr.id_module,
+                                structureType: options[i].structureType
                             }
                             promises.push(new Promise(function(resolve, reject) {
                                 (function(tmpAttrIn) {
                                     db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                         tmpAttrIn.id_data_entity = sourceID;
-                                        deleteTab(tmpAttrIn, function(err) {
-                                            if(err)
-                                                console.log(err);
+                                        if(tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset"){
+                                            deleteTab(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
+                                        } else if(tmpAttrIn.structureType == "relatedToMultiple"){
+                                            tmpAttrIn.options.value = "f_"+tmpAttrIn.options.value.substring(2);
+                                            deleteDataField(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
+                                        } else{
+                                            console.log("WARNING - Unknown option to delete !");
+                                            console.log(tmpAttrIn);
                                             resolve();
-                                        });
+                                        }
                                     });
                                 })(tmpAttr)
                             }));
@@ -610,7 +638,7 @@ function deleteDataEntity(attr, callback) {
                     if (err)
                         return callback(err);
 
-                    Promise.all(promises).then(function() {
+                    helpers.queuedPromises(promises).then(function() {
                         db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
                             if (err){
                                 return callback(err, null);
@@ -681,7 +709,6 @@ function deleteTab(attr, callback) {
     var infoDesigner = {};
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err){
-            console.log("1");
             return callback(err, infoDesigner);
         }
 
@@ -690,7 +717,6 @@ function deleteTab(attr, callback) {
 
         structure_data_field.deleteTab(attr, function(err, fk, target, tabType) {
             if (err){
-                console.log("2");
                 return callback(err, infoDesigner);
             }
             infoDesigner.tabType = tabType;
@@ -699,7 +725,6 @@ function deleteTab(attr, callback) {
             attr.name_data_entity = target;
             database.dropFKDataField(attr, function(err, infoDatabase){
                 if (err){
-                    console.log("3");
                     return callback(err, infoDesigner);
                 }
 
@@ -707,7 +732,6 @@ function deleteTab(attr, callback) {
                 attr.options.value = attr.fieldToDrop;
                 db_field.deleteDataField(attr, function(err, infoDB) {
                     if (err){
-                        console.log("4");
                         return callback(err, infoDesigner);
                     }
 
