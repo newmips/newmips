@@ -573,24 +573,31 @@ function deleteDataEntity(attr, callback) {
                                 },
                                 id_project: attr.id_project,
                                 id_application: attr.id_application,
-                                id_module: attr.id_module
+                                id_module: attr.id_module,
+                                structureType: options[i].structureType
                             };
-                            console.log("ROLO");
                             promises.push(new Promise(function(resolve, reject) {
                                 (function(tmpAttrIn) {
                                     db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                         tmpAttrIn.id_data_entity = sourceID;
-                                        console.log("RALA");
-                                        console.log(tmpAttrIn);
-                                        deleteDataField(tmpAttrIn, function(err) {
-                                            if(err)
-                                                console.log(err);
+                                        if(tmpAttrIn.structureType == "relatedTo"){
+                                            tmpAttrIn.options.value = "f_"+tmpAttrIn.options.value.substring(2);
+                                            deleteDataField(tmpAttrIn, function(err) {
+                                                if(err)
+                                                    console.log(err);
+                                                resolve();
+                                            });
+                                        } else if(tmpAttrIn.structureType == "hasOne"){
                                             deleteTab(tmpAttrIn, function(err) {
                                                 if(err)
                                                     console.log(err);
                                                 resolve();
                                             });
-                                        });
+                                        } else {
+                                            console.log("WARNING - Unknown option to delete !");
+                                            console.log(tmpAttrIn);
+                                            resolve();
+                                        }
                                     });
                                 })(tmpAttr)
                             }));
@@ -947,7 +954,7 @@ exports.createNewHasOne = function(attr, callback) {
                     return callback(err, null);
                 }
                 // Créer le lien belongsTo en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, function(){
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, "hasOne", function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupHasOneTab(attr, function(err, data){
                         if(err)
@@ -1017,8 +1024,8 @@ function belongsToMany(attr, setupFunction){
         var through = attr.options.through;
         /* We need the same alias for both relation */
         attr.options.as = "r_"+attr.options.source.substring(2)+ "_" + attr.options.target.substring(2);
-        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, function(){
-            structure_data_entity.setupAssociation(attr.id_application, attr.options.target, attr.options.source, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, function(){
+        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, null, function(){
+            structure_data_entity.setupAssociation(attr.id_application, attr.options.target, attr.options.source, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, null, function(){
                 structure_data_field[setupFunction](attr, function(){
                     var reversedAttr = {
                         options: {
@@ -1152,7 +1159,7 @@ exports.createNewHasMany = function (attr, callback) {
 
                 db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
                     // Créer le lien hasMany en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, function(){
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "hasMany", function(){
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupHasManyTab(attr, function(){
                             callback(null, info);
@@ -1383,7 +1390,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
                         newForeignKey = newForeignKey.toLowerCase();
 
                         // Créer le lien belongsTo en la source et la target
-                        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, function () {
+                        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, "hasManyPreset", function () {
                             // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                             structure_data_field.setupHasManyPresetTab(attr, function() {
 
@@ -1492,7 +1499,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 if (err)
                     return callback(err, null);
                 // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, function () {
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, "relatedTo", function () {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToField(attr, function (err, data) {
                         if (err)
@@ -1617,7 +1624,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 
             db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
                 // Créer le lien hasMany en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, function(){
+                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "relatedToMultiple", function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToMultipleField(attr, function(){
                         var info = {};
@@ -1678,7 +1685,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                             // Setup the hasMany association in the source entity
                             try{
                                 db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
-                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, function(){
+                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, null, function(){
                                         // Get module info needed for structure
                                         db_module.getModuleById(attr.id_module, function(err, module){
                                             if(err)
