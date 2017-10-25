@@ -46,7 +46,10 @@ exports.launchChildProcess = function(id_application, env) {
     return process_server;
 }
 
-exports.childUrl = function(req) {
+exports.childUrl = function(req, instruction) {
+    // On entity delete, reset child_url to avoid 404
+    if (instruction == 'deleteDataEntity')
+        child_url = '/default/home';
     var url = globalConf.protocol_iframe + '://' + globalConf.host;
     if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
         url += '-' +req.session.name_application + globalConf.dns + child_url;
