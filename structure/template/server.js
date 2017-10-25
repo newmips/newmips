@@ -114,6 +114,15 @@ if (startedFromGenerator) {
 	});
 }
 
+app.get('/*', function(req, res, next) {
+    delete require.cache[require.resolve('./config/application.json')]
+    var appConf = require('./config/application.json');
+    if (appConf.maintenance == false)
+    	return next();
+
+	res.status(503).render('common/maintenance');
+});
+
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
 	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
