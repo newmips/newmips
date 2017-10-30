@@ -26,8 +26,6 @@ var split = require('split');
 var AnsiToHTML = require('ansi-to-html');
 var ansiToHtml = new AnsiToHTML();
 
-// configuration ===============================================================
-
 // pass passport for configuration
 require('./utils/authStrategies');
 

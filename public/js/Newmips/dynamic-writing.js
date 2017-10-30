@@ -29,7 +29,7 @@ $(".dynamic-writing").each(function(){
 	if($(this).parents(".item").next().next(".item").length == 0){
 	    var text = $(this).html();
 	    $(this).html("");
-	    showText(this, text, 0, 15);
+	    showText(this, text, 0, 10);
 	}
 });
 

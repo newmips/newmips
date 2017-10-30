@@ -45,13 +45,13 @@ router.post('/index', block_access.isLoggedIn, function(req, res) {
     var done = 0
     for (var i = 0; i < instruction.length; i++) {
         execute(req, instruction[i]).then(function() {
-            data.answers = req.session.answers.join('<br><br>');
+            //data.answers = req.session.answers.join('<br><br>');
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);
             }
         }).catch(function() {
-            data.answers = req.session.answers.join('<br><br>');
+            //data.answers = req.session.answers.join('<br><br>');
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);
@@ -131,23 +131,17 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Token timeout TMSP");
     instructions.push("select module home");
 
-    function finishApplicationInitialization() {
-        structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
-            data.answers = req.session.answers.join('<br><br>');
-            return res.redirect('/application/preview?id_application=' + req.session.id_application);
-        });
-    }
-
     function recursiveExecute(recurInstructions, idx) {
         // All instructions executed
         if (recurInstructions.length == idx) {
-            finishApplicationInitialization();
-            docBuilder.build(req.session.id_application);
+            structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
+                docBuilder.build(req.session.id_application);
+                res.redirect('/application/preview?id_application=' + req.session.id_application);
+            });
             return;
         }
 
         execute(req, recurInstructions[idx]).then(function(){
-
             pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
             recursiveExecute(recurInstructions, ++idx);
         }).catch(function(err){
@@ -156,14 +150,14 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
                 level: "error"
             }];
             return res.redirect('/default/home');
-        })
+        });
     }
     recursiveExecute(instructions, 0);
 });
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
-        req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
+        //req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
         try {
 
             /* Lower the first word for the basic parser jison */
@@ -201,7 +195,7 @@ function execute(req, instruction) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
                     console.log("ERROR : ", msgErr);
-                    req.session.answers.unshift(instruction + " :<br>" + msgErr);
+                    //req.session.answers.unshift(instruction + " :<br>" + msgErr);
                     reject(msgErr);
                 } else {
 
@@ -253,12 +247,12 @@ function execute(req, instruction) {
 
                     var msgInfo = __(info.message, info.messageParams || []);
 
-                    req.session.answers.unshift(instruction + " :<br>" + msgInfo);
+                    //req.session.answers.unshift(instruction + " :<br>" + msgInfo);
                     resolve();
                 }
             });
         } catch (e) {
-            req.session.answers.unshift(instruction + " :<br>" + e.message);
+            //req.session.answers.unshift(instruction + " :<br>" + e.message);
             reject(e);
         }
     });

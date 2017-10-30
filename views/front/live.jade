@@ -2,7 +2,8 @@ extends ../main_layout
 block header
 	.row
 		.col-header.col-xs-2.col-sm-2.col-md-1.col-lg-1#header-icon
-			img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:33px;display:block;")
+			a(href="/")
+				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:33px;display:block;")
 		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-8#header-title
 			h1
 				| #{__("menu.live")}

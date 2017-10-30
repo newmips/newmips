@@ -111,7 +111,8 @@ function addPrefix(string, instructionFunction){
         case 'deleteDataEntity':
         case 'createNewHasOne':
         case 'createNewHasMany':
-        case 'createNewFieldset':
+        case 'createNewFieldRelatedToMultiple':
+        case 'createNewHasManyPreset':
         case 'createNewFieldRelatedTo':
         case 'createNewComponentContactForm':
             return "e_"+string;
@@ -119,11 +120,13 @@ function addPrefix(string, instructionFunction){
         case 'createNewDataField':
         case 'deleteDataField':
         case 'deleteTab':
-        case 'foreignKey':
         case 'using':
         case 'setFieldAttribute':
         case 'setColumnVisibility':
             return "f_"+string;
+            break;
+        case 'foreignKey':
+            return "fk_"+string;
             break;
         case 'alias':
             /* R for Relation */
@@ -166,6 +169,10 @@ function removePrefix(string, type){
             break;
         case 'component':
             if(stringLower.substring(0,2) == "c_")
+                return string.substring(2);
+            break;
+        case 'relation':
+            if(stringLower.substring(0,2) == "r_")
                 return string.substring(2);
             break;
     }
@@ -267,13 +274,15 @@ module.exports = {
                 }
 
                 if(typeof attr.options.usingField !== "undefined"){
-                    attr.options.showUsingField = attr.options.usingField;
-                    attr.options.usingField = clearString(attr.options.usingField);
-                    attr.options.usingField = addPrefix(attr.options.usingField, "using");
-                    attr.options.usingField = attr.options.usingField.toLowerCase();
-
-                    //console.log("SHOW USINGFIELD   ------>   "+attr.options.showUsingField);
-                    //console.log("CODE USINGFIELD   ------>   "+attr.options.usingField);
+                    var usingFields = attr.options.usingField.split(",");
+                    attr.options.showUsingField = attr.options.usingField.split(",");
+                    for (var j = 0; j < usingFields.length; j++) {
+                        usingFields[j] = usingFields[j].trim();
+                        usingFields[j] = clearString(usingFields[j]);
+                        usingFields[j] = addPrefix(usingFields[j], "using");
+                        usingFields[j] = usingFields[j].toLowerCase();
+                    }
+                    attr.options.usingField = usingFields;
                 }
             }
         }

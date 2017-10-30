@@ -18,6 +18,7 @@ var passport = require('passport');
 var flash    = require('connect-flash');
 var block_access = require('./utils/block_access');
 var models = require('./models/');
+var moment = require('moment');
 
 // Language
 var language = require('./services/language');
@@ -98,10 +99,12 @@ app.use(flash());
 app.locals.moment = require('moment');
 
 // Autologin for newmips's "iframe" live preview context
-var autologin = false;var autologinInited = false;var startedFromGenerator = false;
+var autologin = false;var startedFromGenerator = false;
+// Global var used in block_access
+AUTO_LOGIN_INITIALIZED = false;
 if (process.argv[2] == 'autologin') {
 	startedFromGenerator = true;
-	autologin = true;
+	AUTO_LOGIN_INITIALIZED = true;
 }
 
 // When application process is a child of generator process, log each routes for the generator
@@ -115,11 +118,6 @@ if (startedFromGenerator) {
 
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
-	if (typeof req.session.autologin === 'undefined' || autologinInited == false) {
-		autologinInited = true;
-		req.session.autologin = autologin;
-	}
-
     var lang = languageConfig.lang;
 
     if (req.session.lang_user)
@@ -131,7 +129,7 @@ app.use(function(req, res, next) {
     res.locals.config = globalConf;
 
     // When user is logged
-	if (req.isAuthenticated() || autologin) {
+	if (req.isAuthenticated() || AUTO_LOGIN_INITIALIZED) {
 		// Session
 		res.locals.session = req.session;
 
@@ -205,6 +203,45 @@ app.use(function(req, res, next) {
 			return false;
 		}
 	}
+	dust.helpers.inArray = function(chunk, context, bodies, params) {
+		var value = params.value;
+		var field = params.field;
+		var array = params.array;
+
+		for(var i=0; i<array.length; i++){
+			if(array[i][field] == value)
+				return true
+		}
+		return false;
+	}
+	/* Filter DUST - example {myDate|convertToDateFormat} */
+	dust.filters.date = function(value) {
+		if (value != "") {
+            if (lang == "fr-FR")
+                return moment(new Date(value)).format("DD/MM/YYYY");
+            else
+                return moment(new Date(value)).format("YYYY-MM-DD");
+        }
+		return value;
+	};
+
+	dust.filters.datetime = function(value) {
+		if (value != "") {
+            if (lang == "fr-FR")
+                return moment(new Date(value)).format("DD/MM/YYYY HH:mm:ss");
+            else
+                return moment(new Date(value)).format("YYYY-MM-DD HH:mm:ss");
+        }
+		return value;
+	};
+
+	dust.filters.time = function(value) {
+		if (value != "") {
+            if (value.length == 8)
+                return value.substring(0, value.length - 3);
+        }
+		return value;
+	};
     next();
 });
 
@@ -253,8 +290,8 @@ if (protocol == 'https') {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                f_id_role_role: 1,
-                                f_id_group_group: 1,
+                                fk_id_role_role: 1,
+                                fk_id_group_group: 1,
                                 f_enabled: 0
                             });
                         });
@@ -293,8 +330,8 @@ else {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                f_id_role_role: 1,
-                                f_id_group_group: 1,
+                                fk_id_role_role: 1,
+                                fk_id_group_group: 1,
                                 f_enabled: 0,
                                 version: 0
                             });

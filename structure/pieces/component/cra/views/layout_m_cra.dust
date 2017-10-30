@@ -17,8 +17,7 @@
             <li>
                 <a href="/cra/declare">
                     <i class="fa fa-angle-double-right"></i>
-                    {@__ key="entity.e_cra.custom_button_declare" /}&nbsp;
-                    {@__ key="entity.e_cra.name_entity" /}
+                    {@__ key="entity.e_cra.custom_button_declare" /}
                 </a>
             </li>
             {/actionAccess}
@@ -27,7 +26,6 @@
                 <a href="/cra/list">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.list" /}
-                    {@__ key="entity.e_cra.plural_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -47,7 +45,6 @@
                 <a href="/cra_team/create_form">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.create" /}
-                    {@__ key="entity.e_cra_team.name_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -56,7 +53,6 @@
                 <a href="/cra_team/list">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.list" /}
-                    {@__ key="entity.e_cra_team.plural_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -76,7 +72,6 @@
                 <a href="/cra_calendar_settings/create_form">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.create" /}
-                    {@__ key="entity.e_cra_calendar_settings.name_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -85,7 +80,6 @@
                 <a href="/cra_calendar_settings/list">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.list" /}
-                    {@__ key="entity.e_cra_calendar_settings.plural_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -105,7 +99,6 @@
                 <a href="/cra_calendar_exception/create_form">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.create" /}
-                    {@__ key="entity.e_cra_calendar_exception.name_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -114,7 +107,6 @@
                 <a href="/cra_calendar_exception/list">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.list" /}
-                    {@__ key="entity.e_cra_calendar_exception.plural_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -134,7 +126,6 @@
                 <a href="/cra_activity/create_form">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.create" /}
-                    {@__ key="entity.e_cra_activity.name_entity" /}
                 </a>
             </li>
             {/actionAccess}
@@ -143,7 +134,6 @@
                 <a href="/cra_activity/list">
                     <i class="fa fa-angle-double-right"></i>
                     {@__ key="operation.list" /}
-                    {@__ key="entity.e_cra_activity.plural_entity" /}
                 </a>
             </li>
             {/actionAccess}

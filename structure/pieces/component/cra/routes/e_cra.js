@@ -55,7 +55,7 @@ function capitalizeFirstLetter(word) {
 
 function teamAdminMiddleware(req, res, next) {
     models.E_cra_team.findOne({
-        where: {f_id_admin_user: req.session.passport.user.id},
+        where: {fk_id_admin_user: req.session.passport.user.id},
         include: [{
             model: models.E_user,
             as: 'r_users'
@@ -92,7 +92,7 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
 
         models.E_cra.findAll({
             where: {
-                f_id_user: {$in: idTeamUsers},
+                fk_id_user: {$in: idTeamUsers},
                 f_admin_validated: false,
                 f_user_validated: true
             }
@@ -117,11 +117,11 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
             idTeamUsers.push(req.team.r_users[i].id);
 
         where = {
-            f_id_user: {$in: idTeamUsers}
+            fk_id_user: {$in: idTeamUsers}
         }
     } else{
         where = {
-            f_id_user: req.session.passport.user.id
+            fk_id_user: req.session.passport.user.id
         }
     }
 
@@ -297,7 +297,7 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
             var formDate = new Date(cra.f_year, cra.f_month-1, parts[2]);
             var taskExists = false;
             for (var i = 0; i < cra.r_cra_task.length; i++) {
-                if (cra.r_cra_task[i].f_id_cra_activity == activityId) {
+                if (cra.r_cra_task[i].fk_id_cra_activity == activityId) {
                     var taskDate = new Date(cra.r_cra_task[i].f_date);
                     if (taskDate.getDate() == formDate.getDate()) {
                         taskExists = true;
@@ -311,8 +311,8 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
                 createTasksPromises.push(models.E_cra_task.create({
                     f_date: formDate,
                     f_duration: body[input],
-                    f_id_cra: cra.id,
-                    f_id_cra_activity: activityId
+                    fk_id_cra: cra.id,
+                    fk_id_cra_activity: activityId
                 }));
         }
 
@@ -323,7 +323,7 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
             updateDeleteTasksPromises.push(models.E_cra_task.destroy({
                 where: {
                     id: {$notIn: matchedTasks},
-                    f_id_cra: cra.id
+                    fk_id_cra: cra.id
                 }})
             );
             Promise.all(updateDeleteTasksPromises).then(function() {
@@ -367,7 +367,7 @@ router.get('/admin/getCra', block_access.actionAccessMiddleware("cra", 'read'), 
                 include: [{
                     model: models.E_user,
                     as: 'r_users',
-                    where: {id: cra.f_id_user}
+                    where: {id: cra.fk_id_user}
                 }, {
                     model: models.E_cra_calendar_settings,
                     as: 'r_cra_calendar_settings'
@@ -491,7 +491,7 @@ router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write
     models.E_cra.create({
         f_month: body.month,
         f_year: body.year,
-        f_id_user: id_user,
+        fk_id_user: id_user,
         f_user_validated: false,
         f_admin_validated: false
     }).then(function(cra) {
@@ -505,8 +505,8 @@ router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write
             tasksPromises.push(models.E_cra_task.create({
                 f_date: date,
                 f_duration: body[input],
-                f_id_cra: cra.id,
-                f_id_cra_activity: activityId
+                fk_id_cra: cra.id,
+                fk_id_cra_activity: activityId
             }));
         }
 
@@ -570,7 +570,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
         where: {
             f_month: body.month,
             f_year: body.year,
-            f_id_user: id_user
+            fk_id_user: id_user
         },
         include: [{
             model: models.E_cra_task,
@@ -597,7 +597,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
             var formDate = new Date(body.year, body.month-1, parts[2]);
             var taskExists = false;
             for (var i = 0; i < cra.r_cra_task.length; i++) {
-                if (cra.r_cra_task[i].f_id_cra_activity == activityId) {
+                if (cra.r_cra_task[i].fk_id_cra_activity == activityId) {
                     var taskDate = new Date(cra.r_cra_task[i].f_date);
                     if (taskDate.getDate() == formDate.getDate()) {
                         taskExists = true;
@@ -611,8 +611,8 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
                 tasksPromises.push(models.E_cra_task.create({
                     f_date: formDate,
                     f_duration: body[input],
-                    f_id_cra: cra.id,
-                    f_id_cra_activity: activityId
+                    fk_id_cra: cra.id,
+                    fk_id_cra_activity: activityId
                 }));
         }
 
@@ -620,7 +620,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
         tasksPromises.push(models.E_cra_task.destroy({
             where: {
                 id: {$notIn: matchedTasks},
-                f_id_cra: cra.id
+                fk_id_cra: cra.id
             }})
         );
 
@@ -642,7 +642,7 @@ router.get('/getData/:month/:year', function(req, res) {
 
     models.E_cra.findOne({
         where: {
-            f_id_user: id_user,
+            fk_id_user: id_user,
             $and: [
                 {f_month: month},
                 {f_year: year}
@@ -684,7 +684,7 @@ router.get('/getData/:month/:year', function(req, res) {
                 if (!team)
                     return res.status(500).send("You need to be in a team");
                 data.team = team;
-                data.isTeamAdmin = (team.f_id_admin_user == id_user) ? true : false;
+                data.isTeamAdmin = (team.fk_id_admin_user == id_user) ? true : false;
                 res.status(200).json(data);
             })
         });
@@ -715,11 +715,11 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         // Organize array with activity > tasks instead of tasks > activity
         for (var i = 0; i < cra.r_cra_task.length; i++) {
             var task = cra.r_cra_task[i];
-            if (typeof activitiesById[task.f_id_cra_activity] === 'undefined') {
-                activitiesById[task.f_id_cra_activity] = task.r_cra_activity;
-                activitiesById[task.f_id_cra_activity].tasks = [];
+            if (typeof activitiesById[task.fk_id_cra_activity] === 'undefined') {
+                activitiesById[task.fk_id_cra_activity] = task.r_cra_activity;
+                activitiesById[task.fk_id_cra_activity].tasks = [];
             }
-            activitiesById[task.f_id_cra_activity].tasks.push(task);
+            activitiesById[task.fk_id_cra_activity].tasks.push(task);
         }
 
         var totalDays = new Date(cra.f_year, cra.f_month, 0).getDate();

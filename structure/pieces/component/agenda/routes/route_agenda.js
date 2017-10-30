@@ -80,7 +80,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "writ
         f_start_date: req.body.start,
         f_end_date: req.body.end,
         f_all_day: req.body.allday,
-        f_id_CODE_NAME_CATEGORY_URL_category: req.body.idCategory
+        fk_id_CODE_NAME_CATEGORY_URL_category: req.body.idCategory
     };
 
     models.CODE_NAME_EVENT_MODEL.create(createObj).then(function(createdEvent){

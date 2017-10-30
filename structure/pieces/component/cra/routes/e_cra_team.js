@@ -258,7 +258,7 @@ router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team"
         var bulkCreate = [];
         for (var i = 0; i < holidays.length; i++) {
             var date = new Date(holidays[i].start);
-            bulkCreate.push({f_date: date, f_id_cra_team: team_id, f_label: holidays[i].summary});
+            bulkCreate.push({f_date: date, fk_id_cra_team: team_id, f_label: holidays[i].summary});
         }
 
         models.E_cra_calendar_exception.bulkCreate(bulkCreate).then(function() {
@@ -301,7 +301,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "write"),
     //createObject = enums.values("e_cra_team", createObject, req.body);
 
     // Set creating user as team admin
-    createObject.f_id_admin_user = req.session.passport.user.id;
+    createObject.fk_id_admin_user = req.session.passport.user.id;
 
     // Create default calendar settings
     models.E_cra_calendar_settings.create({
@@ -313,7 +313,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "write"),
         f_saturday: false,
         f_sunday: false
     }).then(function(settings) {
-        createObject.f_id_cra_calendar_settings = settings.id;
+        createObject.fk_id_cra_calendar_settings = settings.id;
         models.E_cra_team.create(createObject).then(function (e_cra_team) {
             var redirect = '/cra_team/list';
             req.session.toastr = [{

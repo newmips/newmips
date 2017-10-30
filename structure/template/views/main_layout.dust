@@ -30,6 +30,8 @@
         <link href='/css/AdminLteV2/alt/AdminLTE-select2.min.css' rel='stylesheet' type='text/css'>
         {! Dropzone !}
         <link href='/css/dropzone/dropzone.min.css' rel='stylesheet' type='text/css'>
+        {! JQUERY UI !}
+        <link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' type='text/css'>
         {! Newmips !}
         <link href='/css/newmips.css' rel='stylesheet' type='text/css'>
 
@@ -132,10 +134,10 @@
         {#config.socket.chat}
         <div id="chat-placeholder"></div>
         {/config.socket.chat}
-
         {! ---------------- JAVASCRIPT ---------------- // !}
         {! jQuery 2.0.2 !}
         <script src="/js/jQuery/jquery.min.js"></script>
+        <script src="/js/plugins/jquery-ui/jquery-ui.min.js"></script>
         {! Bootstrap !}
         <script src="/js/Bootstrap/bootstrap.min.js" type="text/javascript"></script>
         {! Toastr !}
@@ -184,9 +186,6 @@
         {! SocketIO !}
         {#config.socket.enabled}
         <script src="/js/plugins/socketio/socket.io.js" type="text/javascript"></script>
-        <script>
-            var socket = io();
-        </script>
         {/config.socket.enabled}
         {#config.socket.chat}
             <script src="/js/Newmips/component/chat.js" type="text/javascript"></script>

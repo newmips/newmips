@@ -101,7 +101,9 @@
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
-        "redirecting": "Redirecting..."
+        "redirecting": "Redirecting...",
+        "createScript": "Write a script",
+        "fromFile": "Upload a script"
     },
     "live":{
         "legend": "Live edition"
@@ -125,7 +127,13 @@
         "reload": "Restart server",
         "issue-button": "Report an issue",
         "help-button": "Need help ?",
-        "help-disabled": "Slack chat is disabled. Activate it in config/global.js and provide slack information in config/slack.js"
+        "help-disabled": "Slack chat is disabled. Activate it in config/global.js and provide slack information in config/slack.js",
+        "session": {
+            "noProject": "No project selected",
+            "noApplication": "No application selected",
+            "noModule": "No module selected",
+            "noEntity": "No entity selected"
+        }
     },
     "project":{
         "label": "Project",
@@ -163,7 +171,6 @@
     "chat": {
         "welcomeold": "Welcome ! Please type your instructions in input field below or type 'help' if you need any support.",
         "welcome": "Hello and welcome ! I'm Mipsy, your personnal creation assistant. At any time, I am here to help you discover the Newmips generator.<br> To get started, here are few instructions that you can run below:<br><br>- <b class='click-instruction'>add entity Person</b><br>- <b class='click-instruction'>add field Name</b><br>- <b class='click-instruction'>add field Birthday with type date</b> <br><br>And follow us on our dedicated YouTube channel, you will find our playlist of video tutorials to learn in details how to use the Newmips generator:<br><a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>Newmips tutorials</a>"
-
     },
     "database": {
         "project": {
@@ -203,7 +210,7 @@
                 "selected": "Module %s (%s) selected."
             },
             "create": {
-                "success" : "New module %s (%s) created.",
+                "success" : "You have just added a new module %s (%s)<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete module %s</b>.",
                 "alreadyExist": "A module with the same or similar name %s already exists."
             },
             "list": {
@@ -239,7 +246,7 @@
                 "valid": "Please, indicate a valid name/ID."
             },
             "create": {
-                "success" : "New entity %s (%s) created.",
+                "success": "You have just added a new entity %s (%s) in the module %s. To delete it, type the instruction:<br>- <b class='click-instruction'>delete entity %s</b>.",
                 "alreadyExist": "Entity with the same or similar name %s already exists.",
                 "addComponent": "Cannot add component on entity, no entity with code name %s found."
             },
@@ -262,7 +269,7 @@
                 "alreadyExist": "Sorry, a field with the same or similar name (%s) already exists."
             },
             "create": {
-                "created": "New field %s (%s) created.",
+                "created": "You have just added a new field %s (%s) to the entity %s.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it unique:<br>- <b class='click-instruction'>set field %s unique</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>",
                 "foreignKeyCreated": "New foreign key %s | %s created."
             },
             "delete": {
@@ -304,30 +311,40 @@
                 "notUnderstandGiveAvailable": "Sorry, I do not understand what you want to do. Available attributes:<br>%s<br>",
                 "notUnderstand": "Unable to understand the given attribute.",
                 "fieldNoFound": "No field with name %s found in the current entity.",
-                "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique."
+                "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique.",
+                "missingValues": "Error, you have to specify the values you want in the field with type enum / radio.",
+                "noSpace": "Error, please seperate each enum / radio value with a comma.",
+                "sameValue": "Error, you can't specify 2 times the same value for an enum / radio field."
             }
         },
         "association": {
             "hasOne": {
-                "successEntity": "New relation has one with entity %s created.",
-                "successSubEntity": "New relation has one with sub-entity %s created."
+                "successEntity": "A tab «%s» has just been added to the entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
+                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasMany": {
                 "successEntity": "New relation has many with entity %s created.",
                 "successSubEntity": "New relation has many with sub-entity %s created."
             },
-            "fieldset":{
-                "success": "New fieldset of existing %s created on %s."
+            "hasManyExisting": {
+                "success": "New relation has many existing with entity %s created on %s."
+            },
+            "relatedToMultiple":{
+                "success": "New field %s related to multiple %s created on %s."
             },
             "relatedTo": {
-                "success": "New field %s related to %s created."
+                "success": "New field %s related to %s created.",
+                "missingField": "The field %s in the entity %s does not exist or is not usable."
             },
             "error":{
                 "alreadyHasMany": "Source entity already has many target entity, impossible to create belongs to association.",
-                "alreadyHasOne": "Source entity already has the association has one with target entity, it's impossible to add has many association.",
+                "alreadyHasOne": "Source entity already has the association has one with target entity, so it's impossible to add has many association.",
+                "alreadyRelatedTo": "Source entity already has a related to field with target entity, so it's impossible to add a related to multiple field with this target.",
                 "alreadySameAlias": "Association already exists between these entities with this alias.",
                 "circularBelongsTo": "Bad entity association, you can't set circular has one association.",
                 "circularHasMany": "Bad entity association, you can't set circular has many association.",
+                "alreadyBelongsToMany": "Sorry, a belongs to many association already exist between these entities.",
+                "tooMuchHasMany": "Sorry, too many association 'has many' from target to source, impossible to create belongs to many association.",
                 "unableTab": "Unable to find %s tab in current entity."
             }
         },

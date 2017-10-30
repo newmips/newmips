@@ -1,5 +1,4 @@
 var socket = io();
-
 // Utils
 {
 	function toastIt(msgID, level) {
@@ -92,7 +91,7 @@ var socket = io();
 	    channel += '    <a href="#">';
 	    channel += '        <img class="contacts-list-img">';
 	    channel += '        <div class="contacts-list-info">';
-	    channel += '            <span class="contacts-list-name">';
+	    channel += '            <span class="contacts-list-name"><i class="fa fa-plus"></i>&nbsp;&nbsp;';
 	    channel += '                '+channelObj.f_name;
 		channel += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((channelObj.notSeen && channelObj.notSeen > 0) ? '' : 'display:none;')+'">'+channelObj.notSeen+'</span>'
 	    channel += '            </span>';
@@ -109,7 +108,7 @@ var socket = io();
 		chat += '    <a href="#">';
 		chat += '        <img class="contacts-list-img">';
 		chat += '        <div class="contacts-list-info">';
-		chat += '            <span class="contacts-list-name">';
+		chat += '            <span class="contacts-list-name"><i class="fa fa-user"></i>&nbsp;&nbsp;';
 		chat += '                '+chatObj.contact.f_login;
 		chat += '                <small class="contacts-list-date pull-right">'+ formatDate(new Date(chatObj.updatedAt))+'</small>';
 		chat += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((chatObj.notSeen && chatObj.notSeen > 0) ? '' : 'display:none;')+'">'+chatObj.notSeen+'</span>'
@@ -140,7 +139,7 @@ var socket = io();
 	}
 	function channelContacts(contacts) {
 		var contactsHtml = '';
-		contactsHtml += '<h4 class="contacts-list-name" style="margin-left:10px;">'+$("#msg-channel_members").text()+'</h4>';
+		contactsHtml += '<h4 class="contacts-list-name">'+$("#msg-channel_members").text()+'</h4>';
 		contactsHtml += '<ul class="contacts-list">';
 		for (var i = 0; i < contacts.length; i++)
 			contactsHtml += '<li>'+contacts[i].f_login+'</li>';
@@ -306,16 +305,22 @@ $(function() {
 				$("#totalNotSeen").text(data.total).show();
 		});
 
+		socket.on('error', function(reason) {
+			console.log(reason);
+			if (reason == 'Access denied')
+				("#contactsBtn").click();
+		});
+
 		// CHANNEL
 		socket.on('channel-message', function(data) {
-			if (channels[data.f_id_channel])
-				channels[data.f_id_channel].messages.unshift(data);
+			if (channels[data.fk_id_channel])
+				channels[data.fk_id_channel].messages.unshift(data);
 
 			// If message is not for current discussion append it, if not increment notif
-			if (discussion && (discussion.id == data.f_id_channel))
+			if (discussion && (discussion.id == data.fk_id_channel))
 				appendToDiscussion(data);
 			else
-				incrementNotifications(data.f_id_channel, 'channel');
+				incrementNotifications(data.fk_id_channel, 'channel');
 		});
 
 		socket.on('channel-messages', function(data) {
@@ -341,14 +346,14 @@ $(function() {
 
 		// CHAT
 		socket.on('chat-message', function(data) {
-			if (chats[data.f_id_chat])
-				chats[data.f_id_chat].messages.unshift(data);
+			if (chats[data.fk_id_chat])
+				chats[data.fk_id_chat].messages.unshift(data);
 
 			// If message is not for current discussion append it, if not increment notif
-			if (discussion && (discussion.id_contact == data.f_id_user_sender || discussion.id_contact == data.f_id_user_receiver))
+			if (discussion && (discussion.id_contact == data.fk_id_user_sender || discussion.id_contact == data.fk_id_user_receiver))
 				appendToDiscussion(data);
 			else
-				incrementNotifications(data.f_id_chat, 'chat');
+				incrementNotifications(data.fk_id_chat, 'chat');
 		});
 
 		socket.on('chat-messages', function(data) {
@@ -406,6 +411,8 @@ $(function() {
 
 		// Send message
 		$("#messageForm").submit(function() {
+			if ($("input[name='discussion-message']").val() == '')
+				return false;
 			var msg = $("input[name='discussion-message']").val();
 			if (discussion.type == 'chat')
 				socket.emit('chat-message', {message: msg, id_chat: discussion.id, id_contact: discussion.id_contact});
@@ -512,6 +519,10 @@ $(function() {
 				$("#channelUsers").slideUp();
 			else
 				$("#channelUsers").slideDown();
+		});
+
+		$(document).on("click", "#chat .box-header .box-title", function(e){
+			$("#collapseChat").trigger("click");
 		});
 	}
 
