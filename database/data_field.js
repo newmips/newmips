@@ -52,7 +52,7 @@ exports.createNewDataField = function (attr, callback) {
                         var info = {
                             insertId: dataField.id,
                             message: "database.field.create.created",
-                            messageParams: [showNameField, dataField.id, dataEntity.name, dataEntity.name, dataEntity.name, dataEntity.name]
+                            messageParams: [showNameField, dataField.id, dataEntity.name, showNameField, showNameField, showNameField]
                         };
                         callback(null, info);
                     });

@@ -97,6 +97,23 @@ function readdirSyncRecursive(path, exclude) {
 }
 
 module.exports = {
+    queuedPromises: function queuedAll(headPromises) {
+        return new Promise(function(headResolve, headReject) {
+            var returnedValues = [];
+            function execPromise(promises, idx) {
+                if (!promises[idx])
+                    return headResolve(returnedValues);
+                promises[idx].then(function(returnedValue) {
+                    returnedValues.push({done: true, value: returnedValue});
+                    execPromise(promises, idx+1);
+                }).catch(function(err) {
+                    returnedValues.push({done: false, value: err});
+                    execPromise(promises, idx+1);
+                });
+            }
+            execPromise(headPromises, 0);
+        })
+    },
     encrypt: function (text) {
         var cipher = crypto.createCipher('aes-256-cbc', 'd6F3Efeq');
         var crypted = cipher.update(text, 'utf8', 'hex');

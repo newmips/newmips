@@ -275,7 +275,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
     //createObject = enums.values("ENTITY_NAME", createObject, req.body);
 
     models.MODEL_NAME.create(createObject).then(function (ENTITY_NAME) {
-        var redirect = '/ENTITY_URL_NAME/list';
+        var redirect = '/ENTITY_URL_NAME/show?id='+ENTITY_NAME.id;
         req.session.toastr = [{
                 message: 'message.create.success',
                 level: "success"

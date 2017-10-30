@@ -188,9 +188,6 @@
         {! SocketIO !}
         {#config.socket.enabled}
         <script src="/js/plugins/socketio/socket.io.js" type="text/javascript"></script>
-        <script>
-            var socket = io();
-        </script>
         {/config.socket.enabled}
         {#config.socket.chat}
             <script src="/js/Newmips/component/chat.js" type="text/javascript"></script>

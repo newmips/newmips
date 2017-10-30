@@ -1,37 +1,195 @@
-<li id="cra_menu_item" class="treeview">
-    <a href="#">
-        <i class="fa fa-folder"></i>
-        <span>{@__ key="entity.e_cra.label_entity" /}</span>
-        <i class="fa fa-angle-left pull-right"></i>
-    </a>
-    <ul class="treeview-menu">
-        <li><a href="/cra/declare"><i class="fa fa-plus"></i> {@__ key="entity.e_cra.custom_button_declare" /}</a></li>
-        <li><a href="/cra/list"><i class="fa fa-list"></i> {@__ key="entity.e_cra.showItBro" /}</a></li>
-        {@entityAccess entity="cra_team"}
-            <li id="cra_team_menu_item" class="treeview">
-                <a href="#"><i class="fa fa-users"></i> {@__ key="entity.e_cra_team.label_entity" /}
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
+{>"main_layout"/}
+{<modules}
+<select id="dynamic_select" class="form-control select" onchange="navigate()">{@moduleAccess module="home"}<option data-module="m_home" value="/default/home">{@__ key="module.m_home" /}</option>{/moduleAccess}{@moduleAccess module="authentication"}<option data-module="m_authentication" value="/default/authentication">{@__ key="module.m_authentication" /}</option>{/moduleAccess}{@moduleAccess module="cra"}<option data-module="m_cra" value="/default/cra" selected="">{@__ key="module.m_cra" /}</option>{/moduleAccess}</select>
+{/modules}
+
+{<sidebar}
+<ul id="sortable" class="sidebar-menu" style="white-space: pre-wrap;">
+    {@entityAccess entity="cra"}
+    <li id="cra_menu_item" style="display:block;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_cra.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="cra" action="write"}
+            <li>
+                <a href="/cra/declare">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="entity.e_cra.custom_button_declare" /}
                 </a>
-                <ul class="treeview-menu">
-                    <li><a href="/cra_team/create_form"><i class="fa fa-plus"></i>{@__ key="operation.create" /}</a></li>
-                    <li><a href="/cra_team/list"><i class="fa fa-list"></i>{@__ key="operation.list" /}</a></li>
-                </ul>
             </li>
-        {/entityAccess}
-        {@entityAccess entity="cra_activity"}
-        <li id="cra_activity_menu_item" class="treeview">
-            <a href="#"><i class="fa fa-cogs"></i> {@__ key="entity.e_cra_activity.label_entity" /}
-                <span class="pull-right-container">
-                    <i class="fa fa-angle-left pull-right"></i>
-                </span>
-            </a>
-            <ul class="treeview-menu">
-                <li><a href="/cra_activity/create_form"><i class="fa fa-plus"></i>{@__ key="operation.create" /}</a></li>
-                <li><a href="/cra_activity/list"><i class="fa fa-list"></i>{@__ key="operation.list" /}</a></li>
-            </ul>
-        </li>
-        {/entityAccess}
-    </ul>
-</li>
+            {/actionAccess}
+            {@actionAccess entity="cra" action="read"}
+            <li>
+                <a href="/cra/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="cra_team"}
+    <li id="cra_team_menu_item" style="display:block;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_cra_team.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="cra_team" action="write"}
+            <li>
+                <a href="/cra_team/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="cra_team" action="read"}
+            <li>
+                <a href="/cra_team/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="cra_calendar_settings"}
+    <li id="cra_calendar_settings_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_cra_calendar_settings.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="cra_calendar_settings" action="write"}
+            <li>
+                <a href="/cra_calendar_settings/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="cra_calendar_settings" action="read"}
+            <li>
+                <a href="/cra_calendar_settings/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="cra_calendar_exception"}
+    <li id="cra_calendar_exception_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_cra_calendar_exception.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="cra_calendar_exception" action="write"}
+            <li>
+                <a href="/cra_calendar_exception/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="cra_calendar_exception" action="read"}
+            <li>
+                <a href="/cra_calendar_exception/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="cra_activity"}
+    <li id="cra_activity_menu_item" style="display:block;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_cra_activity.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="cra_activity" action="write"}
+            <li>
+                <a href="/cra_activity/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="cra_activity" action="read"}
+            <li>
+                <a href="/cra_activity/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="cra_client"}
+    <li id="cra_client_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_cra_client.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="cra_client" action="write"}
+            <li>
+                <a href="/cra_client/create_form">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.create" /}
+                    {@__ key="entity.e_cra_client.name_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+            {@actionAccess entity="cra_client" action="read"}
+            <li>
+                <a href="/cra_client/list">
+                    <i class="fa fa-angle-double-right"></i>
+                    {@__ key="operation.list" /}
+                    {@__ key="entity.e_cra_client.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}
+        </ul>
+    </li>
+    {/entityAccess}
+    {@entityAccess entity="cra_task"}
+    <li id="cra_task_menu_item" style="display:none;" class="treeview">
+        <a href="#">
+            <i class="fa fa-folder"></i>
+            <span>{@__ key="entity.e_cra_task.label_entity" /}</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+            {@actionAccess entity="cra_task" action="write"}
+            <li>
+                <a href="/cra_task/create_form">
+                    <i class="fa fa-angle-double-right"></i> {@__ key="operation.create" /} {@__ key="entity.e_cra_task.name_entity" /}
+                </a>
+            </li>{/actionAccess}{@actionAccess entity="cra_task" action="read"}
+            <li>
+                <a href="/cra_task/list">
+                    <i class="fa fa-angle-double-right"></i> {@__ key="operation.list" /} {@__ key="entity.e_cra_task.plural_entity" /}
+                </a>
+            </li>
+            {/actionAccess}</ul>
+    </li>
+    {/entityAccess}
+</ul>
+{/sidebar}

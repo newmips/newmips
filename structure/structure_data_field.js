@@ -202,7 +202,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "			<div class='input-group-addon'>\n";
                 str += "				<i class='fa fa-clock-o'></i>\n";
                 str += "			</div>\n";
-                str += "			<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "			<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='{" + value2 + "|time}' type='text' " + readOnly + "/>\n";
                 str += "		</div>\n";
                 str += "	</div>\n";
             }
@@ -317,7 +317,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "enum" :
             if (file == "show") {
                 str += "    {^" + value2 + "}\n";
-                str += "        <input class='form-control input' name='" + dataField + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
                 str += "    {/" + value2 + "}\n";
                 str += "    {#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "        {@eq key=" + value2 + " value=\"{.value}\" }\n";
@@ -339,7 +339,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             }
             else if (value != "") {
                 str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
-                str += "		<option value='' selected>{@__ key=\"select.default\" /}</option>\n";
+                str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "		{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "            {@eq key=\"" + value + "\" value=\"{.value}\" }\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
@@ -393,7 +393,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             }
             else {
                 str += "	<div class='input-group'>\n";
-                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height=200 width=200/></a>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='200' width='200' /></a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -495,7 +495,23 @@ exports.setupDataField = function (attr, callback) {
                 values_data_field[j] = values_data_field[j].trim();
             }
         } else {
-            values_data_field = values.split(" ");
+            var err = new Error();
+            err.message = "structure.field.attributes.noSpace";
+            return callback(err, null);
+        }
+
+        var sameResults_sorted = values_data_field.slice().sort();
+        var sameResults = [];
+        for (var i = 0; i < values_data_field.length - 1; i++) {
+            if (sameResults_sorted[i + 1] == sameResults_sorted[i]) {
+                sameResults.push(sameResults_sorted[i]);
+            }
+        }
+
+        if(sameResults.length > 0){
+            var err = new Error();
+            err.message = "structure.field.attributes.sameValue";
+            return callback(err, null);
         }
     }
 
@@ -553,7 +569,7 @@ exports.setupDataField = function (attr, callback) {
         case "devise":
         case "euro":
         case "argent":
-            typeForModel = "STRING";
+            typeForModel = "DOUBLE";
             typeForDatalist = "currency";
             break;
         case "float" :
@@ -653,6 +669,11 @@ exports.setupDataField = function (attr, callback) {
     if (type_data_field == "enum") {
         // Remove all special caractere for all enum values
         var cleanEnumValues = [];
+        if(typeof values_data_field === "undefined"){
+            var err = new Error();
+            err.message = "structure.field.attributes.missingValues";
+            return callback(err, null);
+        }
         for (var i = 0; i < values_data_field.length; i++) {
             cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
         }
@@ -667,6 +688,11 @@ exports.setupDataField = function (attr, callback) {
     } else if(type_data_field == "radio"){
         // Remove all special caractere for all enum values
         var cleanRadioValues = [];
+        if(typeof values_data_field === "undefined"){
+            var err = new Error();
+            err.message = "structure.field.attributes.missingValues";
+            return callback(err,null);
+        }
         for (var i = 0; i < values_data_field.length; i++) {
             cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
         }
@@ -683,7 +709,10 @@ exports.setupDataField = function (attr, callback) {
             "type": typeForModel,
             "newmipsType": type_data_field
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = typeForModel;
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
+            "type": typeForModel,
+            "newmipsType": type_data_field
+        }
     }
 
     fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
@@ -1111,6 +1140,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
+    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
     select += '             <option value="{id}">';
     for(var i=0; i<usingField.length; i++){
@@ -1153,6 +1183,7 @@ exports.setupRelatedToField = function (attr, callback) {
         select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
+        select += "     <option value=''>{@__ key=\"select.default\" /}</option>\n";
         select += '     <!--{#' + alias + '_global_list}-->\n';
         select += '         <!--{@eq key=' + alias + '.id value=id}-->\n';
         select += '             <option value="{id}" selected>';
@@ -1433,9 +1464,8 @@ exports.setupHasOneTab = function (attr, callback) {
 }
 
 exports.deleteDataField = function (attr, callback) {
-    var id_application = attr.id_application;
+    var idApp = attr.id_application;
     var name_data_entity = attr.name_data_entity.toLowerCase();
-    var show_name_data_field = attr.options.showValue.toLowerCase();
     var name_data_field = attr.options.value.toLowerCase();
     var url_value = attr.options.urlValue.toLowerCase();
 
@@ -1446,7 +1476,7 @@ exports.deleteDataField = function (attr, callback) {
     var info = {};
 
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
-    var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
+    var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
 
     // Clear the require cache
     delete require.cache[require.resolve(jsonPath)];
@@ -1454,7 +1484,7 @@ exports.deleteDataField = function (attr, callback) {
 
     for (var i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
-            if (dataToWrite[i].relation != 'belongsTo') {
+            if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple") {
                 var err = new Error();
                 err.message = name_data_entity + ' isn\'t a regular field. You might want to use `delete tab` instruction.';
                 return callback(err, null);
@@ -1463,6 +1493,13 @@ exports.deleteDataField = function (attr, callback) {
             // Modify the options.json file
             info.fieldToDrop = dataToWrite[i].foreignKey;
             info.isConstraint = true;
+
+            // Related To Multiple
+            if(dataToWrite[i].structureType == "relatedToMultiple"){
+                info.isMultipleConstraint = true;
+                info.target = dataToWrite[i].target;
+            }
+
             dataToWrite.splice(i, 1);
             isInOptions = true;
             break;
@@ -1470,7 +1507,7 @@ exports.deleteDataField = function (attr, callback) {
     }
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
-        jsonPath = __dirname + '/../workspace/' + id_application + '/models/attributes/' + name_data_entity + '.json';
+        jsonPath = __dirname + '/../workspace/' + idApp + '/models/attributes/' + name_data_entity + '.json';
         delete require.cache[require.resolve(jsonPath)];
         dataToWrite = require(jsonPath);
 
@@ -1486,7 +1523,7 @@ exports.deleteDataField = function (attr, callback) {
     writeStream.end();
     writeStream.on('finish', function () {
         // Remove field from create/update/show views files
-        var viewsPath = __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity + '/';
+        var viewsPath = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/';
         var fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
         var promises = [];
         for (var i = 0; i < fieldsFiles.length; i++)
@@ -1494,6 +1531,8 @@ exports.deleteDataField = function (attr, callback) {
                 (function (file) {
                     domHelper.read(file).then(function ($) {
                         $('*[data-field="' + name_data_field + '"]').remove();
+                        // In case of related to
+                        $('*[data-field="r_' + name_data_field.substring(2) + '"]').remove();
                         domHelper.write(file, $).then(function () {
                             resolve();
                         });
@@ -1506,6 +1545,10 @@ exports.deleteDataField = function (attr, callback) {
             domHelper.read(viewsPath + '/list_fields.dust').then(function ($) {
                 $("th[data-field='" + name_data_field + "']").remove();
                 $("td[data-field='" + name_data_field + "']").remove();
+
+                // In case of related to
+                $("th[data-field^='r_" + name_data_field.substring(2) + "']").remove();
+                $("td[data-field^='r_" + name_data_field.substring(2) + "']").remove();
                 domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
                     resolve();
                 });
@@ -1516,7 +1559,7 @@ exports.deleteDataField = function (attr, callback) {
         Promise.all(promises).then(function () {
 
             // Remove translation in enum locales
-            var enumsPath = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
+            var enumsPath = __dirname + '/../workspace/' + idApp + '/locales/enum_radio.json';
             var enumJson = require(enumsPath);
 
             if (typeof enumJson[name_data_entity] !== "undefined") {
@@ -1528,7 +1571,7 @@ exports.deleteDataField = function (attr, callback) {
 
             // Remove translation in global locales
             var fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
-            translateHelper.removeLocales(id_application, "field", [name_data_entity, fieldToDropInTranslate], function () {
+            translateHelper.removeLocales(idApp, "field", [name_data_entity, fieldToDropInTranslate], function () {
                 callback(null, info);
             });
         });
@@ -1536,17 +1579,13 @@ exports.deleteDataField = function (attr, callback) {
 }
 
 exports.deleteTab = function (attr, callback) {
-    var tabName = attr.options.value.toLowerCase();
-    var showTabName = attr.options.showValue.toLowerCase();
     var tabNameWithoutPrefix = attr.options.urlValue.toLowerCase();
     var name_data_entity = attr.name_data_entity.toLowerCase();
-    var show_name_data_entity = attr.show_name_data_entity.toLowerCase();
-    var id_data_entity = attr.id_data_entity;
-    var id_application = attr.id_application;
+    var idApp = attr.id_application;
     var target;
 
-    var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + name_data_entity + '.json';
-    var options = require(jsonPath);
+    var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
+    var options = JSON.parse(fs.readFileSync(jsonPath));
     var found = false;
     var option;
 
@@ -1572,7 +1611,7 @@ exports.deleteTab = function (attr, callback) {
     writeStream.write(JSON.stringify(options, null, 4));
     writeStream.end();
     writeStream.on('finish', function () {
-        var showFile = __dirname + '/../workspace/' + attr.id_application + '/views/' + name_data_entity + '/show_fields.dust';
+        var showFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/show_fields.dust';
         domHelper.read(showFile).then(function ($) {
             // Get tab type before destroying it
             var tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');

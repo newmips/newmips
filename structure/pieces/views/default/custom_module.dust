@@ -28,6 +28,10 @@
 {<custom_js}
 <script type="text/javascript">
     $(function() {
+        $(".widget-row").click(function() {
+            window.location = $(this).data('href');
+        });
+
         $("table td").each(function() {
             var self = this;
             var type = $(self).data('type');

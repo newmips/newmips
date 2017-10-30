@@ -1,5 +1,4 @@
 var socket = io();
-
 // Utils
 {
 	function toastIt(msgID, level) {
@@ -140,7 +139,7 @@ var socket = io();
 	}
 	function channelContacts(contacts) {
 		var contactsHtml = '';
-		contactsHtml += '<h4 class="contacts-list-name" style="margin-left:10px;">'+$("#msg-channel_members").text()+'</h4>';
+		contactsHtml += '<h4 class="contacts-list-name">'+$("#msg-channel_members").text()+'</h4>';
 		contactsHtml += '<ul class="contacts-list">';
 		for (var i = 0; i < contacts.length; i++)
 			contactsHtml += '<li>'+contacts[i].f_login+'</li>';
@@ -306,6 +305,12 @@ $(function() {
 				$("#totalNotSeen").text(data.total).show();
 		});
 
+		socket.on('error', function(reason) {
+			console.log(reason);
+			if (reason == 'Access denied')
+				("#contactsBtn").click();
+		});
+
 		// CHANNEL
 		socket.on('channel-message', function(data) {
 			if (channels[data.fk_id_channel])
@@ -406,6 +411,8 @@ $(function() {
 
 		// Send message
 		$("#messageForm").submit(function() {
+			if ($("input[name='discussion-message']").val() == '')
+				return false;
 			var msg = $("input[name='discussion-message']").val();
 			if (discussion.type == 'chat')
 				socket.emit('chat-message', {message: msg, id_chat: discussion.id, id_contact: discussion.id_contact});
@@ -512,6 +519,10 @@ $(function() {
 				$("#channelUsers").slideUp();
 			else
 				$("#channelUsers").slideDown();
+		});
+
+		$(document).on("click", "#chat .box-header .box-title", function(e){
+			$("#collapseChat").trigger("click");
 		});
 	}
 

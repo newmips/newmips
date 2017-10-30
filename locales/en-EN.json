@@ -101,7 +101,9 @@
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
-        "redirecting": "Redirecting..."
+        "redirecting": "Redirecting...",
+        "createScript": "Write a script",
+        "fromFile": "Upload a script"
     },
     "live":{
         "legend": "Live edition"
@@ -169,7 +171,6 @@
     "chat": {
         "welcomeold": "Welcome ! Please type your instructions in input field below or type 'help' if you need any support.",
         "welcome": "Hello and welcome ! I'm Mipsy, your personnal creation assistant. At any time, I am here to help you discover the Newmips generator.<br> To get started, here are few instructions that you can run below:<br><br>- <b class='click-instruction'>add entity Person</b><br>- <b class='click-instruction'>add field Name</b><br>- <b class='click-instruction'>add field Birthday with type date</b> <br><br>And follow us on our dedicated YouTube channel, you will find our playlist of video tutorials to learn in details how to use the Newmips generator:<br><a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>Newmips tutorials</a>"
-
     },
     "database": {
         "project": {
@@ -310,14 +311,17 @@
                 "notUnderstandGiveAvailable": "Sorry, I do not understand what you want to do. Available attributes:<br>%s<br>",
                 "notUnderstand": "Unable to understand the given attribute.",
                 "fieldNoFound": "No field with name %s found in the current entity.",
-                "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique."
+                "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique.",
+                "missingValues": "Error, you have to specify the values you want in the field with type enum / radio.",
+                "noSpace": "Error, please seperate each enum / radio value with a comma.",
+                "sameValue": "Error, you can't specify 2 times the same value for an enum / radio field."
             }
         },
         "association": {
             "deleteTab": "The tab %s has been successfully deleted.",
             "hasOne": {
                 "successEntity": "A tab «%s» has just been added to the entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
-                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
+                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasMany": {
                 "successEntity": "New relation has many with entity %s created.",
@@ -335,7 +339,8 @@
             },
             "error":{
                 "alreadyHasMany": "Source entity already has many target entity, impossible to create belongs to association.",
-                "alreadyHasOne": "Source entity already has the association has one with target entity, it's impossible to add has many association.",
+                "alreadyHasOne": "Source entity already has the association has one with target entity, so it's impossible to add has many association.",
+                "alreadyRelatedTo": "Source entity already has a related to field with target entity, so it's impossible to add a related to multiple field with this target.",
                 "alreadySameAlias": "Association already exists between these entities with this alias.",
                 "circularBelongsTo": "Bad entity association, you can't set circular has one association.",
                 "circularHasMany": "Bad entity association, you can't set circular has many association.",
