@@ -1,21 +1,30 @@
 {>"main_layout"/}
 {<header}
-    <h1>{@__ key="error.title"/} 404</h1>
+    <h1>Oups!</h1>
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="error.title"/} 404</li>
+        <li class="active">Oups!</li>
     </ol>
 {/header}
 {<content}
-    <div class="error-page">
-        <h2 class="headline">404</h2>
-        <div class="error-content">
-            <h3><i class="fa fa-warning fa-lg text-yellow"></i> {@__ key="error.title"/} 404</h3>
-            <p>
-                {@__ key="error.title"/}:<br><br><b>{@__ key="error.404.textone"/}</b><br><br>
+    <div class="error-page" style="width:1000px;">
+        <div class="col-xs-4">
+            <img src="/img/5-01.png" style="width:300px;"/>
+        </div>
+        <div class="col-xs-8">
+            <div class="error-content">
+                <h3>{@__ key="error.404.title"/}</h3>
                 <br>
-                {@__ key="error.meanwhile"/}<a href="/">{@__ key="error.goHome"/}</a> {@__ key="error.or"/} <a href="javascript:history.back();">{@__ key="error.goBack"/}</a>
-            </p>
+                <p>
+                    <div class="col-xs-12 col-sm-12" style="padding:0;">
+                        {@__ key="error.goHome"/} :<br><br><a class="btn btn-default" href="/"><i class="fa fa-home"></i>&nbsp;&nbsp;{@__ key="error.home"/}</a></a>
+                    </div>
+                    <br><br><br><br><br><br>
+                    <div class="col-xs-12 col-sm-12" style="padding:0;">
+                        {@__ key="error.goBack"/} :<br><br><a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="error.goBackText"/}</a>
+                    </div>
+                </p>
+            </div>
         </div>
     </div>
 {/content}

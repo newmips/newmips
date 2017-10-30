@@ -101,7 +101,9 @@
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",
-        "redirecting": "Redirection..."
+        "redirecting": "Redirection...",
+        "createScript": "Écrire un script",
+        "fromFile": "Depuis un fichier"
     },
     "live": {
         "legend": "Édition en direct"
@@ -125,7 +127,13 @@
         "reload": "Redémarrer le serveur",
         "issue-button": "Signaler un bug",
         "help-button": "Besoin d'aide ?",
-        "help-disabled": "Le chat slack est désactivé. Activez-le dans config/global.js et fournissez les informations slack dans config/slack.js"
+        "help-disabled": "Le chat slack est désactivé. Activez-le dans config/global.js et fournissez les informations slack dans config/slack.js",
+        "session": {
+            "noProject": "Aucune projet sélectionné",
+            "noApplication": "Aucune application sélectionnée",
+            "noModule": "Aucune module sélectionné",
+            "noEntity": "Aucune entité sélectionnée"
+        }
     },
     "project": {
         "label": "Projet",
@@ -144,7 +152,7 @@
         "label": "Module"
     },
     "entity": {
-        "label": "Entités",
+        "label": "Entité",
         "name": "Nom de l'entité",
         "plural": "entités"
     },
@@ -202,7 +210,7 @@
                 "selected": "Module %s (%s) sélectionné."
             },
             "create": {
-                "success" : "Nouveau module %s (%s) créé.",
+                "success" : "Vous venez d'ajouter un nouveau module %s (%s)<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le module %s</b>.",
                 "alreadyExist": "Un module avec un nom identique ou similaire à %s existe déjà."
             },
             "list": {
@@ -238,7 +246,7 @@
                 "valid": "Merci d'indiquer un nom ou ID valide."
             },
             "create": {
-                "success" : "Nouvelle entité %s (%s) créée.",
+                "success": "Vous venez de créer la nouvelle entité %s (%s) au sein du module %s. Pour la supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’entité %s</b>.",
                 "alreadyExist": "Entité avec un nom (%s) identique ou similaire existe déjà.",
                 "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité trouvée avec le nom de code %s."
             },
@@ -261,7 +269,7 @@
                 "alreadyExist": "Désolé, un champ avec un nom (%s) identique ou similaire existe déjà."
             },
             "create": {
-                "created": "Nouveau champ %s (%s) créé.",
+                "created": "Vous venez d’ajouter un nouveau champ %s (%s) à l’entité %s.<br>Pour le supprimer, tapez l’instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
                 "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
             },
             "delete": {
@@ -285,7 +293,7 @@
                 "success": "L'application a bien été chargée !"
             },
             "gitCommit": {
-                "success": "Le commit à bien été effectué !"
+                "success": "Le commit a bien été effectué !"
             },
             "error": {
                 "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
@@ -303,30 +311,40 @@
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
-                "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique."
+                "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique.",
+                "missingValues": "Erreur, vous devez spécifier les valeurs que vous souhaitez avoir dans le champ de type enum / radio.",
+                "noSpace": "Erreur, merci de séparer les valeurs dans un champ de type enum / radio par des virgules et non des espaces.",
+                "sameValue": "Erreur, vous ne pouvez pas spécifier 2 fois la même valeur dans un champ de type enum / radio."
             }
         },
         "association": {
             "hasOne": {
-                "successEntity": "Nouvelle association 'Has One' avec l'entité %s créée.",
-                "successSubEntity": "Nouvelle association 'Has One' avec la sous-entité %s créée."
+                "successEntity": "Un onglet «%s» vient d’être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
+                "successSubEntity": "Un onglet «%s» vient d’être ajouté à la sous-entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
             },
             "hasMany": {
-                "successEntity": "Nouvelle association 'Has Many' avec l'entité %s créée.",
-                "successSubEntity": "Nouvelle association 'Has Many' avec la sous-entité %s créée."
+                "successEntity": "Un onglet «%s» vient d’être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
+                "successSubEntity": "Un onglet «%s» vient d’être ajouté à la sous-entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
             },
-            "fieldset":{
-                "success": "Nouvelle liste d'objets existants %s créée sur %s."
+            "hasManyExisting": {
+                "success": "Nouvelle association 'Has Many Existing' avec l'entité %s créée sur %s."
+            },
+            "relatedToMultiple":{
+                "success": "Nouveau champ %s relié à plusieurs %s créé sur %s."
             },
             "relatedTo": {
-                "success": "Nouveau champ %s associé à %s créé."
+                "success": "Nouveau champ %s relié à %s créé.",
+                "missingField": "Le champ %s de l'entité %s n'existe pas ou n'est pas utilisable."
             },
             "error":{
-                "alreadyHasMany": "L'entité source a déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
-                "alreadyHasOne": "L'entité source a déjà l'association 'Has One' avec l'entité cible, impossible de créer l'association 'Has Many'.",
+                "alreadyHasMany": "L'entité source possède déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
+                "alreadyHasOne": "L'entité source possède déjà l'association 'Has One' avec l'entité cible, impossible de créer l'association 'Has Many'.",
+                "alreadyRelatedTo": "L'entité source possède déjà l'association 'Relié à' avec l'entité cible, impossible de créer l'association 'Relié à plusieurs'.",
                 "alreadySameAlias": "Une association avec cet alias existe déjà entre ces deux entités.",
                 "circularBelongsTo": "Désolé, vous ne pouvez pas faire d'association 'Has One' dans les deux sens.",
                 "circularHasMany": "Désolé, vous ne pouvez pas faire d'association 'Has Many' dans les deux sens.",
+                "alreadyBelongsToMany": "Désolé, une relation multiple exite déjà entre ces deux entités, impossible d'en ajouter une nouvelle",
+                "tooMuchHasMany": "Désolé, plusieurs relation has many détectées de la cible vers la source, impossible de créer la relation multiple.",
                 "unableTab": "Impossible de trouver le menu %s dans l'entité courante."
             }
         },

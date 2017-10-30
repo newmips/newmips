@@ -17,7 +17,7 @@
             <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="" type="text">
         </div>
     </div>
-    <div data-field="f_start_date" class="col-xs-12">
+    <div data-field="f_start_date" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_start_date" class="required"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/} </label>
             <div class="input-group">
@@ -28,7 +28,7 @@
             </div>
         </div>
     </div>
-    <div data-field="f_end_date" class="col-xs-12">
+    <div data-field="f_end_date" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_end_date"> {@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/} </label>
             <div class="input-group">

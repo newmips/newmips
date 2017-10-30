@@ -1,4 +1,5 @@
 var builder = require('../utils/model_builder');
+var fs = require('fs-extra');
 
 var attributes_origin = require("./attributes/MODEL_NAME_LOWER.json");
 var associations = require("./options/MODEL_NAME_LOWER.json");

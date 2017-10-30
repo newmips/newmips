@@ -1,15 +1,16 @@
-function checkAndCreateAttr(instructionsFunction, options, valueToCheck){
+function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 
     var attr = {
         function: instructionsFunction,
         options: options
     };
 
-    if(!isNaN(valueToCheck)){
+    if (!isNaN(valueToCheck)) {
         attr.error = "There must be at least one letter in the name."
     }
 
     if(valueToCheck.length > 30){
+        console.log("Value is too long => "+valueToCheck);
         attr.error = "The given value is too long (>30)."
     }
 
@@ -17,60 +18,60 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck){
 }
 
 // ******* BASIC Actions ******* //
-exports.showSession = function(result) {
+exports.showSession = function (result) {
 
     var attr = {};
     attr.function = "showSession";
     return attr;
 };
 
-exports.help = function(result) {
+exports.help = function (result) {
 
     var attr = {};
     attr.function = "help";
     return attr;
 };
 
-exports.deploy = function(result) {
+exports.deploy = function (result) {
 
     var attr = {};
     attr.function = "deploy";
     return attr;
 };
 
-exports.restart = function(result) {
+exports.restart = function (result) {
 
     var attr = {};
     attr.function = "restart";
     return attr;
 };
 
-exports.gitPush = function(result) {
+exports.gitPush = function (result) {
     var attr = {};
     attr.function = "gitPush";
     return attr;
 };
 
-exports.gitPull = function(result) {
+exports.gitPull = function (result) {
     var attr = {};
     attr.function = "gitPull";
     return attr;
 };
 
-exports.gitCommit = function(result) {
+exports.gitCommit = function (result) {
     var attr = {};
     attr.function = "gitCommit";
     return attr;
 };
 
-exports.gitStatus = function(result) {
+exports.gitStatus = function (result) {
     var attr = {};
     attr.function = "gitStatus";
     return attr;
 };
 
 // ******* SELECT Actions ******* //
-exports.selectProject = function(result) {
+exports.selectProject = function (result) {
 
     var value = result[1];
     var options = {
@@ -84,7 +85,7 @@ exports.selectProject = function(result) {
     return attr;
 };
 
-exports.selectApplication = function(result) {
+exports.selectApplication = function (result) {
 
     var value = result[1];
     var options = {
@@ -98,7 +99,7 @@ exports.selectApplication = function(result) {
     return attr;
 };
 
-exports.selectModule = function(result) {
+exports.selectModule = function (result) {
 
     var value = result[1];
     var options = {
@@ -112,7 +113,7 @@ exports.selectModule = function(result) {
     return attr;
 };
 
-exports.selectDataEntity = function(result) {
+exports.selectDataEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -127,7 +128,7 @@ exports.selectDataEntity = function(result) {
 };
 
 // ******* FIELD ATTRIBUTES Actions ******* //
-exports.setFieldAttribute = function(result) {
+exports.setFieldAttribute = function (result) {
 
     // Set entity name as the first option in options array
     var options = {
@@ -144,7 +145,7 @@ exports.setFieldAttribute = function(result) {
 };
 
 // ******* DATALIST Actions ******* //
-exports.setColumnVisibility = function(result) {
+exports.setColumnVisibility = function (result) {
 
     // Set entity name as the first option in options array
     var options = {
@@ -160,7 +161,7 @@ exports.setColumnVisibility = function(result) {
     return attr;
 };
 
-exports.setColumnHidden = function(result) {
+exports.setColumnHidden = function (result) {
 
     // Set entity name as the first option in options array
     var options = {
@@ -176,7 +177,7 @@ exports.setColumnHidden = function(result) {
     return attr;
 };
 
-exports.setColumnVisible = function(result) {
+exports.setColumnVisible = function (result) {
 
     // Set entity name as the first option in options array
     var options = {
@@ -193,7 +194,7 @@ exports.setColumnVisible = function(result) {
 };
 
 // ******* CREATE Actions ******* //
-exports.createNewProject = function(result) {
+exports.createNewProject = function (result) {
 
     var value = result[1];
     var options = {
@@ -204,7 +205,7 @@ exports.createNewProject = function(result) {
     return checkAndCreateAttr("createNewProject", options, value);
 };
 
-exports.createNewApplication = function(result) {
+exports.createNewApplication = function (result) {
 
     var value = result[1];
     var options = {
@@ -215,7 +216,7 @@ exports.createNewApplication = function(result) {
     return checkAndCreateAttr("createNewApplication", options, value);
 };
 
-exports.createNewModule = function(result) {
+exports.createNewModule = function (result) {
 
     var value = result[1];
     var options = {
@@ -226,7 +227,7 @@ exports.createNewModule = function(result) {
     return checkAndCreateAttr("createNewModule", options, value);
 };
 
-exports.createNewDataEntity = function(result) {
+exports.createNewDataEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -237,14 +238,14 @@ exports.createNewDataEntity = function(result) {
     return checkAndCreateAttr("createNewDataEntity", options, value);
 };
 
-exports.createNewDataField = function(result) {
+exports.createNewDataField = function (result) {
 
     // Field name has not been defined
     var value = result[1];
     var defaultValue = null;
 
     // Default value ?
-    if(typeof result[2] !== "undefined")
+    if (typeof result[2] !== "undefined")
         defaultValue = result[2];
 
     var options = {
@@ -256,14 +257,14 @@ exports.createNewDataField = function(result) {
     return checkAndCreateAttr("createNewDataField", options, value);
 };
 
-exports.createNewDataFieldWithType = function(result) {
+exports.createNewDataFieldWithType = function (result) {
 
     var value = result[1];
     var type = result[2];
     var defaultValue = null;
 
     // Default value ?
-    if(typeof result[3] !== "undefined")
+    if (typeof result[3] !== "undefined")
         defaultValue = result[3];
 
     // Preparing Options
@@ -277,14 +278,14 @@ exports.createNewDataFieldWithType = function(result) {
     return checkAndCreateAttr("createNewDataField", options, value);
 };
 
-exports.createNewDataFieldWithTypeEnum = function(result) {
+exports.createNewDataFieldWithTypeEnum = function (result) {
 
     var value = result[1];
     var allValues = result[2];
     var defaultValue = null;
 
     // Default value ?
-    if(typeof result[3] !== "undefined")
+    if (typeof result[3] !== "undefined")
         defaultValue = result[3];
 
     var options = {
@@ -298,14 +299,14 @@ exports.createNewDataFieldWithTypeEnum = function(result) {
     return checkAndCreateAttr("createNewDataField", options, value);
 };
 
-exports.createNewDataFieldWithTypeRadio = function(result) {
+exports.createNewDataFieldWithTypeRadio = function (result) {
 
     var value = result[1];
     var allValues = result[2];
     var defaultValue = null;
 
     // Default value ?
-    if(typeof result[3] !== "undefined")
+    if (typeof result[3] !== "undefined")
         defaultValue = result[3];
 
     var options = {
@@ -320,7 +321,7 @@ exports.createNewDataFieldWithTypeRadio = function(result) {
 };
 
 // ******* DELETE Actions ******* //
-exports.deleteProject = function(result) {
+exports.deleteProject = function (result) {
 
     var value = result[1];
 
@@ -336,7 +337,7 @@ exports.deleteProject = function(result) {
     return attr;
 };
 
-exports.deleteApplication = function(result) {
+exports.deleteApplication = function (result) {
 
     var value = result[1];
 
@@ -352,7 +353,7 @@ exports.deleteApplication = function(result) {
     return attr;
 };
 
-exports.deleteModule = function(result) {
+exports.deleteModule = function (result) {
 
     var value = result[1];
 
@@ -368,7 +369,7 @@ exports.deleteModule = function(result) {
     return attr;
 };
 
-exports.deleteDataEntity = function(result) {
+exports.deleteDataEntity = function (result) {
 
     var value = result[1];
 
@@ -384,7 +385,7 @@ exports.deleteDataEntity = function(result) {
     return attr;
 };
 
-exports.deleteDataField = function(result) {
+exports.deleteDataField = function (result) {
 
     var value = result[1];
 
@@ -400,7 +401,7 @@ exports.deleteDataField = function(result) {
     return attr;
 };
 
-exports.deleteTab = function(result) {
+exports.deleteTab = function (result) {
 
     var value = result[1];
 
@@ -417,7 +418,7 @@ exports.deleteTab = function(result) {
 };
 
 // ******* LIST Actions ******* //
-exports.listProject = function(result) {
+exports.listProject = function (result) {
 
     var attr = {
         function: "listProject"
@@ -425,7 +426,7 @@ exports.listProject = function(result) {
     return attr;
 };
 
-exports.listApplication = function(result) {
+exports.listApplication = function (result) {
 
     var attr = {
         function: "listApplication"
@@ -433,7 +434,7 @@ exports.listApplication = function(result) {
     return attr;
 };
 
-exports.listModule = function(result) {
+exports.listModule = function (result) {
 
     var attr = {
         function: "listModule"
@@ -441,7 +442,7 @@ exports.listModule = function(result) {
     return attr;
 };
 
-exports.listDataEntity = function(result) {
+exports.listDataEntity = function (result) {
 
     var attr = {
         function: "listDataEntity"
@@ -449,7 +450,7 @@ exports.listDataEntity = function(result) {
     return attr;
 };
 
-exports.listDataField = function(result) {
+exports.listDataField = function (result) {
 
     var attr = {
         function: "listDataField"
@@ -461,7 +462,7 @@ exports.listDataField = function(result) {
 
 // --------- One to One ---------
 // Tabs in show
-exports.relationshipHasOne = function(result) {
+exports.relationshipHasOne = function (result) {
 
     var source = result[1];
     var target = result[2];
@@ -469,7 +470,7 @@ exports.relationshipHasOne = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+target.toLowerCase(),
+        foreignKey: "id_" + target.toLowerCase(),
         as: target,
         processValue: true
     };
@@ -477,7 +478,7 @@ exports.relationshipHasOne = function(result) {
     return checkAndCreateAttr("createNewHasOne", options, target);
 };
 
-exports.relationshipHasOneWithName = function(result) {
+exports.relationshipHasOneWithName = function (result) {
 
     var source = result[1];
     var target = result[2];
@@ -486,7 +487,7 @@ exports.relationshipHasOneWithName = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
+        foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -494,7 +495,8 @@ exports.relationshipHasOneWithName = function(result) {
     return checkAndCreateAttr("createNewHasOne", options, as);
 };
 
-// Field in create
+
+// --------- Field in create / update / show ---------
 exports.createFieldRelatedTo = function(result) {
 
     var as = result[1];
@@ -502,7 +504,7 @@ exports.createFieldRelatedTo = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
+        foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -510,7 +512,7 @@ exports.createFieldRelatedTo = function(result) {
     return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
-exports.createFieldRelatedToUsing = function(result) {
+exports.createFieldRelatedToUsing = function (result) {
 
     var as = result[1];
     var target = result[2];
@@ -518,7 +520,7 @@ exports.createFieldRelatedToUsing = function(result) {
 
     var options = {
         target: target,
-        foreignKey: "id_"+target.toLowerCase()+"_"+as.toLowerCase(),
+        foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         usingField: usingField,
         processValue: true
@@ -527,9 +529,40 @@ exports.createFieldRelatedToUsing = function(result) {
     return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
+exports.createFieldRelatedToMultiple = function(result) {
+
+    var as = result[1];
+    var target = result[2];
+
+    // Preparing Options
+    var options = {
+        target: target,
+        as: as,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
+};
+
+exports.createFieldRelatedToMultipleUsing = function(result) {
+
+    var as = result[1];
+    var target = result[2];
+    var usingField = result[3];
+
+    var options = {
+        target: target,
+        as: as,
+        usingField: usingField,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
+};
+
 // --------- One to Many ---------
 // Tabs in show
-exports.relationshipHasMany = function(result) {
+exports.relationshipHasMany = function (result) {
 
     var source = result[1];
     var target = result[2];
@@ -537,7 +570,7 @@ exports.relationshipHasMany = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+source.toLowerCase(),
+        foreignKey: "id_" + source.toLowerCase(),
         as: target,
         processValue: true
     };
@@ -545,7 +578,7 @@ exports.relationshipHasMany = function(result) {
     return checkAndCreateAttr("createNewHasMany", options, target);
 };
 
-exports.relationshipHasManyWithName = function(result) {
+exports.relationshipHasManyWithName = function (result) {
 
     var source = result[1];
     var target = result[2];
@@ -554,7 +587,7 @@ exports.relationshipHasManyWithName = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+source.toLowerCase()+"_"+as.toLowerCase(),
+        foreignKey: "id_" + source.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
         processValue: true
     };
@@ -562,22 +595,22 @@ exports.relationshipHasManyWithName = function(result) {
     return checkAndCreateAttr("createNewHasMany", options, as);
 };
 
-exports.relationshipHasManyPreset = function(result) {
+exports.relationshipHasManyPreset = function (result) {
     var source = result[1];
     var target = result[2];
 
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+source.toLowerCase(),
+        foreignKey: "id_" + source.toLowerCase(),
         as: target,
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewFieldset", options, target);
+    return checkAndCreateAttr("createNewHasManyPreset", options, target);
 };
 
-exports.relationshipHasManyPresetUsing = function(result) {
+exports.relationshipHasManyPresetUsing = function (result) {
     var source = result[1];
     var target = result[2];
     var usingField = result[3];
@@ -585,51 +618,18 @@ exports.relationshipHasManyPresetUsing = function(result) {
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_"+source.toLowerCase(),
+        foreignKey: "id_" + source.toLowerCase(),
         as: target,
         usingField: usingField,
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewFieldset", options, target);
-};
-
-exports.createFieldset = function(result) {
-
-    var as = result[1];
-    var target = result[2];
-
-    // Preparing Options
-    var options = {
-        target: target,
-        foreignKey: "id_"+as.toLowerCase(),
-        as: as,
-        processValue: true
-    };
-
-    return checkAndCreateAttr("createNewFieldset", options, as);
-};
-
-exports.createFieldsetUsing = function(result) {
-
-    var as = result[1];
-    var target = result[2];
-    var usingField = result[3];
-
-    var options = {
-        target: target,
-        foreignKey: "id_"+as.toLowerCase(),
-        as: as,
-        usingField: usingField,
-        processValue: true
-    };
-
-    return checkAndCreateAttr("createNewFieldset", options, as);
+    return checkAndCreateAttr("createNewHasManyPreset", options, target);
 };
 
 // ******* COMPONENT Actions ******* //
 /* LOCAL FILE STORAGE */
-exports.createNewComponentLocalFileStorage = function(result) {
+exports.createNewComponentLocalFileStorage = function (result) {
 
     var options = {};
 
@@ -640,7 +640,7 @@ exports.createNewComponentLocalFileStorage = function(result) {
     return attr;
 };
 
-exports.createNewComponentLocalFileStorageWithName = function(result) {
+exports.createNewComponentLocalFileStorageWithName = function (result) {
 
     var value = result[1];
     var options = {
@@ -652,7 +652,7 @@ exports.createNewComponentLocalFileStorageWithName = function(result) {
 };
 
 /* CONTACT FORM */
-exports.createNewComponentContactForm = function(result) {
+exports.createNewComponentContactForm = function (result) {
 
     var options = {};
 
@@ -663,7 +663,7 @@ exports.createNewComponentContactForm = function(result) {
     return attr;
 };
 
-exports.createNewComponentContactFormWithName = function(result) {
+exports.createNewComponentContactFormWithName = function (result) {
 
     var value = result[1];
     var options = {
@@ -675,7 +675,7 @@ exports.createNewComponentContactFormWithName = function(result) {
 };
 
 /* AGENDA */
-exports.createNewComponentAgenda = function(result) {
+exports.createNewComponentAgenda = function (result) {
 
     var options = {};
 
@@ -686,7 +686,7 @@ exports.createNewComponentAgenda = function(result) {
     return attr;
 };
 
-exports.createNewComponentAgendaWithName = function(result) {
+exports.createNewComponentAgendaWithName = function (result) {
 
     var value = result[1];
     var options = {
@@ -698,14 +698,38 @@ exports.createNewComponentAgendaWithName = function(result) {
 };
 
 /* CRA */
-exports.createNewComponentCra = function(result) {
+exports.createNewComponentCra = function (result) {
     return {
         function: "createNewComponentCra"
     };
 };
 
+/**
+ * Component Address
+ * @param {type} result of bot analyzer (this.parse)
+ * @returns {function name and user instruction}
+ */
+exports.createNewComponentAddress = function (result) {
+    var options = {
+        componentName: result[1].toLowerCase(),
+        instruction: result[0]
+    };
+    return checkAndCreateAttr("createNewComponentAddress", options, result[1]);
+};
+
+/**
+ * Delete component address
+ */
+exports.deleteComponentAddress = function (result) {
+    return {
+        function :"deleteComponentAddress",
+        options:result
+    };
+};
+
+
 /* PRINT */
-exports.createNewComponentPrint = function(result) {
+exports.createNewComponentPrint = function (result) {
 
     var options = {};
 
@@ -716,7 +740,7 @@ exports.createNewComponentPrint = function(result) {
     return attr;
 };
 
-exports.createNewComponentPrintWithName = function(result) {
+exports.createNewComponentPrintWithName = function (result) {
 
     var value = result[1];
 
@@ -732,7 +756,7 @@ exports.createNewComponentPrintWithName = function(result) {
     return attr;
 };
 
-exports.deleteComponentPrint = function(result) {
+exports.deleteComponentPrint = function (result) {
 
     var options = {};
 
@@ -743,7 +767,7 @@ exports.deleteComponentPrint = function(result) {
     return attr;
 };
 
-exports.deleteComponentPrintWithName = function(result) {
+exports.deleteComponentPrintWithName = function (result) {
 
     var value = result[1];
 
@@ -760,14 +784,14 @@ exports.deleteComponentPrintWithName = function(result) {
 };
 
 /* CHAT */
-exports.createComponentChat = function(result) {
+exports.createComponentChat = function (result) {
     return {
         function: "createComponentChat"
     }
 }
 
 // ******* INTERFACE Actions ******* //
-exports.setSkin = function(result) {
+exports.setSkin = function (result) {
 
     var value = result[1];
     var options = {
@@ -781,7 +805,7 @@ exports.setSkin = function(result) {
     return attr;
 };
 
-exports.listSkin = function(result) {
+exports.listSkin = function (result) {
 
     var attr = {
         function: "listSkin"
@@ -789,11 +813,11 @@ exports.listSkin = function(result) {
     return attr;
 };
 
-exports.listIcon = function(result) {
+exports.listIcon = function (result) {
     return {function: 'listIcon'};
 }
 
-exports.setIcon = function(result) {
+exports.setIcon = function (result) {
     var attr = {
         function: "setIcon",
         iconValue: result[1]
@@ -801,7 +825,7 @@ exports.setIcon = function(result) {
     return attr;
 }
 
-exports.setIconToEntity = function(result) {
+exports.setIconToEntity = function (result) {
     var attr = {
         function: "setIconToEntity",
         iconValue: result[1],
@@ -837,13 +861,14 @@ function getRightWidgetType(originalType) {
     }
 }
 
-exports.createWidgetLastRecordsWithLimit = function(result) {
+exports.createWidgetLastRecordsWithLimit = function (result) {
     var attr = {
         function: 'createWidgetLastRecords',
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-
+console.log(result);
+console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
@@ -863,7 +888,7 @@ exports.createWidgetLastRecordsWithLimit = function(result) {
     return attr;
 }
 
-exports.createWidgetLastRecords = function(result) {
+exports.createWidgetLastRecords = function (result) {
     var attr = {
         function: 'createWidgetLastRecords',
         widgetType: 'lastrecords',
@@ -887,7 +912,7 @@ exports.createWidgetLastRecords = function(result) {
     return attr;
 }
 
-exports.createWidgetOnEntity = function(result) {
+exports.createWidgetOnEntity = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
 
@@ -899,7 +924,7 @@ exports.createWidgetOnEntity = function(result) {
     }
 }
 
-exports.createWidget = function(result) {
+exports.createWidget = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
 
@@ -910,7 +935,7 @@ exports.createWidget = function(result) {
     }
 }
 
-exports.deleteWidget = function(result) {
+exports.deleteWidget = function (result) {
     return {
         function: 'deleteWidget',
         widgetTypes: [getRightWidgetType(result[1])],
@@ -919,7 +944,7 @@ exports.deleteWidget = function(result) {
     }
 }
 
-exports.deleteEntityWidgets = function(result) {
+exports.deleteEntityWidgets = function (result) {
     return {
         function: 'deleteEntityWidgets',
         entityTarget: result[1]
@@ -1316,7 +1341,9 @@ var training = {
         "ajouter un champ (.*) relié à (.*) en utilisant (.*)",
         "ajouter un champ (.*) relié à (.*) en affichant (.*)",
         "ajouter champ (.*) relié à (.*) en utilisant (.*)",
-        "ajouter champ (.*) relié à (.*) en affichant (.*)"
+        "ajouter champ (.*) relié à (.*) en affichant (.*)",
+        "ajouter le champ (.*) relié à (.*) en affichant (.*)",
+        "ajouter le champ (.*) relié à (.*) en utilisant (.*)"
     ],
     "relationshipHasMany": [
         "entity (.*) has many (.*)",
@@ -1362,7 +1389,7 @@ var training = {
         "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
     ],
-    "createFieldset": [
+    "createFieldRelatedToMultiple": [
         "create fieldset (.*) related to (.*)",
         "add fieldset (.*) related to (.*)",
         "create list of (.*) related to (.*)",
@@ -1375,8 +1402,21 @@ var training = {
         "ajouter une liste de (.*) liée à (.*)",
         "ajouter liste de (.*) liée à (.*)",
         "ajouter liste de (.*) lié à (.*)",
+
+        "create field (.*) related to multiple (.*)",
+        "add field (.*) related to multiple (.*)",
+        "create data field (.*) related to multiple (.*)",
+        "add data field (.*) related to multiple (.*)",
+        "create field (.*) related to many (.*)",
+        "add field (.*) related to many (.*)",
+        "create data field (.*) related to many (.*)",
+        "add data field (.*) related to many (.*)",
+        "créer un champ (.*) relié à plusieurs (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*)",
+        "créer champ (.*) relié à plusieurs (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*)"
     ],
-    "createFieldsetUsing": [
+    "createFieldRelatedToMultipleUsing": [
         "create fieldset (.*) related to (.*) using (.*)",
         "add fieldset (.*) related to (.*) using (.*)",
         "create list of (.*) related to (.*) using (.*)",
@@ -1388,7 +1428,24 @@ var training = {
         "ajouter une liste de (.*) lié à (.*) en affichant (.*)",
         "ajouter une liste de (.*) liée à (.*) en affichant (.*)",
         "ajouter liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter liste de (.*) liée à (.*) en affichant (.*)"
+        "ajouter liste de (.*) liée à (.*) en affichant (.*)",
+
+        "create field (.*) related to multiple (.*) using (.*)",
+        "add field (.*) related to multiple (.*) using (.*)",
+        "create data field (.*) related to multiple (.*) using (.*)",
+        "add data field (.*) related to multiple (.*) using (.*)",
+        "create field (.*) related to many (.*) using (.*)",
+        "add field (.*) related to many (.*) using (.*)",
+        "create data field (.*) related to many (.*) using (.*)",
+        "add data field (.*) related to many (.*) using (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) en affichant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) en affichant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) en affichant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) en utilisant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) en affichant (.*)"
     ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",
@@ -1670,9 +1727,29 @@ var training = {
         "supprimer le composant impression nommé (.*)",
         "supprimer le composant impression appelé (.*)"
     ],
+    "createNewComponentAddress": [
+	"add component Address with name (.*)",
+	"add component address with name (.*)",
+	"ajouter un composant adresse nommé (.*)",
+	"ajouter un composant adresse appelé (.*)",
+	"ajouter un composant Adresse nommé (.*)",
+	"ajouter un composant Adresse appelé (.*)",
+	"ajouter composant adresse nommé (.*)",
+	"ajouter composant adresse appelé (.*)",
+	"ajouter composant Adresse nommé (.*)",
+	"ajouter composant Adresse appelé (.*)"
+    ],
+    "deleteComponentAddress": [
+	"delete component address",
+	"supprimer le composant adresse"
+    ],
     "createComponentChat": [
         "add component chat",
-        "create component chat"
+        "create component chat",
+	"ajouter le composant Discussion",
+	"ajouter composant Discussion",
+	"ajouter le composant discussion",
+	"ajouter composant discussion"
     ],
     "setSkin": [
         "set skin (.*)",
@@ -1725,6 +1802,7 @@ var training = {
         "add widget last records limited to (.*) records with columns (.*)",
         "add widget last records on entity (.*) limited to (.*) records with columns (.*)",
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+        "ajouter widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],
@@ -1778,20 +1856,21 @@ var training = {
 };
 
 // ******* Parse *******
-exports.parse = function(instruction) {
+exports.parse = function (instruction) {
+
     var instructionResult = {
         instructionLength: 0
     };
 
     for (var action in training) {
-        for (var i=0; i<training[action].length; i++) {
+        for (var i = 0; i < training[action].length; i++) {
             var regStr = training[action][i];
             var regExp = new RegExp(regStr, "ig");
 
             var result = regExp.exec(instruction);
-            if (result !== null){
+            if (result !== null) {
                 /* Get the most complicated instruction found */
-                if(instructionResult.instructionLength < regStr.length){
+                if (instructionResult.instructionLength < regStr.length) {
                     instructionResult = {
                         action: action,
                         result: result,
@@ -1801,14 +1880,11 @@ exports.parse = function(instruction) {
             }
         }
     }
-
     var attr = {};
-
-    if(typeof instructionResult.action !== "undefined"){
+    if (typeof instructionResult.action !== "undefined") {
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
-    }
-    else{
+    } else {
         attr.error = "Unable to find a matching instruction.";
     }
 

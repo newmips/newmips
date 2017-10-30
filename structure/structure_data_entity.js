@@ -5,7 +5,7 @@ var helpers = require('../utils/helpers');
 var translateHelper = require("../utils/translate");
 
 //Create association between the models
-exports.setupAssociation = function (idApplication, sourceDataEntity, targetDataEntity, foreignKey, as, relation, through, toSync, callback) {
+exports.setupAssociation = function (idApplication, sourceDataEntity, targetDataEntity, foreignKey, as, relation, through, toSync, type, callback) {
     // SETUP MODEL OPTIONS FILE
     var optionsFileName = './workspace/' + idApplication + '/models/options/' + sourceDataEntity.toLowerCase() + '.json';
     var optionsFile = fs.readFileSync(optionsFileName);
@@ -17,7 +17,14 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
 
     if (relation == "belongsToMany") {
         baseOptions.through = through;
+        baseOptions.foreignKey = "fk_id_"+sourceDataEntity;
+        baseOptions.otherKey = "fk_id_"+targetDataEntity;
     }
+
+    if(type != null)
+        baseOptions.structureType = type;
+    else
+        baseOptions.structureType = "";
 
     optionsObject.push(baseOptions);
 
@@ -161,7 +168,7 @@ exports.setupDataEntity = function (attr, callback) {
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
-            li += '                         <!--{@__ key="operation.create" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.name_entity" /}-->\n';
+            li += '                         <!--{@__ key="operation.create" /}--> \n';
             li += '                     </a>\n';
             li += '                 </li>';
             li += '             <!--{/actionAccess}-->';
@@ -169,7 +176,7 @@ exports.setupDataEntity = function (attr, callback) {
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
-            li += '                         <!--{@__ key="operation.list" /}--> <!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.plural_entity" /}-->\n';
+            li += '                         <!--{@__ key="operation.list" /}--> \n';
             li += '                     </a>\n';
             li += '                 </li>\n';
             li += '             <!--{/actionAccess}-->';

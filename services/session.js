@@ -4,6 +4,8 @@ var db_module = require("../database/module");
 var db_entity = require("../database/data_entity");
 var globalConf = require("../config/global.js");
 var gitHelper = require("../utils/git_helper");
+var fs = require('fs-extra');
+var language = require("../services/language");
 
 var manager;
 if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
@@ -51,21 +53,17 @@ exports.showSession = function(attr, callback) {
     if (typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
 
     db_project.getNameProjectById(id_project, function(err, info) {
-        if (!err) {
+        if (!err)
             name_project = info;
-        }
         db_application.getNameApplicationById(id_application, function(err, info) {
-            if (!err) {
+            if (!err)
                 name_application = info;
-            }
             db_module.getNameModuleById(id_module, function(err, info) {
-                if (!err) {
+                if (!err)
                     name_module = info;
-                }
                 db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-                    if (!err) {
+                    if (!err)
                         name_data_entity = info;
-                    }
 
                     var info = new Array();
                     info.message = "Session :<br><ul>";
@@ -89,8 +87,43 @@ exports.deploy = function(attr, callback) {
     if (typeof(attr.id_application) !== 'undefined')
         id_application = attr.id_application;
 
-    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette') {
-            // Push on git before deploy
+    if (!(globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')) {
+        var protocol = globalConf.protocol;
+        var host = globalConf.host;
+        var math = require('math');
+        var port = math.add(9000, id_application);
+        var url = protocol + "://" + host + ":" + port;
+        var info = {};
+        info.message = "botresponse.applicationavailable";
+        info.messageParams = [url,url];
+
+        return callback(null, info);
+    }
+
+    // Get and increment application's version
+    var applicationPath = 'workspace/'+attr.id_application;
+    var applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
+    applicationConf.version++;
+    fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
+
+    // Create toSyncProd.lock file
+    if (fs.exists(applicationPath +'/models/toSyncProd.json'))
+        fs.unlink(applicationPath +'/models/toSyncProd.json');
+    fs.copySync(applicationPath +'/models/toSyncProd.json', applicationPath +'/models/toSyncProd.lock.json');
+
+    // Clear toSyncProd (not locked) file
+    fs.writeFileSync(applicationPath+'/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
+
+    // Create deploy.txt file to trigger cloud deploy actions
+    fs.writeFileSync(applicationPath+'/deploy.txt', applicationConf.version, 'utf8');
+
+    // Push on git before deploy
+    gitHelper.gitCommit(attr, function(err) {
+        if (err) {
+            console.log(err);
+            return callback(err);
+        }
+        gitHelper.gitTag(attr.id_application, applicationConf.version, applicationPath).then(function() {
             gitHelper.gitPush(attr, function(err, infoGit){
                 if(err){
                     console.log(err);
@@ -109,10 +142,9 @@ exports.deploy = function(attr, callback) {
                     manager.createCloudDns(subdomain, attr.gitlabUser).then(function(data) {
                         var url = data.body.url;
                         var info = {};
-                            
+
                         info.message = "botresponse.deployment";
                         info.messageParams = [url,url];
-
 
                         callback(null, info);
                     }).catch(function(err) {
@@ -121,76 +153,67 @@ exports.deploy = function(attr, callback) {
                     });
                 });
             });
-    }
-    else {
-        var protocol = globalConf.protocol;
-        var host = globalConf.host;
-        var math = require('math');
-        var port = math.add(9000, id_application);
-        var url = protocol + "://" + host + ":" + port;
-        var info = {};
-        
-        info.message = "botresponse.applicationavailable";
-        info.messageParams = [url,url];     
-
-        callback(null, info);
-    }
+        }).catch(function(e) {
+            console.log("Deploy error");
+            console.log(e);
+            return callback(e);
+        });
+    });
 }
 
 // Get
-exports.getSession = function(attr, callback) {
+exports.getSession = function(attr, req, callback) {
 
     var id_project = null;
     var id_application = null;
     var id_module = null;
     var id_data_entity = null;
 
-    var name_project = "None";
-    var name_application = "None";
-    var name_module = "None";
-    var name_data_entity = "None";
+    var name_project = null;
+    var name_application = null;
+    var name_module = null;
+    var name_data_entity = null;
 
-    if(typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
-    if(typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
-    if(typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
-    if(typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
+    if(typeof(attr.id_project) != 'undefined') id_project = attr.id_project;
+    if(typeof(attr.id_application) != 'undefined') id_application = attr.id_application;
+    if(typeof(attr.id_module) != 'undefined') id_module = attr.id_module;
+    if(typeof(attr.id_data_entity) != 'undefined') id_data_entity = attr.id_data_entity;
 
     db_project.getNameProjectById(id_project, function(err, info) {
-        if (!err) {
+        if (!err)
             name_project = info;
-        }
         db_application.getNameApplicationById(id_application, function(err, info) {
-            if (!err) {
+            if (!err)
                 name_application  = info;
-            }
             db_module.getNameModuleById(id_module, function(err, info) {
-                if(!err){
+                if(!err)
                     name_module = info;
-                }
                 db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-                    if(!err){
+                    if(!err)
                         name_data_entity = info;
-                    }
 
                     var returnInfo = {
                         "project": {
                             "id_project": id_project,
-                            "name_project": name_project
+                            "name_project": name_project,
+                            "noProject": language(req.session.lang_user).__("preview.session.noProject")
                         },
                         "application": {
                             "id_application": id_application,
-                            "name_application": name_application
+                            "name_application": name_application,
+                            "noApplication": language(req.session.lang_user).__("preview.session.noApplication")
                         },
                         "module": {
                             "id_module": id_module,
-                            "name_module": name_module
+                            "name_module": name_module,
+                            "noModule": language(req.session.lang_user).__("preview.session.noModule")
                         },
                         "data_entity": {
                             "id_data_entity": id_data_entity,
-                            "name_data_entity": name_data_entity
+                            "name_data_entity": name_data_entity,
+                            "noEntity": language(req.session.lang_user).__("preview.session.noEntity")
                         }
                     };
-                    // console.log(info);
                     callback(null, returnInfo);
                 });
             });
@@ -222,8 +245,8 @@ exports.setSession = function(attrFunction, req, info, data) {
             req.session.id_data_entity = null;
 
             // Redirect iframe to new module
-            var iframeUrl = data.iframe_url.split("/default/");
-            data.iframe_url = iframeUrl[0]+"/default/"+info.moduleName.toLowerCase();
+            var iframeUrl = data.iframe_url.split("/");
+            data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/default/"+info.moduleName.toLowerCase();
             break;
         case "createNewDataEntity":
         case "selectDataEntity":

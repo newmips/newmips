@@ -94,12 +94,12 @@
         "validation": "Valider"
     },
     "operation": {
-        "show": "Afficher une entité ",
-        "update": "Modifier une entité ",
-        "create": "Créer une entité ",
-        "delete": "Supprimer une entité ",
-        "list": "Lister les ",
-        "add": "Ajouter une entité "
+        "show": "Afficher",
+        "update": "Modifier",
+        "create": "Créer",
+        "delete": "Supprimer",
+        "list": "Lister",
+        "add": "Ajouter"
     },
     "message": {
         "create": {
@@ -151,14 +151,17 @@
         }
     },
     "error": {
+        "404": {
+            "title": "Nous n’avons pas pu trouver ce que vous souhaitiez.",
+            "title2": "Page introuvable.",
+            "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+        },
         "title": "Erreur",
         "contactAdmin": "Merci de contacter votre administrateur.",
         "meanwhile": "Entre temps, vous pouvez ",
-        "goHome": "retourner à la page d'accueil",
-        "or": "ou",
-        "goBack": " revenir en arrière.",
-        "404": {
-            "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
-        }
+        "goHome": "Si vous souhaitez retourner à la page d'accueil, cliquez-ici",
+        "goBack": "Si vous souhaitez revenir en arrière, cliquez-ici",
+        "goBackText": "Revenir en arrière",
+        "home": "Accueil"
     }
 }

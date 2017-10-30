@@ -241,9 +241,9 @@ function init_datatable(tableID) {
                     else if (columns[meta.col].type == 'datetime') {
                         if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
                             if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm:ss");
+                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm");
                             else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm:ss");
+                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm");
                         } else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
@@ -264,6 +264,10 @@ function init_datatable(tableID) {
                     }
                     else if (columns[meta.col].type == 'url' && cellValue!=null)
                         cellValue = '<a target="_blank" href="'+cellValue+'">'+cellValue+'</a>';
+                    else if (columns[meta.col].type == 'time' && cellValue != null){
+                        if(cellValue.length == 8)
+                            cellValue = cellValue.substring(0, cellValue.length - 3);
+                    }
                 }
                 return cellValue;
             }

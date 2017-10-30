@@ -2,19 +2,19 @@
     {
         "target": "e_user",
         "relation": "belongsTo",
-        "foreignKey": "f_id_user_sender",
+        "foreignKey": "fk_id_user_sender",
         "as": "r_sender"
     },
     {
         "target": "e_user",
         "relation": "belongsTo",
-        "foreignKey": "f_id_user_receiver",
+        "foreignKey": "fk_id_user_receiver",
         "as": "r_receiver"
     },
     {
         "target": "e_chat",
         "relation": "belongsTo",
-        "foreignKey": "f_id_chat",
+        "foreignKey": "fk_id_chat",
         "as": "r_chat"
     }
 ]

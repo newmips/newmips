@@ -4,7 +4,8 @@ var dbconfig = require('../config/database');
 // route middleware to make sure
 exports.isLoggedIn = function(req, res, next) {
     // Autologin for newmips's "iframe" live preview context
-    if (req.session.autologin == true){
+    if (AUTO_LOGIN_INITIALIZED == true){
+        AUTO_LOGIN_INITIALIZED = false;
         models.E_user.findOne({
             where: {
                 id: 1

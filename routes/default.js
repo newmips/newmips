@@ -6,6 +6,7 @@ var block_access = require('../utils/block_access');
 var auth = require('../utils/authStrategies');
 var helper = require('../utils/helpers');
 var fs = require("fs");
+var language = require("../services/language");
 
 // Bot completion
 var bot = require('../services/bot.js');
@@ -19,7 +20,6 @@ var models = require('../models/');
 
 // Homepage
 router.get('/home', block_access.isLoggedIn, function(req, res) {
-
     var data = {};
     // Set ReturnTo URL in cas of unauthenticated users trying to reach a page
     req.session.returnTo = req.protocol + '://' + req.get('host') + req.originalUrl;
@@ -96,7 +96,6 @@ router.get('/update_logs', function(req, res) {
     }
 });
 
-
 router.get('/completion', function(req, res) {
     try{
         var str = req.query.str;
@@ -108,4 +107,9 @@ router.get('/completion', function(req, res) {
     }
 });
 
+router.post('/ajaxtranslate', function(req, res) {
+    res.json({
+        value: language(req.body.lang).__(req.body.key, req.body.params)
+    });
+});
 module.exports = router;

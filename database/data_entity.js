@@ -1,6 +1,10 @@
 // **** Database Generator Entity ****
 var models = require('../models/');
 
+function capitalizeFirstLetter(word) {
+    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+}
+
 // DataEntity
 exports.selectDataEntity = function(attr, callback) {
 
@@ -150,8 +154,10 @@ exports.createNewDataEntity = function(attr, callback) {
 			var info = {};
 			info.insertId = newEntity.id;
 			info.message = "database.entity.create.success";
-			info.messageParams = [newEntity.name, newEntity.id];
-			callback(null,info);
+			models.Module.findById(id_module).then(function(module){
+				info.messageParams = [newEntity.name, newEntity.id, module.name, newEntity.name];
+				callback(null,info);
+			});
 		});
 	}).catch(function(err){
 		callback(err, null);
@@ -190,8 +196,10 @@ exports.createNewDataEntityTarget = function(attr, callback) {
 			info.name = createdEntity.name;
 			info.codeName = createdEntity.codeName;
 			info.message = "database.entity.create.success";
-			info.messageParams = [createdEntity.name, createdEntity.id];
-			callback(null, info);
+			models.Module.findById(attr.id_module).then(function(module){
+				info.messageParams = [createdEntity.name, createdEntity.id, module.name, createdEntity.name];
+				callback(null, info);
+			});
 		});
 	}).catch(function(err){
 		callback(err, null);
@@ -247,6 +255,12 @@ exports.listDataEntityNameByApplicationId = function(id_application, callback) {
 // GetById
 exports.getNameDataEntityById = function(idEntity, callback) {
 
+	if(idEntity == null){
+		var err = new Error();
+        err.message = "database.field.error.selectOrCreateBefore";
+        return callback(err, null);
+	}
+
 	models.DataEntity.findOne({where: {id: idEntity}}).then(function(dataEntity) {
 		if (!dataEntity) {
 			var err = new Error();
@@ -263,6 +277,12 @@ exports.getNameDataEntityById = function(idEntity, callback) {
 
 // GetById
 exports.getDataEntityById = function(idEntity, callback) {
+
+	if(idEntity == null){
+		var err = new Error();
+        err.message = "database.field.error.selectOrCreateBefore";
+        return callback(err, null);
+	}
 
 	models.DataEntity.findOne({where: {id: idEntity}}).then(function(dataEntity) {
 		if (!dataEntity) {
@@ -389,6 +409,24 @@ exports.getModuleCodeNameByEntityCodeName = function(nameEntity, callback){
 	});
 }
 
+exports.retrieveWorkspaceHasManyData = function(idApp, codeNameEntity, foreignKey, callback){
+	delete require.cache[require.resolve('../workspace/'+idApp+'/models/')];
+	var workspaceModels = require('../workspace/'+idApp+'/models/');
+	var where = {};
+	where[foreignKey] = {
+		$ne: null
+	};
+
+	workspaceModels[capitalizeFirstLetter(codeNameEntity)].findAll({
+		attributes: ["id", foreignKey],
+		where: where
+	}).then(function(result){
+		callback(result, null);
+	}).catch(function(err){
+		callback([]);
+	});
+}
+
 /* --- COMPONENT LINK --- */
 
 // Add a component ID on an already created entity found with a codeName
@@ -415,5 +453,3 @@ exports.addComponentOnEntityByCodeName = function(codeName, idComponent, idModul
 		callback(err, null);
 	});
 }
-
-

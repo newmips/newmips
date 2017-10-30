@@ -192,6 +192,13 @@ $(document).ready(function () {
     /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
+    $('.simpledate-toconvert').each(function() {
+        if (lang_user == "fr-FR")
+            $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+        else
+            $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+    });
+
     $('.datepicker-toconvert').each(function() {
         if ($(this).val() != "" && $(this).val() != "Invalid date" && $(this).val() != "Invalid Date") {
             if (lang_user == "fr-FR")
@@ -206,9 +213,9 @@ $(document).ready(function () {
     $('.datetimepicker-toconvert').each(function() {
         if ($(this).attr("value") != "" && $(this).attr("value") != "Invalid date" && $(this).attr("value") != "Invalid Date") {
             if (lang_user == "fr-FR")
-                $(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm:ss")).change();
+                $(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm")).change();
             else
-                $(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm:ss")).change();
+                $(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm")).change();
         } else {
             $(this).val("");
         }
@@ -229,9 +236,9 @@ $(document).ready(function () {
     $("td[data-type='datetime']").each(function() {
         if ($(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
             if (lang_user == "fr-FR")
-                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm:ss"));
+                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
             else
-                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm:ss"));
+                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
         } else {
             $(this).html("");
         }
@@ -273,13 +280,13 @@ $(document).ready(function () {
         });
 
         $('.datetimepicker').datetimepicker({
-            format: "DD/MM/YYYY HH:mm:ss",
+            format: "DD/MM/YYYY HH:mm",
             sideBySide: true
         });
 
         $(".datetimepicker").inputmask({
-            mask: "1/2/y h:s:s",
-            placeholder: "dd/mm/yyyy hh:mm:ss",
+            mask: "1/2/y h:s",
+            placeholder: "dd/mm/yyyy hh:mm",
             alias: "datetime",
             timeseparator: ":",
             hourFormat: "24"
@@ -297,13 +304,13 @@ $(document).ready(function () {
         });
 
         $('.datetimepicker').datetimepicker({
-            format: "YYYY-MM-DD HH:mm:ss",
+            format: "YYYY-MM-DD HH:mm",
             sideBySide: true
         });
 
         $(".datetimepicker").inputmask({
-            mask: "y-1-2 h:s:s",
-            placeholder: "yyyy-mm-dd hh:mm:ss",
+            mask: "y-1-2 h:s",
+            placeholder: "yyyy-mm-dd hh:mm",
             separator: "-",
             alias: "yyyy/mm/dd"
         });
@@ -480,7 +487,7 @@ $(document).ready(function () {
     $(this).find("[data-type='currency']").each(function() {
         $(this).maskMoney({
             thousands: ' ',
-            decimal: ',',
+            decimal: '.',
             allowZero: true,
             suffix: '',
             precision: maskMoneyPrecision
