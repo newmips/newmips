@@ -10,6 +10,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     }
 
     if(valueToCheck.length > 30){
+        console.log("Value is too long => "+valueToCheck);
         attr.error = "The given value is too long (>30)."
     }
 
@@ -725,6 +726,8 @@ exports.deleteComponentAddress = function (result) {
         options:result
     };
 };
+
+
 /* PRINT */
 exports.createNewComponentPrint = function (result) {
 
@@ -864,7 +867,8 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-
+console.log(result);
+console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
@@ -1337,7 +1341,9 @@ var training = {
         "ajouter un champ (.*) relié à (.*) en utilisant (.*)",
         "ajouter un champ (.*) relié à (.*) en affichant (.*)",
         "ajouter champ (.*) relié à (.*) en utilisant (.*)",
-        "ajouter champ (.*) relié à (.*) en affichant (.*)"
+        "ajouter champ (.*) relié à (.*) en affichant (.*)",
+        "ajouter le champ (.*) relié à (.*) en affichant (.*)",
+        "ajouter le champ (.*) relié à (.*) en utilisant (.*)"
     ],
     "relationshipHasMany": [
         "entity (.*) has many (.*)",
@@ -1723,9 +1729,29 @@ var training = {
         "supprimer le composant impression nommé (.*)",
         "supprimer le composant impression appelé (.*)"
     ],
+    "createNewComponentAddress": [
+	"add component Address with name (.*)",
+	"add component address with name (.*)",
+	"ajouter un composant adresse nommé (.*)",
+	"ajouter un composant adresse appelé (.*)",
+	"ajouter un composant Adresse nommé (.*)",
+	"ajouter un composant Adresse appelé (.*)",
+	"ajouter composant adresse nommé (.*)",
+	"ajouter composant adresse appelé (.*)",
+	"ajouter composant Adresse nommé (.*)",
+	"ajouter composant Adresse appelé (.*)"
+    ],
+    "deleteComponentAddress": [
+	"delete component address",
+	"supprimer le composant adresse"
+    ],
     "createComponentChat": [
         "add component chat",
-        "create component chat"
+        "create component chat",
+	"ajouter le composant Discussion",
+	"ajouter composant Discussion",
+	"ajouter le composant discussion",
+	"ajouter composant discussion"
     ],
     "setSkin": [
         "set skin (.*)",
@@ -1778,6 +1804,7 @@ var training = {
         "add widget last records limited to (.*) records with columns (.*)",
         "add widget last records on entity (.*) limited to (.*) records with columns (.*)",
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+        "ajouter widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],

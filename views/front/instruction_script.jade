@@ -3,7 +3,8 @@ block header
 	.row
 		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-9#header-title
 			h1
-				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
+				a(href="/")
+					img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
 				| #{__("menu.instruction")}
 				small #{__("menu.module")}
 		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
@@ -38,7 +39,19 @@ block content
 							.form-group
 								.row
 									.col-xs-12
-										input(type='file', required, name='instructions', style='float:left;')
+										input#addScriptInput(type='file', required, name='instructions', style='float:left;')
+										- var contentArea = "add project My Project\nadd application My Application\n\n";
+										textarea#createScriptTextarea(name='instructionsText', cols='150', rows='10', style='float:left;display: none;')
+											| !{contentArea}
+
+								.row
+									.col-xs-12
+										a#createScript(href="#")
+											i.fa.fa-plus.fa-md &nbsp;
+											| #{__("instructionScript.createScript")}
+										a#addScript(href="#", style="display: none;")
+											i.fa.fa-file.fa-md &nbsp;
+											| #{__("instructionScript.fromFile")}
 								.row
 									.col-xs-3
 										button.btn.btn-primary(id='scriptSubmit', type='submit', style='float:left;margin-top: 15px;') #{__("button.execute")}

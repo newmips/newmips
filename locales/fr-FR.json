@@ -101,7 +101,9 @@
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",
-        "redirecting": "Redirection..."
+        "redirecting": "Redirection...",
+        "createScript": "Écrire un script",
+        "fromFile": "Depuis un fichier"
     },
     "live": {
         "legend": "Édition en direct"
@@ -309,7 +311,10 @@
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
-                "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique."
+                "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique.",
+                "missingValues": "Erreur, vous devez spécifier les valeurs que vous souhaitez avoir dans le champ de type enum / radio.",
+                "noSpace": "Erreur, merci de séparer les valeurs dans un champ de type enum / radio par des virgules et non des espaces.",
+                "sameValue": "Erreur, vous ne pouvez pas spécifier 2 fois la même valeur dans un champ de type enum / radio."
             }
         },
         "association": {
@@ -333,8 +338,9 @@
                 "missingField": "Le champ %s de l'entité %s n'existe pas ou n'est pas utilisable."
             },
             "error":{
-                "alreadyHasMany": "L'entité source a déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
-                "alreadyHasOne": "L'entité source a déjà l'association 'Has One' avec l'entité cible, impossible de créer l'association 'Has Many'.",
+                "alreadyHasMany": "L'entité source possède déjà une association 'Has Many' avec l'entité cible, impossible de créer l'association 'Has One'.",
+                "alreadyHasOne": "L'entité source possède déjà l'association 'Has One' avec l'entité cible, impossible de créer l'association 'Has Many'.",
+                "alreadyRelatedTo": "L'entité source possède déjà l'association 'Relié à' avec l'entité cible, impossible de créer l'association 'Relié à plusieurs'.",
                 "alreadySameAlias": "Une association avec cet alias existe déjà entre ces deux entités.",
                 "circularBelongsTo": "Désolé, vous ne pouvez pas faire d'association 'Has One' dans les deux sens.",
                 "circularHasMany": "Désolé, vous ne pouvez pas faire d'association 'Has Many' dans les deux sens.",

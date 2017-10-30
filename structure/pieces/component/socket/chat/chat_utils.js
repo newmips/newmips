@@ -95,6 +95,42 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			sendChatChannelList(user, socket);
 		});
 
+		// Middleware to check access right
+		socket.use(function(packet, next) {
+			var eventName = packet[0];
+			var params = packet[1];
+			if (['chat-load', 'chat-message', 'chat-update_last_seen'].indexOf(eventName) != -1) {
+				models.E_chat.findOne({
+					where: {id: params.id_chat},
+					include: [{
+						model: models.E_user,
+						where: {id: user.id},
+						as: 'r_user',
+					}]
+				}).then(function(chat) {
+					if (!chat)
+						return next(new Error("Access denied"));
+					return next();
+				});
+			}
+			else if (['channel-load', 'channel-message', 'channel-update_last_seen'].indexOf(eventName) != -1) {
+				models.E_channel.findOne({
+					where: {id: params.id_channel},
+					include: [{
+						model: models.E_user,
+						where: {id: user.id},
+						as: 'r_user_channel',
+					}]
+				}).then(function(channel) {
+					if (!channel)
+						return next(new Error("Access denied"));
+					return next();
+				});
+			}
+			else
+				return next();
+		});
+
 		// Send only notifications total. This is used on client init, before the chat is expanded and the contacts loaded
 		socket.on('notifications-total', function() {
 			models.E_user_chat.findAll({
@@ -165,7 +201,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				});
 			}).catch(function(e) {
 				console.log(e);
-			});;
+			});
 		});
 
 		// Channel join
@@ -246,7 +282,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				});
 			}).catch(function(e) {
 				console.log(e);
-			});;
+			});
 		});
 
 		// Load message from offset until limit
@@ -273,7 +309,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				socket.emit('channel-messages', {contacts: channel.r_user_channel ,id_channel: data.id_channel, id_self: user.id, messages: channel.r_channelmessage});
 			}).catch(function(e) {
 				console.log(e);
-			});;
+			});
 		});
 
 		// Update notifications
@@ -354,7 +390,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				});
 			}).catch(function(e) {
 				console.log(e);
-			});;
+			});
 		});
 
 		// Load messages of chat
@@ -377,7 +413,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				socket.emit('chat-messages', {id_chat: data.id_chat, messages: chat.r_chatmessage});
 			}).catch(function(e) {
 				console.log(e);
-			});;
+			});
 		});
 
 		// Update notifications

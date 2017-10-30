@@ -112,7 +112,54 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 
         fs.copySync(componentEventViewFolder, eventViewsFolder);
 
-        var eventShowFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/show_fields.dust';
+        // Replace variable in each files
+        var fileToReplace = ["show_fields", "create_fields", "update_fields"];
+        var urlEvent = valueEvent.toLowerCase().substring(2);
+
+        for(var i=0; i<fileToReplace.length; i++){
+            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/'+fileToReplace[i]+'.dust';
+            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+            eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+            eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
+
+            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+        }
+
+        // Inject custom_js
+        var fileToInject = ["create", "update"];
+
+        for(var i=0; i<fileToInject.length; i++){
+            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/'+fileToInject[i]+'.dust';
+            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+            eventTemplate += "\n\n"+
+            "{<custom_js}\n"+
+            "    <script type='text/javascript'>\n"+
+            "        $(document).on(\"dp.change\", \"input[name='f_start_date']\", function(){\n"+
+            "            if($(this).val() != \"\" && $(\"input[name='f_end_date']\").val() != \"\"){\n"+
+            "                if($(this).val() > $(\"input[name='f_end_date']\").val()){\n"+
+            "                    $(this).val(\"\");\n"+
+            "                }\n"+
+            "            }\n"+
+            "        });\n"+
+            "        $(document).on(\"dp.change\", \"input[name='f_end_date']\", function(){\n"+
+            "            if($(this).val() != \"\" && $(\"input[name='f_start_date']\").val() != \"\"){\n"+
+            "                if($(this).val() < $(\"input[name='f_start_date']\").val()){\n"+
+            "                    $(this).val(\"\");\n"+
+            "                }\n"+
+            "            }\n"+
+            "        });\n"+
+            "    </script>\n"+
+            "{/custom_js}\n";
+
+            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+        }
+
+
+        callback();
+
+        /*var eventShowFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/show_fields.dust';
         var eventCreateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/create_fields.dust';
         var eventUpdateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/update_fields.dust'
 
@@ -141,7 +188,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 
         writeStreamEventUpdate.on('finish', function () {
             callback();
-        });
+        });*/
     });
 }
 
@@ -716,24 +763,20 @@ exports.newCra = function (attr, callback) {
         });
         fs.writeFileSync(teamOptionsPath, JSON.stringify(teamOptionObj, null, 4));
 
-        // Add missing foreignKey to attributes file
-        var teamAttrPath = workspacePath + '/models/attributes/e_cra_team.json';
-        var teamAttrObj = JSON.parse(fs.readFileSync(teamAttrPath, 'utf8'));
-        teamAttrObj.fk_id_admin_user = {type: "INTEGER", newmipsType: 'integer'};
-        fs.writeFileSync(teamAttrPath, JSON.stringify(teamAttrObj, null, 4), 'utf8');
+        var teamAttributesPath = workspacePath + '/models/attributes/e_cra_team.json';
+        var teamAttributesObj = require(teamAttributesPath);
+        teamAttributesObj.fk_id_admin_user = {type:"INTEGER", newmipsType:"integer"};
+        fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
 
-        var toSync = JSON.parse(fs.readFileSync(workspacePath+'/models/toSync.json', 'utf8'));
-        toSync[attr.id_application+'_e_cra_team'].attributes.fk_id_admin_user = "INTEGER";
-        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
+        // Get select of module before copying pieces
+        domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($workS) {
+            var select = $workS("#dynamic_select").html();
+            fs.copySync(piecesPath + '/views/layout_m_cra.dust', workspacePath + '/views/layout_m_cra.dust');
+            domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($newWorkS) {
+                // Insert select of module to copied pieces
+                $newWorkS("#dynamic_select").html(select);
 
-        // Insert custom layout part for cra
-        var layoutName = "layout_"+attr.module.codeName+'.dust';
-        domHelper.read(workspacePath + '/views/'+layoutName).then(function ($works) {
-            domHelper.read(piecesPath + '/views/layout_m_cra.dust').then(function($pieceLayout) {
-                $works("#cra_menu_item").html($pieceLayout("#cra_menu_item").html());
-                $works("#cra_team_menu_item").remove();
-                $works("#cra_activity_menu_item").remove();
-                domHelper.write(workspacePath + '/views/'+layoutName, $works).then(function () {
+                domHelper.write(workspacePath + '/views/layout_m_cra.dust', $newWorkS).then(function () {
                     // Replace locales
                     // fr-FR
                     var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
@@ -838,7 +881,7 @@ exports.setupChat = function(attr, callback) {
         var appConf = JSON.parse(fs.readFileSync(workspacePath+'/config/application.json'));
         appConf.socket.enabled = true;
         appConf.socket.chat = true;
-        fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4));
+        fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
 
         // Add custom user_channel/user_chat columns to toSync file
         // Id will not be used but is required by sequelize to be able to query on the junction table
@@ -851,7 +894,8 @@ exports.setupChat = function(attr, callback) {
                     autoIncrement: true,
                     primaryKey: true
                 }
-            }
+            },
+            force: true
         };
         toSync[attr.id_application+'_chat_user_chat'] = {
             attributes: {
@@ -861,21 +905,22 @@ exports.setupChat = function(attr, callback) {
                     autoIncrement: true,
                     primaryKey: true
                 }
-            }
+            },
+            force: true
         };
-        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4));
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
         // Add chat locales
         // EN
         var piecesLocalesEN = require(piecesPath+'/chat/locales/en-EN');
         var workspaceLocalesEN = require(workspacePath+'/locales/en-EN');
         workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
-        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4));
+        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4), 'utf8');
         // FR
         var piecesLocalesFR = require(piecesPath+'/chat/locales/fr-FR');
         var workspaceLocalesFR = require(workspacePath+'/locales/fr-FR');
         workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
-        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4));
+        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4), 'utf8');
 
         // Add chat dust template to main_layout
         domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {

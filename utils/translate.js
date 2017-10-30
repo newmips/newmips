@@ -58,7 +58,7 @@ module.exports = {
             else if(type == "entity"){
                 var content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"name_entity": "'+ value2 +'",\n';
-                content += '\t\t\t"plural_entity": "'+ value2 +'s",\n';
+                content += '\t\t\t"plural_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"id_entity": "ID"\n';
                 content += '\t\t}\n';
                 data.entity[keyValue.toLowerCase()] = JSON.parse(content);
@@ -66,7 +66,7 @@ module.exports = {
             else if(type == "component"){
                 var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
-                content += '\t\t\t"plural_component" : "'+value2+'s"\n';
+                content += '\t\t\t"plural_component" : "'+value2+'"\n';
                 content += '\t\t}\n';
                 data.component[keyValue.toLowerCase()] = JSON.parse(content);
             }

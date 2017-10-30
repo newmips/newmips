@@ -1,27 +1,25 @@
 <div id="chat" class="box box-primary direct-chat direct-chat-primary direct-chat-contacts-open collapsed-box" style="z-index: 10;position: fixed; bottom: 0; right: 15px;max-width: 500px;">
     <div class="box-header with-border">
-        <h3 class="box-title">Discussion</h3>
-
+        <h3 class="box-title" style="cursor:pointer;">Discussion</h3>
         <div class="box-tools pull-right">
             <span id="totalNotSeen" data-toggle="tooltip" title="" class="badge bg-light-blue"></span>
-            <button id="channelUsersBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" data-original-title="Channel options" style="display:none;"><i class="fa fa-cog"></i></button>
-            <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Configuration"><i class="fa fa-kog"></i></button>
-            <button id="collapseChat" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            <button id="channelUsersBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" data-original-title="Channel options" style="display:none;"><i class="fa fa-users"></i></button>
+            <button id="contactsBtn" type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Configuration"><i class="fa fa-cog"></i></button>
+            <button id="collapseChat" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
         </div>
     </div>
 
     <div class="box-body">
-        <div id="channelUsers" style="max-height: 250px;overflow-y:auto;overflow-x: hidden;position:fixed;background-color: grey;color:black;z-index:10;display:none;border-radius: 0 0 10px 10px;width: 500px;">
-            <br>
+        <div id="channelUsers" style="max-height: 250px;overflow-y:auto;overflow-x: hidden;position:fixed;background-color: #F0F8FF;color:black;z-index:10;display:none;width: 500px;padding:15px;border-left: 1px solid lightgrey;border-bottom: 1px solid lightgrey;border-top: 1px solid lightgrey;">
             <div class="row">
                 <div class="col-xs-12">
-                    <button id="leaveChannel" class="btn btn-info" style="margin-left: 15px;"><i class="fa fa-sign-out"></i> {@__ key="component.chat.channel_leave" /}</button>
+                    <button id="leaveChannel" class="btn btn-info"><i class="fa fa-sign-out"></i> {@__ key="component.chat.channel_leave" /}</button>
                 </div>
             </div>
             <br>
             <div class="row">
                 <div class="col-xs-12">
-                    <h4 class="contacts-list-name" style="margin-left:10px;">
+                    <h4 class="contacts-list-name">
                         {@__ key="component.chat.invite_users" /}
                     </h4>
                 </div>
