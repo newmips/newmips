@@ -31,7 +31,7 @@
     "morgan": "~1.7.0",
     "multer": "~1.2.0",
     "mysql": "~2.11.1",
-    "node-libcurl": "^1.1.0",
+    "node-libcurl": "1.2.0",
     "nodemailer": "~2.6.0",
     "passport": "~0.3.2",
     "passport-local": "~1.0.0",
