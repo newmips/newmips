@@ -640,7 +640,7 @@ function deleteDataEntity(attr, callback) {
                         });
                     }
                     orderedTasks(promises, 0, function() {
-                        db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
+                        db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, attr.id_module, function(err, name_module) {
                             if (err){
                                 return callback(err, null);
                             }
@@ -2256,7 +2256,7 @@ exports.setIcon = function(attr, callback) {
 }
 
 exports.setIconToEntity = function(attr, callback) {
-    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
         if (err)
             return callback(err);
         db_module.getModuleById(entity.id_module, function(err, module) {
@@ -2334,7 +2334,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
 }
 
 exports.createWidgetOnEntity = function(attr, callback) {
-    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
         if (err)
             return callback(err);
         attr.id_data_entity = entity.id;
@@ -2367,7 +2367,7 @@ exports.createWidget = createWidget;
 function deleteWidget(attr, callback) {
     if (attr.widgetType == -1)
         return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
-    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
         if (err)
             return callback(err);
         db_module.getModuleById(entity.id_module, function(err, module) {

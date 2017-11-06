@@ -364,10 +364,13 @@ exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) 
 }
 
 // Get a DataEntity with a given name
-exports.getDataEntityByName = function(nameEntity, callback) {
+exports.getDataEntityByName = function(nameEntity, idModule, callback) {
 
     models.DataEntity.findOne({
-    	where: {name: nameEntity}
+    	where: {
+    		name: nameEntity,
+    		id_module: idModule
+    	}
     }).then(function(dataEntity) {
         if (!dataEntity) {
             var err = new Error();
@@ -381,22 +384,8 @@ exports.getDataEntityByName = function(nameEntity, callback) {
     });
 }
 
-exports.getModuleNameByEntityName = function(nameEntity, callback){
-	models.DataEntity.findOne({where: {name: nameEntity}, include: [models.Module]}).then(function(entity){
-		if (!entity){
-			var err = new Error();
-            err.message = "database.entity.notFound.withThisName";
-            err.messageParams = [nameEntity];
-			return callback(err, null);
-		}
-		callback(null, entity.Module.name);
-	}).catch(function(err){
-		callback(err, null);
-	});
-}
-
-exports.getModuleCodeNameByEntityCodeName = function(nameEntity, callback){
-	models.DataEntity.findOne({where: {codeName: nameEntity}, include: [models.Module]}).then(function(entity){
+exports.getModuleCodeNameByEntityCodeName = function(nameEntity, idModule, callback){
+	models.DataEntity.findOne({where: {codeName: nameEntity, id_module: idModule}, include: [models.Module]}).then(function(entity){
 		if (!entity){
 			var err = new Error();
             err.message = "database.entity.notFound.withThisName";
