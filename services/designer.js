@@ -693,7 +693,9 @@ exports.createNewDataField = function(attr, callback) {
                             attr.codeName_data_entity = data_entity.codeName;
                             structure_data_field.setupDataField(attr, function(err, data) {
                                 if (err) {
-                                    callback(err, null);
+                                    db_field.deleteDataField(attr, function(error, info) {
+                                        callback(err, null);
+                                    });
                                 } else {
                                     callback(null, info);
                                 }
