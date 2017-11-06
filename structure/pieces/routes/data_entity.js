@@ -19,39 +19,6 @@ var enums_radios = require('../utils/enum_radio.js');
 // Winston logger
 var logger = require('../utils/logger');
 
-function error500(err, req, res, redirect) {
-    var isKnownError = false;
-    try {
-
-        //Sequelize validation error
-        if (err.name == "SequelizeValidationError") {
-            req.session.toastr.push({level: 'error', message: err.errors[0].message});
-            isKnownError = true;
-        }
-
-        // Unique value constraint error
-        if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
-            req.session.toastr.push({level: 'error', message: err.errors[0].message});
-            isKnownError = true;
-        }
-
-    } finally {
-        if (isKnownError)
-            return res.redirect(redirect || '/');
-        else
-            console.error(err);
-        logger.debug(err);
-        var data = {};
-        data.code = 500;
-        data.message = err.message || null;
-        res.render('common/error', data);
-    }
-}
-
-function capitalizeFirstLetter(word) {
-    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
-}
-
 router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
     var data = {
         "menu": "ENTITY_NAME",
@@ -141,7 +108,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
         }
 
         // Get all associations
-        ENTITY_NAME['get' + capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
+        ENTITY_NAME['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
             // Remove entity from association array
             for (var i = 0; i < aliasEntities.length; i++)
                 if (aliasEntities[i].id == idToRemove) {
@@ -150,12 +117,12 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
                 }
 
             // Set back associations without removed entity
-            ENTITY_NAME['set' + capitalizeFirstLetter(alias)](aliasEntities).then(function () {
+            ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             });
         });
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -178,11 +145,11 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
             return res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
         }
 
-        ENTITY_NAME['add' + capitalizeFirstLetter(alias)](toAdd).then(function () {
+        ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -237,7 +204,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         });
 
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -265,7 +232,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         req.session.toastr = [];
         res.render('ENTITY_NAME/create', data);
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -283,12 +250,12 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
         if (typeof req.body.associationFlag !== 'undefined') {
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+            models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
                 if (!association) {
                     ENTITY_NAME.destroy();
                     var err = new Error();
                     err.message = "Association not found."
-                    return error500(err, req, res, "/");
+                    return entity_helper.error500(err, req, res, "/");
                 }
 
                 var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -308,7 +275,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
         res.redirect(redirect);
     }).catch(function (err) {
-        error500(err, req, res, '/ENTITY_URL_NAME/create_form');
+        entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/create_form');
     });
 });
 
@@ -346,31 +313,27 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
                 data[model] = rows;
 
                 // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can found adresse.findAll through {#adresse_global_list}{/adresse_global_list}
+                // So in the context Personne we can find adresse.findAll through {#adresse_global_list}{/adresse_global_list}
                 name_global_list = model + "_global_list";
                 data.ENTITY_NAME[name_global_list] = rows;
 
-                if (rows.length > 1) {
-                    for (var j = 0; j < data[model].length; j++) {
-                        if (ENTITY_NAME[model] != null) {
-                            for (var k = 0; k < ENTITY_NAME[model].length; k++) {
-                                if (data[model][j].id == ENTITY_NAME[model][k].id) {
+                // Set associated property to item that are related to be able to make them selected client side
+                if (rows.length > 1)
+                    for (var j = 0; j < data[model].length; j++)
+                        if (ENTITY_NAME[model] != null)
+                            for (var k = 0; k < ENTITY_NAME[model].length; k++)
+                                if (data[model][j].id == ENTITY_NAME[model][k].id)
                                     data[model][j].dataValues.associated = true;
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             data.toastr = req.session.toastr;
             req.session.toastr = [];
             res.render('ENTITY_NAME/update', data);
         }).catch(function (err) {
-            error500(err, req, res, "/");
+            entity_helper.error500(err, req, res, "/");
         });
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -409,10 +372,10 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
             res.redirect(redirect);
         }).catch(function (err) {
-            error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+            entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
         });
     }).catch(function (err) {
-        error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+        entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
     });
 });
 
@@ -436,10 +399,10 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             res.redirect(redirect);
             entity_helper.remove_files("ENTITY_NAME", deleteObject, attributes);
         }).catch(function (err) {
-            error500(err, req, res, '/ENTITY_URL_NAME/list');
+            entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/list');
         });
     }).catch(function (err) {
-        error500(err, req, res, '/ENTITY_URL_NAME/list');
+        entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
 });
 

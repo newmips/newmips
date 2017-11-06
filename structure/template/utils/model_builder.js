@@ -150,42 +150,6 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
     }
 }
 
-// Find list of associations to create the datalist structure
-exports.getDatalistStructure = function getDatalistStructure(options, attributes, mainEntity) {
-    var structureDatalist = [];
-
-    /* Get first attributes from the main entity */
-    for (var attr in attributes) {
-        if (attributes[attr].showValueInList) {
-            structureDatalist.push({
-                field: attr,
-                type: attributes[attr].newmipsType,
-                traductionKey: "entity." + mainEntity + "." + attr,
-                associated: false
-            });
-        }
-    }
-
-    /* Then get attributes from other entity associated to main entity */
-    for (var j = 0; j < options.length; j++) {
-        if (options[j].relation.toLowerCase() == "hasone" || options[j].relation.toLowerCase() == "belongsto") {
-            var currentAttributes = require('../models/attributes/' + options[j].target);
-            for (var currentAttr in currentAttributes) {
-                if (currentAttributes[currentAttr].showValueInList) {
-                    structureDatalist.push({
-                        field: currentAttr,
-                        type: currentAttributes[currentAttr].newmipsType,
-                        entity: options[j].as,
-                        traductionKey: "entity." + options[j].target + "." + currentAttr,
-                        associated: true
-                    });
-                }
-            }
-        }
-    }
-    return structureDatalist;
-}
-
 exports.getDatalistInclude = function getDatalistInclude(models, options) {
     var structureDatalist = [];
 
