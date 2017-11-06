@@ -4,6 +4,37 @@
 var file_helper = require('./file_helper');
 
 module.exports = {
+    capitalizeFirstLetter: function(word) {
+        return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+    },
+    error500: function(err, req, res, redirect) {
+        var isKnownError = false;
+        try {
+
+            //Sequelize validation error
+            if (err.name == "SequelizeValidationError") {
+                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                isKnownError = true;
+            }
+
+            // Unique value constraint error
+            if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
+                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                isKnownError = true;
+            }
+
+        } finally {
+            if (isKnownError)
+                return res.redirect(redirect || '/');
+            else
+                console.error(err);
+            logger.debug(err);
+            var data = {};
+            data.code = 500;
+            data.message = err.message || null;
+            res.render('common/error', data);
+        }
+    },
     getPicturesBuffers: function(entity, attributes, options, modelName)  {
         try{
             for (var key in entity.dataValues) {
