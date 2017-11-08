@@ -460,9 +460,10 @@ exports.newContactForm = function (attr, callback) {
     var workspacePath = __dirname + '/../workspace/' + idApp;
     var piecesPath = __dirname + '/../structure/pieces/component/contact_form';
 
-    var toSyncObject = {};
+    var toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
+    if(typeof toSyncObject.queries !== "object")
+        toSyncObject.queries = [];
     toSyncObject[idApp + "_" + codeNameSettings] = {};
-    toSyncObject[idApp + "_" + codeNameSettings].queries = [];
 
     var mailConfigPath = workspacePath + "/config/mail";
     delete require.cache[require.resolve(mailConfigPath)];
@@ -478,8 +479,7 @@ exports.newContactForm = function (attr, callback) {
             "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "'," +
             "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "');";
 
-    toSyncObject[idApp + "_" + codeNameSettings].queries.push(insertSettings);
-
+    toSyncObject.queries.push(insertSettings);
     fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSyncObject, null, 4));
 
     // Contact Form View
