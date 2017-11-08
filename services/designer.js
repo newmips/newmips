@@ -510,7 +510,7 @@ function deleteDataEntity(attr, callback) {
             if(err){
                 callback(err, null);
             } else {
-                var entityOptions = require(workspacePath+'/models/options/'+name_data_entity+'.json');
+                var entityOptions = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+name_data_entity+'.json'));
                 for (var i = 0; i < entityOptions.length; i++) {
                     if (entityOptions[i].relation == 'hasMany') {
                         var tmpAttr = {
@@ -551,7 +551,7 @@ function deleteDataEntity(attr, callback) {
                     return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
                 }).forEach(function(file) {
                     var source = file.slice(0, -5);
-                    var options = require(workspacePath+'/models/options/'+file);
+                    var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+file));
                     for (var i = 0; i < options.length; i++) {
                         if (options[i].target != name_data_entity)
                             continue;
@@ -627,7 +627,7 @@ function deleteDataEntity(attr, callback) {
                     }
                 });
 
-                attr.entityTarget = name_data_entity.substring(2);
+                attr.entityTarget = attr.options.showValue;
                 deleteEntityWidgets(attr, function(err) {
                     if (err)
                         return callback(err);
@@ -641,9 +641,8 @@ function deleteDataEntity(attr, callback) {
                     }
                     orderedTasks(promises, 0, function() {
                         db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, attr.id_module, function(err, name_module) {
-                            if (err){
+                            if (err)
                                 return callback(err, null);
-                            }
                             database.dropDataEntity(id_application, name_data_entity, function(err) {
                                 if (err)
                                     return callback(err);
@@ -2376,6 +2375,7 @@ function deleteWidget(attr, callback) {
 
             attr.module = module;
             attr.entity = entity;
+
             structure_ui.deleteWidget(attr, function(err, info) {
                 if (err)
                     return callback(err);

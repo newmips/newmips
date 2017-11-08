@@ -347,17 +347,25 @@ exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) 
 
     models.DataEntity.findOne({
     	where: {
-            codeName: nameEntity,
-            id_application: idApplication
-    	}
-    }).then(function(dataEntity) {
-        if (!dataEntity) {
+            codeName: nameEntity
+    	},
+    	include: [{
+			model: models.Module,
+			include: [{
+				model: models.Application,
+				where: {
+					id: idApplication
+				}
+			}]
+		}]
+    }).then(function(entity) {
+        if (!entity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisName";
             err.messageParams = [nameEntity];
             return callback(err, null);
         }
-        callback(null, dataEntity);
+        callback(null, entity);
     }).catch(function(err) {
         callback(err, null);
     });
