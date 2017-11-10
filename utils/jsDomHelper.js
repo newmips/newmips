@@ -58,6 +58,22 @@ exports.replace = function(filename, element, $insert) {
 	});
 }
 
+exports.insertHtml = function(filename, element, html) {
+	return new Promise(function(resolve, reject) {
+		read(filename).then(function($) {
+			$(element).html(html);
+
+			write(filename, $).then(function(){
+				resolve();
+			}).catch(function(err) {
+				reject(err);
+			});
+		}).catch(function(err) {
+			reject(err);
+		});
+	});
+}
+
 function write(fileName, $) {
 	return new Promise(function(resolve, reject) {
 		var newFileData = $("body")[0].innerHTML;
