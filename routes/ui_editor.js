@@ -41,16 +41,7 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 				$(this).text(comment.nodeValue);
 		});
 
-		// Hide action buttons
-		$(".actions").hide();
-
-		var html;
-		if ($("#tabs").length > 0)
-			html = $("#home").html();
-		else
-			html = $("body")[0].innerHTML;
-
-		res.status(200).send(html);
+		res.status(200).send($("#fields")[0].outerHTML);
 	}).catch(function(err) {
 		console.log(err);
 		res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
@@ -87,22 +78,11 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			$(this).parent().removeClass('column').html(toExtract);
 		});
 
-		// Show and re-position action buttons
-		var actions = $(".actions").show().detach();
-		$(actions).appendTo($("body"));
-
-		// Check if the origin row with id "fields" has been removed or not.
-		// Regroup all rows into one and put id="fields" back to new grouped rows
+		// Find all rows and group them to be appended to #fields
 		var packedRow = '';
-		for (var i = 0; $("body").children('.row').length > 1, i < $("body").children('.row').length; i++){
-			packedRow += $("body").children('.row').eq(i).html();
-			if ($("body").children('.row').eq(i).prop('id') != 'fields' && $("body").children('.row').length != i)
-				$("body").children('.row').eq(i).remove();
-		}
-		if ($("#fields").length == 0)
-			$("body").prepend('<div id="fields" class="row"></div>');
-		if (packedRow != '')
-			$("#fields").html(packedRow);
+		for (var i = 0; i < $("body").children('.row').length; i++)
+			if ($("body").children('.row').eq(i).html() != "")
+				packedRow += $("body").children('.row').eq(i).html();
 
 		function git(){
 			// We simply add session values in attributes array
@@ -120,15 +100,10 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 		    });
 		}
 
-		// Write back to file
-		if (page == 'show_fields.dust')
-			domHelper.replace(pageUri, "#fields", $).then(function(){
-				git();
-			});
-		else
-			domHelper.write(pageUri, $).then(function() {
-				git();
-			});
+		domHelper.insertHtml(pageUri, "#fields", packedRow).then(function() {
+			git();
+		});
+
 	}).catch(function(e) {
 		console.log(e);
 		res.status(500).send(generatorLanguage.__("ui_editor.page_not_found"));

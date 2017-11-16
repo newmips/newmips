@@ -316,45 +316,45 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
         case "enum" :
             if (file == "show") {
-                str += "    {^" + value2 + "}\n";
+                str += "    <!--{^" + value2 + "}-->\n";
                 str += "        <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
-                str += "    {/" + value2 + "}\n";
-                str += "    {#enum_radio." + dataEntity + "." + dataField + "}\n";
-                str += "        {@eq key=" + value2 + " value=\"{.value}\" }\n";
+                str += "    <!--{/" + value2 + "}-->\n";
+                str += "    <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "        <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
                 str += "            <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='{.translation}' type='text' " + readOnly + "/>\n";
-                str += "        {/eq}\n";
-                str += "    {/enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "        <!--{/eq}-->\n";
+                str += "    <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
             }
             else if (file != "create") {
-                str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
-                str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
-                str += "		{#enum_radio." + dataEntity + "." + dataField + "}\n";
-                str += "			{@eq key=" + value2 + " value=\"{.value}\" }\n";
-                str += "				<option value=\"{.value}\" selected> {.translation} </option>\n";
-                str += "			{:else}\n"
-                str += "				<option value=\"{.value}\"> {.translation} </option>\n";
-                str += "			{/eq}\n";
-                str += "		{/enum_radio." + dataEntity + "." + dataField + "}\n";
-                str += "	</select>\n";
+                str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+                str += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+                str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "            <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
+                str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
+                str += "            <!--{:else}-->\n";
+                str += "                <option value=\"{.value}\"> {.translation} </option>\n";
+                str += "            <!--{/eq}-->\n";
+                str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "    </select>\n";
             }
             else if (value != "") {
-                str += "	<select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
-                str += "		<option value=''>{@__ key=\"select.default\" /}</option>\n";
-                str += "		{#enum_radio." + dataEntity + "." + dataField + "}\n";
-                str += "            {@eq key=\"" + value + "\" value=\"{.value}\" }\n";
+                str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+                str += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+                str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "            <!--{@eq key=\"" + value + "\" value=\"{.value}\" }-->\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
-                str += "            {:else}\n"
+                str += "            <!--{:else}-->\n";
                 str += "                <option value=\"{.value}\"> {.translation} </option>\n";
-                str += "            {/eq}\n";
-                str += "		{/enum_radio." + dataEntity + "." + dataField + "}\n";
-                str += "	</select>\n";
+                str += "            <!--{/eq}-->\n";
+                str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "    </select>\n";
             }
             else {
                 str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
                 str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
-                str += "        {#enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <option value=\"{.value}\"> {.translation} </option>\n";
-                str += "        {/enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    </select>\n";
             }
             break;
