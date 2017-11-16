@@ -136,17 +136,45 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
             eventTemplate += "\n\n"+
             "{<custom_js}\n"+
             "    <script type='text/javascript'>\n"+
-            "        $(document).on(\"dp.change\", \"input[name='f_start_date']\", function(){\n"+
-            "            if($(this).val() != \"\" && $(\"input[name='f_end_date']\").val() != \"\"){\n"+
-            "                if($(this).val() > $(\"input[name='f_end_date']\").val()){\n"+
-            "                    $(this).val(\"\");\n"+
+            "        var format;\n"+
+            "        if (lang_user == 'fr-FR')\n"+
+            "            format = 'DD/MM/YYYY HH:mm';\n"+
+            "        else\n"+
+            "            format = 'YYYY-MM-DD HH:mm';\n"+
+            "        $(document).on('click', 'button[type=\"submit\"]', function(){\n"+
+            "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n"+
+            "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n"+
+            "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n"+
+            "                if(end.diff(start) < 0){\n"+
+            "                    toastr.error(\"Error: Start date is after end date.\");\n"+
+            "                    return false;\n"+
+            "                }\n"+
+            "            }\n"+
+            "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n"+
+            "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n"+
+            "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n"+
+            "                if(end.diff(start) < 0){\n"+
+            "                    toastr.error(\"Error: End date is before start date.\");\n"+
+            "                    return false;\n"+
+            "                }\n"+
+            "            }\n"+
+            "            return true;"+
+            "        });\n"+
+            "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n"+
+            "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n"+
+            "                var start = moment($(this).val(), format);\n"+
+            "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n"+
+            "                if(end.diff(start) < 0){\n"+
+            "                    $(this).val('');\n"+
             "                }\n"+
             "            }\n"+
             "        });\n"+
-            "        $(document).on(\"dp.change\", \"input[name='f_end_date']\", function(){\n"+
-            "            if($(this).val() != \"\" && $(\"input[name='f_start_date']\").val() != \"\"){\n"+
-            "                if($(this).val() < $(\"input[name='f_start_date']\").val()){\n"+
-            "                    $(this).val(\"\");\n"+
+            "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n"+
+            "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n"+
+            "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n"+
+            "                var end = moment($(this).val(), format);\n"+
+            "                if(end.diff(start) < 0){\n"+
+            "                    $(this).val('');\n"+
             "                }\n"+
             "            }\n"+
             "        });\n"+
@@ -432,9 +460,10 @@ exports.newContactForm = function (attr, callback) {
     var workspacePath = __dirname + '/../workspace/' + idApp;
     var piecesPath = __dirname + '/../structure/pieces/component/contact_form';
 
-    var toSyncObject = {};
+    var toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
+    if(typeof toSyncObject.queries !== "object")
+        toSyncObject.queries = [];
     toSyncObject[idApp + "_" + codeNameSettings] = {};
-    toSyncObject[idApp + "_" + codeNameSettings].queries = [];
 
     var mailConfigPath = workspacePath + "/config/mail";
     delete require.cache[require.resolve(mailConfigPath)];
@@ -450,8 +479,7 @@ exports.newContactForm = function (attr, callback) {
             "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "'," +
             "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "');";
 
-    toSyncObject[idApp + "_" + codeNameSettings].queries.push(insertSettings);
-
+    toSyncObject.queries.push(insertSettings);
     fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSyncObject, null, 4));
 
     // Contact Form View

@@ -510,7 +510,7 @@ function deleteDataEntity(attr, callback) {
             if(err){
                 callback(err, null);
             } else {
-                var entityOptions = require(workspacePath+'/models/options/'+name_data_entity+'.json');
+                var entityOptions = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+name_data_entity+'.json'));
                 for (var i = 0; i < entityOptions.length; i++) {
                     if (entityOptions[i].relation == 'hasMany') {
                         var tmpAttr = {
@@ -551,7 +551,7 @@ function deleteDataEntity(attr, callback) {
                     return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
                 }).forEach(function(file) {
                     var source = file.slice(0, -5);
-                    var options = require(workspacePath+'/models/options/'+file);
+                    var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+file));
                     for (var i = 0; i < options.length; i++) {
                         if (options[i].target != name_data_entity)
                             continue;
@@ -627,7 +627,7 @@ function deleteDataEntity(attr, callback) {
                     }
                 });
 
-                attr.entityTarget = name_data_entity.substring(2);
+                attr.entityTarget = attr.options.showValue;
                 deleteEntityWidgets(attr, function(err) {
                     if (err)
                         return callback(err);
@@ -640,10 +640,9 @@ function deleteDataEntity(attr, callback) {
                         });
                     }
                     orderedTasks(promises, 0, function() {
-                        db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, function(err, name_module) {
-                            if (err){
+                        db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, attr.id_module, function(err, name_module) {
+                            if (err)
                                 return callback(err, null);
-                            }
                             database.dropDataEntity(id_application, name_data_entity, function(err) {
                                 if (err)
                                     return callback(err);
@@ -693,7 +692,9 @@ exports.createNewDataField = function(attr, callback) {
                             attr.codeName_data_entity = data_entity.codeName;
                             structure_data_field.setupDataField(attr, function(err, data) {
                                 if (err) {
-                                    callback(err, null);
+                                    db_field.deleteDataField(attr, function(error, info) {
+                                        callback(err, null);
+                                    });
                                 } else {
                                     callback(null, info);
                                 }
@@ -2254,7 +2255,7 @@ exports.setIcon = function(attr, callback) {
 }
 
 exports.setIconToEntity = function(attr, callback) {
-    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
         if (err)
             return callback(err);
         db_module.getModuleById(entity.id_module, function(err, module) {
@@ -2332,7 +2333,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
 }
 
 exports.createWidgetOnEntity = function(attr, callback) {
-    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
         if (err)
             return callback(err);
         attr.id_data_entity = entity.id;
@@ -2365,7 +2366,7 @@ exports.createWidget = createWidget;
 function deleteWidget(attr, callback) {
     if (attr.widgetType == -1)
         return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
-    db_entity.getDataEntityByName(attr.entityTarget, function(err, entity) {
+    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
         if (err)
             return callback(err);
         db_module.getModuleById(entity.id_module, function(err, module) {
@@ -2374,6 +2375,7 @@ function deleteWidget(attr, callback) {
 
             attr.module = module;
             attr.entity = entity;
+
             structure_ui.deleteWidget(attr, function(err, info) {
                 if (err)
                     return callback(err);
