@@ -598,12 +598,16 @@ exports.relationshipHasManyWithName = function (result) {
 exports.relationshipHasManyPreset = function (result) {
     var source = result[1];
     var target = result[2];
+    var as = target;
+
+    if(typeof result[3] !== "undefined")
+        as = result[3];
 
     var options = {
         target: target,
         source: source,
         foreignKey: "id_" + source.toLowerCase(),
-        as: target,
+        as: as,
         processValue: true
     };
 
@@ -614,12 +618,16 @@ exports.relationshipHasManyPresetUsing = function (result) {
     var source = result[1];
     var target = result[2];
     var usingField = result[3];
+    var as = target;
+
+    if(typeof result[4] !== "undefined")
+        as = result[4];
 
     var options = {
         target: target,
         source: source,
         foreignKey: "id_" + source.toLowerCase(),
-        as: target,
+        as: as,
         usingField: usingField,
         processValue: true
     };
@@ -1366,6 +1374,17 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant",
         "l'entité (.*) a plusieurs (.*) déjà prédéfini",
         "l'entité (.*) a plusieurs (.*) déjà existant",
+
+        "entity (.*) has many preset (.*) called (.*)",
+        "entity (.*) has many existing (.*) called (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existant appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existant appelées (.*)",
     ],
     "relationshipHasManyPresetUsing": [
         "entity (.*) has many preset (.*) using (.*)",
@@ -1388,6 +1407,35 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
+
+        "entity (.*) has many preset (.*) using (.*) called (.*)",
+        "entity (.*) has many existing (.*) using (.*) called (.*)",
+        "entity (.*) has many preset (.*) through (.*) called (.*)",
+        "entity (.*) has many existing (.*) through (.*) called (.*)",
+        "entity (.*) has many preset (.*) using field (.*) called (.*)",
+        "entity (.*) has many existing (.*) using field (.*) called (.*)",
+        "entity (.*) has many preset (.*) through field (.*) called (.*)",
+        "entity (.*) has many existing (.*) through field (.*) called (.*)",
+        "entity (.*) has many preset (.*) using the field (.*) called (.*)",
+        "entity (.*) has many existing (.*) using the field (.*) called (.*)",
+        "entity (.*) has many preset (.*) through the field (.*) called (.*)",
+        "entity (.*) has many existing (.*) through the field (.*) called (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)",
     ],
     "createFieldRelatedToMultiple": [
         "create field (.*) related to multiple (.*)",
