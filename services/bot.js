@@ -867,8 +867,8 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-console.log(result);
-console.log(result.length);
+    console.log(result);
+    console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
@@ -1390,19 +1390,6 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
     ],
     "createFieldRelatedToMultiple": [
-        "create fieldset (.*) related to (.*)",
-        "add fieldset (.*) related to (.*)",
-        "create list of (.*) related to (.*)",
-        "add list of (.*) related to (.*)",
-        "créer une liste de (.*) lié à (.*)",
-        "créer une liste de (.*) liée à (.*)",
-        "créer liste de (.*) liée à (.*)",
-        "créer liste de (.*) lié à (.*)",
-        "ajouter une liste de (.*) lié à (.*)",
-        "ajouter une liste de (.*) liée à (.*)",
-        "ajouter liste de (.*) liée à (.*)",
-        "ajouter liste de (.*) lié à (.*)",
-
         "create field (.*) related to multiple (.*)",
         "add field (.*) related to multiple (.*)",
         "create data field (.*) related to multiple (.*)",
@@ -1417,19 +1404,6 @@ var training = {
         "ajouter champ (.*) relié à plusieurs (.*)"
     ],
     "createFieldRelatedToMultipleUsing": [
-        "create fieldset (.*) related to (.*) using (.*)",
-        "add fieldset (.*) related to (.*) using (.*)",
-        "create list of (.*) related to (.*) using (.*)",
-        "add list of (.*) related to (.*) using (.*)",
-        "créer une liste de (.*) lié à (.*) en affichant (.*)",
-        "créer une liste de (.*) liée à (.*) en affichant (.*)",
-        "créer liste de (.*) lié à (.*) en affichant (.*)",
-        "créer liste de (.*) liée à (.*) en affichant (.*)",
-        "ajouter une liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter une liste de (.*) liée à (.*) en affichant (.*)",
-        "ajouter liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter liste de (.*) liée à (.*) en affichant (.*)",
-
         "create field (.*) related to multiple (.*) using (.*)",
         "add field (.*) related to multiple (.*) using (.*)",
         "create data field (.*) related to multiple (.*) using (.*)",
