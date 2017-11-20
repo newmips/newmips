@@ -1082,17 +1082,21 @@ function belongsToMany(attr, setupFunction){
                     };
 
                     var functionToDo;
-                    if(attr.tabType == "hasmany"){
+                    if(attr.targetType == "hasmany"){
                         structure_data_field.setupHasManyTab(reversedAttr, function(){
                             resolve();
                         });
                     }
-                    else if(attr.tabType == "hasmanypreset"){
+                    else if(attr.targetType == "hasmanypreset"){
                         structure_data_field.setupHasManyPresetTab(reversedAttr, function(){
                             resolve();
                         });
+                    } else if(attr.targetType == "relatedToMultiple"){
+                        structure_data_field.setupRelatedToMultipleField(reversedAttr, function(){
+                            resolve();
+                        });
                     } else{
-                        reject("Error: unknown tab type.")
+                        reject("Error: Unknown target type for belongsToMany generation.")
                     }
                 });
             });
@@ -1555,6 +1559,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
 
 // Select multiple in create/show/update related to target entity
 exports.createNewFieldRelatedToMultiple = function(attr, callback) {
+    var exportsContext = this;
     // Instruction is add field _FOREIGNKEY_ related to multiple _TARGET_ -> We don't know the source entity name so we have to find it
     db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
         if(err && typeof attr.options.source === "undefined")
@@ -1601,7 +1606,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+        db_entity.selectDataEntityTarget(attr, function(err, entityTarget) {
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
@@ -1627,16 +1632,62 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                 }
             }
 
+            var info = {};
+            var doingBelongsToMany = false;
             // Check if an association already exists from target to source
             var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
             var optionsObject = JSON.parse(optionsFile);
             for (var i=0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
-                    // TODO - belongsToMany
-                    console.log("TODO - BelongsToMany");
-                    var err = new Error();
-                    err.message = "structure.association.error.circularHasMany";
-                    return callback(err, null);
+                    //BelongsToMany
+                    doingBelongsToMany = true;
+                    attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target;
+                    (function(ibis) {
+                        /* First we have to save the already existing data to put them in the new relation */
+                        db_entity.retrieveWorkspaceHasManyData(attr.id_application, attr.options.source, optionsObject[ibis].foreignKey, function(data, err){
+                            if(err && err.code != "ER_NO_SUCH_TABLE")
+                                return callback(err, null);
+                            structure_data_field.saveHasManyData(attr, data, optionsObject[ibis].foreignKey, function(data, err){
+                                /* Secondly we have to remove the already existing has many to create the belongs to many relation */
+                                var instructions = [
+                                    "select entity "+attr.options.showTarget
+                                ];
+
+                                if(optionsObject[ibis].structureType == "relatedToMultiple"){
+                                    instructions.push("delete field "+optionsObject[ibis].as.substring(2));
+                                } else{
+                                    instructions.push("delete tab "+optionsObject[ibis].as.substring(2));
+                                }
+
+                                // Start doing necessary instruction for component creation
+                                exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err, infoInstruction){
+                                    if(err){
+                                        console.log(err);
+                                        return callback(err, null);
+                                    }
+                                    if(typeof infoInstruction.tabType !== "undefined")
+                                        attr.targetType = infoInstruction.tabType;
+                                    else
+                                        attr.targetType = optionsObject[ibis].structureType;
+                                    /* Then lets create the belongs to many association */
+                                    belongsToMany(attr, "setupRelatedToMultipleField").then(function(){
+                                        info.message = "structure.association.relatedToMultiple.success";
+                                        info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
+                                        callback(null, info);
+                                    }).catch(function(err){
+                                        console.log(err);
+                                        return callback(err, null);
+                                    });
+                                });
+                            });
+                        });
+                    })(i);
+
+
+                    //console.log("TODO - BelongsToMany");
+                    //var err = new Error();
+                    //err.message = "structure.association.error.circularHasMany";
+                    //return callback(err, null);
                 } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
                     && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
                     && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
@@ -1645,31 +1696,42 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                 }
             }
 
-            var reversedAttr = {
-                options: {
-                    source: attr.options.target,
-                    showSource: attr.options.showTarget,
-                    urlSource: attr.options.urlTarget,
-                    target: attr.options.source,
-                    showTarget: attr.options.showSource,
-                    urlTarget: attr.options.urlSource
-                },
-                id_module: attr.id_module,
-                id_application: attr.id_application
-            };
+            // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
+            // If not we continue doing a simple related to multiple association.
+            if(!doingBelongsToMany){
+                var reversedAttr = {
+                    options: {
+                        showForeignKey: attr.options.showAs,
+                        foreignKey: attr.options.foreignKey,
+                        source: attr.options.target,
+                        showSource: attr.options.showTarget,
+                        urlSource: attr.options.urlTarget,
+                        target: attr.options.source,
+                        showTarget: attr.options.showSource,
+                        urlTarget: attr.options.urlSource
+                    },
+                    id_data_entity: entityTarget.id,
+                    id_module: attr.id_module,
+                    id_application: attr.id_application
+                };
 
-            db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
-                // Créer le lien hasMany en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "relatedToMultiple", function(){
-                    // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-                    structure_data_field.setupRelatedToMultipleField(attr, function(){
-                        var info = {};
-                        info.message = "structure.association.relatedToMultiple.success";
-                        info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
-                        callback(null, info);
+                db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
+                    if(err){
+                        console.log(err);
+                        return callback(err, null);
+                    }
+                    // Créer le lien hasMany en la source et la target
+                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "relatedToMultiple", function(){
+                        // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
+                        structure_data_field.setupRelatedToMultipleField(attr, function(){
+                            var info = {};
+                            info.message = "structure.association.relatedToMultiple.success";
+                            info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
+                            callback(null, info);
+                        });
                     });
                 });
-            });
+            }
         });
     });
 }
