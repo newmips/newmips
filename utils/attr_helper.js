@@ -62,6 +62,7 @@ function clearString(string){
     string = string.replace(/\$/g, "_");
     string = string.replace(/\%/g, "_");
     string = string.replace(/\£/g, "_");
+    string = string.replace(/\€/g, "_");
     string = string.replace(/\µ/g, "_");
     string = string.replace(/\°/g, "_");
     string = string.replace(/\=/g, "_");
