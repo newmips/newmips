@@ -64,6 +64,10 @@ exports.dropFKMultipleDataField = function(attr, callback) {
 
     var query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '"+attr.fieldToDrop+"' && `TABLE_NAME` = '"+table_name+"'";
     sequelize.query(query).then(function(constraintName) {
+        if(typeof constraintName[0][0] === "undefined"){
+            console.log("WARNING: Cannot delete field related to multiple, constraintName is undefined, it doesn't exist in DB.")
+            return callback();
+        }
         query = "ALTER TABLE "+table_name+" DROP FOREIGN KEY "+constraintName[0][0].constraint_name+"; ALTER TABLE "+table_name+" DROP "+attr.fieldToDrop.toLowerCase();
         if (!pushToSyncQuery(attr.id_application, query))
             return callback("ERROR: Can't delete in database");
