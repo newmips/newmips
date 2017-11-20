@@ -201,7 +201,9 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
         };
 
         /* Go deeper in second level include */
-        var optionsSecondLevel = require('../models/options/' + options[i].target.toLowerCase());
+        var jsonPath = '../models/options/' + options[i].target.toLowerCase();
+        delete require.cache[require.resolve(jsonPath)];
+        var optionsSecondLevel = require(jsonPath);
         var includeSecondLevel = [];
         for (var j = 0; j < optionsSecondLevel.length; j++) {
             var targetSecondLevel = capitalizeFirstLetter(optionsSecondLevel[j].target.toLowerCase());

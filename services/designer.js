@@ -1401,7 +1401,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
                 // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
                 // If not we continue doing a simple has many association.
                 if(!doingBelongsToMany){
-                    var reversedAttr = {
+                    /*var reversedAttr = {
                         options: {
                             source: attr.options.target,
                             showSource: attr.options.showTarget,
@@ -1413,19 +1413,20 @@ exports.createNewHasManyPreset = function(attr, callback) {
                         id_data_entity: attr.id_data_entity,
                         id_module: attr.id_module,
                         id_application: attr.id_application
-                    };
+                    };*/
 
-                    db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
+                    //db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
+                    db_field.createNewForeignKey(attr, function (err, created_foreignKey) {
                         if (err) {
                             return callback(err, null);
                         }
 
                         // Right now we have id_TARGET_as and we want id_SOURCE_as
-                        var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
-                        newForeignKey = newForeignKey.toLowerCase();
+                        //var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
+                        //newForeignKey = newForeignKey.toLowerCase();
 
                         // Créer le lien belongsTo en la source et la target
-                        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, "hasManyPreset", function () {
+                        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "hasManyPreset", function () {
                             // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                             structure_data_field.setupHasManyPresetTab(attr, function() {
 

@@ -442,49 +442,62 @@ function init_datatable(tableID) {
         ]
     });
 
+    // Bind search fields
+    function saveFilter(value, el, tableId, field) {
+        var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
+        if (filterSave == null)
+            filterSave = {};
+        filterSave[field] = value;
+        localStorage.setItem("newmips_filter_save_" + tableId, JSON.stringify(filterSave));
+    }
 
+    function getFilterSave(tableId, field) {
+        var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
+        if (filterSave == null)
+            return "";
+        else if (typeof filterSave[field] === "undefined")
+            return "";
+        else
+            return filterSave[field];
+    }
     // Bind search fields
     $(tableID + ' .filters th').each(function (i) {
         var title = $(tableID + ' thead th').eq(i).text();
         var mainTh = $(tableID + ' .main th').eq(i);
-
-        var search;
-        if (mainTh.data('type') == 'boolean')
-            search = '<input data-boolean-filter="true" type="checkbox" placeholder="' + title + '" />';
-        else
-            search = '<input type="text" placeholder="' + title + '" />';
-
+        // Custom
+        var currentField = mainTh.data('field');
+        var val = getFilterSave(tableID.substring(1), currentField);
+        var search = '<input type="text" value="' + val + '" placeholder="' + title + '" />';
+        function searchInDatalist(searchValue) {
+            var valueObject = {type: '', value: ''};
+            // Special data types re-formating for search
+            if (typeof mainTh.data('type') !== 'undefined') {
+                // Date
+                if (mainTh.data('type') == 'date') {
+                    valueObject.type = 'date';
+                    searchValue = lang_user == 'fr-FR' ? formatDateFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                }
+                // Date
+                else if (mainTh.data('type') == 'time') {
+                    valueObject.type = 'time';
+                    searchValue = formatTime($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                }
+                // DateTime
+                else if (mainTh.data('type') == 'datetime') {
+                    valueObject.type = 'datetime';
+                    searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                }
+            }
+            valueObject.value = searchValue;
+            table.columns(i).search(JSON.stringify(valueObject)).draw();
+        }
         if (title != '') {
             $(this).html('');
-            $(search).appendTo(this).change(function () {
+            $(search).appendTo(this).keyup(function () {
                 var searchValue = this.value;
-                var valueObject = {type: '', value: ''};
-                // Special data types re-formating for search
-                if (typeof mainTh.data('type') !== 'undefined') {
-                    // Date
-                    if (mainTh.data('type') == 'date') {
-                        valueObject.type = 'date';
-                        searchValue = lang_user == 'fr-FR' ? formatDateFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
-                    }
-                    // Date
-                    else if (mainTh.data('type') == 'time') {
-                        valueObject.type = 'time';
-                        searchValue = formatTime($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
-                    }
-                    // DateTime
-                    else if (mainTh.data('type') == 'datetime') {
-                        valueObject.type = 'datetime';
-                        searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
-                    }
-                    else if (mainTh.data('type') == 'boolean') {
-                        valueObject.type = 'boolean';
-                        searchValue = $(tableID + " .filters th").eq(i).find("input").is(':checked') ? true : false;
-                    }
-                }
-                valueObject.value = searchValue;
-                table.columns(i).search(JSON.stringify(valueObject)).draw();
+                saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
+                searchInDatalist(searchValue);
             });
-
             // Initialize masks on filters inputs
             if (typeof mainTh.data('type') !== 'undefined') {
                 if (lang_user == 'fr-FR') {
@@ -518,10 +531,10 @@ function init_datatable(tableID) {
                     });
             }
         }
+        if (val != "") {
+            searchInDatalist(val);
+        }
     });
-
-    $("[data-boolean-")
-
 
     //modal on click on picture cell
     $(tableID + ' tbody').on('click', 'td img', function () {
@@ -557,7 +570,6 @@ function init_datatable(tableID) {
             });
         }
     });
-
 
     //Les butons exports
     $('.dt-buttons').css("margin-left", '20px');

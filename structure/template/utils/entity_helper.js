@@ -3,6 +3,9 @@
  */
 var file_helper = require('./file_helper');
 
+// Winston logger
+var logger = require('./logger');
+
 module.exports = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
