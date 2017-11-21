@@ -5,20 +5,33 @@ var helpers = require('../utils/helpers');
 var translateHelper = require("../utils/translate");
 
 //Create association between the models
-exports.setupAssociation = function (idApplication, sourceDataEntity, targetDataEntity, foreignKey, as, relation, through, toSync, type, callback) {
+exports.setupAssociation = function (associationOption, callback) {
+
+    var idApp = associationOption.idApp;
+    var source = associationOption.source;
+    var target = associationOption.target;
+    var foreignKey = associationOption.foreignKey;
+    var as = associationOption.as;
+    var showAs = associationOption.showAs;
+    var relation = associationOption.relation;
+    var through = associationOption.through;
+    var toSync = associationOption.toSync;
+    var type = associationOption.type;
+
     // SETUP MODEL OPTIONS FILE
-    var optionsFileName = './workspace/' + idApplication + '/models/options/' + sourceDataEntity.toLowerCase() + '.json';
+    var optionsFileName = './workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
     var optionsFile = fs.readFileSync(optionsFileName);
     var optionsObject = JSON.parse(optionsFile);
 
-    var baseOptions = {target: targetDataEntity.toLowerCase(), relation: relation};
+    var baseOptions = {target: target.toLowerCase(), relation: relation};
     baseOptions.foreignKey = foreignKey;
     baseOptions.as = as;
+    baseOptions.showAs = showAs;
 
     if (relation == "belongsToMany") {
         baseOptions.through = through;
-        baseOptions.foreignKey = "fk_id_"+sourceDataEntity;
-        baseOptions.otherKey = "fk_id_"+targetDataEntity;
+        baseOptions.foreignKey = "fk_id_"+source;
+        baseOptions.otherKey = "fk_id_"+target;
     }
 
     if(type != null)
@@ -30,17 +43,17 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
 
     if (toSync) {
         // SETUP toSync.json
-        var toSyncFileName = './workspace/' + idApplication + '/models/toSync.json';
+        var toSyncFileName = './workspace/' + idApp + '/models/toSync.json';
         var toSyncFile = fs.readFileSync(toSyncFileName);
         var toSyncObject = JSON.parse(toSyncFile);
 
-        if (typeof toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()] === "undefined") {
-            toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()] = {};
-            toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options = [];
-        } else if (typeof toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options === "undefined") {
-            toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options = [];
+        if (typeof toSyncObject[idApp + "_" + source.toLowerCase()] === "undefined") {
+            toSyncObject[idApp + "_" + source.toLowerCase()] = {};
+            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
+        } else if (typeof toSyncObject[idApp + "_" + source.toLowerCase()].options === "undefined") {
+            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
         }
-        toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options.push(baseOptions);
+        toSyncObject[idApp + "_" + source.toLowerCase()].options.push(baseOptions);
     }
 
     var writeStream = fs.createWriteStream(optionsFileName);
