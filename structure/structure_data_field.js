@@ -1058,11 +1058,14 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
             newTabContent += '      <select style="width:200px;" class="form-control" name="ids" required multiple>\n';
             newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
-            newTabContent += '              <!--{#.' + usingField + '}-->\n';
-            newTabContent += '                  <option value="{id}">{' + usingField + '}</option>\n';
-            newTabContent += '              <!--{:else}-->\n';
-            newTabContent += '                  <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-            newTabContent += '              <!--{/.' + usingField + '}-->\n';
+            newTabContent += '              {@existInContextById ofContext=' + alias + ' key=id}\n';
+            newTabContent += '              {:else}\n';
+            newTabContent += '                  <!--{#' + usingField + '}-->\n';
+            newTabContent += '                      <option value="{id}">{' + usingField + '}</option>\n';
+            newTabContent += '                  <!--{:else}-->\n';
+            newTabContent += '                      <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
+            newTabContent += '                  <!--{/' + usingField + '}-->\n';
+            newTabContent += '              {/existInContextById}\n';
             newTabContent += '          <!--{/' + alias + '_global_list}-->\n';
             newTabContent += '      </select>\n';
             newTabContent += '      <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
@@ -1097,6 +1100,7 @@ exports.saveHasManyData = function (attr, data, foreignKey, callback){
     for(var i=0; i<data.length; i++){
         toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
     }
+    console.log(toSync.queries);
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
     callback();
 }
