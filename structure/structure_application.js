@@ -196,6 +196,62 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
+function finalizeApplication(id_application) {
+    return new Promise(function(resolve, reject) {
+        var piecesPath = __dirname+'/pieces';
+        var workspacePath = __dirname+'/../workspace/'+id_application;
+
+        // Reset toSync file
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
+
+        var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
+        workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+            // Create application's DNS through dns_manager
+            if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
+                    resolve();
+                });
+            else
+                resolve();
+        });
+    });
+}
+
+function initializeWorkflow(id_application) {
+    return new Promise(function(resolve, reject) {
+        var piecesPath = __dirname+'/pieces';
+        var workspacePath = __dirname+'/../workspace/'+id_application;
+
+        var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
+        // Remove existing has many from Status, the instruction is only used to generate the tab and views
+        for (var i = 0; i < statusModel.length; i++)
+            if (statusModel[i].target == 'e_status')
+                {statusModel.slice(i, 1); break;}
+
+        // Create Status belongsToMany with itself as target
+        statusModel.push({
+            relation: 'belongsToMany',
+            target: 'e_status',
+            through: id_application+'_status_children',
+            foreignKey: 'fk_id_parent_status',
+            otherKey: 'fk_id_child_status',
+            as: 'r_children'
+        });
+        fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
+
+        // Hide History from sidebar
+        domHelper.read(workspacePath+'/views/layout_m_administration.dust').then(function($) {
+            $("#history_menu_item").hide();
+            domHelper.write(workspacePath+'/views/layout_m_administration.dust', $).then(function() {
+                // Delete History controller since all its action will be triggered from other controllers
+                // Deleting it ensure untouched data in history
+                fs.unlink(workspacePath+'/routes/e_history.js');
+            });
+        });
+        finalizeApplication(id_application).then(resolve).catch(reject);
+    });
+}
+
 exports.initializeApplication = function(id_application, id_user, name_application) {
     return new Promise(function(resolve, reject) {
         // Copy authentication entities views
@@ -218,20 +274,14 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                         if (err)
                             console.log(err);
 
-                        // Make user login field unique
-                        var userModel = require(workspacePath+'/models/attributes/e_user.json');
-                        userModel.f_login.unique = true;
-                        fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
-
-                        // Make role label field unique
-                        var roleModel = require(workspacePath+'/models/attributes/e_role.json');
-                        roleModel.f_label.unique = true;
-                        fs.writeFileSync(workspacePath+'/models/attributes/e_role.json', JSON.stringify(roleModel, null, 4), 'utf8');
-
-                        // Make group label field unique
-                        var groupModel = require(workspacePath+'/models/attributes/e_group.json');
-                        groupModel.f_label.unique = true;
-                        fs.writeFileSync(workspacePath+'/models/attributes/e_group.json', JSON.stringify(groupModel, null, 4), 'utf8');
+                        function uniqueField(entity, field) {
+                            var model = require(workspacePath+'/models/attributes/'+entity+'.json');
+                            model[field].unique = true;
+                            fs.writeFileSync(workspacePath+'/models/attributes/'+entity+'.json', JSON.stringify(model, null, 4), 'utf8');
+                        }
+                        uniqueField('e_user', 'f_login');
+                        uniqueField('e_role', 'f_label');
+                        uniqueField('e_group', 'f_label');
 
                         // Manualy add settings to access file because it's not a real entity
                         var access = require(workspacePath+'/config/access.json');
@@ -289,19 +339,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
-                                                // Reset toSync file
-                                                fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
-
-                                                var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
-                                                workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
-                                                    // Create application's DNS through dns_manager
-                                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                                                        dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
-                                                            resolve();
-                                                        });
-                                                    else
-                                                        resolve();
-                                                });
+                                                initializeWorkflow(id_application).then(resolve).catch(reject);
                                             });
                                         });
                                     });

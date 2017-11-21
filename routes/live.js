@@ -129,6 +129,38 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field group related to Group using label");
     instructions.push("add field Token");
     instructions.push("add field Token timeout TMSP");
+    instructions.push("add entity Status");
+    instructions.push("add field Entity");
+    instructions.push("add field Label");
+    instructions.push("add field Color with type color");
+    instructions.push("entity Status has many Status called Next status")
+    instructions.push("entity status has many Translation called Translations");
+    instructions.push("select entity translation");
+    instructions.push("add field Language");
+    instructions.push("add field Value");
+    instructions.push("entity status has many Action called Actions");
+    instructions.push("select entity action");
+    instructions.push("add field Order");
+    instructions.push("add field Type with type enum and values mail, notification, function");
+    instructions.push("entity action has one Media mail");
+    instructions.push("entity action has one Media Notification");
+    instructions.push("entity action has one Media Function");
+    instructions.push("select entity media mail");
+    instructions.push("add field To");
+    instructions.push("add field Cc");
+    instructions.push("add field Cci");
+    instructions.push("add field From");
+    instructions.push("add field Subject");
+    instructions.push("add field Content with type text");
+    instructions.push("select entity media notification");
+    instructions.push("add field Title");
+    instructions.push("add field Content with type text");
+    instructions.push("select entity media function");
+    instructions.push("add field Title");
+    instructions.push("add field Function with type text");
+    instructions.push("add entity History");
+    instructions.push("add field Status related to Status");
+    instructions.push("add field Comment with type text");
     instructions.push("select module home");
 
     function recursiveExecute(recurInstructions, idx) {
