@@ -7,6 +7,54 @@ module.exports = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
+    getStatusFieldList: function(attributes) {
+        var list = [];
+        for (var prop in attributes)
+            if (prop.indexOf('s_') == 0)
+                list.push(prop);
+        return list;
+    },
+    getNextStatus: function(models, entity, attributes) {
+        return new Promise(function(resolve, reject) {
+            var statusList = this.getStatusFieldList(entity, attributes);
+            if (statusList.length > 0) {
+                var nextStatusPromises = [];
+                // Get the last history of each status field
+                for (var i = 0; i < statusList.length; i++) {
+                    nextStatusPromises.push(models.E_history.findOne({
+                        where: {f_entity: entity, f_field: statusList[i]},
+                        limit: 1,
+                        order: 'createdAt DESC',
+                        include: [{
+                            model: models.Status,
+                            as: 'r_status',
+                            include: [{
+                                model: models.E_translation,
+                                as: 'r_translation'
+                            }, {
+                                model: models.Status,
+                                as: 'r_children',
+                                include: [{
+                                    model: models.E_translation,
+                                    as: 'r_translation'
+                                }]
+                            }]
+                        }]
+                    }));
+                }
+                Promise.all(nextStatusPromises).then(function(nextStatus) {
+                    for (var i = 0; i < nextStatus.length; i++) {
+                        nextStatus[i].r_status.field = nextStatus[i].f_field;
+                        nextStatus[i] = nextStatus[i].r_status;
+                    }
+                    data.statusList = nextStatus;
+                    resolve(nextStatus);
+                });
+            }
+            else
+                resolve([]);
+        });
+    },
     error500: function(err, req, res, redirect) {
         var isKnownError = false;
         try {

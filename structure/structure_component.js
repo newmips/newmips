@@ -850,6 +850,22 @@ exports.newCra = function (attr, callback) {
     }
 };
 
+exports.newStatus = function(attr, callback) {
+    var workspacePath = __dirname + '/../workspace/' + attr.id_application;
+    var piecesPath = __dirname + '/../structure/pieces/component/status';
+
+    var attributesObj = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+attr.source+'.json'));
+    attributesObj[attr.status_codeName] = {
+        type: "VIRTUAL"
+    };
+    var path = workspacePath+'/views/'+attr.source+'/show_fields.dust';
+    var li = "<li><a id='history-"+attr.status_name+"-click' data-toggle='tab' href='#history-"+attr.status_codeName+'></a>;';
+    addTab(attr, path, newLi, componentContent).then(callback);
+
+    //TODO: Ajouter traduction de attr.status_codeName aux locales pour le tab de l'entite
+    // Example: Entity test, status state. e_test: {s_state: en"attr.status_displayName", fr"attr.status_displayName"}
+}
+
 exports.setupChat = function(attr, callback) {
     try {
         var workspacePath = __dirname + '/../workspace/'+attr.id_application;

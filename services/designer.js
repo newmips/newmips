@@ -1676,6 +1676,21 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 /* --------------------------------------------------------------- */
 /* -------------------------- COMPONENT -------------------------- */
 /* --------------------------------------------------------------- */
+exports.createNewComponentStatus = function(attr, callback) {
+
+    attr.status_name = attrHelper.clearString(attr.status_name || "Status");
+    attr.
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
+        if (err)
+            return callback(err, null);
+        attr.source = source_entity.codeName;
+        structure_component.newStatus(attr, function(err) {
+            if (err)
+                return callback(err, null);
+            callback();
+        });
+    });
+}
 
 // Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = function (attr, callback) {
@@ -1699,50 +1714,46 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
             err.message = "structure.component.error.alreadyExistOnEntity";
             return callback(err, null);
         }
-        else{
-            // Check if a table as already the composant name
-            db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
-                if(dataEntity){
-                    var err = new Error();
-                    err.message = "structure.component.error.alreadyExistInApp";
-                    return callback(err, null);
-                }
-                else{
-                    // Get Data Entity Name needed for structure
-                    db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
-                        attr.options.source = sourceEntity.codeName;
-                        attr.options.showSource = sourceEntity.name;
-                        attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
-                        // Create the component in newmips database
-                        db_component.createNewComponentOnEntity(attr, function(err, info){
-                            if(err)
-                                return callback(err, null);
-                            // Setup the hasMany association in the source entity
-                            try{
-                                db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
-                                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, null, function(){
-                                        // Get module info needed for structure
-                                        db_module.getModuleById(attr.id_module, function(err, module){
-                                            if(err)
-                                                return callback(err, null);
-                                            attr.options.moduleName = module.codeName;
-                                            structure_component.newLocalFileStorage(attr, function(err){
-                                                if(err)
-                                                    return callback(err, null);
+        // Check if a table as already the composant name
+        db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
+            if(dataEntity){
+                var err = new Error();
+                err.message = "structure.component.error.alreadyExistInApp";
+                return callback(err, null);
+            }
+            // Get Data Entity Name needed for structure
+            db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                // Create the component in newmips database
+                db_component.createNewComponentOnEntity(attr, function(err, info){
+                    if(err)
+                        return callback(err, null);
+                    // Setup the hasMany association in the source entity
+                    try{
+                        db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
+                            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, null, function(){
+                                // Get module info needed for structure
+                                db_module.getModuleById(attr.id_module, function(err, module){
+                                    if(err)
+                                        return callback(err, null);
+                                    attr.options.moduleName = module.codeName;
+                                    structure_component.newLocalFileStorage(attr, function(err){
+                                        if(err)
+                                            return callback(err, null);
 
-                                                callback(null, info);
-                                            });
-                                        });
+                                        callback(null, info);
                                     });
                                 });
-                            } catch(err){
-                                return callback(err, null);
-                            }
+                            });
                         });
-                    });
-                }
+                    } catch(err){
+                        return callback(err, null);
+                    }
+                });
             });
-        }
+        });
     });
 }
 
