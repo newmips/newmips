@@ -628,6 +628,18 @@ exports.relationshipHasManyPresetUsing = function (result) {
 };
 
 // ******* COMPONENT Actions ******* //
+exports.createNewComponentStatus = function(result) {
+    return {
+        function: "createNewComponentStatus",
+        options: {status_name: false}
+    };
+}
+
+exports.createNewComponentStatusWithName = function(result) {
+    var options = {status_name: result[1]};
+    return checkAndCreateAttr("createNewComponentStatus", options, status_name);
+}
+
 /* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = function (result) {
 
@@ -1446,6 +1458,10 @@ var training = {
         "ajouter un champ (.*) relié à plusieurs (.*) en affichant (.*)",
         "ajouter champ (.*) relié à plusieurs (.*) en utilisant (.*)",
         "ajouter champ (.*) relié à plusieurs (.*) en affichant (.*)"
+    ],
+    "createNewComponentStatus": [
+        "create component status",
+        "add component status"
     ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",

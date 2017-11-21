@@ -274,6 +274,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                         if (err)
                             console.log(err);
 
+                        // Make fields unique
                         function uniqueField(entity, field) {
                             var model = require(workspacePath+'/models/attributes/'+entity+'.json');
                             model[field].unique = true;

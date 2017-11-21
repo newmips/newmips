@@ -164,9 +164,8 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
-    if (typeof req.query.hideButton !== 'undefined') {
+    if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
-    }
 
     /* Looking for two level of include to get all associated data in show tab list */
     var include = model_builder.getTwoLevelIncludeAll(models, options);
@@ -196,11 +195,14 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
                 data[found[i].model] = found[i].rows;
             }
 
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
             // Update some data before show, e.g get picture binary
             ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
-            res.render('ENTITY_NAME/show', data);
+
+            // Check if entity has Status component defined and get the possible next status
+            entity_helper.getNextStatus(models, "ENTITY_NAME", attributes).then(function(nextStatus) {
+                data.next_status = nextStatus;
+                res.render('ENTITY_NAME/show', data);
+            });
         });
 
     }).catch(function (err) {
