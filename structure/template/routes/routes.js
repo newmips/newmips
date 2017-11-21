@@ -14,11 +14,6 @@ var models = require('../models/');
 // HOME PAGE (with login links) ========
 // =====================================
 
-/* GET status page to check if workspace is ready. */
-router.get('/status', function(req, res) {
-    res.render('status');
-});
-
 /* GET home page. */
 router.get('/', function(req, res) {
     res.redirect('/login');

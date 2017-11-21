@@ -25,10 +25,15 @@ var wfs = require("webdav-fs")(
 // Redirection Home =====================
 // ===========================================
 
+/* GET status page to check if workspace is ready. */
+router.get('/status', function(req, res) {
+    res.sendStatus(200);
+});
+
 // *** Dynamic Module | Do not remove ***
 
 // m_authentication
-router.get('/authentication', block_access.moduleAccessMiddleware("authentication"), function (req, res) {
+router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
     var widgetPromises = [];
 
     // *** Widget module m_authentication | Do not remove ***
@@ -43,7 +48,7 @@ router.get('/authentication', block_access.moduleAccessMiddleware("authenticatio
 });
 
 // m_home
-router.get('/home', block_access.moduleAccessMiddleware("home"), function (req, res) {
+router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function (req, res) {
     var widgetPromises = [];
 
     // *** Widget module m_home | Do not remove ***
@@ -58,12 +63,12 @@ router.get('/home', block_access.moduleAccessMiddleware("home"), function (req, 
 });
 
 // Page non autorisée
-router.get('/unauthorized', function (req, res) {
+router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
     res.render('common/unauthorized');
 });
 
 /* Fonction de changement du language */
-router.post('/change_language', function (req, res) {
+router.post('/change_language', block_access.isLoggedIn, function (req, res) {
     req.session.lang_user = req.body.lang;
     res.locals.lang_user = req.body.lang;
     languageConfig.lang = req.body.lang;
@@ -74,7 +79,7 @@ router.post('/change_language', function (req, res) {
 });
 
 /* Dropzone FIELD ajax upload file */
-router.post('/file_upload', function (req, res) {
+router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
             // Everything went fine
@@ -127,7 +132,7 @@ router.post('/file_upload', function (req, res) {
 });
 
 
-router.get('/get_file', function (req, res) {
+router.get('/get_file', block_access.isLoggedIn, function (req, res) {
     var entity = req.query.entity;
     var src = req.query.src;
     if (!!entity && !!src) {
@@ -154,7 +159,7 @@ router.get('/get_file', function (req, res) {
 });
 
 
-router.get('/download', function (req, res) {
+router.get('/download', block_access.isLoggedIn, function (req, res) {
     var entity = req.query.entity;
     var filepath = req.query.f;
     var p = new Promise(function (resolve, reject) {
@@ -186,7 +191,7 @@ router.get('/download', function (req, res) {
 
 });
 
-router.post('/delete_file', function (req, res) {
+router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
     var entity = req.body.dataEntity;
     var dataStorage = req.body.dataStorage;
     var filename = req.body.filename;
