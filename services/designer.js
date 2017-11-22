@@ -1319,9 +1319,9 @@ exports.createNewHasMany = function (attr, callback) {
                 for(var i=0; i<optionsObject.length; i++){
                     if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                         if(optionsObject[i].relation == "belongsToMany"){
-                            var err = new Error();
-                            err.message = "structure.association.error.alreadyBelongsToMany";
-                            return callback(err, null);
+                            //var err = new Error();
+                            //err.message = "structure.association.error.alreadyBelongsToMany";
+                            //return callback(err, null);
                         } else{
                             cptExistingHasMany++;
                         }
@@ -1396,9 +1396,9 @@ exports.createNewHasManyPreset = function(attr, callback) {
             for(var i=0; i<optionsObject.length; i++){
                 if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                     if(optionsObject[i].relation == "belongsToMany"){
-                        var err = new Error();
-                        err.message = "structure.association.error.alreadyBelongsToMany";
-                        return callback(err, null);
+                        //var err = new Error();
+                        //err.message = "structure.association.error.alreadyBelongsToMany";
+                        //return callback(err, null);
                     } else{
                         cptExistingHasMany++;
                     }
