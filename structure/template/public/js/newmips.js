@@ -195,52 +195,65 @@ $(document).ready(function () {
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
     $('.simpledate-toconvert').each(function() {
-        if (lang_user == "fr-FR")
-            $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-        else
-            $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+            }
+        }
     });
 
     $('.datepicker-toconvert').each(function() {
-        if ($(this).val() != "" && $(this).val() != "Invalid date" && $(this).val() != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).val(moment(new Date($(this).val())).format("DD/MM/YYYY"));
-            else
-                $(this).val(moment(new Date($(this).val())).format("YYYY-MM-DD"));
+        var currentVal = $(this).val();
+        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
+            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY"));
+                else
+                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD"));
+            }
         } else {
             $(this).val("");
         }
     });
 
     $('.datetimepicker-toconvert').each(function() {
-        if ($(this).attr("value") != "" && $(this).attr("value") != "Invalid date" && $(this).attr("value") != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm")).change();
-            else
-                $(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm")).change();
+        var currentVal = $(this).attr("value");
+        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
+            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY HH:mm")).change();
+                else
+                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD HH:mm")).change();
+            }
         } else {
             $(this).val("");
         }
     });
 
     $("td[data-type='date']").each(function() {
-        if ($(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-            else
-                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+            }
         } else {
             $(this).html("");
         }
     });
 
-
     $("td[data-type='datetime']").each(function() {
-        if ($(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
-            else
-                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+            }
         } else {
             $(this).html("");
         }
