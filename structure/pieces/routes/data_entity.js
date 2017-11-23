@@ -97,62 +97,6 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
-    var alias = req.params.alias;
-    var idToRemove = req.body.idRemove;
-    var idEntity = req.body.idEntity;
-    models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
-        if (!ENTITY_NAME) {
-            var data = {error: 404};
-            return res.render('common/error', data);
-        }
-
-        // Get all associations
-        ENTITY_NAME['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
-            // Remove entity from association array
-            for (var i = 0; i < aliasEntities.length; i++)
-                if (aliasEntities[i].id == idToRemove) {
-                    aliasEntities.splice(i, 1);
-                    break;
-                }
-
-            // Set back associations without removed entity
-            ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
-                res.sendStatus(200).end();
-            });
-        });
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
-});
-
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
-    var alias = req.params.alias;
-    var idEntity = req.body.idEntity;
-    models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
-        if (!ENTITY_NAME) {
-            var data = {error: 404};
-            logger.debug("No data entity found.");
-            return res.render('common/error', data);
-        }
-
-        var toAdd;
-        if (typeof (toAdd = req.body.ids) === 'undefined') {
-            req.session.toastr.push({
-                message: 'message.create.failure',
-                level: "error"
-            });
-            return res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
-        }
-
-        ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
-            res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
-        });
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
-});
-
 router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
     var id_ENTITY_NAME = req.query.id;
     var tab = req.query.tab;
@@ -199,8 +143,16 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
             ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
 
             // Check if entity has Status component defined and get the possible next status
-            entity_helper.getNextStatus(models, "ENTITY_NAME", attributes).then(function(nextStatus) {
-                data.next_status = nextStatus;
+            entity_helper.status.getNextStatus(models, "ENTITY_NAME", ENTITY_NAME.id, attributes).then(function(nextStatus) {
+                if (nextStatus)
+                    data.next_status = nextStatus;
+                res.render('ENTITY_NAME/show', data);
+            }).catch(function(err) {
+                console.error(err);
+                req.session.toastr = [{
+                    message: 'component.status.error',
+                    level: 'error'
+                }];
                 res.render('ENTITY_NAME/show', data);
             });
         });
@@ -378,6 +330,109 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
         });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+    });
+});
+
+router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
+    var historyModel = 'E_history_ENTITY_NAME_'+req.params.status;
+    var historyAlias = 'r_history_'+req.params.status.substring(2);
+    models.MODEL_NAME.findOne({
+        where: {id: req.params.id_ENTITY_URL_NAME},
+        include: [{
+            model: models[historyModel],
+            as: historyAlias,
+            limit: 1,
+            order: 'createdAt DESC',
+            include: [{
+                model: models.E_status,
+                as: 'r_status'
+            }]
+        }]
+    }).then(function(ENTITY_NAME) {
+        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0].r_status)
+            return 404
+        models.E_status.findOne({
+            where: {id: ENTITY_NAME[historyAlias][0].r_status.id},
+            include: [{
+                model: models.E_status,
+                as: 'r_children'
+            }]
+        }).then(function(current_status) {
+            if (!current_status || !current_status.r_children)
+                return 404;
+            var children = current_status.r_children;
+
+            var validNext = false;
+            for (var i = 0; i < children.length; i++) {
+                if (children[i].id == req.params.id_new_status)
+                    {validNext = true; break;}
+            }
+            if (!validNext) {
+                return 403
+            }
+
+            var createObject = {fk_id_status_status: req.params.id_new_status};
+            createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+            models[historyModel].create(createObject).then(function() {
+                res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+            });
+        });
+    });
+});
+
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
+    var alias = req.params.alias;
+    var idToRemove = req.body.idRemove;
+    var idEntity = req.body.idEntity;
+    models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME) {
+            var data = {error: 404};
+            return res.render('common/error', data);
+        }
+
+        // Get all associations
+        ENTITY_NAME['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
+            // Remove entity from association array
+            for (var i = 0; i < aliasEntities.length; i++)
+                if (aliasEntities[i].id == idToRemove) {
+                    aliasEntities.splice(i, 1);
+                    break;
+                }
+
+            // Set back associations without removed entity
+            ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
+                res.sendStatus(200).end();
+            });
+        });
+    }).catch(function (err) {
+        entity_helper.error500(err, req, res, "/");
+    });
+});
+
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+    var alias = req.params.alias;
+    var idEntity = req.body.idEntity;
+    models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME) {
+            var data = {error: 404};
+            logger.debug("No data entity found.");
+            return res.render('common/error', data);
+        }
+
+        var toAdd;
+        if (typeof (toAdd = req.body.ids) === 'undefined') {
+            req.session.toastr.push({
+                message: 'message.create.failure',
+                level: "error"
+            });
+            return res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
+        }
+
+        ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
+            res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
+        });
+    }).catch(function (err) {
+        entity_helper.error500(err, req, res, "/");
     });
 });
 

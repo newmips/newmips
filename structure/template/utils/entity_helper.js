@@ -2,58 +2,68 @@
  * Update local Entity Data before show or any
  */
 var file_helper = require('./file_helper');
+var logger = require('./logger');
 
 module.exports = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
-    getStatusFieldList: function(attributes) {
-        var list = [];
-        for (var prop in attributes)
-            if (prop.indexOf('s_') == 0)
-                list.push(prop);
-        return list;
-    },
-    getNextStatus: function(models, entity, attributes) {
-        return new Promise(function(resolve, reject) {
-            var statusList = this.getStatusFieldList(entity, attributes);
-            if (statusList.length > 0) {
+    status: {
+        getStatusFieldList: function(attributes) {
+            var list = [];
+            for (var prop in attributes)
+                if (prop.indexOf('s_') == 0)
+                    list.push(prop);
+            return list;
+        },
+        getNextStatus: function(models, entityName, entityId, attributes) {
+            var self = this;
+            return new Promise(function(resolve, reject) {
+                var statusList = self.getStatusFieldList(attributes);
+                if (statusList.length == 0)
+                    return resolve([]);
+
                 var nextStatusPromises = [];
                 // Get the last history of each status field
+                // Include r_children to have next status
                 for (var i = 0; i < statusList.length; i++) {
-                    nextStatusPromises.push(models.E_history.findOne({
-                        where: {f_entity: entity, f_field: statusList[i]},
+                    var model = 'E_history_'+entityName+'_'+statusList[i];
+                    var where = {};
+                    where['fk_id_'+entityName.substring(2)+'_history_status'] = entityId;
+                    nextStatusPromises.push(models[model].findAll({
                         limit: 1,
                         order: 'createdAt DESC',
+                        where: where,
                         include: [{
-                            model: models.Status,
+                            model: models.E_status,
                             as: 'r_status',
                             include: [{
                                 model: models.E_translation,
-                                as: 'r_translation'
+                                as: 'r_translations'
                             }, {
-                                model: models.Status,
+                                model: models.E_status,
                                 as: 'r_children',
                                 include: [{
                                     model: models.E_translation,
-                                    as: 'r_translation'
+                                    as: 'r_translations'
                                 }]
                             }]
                         }]
                     }));
                 }
-                Promise.all(nextStatusPromises).then(function(nextStatus) {
-                    for (var i = 0; i < nextStatus.length; i++) {
-                        nextStatus[i].r_status.field = nextStatus[i].f_field;
-                        nextStatus[i] = nextStatus[i].r_status;
-                    }
-                    data.statusList = nextStatus;
-                    resolve(nextStatus);
+
+                Promise.all(nextStatusPromises).then(function(histories) {
+                    // Queries have limit 1, we know there's only one row in each array
+                    // Remove useless array and assign current R_status
+                    for (var i = 0; i < histories.length; i++)
+                        histories[i] = histories[i][0].r_status;
+                    resolve(histories);
+                }).catch(function(err){
+                    console.log(err);
+                    reject(err);
                 });
-            }
-            else
-                resolve([]);
-        });
+            });
+        }
     },
     error500: function(err, req, res, redirect) {
         var isKnownError = false;

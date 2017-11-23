@@ -1677,17 +1677,34 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 /* -------------------------- COMPONENT -------------------------- */
 /* --------------------------------------------------------------- */
 exports.createNewComponentStatus = function(attr, callback) {
+    var self = this;
+    attr.status_displayName = attr.status_name || "Status"
+    attr.status_name = attrHelper.clearString(attr.status_displayName).toLowerCase();
+    attr.status_codeName = attrHelper.addPrefix(attr.status_name, 'createNewComponentStatus');
 
-    attr.status_name = attrHelper.clearString(attr.status_name || "Status");
-    attr.
     db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
         if (err)
             return callback(err, null);
+
         attr.source = source_entity.codeName;
-        structure_component.newStatus(attr, function(err) {
-            if (err)
+        var instructions = [
+            "entity "+source_entity.name+' has many history_'+attr.source+'_'+attr.status_codeName+' called History '+attr.status_displayName,
+            "select entity history_"+attr.source+"_"+attr.status_codeName,
+            "add field Status related to Status using label",
+            "add field Comment with type text",
+            "entity status has many history_"+attr.source+"_"+attr.status_codeName
+        ];
+
+        attr.history_table = 'e_history_'+attr.source+'_'+attr.status_codeName;
+        self.recursiveInstructionExecute(attr, instructions, 0, function(err){
+            if(err)
                 return callback(err, null);
-            callback();
+
+            structure_component.newStatus(attr, function(err, info) {
+                if (err)
+                    return callback(err, null);
+                callback(null, info);
+            });
         });
     });
 }
