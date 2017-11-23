@@ -599,14 +599,16 @@ exports.relationshipHasManyPreset = function (result) {
     var source = result[1];
     var target = result[2];
     var as = target;
+    var foreignKey = "id_" + source.toLowerCase();
 
     if(typeof result[3] !== "undefined")
         as = result[3];
+        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
+        foreignKey: foreignKey,
         as: as,
         processValue: true
     };
@@ -619,14 +621,16 @@ exports.relationshipHasManyPresetUsing = function (result) {
     var target = result[2];
     var usingField = result[3];
     var as = target;
+    var foreignKey = "id_" + source.toLowerCase();
 
     if(typeof result[4] !== "undefined")
         as = result[4];
+        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
+        foreignKey: foreignKey,
         as: as,
         usingField: usingField,
         processValue: true
