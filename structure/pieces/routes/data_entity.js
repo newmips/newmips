@@ -336,6 +336,8 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
     var historyModel = 'E_history_ENTITY_NAME_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
+
+    // Find target entity instance
     models.MODEL_NAME.findOne({
         where: {id: req.params.id_ENTITY_URL_NAME},
         include: [{
@@ -351,6 +353,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0].r_status)
             return 404
+        // Find the children of the current status
         models.E_status.findOne({
             where: {id: ENTITY_NAME[historyAlias][0].r_status.id},
             include: [{
@@ -360,17 +363,20 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
         }).then(function(current_status) {
             if (!current_status || !current_status.r_children)
                 return 404;
-            var children = current_status.r_children;
 
+            // Check if new status is actualy the current status's children
+            var children = current_status.r_children;
             var validNext = false;
             for (var i = 0; i < children.length; i++) {
                 if (children[i].id == req.params.id_new_status)
                     {validNext = true; break;}
             }
-            if (!validNext) {
+            // Unautorized
+            if (!validNext)
                 return 403
-            }
 
+            // Create history record for this status field
+            // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
             var createObject = {fk_id_status_status: req.params.id_new_status};
             createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
             models[historyModel].create(createObject).then(function() {
