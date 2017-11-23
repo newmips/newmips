@@ -222,11 +222,11 @@ function initializeWorkflow(id_application) {
         var piecesPath = __dirname+'/pieces';
         var workspacePath = __dirname+'/../workspace/'+id_application;
 
-        var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
         // Remove existing has many from Status, the instruction is only used to generate the tab and views
+        var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
         for (var i = 0; i < statusModel.length; i++)
             if (statusModel[i].target == 'e_status')
-                {statusModel.slice(i, 1); break;}
+                {statusModel.splice(i, 1); break;}
 
         // Create Status belongsToMany with itself as target
         statusModel.push({
@@ -239,15 +239,6 @@ function initializeWorkflow(id_application) {
         });
         fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
-        // Hide History from sidebar
-        domHelper.read(workspacePath+'/views/layout_m_administration.dust').then(function($) {
-            $("#history_menu_item").hide();
-            domHelper.write(workspacePath+'/views/layout_m_administration.dust', $).then(function() {
-                // Delete History controller since all its action will be triggered from other controllers
-                // Deleting it ensure untouched data in history
-                fs.unlink(workspacePath+'/routes/e_history.js');
-            });
-        });
         finalizeApplication(id_application).then(resolve).catch(reject);
     });
 }

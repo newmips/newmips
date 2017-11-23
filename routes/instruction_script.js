@@ -115,8 +115,10 @@ var mandatoryInstructions = [
     "add field group related to Group using label",
     "add entity Status",
     "add field Entity",
+    "add field Field",
     "add field Label",
     "add field Color with type color",
+    "entity Status has many Status called Children",
     "entity status has many Translation called Translations",
     "select entity translation",
     "add field Language",
@@ -141,9 +143,6 @@ var mandatoryInstructions = [
     "select entity media function",
     "add field Title",
     "add field Function with type text",
-    "add entity History",
-    "add field Status related to Status",
-    "add field Comment with type text",
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;

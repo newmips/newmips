@@ -131,9 +131,10 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Token timeout TMSP");
     instructions.push("add entity Status");
     instructions.push("add field Entity");
+    instructions.push("add field Field");
     instructions.push("add field Label");
     instructions.push("add field Color with type color");
-    instructions.push("entity Status has many Status called Next status")
+    instructions.push("entity Status has many Status called Children")
     instructions.push("entity status has many Translation called Translations");
     instructions.push("select entity translation");
     instructions.push("add field Language");
@@ -158,9 +159,6 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select entity media function");
     instructions.push("add field Title");
     instructions.push("add field Function with type text");
-    instructions.push("add entity History");
-    instructions.push("add field Status related to Status");
-    instructions.push("add field Comment with type text");
     instructions.push("select module home");
 
     function recursiveExecute(recurInstructions, idx) {

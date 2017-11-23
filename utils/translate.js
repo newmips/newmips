@@ -98,7 +98,7 @@ module.exports = {
 
         var nbLocales = localesDir.length;
         var localesCpt = 0;
-        var manualModuleTranslationArray = ["home", "authentication"];
+        var manualModuleTranslationArray = ["home"];
         var manualEntityTranslationArray = ["user", "role", "group"];
         var manualFieldTranslationArray = ["login", "email", "role", "group", "label"];
 
@@ -115,13 +115,6 @@ module.exports = {
                         dataLocales[type][keyValue.toLowerCase()] = "Accueil";
                     }else{
                         dataLocales[type][keyValue.toLowerCase()] = "Home";
-                    }
-                }
-                else if(value.toLowerCase() == "authentication"){
-                    if(workingLocales == "fr-FR"){
-                        dataLocales[type][keyValue.toLowerCase()] = "Authentification";
-                    }else{
-                        dataLocales[type][keyValue.toLowerCase()] = "Authentication";
                     }
                 }
                 pushLanguagePromise(urlFile, dataLocales, file);

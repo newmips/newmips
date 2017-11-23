@@ -241,9 +241,8 @@ function addTab(attr, file, newLi, newTabContent) {
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
-            } else {
+            } else
                 context = $("#tabs");
-            }
 
             // Append created elements to `context` to handle presence of tab or not
             $(".nav-tabs", context).append(newLi);
@@ -254,6 +253,9 @@ function addTab(attr, file, newLi, newTabContent) {
             domHelper.write(file, $).then(function () {
                 resolve();
             });
+        }).catch(function(err) {
+            console.log(err);
+            reject(err);
         });
     });
 }
@@ -854,16 +856,20 @@ exports.newStatus = function(attr, callback) {
     var workspacePath = __dirname + '/../workspace/' + attr.id_application;
     var piecesPath = __dirname + '/../structure/pieces/component/status';
 
+    // Add virtual status field to source entity (s_statusName)
     var attributesObj = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+attr.source+'.json'));
     attributesObj[attr.status_codeName] = {
         type: "VIRTUAL"
     };
-    var path = workspacePath+'/views/'+attr.source+'/show_fields.dust';
-    var li = "<li><a id='history-"+attr.status_name+"-click' data-toggle='tab' href='#history-"+attr.status_codeName+'></a>;';
-    addTab(attr, path, newLi, componentContent).then(callback);
+    fs.writeFileSync(workspacePath+'/models/attributes/'+attr.source+'.json', JSON.stringify(attributesObj, null, 4), 'utf8');
 
-    //TODO: Ajouter traduction de attr.status_codeName aux locales pour le tab de l'entite
-    // Example: Entity test, status state. e_test: {s_state: en"attr.status_displayName", fr"attr.status_displayName"}
+    // Remove history routes since they'll only be triggered by events through other controllers
+    // fs.unlink(workspacePath+'/routes/'+attr.history_table+'.js');
+
+    // Add status field locales
+    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.status_codeName, attr.status_displayName], false, function(){
+        callback(null, {message: 'Module C.R.A created'});
+    });
 }
 
 exports.setupChat = function(attr, callback) {
