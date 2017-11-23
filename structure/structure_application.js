@@ -108,8 +108,7 @@ exports.setupApplication = function(attr, callback) {
             /* Save an instruction history in the history script in workspace folder */
             var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
             var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-            historyScript += "create application "+show_name_application;
-            historyScript += "\ncreate module home\n";
+            historyScript += "create application "+show_name_application+"\n";
             fs.writeFileSync(historyScriptPath, historyScript);
 
             /* --------------- New translation --------------- */

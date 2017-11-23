@@ -282,14 +282,6 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             /* Add instruction in chat */
             setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
 
-            /* Save an instruction history in the history script in workspace folder */
-            if(instruction != "restart server"){
-                var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
-                var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-                historyScript += "\n"+instruction;
-                fs.writeFileSync(historyScriptPath, historyScript);
-            }
-
             /* Lower the first word for the basic parser jison */
             instruction = attrHelper.lowerFirstWord(instruction);
 
@@ -330,13 +322,20 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                     // Error handling code goes here
                     console.log(err);
                     answer = err.message;
-                    //data.answers = answer + "\n\n" + answers + "\n\n";
 
                     // Winston log file
-                    logger.debug(err.message);
+                    logger.debug(answer);
 
                     //Generator answer
                     setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams);
+
+                    /* Save ERROR an instruction history in the history script in workspace folder */
+                    if(instruction != "restart server"){
+                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
+                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+                        historyScript += "\n//ERROR: "+instruction+" ("+answer+")";
+                        fs.writeFileSync(historyScriptPath, historyScript);
+                    }
 
                     // Load session values
                     session_manager.getSession(attr, req, function(err, infoSession) {
@@ -347,6 +346,13 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                         });
                     });
                 } else {
+                    /* Save an instruction history in the history script in workspace folder */
+                    if(instruction != "restart server"){
+                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
+                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+                        historyScript += "\n"+instruction;
+                        fs.writeFileSync(historyScriptPath, historyScript);
+                    }
                     // Store key entities in session for futur instruction
                     session_manager.setSession(attr.function, req, info, data);
 
@@ -517,14 +523,6 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             /* Add instruction in chat */
             setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
 
-            /* Save an instruction history in the history script in workspace folder */
-            if(instruction != "restart server"){
-                var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
-                var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-                historyScript += "\n"+instruction;
-                fs.writeFileSync(historyScriptPath, historyScript);
-            }
-
             /* Lower the first word for the basic parser jison */
             instruction = attrHelper.lowerFirstWord(instruction);
 
@@ -564,13 +562,20 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     // Error handling code goes here
                     console.log(err);
                     answer = err.message;
-                    //data.answers = answer + "\n\n" + answers + "\n\n";
 
                     // Winston log file
-                    logger.debug(err.message);
+                    logger.debug(answer);
 
                     //Generator answer
                     setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams);
+
+                    /* Save ERROR an instruction history in the history script in workspace folder */
+                    if(instruction != "restart server"){
+                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
+                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+                        historyScript += "\n//ERROR: "+instruction+" ("+answer+")";
+                        fs.writeFileSync(historyScriptPath, historyScript);
+                    }
 
                     // Load session values
                     session_manager.getSession(attr, req, function(err, infoSession) {
@@ -582,6 +587,15 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                         });
                     });
                 } else {
+
+                    /* Save an instruction history in the history script in workspace folder */
+                    if(instruction != "restart server"){
+                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
+                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+                        historyScript += "\n"+instruction;
+                        fs.writeFileSync(historyScriptPath, historyScript);
+                    }
+
                     // Store key entities in session for futur instruction
                     session_manager.setSession(attr.function, req, info, data);
 
