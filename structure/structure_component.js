@@ -863,13 +863,20 @@ exports.newStatus = function(attr, callback) {
     };
     fs.writeFileSync(workspacePath+'/models/attributes/'+attr.source+'.json', JSON.stringify(attributesObj, null, 4), 'utf8');
 
-    // Remove history routes since they'll only be triggered by events through other controllers
-    // fs.unlink(workspacePath+'/routes/'+attr.history_table+'.js');
+    // Remove useless history tab from Status
+    domHelper.read(workspacePath+"/views/e_status/show_fields.dust").then(function($) {
+        var historyId = 'r_'+attr.history_table;
+        $("#"+historyId+"-click").parent().remove();
+        $("#"+historyId).remove();
+        domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
 
-    // Add status field locales
-    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.status_codeName, attr.status_displayName], false, function(){
-        callback(null, {message: 'Module C.R.A created'});
+            // Add status field locales
+            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.status_codeName, attr.status_displayName], false, function(){
+                callback(null, {message: 'Module C.R.A created'});
+            });
+        });
     });
+
 }
 
 exports.setupChat = function(attr, callback) {

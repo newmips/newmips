@@ -337,6 +337,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     var historyModel = 'E_history_ENTITY_NAME_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
 
+    var errorRedirect = '/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME;
     // Find target entity instance
     models.MODEL_NAME.findOne({
         where: {id: req.params.id_ENTITY_URL_NAME},
@@ -351,8 +352,11 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             }]
         }]
     }).then(function(ENTITY_NAME) {
-        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0].r_status)
-            return 404
+        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0].r_status){
+            logger.debug("Not found - Set status");
+            return res.render('common/error', {error: 404});
+        }
+
         // Find the children of the current status
         models.E_status.findOne({
             where: {id: ENTITY_NAME[historyAlias][0].r_status.id},
@@ -361,8 +365,10 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                 as: 'r_children'
             }]
         }).then(function(current_status) {
-            if (!current_status || !current_status.r_children)
-                return 404;
+            if (!current_status || !current_status.r_children){
+                logger.debug("Not found - Set status");
+                return res.render('common/error', {error: 404});
+            }
 
             // Check if new status is actualy the current status's children
             var children = current_status.r_children;
@@ -372,8 +378,13 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     {validNext = true; break;}
             }
             // Unautorized
-            if (!validNext)
-                return 403
+            if (!validNext){
+                req.session.toastr = [{
+                    level: 'error',
+                    message: 'component.status.error.illegal_status'
+                }]
+                return res.redirect(errorRedirect);
+            }
 
             // Create history record for this status field
             // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
@@ -381,6 +392,8 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
             models[historyModel].create(createObject).then(function() {
                 res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+            }).catch(function(err) {
+                entity_helper.error500(err, req, res, errorRedirect);
             });
         });
     });

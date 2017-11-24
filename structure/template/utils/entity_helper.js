@@ -4,6 +4,17 @@
 var file_helper = require('./file_helper');
 var logger = require('./logger');
 
+function invertColor(hexTripletColor) {
+    var color = hexTripletColor;
+    color = color.substring(1);           // remove #
+    color = parseInt(color, 16);          // convert to integer
+    color = 0xFFFFFF ^ color;             // invert three bytes
+    color = color.toString(16);           // convert to hex
+    color = ("000000" + color).slice(-6); // pad with leading zeros
+    color = "#" + color;                  // prepend #
+    return color;
+}
+
 module.exports = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -55,8 +66,11 @@ module.exports = {
                 Promise.all(nextStatusPromises).then(function(histories) {
                     // Queries have limit 1, we know there's only one row in each array
                     // Remove useless array and assign current R_status
-                    for (var i = 0; i < histories.length; i++)
+                    for (var i = 0; i < histories.length; i++) {
                         histories[i] = histories[i][0].r_status;
+                        for (var j = 0; j < histories[i].children; j++)
+                            histories[i].children[j].dataValues.text_color = invertColor(histories[i].children[j].color);
+                    }
                     resolve(histories);
                 }).catch(function(err){
                     console.log(err);

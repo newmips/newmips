@@ -219,7 +219,7 @@ function finalizeApplication(id_application) {
 
 function initializeWorkflow(id_application) {
     return new Promise(function(resolve, reject) {
-        var piecesPath = __dirname+'/pieces';
+        var piecesPath = __dirname+'/pieces/component/status';
         var workspacePath = __dirname+'/../workspace/'+id_application;
 
         // Remove existing has many from Status, the instruction is only used to generate the tab and views
@@ -239,6 +239,11 @@ function initializeWorkflow(id_application) {
         });
         fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
+        // Write new locales trees
+        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
+        translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
+        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
+        translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
         finalizeApplication(id_application).then(resolve).catch(reject);
     });
 }
