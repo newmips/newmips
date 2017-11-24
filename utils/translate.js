@@ -7,9 +7,7 @@ var googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
     writeTree: function(idApplication, object, language) {
-        console.log('111111');
         var localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json'));
-        console.log('222222');
         function dive(locales, newLocales) {
             for (var newLocale in newLocales) {
                 var found = false;
@@ -26,7 +24,6 @@ module.exports = {
             }
         }
         dive(localesObj, object);
-        console.log('333333');
         fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json', JSON.stringify(localesObj, null, 4), 'utf8');
     },
     writeLocales: function(idApplication, type, keyValue, value, toTranslate, callback) {

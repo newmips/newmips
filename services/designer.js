@@ -1678,7 +1678,9 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 /* --------------------------------------------------------------- */
 exports.createNewComponentStatus = function(attr, callback) {
     var self = this;
-    attr.status_displayName = attr.status_name || "Status"
+    attr.status_displayName = attr.options.status_name || "Status";
+    console.log(attr);
+    console.log(attr.status_displayName);
     attr.status_name = attrHelper.clearString(attr.status_displayName).toLowerCase();
     attr.status_codeName = attrHelper.addPrefix(attr.status_name, 'createNewComponentStatus');
 

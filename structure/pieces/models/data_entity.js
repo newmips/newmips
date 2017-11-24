@@ -18,12 +18,13 @@ module.exports = function (sequelize, DataTypes) {
 
     var Model = sequelize.define('MODEL_NAME', attributes, options);
 
-    Model.hook('afterCreate', function(model, options) {
+    Model.addHook('afterCreate', 'initializeEntityStatus', function(model, options) {
         var initStatusPromise = [];
         for (var field in attributes_origin) {
             if (field.indexOf('s_') != 0)
                 continue;
 
+            // Create history object with initial status related to new entity
             initStatusPromise.push(new Promise(function(resolve, reject) {
                 var historyModel = 'E_history_'+model_name+'_'+field;
                 sequelize.models.E_status.findOrCreate({
@@ -44,15 +45,12 @@ module.exports = function (sequelize, DataTypes) {
         }
 
         if (initStatusPromise.length > 0) {
-            console.log('model : INIT status');
             return new Promise(function(finishResolve, finishReject) {
                 Promise.all(initStatusPromise).then(function() {
-                    console.log('model : INIT STATUS OVER. RESOLVING');
                     finishResolve();
                 });
             });
         }
-        console.log('model : NO INIT status');
     });
 
     return Model;
