@@ -1695,7 +1695,7 @@ exports.createNewComponentStatus = function(attr, callback) {
             "entity status has many history_"+attr.source+"_"+attr.status_codeName
         ];
 
-        attr.history_table = 'e_history_'+attr.source+'_'+attr.status_codeName;
+        attr.history_table = 'history_'+attr.source+'_'+attr.status_codeName;
         self.recursiveInstructionExecute(attr, instructions, 0, function(err){
             if(err)
                 return callback(err, null);

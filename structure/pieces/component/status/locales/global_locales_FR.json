@@ -1,0 +1,9 @@
+{
+	"component": {
+		"status": {
+			"error": {
+				"illegal_status": "This status isn't valid"
+			}
+		}
+	}
+}
