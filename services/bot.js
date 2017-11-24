@@ -1459,6 +1459,10 @@ var training = {
         "ajouter champ (.*) relié à plusieurs (.*) en utilisant (.*)",
         "ajouter champ (.*) relié à plusieurs (.*) en affichant (.*)"
     ],
+    "createNewComponentStatusWithName": [
+        "create component status called %s",
+        "add component status called %s"
+    ],
     "createNewComponentStatus": [
         "create component status",
         "add component status"
