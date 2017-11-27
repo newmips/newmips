@@ -858,12 +858,19 @@ exports.newStatus = function(attr, callback) {
 
     // Add virtual status field to source entity (s_statusName)
     var attributesObj = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+attr.source+'.json'));
-    attributesObj[attr.status_codeName] = {
+    attributesObj[attr.options.value] = {
         type: "VIRTUAL"
     };
     fs.writeFileSync(workspacePath+'/models/attributes/'+attr.source+'.json', JSON.stringify(attributesObj, null, 4), 'utf8');
 
-    // Remove useless history tab from Status
+    // Remove useless options on e_status
+    var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
+    for (var i = 0; i < statusModel.length; i++)
+        if (statusModel[i].target == 'e_'+attr.history_table)
+            {statusModel.splice(i, 1); break;}
+    fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
+
+    // Remove useless history tab from Status views
     domHelper.read(workspacePath+"/views/e_status/show_fields.dust").then(function($) {
         var historyId = 'r_'+attr.history_table;
         $("#"+historyId+"-click").parent().remove();
@@ -871,7 +878,7 @@ exports.newStatus = function(attr, callback) {
         domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
 
             // Add status field locales
-            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.status_codeName, attr.status_displayName], false, function(){
+            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
                 callback(null, {message: 'Module C.R.A created'});
             });
         });

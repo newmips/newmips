@@ -26,21 +26,23 @@ module.exports = function (sequelize, DataTypes) {
 
             // Create history object with initial status related to new entity
             initStatusPromise.push(new Promise(function(resolve, reject) {
-                var historyModel = 'E_history_'+model_name+'_'+field;
-                sequelize.models.E_status.findOrCreate({
-                    where: {f_entity: model_name, f_field: field, f_label: 'Initial'},
-                    defaults: {f_entity: model_name, f_field: field, f_label: 'Initial'}
-                }).spread(function(status, created) {
-                    var historyObject = {
-                        version:1,
-                        fk_id_status_status: status.id,
-                        f_comment: 'Creation'
-                    };
-                    historyObject["fk_id_"+model_urlvalue+"_history_"+field.substring(2)] = model.id;
-                    sequelize.models[historyModel].create(historyObject).then(function() {
-                        resolve();
-                    });
-                }).catch(function(e){reject(e);});
+                (function(fieldIn) {
+                    var historyModel = 'E_history_'+model_name+'_'+fieldIn;
+                    sequelize.models.E_status.findOrCreate({
+                        where: {f_entity: model_name, f_field: fieldIn, f_label: 'Initial'},
+                        defaults: {f_entity: model_name, f_field: fieldIn, f_label: 'Initial'}
+                    }).spread(function(status, created) {
+                        var historyObject = {
+                            version:1,
+                            f_comment: 'Creation'
+                        };
+                        historyObject["fk_id_status_"+fieldIn.substring(2)] = status.id;
+                        historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = model.id;
+                        sequelize.models[historyModel].create(historyObject).then(function() {
+                            resolve();
+                        });
+                    }).catch(function(e){reject(e);});
+                })(field);
             }));
         }
 

@@ -336,6 +336,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
     var historyModel = 'E_history_ENTITY_NAME_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
+    var statusAlias = 'r_'+req.params.status.substring(2);
 
     var errorRedirect = '/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME;
     // Find target entity instance
@@ -348,18 +349,18 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             order: 'createdAt DESC',
             include: [{
                 model: models.E_status,
-                as: 'r_status'
+                as: statusAlias
             }]
         }]
     }).then(function(ENTITY_NAME) {
-        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0].r_status){
+        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]){
             logger.debug("Not found - Set status");
             return res.render('common/error', {error: 404});
         }
 
         // Find the children of the current status
         models.E_status.findOne({
-            where: {id: ENTITY_NAME[historyAlias][0].r_status.id},
+            where: {id: ENTITY_NAME[historyAlias][0][statusAlias].id},
             include: [{
                 model: models.E_status,
                 as: 'r_children'

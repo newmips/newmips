@@ -631,13 +631,18 @@ exports.relationshipHasManyPresetUsing = function (result) {
 exports.createNewComponentStatus = function(result) {
     return {
         function: "createNewComponentStatus",
-        options: {status_name: false}
+        options: {value: false}
     };
 }
 
 exports.createNewComponentStatusWithName = function(result) {
-    var options = {status_name: result[1]};
-    return checkAndCreateAttr("createNewComponentStatus", options, status_name);
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewComponentStatus", options, value);
 }
 
 /* LOCAL FILE STORAGE */
@@ -1460,8 +1465,8 @@ var training = {
         "ajouter champ (.*) relié à plusieurs (.*) en affichant (.*)"
     ],
     "createNewComponentStatusWithName": [
-        "create component status called %s",
-        "add component status called %s"
+        "create component status called (.*)",
+        "add component status called (.*)"
     ],
     "createNewComponentStatus": [
         "create component status",
