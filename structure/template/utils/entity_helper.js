@@ -3,34 +3,50 @@
  */
 var file_helper = require('./file_helper');
 var logger = require('./logger');
-
-function invertColor(hexTripletColor) {
-    var color = hexTripletColor;
-    color = color.substring(1);           // remove #
-    color = parseInt(color, 16);          // convert to integer
-    color = 0xFFFFFF ^ color;             // invert three bytes
-    color = color.toString(16);           // convert to hex
-    color = ("000000" + color).slice(-6); // pad with leading zeros
-    color = "#" + color;                  // prepend #
-    return color;
-}
+var fs = require('fs-extra');
 
 module.exports = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
     status: {
-        getStatusFieldList: function(attributes) {
+        entityStatusFieldList: function() {
+            var self = this;
+            var entities = [];
+            fs.readdirSync(__dirname+'/../models/attributes').filter(function(file){
+                return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json');
+            }).forEach(function(file){
+                var entityName = file.slice(0, -5);
+                var attributesObj = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
+                var statuses = self.statusFieldList(attributesObj);
+                if (statuses.length > 0) {
+                    for (var i = 0; i < statuses.length; i++)
+                        statuses[i] = {status: statuses[i], statusTrad: 'entity.'+entityName+'.'+statuses[i]};
+                    entities.push({entity: entityName, entityTrad: 'entity.'+entityName+'.label_entity', statuses: statuses});
+                }
+            });
+
+            // return value example: [{
+            //     entity: 'e_test',
+            //     entityTrad: 'entity.e_test.label_entity',
+            //     statuses: [{
+            //         status: 's_status',
+            //         statusTrad: 'entity.e_test.s_status'
+            //     }]
+            // }];
+            return entities;
+        },
+        statusFieldList: function(attributes) {
             var list = [];
             for (var prop in attributes)
                 if (prop.indexOf('s_') == 0)
                     list.push(prop);
             return list;
         },
-        getNextStatus: function(models, entityName, entityId, attributes) {
+        nextStatus: function(models, entityName, entityId, attributes) {
             var self = this;
             return new Promise(function(resolve, reject) {
-                var statusList = self.getStatusFieldList(attributes);
+                var statusList = self.statusFieldList(attributes);
                 if (statusList.length == 0)
                     return resolve([]);
 

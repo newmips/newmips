@@ -1693,7 +1693,6 @@ exports.createNewComponentStatus = function(attr, callback) {
             "entity status has many "+attr.history_table
         ];
 
-        console.log(instructions);
         self.recursiveInstructionExecute(attr, instructions, 0, function(err){
             if(err)
                 return callback(err, null);

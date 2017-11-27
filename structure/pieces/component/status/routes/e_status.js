@@ -97,62 +97,6 @@ router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), 
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("status", "delete"), function (req, res) {
-    var alias = req.params.alias;
-    var idToRemove = req.body.idRemove;
-    var idEntity = req.body.idEntity;
-    models.E_status.findOne({where: {id: idEntity}}).then(function (e_status) {
-        if (!e_status) {
-            var data = {error: 404};
-            return res.render('common/error', data);
-        }
-
-        // Get all associations
-        e_status['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
-            // Remove entity from association array
-            for (var i = 0; i < aliasEntities.length; i++)
-                if (aliasEntities[i].id == idToRemove) {
-                    aliasEntities.splice(i, 1);
-                    break;
-                }
-
-            // Set back associations without removed entity
-            e_status['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
-                res.sendStatus(200).end();
-            });
-        });
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
-});
-
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("status", "write"), function (req, res) {
-    var alias = req.params.alias;
-    var idEntity = req.body.idEntity;
-    models.E_status.findOne({where: {id: idEntity}}).then(function (e_status) {
-        if (!e_status) {
-            var data = {error: 404};
-            logger.debug("No data entity found.");
-            return res.render('common/error', data);
-        }
-
-        var toAdd;
-        if (typeof (toAdd = req.body.ids) === 'undefined') {
-            req.session.toastr.push({
-                message: 'message.create.failure',
-                level: "error"
-            });
-            return res.redirect('/status/show?id=' + idEntity + "#" + alias);
-        }
-
-        e_status['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
-            res.redirect('/status/show?id=' + idEntity + "#" + alias);
-        });
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
-});
-
 router.get('/show', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
     var id_e_status = req.query.id;
     var tab = req.query.tab;
@@ -164,9 +108,8 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
-    if (typeof req.query.hideButton !== 'undefined') {
+    if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
-    }
 
     /* Looking for two level of include to get all associated data in show tab list */
     var include = model_builder.getTwoLevelIncludeAll(models, options);
@@ -187,20 +130,43 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
                             e_status[field] = data.enum[item][value].translation;
 
         /* Update local e_status data before show */
-        data.e_status = e_status;
         var associationsFinder = model_builder.associationsFinder(models, options);
 
         Promise.all(associationsFinder).then(function (found) {
             for (var i = 0; i < found.length; i++) {
-                data.e_status[found[i].model + "_global_list"] = found[i].rows;
+                e_status[found[i].model + "_global_list"] = found[i].rows;
                 data[found[i].model] = found[i].rows;
             }
 
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
             // Update some data before show, e.g get picture binary
             e_status = entity_helper.getPicturesBuffers(e_status, attributes, options, "e_status");
-            res.render('e_status/show', data);
+
+            // Pre-load f_entity and f_field translations for show
+            var entityTradKey = 'entity.'+e_status.f_entity+'.label_entity';
+            e_status.f_field = 'entity.'+e_status.f_entity+'.'+e_status.f_field;
+            e_status.f_entity = entityTradKey;
+
+            // Check if entity has Status component defined and get the possible next status
+            entity_helper.status.nextStatus(models, "e_status", e_status.id, attributes).then(function(nextStatus) {
+                if (nextStatus)
+                    data.next_status = nextStatus;
+                for (var i = 0; i < e_status.r_children.length; i++) {
+                    var curr = e_status.r_children[i];
+                    var entityTradKey = 'entity.'+curr.f_entity+'.label_entity';
+                    curr.f_field = 'entity.'+curr.f_entity+'.'+curr.f_field;
+                    curr.f_entity = entityTradKey;
+                }
+                data.e_status = e_status;
+
+                res.render('e_status/show', data);
+            }).catch(function(err) {
+                console.error(err);
+                req.session.toastr = [{
+                    message: 'component.status.error',
+                    level: 'error'
+                }];
+                res.render('e_status/show', data);
+            });
         });
 
     }).catch(function (err) {
@@ -223,30 +189,8 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "write"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-
-        var entities = [];
-        fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file){
-            return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-5) === '.json');
-        }).forEach(function(file){
-            var entityAttrObj = JSON.parse(__dirname+'/../models/attributes/'+file);
-            var fields = [];
-            for (var attr in entityAttrObj.length) {
-                if (attr.indexOf('s_') == 0)
-                    fields.push({codeName: attr, tradKey: "entity."+file.substring(0, -5)+'.'+attr});
-            }
-            if (fields.length)
-                entities.push({codeName: file.substring(0, -5), fields: fields});
-        }
-        data.entities = entities;
-        res.render('e_status/create', data);
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
+    data.entities = entity_helper.status.entityStatusFieldList();
+    res.render('e_status/create', data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("status", "write"), function (req, res) {
@@ -339,7 +283,6 @@ router.get('/update_form', block_access.actionAccessMiddleware("status", "write"
                                     data[model][j].dataValues.associated = true;
             }
 
-            data.toastr = req.session.toastr;
             req.session.toastr = [];
             res.render('e_status/update', data);
         }).catch(function (err) {

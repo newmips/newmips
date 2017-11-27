@@ -143,9 +143,17 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
             ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
 
             // Check if entity has Status component defined and get the possible next status
-            entity_helper.status.getNextStatus(models, "ENTITY_NAME", ENTITY_NAME.id, attributes).then(function(nextStatus) {
+            entity_helper.status.nextStatus(models, "ENTITY_NAME", ENTITY_NAME.id, attributes).then(function(nextStatus) {
                 if (nextStatus)
                     data.next_status = nextStatus;
+
+                // Give children status entity/field translation
+                for (var i = 0; i < e_status.r_children.length; i++) {
+                    var curr = e_status.r_children[i];
+                    var entityTradKey = 'entity.'+curr.f_entity+'.label_entity';
+                    curr.f_field = 'entity.'+curr.f_entity+'.'+curr.f_field;
+                    curr.f_entity = entityTradKey;
+                }
                 res.render('ENTITY_NAME/show', data);
             }).catch(function(err) {
                 console.error(err);
@@ -182,8 +190,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     Promise.all(associationsFinder).then(function (found) {
         for (var i = 0; i < found.length; i++)
             data[found[i].model] = found[i].rows;
-        data.toastr = req.session.toastr;
-        req.session.toastr = [];
+
         res.render('ENTITY_NAME/create', data);
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
@@ -280,7 +287,6 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
                                     data[model][j].dataValues.associated = true;
             }
 
-            data.toastr = req.session.toastr;
             req.session.toastr = [];
             res.render('ENTITY_NAME/update', data);
         }).catch(function (err) {
