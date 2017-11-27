@@ -103,6 +103,28 @@ block content
 			section.col-lg-offset-3.col-lg-6
 				.box.box-solid.box-default
 					.box-header
+						h4.box-title #{__('home.lastthreeapp')}
+					.box-body
+						.table-responsive
+							table.table.no-margin
+								thead
+									tr
+										th #{__("listApplication.name")}
+										th.text-right(colspan="2") #{__("listApplication.action")}
+								tbody
+									each application, index in lastThreeApp
+										tr
+											td
+												| #{application.displayName}
+											td.text-right
+												a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
+													i.fa.fa-desktop.fa-md &nbsp;&nbsp;
+													span #{__("button.preview")}
+	.row
+		.col-xs-12
+			section.col-lg-offset-3.col-lg-6
+				.box.box-solid.box-default
+					.box-header
 						h4.box-title #{__('home.directlinks.title')}
 					.box-body
 						center
