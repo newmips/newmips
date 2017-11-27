@@ -63,41 +63,17 @@ block content
 		.tab-content
 			#preview.tab-pane.fade.in.active
 				.row
-					.col-xs-12.col-md-8.col-lg-9
-						form#previewForm(action='/application/preview', method='post')
-							.input-group.ui-widget
-								.input-group-btn
-									a.btn.btn-default(href="#", id="btn-speech", alt="Enregistrer une instruction")
-										i.fa.fa-microphone.fa-md
-								input.form-control(id='instruction', name='instruction', type='text', autocomplete="off", autofocus, required, value='' x-webkit-speech)
-								input.form-control.input(id='iframe_url', name='iframe_url', type='hidden', value='#{iframe_url}')
-								//input.form-control.input(id='iframe', name='iframe', type='hidden', value='true')
-								input.form-control.input(id='chat', name='chat', type='hidden', value='#{JSON.stringify(chat)}')
-								.input-group-btn
-									button.btn.btn-success#execute_instruction
-										| #{__("button.execute")}
-						br
-						.row
-							.col-xs-12.connectedSortable
-								.box-body
-									div.responsive-iframe
-										img.iframe-ratio(src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7")
-										if iframe_url != -1
-											iframe(id="iframe", height="800px", width="600px", src="#{iframe_url}", webkitAllowFullScreen, mozallowfullscreen, allowFullScreen, style="border: 1px solid grey;border-radius: 3px;")
-										div(id="loadingIframe", style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.25);display:none;")
-											img.animated.pulse.infinite(src='/img/LOGO-PNG-01-min.png', alt='Loading', style="display:block;margin: auto;margin-top:300px;width:200px;")
-										br
 					.col-xs-12.col-md-4.col-lg-3
 						// Chat box
-						.box.box-solid
+						.box.box-solid(style="margin-bottom:10px;")
 							.box-header
 								h4.box-title
 									i.fa.fa-comments-o
 									|  Instructions
+							br
 							#chat-box.box-body.chat(style="height:450px;max-height:450px;overflow-y:scroll;")
 								// Each item has : user, dateEmission, content
 								each msg in chat.items
-									hr
 									.item
 										if (msg.user == "Mipsy")
 											img(src='/img/avatar.png', alt='user image')
@@ -117,6 +93,7 @@ block content
 											else
 												span.standard-writing
 													| !{__(msg.content, msg.params)}
+									hr
 								//.box-footer
 									.row
 										.col-xs-1
@@ -132,7 +109,7 @@ block content
 													button.btn.btn-success#execute_instruction
 														| #{__("button.execute")}
 						// Session
-						.box.box-solid
+						.box.box-solid(style="margin-bottom:0px;")
 							.box-header
 								h4.box-title
 									i.fa.fa-gear
@@ -178,19 +155,42 @@ block content
 								.text-center
 									a.btn.btn-app#restart-server(href="#")
 										i.fa.fa-refresh
-										|&nbsp; #{__("preview.reload")}
+										|#{__("preview.reload")}
 									if globalConf.env != 'cloud'
 										a.btn.btn-app(target="_blank", href="https://github.com/newmips/newmips/issues/new")
-											i.fa.fa-lg.fa-github
-											|&nbsp; #{__("preview.issue-button")}
+											i.fa.fa-github
+											|#{__("preview.issue-button")}
 									else if globalConf.env == 'cloud' || globalConf.env == 'cloud_recette'
 										div.btn.btn-app#message-box(title="", data-toggle="tooltip", data-original-title="Talk bubble")
 											i.fa.fa-comment
 											div(class="badge badge-danger slack-message-count", style="display: none;")
-											| &nbsp;#{__("preview.help-button")}
+											|#{__("preview.help-button")}
 									a.btn.btn-app(target="_blank", href="http://docs.newmips.com")
-										i.fa.fa-lg.fa-book
-										|&nbsp; #{__("button.documentation")}
+										i.fa.fa-book
+										|#{__("button.documentation")}
+					.col-xs-12.col-md-8.col-lg-9
+						form#previewForm(action='/application/preview', method='post')
+							.input-group.ui-widget(style="margin-bottom:7px;")
+								.input-group-btn
+									a.btn.btn-default(href="#", id="btn-speech", alt="Enregistrer une instruction")
+										i.fa.fa-microphone.fa-md
+								input.form-control(id='instruction', placeholder="#{__('preview.execute')}", name='instruction', type='text', autocomplete="off", autofocus, required, value='' x-webkit-speech)
+								input.form-control.input(id='iframe_url', name='iframe_url', type='hidden', value='#{iframe_url}')
+								//input.form-control.input(id='iframe', name='iframe', type='hidden', value='true')
+								input.form-control.input(id='chat', name='chat', type='hidden', value='#{JSON.stringify(chat)}')
+								.input-group-btn
+									button.btn.btn-success#execute_instruction
+										| #{__("button.execute")}
+						.row
+							.col-xs-12
+								.box-body
+									.responsive-iframe
+										//img.iframe-ratio(src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7")
+										if iframe_url != -1
+											iframe(id="iframe", height="764px", width="600px", src="#{iframe_url}", webkitAllowFullScreen, mozallowfullscreen, allowFullScreen, style="height:764px;border: 1px solid grey;border-radius: 3px;")
+										div(id="loadingIframe", style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.25);display:none;")
+											img.animated.pulse.infinite(src='/img/LOGO-PNG-01-min.png', alt='Loading', style="display:block;margin: auto;margin-top:300px;width:200px;")
+										br
 
 			#ui-editor.tab-pane.fade.in(style="min-height:750px;")
 				.row
@@ -605,12 +605,12 @@ block custom_js
 						indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
 						// User instruction
 						var userItem = data.chat.items[data.chat.items.length-2];
-						$("#chat-box").append("<hr><div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+userItem.dateEmission+"</small>"+userItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+userItem.content+"</span></p></div><hr>");
+						$("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+userItem.dateEmission+"</small>"+userItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+userItem.content+"</span></p></div><hr>");
 
 						// Mipsy answer
 						var mipsyItem = data.chat.items[data.chat.items.length-1];
 						getTranslation(mipsyItem.content, mipsyItem.params, function(mipsyAnswer){
-							$("#chat-box").append("<div class='item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+mipsyItem.dateEmission+"</small>"+mipsyItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+mipsyAnswer+"</span></p></div><hr>");
+							$("#chat-box").append("<div class='animated pulse item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+mipsyItem.dateEmission+"</small>"+mipsyItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+mipsyAnswer+"</span></p></div><hr>");
 
 							$("#instruction").val("");
 							$("#instruction").blur().focus();
