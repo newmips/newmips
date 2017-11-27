@@ -1,0 +1,145 @@
+<div class="nav-tabs-custom" id="tabs">
+    {^hideTab}
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#home">
+                {@__ key="entity.e_status.label_entity" /}
+            </a>
+        </li>
+        <li>
+            <a id="r_children-click" data-toggle="tab" data-tabtype="hasmany" href="#r_children">
+                {@__ key="entity.e_status.as_r_children" /}
+            </a>
+        </li>
+        <li>
+            <a id="r_translations-click" data-toggle="tab" data-tabtype="hasmany" href="#r_translations">
+                {@__ key="entity.e_translation.as_r_translations" /}
+            </a>
+        </li>
+        <li>
+            <a id="r_actions-click" data-toggle="tab" data-tabtype="hasmany" href="#r_actions">
+                {@__ key="entity.e_action.as_r_actions" /}
+            </a>
+        </li>
+
+    </ul>
+    {/hideTab}
+    <div class="tab-content" style="min-height:275px;">
+        <div id="home" class="tab-pane fade in active">
+            <div id="fields" class="row">
+                <div data-field="f_entity" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_entity"> {@__ key="entity.e_status.f_entity"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_status.f_entity" /}' name="{f_entity}" value='{@__ key=f_entity /}' type="text" readonly="">
+                    </div>
+                </div>
+                <div data-field="f_field" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_field"> {@__ key="entity.e_status.f_field"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_status.f_field" /}' name="{f_field}" value='{@__ key=f_field /}' type="text" readonly="">
+                    </div>
+                </div>
+                <div data-field="f_label" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_label"> {@__ key="entity.e_status.f_label"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_status.f_label" /}' name="f_label" value="{f_label}" type="text" readonly="">
+                    </div>
+                </div>
+                <div data-field="f_color" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_color"> {@__ key="entity.e_status.f_color"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_status.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
+                    </div>
+                </div>
+            </div>
+            <div class="actions">
+                {#next_status statusid=id}
+                <div class="row">
+                    {#r_children}
+                    <a href="/status/set_status/{statusid}/{f_field}/{id}" class="btn" style="margin: 5px;background-color: {f_color};text-color:{text_color};">{f_label}</a>
+                    {/r_children}
+                </div>
+                {/next_status}
+                <form action="/status/delete" method="post">
+                    <div class="quicklinks">
+                        <span>
+                <button class="btn btn-danger">
+                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.delete"/}</span>
+                        </button>
+                        <input name="id" type="hidden" value="{e_status.id}" class="form-control">
+                        </span>
+                        <span>
+                <a href="/status/update_form?id={e_status.id}" class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update"/}</span>
+                        </a>
+                        </span>
+                        {^hideButton}
+                        <span>
+                    <a href="/status/create_form" class="btn btn-success">
+                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.create"/}</span>
+                        </a>
+                        </span>
+                        <span>
+                    <a href="/status/list" type="submit" class="btn btn-primary">
+                        <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.list"/}</span>
+                        </a>
+                        </span>
+                        {/hideButton}
+                    </div>
+                </form>
+            </div>
+        </div>
+        {^hideTab}
+        <div id="r_children" class="tab-pane fade">
+            {#r_children e_status=r_children}
+            {@eq key=id value=e_status[0].id}
+            {>"e_status/list_fields" associationAlias="r_children" associationForeignKey="fk_id_status_children" associationFlag="{e_status.id}" associationSource="e_status" associationUrl="status" for="hasMany" /}
+            {/eq}
+            {:else}
+            {>"e_status/list_fields" /}
+            {/r_children}
+            <br>
+            <a href="/status/create_form?associationAlias=r_children&amp;associationForeignKey=fk_id_status_children&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
+			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+		</a>
+        </div>
+        {/hideTab}
+        {^hideTab}
+        <div id="r_translations" class="tab-pane fade">
+            {#r_translations e_translation=r_translations}
+            {@eq key=id value=e_translation[0].id}
+            {>"e_translation/list_fields" associationAlias="r_translations" associationForeignKey="fk_id_status_translations" associationFlag="{e_status.id}" associationSource="e_status" associationUrl="status" for="hasMany" /}
+            {/eq}
+            {:else}
+            {>"e_translation/list_fields" /}
+            {/r_translations}
+            <br>
+            <a href="/translation/create_form?associationAlias=r_translations&amp;associationForeignKey=fk_id_status_translations&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
+			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+		</a>
+        </div>
+        {/hideTab}
+        {^hideTab}
+        <div id="r_actions" class="tab-pane fade">
+            {#r_actions e_action=r_actions}
+            {@eq key=id value=e_action[0].id}
+            {>"e_action/list_fields" associationAlias="r_actions" associationForeignKey="fk_id_status_actions" associationFlag="{e_status.id}" associationSource="e_status" associationUrl="status" for="hasMany" /}
+            {/eq}
+            {:else}
+            {>"e_action/list_fields" /}
+            {/r_actions}
+            <br>
+            <a href="/action/create_form?associationAlias=r_actions&amp;associationForeignKey=fk_id_status_actions&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
+			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+		</a>
+        </div>
+        {/hideTab}
+        {^hideTab}
+
+        {/hideTab}
+    </div>
+</div>

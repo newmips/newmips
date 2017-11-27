@@ -629,9 +629,10 @@ exports.relationshipHasManyPresetUsing = function (result) {
 
 // ******* COMPONENT Actions ******* //
 exports.createNewComponentStatus = function(result) {
+    var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
         function: "createNewComponentStatus",
-        options: {value: false}
+        options: {value: defaultValue, processValue: true}
     };
 }
 

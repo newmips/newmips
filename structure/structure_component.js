@@ -870,6 +870,10 @@ exports.newStatus = function(attr, callback) {
             {statusModel.splice(i, 1); break;}
     fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
+    // Copy e_status pieces
+    fs.copySync(piecesPath+'/routes/e_status.js',workspacePath+'/routes/e_status.js');
+    fs.copySync(piecesPath+'/views/e_status/',workspacePath+'/views/e_status/');
+
     // Remove useless history tab from Status views
     domHelper.read(workspacePath+"/views/e_status/show_fields.dust").then(function($) {
         var historyId = 'r_'+attr.history_table;
