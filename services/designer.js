@@ -1678,26 +1678,22 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 /* --------------------------------------------------------------- */
 exports.createNewComponentStatus = function(attr, callback) {
     var self = this;
-    attr.status_displayName = attr.options.status_name || "Status";
-    console.log(attr);
-    console.log(attr.status_displayName);
-    attr.status_name = attrHelper.clearString(attr.status_displayName).toLowerCase();
-    attr.status_codeName = attrHelper.addPrefix(attr.status_name, 'createNewComponentStatus');
 
     db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
         if (err)
             return callback(err, null);
 
         attr.source = source_entity.codeName;
+        attr.history_table = 'history_'+attr.source+'_'+attr.options.value;
         var instructions = [
-            "entity "+source_entity.name+' has many history_'+attr.source+'_'+attr.status_codeName+' called History '+attr.status_displayName,
-            "select entity history_"+attr.source+"_"+attr.status_codeName,
-            "add field Status related to Status using label",
+            "entity "+source_entity.name+' has many history_'+attr.source+'_'+attr.options.value+' called History '+attr.options.showValue,
+            "select entity history_"+attr.source+"_"+attr.options.value,
+            "add field "+attr.options.showValue+" related to Status using label",
             "add field Comment with type text",
-            "entity status has many history_"+attr.source+"_"+attr.status_codeName
+            "entity status has many "+attr.history_table
         ];
 
-        attr.history_table = 'history_'+attr.source+'_'+attr.status_codeName;
+        console.log(instructions);
         self.recursiveInstructionExecute(attr, instructions, 0, function(err){
             if(err)
                 return callback(err, null);

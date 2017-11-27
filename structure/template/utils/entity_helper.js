@@ -40,37 +40,38 @@ module.exports = {
                 for (var i = 0; i < statusList.length; i++) {
                     var model = 'E_history_'+entityName+'_'+statusList[i];
                     var where = {};
-                    where['fk_id_'+entityName.substring(2)+'_history_status'] = entityId;
-                    nextStatusPromises.push(models[model].findAll({
-                        limit: 1,
-                        order: 'createdAt DESC',
-                        where: where,
-                        include: [{
-                            model: models.E_status,
-                            as: 'r_status',
+                    where['fk_id_'+entityName.substring(2)+'_history_'+statusList[i].substring(2)] = entityId;
+                    (function(status, Model, whereCls) {
+                        nextStatusPromises.push(Model.findAll({
+                            limit: 1,
+                            order: 'createdAt DESC',
+                            where: whereCls,
                             include: [{
-                                model: models.E_translation,
-                                as: 'r_translations'
-                            }, {
                                 model: models.E_status,
-                                as: 'r_children',
+                                as: 'r_'+status.substring(2),
                                 include: [{
                                     model: models.E_translation,
                                     as: 'r_translations'
+                                }, {
+                                    model: models.E_status,
+                                    as: 'r_children',
+                                    include: [{
+                                        model: models.E_translation,
+                                        as: 'r_translations'
+                                    }]
                                 }]
                             }]
-                        }]
-                    }));
+                        }));
+                    })(statusList[i], models[model], where);
                 }
 
                 Promise.all(nextStatusPromises).then(function(histories) {
                     // Queries have limit 1, we know there's only one row in each array
-                    // Remove useless array and assign current R_status
-                    for (var i = 0; i < histories.length; i++) {
-                        histories[i] = histories[i][0].r_status;
-                        for (var j = 0; j < histories[i].children; j++)
-                            histories[i].children[j].dataValues.text_color = invertColor(histories[i].children[j].color);
-                    }
+                    // Remove useless array and assign current R_status (r_[alias])
+                    for (var i = 0; i < statusList.length; i++)
+                        if (histories[i][0] && histories[i][0]['r_'+statusList[i].substring(2)])
+                            histories[i] = histories[i][0]['r_'+statusList[i].substring(2)];
+
                     resolve(histories);
                 }).catch(function(err){
                     console.log(err);
