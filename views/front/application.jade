@@ -36,9 +36,8 @@ block header
 block content
 	legend #{__("listApplication.legend")}
 	.row
-		.col-xs-12.connectedSortable
+		.col-xs-12
 			.box-body
-
 				br
 				each project in projects
 					.col-lg-offset-3.col-lg-6
@@ -48,7 +47,7 @@ block content
 									|#{__("project.label")} : #{project.displayName}
 							.box-body(style="overflow-y:auto;overflow-x:hidden;")
 								.row
-									.col-lg-12
+									.col-xs-12
 										.table-responsive
 											table.table.no-margin
 												thead
