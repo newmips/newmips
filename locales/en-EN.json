@@ -124,6 +124,7 @@
     },
     "preview":{
         "title": "Preview",
+        "execute": "Execute your instructions here !",
         "reload": "Restart server",
         "issue-button": "Report an issue",
         "help-button": "Need help ?",

@@ -64,6 +64,18 @@ $(document).ready(function () {
         $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
     });
 
+    $(".print-tab input[type='radio']").each(function() {
+        var formGroup = $(this).parents(".form-group");
+        var label = formGroup.find("label").html();
+        var htmlToWrite = "<b>"+label+"</b>\n";
+        formGroup.find("input[type='radio']").each(function(){
+            if($(this).prop("checked")){
+                htmlToWrite += "<br><span>" + $(this).val() + "</span>";
+            }
+        });
+        formGroup.html(htmlToWrite);
+    });
+
     $(".print-tab textarea").each(function() {
         $(this).replaceWith("<br><span>"+$(this).val()+"</span>");
     });
@@ -73,6 +85,10 @@ $(document).ready(function () {
     });
 
     $(".print-tab form").each(function() {
+        $(this).remove();
+    });
+
+    $(".print-tab .print-remove").each(function() {
         $(this).remove();
     });
 
