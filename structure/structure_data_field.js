@@ -393,7 +393,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             }
             else {
                 str += "	<div class='input-group'>\n";
-                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='200' width='200' /></a>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='400' width='400' /></a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -983,7 +983,7 @@ exports.setupHasManyTab = function (attr, callback) {
 
             // Create new tab content
             var newTab = '';
-            newTab += '	<div id="' + alias + '" class="tab-pane fade">\n';
+            newTab += '	<div id="' + alias + '" class="tab-pane fade" data-tabType="hasMany">\n';
             newTab += '		<!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
             newTab += '			<!--{@eq key=id value=' + target + '[0].id}-->\n';
             newTab += '				{>"' + target + '/list_fields" associationAlias="' + alias + '" associationForeignKey="' + foreignKey + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + urlSource + '" for="hasMany" /}\n';
@@ -1054,7 +1054,7 @@ exports.setupHasManyPresetTab = function (attr, callback) {
 
             var newTabContent = '';
             // Create select to add elements
-            newTabContent += '<div id="' + alias + '" class="tab-pane fade">\n';
+            newTabContent += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasManyPreset">\n';
             newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
             newTabContent += '      <select style="width:200px;" class="form-control" name="ids" required multiple>\n';
             newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
@@ -1429,7 +1429,7 @@ exports.setupHasOneTab = function (attr, callback) {
 
             // Create new tab content
             var newTab = '';
-            newTab += '<div id="' + alias + '" class="tab-pane fade">\n';
+            newTab += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasOne">\n';
 
             // Include association's fields
             newTab += '<!--{#' + alias + '}-->\n';
