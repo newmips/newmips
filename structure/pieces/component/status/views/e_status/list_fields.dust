@@ -52,7 +52,7 @@
             <td data-field="f_entity" data-type="string">{@__ key=f_entity /}</td>
             <td data-field="f_field" data-type="string">{@__ key=f_field /}</td>
             <td data-field="f_label" data-type="string">{f_label}</td>
-            <td data-field="f_color" data-type="color">{f_color}</td>
+            <td data-field="f_color" data-type="color"><i class="fa fa-lg fa-circle" style="color: {f_color}"></i></td>
             <td>
                 {@eq key=for value="fieldset"}
                 <form class="fieldsetform">

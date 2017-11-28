@@ -239,12 +239,20 @@ function initializeWorkflow(id_application) {
         });
         fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
-        // Write new locales trees
-        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
-        translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
-        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
-        translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
-        finalizeApplication(id_application).then(resolve).catch(reject);
+        // Add show td to action list (to be used in status tab r_action)
+        domHelper.read(workspacePath+'/views/e_action/list_fields.dust').then(function($) {
+            var showTd = '<a class="btn btn-primary" href="/action/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}';
+            $("tbody tr td").eq(3).html(showTd);
+            domHelper.write(workspacePath+'/views/e_action/list_fields.dust', $).then(function(){
+                // Write new locales trees
+                var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
+                translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
+                var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
+                translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
+
+                finalizeApplication(id_application).then(resolve).catch(reject);
+            });
+        });
     });
 }
 

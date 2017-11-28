@@ -881,9 +881,19 @@ exports.newStatus = function(attr, callback) {
         $("#"+historyId).remove();
         domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
 
-            // Add status field locales
-            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
-                callback(null, {message: 'Module C.R.A created'});
+            // Remove show/update button and id from history tab list
+            domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
+                $("tbody tr td").slice(4, 6).remove();
+                $("thead").each(function() {
+                    $(this).find("tr th").slice(4, 6).remove();
+                });
+                domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
+
+                    // Add status field locales
+                    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
+                        callback(null);
+                    });
+                });
             });
         });
     });

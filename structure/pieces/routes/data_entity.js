@@ -148,8 +148,8 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
                     data.next_status = nextStatus;
 
                 // Give children status entity/field translation
-                for (var i = 0; i < e_status.r_children.length; i++) {
-                    var curr = e_status.r_children[i];
+                for (var i = 0; ENTITY_NAME.r_children && i < ENTITY_NAME.r_children.length; i++) {
+                    var curr = ENTITY_NAME.r_children[i];
                     var entityTradKey = 'entity.'+curr.f_entity+'.label_entity';
                     curr.f_field = 'entity.'+curr.f_entity+'.'+curr.f_field;
                     curr.f_entity = entityTradKey;
