@@ -1,0 +1,67 @@
+{>"layout_m_administration"/}
+{<header}
+    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
+        <li class="active">{@__ key="module.m_administration"/}</li>
+    </ol>
+{/header}
+{<content}
+    <div class="row">
+        <div class="col-xs-12 connectedSortable">
+            <form action="/media/create" method="post">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">{@__ key="operation.create"/} {@__ key="entity.e_media.name_entity"/}</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        {>"e_media/create_fields"/}
+                        <div class="form-group">
+                            <input name="version" value="1" type="hidden" />
+                        </div>
+                    </div>
+
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                    </div>
+
+                    {#associationFlag}
+                        <input type="hidden" name='associationFlag' value="{.}">
+                    {/associationFlag}
+                    {#associationSource}
+                        <input type="hidden" name='associationSource' value="{.}">
+                    {/associationSource}
+                    {#associationForeignKey}
+                        <input type="hidden" name='associationForeignKey' value="{.}">
+                    {/associationForeignKey}
+                    {#associationAlias}
+                        <input type="hidden" name='associationAlias' value="{.}">
+                    {/associationAlias}
+                    {#associationUrl}
+                        <input type="hidden" name='associationUrl' value="{.}">
+                    {/associationUrl}
+                </div>
+            </form>
+        </div>
+    </div>
+{/content}
+{<custom_js}
+    <script type="text/javascript">
+        $(function() {
+            /* Display form corresponding to selected Media type */
+            $("select[name=f_media_type]").change(function() {
+                var value = $("select[name=f_media_type] option:selected").val().toLowerCase();
+                $(".media-type").hide().find('input, select, textarea').prop('disabled', true);
+                if (value == '')
+                    return;
+
+                $("#media-"+value).parents('form').prop('action', '/media_'+value+'/create');
+                $("#media-"+value).show().find('input, select, textarea').prop('disabled', false);
+            });
+        });
+    </script>
+{/custom_js}

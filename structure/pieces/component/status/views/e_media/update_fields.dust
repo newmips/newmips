@@ -1,0 +1,32 @@
+<div id="fields" class="row">
+    <div data-field="f_type" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_media_type"> {@__ key="entity.e_media.f_type"/} </label>
+            <select style="width:100%;" disabled class="form-control select" name="f_media_type">
+                <option value="">{@__ key="select.default" /}</option>
+                {#enum_radio.e_media.f_type}
+                    {@eq key=f_type value="{.value}" }
+                        <option value="{.value}" selected=""> {.translation} </option>
+                    {:else}
+                        <option value="{.value}"> {.translation} </option>
+                    {/eq}
+                {/enum_radio.e_media.f_type}
+            </select>
+        </div>
+    </div>
+    {#r_media_mail}
+        <div id="media-mail" class="media-type col-xs-12">
+            {>"e_media_mail/update_fields" /}
+        </div>
+    {/r_media_mail}
+    {#r_media_notification}
+        <div id="media-notification" class="media-type col-xs-12">
+            {>"e_media_notification/update_fields" /}
+        </div>
+    {/r_media_notification}
+    {#r_media_function}
+        <div id="media-function" class="media-type col-xs-12">
+            {>"e_media_function/update_fields" /}
+        </div>
+    {/r_media_function}
+</div>
