@@ -369,7 +369,17 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             where: {id: ENTITY_NAME[historyAlias][0][statusAlias].id},
             include: [{
                 model: models.E_status,
-                as: 'r_children'
+                as: 'r_children',
+                    include: [{
+                    model: models.E_action,
+                    as: 'r_action',
+                    order: 'f_position ASC',
+                    include: [{
+                        model: models.E_media,
+                        as: 'r_media',
+                        include: [{all: true}]
+                    }]
+                }]
             }]
         }).then(function(current_status) {
             if (!current_status || !current_status.r_children){
@@ -379,18 +389,24 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
 
             // Check if new status is actualy the current status's children
             var children = current_status.r_children;
-            var validNext = false;
+            var nextStatus = false;
             for (var i = 0; i < children.length; i++) {
                 if (children[i].id == req.params.id_new_status)
-                    {validNext = true; break;}
+                    {nextStatus = children[i]; break;}
             }
             // Unautorized
-            if (!validNext){
+            if (nextStatus === false){
                 req.session.toastr = [{
                     level: 'error',
                     message: 'component.status.error.illegal_status'
                 }]
                 return res.redirect(errorRedirect);
+            }
+
+            var actionsPromises = [];
+            for (var i = 0; i < nextStatus.r_action.length; i++) {
+                var action = nextStatus.r_action[i];
+                actionsPromises.push(action.r_media.execute(ENTITY_NAME));
             }
 
             // Create history record for this status field
