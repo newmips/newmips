@@ -76,6 +76,20 @@ $(document).ready(function () {
         formGroup.html(htmlToWrite);
     });
 
+    $(".print-tab input[type='checkbox']").each(function() {
+        var formGroup = $(this).parents(".form-group");
+        var label = formGroup.find("label").html();
+        var htmlToWrite = "<b>"+label+"</b>\n";
+        formGroup.find("input[type='checkbox']").each(function(){
+            if($(this).prop("checked")){
+                htmlToWrite += "<br><span><i class='fa fa-check'></i></span>";
+            } else {
+                htmlToWrite += "<br><span><i class='fa fa-close'></i></span>";
+            }
+        });
+        formGroup.html(htmlToWrite);
+    });
+
     $(".print-tab textarea").each(function() {
         $(this).replaceWith("<br><span>"+$(this).val()+"</span>");
     });

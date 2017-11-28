@@ -331,94 +331,108 @@ exports.newPrint = function(attr, callback){
 	var entityLower = attr.options.source.toLowerCase();
 	var idApp = attr.id_application;
 
-	translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
-		var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
+	var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
 
-		domHelper.read(showFieldsPath).then(function($) {
-			var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
-			var componentContent = "";
-			componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
-			componentContent += "<style>";
-			componentContent += "	@media print {";
-			componentContent += "		body{";
-			componentContent += "			height: 100%;";
-			componentContent += "		}";
-			componentContent += "		body * {";
-			componentContent += "			visibility: hidden;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		#"+nameComponentLower+"-content,";
-			componentContent += "		#"+nameComponentLower+"-content * {";
-			componentContent += "			visibility: visible;";
-			componentContent += "		}";
-			componentContent += "		#"+nameComponentLower+"-content {";
-			componentContent += "			position: absolute;";
-			componentContent += "			left: 0;";
-			componentContent += "			top: 0;";
-			componentContent += "			margin: 0px;";
-			componentContent += "			padding: 15px;";
-			componentContent += "			border: 0px;";
-			componentContent += "			width: 100%;";
-			componentContent += "			height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		#"+nameComponentLower+"{";
-			componentContent += "			height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		.tab-content{";
-			componentContent += "			height: 100%;";
-			componentContent += "			min-height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		.content-wrapper{";
-			componentContent += "			height: 100%;";
-			componentContent += "			min-height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		.wrapper{";
-			componentContent += "			height: 100%;";
-			componentContent += "			min-height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "	}";
-			componentContent += "</style>";
-			componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
-			componentContent += "	<div id='"+nameComponent+"-content' class='print-tab'>\n";
+	domHelper.read(showFieldsPath).then(function($) {
+		var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
 
-			if($("#tabs .tab-pane").length == 0){
-				var titleTab = attr.options.showSource;
-				var htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
-				var contentToAdd = "<div class='dontbreakitplz'><legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>";
+        var templateContent = "";
+        templateContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
+        templateContent += "<style>\n";
+        templateContent += "   @media print {\n";
+        templateContent += "       body{\n";
+        templateContent += "           height: 100%;\n";
+        templateContent += "       }\n";
+        templateContent += "       body * {\n";
+        templateContent += "           visibility: hidden;\n";
+        templateContent += "           overflow: visible;\n";
+        templateContent += "       }\n";
+        templateContent += "       #"+nameComponentLower+"-content,\n";
+        templateContent += "       #"+nameComponentLower+"-content * {\n";
+        templateContent += "           visibility: visible;\n";
+        templateContent += "       }\n";
+        templateContent += "       #"+nameComponentLower+"-content {\n";
+        templateContent += "           position: absolute;\n";
+        templateContent += "           left: 0;\n";
+        templateContent += "           top: 0;\n";
+        templateContent += "           margin: 0px;\n";
+        templateContent += "           padding: 15px;\n";
+        templateContent += "           border: 0px;\n";
+        templateContent += "           width: 100%;\n";
+        templateContent += "           height: 100%;\n";
+        templateContent += "           overflow: visible;\n";
+        templateContent += "       }\n";
+        templateContent += "       #"+nameComponentLower+"{\n";
+        templateContent += "           height: 100%;\n";
+        templateContent += "           overflow: visible;\n";
+        templateContent += "       }\n";
+        templateContent += "       .tab-content{\n";
+        templateContent += "           height: 100%;\n";
+        templateContent += "           min-height: 100%;\n";
+        templateContent += "           overflow: visible;\n";
+        templateContent += "       }\n";
+        templateContent += "       .content-wrapper{\n";
+        templateContent += "           height: 100%;\n";
+        templateContent += "           min-height: 100%;\n";
+        templateContent += "           overflow: visible;\n";
+        templateContent += "       }\n";
+        templateContent += "       .wrapper{\n";
+        templateContent += "           height: 100%;\n";
+        templateContent += "           min-height: 100%;\n";
+        templateContent += "           overflow: visible;\n";
+        templateContent += "       }\n";
+        templateContent += "   }\n";
+        templateContent += "</style>\n";
+        templateContent += "   <button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
+        templateContent += "   <div id='"+nameComponent+"-content' class='print-tab'>\n";
 
-				// Change ID to prevent JS errors in DOM
-				contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-				componentContent += contentToAdd;
-			} else{
-				$("#tabs .tab-pane").each(function(){
-					// Don't add other print tab in the new print tab
-					if($(this).find(".print-tab").length == 0){
-						var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
-						var htmlToInclude = "";
-						if($(this).attr("id") == "home")
-							htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
-						else
-							htmlToInclude = $(this)[0].innerHTML;
+		if($("#tabs .tab-pane").length == 0){
+			var titleTab = attr.options.showSource;
+			//var htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}";
+			var contentToAdd = "<div class='dontbreakitplz'>\n<legend>" + titleTab + "</legend>\n" + $("#fields").html() + "</div>\n";
+		} else{
+			$("#tabs .tab-pane").each(function(){
+				// Don't add other print tab in the new print tab
+				if($(this).find(".print-tab").length == 0){
+					var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
+					var htmlToInclude = "";
+					if($(this).attr("id") == "home")
+						htmlToInclude = $("#fields").html();
+                    //else if($(this).data("tabType") == "hasOne"){
+                        //htmlToInclude = "<script"
+                        //htmlToInclude =
+                    //}
+					else
+						htmlToInclude = $(this)[0].innerHTML;
 
-						var contentToAdd = "<div class='dontbreakitplz'><legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>";
+					var contentToAdd = "<div class='dontbreakitplz'>\n<legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>\n";
+				}
+			});
+		}
 
-						// Change ID to prevent JS errors in DOM
-						contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-						componentContent += contentToAdd;
-					}
-				});
-			}
+        // Change ID to prevent JS errors in DOM
+        contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+        contentToAdd = contentToAdd.replace(/name=['"](.[^'"]*)['"]/g, "name=\"$1_print\"");
+        templateContent += contentToAdd;
 
-			componentContent += "	</div>";
-			componentContent += "</div>";
-			componentContent = componentContent.replace("&nbsp;", "");
+		templateContent += "	</div>\n";
+		templateContent += "</div>\n";
 
-			addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
+        // Clean dom
+		templateContent = templateContent.replace("&nbsp;", "");
+        if (templateContent.substring(0, 6) == "&nbsp;")
+            templateContent = templateContent.substring(6);
+        templateContent = templateContent.replace(/&gt;/g, '>');
+        templateContent = templateContent.replace(/&quot;/g, "\"");
+        templateContent = templateContent.replace('<script class="jsdom" src="http://code.jquery.com/jquery.js"></script>', '');
+        templateContent = templateContent.replace(/<!--({[<>@^:#\/].+?})-->/g, '$1');
+        templateContent = templateContent.replace(/placeholder=(")(.+?)(")/g, "placeholder='$2'");
+        templateContent = templateContent.replace(/placeholder=(.+?)(\|)(.+?)(\|)/g, 'placeholder=$1"$3"');
+
+        translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
+            fs.writeFileSync(__dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/'+nameComponentLower+'_print.dust', templateContent);
+            var tabContent = "<!--{>\""+entityLower+"/"+nameComponentLower+"_print\" hideTab=\"true\"/}-->";
+            addTab(attr, showFieldsPath, newLi, tabContent).then(callback);
 		});
 	});
 }
