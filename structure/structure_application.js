@@ -247,6 +247,15 @@ function initializeWorkflow(id_application) {
         fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');
         fs.copySync(piecesPath+'/routes/e_media_mail.js', workspacePath+'/routes/e_media_mail.js');
 
+        // Media pieces
+        var modelMedia = fs.readFileSync(piecesPath+'/models/e_media.js', 'utf8');
+        modelMedia = modelMedia.replace(/ID_APPLICATION/g, attr.id_application);
+        fs.writeFileSync(workspacePath+'/models/e_media.js', modelMedia, 'utf8');
+        // Media mail
+        modelMedia = fs.readFileSync(piecesPath+'/models/e_media_mail.js', 'utf8');
+        modelMedia = modelMedia.replace(/ID_APPLICATION/g, attr.id_application);
+        fs.writeFileSync(workspacePath+'/models/e_media_mail.js', modelMedia, 'utf8');
+
         // Add show td to action list (to be used in status tab r_action)
         domHelper.read(workspacePath+'/views/e_action/list_fields.dust').then(function($) {
             var showTd = '<a class="btn btn-primary" href="/action/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}';

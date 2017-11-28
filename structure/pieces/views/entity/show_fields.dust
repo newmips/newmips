@@ -3,7 +3,7 @@
     {#next_status custom_url_data_entityid=id}
         <div class="row">
             <div class="col-xs-12">
-                <label>{@__ key=dataValues.tradKey /}&nbsp;:</label>&nbsp;<a href="#" class="disabled btn btn-default" style='margin: 5px;'><i style="color: {f_color};margin-right:5px;" class="fa fa-lg fa-circle"></i>{f_label}</a>
+                <label>{@__ key=dataValues.tradKey /}&nbsp;:</label><br>&nbsp;<a href="#" class="disabled btn btn-default" style='margin: 5px;'><i style="color: {f_color};margin-right:5px;" class="fa fa-lg fa-circle"></i>{f_label}</a>
             </div>
             <div class="col-xs-12">
                 {#r_children}
