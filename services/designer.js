@@ -432,17 +432,16 @@ exports.deleteModule = function(attr, callback) {
 /* --------------------------------------------------------------- */
 /* --------------------------- Entity ---------------------------- */
 /* --------------------------------------------------------------- */
-exports.selectDataEntity = function(attr, callback) {
-    db_entity.selectDataEntity(attr, function(err, info) {
-        if(err){
+exports.selectEntity = function(attr, callback) {
+    db_entity.selectEntity(attr, function(err, info) {
+        if(err)
             callback(err, null);
-        } else {
+        else
             callback(null, info);
-        }
     });
 }
 
-exports.createNewDataEntity = function(attr, callback) {
+exports.createNewEntity = function(attr, callback) {
 
     // Get active application module name
     db_module.getModuleById(attr.id_module, function(err, module) {
@@ -453,7 +452,7 @@ exports.createNewDataEntity = function(attr, callback) {
             attr.show_name_module = module.name;
             attr.name_module = module.codeName;
             // Generator database
-            db_entity.createNewDataEntity(attr, function(err, infoDB) {
+            db_entity.createNewEntity(attr, function(err, infoDB) {
                 if(err){
                     callback(err, null);
                 } else {
@@ -1014,12 +1013,12 @@ exports.createNewHasOne = function(attr, callback) {
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         // CREATION DE SOUS ENTITE OU NON
-        db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function(err, dataEntity) {
             if (err) {
                 //Si c'est bien l'error de data entity qui n'existe pas
                 if(err.level == 0){
                     // Si l'entité target n'existe pas, on la crée
-                    db_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
+                    db_entity.createNewEntityTarget(attr, function(err, created_dataEntity) {
                         if(err){
                             return callback(err, null);
                         }
@@ -1268,12 +1267,12 @@ exports.createNewHasMany = function (attr, callback) {
         }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
             // Si l'entité target n'existe pas, on la crée
             if (err) {
                 //Si c'est bien l'error de data entity qui n'existe pas
                 if (err.level == 0) {
-                    db_entity.createNewDataEntityTarget(attr, function (err, created_dataEntity) {
+                    db_entity.createNewEntityTarget(attr, function (err, created_dataEntity) {
                         if (err) {
                             return callback(err, null);
                         }
@@ -1361,7 +1360,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
         }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
             // Si l'entité target n'existe pas ou autre
             if (err)
                 return callback(err, null);
@@ -1538,7 +1537,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
 
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
@@ -1663,7 +1662,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function(err, entityTarget) {
+        db_entity.selectEntityTarget(attr, function(err, entityTarget) {
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
@@ -1823,7 +1822,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                                 return callback(err, null);
                             // Setup the hasMany association in the source entity
                             try{
-                                db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
+                                db_entity.createNewEntity(attr, function(err, infoDbEntity){
                                     var associationOption = {
                                         idApp: attr.id_application,
                                         source: attr.options.source,

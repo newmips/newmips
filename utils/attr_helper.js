@@ -108,7 +108,7 @@ function addPrefix(string, instructionFunction){
         case 'deleteModule':
             return "m_"+string;
             break;
-        case 'createNewDataEntity':
+        case 'createNewEntity':
         case 'deleteDataEntity':
         case 'createNewHasOne':
         case 'createNewHasMany':

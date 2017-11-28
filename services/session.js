@@ -248,8 +248,17 @@ exports.setSession = function(attrFunction, req, info, data) {
             var iframeUrl = data.iframe_url.split("/");
             data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/default/"+info.moduleName.toLowerCase();
             break;
-        case "createNewDataEntity":
-        case "selectDataEntity":
+        case "selectEntity":
+            req.session.id_data_entity = info.insertId;
+            req.session.id_module = info.moduleId;
+            var iframeUrl = data.iframe_url.split("/");
+            data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/list";
+            break;
+        case "createNewEntity":
+            req.session.id_data_entity = info.insertId;
+            var iframeUrl = data.iframe_url.split("/");
+            data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/create_form";
+            break;
         case "createNewEntityWithBelongsTo":
         case "createNewEntityWithHasMany":
         case "createNewBelongsTo":
@@ -305,8 +314,8 @@ exports.setSessionForInstructionScript = function(attrFunction, userArray, info)
             userArray.ids.id_module = info.insertId;
             userArray.ids.id_data_entity = null;
             break;
-        case "createNewDataEntity":
-        case "selectDataEntity":
+        case "createNewEntity":
+        case "selectEntity":
         case "createNewEntityWithBelongsTo":
         case "createNewEntityWithHasMany":
         case "createNewBelongsTo":
@@ -354,8 +363,8 @@ exports.setSessionInAttr = function(attr, info) {
             attr.id_module = info.insertId;
             attr.id_data_entity = null;
             break;
-        case "createNewDataEntity":
-        case "selectDataEntity":
+        case "createNewEntity":
+        case "selectEntity":
         case "createNewEntityWithBelongsTo":
         case "createNewEntityWithHasMany":
         case "createNewBelongsTo":
