@@ -386,10 +386,16 @@ exports.newPrint = function(attr, callback){
         templateContent += "   <button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
         templateContent += "   <div id='"+nameComponent+"-content' class='print-tab'>\n";
 
+        var contentToAdd;
+
 		if($("#tabs .tab-pane").length == 0){
 			var titleTab = attr.options.showSource;
 			//var htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}";
-			var contentToAdd = "<div class='dontbreakitplz'>\n<legend>" + titleTab + "</legend>\n" + $("#fields").html() + "</div>\n";
+			contentToAdd = "<div class='dontbreakitplz'>\n<legend>" + titleTab + "</legend>\n" + $("#fields").html() + "</div>\n";
+            // Change ID to prevent JS errors in DOM
+            contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+            contentToAdd = contentToAdd.replace(/name=['"](.[^'"]*)['"]/g, "name=\"$1_print\"");
+            templateContent += contentToAdd;
 		} else{
 			$("#tabs .tab-pane").each(function(){
 				// Don't add other print tab in the new print tab
@@ -405,15 +411,14 @@ exports.newPrint = function(attr, callback){
 					else
 						htmlToInclude = $(this)[0].innerHTML;
 
-					var contentToAdd = "<div class='dontbreakitplz'>\n<legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>\n";
+					contentToAdd = "<div class='dontbreakitplz'>\n<legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>\n";
+                    // Change ID to prevent JS errors in DOM
+                    contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+                    contentToAdd = contentToAdd.replace(/name=['"](.[^'"]*)['"]/g, "name=\"$1_print\"");
+                    templateContent += contentToAdd;
 				}
 			});
 		}
-
-        // Change ID to prevent JS errors in DOM
-        contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-        contentToAdd = contentToAdd.replace(/name=['"](.[^'"]*)['"]/g, "name=\"$1_print\"");
-        templateContent += contentToAdd;
 
 		templateContent += "	</div>\n";
 		templateContent += "</div>\n";
