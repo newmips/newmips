@@ -1,0 +1,22 @@
+<div id="fields" class="row">
+    <div data-field="f_type" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_type"> {@__ key="entity.e_media.f_type"/} </label>
+            <select style="width:100%;" class="form-control select" name="f_media_type">
+                <option value="" selected="">{@__ key="select.default" /}</option>
+                {#enum_radio.e_media.f_type}
+                    <option value="{.value}"> {.translation} </option>
+                {/enum_radio.e_media.f_type}
+            </select>
+        </div>
+    </div>
+    <div id="media-mail" class="media-type col-xs-12" style="display: none;">
+        {>"e_media_mail/create_fields" /}
+    </div>
+    <div id="media-notification" class="media-type col-xs-12" style="display: none;">
+        {>"e_media_notification/create_fields" /}
+    </div>
+    <div id="media-function" class="media-type col-xs-12" style="display: none;">
+        {>"e_media_function/create_fields" /}
+    </div>
+</div>

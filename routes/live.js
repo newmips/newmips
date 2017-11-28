@@ -134,6 +134,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Field");
     instructions.push("add field Label");
     instructions.push("add field Color with type color");
+    instructions.push("add field position with type number");
     instructions.push("entity Status has many Status called Children")
     instructions.push("entity status has many Translation called Translations");
     instructions.push("select entity translation");
@@ -142,10 +143,12 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("entity status has many Action called Actions");
     instructions.push("select entity action");
     instructions.push("add field Order");
-    instructions.push("add field Type with type enum and values mail, notification, function");
-    instructions.push("entity action has one Media mail");
-    instructions.push("entity action has one Media Notification");
-    instructions.push("entity action has one Media Function");
+    instructions.push("entity action has one Media");
+    instructions.push("select entity Media");
+    instructions.push("add field Type with type enum and values Mail, Notification, Function");
+    instructions.push("entity Media has one Media Mail");
+    instructions.push("entity Media has one Media Notification");
+    instructions.push("entity Media has one Media Function");
     instructions.push("select entity media mail");
     instructions.push("add field To");
     instructions.push("add field Cc");
