@@ -89,12 +89,16 @@ sequelize.customAfterSync = function() {
                                 toSyncProdObject.queries.push(query);
                                 resolve0();
                             }).catch(function(err) {
-                                if(err.parent.errno == 1060){
-                                    console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
-                                    resolve0();
-                                }
-                                else
+                                if(typeof err.parent !== "undefined"){
+                                    if(err.parent.errno == 1060){
+                                        console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
+                                        resolve0();
+                                    } else{
+                                        reject0(err);
+                                    }
+                                } else{
                                     reject0(err);
+                                }
                             });
                         }));
                     })(request, entity, attribute);
@@ -128,10 +132,16 @@ sequelize.customAfterSync = function() {
                                     toSyncProdObject.queries.push(request);
                                     resolve0();
                                 }).catch(function(err) {
-                                    if(err.parent.errno == 1060)
-                                        resolve0();
-                                    else
+                                    if(typeof err.parent !== "undefined"){
+                                        if(err.parent.errno == 1060){
+                                            console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
+                                            resolve0();
+                                        } else{
+                                            reject0(err);
+                                        }
+                                    } else{
                                         reject0(err);
+                                    }
                                 });
                             }));
                         })(entity, toSyncObject[entity].options[j]);
