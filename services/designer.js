@@ -1688,7 +1688,7 @@ exports.createNewComponentStatus = function(attr, callback) {
         var instructions = [
             "entity "+source_entity.name+' has many history_'+attr.source+'_'+attr.options.value+' called History '+attr.options.showValue,
             "select entity history_"+attr.source+"_"+attr.options.value,
-            "add field "+attr.options.showValue+" related to Status using label",
+            "add field "+attr.options.showValue+" related to Status using label, color",
             "add field Comment with type text",
             "entity status has many "+attr.history_table
         ];
@@ -1697,10 +1697,10 @@ exports.createNewComponentStatus = function(attr, callback) {
             if(err)
                 return callback(err, null);
 
-            structure_component.newStatus(attr, function(err, info) {
+            structure_component.newStatus(attr, function(err) {
                 if (err)
                     return callback(err, null);
-                callback(null, info);
+                callback(null, {message: 'database.component.create.successOnEntity', params: ['status', attr.source]});
             });
         });
     });

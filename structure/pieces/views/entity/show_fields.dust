@@ -3,7 +3,7 @@
     {#next_status custom_url_data_entityid=id}
         <div class="row">
             {#r_children}
-                <a href="/custom_url_data_entity/set_status/{custom_url_data_entityid}/{f_field}/{id}" class="btn" style='margin: 5px;background-color: {f_color};text-color:{text_color};'>{f_label}</a>
+                <a href="/custom_url_data_entity/set_status/{custom_url_data_entityid}/{f_field}/{id}" class="btn btn-default" style='margin: 5px;'><i style="color: {f_color};margin-right:5px;" class="fa fa-lg fa-circle"></i>{f_label}</a>
             {/r_children}
         </div>
     {/next_status}
