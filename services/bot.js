@@ -113,7 +113,7 @@ exports.selectModule = function (result) {
     return attr;
 };
 
-exports.selectDataEntity = function (result) {
+exports.selectEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -121,7 +121,7 @@ exports.selectDataEntity = function (result) {
     };
 
     var attr = {
-        function: "selectDataEntity",
+        function: "selectEntity",
         options: options
     };
     return attr;
@@ -227,7 +227,7 @@ exports.createNewModule = function (result) {
     return checkAndCreateAttr("createNewModule", options, value);
 };
 
-exports.createNewDataEntity = function (result) {
+exports.createNewEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -235,7 +235,7 @@ exports.createNewDataEntity = function (result) {
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewDataEntity", options, value);
+    return checkAndCreateAttr("createNewEntity", options, value);
 };
 
 exports.createNewDataField = function (result) {
@@ -1036,7 +1036,7 @@ var training = {
         "sélectionner le module (.*)",
         "sélectionner module (.*)"
     ],
-    "selectDataEntity": [
+    "selectEntity": [
         "select entity (.*)",
         "select data entity (.*)",
         "sélectionner l'entité (.*)",
@@ -1096,7 +1096,7 @@ var training = {
         "ajouter un module (.*)",
         "ajouter le module (.*)"
     ],
-    "createNewDataEntity": [
+    "createNewEntity": [
         "create entity (.*)",
         "create data entity (.*)",
         "add entity (.*)",

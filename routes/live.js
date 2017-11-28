@@ -219,8 +219,8 @@ function execute(req, instruction) {
                             req.session.id_module = info.insertId;
                             req.session.id_data_entity = null;
                             break;
-                        case "createNewDataEntity":
-                        case "selectDataEntity":
+                        case "createNewEntity":
+                        case "selectEntity":
                         case "createNewEntityWithBelongsTo":
                         case "createNewEntityWithHasMany":
                         case "createNewBelongsTo":
