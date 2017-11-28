@@ -10,8 +10,8 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     }
 
     if(valueToCheck.length > 30){
-        console.log("Value is too long => "+valueToCheck);
-        attr.error = "The given value is too long (>30)."
+        console.log("Value is too long => "+valueToCheck+"("+valueToCheck.length+")");
+        attr.error = "error.valueTooLong";
     }
 
     return attr;
@@ -1913,7 +1913,7 @@ exports.parse = function (instruction) {
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
     } else {
-        attr.error = "Unable to find a matching instruction.";
+        attr.error = "error.cannotFindInstruction";
     }
 
     return attr;

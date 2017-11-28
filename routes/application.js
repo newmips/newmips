@@ -710,14 +710,8 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             });
         } catch(e){
 
-            //data.answers = e.message + "\n\n" + answers;
-            console.log(e.message);
-
-            // Analyze instruction more deeply
-            var answer = "Sorry, your instruction has not been executed properly.<br><br>";
-            answer += "Error: " + e.message + "<br><br>";
-
-            setChat(req, currentAppID, currentUserID, "Mipsy", answer, []);
+            console.log(e);
+            setChat(req, currentAppID, currentUserID, "Mipsy", e.message, []);
 
             // Load session values
             var attr = {};
