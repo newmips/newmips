@@ -134,7 +134,7 @@ sequelize.customAfterSync = function() {
                                 }).catch(function(err) {
                                     if(typeof err.parent !== "undefined"){
                                         if(err.parent.errno == 1060){
-                                            console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
+                                            console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
                                             resolve0();
                                         } else{
                                             reject0(err);

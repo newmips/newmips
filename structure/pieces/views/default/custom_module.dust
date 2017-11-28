@@ -6,14 +6,12 @@
 	</h1>
 	<ol class='breadcrumb'>
 		<li>
-			<a href='#'>
+			<a href='/'>
 				<i class='fa fa-home'></i>
 				{@__ key="module.home"/}
 			</a>
 		</li>
-		<li class='active'>
-			{@__ key="module.custom_module"/}
-		</li>
+        <!-- NEW MODULE -->
 	</ol>
 {/header}
 

@@ -216,6 +216,17 @@ exports.setupDataEntity = function (attr, callback) {
         var result = data.replace(/custom_module/g, nameModule.toLowerCase());
         result = result.replace(/custom_show_module/g, showNameModule.toLowerCase());
 
+        if(nameModule.toLowerCase() != "m_home"){
+            var htmlToAdd = ""+
+            "<li>"+
+            "   <a class='sub-module-arianne' href='/default/"+nameModule.toLowerCase().substring(2)+"'>"+
+            "       {@__ key=\"module."+nameModule.toLowerCase()+"\"/}"+
+            "   </a>"+
+            "</li>";
+
+            result = result.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
+        }
+
         var stream_file = fs.createWriteStream(fileToWrite);
         /* Node.js 0.10+ emits finish when complete */
         stream_file.write(result);
