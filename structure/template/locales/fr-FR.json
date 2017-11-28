@@ -162,6 +162,7 @@
         "goHome": "Si vous souhaitez retourner à la page d'accueil, cliquez-ici",
         "goBack": "Si vous souhaitez revenir en arrière, cliquez-ici",
         "goBackText": "Revenir en arrière",
-        "home": "Accueil"
+        "home": "Accueil",
+        "valueTooLong": "La valeur renseignée dépasse la longueur maximum autorisée(>30)."
     }
 }
