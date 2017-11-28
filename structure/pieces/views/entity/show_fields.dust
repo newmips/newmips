@@ -2,10 +2,16 @@
 <div class='actions'>
     {#next_status custom_url_data_entityid=id}
         <div class="row">
-            {#r_children}
-                <a href="/custom_url_data_entity/set_status/{custom_url_data_entityid}/{f_field}/{id}" class="btn btn-default" style='margin: 5px;'><i style="color: {f_color};margin-right:5px;" class="fa fa-lg fa-circle"></i>{f_label}</a>
-            {/r_children}
+            <div class="col-xs-12">
+                <label>{@__ key=dataValues.tradKey /}&nbsp;:</label>&nbsp;<a href="#" class="disabled btn btn-default" style='margin: 5px;'><i style="color: {f_color};margin-right:5px;" class="fa fa-lg fa-circle"></i>{f_label}</a>
+            </div>
+            <div class="col-xs-12">
+                {#r_children}
+                    <a href="/custom_url_data_entity/set_status/{custom_url_data_entityid}/{f_field}/{id}" class="btn btn-default" style='margin: 5px;'><i style="color: {f_color};margin-right:5px;" class="fa fa-lg fa-circle"></i>{f_label}</a>
+                {/r_children}
+            </div>
         </div>
+        <br>
     {/next_status}
     <form action="/custom_url_data_entity/delete" method="post">
         <div class="quicklinks">
