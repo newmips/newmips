@@ -85,8 +85,10 @@ module.exports = {
                     // Queries have limit 1, we know there's only one row in each array
                     // Remove useless array and assign current R_status (r_[alias])
                     for (var i = 0; i < statusList.length; i++)
-                        if (histories[i][0] && histories[i][0]['r_'+statusList[i].substring(2)])
+                        if (histories[i][0] && histories[i][0]['r_'+statusList[i].substring(2)]) {
                             histories[i] = histories[i][0]['r_'+statusList[i].substring(2)];
+                            histories[i].dataValues.tradKey = 'entity.'+histories[i].f_entity+'.'+histories[i].f_field;
+                        }
 
                     resolve(histories);
                 }).catch(function(err){
