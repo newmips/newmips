@@ -1,32 +1,49 @@
 <div id="fields" class="row">
     <div data-field="f_entity" class="col-xs-12">
         <div class="form-group">
-            <label for="f_entity" class="required"> {@__ key="entity.e_status.f_entity"/} </label>
-            <select name="f_entity" required class="form-control" style="width:100%;">
-                <option default>{@__ key="select.default" /}</option>
-                {#entities}
-                    <option value="{entity}">{@__ key=entityTrad /}</option>
-                {/entities}
-            </select>
+            <label for="f_entity" class="required"> {@__ key="entity.e_status.f_entity"/}</label>
+            {#f_entity}
+                <select disabled class="form-control">
+                    <option value="{f_entity}">{@__ key=entityTrad /}</option>
+                </select>
+                <input type="hidden" name="f_entity" value="{f_entity}">
+            {:else}
+                <select name="f_entity" required class="form-control" style="width:100%;">
+                    <option default>{@__ key="select.default" /}</option>
+                    {#entities}
+                        <option value="{entity}">{@__ key=entityTrad /}</option>
+                    {/entities}
+                </select>
+            {/f_entity}
         </div>
     </div>
     <div data-field="f_field" class="col-xs-12">
-        {#entities}
-            <div id="{entity}.status" style="display: none;" class="form-group">
+        {#f_field}
+            <div class="form-group">
                 <label for="f_field" class="required">{@__ key="entity.e_status.f_field"/}</label>
-                <select name="f_field" required disabled class="form-control" style="width:100%;">
-                    <option default>{@__ key="select.default" /}</option>
-                    {#statuses}
-                        <option value="{status}">{@__ key=statusTrad /}</option>
-                    {/statuses}
+                <select disabled class="form-control">
+                    <option value="{f_field}">{@__ key=fieldTrad /}</option>
                 </select>
+                <input type="hidden" name="f_field" value="{f_field}">
             </div>
-        {/entities}
+        {:else}
+            {#entities}
+                <div id="{entity}.status" style="display: none;" class="form-group">
+                    <label for="f_field" class="required">{@__ key="entity.e_status.f_field"/}</label>
+                    <select name="f_field" required disabled class="form-control" style="width:100%;">
+                        <option default>{@__ key="select.default" /}</option>
+                        {#statuses}
+                            <option value="{status}">{@__ key=statusTrad /}</option>
+                        {/statuses}
+                    </select>
+                </div>
+            {/entities}
+        {/f_field}
     </div>
-    <div data-field="f_label" class="col-xs-12">
+    <div data-field="f_name" class="col-xs-12">
         <div class="form-group">
-            <label for="f_label"> {@__ key="entity.e_status.f_label"/} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_status.f_label" /}' name="f_label" value="" type="text">
+            <label for="f_name"> {@__ key="entity.e_status.f_name"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_status.f_name" /}' name="f_name" value="" type="text">
         </div>
     </div>
     <div data-field="f_color" class="col-xs-12">
@@ -35,4 +52,19 @@
             <input class="form-control input" placeholder='{@__ key="entity.e_status.f_color" /}' name="f_color" value="#FFFFFF" type="color">
         </div>
     </div>
+    <div data-field="f_position" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_position"> {@__ key="entity.e_status.f_position"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_status.f_position" /}' name="f_position" value="" type="number">
+        </div>
+    </div>
+    {#f_entity}
+        <div data-field="f_default" class="col-xs-12">
+            <div class="form-group">
+                <label for="f_default"> {@__ key="entity.e_status.f_default"/} </label> &nbsp;
+                <br>
+                <input class="form-control input" name="f_default" type="checkbox">
+            </div>
+        </div>
+    {/f_entity}
 </div>

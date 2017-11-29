@@ -130,12 +130,14 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Token");
     instructions.push("add field Token timeout TMSP");
     instructions.push("add entity Status");
+    instructions.push("set icon tags");
     instructions.push("add field Entity");
     instructions.push("add field Field");
-    instructions.push("add field Label");
+    instructions.push("add field Name");
     instructions.push("add field Color with type color");
-    instructions.push("add field position with type number");
-    instructions.push("entity Status has many Status called Children")
+    instructions.push("add field Position with type number");
+    instructions.push("add field Default with type boolean");
+    instructions.push("entity Status has many Status called Children");
     instructions.push("entity status has many Translation called Translations");
     instructions.push("select entity translation");
     instructions.push("add field Language");
@@ -143,6 +145,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("entity status has many Action called Actions");
     instructions.push("select entity action");
     instructions.push("add field Order");
+    instructions.push("add field Execution with type enum and values Immédiate, Différée with default value Immédiate");
     instructions.push("entity action has one Media");
     instructions.push("select entity Media");
     instructions.push("add field Type with type enum and values Mail, Notification, Function");

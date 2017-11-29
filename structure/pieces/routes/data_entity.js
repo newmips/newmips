@@ -372,7 +372,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                 as: 'r_children',
                     include: [{
                     model: models.E_action,
-                    as: 'r_action',
+                    as: 'r_actions',
                     order: 'f_position ASC',
                     include: [{
                         model: models.E_media,
@@ -403,15 +403,16 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                 return res.redirect(errorRedirect);
             }
 
-            var actionsPromises = [];
-            for (var i = 0; i < nextStatus.r_action.length; i++) {
-                var action = nextStatus.r_action[i];
-                actionsPromises.push(action.r_media.execute(ENTITY_NAME));
+            // Execute newStatus actions
+            for (var i = 0; i < nextStatus.r_actions.length; i++) {
+                var action = nextStatus.r_actions[i];
+                action.r_media.execute(ENTITY_NAME);
             }
 
             // Create history record for this status field
             // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
-            var createObject = {fk_id_status_status: req.params.id_new_status};
+            var createObject = {}
+            createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
             createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
             models[historyModel].create(createObject).then(function() {
                 res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)

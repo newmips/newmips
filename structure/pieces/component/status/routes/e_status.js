@@ -181,16 +181,28 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "write"
         enum_radio: enums_radios.translated("e_status", req.session.lang_user, options)
     };
 
+    data.entities = entity_helper.status.entityStatusFieldList();
+
     if (typeof req.query.associationFlag !== 'undefined') {
         data.associationFlag = req.query.associationFlag;
         data.associationSource = req.query.associationSource;
         data.associationForeignKey = req.query.associationForeignKey;
         data.associationAlias = req.query.associationAlias;
         data.associationUrl = req.query.associationUrl;
+        models.E_status.findOne({where: {id: data.associationFlag}}).then(function(status) {
+            data.f_field = status.f_field;
+            data.f_entity = status.f_entity;
+            data.entityTrad = 'entity.'+data.f_entity+'.label_entity';
+            data.fieldTrad = 'entity.'+data.f_entity+'.'+data.f_field;
+            res.render('e_status/create', data);
+        }).catch(function(err) {
+            data.error = 404;
+            res.render('common/error', data);
+        });
     }
+    else
+        res.render('e_status/create', data);
 
-    data.entities = entity_helper.status.entityStatusFieldList();
-    res.render('e_status/create', data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("status", "write"), function (req, res) {

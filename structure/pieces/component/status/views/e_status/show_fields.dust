@@ -39,10 +39,10 @@
                         <input class="form-control input" placeholder='{@__ key="entity.e_status.f_field" /}' name="{f_field}" value='{@__ key=f_field /}' type="text" readonly="">
                     </div>
                 </div>
-                <div data-field="f_label" class="col-xs-12">
+                <div data-field="f_name" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_label"> {@__ key="entity.e_status.f_label"/} </label>
-                        <input class="form-control input" placeholder='{@__ key="entity.e_status.f_label" /}' name="f_label" value="{f_label}" type="text" readonly="">
+                        <label for="f_name"> {@__ key="entity.e_status.f_name"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_status.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
                     </div>
                 </div>
                 <div data-field="f_color" class="col-xs-12">
@@ -51,15 +51,23 @@
                         <input class="form-control input" placeholder='{@__ key="entity.e_status.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
                     </div>
                 </div>
+                <div data-field="f_position" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_position"> {@__ key="entity.e_status.f_position"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_status.f_position" /}' name="f_position" value="{f_position}" type="number" readonly="">
+                    </div>
+                </div>
+                <div data-field="f_default" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_default"> {@__ key="entity.e_status.f_default"/} </label> &nbsp;
+                        <br>
+                        {@ifTrue key=f_default}<input class="form-control input" name="f_default" value="{f_default}" type="checkbox" checked="" disabled="">
+                        {:else}<input class="form-control input" name="f_default" value="{f_default}" type="checkbox" disabled="">
+                        {/ifTrue}
+                    </div>
+                </div>
             </div>
             <div class="actions">
-                {#next_status statusid=id}
-                <div class="row">
-                    {#r_children}
-                    <a href="/status/set_status/{statusid}/{f_field}/{id}" class="btn" style="margin: 5px;background-color: {f_color};text-color:{text_color};">{f_label}</a>
-                    {/r_children}
-                </div>
-                {/next_status}
                 <form action="/status/delete" method="post">
                     <div class="quicklinks">
                         <span>

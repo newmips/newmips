@@ -1683,12 +1683,14 @@ exports.createNewComponentStatus = function(attr, callback) {
         if (err)
             return callback(err, null);
 
+        // These instructions create a has many with a new entity history_status
+        // It also does a hasMany relation with e_status
         attr.source = source_entity.codeName;
         attr.history_table = 'history_'+attr.source+'_'+attr.options.value;
         var instructions = [
             "entity "+source_entity.name+' has many history_'+attr.source+'_'+attr.options.value+' called History '+attr.options.showValue,
             "select entity history_"+attr.source+"_"+attr.options.value,
-            "add field "+attr.options.showValue+" related to Status using label, color",
+            "add field "+attr.options.showValue+" related to Status using name, color",
             "add field Comment with type text",
             "entity status has many "+attr.history_table
         ];

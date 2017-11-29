@@ -19,10 +19,10 @@ module.exports = function (sequelize, DataTypes) {
                 return new Promise(function(resolve, reject) {
                     if (!self['r_media_'+self.f_type.toLowerCase()])
                         return reject("No media with type "+self.f_type.toLowerCase());
-                    self['r_media_'+self.f_type.toLowerCase()].execute(data, resolve, reject);
+                    self['r_media_'+self.f_type.toLowerCase()].execute(resolve, reject, data);
                 });
             }
-        }
+        },
         timestamps: true
     };
 
@@ -39,8 +39,8 @@ module.exports = function (sequelize, DataTypes) {
                 (function(fieldIn) {
                     var historyModel = 'E_history_'+model_name+'_'+fieldIn;
                     sequelize.models.E_status.findOrCreate({
-                        where: {f_entity: model_name, f_field: fieldIn, f_label: 'Initial'},
-                        defaults: {f_entity: model_name, f_field: fieldIn, f_label: 'Initial'}
+                        where: {f_entity: model_name, f_field: fieldIn},
+                        defaults: {f_entity: model_name, f_field: fieldIn}
                     }).spread(function(status, created) {
                         var historyObject = {
                             version:1,
