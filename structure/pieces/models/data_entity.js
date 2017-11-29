@@ -29,8 +29,8 @@ module.exports = function (sequelize, DataTypes) {
                 (function(fieldIn) {
                     var historyModel = 'E_history_'+model_name+'_'+fieldIn;
                     sequelize.models.E_status.findOrCreate({
-                        where: {f_entity: model_name, f_field: fieldIn, f_label: 'Initial'},
-                        defaults: {f_entity: model_name, f_field: fieldIn, f_label: 'Initial'}
+                        where: {f_entity: model_name, f_field: fieldIn, f_default: true},
+                        defaults: {f_entity: model_name, f_field: fieldIn, f_name: 'Initial', f_default: true}
                     }).spread(function(status, created) {
                         var historyObject = {
                             version:1,

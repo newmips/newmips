@@ -37,7 +37,7 @@ exports.sendTemplate = function(templateName, options, attachments) {
 			}
 
 			// Generate mail model, then render mail to html
-			dust.renderSource(template, options, function(err, rendered) {
+			dust.renderSource(template, options.data, function(err, rendered) {
 				options.html = rendered;
 
 				// Attachment Example :
@@ -65,7 +65,7 @@ exports.sendTemplate = function(templateName, options, attachments) {
 exports.sendHtml = function(html, options, attachments) {
 	return new Promise(function(resolve, reject) {
 		// Generate mail model, then render mail to html
-		dust.renderSource(html, options, function(err, rendered) {
+		dust.renderSource(html, options.data, function(err, rendered) {
 			options.html = rendered;
 
 			// Attachment Example :

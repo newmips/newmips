@@ -19,10 +19,14 @@
                         </div>
                     </div>
                     <div class="box-body">
-                        {>"e_status/create_fields"/}
-                        <div class="form-group">
-                            <input name="version" value="1" type="hidden" />
-                        </div>
+                        {^entities}
+                            {@__ key="component.status.no_status_field" /}
+                        {:else}
+                            {>"e_status/create_fields"/}
+                            <div class="form-group">
+                                <input name="version" value="1" type="hidden" />
+                            </div>
+                        {/entities}
                     </div>
 
                     <div class="box-footer">

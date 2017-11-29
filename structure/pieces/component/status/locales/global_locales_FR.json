@@ -4,7 +4,29 @@
 			"error": {
 				"illegal_status": "This status isn't valid"
 			},
-			"next_status": "Statut suivant"
+			"next_status": "Statut suivant",
+			"no_status_field": "Vous n'avez pas d'entité ayant un composant statut. Utilisez le generateur pour ajouter un composant statut et cette page vous permettra de configurer ces statuts"
+		}
+	},
+	"entity": {
+		"e_status": {
+            "label_entity": "Statut",
+            "name_entity": "Statut",
+            "plural_entity": "Statuts",
+			"as_r_children": "Statuts suivants",
+            "f_entity": "Entité",
+            "f_field": "Champ",
+            "f_name": "Nom",
+            "f_color": "Couleur"
+		},
+		"e_translation": {
+			"label_entity": "Traduction",
+			"name_entity": "Traduction",
+			"plural_entity": "Traductions",
+			"as_r_translations": "Traductions"
+		},
+		"e_action": {
+			"f_execution": "Exécution"
 		}
 	}
 }

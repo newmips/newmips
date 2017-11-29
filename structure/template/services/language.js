@@ -2,6 +2,8 @@
 var languages = [];
 
 function fetchText(key, lang) {
+	if (!key)
+		return "";
 	var keys = key.split('.');
 	if (typeof languages[lang] === 'undefined') {
 		try {

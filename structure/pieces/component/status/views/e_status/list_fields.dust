@@ -11,11 +11,17 @@
             <th data-field="f_field" data-col="f_field" data-type="string">
                 {@__ key="entity.e_status.f_field"/}
             </th>
-            <th data-field="f_label" data-col="f_label" data-type="string">
-                {@__ key="entity.e_status.f_label"/}
+            <th data-field="f_name" data-col="f_name" data-type="string">
+                {@__ key="entity.e_status.f_name"/}
             </th>
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="entity.e_status.f_color"/}
+            </th>
+            <th data-field="f_position" data-col="f_position" data-type="integer">
+                {@__ key="entity.e_status.f_position"/}
+            </th>
+            <th data-field="f_default" data-col="f_default" data-type="boolean">
+                {@__ key="entity.e_status.f_default"/}
             </th>
             <th></th>
             <th></th>
@@ -34,11 +40,17 @@
             <th data-field="f_field" data-col="f_field" data-type="string">
                 {@__ key="entity.e_status.f_field"/}
             </th>
-            <th data-field="f_label" data-col="f_label" data-type="string">
-                {@__ key="entity.e_status.f_label"/}
+            <th data-field="f_name" data-col="f_name" data-type="string">
+                {@__ key="entity.e_status.f_name"/}
             </th>
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="entity.e_status.f_color"/}
+            </th>
+            <th data-field="f_position" data-col="f_position" data-type="integer">
+                {@__ key="entity.e_status.f_position"/}
+            </th>
+            <th data-field="f_default" data-col="f_default" data-type="boolean">
+                {@__ key="entity.e_status.f_default"/}
             </th>
             <th></th>
             <th></th>
@@ -51,8 +63,10 @@
             <td data-field="id">{id}</td>
             <td data-field="f_entity" data-type="string">{@__ key=f_entity /}</td>
             <td data-field="f_field" data-type="string">{@__ key=f_field /}</td>
-            <td data-field="f_label" data-type="string">{f_label}</td>
+            <td data-field="f_name" data-type="string">{f_name}</td>
             <td data-field="f_color" data-type="color"><i class="fa fa-lg fa-circle" style="color: {f_color}"></i></td>
+            <td data-field="f_position" data-type="integer">{f_position}</td>
+            <td data-field="f_default" data-type="boolean">{f_default}</td>
             <td>
                 {@eq key=for value="fieldset"}
                 <form class="fieldsetform">

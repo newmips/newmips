@@ -16,7 +16,8 @@ module.exports = function (sequelize, DataTypes) {
             associate: builder.buildAssociation('E_media_mail', associations)
         },
         instanceMethods: {
-            execute: function(data, resolve, reject) {
+            execute: function(resolve, reject, dataInstance) {
+                var self = this;
                 var options = {
                     from: self.f_from,
                     to: self.f_to,
@@ -25,9 +26,9 @@ module.exports = function (sequelize, DataTypes) {
                     subject: self.f_subject,
                     data: dataInstance
                 };
-                mailer.send(data.content, options).then(resolve).catch(reject);
+                mailer.sendHtml(self.f_content, options).then(resolve).catch(reject);
             }
-        }
+        },
         timestamps: true
     };
 

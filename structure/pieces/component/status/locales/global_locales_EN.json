@@ -4,7 +4,13 @@
 			"error": {
 				"illegal_status": "This status isn't valid"
 			},
-			"next_status": "Next status"
+			"next_status": "Next status",
+			"no_status_field": "Vous n'avez pas d'entité ayant un composant statut. Utilisez le generateur pour ajouter un composant statut et cette page vous permettra de configurer ces statuts"
+		}
+	},
+	"entity": {
+		"e_status": {
+			"as_r_children": "Next status"
 		}
 	}
 }

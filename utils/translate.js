@@ -6,8 +6,9 @@ var translateKey = require("../config/googleAPI").translate;
 var googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
-    writeTree: function(idApplication, object, language) {
+    writeTree: function(idApplication, object, language, replaceBoolean) {
         var localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json'));
+        replaceBoolean = typeof replaceBoolean === 'undefined' ? true : replaceBoolean;
         function dive(locales, newLocales) {
             for (var newLocale in newLocales) {
                 var found = false;
@@ -16,7 +17,7 @@ module.exports = {
                         found = true;
                         dive(locales[locale], newLocales[newLocale])
                     }
-                    else if (locale == newLocale)
+                    else if (!replaceBoolean && locale == newLocale)
                         found = true;
                 }
                 if (!found)

@@ -249,11 +249,11 @@ function initializeWorkflow(id_application) {
 
         // Media pieces
         var modelMedia = fs.readFileSync(piecesPath+'/models/e_media.js', 'utf8');
-        modelMedia = modelMedia.replace(/ID_APPLICATION/g, attr.id_application);
+        modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
         fs.writeFileSync(workspacePath+'/models/e_media.js', modelMedia, 'utf8');
         // Media mail
         modelMedia = fs.readFileSync(piecesPath+'/models/e_media_mail.js', 'utf8');
-        modelMedia = modelMedia.replace(/ID_APPLICATION/g, attr.id_application);
+        modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
         fs.writeFileSync(workspacePath+'/models/e_media_mail.js', modelMedia, 'utf8');
 
         // Add show td to action list (to be used in status tab r_action)
