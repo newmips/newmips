@@ -3,6 +3,7 @@ var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
+var printHelper = require("../utils/print_helper");
 var moment = require("moment");
 
 function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
@@ -775,19 +776,25 @@ exports.setupDataField = function (attr, callback) {
     /* Update the show_fields.dust file with a disabled input */
     var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field, defaultValue);
     updateFile(fileBase, "show_fields", stringToWrite, function () {
-        /* Update the create_fields.dust file */
-        stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field, defaultValue);
-        updateFile(fileBase, "create_fields", stringToWrite, function () {
-            /* Update the update_fields.dust file */
-            stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field, defaultValue);
-            updateFile(fileBase, "update_fields", stringToWrite, function () {
-                /* Update the list_fields.dust file */
-                stringToWrite = getFieldInHeaderListHtml(typeForDatalist, name_data_field, codeName_data_entity);
-                updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function () {
+        /* Add _print to id and name to avoid error in print tab */
+        stringToWrite = stringToWrite.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
+        stringToWrite = stringToWrite.replace(/name=['"](.[^'"]*)['"]/g, "name=\"$1_print\"");
+        /* Update the print_fields.dust file */
+        updateFile(fileBase, "print_fields", stringToWrite, function () {
+            /* Update the create_fields.dust file */
+            stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field, defaultValue);
+            updateFile(fileBase, "create_fields", stringToWrite, function () {
+                /* Update the update_fields.dust file */
+                stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field, defaultValue);
+                updateFile(fileBase, "update_fields", stringToWrite, function () {
+                    /* Update the list_fields.dust file */
+                    stringToWrite = getFieldInHeaderListHtml(typeForDatalist, name_data_field, codeName_data_entity);
+                    updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function () {
 
-                    /* --------------- New translation --------------- */
-                    translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function () {
-                        callback(null, "Data field successfully created.");
+                        /* --------------- New translation --------------- */
+                        translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function () {
+                            callback(null, "Data field successfully created.");
+                        });
                     });
                 });
             });
@@ -999,7 +1006,9 @@ exports.setupHasManyTab = function (attr, callback) {
             newTab += '		</a>\n';
             newTab += '</div>\n';
 
-            addTab(attr, file, newLi, newTab).then(callback);
+            printHelper.addHasMany(fileBase, target, alias).then(function(){
+                addTab(attr, file, newLi, newTab).then(callback);
+            });
         });
     });
 }
@@ -1084,7 +1093,9 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             newTabContent += '  </div>\n';
             newTabContent += '</div>\n';
 
-            addTab(attr, file, newLi, newTabContent).then(callback);
+            printHelper.addHasMany(fileBase, target, alias).then(function(){
+                addTab(attr, file, newLi, newTabContent).then(callback);
+            });
         });
     });
 }
@@ -1433,9 +1444,9 @@ exports.setupHasOneTab = function (attr, callback) {
 
             // Include association's fields
             newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '	{>"' + target + '/show_fields" hideTab="true"/}\n';
+            newTab += '     {>"' + target + '/show_fields" hideTab="true"/}\n';
             newTab += '<!--{:else}-->\n';
-            newTab += ' {@__ key="message.empty" /}<br><br>\n';
+            newTab += '     {@__ key="message.empty" /}<br><br>\n';
             newTab += '<!--{/' + alias + '}-->\n';
 
             newTab += '<!--{#' + alias + '}-->\n';
@@ -1461,8 +1472,9 @@ exports.setupHasOneTab = function (attr, callback) {
             newTab += '<!--{/' + alias + '}-->\n';
 
             newTab += '</div>\n';
-
-            addTab(attr, file, newLi, newTab).then(callback);
+            printHelper.addHasOne(fileBase, target, alias).then(function(){
+                addTab(attr, file, newLi, newTab).then(callback);
+            });
         });
     });
 }

@@ -64,10 +64,10 @@ $(document).ready(function () {
         $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
     });
 
-    $(".print-tab input[type='radio']").each(function() {
-        var formGroup = $(this).parents(".form-group");
-        var label = formGroup.find("label").html();
-        var htmlToWrite = "<b>"+label+"</b>\n";
+    $(".print-tab input[type='radio']:checked").each(function() {
+        var formGroup = $(this).parent(".form-group");
+        var label = formGroup.find("label");
+        var htmlToWrite = label[0].outerHTML+"\n";
         formGroup.find("input[type='radio']").each(function(){
             if($(this).prop("checked")){
                 htmlToWrite += "<br><span>" + $(this).val() + "</span>";
@@ -210,6 +210,13 @@ $(document).ready(function () {
         var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
         while ($(this).val() != "" && !reg.test($(this).val())) {
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
+        }
+    });
+
+    /* --------------- Max length on input number --------------- */
+    $("input[type='number']").keyup(function(e) {
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0,10);
         }
     });
 
