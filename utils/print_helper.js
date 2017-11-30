@@ -6,7 +6,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
-            content += "<div class='dontbreakitplz row'>\n";
+            content += "<div id='"+targetAlias+"_print' class='dontbreakitplz row'>\n";
             content += "    <div class=\"col-xs-12\">\n";
             content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
             content += "        <hr>\n";
@@ -25,7 +25,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
-            content += '<div class="dontbreakitplz row">\n';
+            content += "<div id='"+targetAlias+"_print' class=\"dontbreakitplz row\">\n";
             content += "    <div class=\"col-xs-12\">\n";
             content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
             content += "        <hr>\n";
@@ -51,7 +51,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = ""+
-            "<div class='dontbreakitplz row'>\n"+
+            "<div id='"+componentName+"_print' class='dontbreakitplz row'>\n"+
             "    <div class=\"col-xs-12\">\n"+
             "        <h3><!--{@__ key=\"component."+componentName+".label_component\" /}--></h3>\n"+
             "        <hr>\n"+
@@ -85,7 +85,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = ""+
-            "<div class='dontbreakitplz row'>\n"+
+            "<div id='"+componentName+"_print' class='dontbreakitplz row'>\n"+
             "    <div class=\"col-xs-12\">\n"+
             "        <h3><!--{@__ key=\"component.c_address.label_component\" /}--></h3>\n"+
             "        <hr>\n"+

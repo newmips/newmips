@@ -1540,7 +1540,7 @@ exports.deleteDataField = function (attr, callback) {
     writeStream.on('finish', function () {
         // Remove field from create/update/show views files
         var viewsPath = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/';
-        var fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
+        var fieldsFiles = ['create_fields', 'update_fields', 'show_fields', 'print_fields'];
         var promises = [];
         for (var i = 0; i < fieldsFiles.length; i++)
             promises.push(new Promise(function (resolve, reject) {
@@ -1637,7 +1637,17 @@ exports.deleteTab = function (attr, callback) {
             $("#r_" + tabNameWithoutPrefix).remove();
 
             domHelper.write(showFile, $).then(function () {
-                callback(null, option.foreignKey, target, tabType);
+                var printFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/print_fields.dust';
+                domHelper.read(printFile).then(function ($) {
+                    $("#r_" + tabNameWithoutPrefix + "_print").remove();
+                    domHelper.write(printFile, $).then(function () {
+                        callback(null, option.foreignKey, target, tabType);
+                    }).catch(function (err) {
+                        callback(err, null);
+                    });
+                }).catch(function (err) {
+                    callback(err, null);
+                });
             }).catch(function (err) {
                 callback(err, null);
             });
