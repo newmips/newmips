@@ -62,6 +62,7 @@ function clearString(string){
     string = string.replace(/\$/g, "_");
     string = string.replace(/\%/g, "_");
     string = string.replace(/\£/g, "_");
+    string = string.replace(/\€/g, "_");
     string = string.replace(/\µ/g, "_");
     string = string.replace(/\°/g, "_");
     string = string.replace(/\=/g, "_");
@@ -107,7 +108,7 @@ function addPrefix(string, instructionFunction){
         case 'deleteModule':
             return "m_"+string;
             break;
-        case 'createNewDataEntity':
+        case 'createNewEntity':
         case 'deleteDataEntity':
         case 'createNewHasOne':
         case 'createNewHasMany':
@@ -244,7 +245,7 @@ module.exports = {
                 if(typeof attr.options.source !== "undefined"){
                     attr.options.showSource = attr.options.source;
                     attr.options.source = clearString(attr.options.source);
-                    attr.options.urlSource = attr.options.source;
+                    attr.options.urlSource = attr.options.source.toLowerCase();
                     attr.options.source = addPrefix(attr.options.source, attr.function);
                     attr.options.source = attr.options.source.toLowerCase();
 
@@ -266,7 +267,7 @@ module.exports = {
                 if(typeof attr.options.as !== "undefined"){
                     attr.options.showAs = attr.options.as;
                     attr.options.as = clearString(attr.options.as);
-                    attr.options.urlAs = attr.options.as;
+                    attr.options.urlAs = attr.options.as.toLowerCase();
                     attr.options.as = addPrefix(attr.options.as, "alias");
                     attr.options.as = attr.options.as.toLowerCase();
 

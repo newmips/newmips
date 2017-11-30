@@ -393,7 +393,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             }
             else {
                 str += "	<div class='input-group'>\n";
-                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='200' width='200' /></a>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='400' width='400' /></a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -983,7 +983,7 @@ exports.setupHasManyTab = function (attr, callback) {
 
             // Create new tab content
             var newTab = '';
-            newTab += '	<div id="' + alias + '" class="tab-pane fade">\n';
+            newTab += '	<div id="' + alias + '" class="tab-pane fade" data-tabType="hasMany">\n';
             newTab += '		<!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
             newTab += '			<!--{@eq key=id value=' + target + '[0].id}-->\n';
             newTab += '				{>"' + target + '/list_fields" associationAlias="' + alias + '" associationForeignKey="' + foreignKey + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + urlSource + '" for="hasMany" /}\n';
@@ -1054,15 +1054,18 @@ exports.setupHasManyPresetTab = function (attr, callback) {
 
             var newTabContent = '';
             // Create select to add elements
-            newTabContent += '<div id="' + alias + '" class="tab-pane fade">\n';
+            newTabContent += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasManyPreset">\n';
             newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
             newTabContent += '      <select style="width:200px;" class="form-control" name="ids" required multiple>\n';
             newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
-            newTabContent += '              <!--{#.' + usingField + '}-->\n';
-            newTabContent += '                  <option value="{id}">{' + usingField + '}</option>\n';
-            newTabContent += '              <!--{:else}-->\n';
-            newTabContent += '                  <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-            newTabContent += '              <!--{/.' + usingField + '}-->\n';
+            newTabContent += '              {@existInContextById ofContext=' + alias + ' key=id}\n';
+            newTabContent += '              {:else}\n';
+            newTabContent += '                  <!--{#' + usingField + '}-->\n';
+            newTabContent += '                      <option value="{id}">{' + usingField + '}</option>\n';
+            newTabContent += '                  <!--{:else}-->\n';
+            newTabContent += '                      <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
+            newTabContent += '                  <!--{/' + usingField + '}-->\n';
+            newTabContent += '              {/existInContextById}\n';
             newTabContent += '          <!--{/' + alias + '_global_list}-->\n';
             newTabContent += '      </select>\n';
             newTabContent += '      <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
@@ -1097,6 +1100,7 @@ exports.saveHasManyData = function (attr, data, foreignKey, callback){
     for(var i=0; i<data.length; i++){
         toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
     }
+    console.log(toSync.queries);
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
     callback();
 }
@@ -1425,7 +1429,7 @@ exports.setupHasOneTab = function (attr, callback) {
 
             // Create new tab content
             var newTab = '';
-            newTab += '<div id="' + alias + '" class="tab-pane fade">\n';
+            newTab += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasOne">\n';
 
             // Include association's fields
             newTab += '<!--{#' + alias + '}-->\n';

@@ -162,6 +162,7 @@
         "goHome": "If you wish to return to the homepage, click here",
         "goBack": "If you want to go back, click here",
         "goBackText": "Go back",
-        "home": "Home"
+        "home": "Home",
+        "valueTooLong": "The given value is too long (>30)."
     }
 }

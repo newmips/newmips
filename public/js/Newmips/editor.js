@@ -217,8 +217,6 @@ $(document).ready(function() {
                         myEditor.setOption("readOnly", true);
                     else
                         myEditor.setOption("readOnly", false);
-
-
                 } else {
                     /* Tab already exist */
                     $("li[data-path='"+data.path+"']").addClass("active");

@@ -44,7 +44,7 @@ app.use(morgan('dev', {
 		}
 	},
 	stream: split().on('data', function (line) {
-		if(allLogStream.bytesWritten < 200000){
+		if(allLogStream.bytesWritten < 20000){
 			allLogStream.write(ansiToHtml.toHtml(line)+"\n");
 			process.stdout.write(line+"\n");
 		} else{

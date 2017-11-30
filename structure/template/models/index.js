@@ -89,12 +89,16 @@ sequelize.customAfterSync = function() {
                                 toSyncProdObject.queries.push(query);
                                 resolve0();
                             }).catch(function(err) {
-                                if(err.parent.errno == 1060){
-                                    console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
-                                    resolve0();
-                                }
-                                else
+                                if(typeof err.parent !== "undefined"){
+                                    if(err.parent.errno == 1060){
+                                        console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
+                                        resolve0();
+                                    } else{
+                                        reject0(err);
+                                    }
+                                } else{
                                     reject0(err);
+                                }
                             });
                         }));
                     })(request, entity, attribute);
@@ -103,37 +107,45 @@ sequelize.customAfterSync = function() {
             // Sync options
             if (toSyncObject[entity].options)
                 for (var j = 0; j < toSyncObject[entity].options.length; j++) {
-                    (function(sourceEntity, option) {
-                        promises.push(new Promise(function(resolve0, reject0) {
-                            var tableName = sourceEntity.substring(sourceEntity.indexOf('_')+1);
-                            var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
-                            var targetName = db[option.target.charAt(0).toUpperCase() + option.target.slice(1)].getTableName();
+                    if(toSyncObject[entity].options[j].relation != "belongsToMany"){
+                        (function(sourceEntity, option) {
+                            promises.push(new Promise(function(resolve0, reject0) {
+                                var tableName = sourceEntity.substring(sourceEntity.indexOf('_')+1);
+                                var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
+                                var targetName = db[option.target.charAt(0).toUpperCase() + option.target.slice(1)].getTableName();
 
-                            var request;
-                            if (option.relation == "belongsTo") {
-                                request = "ALTER TABLE ";
-                                request += sourceName;
-                                request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
-                                request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
-                            }
-                            else if (option.relation == 'hasMany') {
-                                request = "ALTER TABLE ";
-                                request += targetName;
-                                request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
-                                request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
-                            }
+                                var request;
+                                if (option.relation == "belongsTo") {
+                                    request = "ALTER TABLE ";
+                                    request += sourceName;
+                                    request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
+                                    request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                }
+                                else if (option.relation == 'hasMany') {
+                                    request = "ALTER TABLE ";
+                                    request += targetName;
+                                    request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
+                                    request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
+                                }
 
-                            sequelize.query(request).then(function() {
-                                toSyncProdObject.queries.push(request);
-                                resolve0();
-                            }).catch(function(err) {
-                                if(err.parent.errno == 1060)
+                                sequelize.query(request).then(function() {
+                                    toSyncProdObject.queries.push(request);
                                     resolve0();
-                                else
-                                    reject0(err);
-                            });
-                        }));
-                    })(entity, toSyncObject[entity].options[j]);
+                                }).catch(function(err) {
+                                    if(typeof err.parent !== "undefined"){
+                                        if(err.parent.errno == 1060){
+                                            console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
+                                            resolve0();
+                                        } else{
+                                            reject0(err);
+                                        }
+                                    } else{
+                                        reject0(err);
+                                    }
+                                });
+                            }));
+                        })(entity, toSyncObject[entity].options[j]);
+                    }
                 }
         }
 
