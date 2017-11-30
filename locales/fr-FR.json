@@ -67,6 +67,7 @@
         "ytmodaltitle": "Bienvenue sur le générateur Newmips",
         "ytmodalcontent": "Pour bien démarrer, suivez nos tutoriels et apprenez rapidement à utiliser le générateur Newmips !",
         "accessbuttonyt": "C'est parti !",
+        "lastthreeapp": "Vos 3 dernières applications",
         "directlinks": {
             "title": "Gestion des Applications",
             "script": "Script",
@@ -124,6 +125,7 @@
     },
     "preview": {
         "title": "Prévisualisation",
+        "execute": "Exécuter vos instructions ici !",
         "reload": "Redémarrer le serveur",
         "issue-button": "Signaler un bug",
         "help-button": "Besoin d'aide ?",
@@ -162,7 +164,9 @@
         "texttwo": "retourner à l'accueil",
         "or": "ou",
         "textthree": "simplement revenir en arrière.",
-        "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+        "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
+        "valueTooLong": "La valeur renseignée dépasse la longueur maximum autorisée(>30).",
+        "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez."
     },
     "back":{
         "list": "Lister les",

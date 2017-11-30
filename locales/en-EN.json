@@ -67,6 +67,7 @@
         "ytmodaltitle": "Welcome to the Newmips Generator",
         "ytmodalcontent": "To get started, follow our tutorials and quickly learn how to use the Newmips generator.",
         "accessbuttonyt": "Let's go!",
+        "lastthreeapp": "Your last 3 applications",
         "directlinks": {
             "title": "Application manager",
             "script": "Script",
@@ -124,6 +125,7 @@
     },
     "preview":{
         "title": "Preview",
+        "execute": "Execute your instructions here !",
         "reload": "Restart server",
         "issue-button": "Report an issue",
         "help-button": "Need help ?",
@@ -162,7 +164,9 @@
         "texttwo": "go to the home page",
         "or": "or",
         "textthree": "simply go back.",
-        "404": "The link you followed may be broken, or the page may have been removed."
+        "404": "The link you followed may be broken, or the page may have been removed.",
+        "valueTooLong": "The given value is too long (>30).",
+        "cannotFindInstruction": "Sorry, I do not understand what you're asking of me."
     },
     "back":{
         "list": "List",
@@ -324,8 +328,8 @@
                 "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasMany": {
-                "successEntity": "New relation has many with entity %s created.",
-                "successSubEntity": "New relation has many with sub-entity %s created."
+                "successEntity": "A new tab «%s» has been created on entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
+                "successSubEntity": "A new tab «%s» has been created on the entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
             },
             "hasManyExisting": {
                 "success": "New relation has many existing with entity %s created on %s."

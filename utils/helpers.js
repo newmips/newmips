@@ -4,13 +4,13 @@ var crypto = require("crypto");
 var models = require('../models/');
 
 function getNbInstruction(callback) {
-    models.Project.findAndCountAll().then(function (projects) {
-        models.Application.findAndCountAll().then(function (applications) {
-            models.Module.findAndCountAll().then(function (modules) {
-                models.DataEntity.findAndCountAll().then(function (dataEntities) {
-                    models.Component.findAndCountAll().then(function (components) {
-                        models.DataField.findAndCountAll().then(function (dataFields) {
-                            var totalInstruction = projects.count + applications.count + modules.count + dataEntities.count + components.count + dataFields.count;
+    models.Project.count().then(function (projects) {
+        models.Application.count().then(function (applications) {
+            models.Module.count().then(function (modules) {
+                models.DataEntity.count().then(function (dataEntities) {
+                    models.Component.count().then(function (components) {
+                        models.DataField.count().then(function (dataFields) {
+                            var totalInstruction = projects + applications + modules + dataEntities + components + dataFields;
                             callback(totalInstruction);
                         });
                     });

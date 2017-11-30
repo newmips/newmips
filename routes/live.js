@@ -193,7 +193,6 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
-        //req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
         try {
 
             /* Lower the first word for the basic parser jison */
@@ -221,17 +220,15 @@ function execute(req, instruction) {
             var __ = require("../services/language")(req.session.lang_user).__;
 
             if (typeof attr.error !== 'undefined')
-                throw new Error(attr.error);
+                throw attr.error;
 
             // Function is finally executed as "global()" using the static dialog designer
             // "Options" and "Session values" are sent using the attr attribute
             return designer[attr.function](attr, function(err, info) {
-
                 if (err) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
                     console.log("ERROR : ", msgErr);
-                    //req.session.answers.unshift(instruction + " :<br>" + msgErr);
                     reject(msgErr);
                 } else {
 
@@ -255,8 +252,8 @@ function execute(req, instruction) {
                             req.session.id_module = info.insertId;
                             req.session.id_data_entity = null;
                             break;
-                        case "createNewDataEntity":
-                        case "selectDataEntity":
+                        case "createNewEntity":
+                        case "selectEntity":
                         case "createNewEntityWithBelongsTo":
                         case "createNewEntityWithHasMany":
                         case "createNewBelongsTo":
@@ -282,13 +279,10 @@ function execute(req, instruction) {
                     }
 
                     var msgInfo = __(info.message, info.messageParams || []);
-
-                    //req.session.answers.unshift(instruction + " :<br>" + msgInfo);
                     resolve();
                 }
             });
         } catch (e) {
-            //req.session.answers.unshift(instruction + " :<br>" + e.message);
             reject(e);
         }
     });

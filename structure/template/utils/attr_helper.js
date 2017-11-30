@@ -25,7 +25,7 @@ module.exports = {
             case 'createNewModule':
                 return "M_" + string;
                 break;
-            case 'createNewDataEntity':
+            case 'createNewEntity':
                 return "E_" + string;
                 break;
             case 'createNewDataField':

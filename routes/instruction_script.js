@@ -332,13 +332,13 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication"){
                 exception.createModuleAuthentication.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "user"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user"){
                 exception.createEntityUser.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "role"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role"){
                 exception.createEntityRole.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "group"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group"){
                 exception.createEntityGroup.value += 1;
             }
             fileLines.push(line);
@@ -547,13 +547,13 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication"){
                 exception.createModuleAuthentication.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "user"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user"){
                 exception.createEntityUser.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "role"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role"){
                 exception.createEntityRole.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "group"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group"){
                 exception.createEntityGroup.value += 1;
             }
             fileLines.push(line);

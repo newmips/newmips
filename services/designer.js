@@ -432,17 +432,16 @@ exports.deleteModule = function(attr, callback) {
 /* --------------------------------------------------------------- */
 /* --------------------------- Entity ---------------------------- */
 /* --------------------------------------------------------------- */
-exports.selectDataEntity = function(attr, callback) {
-    db_entity.selectDataEntity(attr, function(err, info) {
-        if(err){
+exports.selectEntity = function(attr, callback) {
+    db_entity.selectEntity(attr, function(err, info) {
+        if(err)
             callback(err, null);
-        } else {
+        else
             callback(null, info);
-        }
     });
 }
 
-exports.createNewDataEntity = function(attr, callback) {
+exports.createNewEntity = function(attr, callback) {
 
     // Get active application module name
     db_module.getModuleById(attr.id_module, function(err, module) {
@@ -453,7 +452,7 @@ exports.createNewDataEntity = function(attr, callback) {
             attr.show_name_module = module.name;
             attr.name_module = module.codeName;
             // Generator database
-            db_entity.createNewDataEntity(attr, function(err, infoDB) {
+            db_entity.createNewEntity(attr, function(err, infoDB) {
                 if(err){
                     callback(err, null);
                 } else {
@@ -988,8 +987,20 @@ exports.createNewHasOne = function(attr, callback) {
                 if(err){
                     return callback(err, null);
                 }
+                var associationOption = {
+                    idApp: attr.id_application,
+                    source: attr.options.source,
+                    target: attr.options.target,
+                    foreignKey: attr.options.foreignKey,
+                    as: attr.options.as,
+                    showAs: "",
+                    relation: "belongsTo",
+                    through: null,
+                    toSync: toSync,
+                    type: "hasOne"
+                };
                 // Créer le lien belongsTo en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, toSync, "hasOne", function(){
+                structure_data_entity.setupAssociation(associationOption, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupHasOneTab(attr, function(err, data){
                         if(err)
@@ -1002,12 +1013,12 @@ exports.createNewHasOne = function(attr, callback) {
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         // CREATION DE SOUS ENTITE OU NON
-        db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function(err, dataEntity) {
             if (err) {
                 //Si c'est bien l'error de data entity qui n'existe pas
                 if(err.level == 0){
                     // Si l'entité target n'existe pas, on la crée
-                    db_entity.createNewDataEntityTarget(attr, function(err, created_dataEntity) {
+                    db_entity.createNewEntityTarget(attr, function(err, created_dataEntity) {
                         if(err){
                             return callback(err, null);
                         }
@@ -1054,46 +1065,107 @@ exports.createNewHasOne = function(attr, callback) {
     });
 }
 
-function belongsToMany(attr, setupFunction){
+function belongsToMany(attr, optionObj, setupFunction, exportsContext){
     return new Promise(function(resolve, reject) {
+        attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target;
         var through = attr.options.through;
-        /* We need the same alias for both relation */
-        attr.options.as = "r_"+attr.options.source.substring(2)+ "_" + attr.options.target.substring(2);
-        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, null, function(){
-            structure_data_entity.setupAssociation(attr.id_application, attr.options.target, attr.options.source, attr.options.foreignKey, attr.options.as, "belongsToMany", through, false, null, function(){
-                structure_data_field[setupFunction](attr, function(){
-                    var reversedAttr = {
-                        options: {
-                            target: attr.options.source,
-                            source: attr.options.target,
-                            foreignKey: 'fk_id_'+attr.options.target.substring(2),
-                            as: attr.options.as,
-                            showTarget: attr.options.showSource,
-                            urlTarget: attr.options.urlSource,
-                            showSource: attr.options.showTarget,
-                            urlSource: attr.options.urlTarget,
-                            showAs: attr.options.showSource,
-                            urlAs: attr.options.urlAs
-                        },
-                        id_project: attr.id_project,
-                        id_application: attr.id_application,
-                        id_module: attr.id_module,
-                        id_data_entity: attr.id_data_entity
-                    };
 
-                    var functionToDo;
-                    if(attr.tabType == "hasmany"){
-                        structure_data_field.setupHasManyTab(reversedAttr, function(){
-                            resolve();
+        /* First we have to save the already existing data to put them in the new relation */
+        db_entity.retrieveWorkspaceHasManyData(attr.id_application, attr.options.source, optionObj.foreignKey, function(data, err){
+            if(err && err.code != "ER_NO_SUCH_TABLE")
+                return reject(err);
+            structure_data_field.saveHasManyData(attr, data, optionObj.foreignKey, function(data, err){
+                if(err)
+                    return reject(err);
+                /* Secondly we have to remove the already existing has many to create the belongs to many relation */
+                var instructions = [
+                    "select entity "+attr.options.showTarget
+                ];
+
+                if(optionObj.structureType == "relatedToMultiple"){
+                    instructions.push("delete field "+optionObj.as.substring(2));
+                } else{
+                    instructions.push("delete tab "+optionObj.as.substring(2));
+                }
+
+                // Start doing necessary instruction for component creation
+                exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err, infoInstruction){
+                    if(err)
+                        return reject(err);
+                    if(typeof infoInstruction.tabType !== "undefined")
+                        attr.targetType = infoInstruction.tabType;
+                    else
+                        attr.targetType = optionObj.structureType;
+                    /* Then lets create the belongs to many association */
+
+                    /* We need the same alias for both relation */
+                    //attr.options.as = "r_"+attr.options.source.substring(2)+ "_" + attr.options.target.substring(2);
+
+                    var associationOptionOne = {
+                        idApp: attr.id_application,
+                        source: attr.options.source,
+                        target: attr.options.target,
+                        foreignKey: attr.options.foreignKey,
+                        as: attr.options.as,
+                        showAs: attr.options.showAs,
+                        relation: "belongsToMany",
+                        through: through,
+                        toSync: false,
+                        type: attr.targetType
+                    };
+                    structure_data_entity.setupAssociation(associationOptionOne, function(){
+                        var associationOptionTwo = {
+                            idApp: attr.id_application,
+                            source: attr.options.target,
+                            target: attr.options.source,
+                            foreignKey: attr.options.foreignKey,
+                            as: optionObj.as,
+                            showAs: optionObj.showAs,
+                            relation: "belongsToMany",
+                            through: through,
+                            toSync: false,
+                            type: attr.targetType
+                        };
+                        structure_data_entity.setupAssociation(associationOptionTwo, function(){
+                            structure_data_field[setupFunction](attr, function(){
+                                var reversedAttr = {
+                                    options: {
+                                        target: attr.options.source,
+                                        source: attr.options.target,
+                                        foreignKey: optionObj.foreignKey,
+                                        as: optionObj.as,
+                                        showTarget: attr.options.showSource,
+                                        urlTarget: attr.options.urlSource.toLowerCase(),
+                                        showSource: attr.options.showTarget,
+                                        urlSource: attr.options.urlTarget.toLowerCase(),
+                                        showAs: optionObj.showAs,
+                                        urlAs: optionObj.as.substring(2).toLowerCase()
+                                    },
+                                    id_project: attr.id_project,
+                                    id_application: attr.id_application,
+                                    id_module: attr.id_module,
+                                    id_data_entity: attr.id_data_entity
+                                };
+
+                                if(attr.targetType == "hasmany"){
+                                    structure_data_field.setupHasManyTab(reversedAttr, function(){
+                                        resolve();
+                                    });
+                                }
+                                else if(attr.targetType == "hasmanypreset"){
+                                    structure_data_field.setupHasManyPresetTab(reversedAttr, function(){
+                                        resolve();
+                                    });
+                                } else if(attr.targetType == "relatedToMultiple"){
+                                    structure_data_field.setupRelatedToMultipleField(reversedAttr, function(){
+                                        resolve();
+                                    });
+                                } else{
+                                    reject("Error: Unknown target type for belongsToMany generation.")
+                                }
+                            });
                         });
-                    }
-                    else if(attr.tabType == "hasmanypreset"){
-                        structure_data_field.setupHasManyPresetTab(reversedAttr, function(){
-                            resolve();
-                        });
-                    } else{
-                        reject("Error: unknown tab type.")
-                    }
+                    });
                 });
             });
         });
@@ -1105,9 +1177,8 @@ exports.createNewHasMany = function (attr, callback) {
     var exportsContext = this;
     /* Check if entity source exist before doing anything */
     db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
-        if (err) {
+        if (err)
             return callback(err, null);
-        }
 
         var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
         var optionsSourceObject = JSON.parse(optionsSourceFile);
@@ -1137,37 +1208,16 @@ exports.createNewHasMany = function (attr, callback) {
             for(var i=0; i<optionsObject.length; i++){
                 if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                     doingBelongsToMany = true;
-                    attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target;
-                    (function(ibis) {
-                        /* First we have to save the already existing data to put them in the new relation */
-                        db_entity.retrieveWorkspaceHasManyData(attr.id_application, attr.options.source, optionsObject[ibis].foreignKey, function(data, err){
-                            if(err && err.code != "ER_NO_SUCH_TABLE")
-                                return callback(err, null);
-                            structure_data_field.saveHasManyData(attr, data, optionsObject[ibis].foreignKey, function(data, err){
-                                /* Secondly we have to remove the already existing has many to create the belongs to many relation */
-                                var instructions = [
-                                    "select entity "+attr.options.showTarget,
-                                    "delete tab "+optionsObject[ibis].as.substring(2)
-                                ];
-
-                                // Start doing necessary instruction for component creation
-                                exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err, infoInstruction){
-                                    if(err){
-                                        console.log(err);
-                                        console.log("Maybe we have to destroy a select mutliple");
-                                    }
-                                    attr.tabType = infoInstruction.tabType;
-                                    /* Then lets create the belongs to many association */
-                                    belongsToMany(attr, "setupHasManyTab").then(function(){
-                                        callback(null, info);
-                                    }).catch(function(err){
-                                        console.log(err);
-                                        return callback(err, null);
-                                    });
-                                });
-                            });
-                        });
-                    })(i);
+                    /* Then lets create the belongs to many association */
+                    belongsToMany(attr, optionsObject[i], "setupHasManyTab", exportsContext).then(function(){
+                        info.insertId = attr.id_data_entity;
+                        info.message = "structure.association.hasMany.successEntity";
+                        info.messageParams =  [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
+                        callback(null, info);
+                    }).catch(function(err){
+                        console.log(err);
+                        return callback(err, null);
+                    });
                 } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
                     && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
                     && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
@@ -1194,7 +1244,19 @@ exports.createNewHasMany = function (attr, callback) {
 
                 db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
                     // Créer le lien hasMany en la source et la target
-                    structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "hasMany", function(){
+                    var associationOption = {
+                        idApp: attr.id_application,
+                        source: attr.options.source,
+                        target: attr.options.target,
+                        foreignKey: attr.options.foreignKey,
+                        as: attr.options.as,
+                        showAs: attr.options.showAs,
+                        relation: "hasMany",
+                        through: null,
+                        toSync: toSync,
+                        type: "hasMany"
+                    };
+                    structure_data_entity.setupAssociation(associationOption, function(){
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupHasManyTab(attr, function(){
                             callback(null, info);
@@ -1205,12 +1267,12 @@ exports.createNewHasMany = function (attr, callback) {
         }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
             // Si l'entité target n'existe pas, on la crée
             if (err) {
                 //Si c'est bien l'error de data entity qui n'existe pas
                 if (err.level == 0) {
-                    db_entity.createNewDataEntityTarget(attr, function (err, created_dataEntity) {
+                    db_entity.createNewEntityTarget(attr, function (err, created_dataEntity) {
                         if (err) {
                             return callback(err, null);
                         }
@@ -1256,9 +1318,9 @@ exports.createNewHasMany = function (attr, callback) {
                 for(var i=0; i<optionsObject.length; i++){
                     if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
                         if(optionsObject[i].relation == "belongsToMany"){
-                            var err = new Error();
-                            err.message = "structure.association.error.alreadyBelongsToMany";
-                            return callback(err, null);
+                            //var err = new Error();
+                            //err.message = "structure.association.error.alreadyBelongsToMany";
+                            //return callback(err, null);
                         } else{
                             cptExistingHasMany++;
                         }
@@ -1298,146 +1360,133 @@ exports.createNewHasManyPreset = function(attr, callback) {
         }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
             // Si l'entité target n'existe pas ou autre
-            if (err) {
+            if (err)
                 return callback(err, null);
-            } else {
 
-                var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
-                var optionsSourceObject = JSON.parse(optionsSourceFile);
+            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceObject = JSON.parse(optionsSourceFile);
 
-                var toSync = true;
+            var toSync = true;
 
-                // Vérification si une relation existe déjà de la source VERS la target
-                for (var i = 0; i < optionsSourceObject.length; i++) {
-                    if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
+            // Vérification si une relation existe déjà de la source VERS la target
+            for (var i = 0; i < optionsSourceObject.length; i++) {
+                if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
 
-                        if (optionsSourceObject[i].relation == "belongsTo") {
-                            var err = new Error();
-                            err.message = "structure.association.error.alreadyHasOne";
-                            return callback(err, null);
-                        } else if (attr.options.as == optionsSourceObject[i].as) {
-                            var err = new Error();
-                            err.message = "structure.association.error.alreadySameAlias";
-                            return callback(err, null);
-                        }
+                    if (optionsSourceObject[i].relation == "belongsTo") {
+                        var err = new Error();
+                        err.message = "structure.association.error.alreadyHasOne";
+                        return callback(err, null);
+                    } else if (attr.options.as == optionsSourceObject[i].as) {
+                        var err = new Error();
+                        err.message = "structure.association.error.alreadySameAlias";
+                        return callback(err, null);
                     }
                 }
+            }
 
-                var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
-                var optionsObject = JSON.parse(optionsFile);
+            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsObject = JSON.parse(optionsFile);
 
-                var cptExistingHasMany = 0;
+            var cptExistingHasMany = 0;
 
-                // Check if there is no or just one belongsToMany to do
-                for(var i=0; i<optionsObject.length; i++){
-                    if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
-                        if(optionsObject[i].relation == "belongsToMany"){
-                            var err = new Error();
-                            err.message = "structure.association.error.alreadyBelongsToMany";
-                            return callback(err, null);
-                        } else{
-                            cptExistingHasMany++;
-                        }
+            // Check if there is no or just one belongsToMany to do
+            for(var i=0; i<optionsObject.length; i++){
+                if(optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
+                    if(optionsObject[i].relation == "belongsToMany"){
+                        //var err = new Error();
+                        //err.message = "structure.association.error.alreadyBelongsToMany";
+                        //return callback(err, null);
+                    } else{
+                        cptExistingHasMany++;
                     }
                 }
-                /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
-                if(cptExistingHasMany > 1){
-                    var err = new Error();
-                    err.message = "structure.association.error.tooMuchHasMany";
-                    return callback(err, null);
+            }
+            /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
+            if(cptExistingHasMany > 1){
+                var err = new Error();
+                err.message = "structure.association.error.tooMuchHasMany";
+                return callback(err, null);
+            }
+
+            var doingBelongsToMany = false;
+
+            // Vérification si une relation existe déjà de la target VERS la source
+            for (var i = 0; i < optionsObject.length; i++) {
+                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+                    doingBelongsToMany = true;
+                    /* Then lets create the belongs to many association */
+                    belongsToMany(attr, optionsObject[i], "setupHasManyPresetTab", exportsContext).then(function(){
+                        var info = {};
+                        info.insertId = attr.id_data_entity;
+                        info.message = "structure.association.hasManyExisting.success";
+                        info.messageParams = [attr.options.showTarget, attr.options.showSource];
+                        callback(null, info);
+                    }).catch(function(err){
+                        console.log(err);
+                        return callback(err, null);
+                    });
+                } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
+                    && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
+                    && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
+                    // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
+                    toSync = false;
                 }
+            }
 
-                var doingBelongsToMany = false;
+            // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
+            // If not we continue doing a simple has many association.
+            if(!doingBelongsToMany){
+                /*var reversedAttr = {
+                    options: {
+                        source: attr.options.target,
+                        showSource: attr.options.showTarget,
+                        target: attr.options.source,
+                        showTarget: attr.options.showSource,
+                        foreignKey: attr.options.foreignKey,
+                        showForeignKey: attr.options.showForeignKey
+                    },
+                    id_data_entity: attr.id_data_entity,
+                    id_module: attr.id_module,
+                    id_application: attr.id_application
+                };*/
 
-                // Vérification si une relation existe déjà de la target VERS la source
-                for (var i = 0; i < optionsObject.length; i++) {
-                    if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
-                        doingBelongsToMany = true;
-                        attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target;
-                        (function(ibis) {
-                            /* First we have to save the already existing data to put them in the new relation */
-                            db_entity.retrieveWorkspaceHasManyData(attr.id_application, attr.options.source, optionsObject[ibis].foreignKey, function(data, err){
-                                if(err && err.code != "ER_NO_SUCH_TABLE")
-                                    return callback(err, null);
-                                structure_data_field.saveHasManyData(attr, data, optionsObject[ibis].foreignKey, function(data, err){
-                                    /* Secondly we have to remove the already existing has many to create the belongs to many relation */
-                                    var instructions = [
-                                        "select entity "+attr.options.showTarget,
-                                        "delete tab "+optionsObject[ibis].as.substring(2)
-                                    ];
-
-                                    // Start doing necessary instruction for component creation
-                                    exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err, infoInstruction){
-                                        if(err){
-                                            console.log(err);
-                                            console.log("Maybe we have to destroy a select mutliple");
-                                        }
-                                        attr.tabType = infoInstruction.tabType;
-                                        /* Then lets create the belongs to many association */
-                                        belongsToMany(attr, "setupHasManyPresetTab").then(function(){
-                                            var info = {};
-                                            info.insertId = attr.id_data_entity;
-                                            info.message = "structure.association.hasManyExisting.success";
-                                            info.messageParams = [attr.options.showTarget, attr.options.showSource];
-                                            callback(null, info);
-                                        }).catch(function(err){
-                                            console.log(err);
-                                            return callback(err, null);
-                                        });
-                                    });
-                                });
-                            });
-                        })(i);
-                    } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
-                        && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
-                        && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
-                        // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
-                        toSync = false;
+                //db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
+                db_field.createNewForeignKey(attr, function (err, created_foreignKey) {
+                    if (err) {
+                        return callback(err, null);
                     }
-                }
 
-                // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
-                // If not we continue doing a simple has many association.
-                if(!doingBelongsToMany){
-                    var reversedAttr = {
-                        options: {
-                            source: attr.options.target,
-                            showSource: attr.options.showTarget,
-                            target: attr.options.source,
-                            showTarget: attr.options.showSource,
-                            foreignKey: attr.options.foreignKey,
-                            showForeignKey: attr.options.showForeignKey
-                        },
-                        id_data_entity: attr.id_data_entity,
-                        id_module: attr.id_module,
-                        id_application: attr.id_application
+                    // Right now we have id_TARGET_as and we want id_SOURCE_as
+                    //var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
+                    //newForeignKey = newForeignKey.toLowerCase();
+
+                    var associationOption = {
+                        idApp: attr.id_application,
+                        source: attr.options.source,
+                        target: attr.options.target,
+                        foreignKey: attr.options.foreignKey,
+                        as: attr.options.as,
+                        showAs: attr.options.showAs,
+                        relation: "hasMany",
+                        through: null,
+                        toSync: toSync,
+                        type: "hasManyPreset"
                     };
+                    // Créer le lien belongsTo en la source et la target
+                    structure_data_entity.setupAssociation(associationOption, function () {
+                        // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
+                        structure_data_field.setupHasManyPresetTab(attr, function() {
 
-                    db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
-                        if (err) {
-                            return callback(err, null);
-                        }
-
-                        // Right now we have id_TARGET_as and we want id_SOURCE_as
-                        var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
-                        newForeignKey = newForeignKey.toLowerCase();
-
-                        // Créer le lien belongsTo en la source et la target
-                        structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, newForeignKey, attr.options.as, "hasMany", null, toSync, "hasManyPreset", function () {
-                            // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-                            structure_data_field.setupHasManyPresetTab(attr, function() {
-
-                                var info = {};
-                                info.insertId = attr.id_data_entity;
-                                info.message = "structure.association.hasManyExisting.success";
-                                info.messageParams = [attr.options.showTarget, attr.options.showSource];
-                                callback(null, info);
-                            });
+                            var info = {};
+                            info.insertId = attr.id_data_entity;
+                            info.message = "structure.association.hasManyExisting.success";
+                            info.messageParams = [attr.options.showTarget, attr.options.showSource];
+                            callback(null, info);
                         });
                     });
-                }
+                });
             }
         });
     });
@@ -1488,7 +1537,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
 
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
@@ -1534,7 +1583,19 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 if (err)
                     return callback(err, null);
                 // Créer le lien belongsTo en la source et la target dans models/options/source.json
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "belongsTo", null, true, "relatedTo", function () {
+                var associationOption = {
+                    idApp: attr.id_application,
+                    source: attr.options.source,
+                    target: attr.options.target,
+                    foreignKey: attr.options.foreignKey,
+                    as: attr.options.as,
+                    showAs: attr.options.showAs,
+                    relation: "belongsTo",
+                    through: null,
+                    toSync: true,
+                    type: "relatedTo"
+                };
+                structure_data_entity.setupAssociation(associationOption, function () {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToField(attr, function (err, data) {
                         if (err)
@@ -1554,6 +1615,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
 
 // Select multiple in create/show/update related to target entity
 exports.createNewFieldRelatedToMultiple = function(attr, callback) {
+    var exportsContext = this;
     // Instruction is add field _FOREIGNKEY_ related to multiple _TARGET_ -> We don't know the source entity name so we have to find it
     db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
         if(err && typeof attr.options.source === "undefined")
@@ -1600,7 +1662,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectDataEntityTarget(attr, function(err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function(err, entityTarget) {
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
@@ -1610,6 +1672,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
             var toSync = true;
+            var relation = "belongsToMany";
 
             // Vérification si une relation existe déjà de la source VERS la target
             for (var i=0; i < optionsSourceObject.length; i++) {
@@ -1626,26 +1689,49 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                 }
             }
 
+            var info = {};
+            attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target;
             // Check if an association already exists from target to source
             var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
             var optionsObject = JSON.parse(optionsFile);
             for (var i=0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
-                    // TODO - belongsToMany
-                    console.log("TODO - BelongsToMany");
-                    var err = new Error();
-                    err.message = "structure.association.error.circularHasMany";
-                    return callback(err, null);
+                    attr.options.through = attr.id_application + "_" + attr.options.target + "_" + attr.options.source;
+                    //BelongsToMany
+                    //doingBelongsToMany = true;
+                    /* Then lets create the belongs to many association */
+                    // belongsToMany(attr, optionsObject[i], "setupRelatedToMultipleField", exportsContext).then(function(){
+                    //     info.message = "structure.association.relatedToMultiple.success";
+                    //     info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
+                    //     callback(null, info);
+                    // }).catch(function(err){
+                    //     console.log(err);
+                    //     return callback(err, null);
+                    // });
                 } else if(attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
-                    && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
-                    && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
-                    // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
-                    toSync = false;
+                    && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")) {
+
+                    // Temporary solution ! TODO: Mispy should ask if we want to link the already existing 1,1 with this new 1,n
+                    if((attr.options.target.substring(2) == attr.options.as.substring(2))
+                     && (optionsObject[i].target.substring(2) == optionsObject[i].as.substring(2))){
+                        //&& (optionsObject[i].foreignKey == attr.options.foreignKey)
+                        //If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
+                        attr.options.foreignKey = optionsObject[i].foreignKey;
+                        // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
+                        toSync = false;
+                        // If it's already define that target entity belongsTo source entity, then we create a simple hasMany instead of a belongsToMany
+                        relation = "hasMany";
+                        attr.options.through = null;
+                    }
                 }
             }
 
+            // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
+            // If not we continue doing a simple related to multiple association.
             var reversedAttr = {
                 options: {
+                    showForeignKey: attr.options.showAs,
+                    foreignKey: attr.options.foreignKey,
                     source: attr.options.target,
                     showSource: attr.options.showTarget,
                     urlSource: attr.options.urlTarget,
@@ -1653,13 +1739,30 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                     showTarget: attr.options.showSource,
                     urlTarget: attr.options.urlSource
                 },
+                id_data_entity: entityTarget.id,
                 id_module: attr.id_module,
                 id_application: attr.id_application
             };
 
             db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
-                // Créer le lien hasMany en la source et la target
-                structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.target, attr.options.foreignKey, attr.options.as, "hasMany", null, toSync, "relatedToMultiple", function(){
+                if(err){
+                    console.log(err);
+                    return callback(err, null);
+                }
+                // Create the belongsToMany link between source and target
+                var associationOption = {
+                    idApp: attr.id_application,
+                    source: attr.options.source,
+                    target: attr.options.target,
+                    foreignKey: attr.options.foreignKey,
+                    as: attr.options.as,
+                    showAs: attr.options.showAs,
+                    relation: relation,
+                    through: attr.options.through,
+                    toSync: toSync,
+                    type: "relatedToMultiple"
+                };
+                structure_data_entity.setupAssociation(associationOption, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToMultipleField(attr, function(){
                         var info = {};
@@ -1748,8 +1851,20 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                         return callback(err, null);
                     // Setup the hasMany association in the source entity
                     try{
-                        db_entity.createNewDataEntity(attr, function(err, infoDbEntity){
-                            structure_data_entity.setupAssociation(attr.id_application, attr.options.source, attr.options.value.toLowerCase(), "fk_id_"+attr.options.source.toLowerCase(), attr.options.value.toLowerCase(), "hasMany", null, false, null, function(){
+                        db_entity.createNewEntity(attr, function(err, infoDbEntity){
+                            var associationOption = {
+                                idApp: attr.id_application,
+                                source: attr.options.source,
+                                target: attr.options.value.toLowerCase(),
+                                foreignKey: "fk_id_"+attr.options.source.toLowerCase(),
+                                as: attr.options.value.toLowerCase(),
+                                showAs: attr.options.showValue,
+                                relation: "hasMany",
+                                through: null,
+                                toSync: false,
+                                type: null
+                            };
+                            structure_data_entity.setupAssociation(associationOption, function(){
                                 // Get module info needed for structure
                                 db_module.getModuleById(attr.id_module, function(err, module){
                                     if(err)

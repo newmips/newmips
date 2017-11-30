@@ -83,7 +83,7 @@ body {
   overflow-x: hidden!important;
   font-family: 'Source Sans Pro', sans-serif;
   -webkit-font-smoothing: antialiased;
-  height: 100%;
+  /*height: 100%;*/
   background: #f9f9f9;
 }
 a {
@@ -181,7 +181,8 @@ body > .header {
   }
   /* Content */
   .content {
-      padding: 20px 15px;
+      /*padding: 20px 15px;*/
+      padding: 12px 12px;
       background: #f9f9f9;
   }
   /* Utility */

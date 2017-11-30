@@ -10,8 +10,8 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     }
 
     if(valueToCheck.length > 30){
-        console.log("Value is too long => "+valueToCheck);
-        attr.error = "The given value is too long (>30)."
+        console.log("Value is too long => "+valueToCheck+"("+valueToCheck.length+")");
+        attr.error = "error.valueTooLong";
     }
 
     return attr;
@@ -113,7 +113,7 @@ exports.selectModule = function (result) {
     return attr;
 };
 
-exports.selectDataEntity = function (result) {
+exports.selectEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -121,7 +121,7 @@ exports.selectDataEntity = function (result) {
     };
 
     var attr = {
-        function: "selectDataEntity",
+        function: "selectEntity",
         options: options
     };
     return attr;
@@ -227,7 +227,7 @@ exports.createNewModule = function (result) {
     return checkAndCreateAttr("createNewModule", options, value);
 };
 
-exports.createNewDataEntity = function (result) {
+exports.createNewEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -235,7 +235,7 @@ exports.createNewDataEntity = function (result) {
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewDataEntity", options, value);
+    return checkAndCreateAttr("createNewEntity", options, value);
 };
 
 exports.createNewDataField = function (result) {
@@ -598,12 +598,18 @@ exports.relationshipHasManyWithName = function (result) {
 exports.relationshipHasManyPreset = function (result) {
     var source = result[1];
     var target = result[2];
+    var as = target;
+    var foreignKey = "id_" + source.toLowerCase();
+
+    if(typeof result[3] !== "undefined")
+        as = result[3];
+        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
-        as: target,
+        foreignKey: foreignKey,
+        as: as,
         processValue: true
     };
 
@@ -614,12 +620,18 @@ exports.relationshipHasManyPresetUsing = function (result) {
     var source = result[1];
     var target = result[2];
     var usingField = result[3];
+    var as = target;
+    var foreignKey = "id_" + source.toLowerCase();
+
+    if(typeof result[4] !== "undefined")
+        as = result[4];
+        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
-        as: target,
+        foreignKey: foreignKey,
+        as: as,
         usingField: usingField,
         processValue: true
     };
@@ -885,8 +897,8 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-console.log(result);
-console.log(result.length);
+    console.log(result);
+    console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
@@ -1042,7 +1054,7 @@ var training = {
         "sélectionner le module (.*)",
         "sélectionner module (.*)"
     ],
-    "selectDataEntity": [
+    "selectEntity": [
         "select entity (.*)",
         "select data entity (.*)",
         "sélectionner l'entité (.*)",
@@ -1102,7 +1114,7 @@ var training = {
         "ajouter un module (.*)",
         "ajouter le module (.*)"
     ],
-    "createNewDataEntity": [
+    "createNewEntity": [
         "create entity (.*)",
         "create data entity (.*)",
         "add entity (.*)",
@@ -1384,6 +1396,17 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant",
         "l'entité (.*) a plusieurs (.*) déjà prédéfini",
         "l'entité (.*) a plusieurs (.*) déjà existant",
+
+        "entity (.*) has many preset (.*) called (.*)",
+        "entity (.*) has many existing (.*) called (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existant appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existant appelées (.*)",
     ],
     "relationshipHasManyPresetUsing": [
         "entity (.*) has many preset (.*) using (.*)",
@@ -1406,21 +1429,37 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
+
+        "entity (.*) has many preset (.*) using (.*) called (.*)",
+        "entity (.*) has many existing (.*) using (.*) called (.*)",
+        "entity (.*) has many preset (.*) through (.*) called (.*)",
+        "entity (.*) has many existing (.*) through (.*) called (.*)",
+        "entity (.*) has many preset (.*) using field (.*) called (.*)",
+        "entity (.*) has many existing (.*) using field (.*) called (.*)",
+        "entity (.*) has many preset (.*) through field (.*) called (.*)",
+        "entity (.*) has many existing (.*) through field (.*) called (.*)",
+        "entity (.*) has many preset (.*) using the field (.*) called (.*)",
+        "entity (.*) has many existing (.*) using the field (.*) called (.*)",
+        "entity (.*) has many preset (.*) through the field (.*) called (.*)",
+        "entity (.*) has many existing (.*) through the field (.*) called (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)",
     ],
     "createFieldRelatedToMultiple": [
-        "create fieldset (.*) related to (.*)",
-        "add fieldset (.*) related to (.*)",
-        "create list of (.*) related to (.*)",
-        "add list of (.*) related to (.*)",
-        "créer une liste de (.*) lié à (.*)",
-        "créer une liste de (.*) liée à (.*)",
-        "créer liste de (.*) liée à (.*)",
-        "créer liste de (.*) lié à (.*)",
-        "ajouter une liste de (.*) lié à (.*)",
-        "ajouter une liste de (.*) liée à (.*)",
-        "ajouter liste de (.*) liée à (.*)",
-        "ajouter liste de (.*) lié à (.*)",
-
         "create field (.*) related to multiple (.*)",
         "add field (.*) related to multiple (.*)",
         "create data field (.*) related to multiple (.*)",
@@ -1435,19 +1474,6 @@ var training = {
         "ajouter champ (.*) relié à plusieurs (.*)"
     ],
     "createFieldRelatedToMultipleUsing": [
-        "create fieldset (.*) related to (.*) using (.*)",
-        "add fieldset (.*) related to (.*) using (.*)",
-        "create list of (.*) related to (.*) using (.*)",
-        "add list of (.*) related to (.*) using (.*)",
-        "créer une liste de (.*) lié à (.*) en affichant (.*)",
-        "créer une liste de (.*) liée à (.*) en affichant (.*)",
-        "créer liste de (.*) lié à (.*) en affichant (.*)",
-        "créer liste de (.*) liée à (.*) en affichant (.*)",
-        "ajouter une liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter une liste de (.*) liée à (.*) en affichant (.*)",
-        "ajouter liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter liste de (.*) liée à (.*) en affichant (.*)",
-
         "create field (.*) related to multiple (.*) using (.*)",
         "add field (.*) related to multiple (.*) using (.*)",
         "create data field (.*) related to multiple (.*) using (.*)",
@@ -1913,7 +1939,7 @@ exports.parse = function (instruction) {
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
     } else {
-        attr.error = "Unable to find a matching instruction.";
+        attr.error = "error.cannotFindInstruction";
     }
 
     return attr;
