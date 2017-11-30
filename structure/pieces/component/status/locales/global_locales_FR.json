@@ -17,7 +17,8 @@
             "f_entity": "Entité",
             "f_field": "Champ",
             "f_name": "Nom",
-            "f_color": "Couleur"
+            "f_color": "Couleur",
+            "f_default": "Défaut"
 		},
 		"e_translation": {
 			"label_entity": "Traduction",
