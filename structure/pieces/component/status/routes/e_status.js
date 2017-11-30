@@ -242,7 +242,16 @@ router.post('/create', block_access.actionAccessMiddleware("status", "write"), f
         // because those values are not updated for now
         model_builder.setAssocationManyValues(e_status, req.body, createObject, options);
 
-        res.redirect(redirect);
+        // If new status is default, remove default from other status entity/field duo
+        if (createObject.f_default && createObject.f_default == true)
+            models.E_status.update(
+                {f_default: false},
+                {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {$not: e_status.id}}}
+            ).then(function() {
+                res.redirect(redirect);
+            });
+        else
+            res.redirect(redirect);
     }).catch(function (err) {
         entity_helper.error500(err, req, res, '/status/create_form');
     });
@@ -338,7 +347,17 @@ router.post('/update', block_access.actionAccessMiddleware("status", "write"), f
                     level: "success"
                 }];
 
-            res.redirect(redirect);
+            // If status is now default, remove default from other status entity/field duo
+            if (updateObject.f_default && updateObject.f_default == true)
+                models.E_status.update(
+                    {f_default: false},
+                    {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {$not: e_status.id}}}
+                ).then(function() {
+                    res.redirect(redirect);
+                });
+            else
+                res.redirect(redirect);
+
         }).catch(function (err) {
             entity_helper.error500(err, req, res, '/status/update_form?id=' + id_e_status);
         });
