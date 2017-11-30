@@ -243,7 +243,7 @@ router.post('/create', block_access.actionAccessMiddleware("status", "write"), f
         model_builder.setAssocationManyValues(e_status, req.body, createObject, options);
 
         // If new status is default, remove default from other status entity/field duo
-        if (createObject.f_default && createObject.f_default == true)
+        if (createObject.f_default && createObject.f_default == 'true')
             models.E_status.update(
                 {f_default: false},
                 {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {$not: e_status.id}}}
@@ -323,7 +323,6 @@ router.post('/update', block_access.actionAccessMiddleware("status", "write"), f
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    //updateObject = enums.values("e_status", updateObject, req.body);
 
     models.E_status.findOne({where: {id: id_e_status}}).then(function (e_status) {
         if (!e_status) {
@@ -348,7 +347,7 @@ router.post('/update', block_access.actionAccessMiddleware("status", "write"), f
                 }];
 
             // If status is now default, remove default from other status entity/field duo
-            if (updateObject.f_default && updateObject.f_default == true)
+            if (updateObject.f_default && updateObject.f_default == 'true')
                 models.E_status.update(
                     {f_default: false},
                     {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {$not: e_status.id}}}

@@ -315,7 +315,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
             return res.render('common/error', data);
         }
 
-        ENTITY_NAME.update(updateObject, {where: {id: id_ENTITY_NAME}}).then(function () {
+        ENTITY_NAME.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now

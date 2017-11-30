@@ -58,7 +58,7 @@
             <input class="form-control input" placeholder='{@__ key="entity.e_status.f_position" /}' name="f_position" value="" type="number">
         </div>
     </div>
-    {#f_entity}
+    {^f_entity}
         <div data-field="f_default" class="col-xs-12">
             <div class="form-group">
                 <label for="f_default"> {@__ key="entity.e_status.f_default"/} </label> &nbsp;
