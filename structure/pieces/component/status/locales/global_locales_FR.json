@@ -36,7 +36,7 @@
             "name_entity": "Média",
             "plural_entity": "Média",
             "id_entity": "ID",
-            "as_r_media": "Média",
+            "as_r_media": "Média"
 		},
 		"e_media_mail": {
 			"f_to": "Destinataire",

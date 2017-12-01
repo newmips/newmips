@@ -272,10 +272,9 @@ function initializeWorkflow(id_application) {
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
                 var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
                 translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
-
                 finalizeApplication(id_application).then(resolve).catch(reject);
             });
-        });
+        }).catch(function(e){console.log(e);reject(e)});
     });
 }
 
