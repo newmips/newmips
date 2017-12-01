@@ -144,16 +144,15 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 
             // Check if entity has Status component defined and get the possible next status
             entity_helper.status.nextStatus(models, "ENTITY_NAME", ENTITY_NAME.id, attributes).then(function(nextStatus) {
-                if (nextStatus)
+                if (nextStatus) {
+                    for (var i = 0; i < nextStatus.length; i++) {
+                        nextStatus[i].translate(req.session.lang_user);
+                        for (var j = 0; nextStatus[i].r_children && j < nextStatus[i].r_children.length; j++)
+                            nextStatus[i].r_children[j].translate(req.session.lang_user);
+                    }
                     data.next_status = nextStatus;
-
-                // Give children status entity/field translation
-                for (var i = 0; ENTITY_NAME.r_children && i < ENTITY_NAME.r_children.length; i++) {
-                    var curr = ENTITY_NAME.r_children[i];
-                    var entityTradKey = 'entity.'+curr.f_entity+'.label_entity';
-                    curr.f_field = 'entity.'+curr.f_entity+'.'+curr.f_field;
-                    curr.f_entity = entityTradKey;
                 }
+
                 res.render('ENTITY_NAME/show', data);
             }).catch(function(err) {
                 console.error(err);

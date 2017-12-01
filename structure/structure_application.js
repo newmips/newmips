@@ -241,6 +241,9 @@ function initializeWorkflow(id_application) {
         // Copy e_status pieces
         fs.copySync(piecesPath+'/routes/e_status.js', workspacePath+'/routes/e_status.js');
         fs.copySync(piecesPath+'/views/e_status/', workspacePath+'/views/e_status/');
+        var modelStatus = fs.readFileSync(piecesPath+'/models/e_status.js', 'utf8');
+        modelStatus = modelStatus.replace(/ID_APPLICATION/g, id_application);
+        fs.writeFileSync(workspacePath+'/models/e_status.js', modelStatus, 'utf8');
 
         // Copy media pieces
         fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');

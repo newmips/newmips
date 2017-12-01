@@ -1494,6 +1494,8 @@ var training = {
     "createNewComponentStatusWithName": [
         "create component status called (.*)",
         "add component status called (.*)"
+        "create component status with name (.*)",
+        "add component status with name (.*)"
     ],
     "createNewComponentStatus": [
         "create component status",

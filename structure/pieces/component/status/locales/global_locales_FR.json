@@ -24,10 +24,25 @@
 			"label_entity": "Traduction",
 			"name_entity": "Traduction",
 			"plural_entity": "Traductions",
-			"as_r_translations": "Traductions"
+			"as_r_translations": "Traductions",
+			"f_value": "Valeur"
 		},
 		"e_action": {
-			"f_execution": "Exécution"
+			"f_execution": "Exécution",
+			"f_order": "Ordre"
+		},
+		"e_media": {
+            "label_entity": "Média",
+            "name_entity": "Média",
+            "plural_entity": "Média",
+            "id_entity": "ID",
+            "as_r_media": "Média",
+		},
+		"e_media_mail": {
+			"f_to": "Destinataire",
+			"f_from": "Expéditeur",
+			"f_subject": "Sujet",
+			"f_content": "Contenu"
 		}
 	}
 }

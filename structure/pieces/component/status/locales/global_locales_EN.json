@@ -5,7 +5,7 @@
 				"illegal_status": "This status isn't valid"
 			},
 			"next_status": "Next status",
-			"no_status_field": "Vous n'avez pas d'entité ayant un composant statut. Utilisez le generateur pour ajouter un composant statut et cette page vous permettra de configurer ces statuts"
+			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure its status"
 		}
 	},
 	"entity": {
