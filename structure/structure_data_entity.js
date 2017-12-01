@@ -276,39 +276,42 @@ exports.setupDataEntity = function (attr, callback) {
                                     replaceCustomModule(fileBase, "show.dust", name_module, show_name_module, function () {
                                         /* Replace all variables 'custom_data_entity' in show.dust */
                                         replaceCustomDataEntity(fileBase, "show.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                            /* Replace all variables 'custom_data_entity' in show_fields.dust */
-                                            replaceCustomDataEntity(fileBase, "show_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                /* Replace all variables 'custom_module' in update.dust */
-                                                replaceCustomModule(fileBase, "update.dust", name_module, show_name_module, function () {
-                                                    /* Replace all variables 'custom_data_entity' in update.dust */
-                                                    replaceCustomDataEntity(fileBase, "update.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                        /* Replace all variables 'custom_data_entity' in update_fields.dust */
-                                                        replaceCustomDataEntity(fileBase, "update_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                            /* Replace all variables 'custom_module' in list.dust */
-                                                            replaceCustomModule(fileBase, "list.dust", name_module, show_name_module, function () {
-                                                                /* Replace all variables 'custom_data_entity' in list.dust */
-                                                                replaceCustomDataEntity(fileBase, "list.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                                    /* Replace all variables 'custom_data_entity' in list_fields.dust */
-                                                                    replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                            /* Replace all variables 'custom_data_entity' in show.dust */
+                                            replaceCustomDataEntity(fileBase, "print_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                /* Replace all variables 'custom_data_entity' in show_fields.dust */
+                                                replaceCustomDataEntity(fileBase, "show_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                    /* Replace all variables 'custom_module' in update.dust */
+                                                    replaceCustomModule(fileBase, "update.dust", name_module, show_name_module, function () {
+                                                        /* Replace all variables 'custom_data_entity' in update.dust */
+                                                        replaceCustomDataEntity(fileBase, "update.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                            /* Replace all variables 'custom_data_entity' in update_fields.dust */
+                                                            replaceCustomDataEntity(fileBase, "update_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                                /* Replace all variables 'custom_module' in list.dust */
+                                                                replaceCustomModule(fileBase, "list.dust", name_module, show_name_module, function () {
+                                                                    /* Replace all variables 'custom_data_entity' in list.dust */
+                                                                    replaceCustomDataEntity(fileBase, "list.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                                        /* Replace all variables 'custom_data_entity' in list_fields.dust */
+                                                                        replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
 
-                                                                        // Write new data entity to access.json file, within module's context
-                                                                        var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
-                                                                        var accessObject = require(accessPath);
-                                                                        accessObject[name_module.substring(2).toLowerCase()].entities.push({
-                                                                            name: url_name_data_entity,
-                                                                            groups: [],
-                                                                            actions: {
-                                                                                read: [],
-                                                                                write: [],
-                                                                                delete: []
-                                                                            }
-                                                                        });
-                                                                        fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-                                                                            /* --------------- New translation --------------- */
-                                                                            translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
-                                                                                callback();
+                                                                            // Write new data entity to access.json file, within module's context
+                                                                            var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
+                                                                            var accessObject = require(accessPath);
+                                                                            accessObject[name_module.substring(2).toLowerCase()].entities.push({
+                                                                                name: url_name_data_entity,
+                                                                                groups: [],
+                                                                                actions: {
+                                                                                    read: [],
+                                                                                    write: [],
+                                                                                    delete: []
+                                                                                }
                                                                             });
-                                                                        })
+                                                                            fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
+                                                                                /* --------------- New translation --------------- */
+                                                                                translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
+                                                                                    callback();
+                                                                                });
+                                                                            })
+                                                                        });
                                                                     });
                                                                 });
                                                             });
