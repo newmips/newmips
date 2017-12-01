@@ -147,14 +147,14 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
             e_status.f_entity = entityTradKey;
 
             // Check if entity has Status component defined and get the possible next status
-            entity_helper.status.nextStatus(models, "e_status", e_status.id, attributes).then(function(nextStatus) {
+            entity_helper.status.nextStatus(req, models, "e_status", e_status.id, attributes).then(function(nextStatus) {
                 if (nextStatus)
                     data.next_status = nextStatus;
                 for (var i = 0; i < e_status.r_children.length; i++) {
-                    var curr = e_status.r_children[i];
-                    var entityTradKey = 'entity.'+curr.f_entity+'.label_entity';
-                    curr.f_field = 'entity.'+curr.f_entity+'.'+curr.f_field;
-                    curr.f_entity = entityTradKey;
+                    var child = e_status.r_children[i];
+                    var entityTradKey = 'entity.'+child.f_entity+'.label_entity';
+                    child.f_field = 'entity.'+child.f_entity+'.'+child.f_field;
+                    child.f_entity = entityTradKey;
                 }
                 data.e_status = e_status;
 
