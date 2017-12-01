@@ -98,29 +98,6 @@ block content
 											| #{__('button.generate')}
 										.progress.active.progress_generate(style="display: none;")
 											.progress-bar.progress-bar-striped.progress-bar-success.active#pourcent_generation(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width:0%')
-	if nb_application > 0
-		.row
-			.col-xs-12
-				section.col-lg-offset-3.col-lg-6
-					.box.box-solid.box-default
-						.box-header
-							h4.box-title #{__('home.lastthreeapp')}
-						.box-body
-							.table-responsive
-								table.table.no-margin
-									thead
-										tr
-											th #{__("listApplication.name")}
-											th.text-right(colspan="2") #{__("listApplication.action")}
-									tbody
-										each application, index in lastThreeApp
-											tr
-												td
-													| #{application.displayName}
-												td.text-right
-													a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
-														i.fa.fa-desktop.fa-md &nbsp;&nbsp;
-														span #{__("button.preview")}
 	.row
 		.col-xs-12
 			section.col-lg-offset-3.col-lg-6
@@ -149,6 +126,29 @@ block content
 							a.btn.btn-app(href='/settings/index')
 								i.fa.fa-cog
 								| #{__("home.directlinks.settings")}
+	if nb_application > 0
+		.row
+			.col-xs-12
+				section.col-lg-offset-3.col-lg-6
+					.box.box-solid.box-default
+						.box-header
+							h4.box-title #{__('home.lastthreeapp')}
+						.box-body
+							.table-responsive
+								table.table.no-margin
+									thead
+										tr
+											th #{__("listApplication.name")}
+											th.text-right(colspan="2") #{__("listApplication.action")}
+									tbody
+										each application, index in lastThreeApp
+											tr
+												td
+													| #{application.displayName}
+												td.text-right
+													a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
+														i.fa.fa-desktop.fa-md &nbsp;&nbsp;
+														span #{__("button.preview")}
 	if showytpopup
 		.modal.fade#modalyttuto(tabindex='-1', role='dialog', aria-labelledby='You Tube Tuto')
 			.modal-dialog.modal-lg(role='document')
