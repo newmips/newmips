@@ -1680,7 +1680,8 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                     if(optionsSourceObject[i].relation == "belongsTo"){
                         var err = new Error();
                         err.message = "structure.association.error.alreadyRelatedTo";
-                        return callback(err, null);
+                        console.log("WARNING: already related to.");
+                        //return callback(err, null);
                     } else if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadySameAlias";
