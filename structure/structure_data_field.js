@@ -1139,19 +1139,6 @@ exports.setupRelatedToField = function (attr, callback) {
 
     // Setup association field for create_fields
     var select = '';
-    /*select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-    select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
-    select += '         <!--{#' + alias + '}-->\n';
-    select += '             <!--{#.' + usingField + '}-->\n';
-    select += '                     <option value="{id}">{' + usingField + '}</option>\n';
-    select += '             <!--{:else}-->\n';
-    select += '                     <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-    select += '             <!--{/.' + usingField + '}-->\n';
-    select += '         <!--{/' + alias + '}-->\n';
-    select += '     </select>\n';
-    select += '</div>\n</div>\n';*/
-
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
@@ -1174,27 +1161,6 @@ exports.setupRelatedToField = function (attr, callback) {
     updateFile(fileBase, file, select, function () {
 
         // Setup association field for update_fields
-        /*select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-        select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += '     <!--{#' + alias + '_global_list}-->\n';
-        select += '         <!--{#.' + usingField + '}-->\n';
-        select += '             <!--{@eq key=' + alias + '.id value=id}-->\n';
-        select += '                 <option value="{id}" selected>{' + usingField + '}</option>\n';
-        select += '             <!--{:else}-->\n';
-        select += '                 <option value="{id}">{' + usingField + '}</option>\n';
-        select += '             <!--{/eq}-->\n';
-        select += '         <!--{:else}-->\n';
-        select += '             <!--{@eq key=' + alias + '.id value=id}-->\n';
-        select += '                 <option value="{id}" selected>{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-        select += '             <!--{:else}-->\n';
-        select += '                 <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-        select += '             <!--{/eq}-->\n';
-        select += '         <!--{/.' + usingField + '}-->\n';
-        select += '     <!--{/' + alias + '_global_list}-->\n';
-        select += '</select>\n';
-        select += '</div>\n</div>\n';*/
-
         select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
         select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
@@ -1245,40 +1211,47 @@ exports.setupRelatedToField = function (attr, callback) {
                 $("#fields").append(str);
 
                 domHelper.write(file, $).then(function () {
-                    function done(){
-                        translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
-                            callback(null, "Field related to successfully created");
+                    // Add the related to field in the entity print template
+                    file = fileBase + '/print_fields.dust';
+                    domHelper.read(file).then(function ($) {
+                        $("#fields").append(str);
+                        domHelper.write(file, $).then(function () {
+                            function done(){
+                                translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
+                                    callback(null, "Field related to successfully created");
+                                });
+                            }
+                            function writeDatalist(cpt){
+                                if(cpt >= usingField.length){
+                                    done();
+                                    return true;
+                                }
+
+                                var targetField = (usingField[cpt].value == "id") ? "id_entity" : usingField[cpt].value;
+
+                                // Add <th> in list_field
+                                var toAddInList = {headers: '', body: ''};
+                                /* ------------- Add new FIELD in headers ------------- */
+                                var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
+                                str += ' data-type="'+usingField[cpt].type+'"';
+                                str += '>\n';
+                                str += '{@__ key="entity.' + source + '.' + alias + '"/}&nbsp;-&nbsp;{@__ key="entity.' + target + '.' + targetField + '"/}\n';
+                                str += '</th>\n';
+                                toAddInList.headers = str;
+
+                                /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
+                                str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
+                                str += ' data-type="'+usingField[cpt].type+'"';
+                                str += ' >{' + alias + '.' + usingField[cpt].value + '}</td>';
+                                toAddInList.body = str;
+
+                                updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function () {
+                                    writeDatalist(++cpt);
+                                });
+                            }
+                            writeDatalist(0);
                         });
-                    }
-                    function writeDatalist(cpt){
-                        if(cpt >= usingField.length){
-                            done();
-                            return true;
-                        }
-
-                        var targetField = (usingField[cpt].value == "id") ? "id_entity" : usingField[cpt].value;
-
-                        // Add <th> in list_field
-                        var toAddInList = {headers: '', body: ''};
-                        /* ------------- Add new FIELD in headers ------------- */
-                        var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
-                        str += ' data-type="'+usingField[cpt].type+'"';
-                        str += '>\n';
-                        str += '{@__ key="entity.' + source + '.' + alias + '"/}&nbsp;-&nbsp;{@__ key="entity.' + target + '.' + targetField + '"/}\n';
-                        str += '</th>\n';
-                        toAddInList.headers = str;
-
-                        /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-                        str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
-                        str += ' data-type="'+usingField[cpt].type+'"';
-                        str += ' >{' + alias + '.' + usingField[cpt].value + '}</td>';
-                        toAddInList.body = str;
-
-                        updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function () {
-                            writeDatalist(++cpt);
-                        });
-                    }
-                    writeDatalist(0);
+                    });
                 });
             });
         });
@@ -1361,27 +1334,22 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
 
+                var usingFieldContent = "";
+                for(var i=0; i<usingField.length; i++){
+                    usingFieldContent += '{' + usingField[i].value + '|' + usingField[i].type +'}';
+                    if(i != usingField.length - 1)
+                        usingFieldContent += " - ";
+                }
+
                 // Add read only field in show file. No tab required
                 select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
                 select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
                 select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '" disabled readonly>\n';
                 select += '     <!--{#' + alias + '_global_list}-->\n';
                 select += '         <!--{@inArray field="id" array=' + alias + ' value=id}-->\n';
-                select += '             <option value="{id}" selected>';
-                for(var i=0; i<usingField.length; i++){
-                    select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-                    if(i != usingField.length - 1)
-                        select += " - ";
-                }
-                select += '</option>\n';
+                select += '             <option value="'+usingFieldContent+'" selected>'+usingFieldContent+'</option>\n';
                 select += '         <!--{:else}-->\n';
-                select += '             <option value="{id}">';
-                for(var i=0; i<usingField.length; i++){
-                    select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-                    if(i != usingField.length - 1)
-                        select += " - ";
-                }
-                select += '</option>\n';
+                select += '             <option value="'+usingFieldContent+'">'+usingFieldContent+'</option>\n';
                 select += '         <!--{/inArray}-->\n';
                 select += '     <!--{/' + alias + '_global_list}-->\n';
                 select += '</select>\n';
@@ -1389,8 +1357,15 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                 $("#fields").append(select);
 
                 domHelper.write(file, $).then(function () {
-                    translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
-                        callback(null, "Fieldset related to successfully created");
+                    // Add the related to many field in the entity print template
+                    file = fileBase + '/print_fields.dust';
+                    domHelper.read(file).then(function ($) {
+                        $("#fields").append(select);
+                        domHelper.write(file, $).then(function () {
+                            translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
+                                callback(null, "Related to many fields successfully created !");
+                            });
+                        });
                     });
                 });
             });

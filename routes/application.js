@@ -749,14 +749,18 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
                     model: models.DataEntity
                 }]
             }]
-        }]
+        }],
+        order: [
+            [models.Application, 'id', 'DESC']
+        ]
     }).then(function(projects) {
         var data = {};
         data.projects = projects;
         res.render('front/application', data);
     }).catch(function(error) {
+        console.log(error);
         data.code = 500;
-        res.render('error', data);
+        res.render('common/error', data);
     });
 });
 
