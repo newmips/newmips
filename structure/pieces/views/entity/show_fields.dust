@@ -12,9 +12,9 @@
                 <a href="/custom_url_data_entity/set_status/{custom_url_data_entityid}/{f_field}/{id}" class="btn btn-info" style='margin-right: 5px;'>{f_name}</a>
             {/r_children}
         </div>
-        <br>
     {/next_status}
 </div>
+<br>
 <div class='actions'>
     <form action="/custom_url_data_entity/delete" method="post">
         <div class="quicklinks">

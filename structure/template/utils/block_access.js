@@ -64,6 +64,8 @@ exports.moduleAccess = moduleAccess;
 
 exports.moduleAccessMiddleware = function(moduleName) {
     return function(req, res, next) {
+        if (!req.isAuthenticated())
+            res.redirect('/login');
         var userGroup = req.session.passport.user.r_group.f_label;
         if (moduleAccess(userGroup, moduleName))
             return next();
@@ -71,7 +73,6 @@ exports.moduleAccessMiddleware = function(moduleName) {
             level: 'error',
             'message': "Your Group doesn't have access to this module"
         });
-        res.redirect('/default/home');
     }
 }
 
