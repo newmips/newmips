@@ -246,6 +246,10 @@ function initializeWorkflow(id_application) {
         fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');
         fs.copySync(piecesPath+'/routes/e_media_mail.js', workspacePath+'/routes/e_media_mail.js');
 
+        // cOPY e_translation
+        fs.copySync(piecesPath+'/views/e_translation/', workspacePath+'/views/e_translation/');
+        fs.copySync(piecesPath+'/routes/e_translation.js', workspacePath+'/routes/e_translation.js');
+
         // Media pieces
         var modelMedia = fs.readFileSync(piecesPath+'/models/e_media.js', 'utf8');
         modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);

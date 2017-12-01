@@ -208,7 +208,6 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "write"
 router.post('/create', block_access.actionAccessMiddleware("status", "write"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    //createObject = enums.values("e_status", createObject, req.body);
 
     models.E_status.create(createObject).then(function (e_status) {
         var redirect = '/status/show?id='+e_status.id;
@@ -331,7 +330,7 @@ router.post('/update', block_access.actionAccessMiddleware("status", "write"), f
             return res.render('common/error', data);
         }
 
-        e_status.update(updateObject, {where: {id: id_e_status}}).then(function () {
+        e_status.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
