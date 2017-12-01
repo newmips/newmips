@@ -265,7 +265,7 @@ function initializeWorkflow(id_application) {
         // Add show td to action list (to be used in status tab r_action)
         domHelper.read(workspacePath+'/views/e_action/list_fields.dust').then(function($) {
             var showTd = '<a class="btn btn-primary" href="/action/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}';
-            $("tbody tr td").eq(2).html(showTd);
+            $("tbody tr td").eq(3).html(showTd);
             domHelper.write(workspacePath+'/views/e_action/list_fields.dust', $).then(function(){
                 // Write new locales trees
                 var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
