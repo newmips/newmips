@@ -809,7 +809,7 @@ exports.newStatus = function(attr, callback) {
         $("#"+historyId).remove();
         domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
 
-            // Remove show/update button and id from history tab list
+            // Remove show/update button from history tab list
             domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
                 $("tbody tr td").slice(4, 6).remove();
                 $("thead").each(function() {
@@ -817,9 +817,20 @@ exports.newStatus = function(attr, callback) {
                 });
                 domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
 
-                    // Add status field locales
-                    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
-                        callback(null);
+                    // Add custom <th> to source entity in list_fields to display last status translated
+                    domHelper.read(workspacePath+'/views/'+attr.source+'/list_fields.dust').then(function($) {
+                        var newTh = '<th data-field="'+attr.options.value+'" data-col="'+attr.options.value+'">{@__ key="entity.'+attr.source+'.'+attr.options.value+'" /}</th>';
+                        var newTd = '<td>{'+attr.options.value+'}</td>';
+                        $(".fields").each(function() {
+                            $(this).find('th:eq(-3)').before(newTh);
+                        });
+                        $(newTd).insertBefore('#bodyTr td:eq(-3)');
+                        domHelper.write(workspacePath+'/views/'+attr.source+'/list_fields.dust', $).then(function(){
+                            // Add status field locales
+                            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
+                                callback(null);
+                            });
+                        });
                     });
                 });
             });
