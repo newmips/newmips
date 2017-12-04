@@ -4,7 +4,7 @@
     },
     "login": {
         "log_in": "Se connecter",
-        "reset_password": "Mot de passe oublié",
+        "reset_password": "Changement de mot de passe",
         "emailResetSent": "Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.",
         "tokenNotFound": "Impossible de retrouver votre token, nous ne pouvons pas valider votre demande.",
         "passwordReset": "Votre mot de passe a été réinitialisé.",
@@ -131,7 +131,7 @@
         },
         "change_password": "Réinitialiser son mot de passe",
         "reset_button": "Réinitialiser",
-        "sure_reset": "Êtes-vous sur ? Votre mot de passe sera réinitialisé et vous allez recevoir un email pour en configurer un nouveau.",
+        "sure_reset": "Êtes-vous sur ? Vous allez être déconnecté, votre mot de passe sera réinitialisé et vous allez recevoir un email pour en configurer un nouveau.",
         "activate_translation": "Activer la traduction automatique (Connexion internet + Clée API Google valide requises)",
         "english": "Anglais",
         "french": "Français"

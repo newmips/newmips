@@ -4,7 +4,7 @@
     },
     "login": {
         "log_in": "Log in",
-        "reset_password": "Forgotten password",
+        "reset_password": "Password modification",
         "emailResetSent": "An email allowing you to reset your password has been sent to you.",
         "tokenNotFound": "Sorry, unable to find your token, we can not validate your request.",
         "passwordReset": "Your password has been reset.",
@@ -131,7 +131,7 @@
         },
         "change_password": "Reset your password",
         "reset_button": "Reset",
-        "sure_reset": "Are you sure ? Your password will be reset and you'll receive an email to set a new one.",
+        "sure_reset": "Are you sure ? You will logout, your password will be reset and you'll receive an email to set a new one.",
         "activate_translation": "Activate automatic translation (Internet connection and valid Google API Key is required)",
         "english": "English",
         "french": "French"
