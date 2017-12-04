@@ -109,8 +109,8 @@ block content
 block custom_js
 	script.
 		var sureResetMsg = '#{__("settings.sure_reset")}';
-		var loginUser = user.login;
-		var mailUser = user.email;
+		var loginUser = "#{user.login}";
+		var mailUser = "#{user.email}";
 		$(document).ready(function() {
 			$(document).on("click", ".chooseLanguage", function(){
 				var lang = $(this).data("lang");
@@ -165,27 +165,23 @@ block custom_js
 			$(document).on("click", ".resetPassword", function(){
 				var sure = confirm(sureResetMsg);
 				if(sure){
-					var activate = $(this).data("activate");
 					var ajaxdata = {
-						login: ,
-						mail:
+						login: loginUser,
+						mail: mailUser
 					};
 
 					$.ajax({
-						url : '/reset_password',
+						url : '/settings/reset_password',
 						type : 'POST',
 						data : JSON.stringify(ajaxdata),
 						dataType : 'json',
 						contentType: "application/json",
 						context: this,
-						success: function (data) {
-							if(data.success){
-								location.reload();
-							}
+						success: function (success) {
+							window.location.href = "/logout";
 						},
 						error: function (error) {
-							console.log(error);
-							toastr.error(error);
+							location.reload();
 						}
 					});
 				}

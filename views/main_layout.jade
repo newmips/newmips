@@ -54,6 +54,7 @@ html
 		script.
 			var toastrArray = [];
 		if toastr
+			- for (var i=0; i<toastr.length; i++) {toastr[i].message = __(toastr[i].message, []);}
 			- var toastrString = JSON.stringify(toastr).replace('\'', '&#39;');
 			script.
 				toastrArray = JSON.parse('!{toastrString}');
