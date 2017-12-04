@@ -4195,6 +4195,7 @@ fieldset[disabled] .btn-vk.active {
 .right-side > .content-header > .row > .col-header > .breadcrumb > li + li:before {
   content: '>\00a0';
 }
+
 @media screen and (max-width: 767px) {
     .right-side > .content-header > .row > .col-header > .breadcrumb {
         position: relative;
@@ -4205,20 +4206,14 @@ fieldset[disabled] .btn-vk.active {
         background: #efefef;
     }
 }
-@media screen and (min-width: 1200px) {
-    #header-icon{
-        width: 4%;
-        margin-left: 2%;
-    }
-}
 
 @media screen and (max-width: 1450px) and (min-width: 1200px) {
-    #header-button{
+    /*#header-button{
         width: 21%;
     }
     #header-title{
         width: 64%;
-    }
+    }*/
 }
 
 .progress-bar {

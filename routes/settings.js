@@ -4,20 +4,26 @@ var router = express.Router();
 var block_access = require('../utils/block_access');
 var language = require('../services/language');
 var extend = require('util')._extend;
+// Sequelize
+var models = require('../models/');
 
 // ===========================================
 // Redirection Live =====================
 // ===========================================
 
 // Index
-router.get('/index', block_access.isLoggedIn, function(req, res) {
+router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
     // Récupération des toastr en session
     data.toastr = req.session.toastr;
     // Nettoyage de la session
     req.session.toastr = [];
     data.toTranslate = req.session.toTranslate || false;
-    res.render('front/settings', data);
+    data.user = req.session.passport.user;
+    models.Role.findById(data.user.id_role).then(function(userRole){
+        data.user.role = userRole;
+        res.render('front/settings', data);
+    });
 });
 
 /* Fonction de changement du language */

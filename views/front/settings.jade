@@ -1,13 +1,13 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-9#header-title
+		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
 			h1
-				a(href="/")
-					img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
-				| #{__("menu.settings")}
+				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
+				| #{__("menu.account")}
 				small #{__("menu.module")}
-		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
+
+		.hidden-xs.col-sm-2.col-md-2.col-lg-1
 			.clearfix
 				span.pull-left Instructions
 				small.pull-right
@@ -19,44 +19,98 @@ block header
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
 				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-7.col-sm-4.col-md-3.col-lg-2#header-button
+
+		.col-xs-12.col-sm-6.col-md-5.col-lg-3
 			.btn-group.pull-right(role="group")
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
 					| #{__("menu.home")}
+				a.btn.btn-default(href='/settings')
+					i.fa.fa-user(style="margin-right:5px;")
+					| #{__("menu.account")}
 				a.btn.btn-default.pull-right(href='/logout')
 					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 					span #{__("button.disconnect")}
 
 block content
 	.row
-		.col-xs-12.connectedSortable
+		.col-xs-12
 			.box.box-solid.box-default
 				.box-header.bg-primary
-					h3.box-title(style="color: #fff") #{__("settings.legend")}
+					h3.box-title(style="color: #fff") #{__("menu.account")}
 				.box-body
-					.form-group
-						label #{__("settings.display_language")}
-						br
-						br
-						a.chooseLanguage.btn(data-lang='fr-FR', class="#{getLang()}"=="fr-FR"?"btn-primary":"btn-default")
-							| #{__("settings.french")}
-						| &nbsp;&nbsp;
-						a.chooseLanguage.btn(data-lang='en-EN', class="#{getLang()}"=="en-EN"?"btn-primary":"btn-default")
-							| #{__("settings.english")}
 					br
-					.form-group
-						label #{__("settings.activate_translation")}
-						br
-						br
-						a.chooseTranslate.btn(data-activate="true", class=toTranslate?"btn-primary":"btn-default")
-							| #{__("button.yes")}
-						| &nbsp;&nbsp;
-						a.chooseTranslate.btn(data-activate="false", class=toTranslate?"btn-default":"btn-primary")
-							| #{__("button.no")}
+					.row
+						.col-xs-12
+							.form-group
+								label #{__("settings.display_infos")}
+								br
+								br
+								.col-xs-12.col-sm-4.col-md-2
+									| #{__("settings.infos.login")}:
+									br
+									input(value="#{user.login}", disabled)
+									br
+									br
+									| #{__("settings.infos.role")}:
+									br
+									input(value="#{user.role.name}", disabled)
+									br
+									br
+								.col-xs-12.col-sm-4.col-md-2
+									| #{__("settings.infos.lastname")}:
+									br
+									input(value="#{user.last_name}", disabled)
+									br
+									br
+									| #{__("settings.infos.firstname")}:
+									br
+									input(value="#{user.first_name}", disabled)
+								.col-xs-12.col-sm-4.col-md-2
+									| #{__("settings.infos.phone")}:
+									br
+									input(value="#{user.phone}", disabled)
+									br
+									br
+									| #{__("settings.infos.email")}:
+									br
+									input(value="#{user.email}", disabled)
+						.col-xs-12
+							br
+							.form-group
+								label #{__("settings.change_password")}
+								br
+								br
+								a.resetPassword.btn(class="btn-primary")
+									| #{__("settings.reset_button")}
+						.col-xs-12
+							br
+							.form-group
+								label #{__("settings.display_language")}
+								br
+								br
+								a.chooseLanguage.btn(data-lang='fr-FR', class="#{getLang()}"=="fr-FR"?"btn-primary":"btn-default")
+									| #{__("settings.french")}
+								| &nbsp;&nbsp;
+								a.chooseLanguage.btn(data-lang='en-EN', class="#{getLang()}"=="en-EN"?"btn-primary":"btn-default")
+									| #{__("settings.english")}
+						.col-xs-12
+							br
+							.form-group
+								label #{__("settings.activate_translation")}
+								br
+								br
+								a.chooseTranslate.btn(data-activate="true", class=toTranslate?"btn-primary":"btn-default")
+									| #{__("button.yes")}
+								| &nbsp;&nbsp;
+								a.chooseTranslate.btn(data-activate="false", class=toTranslate?"btn-default":"btn-primary")
+									| #{__("button.no")}
 
 block custom_js
 	script.
+		var sureResetMsg = '#{__("settings.sure_reset")}';
+		var loginUser = user.login;
+		var mailUser = user.email;
 		$(document).ready(function() {
 			$(document).on("click", ".chooseLanguage", function(){
 				var lang = $(this).data("lang");
@@ -106,5 +160,34 @@ block custom_js
 						toastr.error(error);
 					}
 				});
+			});
+
+			$(document).on("click", ".resetPassword", function(){
+				var sure = confirm(sureResetMsg);
+				if(sure){
+					var activate = $(this).data("activate");
+					var ajaxdata = {
+						login: ,
+						mail:
+					};
+
+					$.ajax({
+						url : '/reset_password',
+						type : 'POST',
+						data : JSON.stringify(ajaxdata),
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (data) {
+							if(data.success){
+								location.reload();
+							}
+						},
+						error: function (error) {
+							console.log(error);
+							toastr.error(error);
+						}
+					});
+				}
 			});
 		});

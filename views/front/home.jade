@@ -1,12 +1,13 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-9#header-title
+		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
 			h1
 				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
 				| #{__("menu.home")}
 				small #{__("menu.module")}
-		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
+
+		.hidden-xs.col-sm-2.col-md-2.col-lg-1
 			.clearfix
 				span.pull-left Instructions
 				small.pull-right
@@ -18,11 +19,15 @@ block header
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
 				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-7.col-sm-4.col-md-3.col-lg-2#header-button
+
+		.col-xs-12.col-sm-6.col-md-5.col-lg-3
 			.btn-group.pull-right(role="group")
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
 					| #{__("menu.home")}
+				a.btn.btn-default(href='/settings')
+					i.fa.fa-user(style="margin-right:5px;")
+					| #{__("menu.account")}
 				a.btn.btn-default.pull-right(href='/logout')
 					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 					span #{__("button.disconnect")}
@@ -123,9 +128,9 @@ block content
 								i.fa.fa-hdd-o
 								| #{__("home.directlinks.import")}
 
-							a.btn.btn-app(href='/settings/index')
-								i.fa.fa-cog
-								| #{__("home.directlinks.settings")}
+							a.btn.btn-app(href='/settings')
+								i.fa.fa-user
+								| #{__("menu.account")}
 	if nb_application > 0
 		.row
 			.col-xs-12
