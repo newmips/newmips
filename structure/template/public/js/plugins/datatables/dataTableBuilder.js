@@ -204,7 +204,7 @@ function init_datatable(tableID) {
                         for (var attr in row[entityRelation]) {
                             if (row[entityRelation][attr] != null && typeof row[entityRelation][attr] === "object") {
                                 for (var attr2 in row[entityRelation][attr]) {
-                                    if (attr2 == attributeRelation)
+                                    if (attr == entityRelation && attr2 == attributeRelation)
                                         valueFromArray += "- " + row[entityRelation][attr][attr2] + "<br>";
                                 }
                             } else {
