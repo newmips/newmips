@@ -39,7 +39,8 @@
         "error": "Erreur",
         "back": "Back office",
         "users": "Users",
-        "logs": "Logs"
+        "logs": "Logs",
+        "account": "Mon compte"
     },
     "button": {
         "generate": "Générer",
@@ -118,8 +119,20 @@
     },
     "settings": {
         "legend": "Paramètres",
-        "display_language": "Afficher les langages",
-        "activate_translation": "Activer la traduction automatique (Internet + Clée API valide requis)",
+        "display_language": "Langue du générateur",
+        "display_infos": "Vos informations",
+        "infos": {
+            "login": "Login",
+            "role": "Rôle",
+            "lastname": "Nom",
+            "firstname": "Prénom",
+            "phone": "Téléphone",
+            "email": "Email"
+        },
+        "change_password": "Réinitialiser son mot de passe",
+        "reset_button": "Réinitialiser",
+        "sure_reset": "Êtes-vous sur ? Votre mot de passe sera réinitialisé et vous allez recevoir un email pour en configurer un nouveau.",
+        "activate_translation": "Activer la traduction automatique (Connexion internet + Clée API Google valide requises)",
         "english": "Anglais",
         "french": "Français"
     },

@@ -39,7 +39,8 @@
         "error": "Error",
         "back": "Back office",
         "users": "Users",
-        "logs": "Logs"
+        "logs": "Logs",
+        "account": "My account"
     },
     "button": {
         "generate": "Generate",
@@ -119,7 +120,19 @@
     "settings": {
         "legend": "Settings",
         "display_language": "Diplaying language",
-        "activate_translation": "Activate automatic translation (Internet connection and valid API Key is required)",
+        "display_infos": "Your information",
+        "infos": {
+            "login": "Login",
+            "role": "Role",
+            "lastname": "Lastname",
+            "firstname": "Firstname",
+            "phone": "Phone",
+            "email": "Email"
+        },
+        "change_password": "Reset your password",
+        "reset_button": "Reset",
+        "sure_reset": "Are you sure ? Your password will be reset and you'll receive an email to set a new one.",
+        "activate_translation": "Activate automatic translation (Internet connection and valid Google API Key is required)",
         "english": "English",
         "french": "French"
     },
