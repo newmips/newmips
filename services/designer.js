@@ -2325,6 +2325,15 @@ exports.deleteComponentAddress = function (attr, callback) {
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */
+exports.setLayout = function(attr, callback) {
+    structure_ui.setLayout(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+
+        callback(null, infoStructure);
+    });
+}
+
 exports.setSkin = function(attr, callback) {
     structure_ui.setSkin(attr, function(err, infoStructure){
         if(err)

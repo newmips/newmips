@@ -42,6 +42,55 @@ exports.setColumnVisibility = function (attr, callback) {
     });
 }
 
+exports.setLayout = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+    var askedLayout = attr.options.value.toLowerCase().trim().replace(/ /g, "-");
+
+    var layoutPath = __dirname + '/../workspace/' + idApplication + '/public/css/AdminLteV2/layouts';
+    var layoutsDir = fs.readdirSync(layoutPath).filter(function(file) {
+        return (file.indexOf('.') !== 0) && (file.slice(-4) === '.css' && (file.slice(0, 1) !== '_'));
+    });
+
+    var layoutListAvailable = [];
+
+    layoutsDir.forEach(function(file) {
+        var layout = file.slice(7, -4);
+        layoutListAvailable.push(layout);
+    });
+
+    console.log(askedLayout);
+
+    if(layoutListAvailable.indexOf(askedLayout) != -1){
+
+        var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+
+        domHelper.read(mainLayoutPath).then(function($) {
+            var oldLayout = $("link[data-type='layout']").attr("data-layout");
+            $("link[data-type='layout']").replaceWith("<link href='/css/AdminLteV2/layouts/layout-"+askedLayout+".css' rel='stylesheet' type='text/css' data-type='layout' data-layout='"+askedLayout+"'>\n");
+            $("body").removeClass("layout-"+oldLayout);
+            $("body").addClass("layout-"+askedLayout);
+            domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
+                var info = {};
+                info.message = "Layout set to " + attr.options.value + " !";
+                callback(null, info);
+            });
+        }).catch(function(err){
+            callback(err, null);
+        });
+    }
+    else{
+        var err = new Error();
+        err.message = "structure.ui.layout.cannotFind";
+        var msgParams = "";
+        for(var i=0; i<layoutListAvailable.length; i++){
+            msgParams += "-  " + layoutListAvailable[i] + "<br>";
+        }
+        err.messageParams = [msgParams];
+        callback(err, null);
+    }
+}
+
 exports.setSkin = function(attr, callback) {
 
     var idApplication = attr.id_application;
