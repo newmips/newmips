@@ -35,6 +35,16 @@ function select2_ajaxsearch(elementID, entity, searchFields) {
 
 $(document).ready(function () {
 
+    /* Save mini sidebar preference */
+    $(document).on("click", ".sidebar-toggle", function(){
+        if (sidebarPref == "true" || sidebarPref == null)
+            sidebarPref = false;
+        else
+            sidebarPref = true;
+
+        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
+    });
+
     /* Clear print tab component */
     $(".print-tab input").each(function() {
         $(this).prop("disabled", true);

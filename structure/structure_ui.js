@@ -59,8 +59,6 @@ exports.setLayout = function(attr, callback) {
         layoutListAvailable.push(layout);
     });
 
-    console.log(askedLayout);
-
     if(layoutListAvailable.indexOf(askedLayout) != -1){
 
         var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
