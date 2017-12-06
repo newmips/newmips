@@ -14,10 +14,10 @@ html,
 body {
   height: 100%;
 }
-.layout-boxed html,
+/*.layout-boxed html,
 .layout-boxed body {
   height: 100%;
-}
+}*/
 body {
   font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 400;
@@ -39,7 +39,7 @@ body {
 .wrapper:after {
   clear: both;
 }
-.layout-boxed .wrapper {
+/*.layout-boxed .wrapper {
   max-width: 1250px;
   margin: 0 auto;
   min-height: 100%;
@@ -48,7 +48,7 @@ body {
 }
 .layout-boxed {
   background: url('../img/boxed-bg.jpg') repeat fixed;
-}
+}*/
 /*
  * Content Wrapper - contains the main content
  * ```.right-side has been deprecated as of v2.0.0 in favor of .content-wrapper  ```
@@ -125,9 +125,9 @@ body {
     padding-top: 100px;
   }
 }
-.fixed.layout-boxed .wrapper {
+/*.fixed.layout-boxed .wrapper {
   max-width: 100%;
-}
+}*/
 body.hold-transition .content-wrapper,
 body.hold-transition .right-side,
 body.hold-transition .main-footer,

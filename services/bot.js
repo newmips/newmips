@@ -803,6 +803,20 @@ exports.createComponentChat = function (result) {
 }
 
 // ******* INTERFACE Actions ******* //
+exports.setLayout = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setLayout",
+        options: options
+    };
+    return attr;
+};
+
 exports.setSkin = function (result) {
 
     var value = result[1];
@@ -1815,6 +1829,10 @@ var training = {
     	"ajouter composant Discussion",
     	"ajouter le composant discussion",
     	"ajouter composant discussion"
+    ],
+    "setLayout": [
+        "set layout (.*)",
+        "appliquer le layout (.*)"
     ],
     "setSkin": [
         "set skin (.*)",
