@@ -387,6 +387,10 @@
                 "list": "Couleurs disponibles:<br>%s<br>",
                 "cannotFind": "Impossible de trouver la couleur demandée. Couleurs disponibles :<br>%s<br>"
             },
+            "layout": {
+                "list": "Layout disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver le layout demandée. Layouts disponibles :<br>%s<br>"
+            },
             "icon": {
                 "success": "L'entité %s a maintenant l'icône %s",
                 "list": "Quelques exemples : user, users, bank, envelop, eye. <br>Suivez ce lien pour avoir une liste complète des icônes disponibles:<br><a href='%s' target='_blank'>Font Awesome</a>"

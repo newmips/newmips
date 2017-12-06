@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<modules}
-	<select id='dynamic_select' class='form-control select' onchange='navigate()'></select>
+	<select id='dynamic_select' data-width="100%" class='form-control select' onchange='navigate()'></select>
 {/modules}
 
 {<sidebar}

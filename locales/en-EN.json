@@ -387,6 +387,10 @@
                 "list": "Available skin:<br>%s<br>",
                 "cannotFind": "Cannot find the asked skin. Available skin:<br> %s <br>"
             },
+            "layout": {
+                "list": "Available layout:<br>%s<br>",
+                "cannotFind": "Cannot find the asked layout. Available layout:<br> %s <br>"
+            },
             "icon": {
                 "success": "Entity %s now have icon %s",
                 "list": "Follow this link to see the icon list:<br><a href='%s' target='_blank'>Font Awesome</a>"
