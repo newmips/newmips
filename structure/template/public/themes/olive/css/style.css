@@ -1,0 +1,30 @@
+@import url("../../dark.css");
+
+/*
+ * Skin: Olive
+ * ---------
+ */
+.main-header .navbar {
+  background-color: #38B070;
+}
+.main-header .navbar .sidebar-toggle:hover {
+  background-color: #1e9656;
+}
+@media (max-width: 767px) {
+  .main-header .navbar .dropdown-menu li a:hover {
+    background: #1e9656;
+  }
+}
+.main-header .logo {
+  background-color: #1e9656;
+}
+.main-header .logo:hover {
+  background-color: #38B070;
+}
+.main-header li.user-header {
+  background-color: #38B070;
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  border-left-color: #38B070;
+}

@@ -40,7 +40,8 @@
         "back": "Back office",
         "users": "Users",
         "logs": "Logs",
-        "account": "My account"
+        "account": "My account",
+        "themes": "My themes"
     },
     "button": {
         "generate": "Generate",
@@ -72,6 +73,7 @@
         "directlinks": {
             "title": "Application manager",
             "script": "Script",
+            "theme": "Themes",
             "live": "Live",
             "import": "Data Import",
             "settings": "Settings"
@@ -408,5 +410,8 @@
         "help" : "You need help. Please subscribe to our <a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>YouTube channel</a> or have a look to the online documentation here <a href='https://docs.newmips.com/' target='_blank'>https://docs.newmips.com/</a>",
         "applicationavailable": "The application is available here : <br> <a href='%s' target='_blank'>%s</a>",
         "deployment": "We are currently deploying your application...<br> As it may take a while, please wait and then click on the following link :<br> <a href='%s' target='_blank'>%s</a>"
+    },
+    "themes":{
+        "download-default": "Download the theme model"
     }
 }

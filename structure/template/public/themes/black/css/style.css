@@ -1,0 +1,32 @@
+/*
+ * Name: Black
+ * Main color: #222222
+ * Author: Newmips
+ */
+
+@import url("../../dark.css");
+
+.main-header .navbar {
+  background-color: #ffffff;
+}
+.main-header .navbar .sidebar-toggle:hover {
+  background-color: #ffffff;
+}
+@media (max-width: 767px) {
+  .main-header .navbar .dropdown-menu li a:hover {
+    background: #222222;
+  }
+}
+.main-header .logo {
+  background-color: #ffffff;
+}
+.main-header .logo:hover {
+  background-color: #fcfcfc;
+}
+.main-header li.user-header {
+  background-color: #222;
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  border-left-color: #ffffff;
+}
