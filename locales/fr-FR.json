@@ -40,7 +40,8 @@
         "back": "Back office",
         "users": "Users",
         "logs": "Logs",
-        "account": "Mon compte"
+        "account": "Mon compte",
+        "themes": "Mes thèmes"
     },
     "button": {
         "generate": "Générer",
@@ -72,6 +73,7 @@
         "directlinks": {
             "title": "Gestion des Applications",
             "script": "Script",
+            "theme": "Thèmes",
             "live": "Direct",
             "import": "Import de données",
             "settings": "Paramètres"
@@ -408,5 +410,8 @@
         "help" : "Vous avez demandé de l'aide. Accédez aux vidéos d'aide sur notre <a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>chaîne YouTube</a> ou à la documentation en ligne ici <a href='https://docs.newmips.com/' target='_blank'>https://docs.newmips.com/</a>",
         "applicationavailable": "L'application est disponible ici : <br> <a href='%s' target='_blank'>%s</a>",
         "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
+    },
+    "themes":{
+        "download-default": "Télécharger le modèle de thème"
     }
 }

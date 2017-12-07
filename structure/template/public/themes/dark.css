@@ -1,0 +1,42 @@
+.wrapper,
+.main-sidebar,
+.left-side {
+  background-color: #222d32;
+}
+.user-panel > .info,
+.user-panel > .info > a {
+  color: #fff;
+}
+.sidebar-menu > li.header {
+  color: #4b646f;
+  background: #1a2226;
+}
+.sidebar-menu > li > a {
+  border-left: 3px solid transparent;
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  color: #ffffff;
+  background: #1e282c;
+ }
+ .sidebar-menu > li > .treeview-menu {
+  margin: 0 1px;
+  background: #2c3b41;
+}
+.sidebar a {
+  color: #b8c7ce;
+}
+.treeview-menu > li > a {
+  color: #8aa4af;
+}
+.treeview-menu > li.active > a,
+.treeview-menu > li > a:hover {
+  color: #ffffff;
+}
+.sidebar-form {
+  border: 1px solid #374850;
+}
+.sidebar-form input[type="text"],
+.sidebar-form .btn {
+  background-color: #374850;
+}

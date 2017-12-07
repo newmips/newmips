@@ -1,0 +1,30 @@
+@import url("../../dark.css");
+
+/*
+ * Skin: Pink
+ * ---------
+ */
+.main-header .navbar {
+  background-color: #FFC0C8;
+}
+.main-header .navbar .sidebar-toggle:hover {
+  background-color: #ECADB5;
+}
+@media (max-width: 767px) {
+  .main-header .navbar .dropdown-menu li a:hover {
+    background: #ECADB5;
+  }
+}
+.main-header .logo {
+  background-color: #ECADB5;
+}
+.main-header .logo:hover {
+  background-color: #FFC0C8;
+}
+.main-header li.user-header {
+  background-color: #FFC0C8;
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  border-left-color: #FFC0C8;
+}

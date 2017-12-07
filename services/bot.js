@@ -817,6 +817,20 @@ exports.setLayout = function (result) {
     return attr;
 };
 
+exports.setTheme = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setTheme",
+        options: options
+    };
+    return attr;
+};
+
 exports.setSkin = function (result) {
 
     var value = result[1];
@@ -1833,6 +1847,13 @@ var training = {
     "setLayout": [
         "set layout (.*)",
         "appliquer le layout (.*)"
+    ],
+    "setTheme": [
+        "set theme (.*)",
+        "appliquer le theme (.*)",
+        "appliquer le thème (.*)",
+        "appliquer theme (.*)",
+        "appliquer thème (.*)"
     ],
     "setSkin": [
         "set skin (.*)",
