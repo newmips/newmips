@@ -1,5 +1,6 @@
 extends ../main_layout
 block custom_css
+	link(href='/css/animated.css', rel='stylesheet', type='text/css')
 	style.
 		.theme-box .box-footer a span {
 			max-width: 0;
@@ -57,14 +58,20 @@ block content
 				.box-body
 					br
 					.row
-						.col-xs-12
+						.col-xs-6
 							a.btn.btn-primary(href="/themes/download_default")
 								i.fa.fa-download.fa-md &nbsp;&nbsp;
 								| #{__('themes.download-default')}
+						.col-xs-6
+							form.pull-right(action='/themes/upload_theme', id='uploadThemeForm', method='POST', enctype="multipart/form-data")
+								input#themeFile(type="file", style='display: none;', name="themefile")
+								button.btn.btn-success#uploadThemeBtn(type="button")
+									i.fa.fa-upload.fa-md &nbsp;&nbsp;
+									| #{__('themes.add-theme')}
 					br
 
 					.row(style="display: none;")
-						form(action='/instruction_script/execute', id='instructionsScript', method='post', enctype="multipart/form-data", style="display: none;")
+						form(action='/instruction_script/execute', id='instructionsScript', method='POST', enctype="multipart/form-data", style="display: none;")
 							textarea#createScriptTextarea(name='instructionsText', cols='150', rows='10', style='float:left;display: none;')
 								| !{contentArea}
 							a#addScript(href="#")
@@ -85,7 +92,7 @@ block content
 					.row
 						for theme in availableTheme
 							.col-xs-4(id="box-#{theme.codeName}")
-								.box.theme-box
+								.box.theme-box.animated.fadeIn
 									.box-header.with-border(style="border-bottom: 1px solid #f4f4f4;")
 										h3.box-title #{theme.name}
 										.pull-right(style="height: 20px;width: 20px; background-color: #{theme.main_color}; border-radius: 2px;margin: 10px 10px 10px 0px;")
@@ -105,6 +112,7 @@ block content
 block custom_js
 	script(src='/js/Newmips/instructionsScriptStatus.js', type='text/javascript')
 	script.
+		var wrongExt = "#{__('themes.wrongExt')}";
 		$(document).ready(function() {
 			$(document).on("click", ".theme-box .box-footer a#previewTheme", function(){
 				var codeNameTheme = $(this).data("codename");
@@ -127,6 +135,7 @@ block custom_js
 		                url: "/themes/delete_theme",
 		                method: 'post',
 		                data: {theme: $(this).data("codename")},
+		                context: this,
 		                success: function() {
 		                	$("#box-"+$(this).data("codename")).remove();
 		                },
@@ -134,6 +143,21 @@ block custom_js
 		                    console.log(err);
 		                }
 		            });
+				}
+			});
+
+			$(document).on("click", "#uploadThemeBtn", function(){
+				$("#themeFile").trigger("click");
+			});
+
+			$(document).on("change", "#themeFile", function(){
+				var filePath = $(this).val();
+				var fileExt = filePath.split(".");
+				fileExt = fileExt[fileExt.length - 1];
+				if(fileExt != "zip")
+					toastr.error(wrongExt);
+				else {
+					$("#uploadThemeForm").submit();
 				}
 			});
 		});
