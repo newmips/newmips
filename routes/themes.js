@@ -4,6 +4,7 @@ var router = express.Router();
 var block_access = require('../utils/block_access');
 var fs = require("fs-extra");
 var helpers = require("../utils/helpers");
+var unzip = require("unzip");
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
@@ -72,4 +73,9 @@ router.post('/delete_theme', function(req, res) {
         res.status(500).send(err);
     }
 });
+
+router.post('/upload_theme', function(req, res) {
+
+});
+
 module.exports = router;

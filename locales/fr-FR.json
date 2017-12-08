@@ -413,6 +413,8 @@
     },
     "themes":{
         "download-default": "Télécharger le modèle de thème",
-        "generating": "Génération en cours..."
+        "generating": "Génération en cours...",
+        "add-theme": "Uploader un thème",
+        "wrongExt": "Seul les .zip sont accepté."
     }
 }
