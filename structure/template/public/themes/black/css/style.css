@@ -1,16 +1,16 @@
 /*
  * Name: Black
- * Main color: #222222
+ * Main color: #222D32
  * Author: Newmips
  */
 
 @import url("../../dark.css");
 
 .main-header .navbar {
-  background-color: #ffffff;
+  background-color: #222D32;
 }
 .main-header .navbar .sidebar-toggle:hover {
-  background-color: #ffffff;
+  background-color: #222D32;
 }
 @media (max-width: 767px) {
   .main-header .navbar .dropdown-menu li a:hover {
@@ -18,10 +18,10 @@
   }
 }
 .main-header .logo {
-  background-color: #ffffff;
+  background-color: #152025;
 }
 .main-header .logo:hover {
-  background-color: #fcfcfc;
+  background-color: #222D32;
 }
 .main-header li.user-header {
   background-color: #222;
