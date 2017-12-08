@@ -1796,7 +1796,9 @@ exports.createNewComponentStatus = function(attr, callback) {
             "select entity history_"+attr.source+"_"+attr.options.value,
             "add field "+attr.options.showValue+" related to Status using name, color",
             "add field Comment with type text",
-            "entity status has many "+attr.history_table
+            "entity status has many "+attr.history_table,
+            "select entity "+source_entity.name,
+            "add field "+attr.options.showValue+" related to Status using name"
         ];
 
         self.recursiveInstructionExecute(attr, instructions, 0, function(err){

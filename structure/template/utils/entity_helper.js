@@ -46,6 +46,22 @@ module.exports = {
                     list.push(prop);
             return list;
         },
+        translate: function(entity, attributes, lang) {
+            var self = this;
+            var statusList = self.statusFieldList(attributes);
+
+            for (var i = 0; i < statusList.length; i++) {
+                var statusAlias = 'r_'+statusList[i].substring(2);
+                if (!entity[statusAlias] || !entity[statusAlias].r_translations)
+                    continue;
+                for (var j = 0; j < entity[statusAlias].r_translations.length; j++) {
+                    if (entity[statusAlias].r_translations[j].f_language == lang) {
+                        entity[statusAlias].f_name = entity[statusAlias].r_translations[j].f_value;
+                        break;
+                    }
+                }
+            }
+        },
         currentStatus: function(models, entityName, entity, attributes, lang) {
             var self = this;
             return new Promise(function(resolve, reject) {
@@ -88,60 +104,6 @@ module.exports = {
                         }
 
                     resolve();
-                }).catch(function(err){
-                    console.log(err);
-                    reject(err);
-                });
-            });
-        },
-        nextStatus: function(models, entityName, entityId, attributes) {
-            var self = this;
-            return new Promise(function(resolve, reject) {
-                var statusList = self.statusFieldList(attributes);
-                if (statusList.length == 0)
-                    return resolve([]);
-
-                var nextStatusPromises = [];
-                // Get the last history of each status field
-                // Include r_children to have next status
-                for (var i = 0; i < statusList.length; i++) {
-                    var model = 'E_history_'+entityName+'_'+statusList[i];
-                    var where = {};
-                    where['fk_id_'+entityName.substring(2)+'_history_'+statusList[i].substring(2)] = entityId;
-                    (function(status, Model, whereCls) {
-                        nextStatusPromises.push(Model.findAll({
-                            limit: 1,
-                            order: 'createdAt DESC',
-                            where: whereCls,
-                            include: [{
-                                model: models.E_status,
-                                as: 'r_'+status.substring(2),
-                                include: [{
-                                    model: models.E_translation,
-                                    as: 'r_translations'
-                                }, {
-                                    model: models.E_status,
-                                    as: 'r_children',
-                                    include: [{
-                                        model: models.E_translation,
-                                        as: 'r_translations'
-                                    }]
-                                }]
-                            }]
-                        }));
-                    })(statusList[i], models[model], where);
-                }
-
-                Promise.all(nextStatusPromises).then(function(histories) {
-                    // Queries have limit 1, we know there's only one row in each array
-                    // Remove useless array and assign current R_status (r_[alias])
-                    for (var i = 0; i < statusList.length; i++)
-                        if (histories[i][0] && histories[i][0]['r_'+statusList[i].substring(2)]) {
-                            histories[i] = histories[i][0]['r_'+statusList[i].substring(2)];
-                            histories[i].dataValues.tradKey = 'entity.'+histories[i].f_entity+'.'+histories[i].f_field;
-                        }
-
-                    resolve(histories);
                 }).catch(function(err){
                     console.log(err);
                     reject(err);

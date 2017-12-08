@@ -149,28 +149,9 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 
             // Update some data before show, e.g get picture binary
             ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
-
-            // Check if entity has Status component defined and get the possible next status
-            entity_helper.status.nextStatus(models, "ENTITY_NAME", ENTITY_NAME.id, attributes).then(function(nextStatus) {
-                if (nextStatus) {
-                    for (var i = 0; i < nextStatus.length; i++) {
-                        nextStatus[i].translate(req.session.lang_user);
-                        for (var j = 0; nextStatus[i].r_children && j < nextStatus[i].r_children.length; j++)
-                            nextStatus[i].r_children[j].translate(req.session.lang_user);
-                    }
-                    data.next_status = nextStatus;
-                }
-
-                res.render('ENTITY_NAME/show', data);
-            }).catch(function(err) {
-                console.error(err);
-                req.session.toastr = [{
-                    message: 'component.status.error',
-                    level: 'error'
-                }];
-                res.render('ENTITY_NAME/show', data);
-            });
-        });
+            entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
+            res.render('ENTITY_NAME/show', data);
+       });
 
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
@@ -422,6 +403,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
             createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
             models[historyModel].create(createObject).then(function() {
+                ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                 res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
             }).catch(function(err) {
                 entity_helper.error500(err, req, res, errorRedirect);

@@ -7,7 +7,6 @@ var associations = require("./options/e_media_mail.json");
 var model_name = 'e_media_mail';
 var model_urlvalue = model_name.substring(2);
 
-
 module.exports = function (sequelize, DataTypes) {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
@@ -18,12 +17,28 @@ module.exports = function (sequelize, DataTypes) {
         instanceMethods: {
             execute: function(resolve, reject, dataInstance) {
                 var self = this;
+                function insertVariables(property) {
+                    function diveData(object, depths, idx) {
+                        if (object[depths[idx]] && typeof object[depths[idx]] === 'object')
+                            return diveData(object[depths[idx]], depths, ++idx);
+                        else if (object[depths[idx]] && typeof object[depths[idx]] === 'string')
+                            return object[depths[idx]];
+                        return "";
+                    }
+
+                    var regex = new RegExp(/{([^}]*)}/g), matches = null, newString;
+                    while ((matches = regex.exec(self[property])) != null)
+                        newString = self[property].replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
+
+                    return newString;
+                }
+
                 var options = {
-                    from: self.f_from,
-                    to: self.f_to,
-                    cc: self.f_cc,
-                    cci: self.f_cci,
-                    subject: self.f_subject,
+                    from: insertVariables('f_from'),
+                    to: insertVariables('f_to'),
+                    cc: insertVariables('f_cc'),
+                    cci: insertVariables('f_cci'),
+                    subject: insertVariables('f_subject'),
                     data: dataInstance
                 };
                 mailer.sendHtml(self.f_content, options).then(resolve).catch(reject);

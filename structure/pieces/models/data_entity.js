@@ -39,6 +39,7 @@ module.exports = function (sequelize, DataTypes) {
                         historyObject["fk_id_status_"+fieldIn.substring(2)] = status.id;
                         historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = model.id;
                         sequelize.models[historyModel].create(historyObject).then(function() {
+                            model['setR_'+fieldIn.substring(2)](status.id);
                             resolve();
                         });
                     }).catch(function(e){reject(e);});

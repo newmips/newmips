@@ -1,20 +1,5 @@
 <div id='fields' class="row">
-    {#next_status custom_url_data_entityid=id}
-        <div data-field="f_label" class="col-xs-12">
-            <div class="form-group">
-                <label>{@__ key=dataValues.tradKey /}</label>
-                <br>
-                <span class="badge" style="background: {f_color};">{f_name}</span>
-            </div>
-        </div>
-        <div class="col-xs-12">
-            {#r_children}
-                <a href="/custom_url_data_entity/set_status/{custom_url_data_entityid}/{f_field}/{id}" class="btn btn-info" style='margin-right: 5px;'>{f_name}</a>
-            {/r_children}
-        </div>
-    {/next_status}
 </div>
-<br>
 <div class='actions'>
     <form action="/custom_url_data_entity/delete" method="post">
         <div class="quicklinks">
