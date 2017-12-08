@@ -344,7 +344,7 @@
             },
             "hasMany": {
                 "successEntity": "A new tab «%s» has been created on entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
-                "successSubEntity": "A new tab «%s» has been created on the entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
+                "successSubEntity": "A new tab «%s» has been created on the entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasManyExisting": {
                 "success": "New relation has many existing with entity %s created on %s."
@@ -412,6 +412,7 @@
         "deployment": "We are currently deploying your application...<br> As it may take a while, please wait and then click on the following link :<br> <a href='%s' target='_blank'>%s</a>"
     },
     "themes":{
-        "download-default": "Download the theme model"
+        "download-default": "Download the theme model",
+        "generating": "Generation in progress..."
     }
 }

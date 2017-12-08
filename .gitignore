@@ -48,3 +48,4 @@ dist/
 nbdist/
 .nb-gradle/
 sql/import
+structure/template/public/themes/

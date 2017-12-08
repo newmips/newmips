@@ -34,7 +34,7 @@ block header
 
 block content
 	.row
-		.col-xs-12
+		.col-lg-offset-3.col-lg-6
 			.box.box-solid.box-default
 				.box-header.bg-primary
 					h3.box-title(style="color: #fff") #{__("menu.account")}
@@ -46,7 +46,7 @@ block content
 								label #{__("settings.display_infos")}
 								br
 								br
-								.col-xs-12.col-sm-4.col-md-2
+								.col-xs-12.col-sm-4
 									| #{__("settings.infos.login")}:
 									br
 									input(value="#{user.login}", disabled)
@@ -57,7 +57,7 @@ block content
 									input(value="#{user.role.name}", disabled)
 									br
 									br
-								.col-xs-12.col-sm-4.col-md-2
+								.col-xs-12.col-sm-4
 									| #{__("settings.infos.lastname")}:
 									br
 									input(value="#{user.last_name}", disabled)
@@ -66,7 +66,7 @@ block content
 									| #{__("settings.infos.firstname")}:
 									br
 									input(value="#{user.first_name}", disabled)
-								.col-xs-12.col-sm-4.col-md-2
+								.col-xs-12.col-sm-4
 									| #{__("settings.infos.phone")}:
 									br
 									input(value="#{user.phone}", disabled)

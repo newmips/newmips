@@ -412,6 +412,7 @@
         "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
     },
     "themes":{
-        "download-default": "Télécharger le modèle de thème"
+        "download-default": "Télécharger le modèle de thème",
+        "generating": "Génération en cours..."
     }
 }
