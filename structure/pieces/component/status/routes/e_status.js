@@ -11,7 +11,7 @@ var options = require('../models/options/e_status');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
-var global = require('../config/global');
+var globalConf = require('../config/global');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -32,10 +32,16 @@ router.get('/list', block_access.actionAccessMiddleware("status", "read"), funct
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
-
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options);
     filterDataTable("E_status", req.body, include).then(function (data) {
+        var language = require('../services/language')(req.session.lang_user);
+        for (var i = 0; i < data.data.length; i++) {
+            var entityTradKey = 'entity.'+data.data[i].f_entity+'.label_entity';
+            data.data[i].f_field = language.__('entity.'+data.data[i].f_entity+'.'+data.data[i].f_field);
+            data.data[i].f_entity = language.__(entityTradKey);
+        }
+
         // Replace data enum value by translated value for datalist
         var enumsTranslation = enums_radios.translated("e_status", req.session.lang_user, options);
         var todo = [];
@@ -59,7 +65,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), 
                     if (partOfFile.length > 1) {
                         //if field value have valide picture name, add new task in todo list
                         //we will use todo list to get all pictures binary
-                        var thumbnailFolder = global.thumbnail.folder;
+                        var thumbnailFolder = globalConf.thumbnail.folder;
                         var filePath = thumbnailFolder + 'e_status/' + partOfFile[0] + '/' + value;
                         todo.push({
                             value: value,
@@ -141,36 +147,54 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
             // Update some data before show, e.g get picture binary
             e_status = entity_helper.getPicturesBuffers(e_status, attributes, options, "e_status");
 
-            // Pre-load f_entity and f_field translations for show
-            var entityTradKey = 'entity.'+e_status.f_entity+'.label_entity';
-            e_status.f_field = 'entity.'+e_status.f_entity+'.'+e_status.f_field;
-            e_status.f_entity = entityTradKey;
+            var childrenIds = [];
+            for (var i = 0; i < e_status.r_children.length; i++) {
+                var child = e_status.r_children[i];
+                child.translate(req.session.lang_user);
+                child.dataValues.selected = true;
+                childrenIds.push(child.id);
+            }
 
-            // Check if entity has Status component defined and get the possible next status
-            entity_helper.status.nextStatus(req, models, "e_status", e_status.id, attributes).then(function(nextStatus) {
-                if (nextStatus)
-                    data.next_status = nextStatus;
-                for (var i = 0; i < e_status.r_children.length; i++) {
-                    var child = e_status.r_children[i];
-                    var entityTradKey = 'entity.'+child.f_entity+'.label_entity';
-                    child.f_field = 'entity.'+child.f_entity+'.'+child.f_field;
-                    child.f_entity = entityTradKey;
-                }
+            var where = {
+                f_field: e_status.f_field,
+                f_entity: e_status.f_entity
+            };
+            if (childrenIds.length)
+                where.id = {$notIn: childrenIds};
+            models.E_status.findAll({
+                where: where,
+                include: [{
+                    model: models.E_translation,
+                    as: 'r_translations'
+                }]
+            }).then(function(allStatus) {
+                for (var i = 0; i < allStatus.length; i++)
+                    allStatus[i].translate(req.session.lang_user)
+                e_status.dataValues.all_children = allStatus.concat(e_status.r_children);
+
+                var entityTradKey = 'entity.'+e_status.f_entity+'.label_entity';
+                e_status.f_field = 'entity.'+e_status.f_entity+'.'+e_status.f_field;
+                e_status.f_entity = entityTradKey;
+
                 data.e_status = e_status;
-
-                res.render('e_status/show', data);
-            }).catch(function(err) {
-                console.error(err);
-                req.session.toastr = [{
-                    message: 'component.status.error',
-                    level: 'error'
-                }];
                 res.render('e_status/show', data);
             });
         });
-
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
+    });
+});
+
+router.post('/set_children', block_access.actionAccessMiddleware("status", "read"), function(req, res) {
+    var statuses = req.body.next_status || [];
+    var id_status = req.body.id_status;
+
+    for (var i = 0; i < statuses.length; i++)
+        statuses[i] = parseInt(statuses[i]);
+    models.E_status.findOne({where: {id: id_status}}).then(function(status) {
+        if (status)
+            status.setR_children(statuses);
+        res.redirect('/status/show?id='+id_status);
     });
 });
 

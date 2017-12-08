@@ -839,7 +839,7 @@ $(document).ready(function () {
     });
 
     /* --------------- Initialisation des select --------------- */
-    $("select").select2();
+    $("select:not(.regular-select)").select2();
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function(){
