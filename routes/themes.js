@@ -5,6 +5,8 @@ var block_access = require('../utils/block_access');
 var fs = require("fs-extra");
 var helpers = require("../utils/helpers");
 var unzip = require("unzip");
+var multer = require('multer');
+var moment = require("moment");
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
@@ -40,7 +42,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 router.get('/download_default', function(req, res) {
     var p = new Promise(function(resolve, reject) {
         var completeFilePath = __dirname + "/../structure/template/public/themes/my-custom-theme.zip";
-        res.download(completeFilePath, "my-custom-theme.zip", function(err) {
+        res.download(completeFilePath, "my-custom-theme-"+moment().format("HHmmss")+".zip", function(err) {
             if (err)
                 reject(err);
             else
@@ -74,8 +76,96 @@ router.post('/delete_theme', function(req, res) {
     }
 });
 
-router.post('/upload_theme', function(req, res) {
+router.post('/upload_theme', multer({
+    dest: './upload/'
+}).single('themefile'), function(req, res) {
+    if(req.file.size < 15000000){
+        if(req.file.mimetype == "application/zip"){
+            // Create new theme folder
+            var themeCodeName = req.file.originalname.split(".zip")[0].replace(/ /g, "-");
 
+            if (!fs.existsSync(__dirname + "/../structure/template/public/themes/"+themeCodeName)) {
+                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName);
+                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css");
+                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js");
+                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img");
+
+                // Unzip
+                fs.createReadStream('./' + req.file.path)
+                    .pipe(unzip.Parse())
+                    .on('entry', function(entry) {
+                        var filePath = entry.path;
+                        var type = entry.type;
+                        var size = entry.size;
+
+                        function notHandlingFile(file){
+                            console.log("Not handling this file: "+file);
+                            entry.autodrain();
+                        }
+
+                        if(type == "File"){
+                            var fileName = entry.path.split("/").pop();
+                            var fileExt = fileName.split(".").pop().toLowerCase();
+                            var writeStream;
+                            if(filePath.indexOf("/css/") != -1){
+                                if(fileExt == "css"){
+                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css/"+fileName);
+                                    entry.pipe(writeStream);
+                                } else {
+                                    notHandlingFile(filePath);
+                                }
+                            } else if(filePath.indexOf("/js/") != -1){
+                                if(fileExt == "js"){
+                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js/"+fileName);
+                                    entry.pipe(writeStream);
+                                } else {
+                                    notHandlingFile(filePath);
+                                }
+                            } else if(filePath.indexOf("/img/") != -1){
+                                if(fileExt == "jpg" || fileExt == "jpeg" || fileExt == "png"){
+                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img/"+fileName);
+                                    entry.pipe(writeStream);
+                                } else {
+                                    notHandlingFile(filePath);
+                                }
+                            } else if(filePath.indexOf("infos.json") != -1){
+                                if(fileExt == "json"){
+                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
+                                    entry.pipe(writeStream);
+                                } else {
+                                    notHandlingFile(filePath);
+                                }
+                            } else if(filePath.indexOf("screenshot.png") != -1){
+                                if(fileExt == "png"){
+                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
+                                    entry.pipe(writeStream);
+                                } else {
+                                    notHandlingFile(filePath);
+                                }
+                            } else {
+                                notHandlingFile(filePath);
+                            }
+                        }
+                    }).on('error', function(err) {
+                        console.log(err);
+                        req.session.toastr = [{level: 'error', message: "Sorry, an internal error occured."}];
+                        res.redirect("/themes");
+                    }).on('close', function(){
+                        req.session.toastr = [{level: 'success', message: "Youpi"}];
+                        res.redirect("/themes");
+                    });
+            } else {
+                req.session.toastr = [{level: 'error', message: "Error, this theme name already exist, please rename the theme folder and the .zip."}];
+                res.redirect("/themes");
+            }
+        } else {
+            req.session.toastr = [{level: 'error', message: "Error, only .zip are accepted."}];
+            res.redirect("/themes");
+        }
+    } else {
+        req.session.toastr = [{level: 'error', message: "Error, max theme size: 10M."}];
+        res.redirect("/themes");
+    }
 });
 
 module.exports = router;

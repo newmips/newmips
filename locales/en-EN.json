@@ -385,9 +385,9 @@
                 "show": "The column %s is now visible.",
                 "noColumn": "Cannot find the column %s."
             },
-            "skin": {
-                "list": "Available skin:<br>%s<br>",
-                "cannotFind": "Cannot find the asked skin. Available skin:<br> %s <br>"
+            "theme": {
+                "list": "Available themes:<br>%s<br>",
+                "cannotFind": "Cannot find the asked theme. Available themes:<br> %s <br>"
             },
             "layout": {
                 "list": "Available layout:<br>%s<br>",

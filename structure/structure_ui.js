@@ -135,7 +135,32 @@ exports.setTheme = function(attr, callback) {
     }
 }
 
-exports.setSkin = function(attr, callback) {
+exports.listTheme = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+
+    var themePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
+    var themesDir = fs.readdirSync(themePath).filter(function(folder) {
+        return (folder.indexOf('.') == -1);
+    });
+
+    var themeListAvailable = [];
+
+    themesDir.forEach(function(theme) {
+        themeListAvailable.push(theme);
+    });
+
+    var info = {};
+    info.message = "structure.ui.theme.list";
+    var msgParams = "";
+    for(var i=0; i<themeListAvailable.length; i++){
+        msgParams += "-  " + themeListAvailable[i] + "<br>";
+    }
+    info.messageParams = [msgParams];
+    callback(null, info);
+}
+
+/*exports.setSkin = function(attr, callback) {
 
     var idApplication = attr.id_application;
     var askedSkin = attr.options.value.toLowerCase();
@@ -206,7 +231,7 @@ exports.listSkin = function(attr, callback) {
     }
     info.messageParams = [msgParams];
     callback(null, info);
-}
+}*/
 
 exports.setIcon = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
