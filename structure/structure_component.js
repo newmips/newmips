@@ -821,6 +821,7 @@ exports.newStatus = function(attr, callback) {
                     // Also add next status buttons after status field
                     domHelper.read(workspacePath+'/views/'+attr.source+'/show_fields.dust').then(function($) {
                         var statusAlias = 'r_'+attr.options.value.substring(2);
+
                         var statusBadgeHtml = '<br><span class="badge" style="background: {'+statusAlias+'.f_color};">{'+statusAlias+'.f_name}</span>';
                         var nextStatusHtml = '';
                         nextStatusHtml += '<div class="form-group">';
@@ -830,6 +831,10 @@ exports.newStatus = function(attr, callback) {
                         nextStatusHtml += '</div>';
                         $("div[data-field='"+statusAlias+"']").find('input').replaceWith(statusBadgeHtml);
                         $("div[data-field='"+statusAlias+"']").append(nextStatusHtml);
+
+                        // Remove create button
+                        var historyTabId = "#r_history_"+attr.options.urlValue;
+                        $(historyTabId).find('a.btn-success').remove();
                         domHelper.write(workspacePath+'/views/'+attr.source+'/show_fields.dust', $).then(function() {
 
                             // Remove status field from update_fields and create_fields

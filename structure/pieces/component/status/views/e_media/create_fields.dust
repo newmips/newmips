@@ -10,6 +10,12 @@
             </select>
         </div>
     </div>
+    <div data-field="f_name" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_name"> {@__ key="entity.e_media.f_name"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="" type="text">
+        </div>
+    </div>
     <div id="media-mail" class="media-type col-xs-12" style="display: none;">
         {>"e_media_mail/create_fields" /}
     </div>

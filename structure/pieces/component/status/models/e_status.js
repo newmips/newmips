@@ -3,8 +3,6 @@ var fs = require('fs-extra');
 
 var attributes_origin = require("./attributes/e_status.json");
 var associations = require("./options/e_status.json");
-var model_name = 'e_status';
-var model_urlvalue = model_name.substring(2);
 
 module.exports = function (sequelize, DataTypes) {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -23,6 +21,24 @@ module.exports = function (sequelize, DataTypes) {
                         self.f_name = self.r_translations[i].f_value;
                         break;
                     }
+            },
+            executeActions: function(entitySource) {
+                var self = this;
+                return new Promise(function(resolve, reject) {
+                    function orderedExecute(actions, idx) {
+                        // All actions executed
+                        if (!actions[idx])
+                            return resolve();
+                        // No media to execute, go next
+                        if (!actions[idx].r_media)
+                            return orderedExecute(actions, ++idx);
+                        // Media execution
+                        actions[idx].r_media.execute(entitySource).then(function() {
+                            orderedExecute(actions, ++idx);
+                        }).catch(function(err) {reject(err)});
+                    }
+                    orderedExecute(self.r_actions, 0);
+                });
             }
         },
         timestamps: true
@@ -30,42 +46,7 @@ module.exports = function (sequelize, DataTypes) {
 
     var Model = sequelize.define('E_status', attributes, options);
 
-    Model.addHook('afterCreate', 'initializeEntityStatus', function(model, options) {
-        var initStatusPromise = [];
-        for (var field in attributes_origin) {
-            if (field.indexOf('s_') != 0)
-                continue;
-
-            // Create history object with initial status related to new entity
-            initStatusPromise.push(new Promise(function(resolve, reject) {
-                (function(fieldIn) {
-                    var historyModel = 'E_history_'+model_name+'_'+fieldIn;
-                    sequelize.models.E_status.findOrCreate({
-                        where: {f_entity: model_name, f_field: fieldIn, f_default: true},
-                        defaults: {f_entity: model_name, f_field: fieldIn, f_name: 'Initial', f_default: true}
-                    }).spread(function(status, created) {
-                        var historyObject = {
-                            version:1,
-                            f_comment: 'Creation'
-                        };
-                        historyObject["fk_id_status_"+fieldIn.substring(2)] = status.id;
-                        historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = model.id;
-                        sequelize.models[historyModel].create(historyObject).then(function() {
-                            resolve();
-                        });
-                    }).catch(function(e){reject(e);});
-                })(field);
-            }));
-        }
-
-        if (initStatusPromise.length > 0) {
-            return new Promise(function(finishResolve, finishReject) {
-                Promise.all(initStatusPromise).then(function() {
-                    finishResolve();
-                });
-            });
-        }
-    });
+    builder.addHooks(Model, 'e_status', attributes_origin);
 
     return Model;
 };

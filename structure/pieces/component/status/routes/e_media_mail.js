@@ -19,17 +19,15 @@ var enums_radios = require('../utils/enum_radio.js');
 // Winston logger
 var logger = require('../utils/logger');
 
-router.post('/create', block_access.actionAccessMiddleware("media_mail", "write"), function (req, res) {
-
+router.post('/create', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    //createObject = enums.values("e_media_mail", createObject, req.body);
 
     models.E_media_mail.create(createObject).then(function (e_media_mail) {
         models.E_media.create({
             f_type: 'Mail',
             fk_id_media_mail: e_media_mail.id
         }).then(function(e_media) {
-            var redirect = '/media_mail/show?id='+e_media.id;
+            var redirect = '/media/show?id='+e_media.id;
             req.session.toastr = [{
                     message: 'message.create.success',
                     level: "success"
@@ -61,13 +59,13 @@ router.post('/create', block_access.actionAccessMiddleware("media_mail", "write"
             model_builder.setAssocationManyValues(e_media, req.body, createObject, options);
 
             res.redirect(redirect);
-        })
+        });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, '/media_mail/create_form');
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("media_mail", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
     var id_e_media_mail = req.query.id;
     var data = {
         menu: "e_media",
@@ -124,7 +122,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media_mail", "wr
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("media_mail", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
     var id_e_media_mail = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -168,7 +166,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_mail", "write"
     });
 });
 
-router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.actionAccessMiddleware("media_mail", "write"), function(req, res) {
+router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.actionAccessMiddleware("media", "write"), function(req, res) {
     var historyModel = 'E_history_e_media_mail_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
     var statusAlias = 'r_'+req.params.status.substring(2);
@@ -235,7 +233,7 @@ router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.act
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("media_mail", "delete"), function (req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("media", "delete"), function (req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
@@ -264,7 +262,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_mail", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_media_mail.findOne({where: {id: idEntity}}).then(function (e_media_mail) {
@@ -291,7 +289,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_m
     });
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("media_mail", "delete"), function (req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), function (req, res) {
     var id_e_media_mail = parseInt(req.body.id);
 
     models.E_media_mail.findOne({where: {id: id_e_media_mail}}).then(function (deleteObject) {

@@ -239,7 +239,6 @@ function initializeWorkflow(id_application) {
         fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
         // Copy e_status pieces
-        fs.copySync(piecesPath+'/routes/e_status.js', workspacePath+'/routes/e_status.js');
         fs.copySync(piecesPath+'/views/e_status/', workspacePath+'/views/e_status/');
         var modelStatus = fs.readFileSync(piecesPath+'/models/e_status.js', 'utf8');
         modelStatus = modelStatus.replace(/ID_APPLICATION/g, id_application);
@@ -247,11 +246,15 @@ function initializeWorkflow(id_application) {
 
         // Copy media pieces
         fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');
-        fs.copySync(piecesPath+'/routes/e_media_mail.js', workspacePath+'/routes/e_media_mail.js');
 
-        // cOPY e_translation
+        // Copy translation
         fs.copySync(piecesPath+'/views/e_translation/', workspacePath+'/views/e_translation/');
-        fs.copySync(piecesPath+'/routes/e_translation.js', workspacePath+'/routes/e_translation.js');
+
+        // Copy action
+        fs.copySync(piecesPath+'/views/e_action/', workspacePath+'/views/e_action/');
+
+        // Copy routes
+        fs.copySync(piecesPath+'/routes/', workspacePath+'/routes/');
 
         // Media pieces
         var modelMedia = fs.readFileSync(piecesPath+'/models/e_media.js', 'utf8');
@@ -265,7 +268,7 @@ function initializeWorkflow(id_application) {
         // Add show td to action list (to be used in status tab r_action)
         domHelper.read(workspacePath+'/views/e_action/list_fields.dust').then(function($) {
             var showTd = '<a class="btn btn-primary" href="/action/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}';
-            $("tbody tr td").eq(3).html(showTd);
+            $("tbody tr td").eq(4).html(showTd);
             domHelper.write(workspacePath+'/views/e_action/list_fields.dust', $).then(function(){
                 // Write new locales trees
                 var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
