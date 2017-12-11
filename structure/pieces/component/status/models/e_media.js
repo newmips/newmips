@@ -3,8 +3,6 @@ var fs = require('fs-extra');
 
 var attributes_origin = require("./attributes/e_media.json");
 var associations = require("./options/e_media.json");
-var model_name = 'e_media';
-var model_urlvalue = model_name.substring(2);
 
 module.exports = function (sequelize, DataTypes) {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -28,42 +26,7 @@ module.exports = function (sequelize, DataTypes) {
 
     var Model = sequelize.define('E_media', attributes, options);
 
-    Model.addHook('afterCreate', 'initializeEntityStatus', function(model, options) {
-        var initStatusPromise = [];
-        for (var field in attributes_origin) {
-            if (field.indexOf('s_') != 0)
-                continue;
-
-            // Create history object with initial status related to new entity
-            initStatusPromise.push(new Promise(function(resolve, reject) {
-                (function(fieldIn) {
-                    var historyModel = 'E_history_'+model_name+'_'+fieldIn;
-                    sequelize.models.E_status.findOrCreate({
-                        where: {f_entity: model_name, f_field: fieldIn},
-                        defaults: {f_entity: model_name, f_field: fieldIn}
-                    }).spread(function(status, created) {
-                        var historyObject = {
-                            version:1,
-                            f_comment: 'Creation'
-                        };
-                        historyObject["fk_id_status_"+fieldIn.substring(2)] = status.id;
-                        historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = model.id;
-                        sequelize.models[historyModel].create(historyObject).then(function() {
-                            resolve();
-                        });
-                    }).catch(function(e){reject(e);});
-                })(field);
-            }));
-        }
-
-        if (initStatusPromise.length > 0) {
-            return new Promise(function(finishResolve, finishReject) {
-                Promise.all(initStatusPromise).then(function() {
-                    finishResolve();
-                });
-            });
-        }
-    });
+    builder.addHooks(Model, 'e_media', attributes_origin);
 
     return Model;
 };

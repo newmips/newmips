@@ -4,6 +4,19 @@ function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
+exports.addHooks = function (Model, model_name, attributes) {
+    var hooks = require('../models/hooks')(model_name, attributes);
+    for (var hookType in hooks) {
+        for (var i = 0; i < hooks[hookType].length; i++) {
+            var hook = hooks[hookType][i];
+            if (hook.name)
+                Model.addHook(hookType, hook.name, hook.func);
+            else
+                Model.addHook(hookType, hook.func);
+        }
+    }
+}
+
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
 exports.buildForModel = function objectify(attributes, DataTypes) {

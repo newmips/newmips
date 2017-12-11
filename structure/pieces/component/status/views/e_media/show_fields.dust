@@ -6,22 +6,17 @@
                 {@__ key="entity.e_media.label_entity" /}
             </a>
         </li>
-        <li>
-            <a id="r_media_mail-click" data-toggle="tab" href="#r_media_mail">
-                {@__ key="entity.e_media_mail.as_r_media_mail" /}
-            </a>
-        </li>
-        <li>
-            <a id="r_media_notification-click" data-toggle="tab" href="#r_media_notification">
-                {@__ key="entity.e_media_notification.as_r_media_notification" /}
-            </a>
-        </li>
-        <li><a id="r_media_function-click" data-toggle="tab" href="#r_media_function">{@__ key="entity.e_media_function.as_r_media_function" /}</a></li>
     </ul>
     {/hideTab}
     <div class="tab-content" style="min-height:275px;">
         <div id="home" class="tab-pane fade in active">
             <div id="fields" class="row">
+                <div data-field="f_name" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_name"> {@__ key="entity.e_media.f_name"/} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+                    </div>
+                </div>
                 <div data-field="f_type" class="col-xs-12">
                     <div class="form-group">
                         <label for="f_type"> {@__ key="entity.e_media.f_type"/} </label>

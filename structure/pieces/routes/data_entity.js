@@ -392,10 +392,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             }
 
             // Execute newStatus actions
-            for (var i = 0; i < nextStatus.r_actions.length; i++) {
-                var action = nextStatus.r_actions[i];
-                action.r_media.execute(ENTITY_NAME);
-            }
+            nextStatus.executeActions(ENTITY_NAME);
 
             // Create history record for this status field
             // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status

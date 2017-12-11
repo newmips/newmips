@@ -14,5 +14,8 @@ module.exports = function(sequelize, DataTypes) {
 	};
 
     var Model = sequelize.define('COMPONENT_NAME', attributes, options);
+
+    builder.addHooks(Model);
+
     return Model;
 };
