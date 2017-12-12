@@ -1,0 +1,31 @@
+/* You can choose between light or dark sidebar */
+@import url("../../light.css");
+
+/*
+ * Skin: Custom
+ * ---------
+ */
+.main-header .navbar {
+  /*background-color: ;*/
+}
+.main-header .navbar .sidebar-toggle:hover {
+  /*background-color: ;*/
+}
+@media (max-width: 767px) {
+  .main-header .navbar .dropdown-menu li a:hover {
+    /*background: ;*/
+  }
+}
+.main-header .logo {
+  /*background-color: ;*/
+}
+.main-header .logo:hover {
+  /*background-color: ;*/
+}
+.main-header li.user-header {
+  /*background-color: ;*/
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  /*border-left-color: ;*/
+}

@@ -11,8 +11,8 @@
         <link href="/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         {! Admin LTE style !}
         <link href="/css/AdminLteV2/AdminLTE.css" rel="stylesheet" type="text/css">
-        {! Admin LTE Skin !}
-        <link href='/css/AdminLteV2/skins/skin-blue-light.min.css' rel='stylesheet' type='text/css' data-type="skin" data-skin="blue-light">
+        {! Admin LTE Theme !}
+        <link href='/themes/blue-light/css/style.css' rel='stylesheet' type='text/css' data-type="theme" data-theme="blue-light">
         {! Admin LTE Layout !}
         <link href='/css/AdminLteV2/layouts/layout-default.css' rel='stylesheet' type='text/css' data-type="layout" data-layout="default">
         {! Toastr !}
@@ -88,7 +88,7 @@
                                 <ul class="dropdown-menu">
                                     {! User image !}
                                     <li class="user-header">
-                                        <img src="/img/avatar.png" alt="" class="img-circle">
+                                        <img src="/img/avatar.jpg" alt="" class="img-circle">
                                         <p>
                                             {session.passport.user.f_login} {session.passport.user.f_email}
                                             <small>{session.passport.user.r_role.f_label}</small>
