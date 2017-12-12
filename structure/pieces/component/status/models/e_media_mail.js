@@ -1,6 +1,6 @@
 var builder = require('../utils/model_builder');
 var fs = require('fs-extra');
-var mailer = require('../utils/mailer_newage.js');
+var mailer = require('../utils/mailer.js');
 
 var attributes_origin = require("./attributes/e_media_mail.json");
 var associations = require("./options/e_media_mail.json");
@@ -24,11 +24,13 @@ module.exports = function (sequelize, DataTypes) {
                         return "";
                     }
 
-                    var regex = new RegExp(/{([^}]*)}/g), matches = null, newString;
-                    while ((matches = regex.exec(self[property])) != null)
+                    var newString = self[property];
+                    var regex = new RegExp(/{([^}]*)}/g), matches = null;
+                    while ((matches = regex.exec(self[property])) != null) {
                         newString = self[property].replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
+                    }
 
-                    return newString;
+                    return newString || "";
                 }
 
                 var options = {

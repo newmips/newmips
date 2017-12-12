@@ -1808,7 +1808,7 @@ exports.createNewComponentStatus = function(attr, callback) {
             structure_component.newStatus(attr, function(err) {
                 if (err)
                     return callback(err, null);
-                callback(null, {message: 'database.component.create.successOnEntity', params: ['status', attr.source]});
+                callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.source]});
             });
         });
     });

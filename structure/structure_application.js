@@ -244,16 +244,18 @@ function initializeWorkflow(id_application) {
         modelStatus = modelStatus.replace(/ID_APPLICATION/g, id_application);
         fs.writeFileSync(workspacePath+'/models/e_status.js', modelStatus, 'utf8');
 
-        // Copy media pieces
+        // Copy media views pieces
         fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');
+        // Copy media mail views pieces
+        fs.copySync(piecesPath+'/views/e_media_mail/', workspacePath+'/views/e_media_mail/');
 
-        // Copy translation
+        // Copy translation views
         fs.copySync(piecesPath+'/views/e_translation/', workspacePath+'/views/e_translation/');
 
-        // Copy action
+        // Copy action views
         fs.copySync(piecesPath+'/views/e_action/', workspacePath+'/views/e_action/');
 
-        // Copy routes
+        // Copy ALL routes
         fs.copySync(piecesPath+'/routes/', workspacePath+'/routes/');
 
         // Media pieces
@@ -265,19 +267,12 @@ function initializeWorkflow(id_application) {
         modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
         fs.writeFileSync(workspacePath+'/models/e_media_mail.js', modelMedia, 'utf8');
 
-        // Add show td to action list (to be used in status tab r_action)
-        domHelper.read(workspacePath+'/views/e_action/list_fields.dust').then(function($) {
-            var showTd = '<a class="btn btn-primary" href="/action/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}';
-            $("tbody tr td").eq(4).html(showTd);
-            domHelper.write(workspacePath+'/views/e_action/list_fields.dust', $).then(function(){
-                // Write new locales trees
-                var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
-                translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
-                var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
-                translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
-                finalizeApplication(id_application).then(resolve).catch(reject);
-            });
-        }).catch(function(e){console.log(e);reject(e)});
+        // Write new locales trees
+        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
+        translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
+        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
+        translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
+        finalizeApplication(id_application).then(resolve).catch(reject);
     });
 }
 
