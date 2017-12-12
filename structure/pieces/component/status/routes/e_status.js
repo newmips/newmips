@@ -194,7 +194,7 @@ router.post('/set_children', block_access.actionAccessMiddleware("status", "read
     models.E_status.findOne({where: {id: id_status}}).then(function(status) {
         if (status)
             status.setR_children(statuses);
-        res.redirect('/status/show?id='+id_status);
+        res.redirect('/status/show?id='+id_status+'#r_children');
     });
 });
 

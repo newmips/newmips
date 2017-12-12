@@ -25,6 +25,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "write"), fu
     models.E_media_mail.create(createObject).then(function (e_media_mail) {
         models.E_media.create({
             f_type: 'Mail',
+            f_name: req.body.f_name,
             fk_id_media_mail: e_media_mail.id
         }).then(function(e_media) {
             var redirect = '/media/show?id='+e_media.id;

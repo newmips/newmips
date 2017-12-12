@@ -5,7 +5,7 @@ var block_access = require('../utils/block_access');
 var auth = require('../utils/authStrategies');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
-var mail = require('../utils/mailer');
+var mailer = require('../utils/mailer');
 
 //Sequelize
 var models = require('../models/');
@@ -117,22 +117,22 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             }
         }).then(function(){
             // Send email with generated token
-            mail.sendMailResetPassword({
-                email: given_mail,
-                token: token
-            }).then(function(success) {
+            var mailOptions = {
+                data: {
+                    href: mailer.config.host + '/reset_password/' + token,
+                    email: given_mail
+                },
+                from: mailer.config.expediteur,
+                to: given_mail,
+                subject: 'Newmips, modification de mot de passe'
+            }
+            mailer.sendTemplate('mail_reset_password', mailOptions).then(function() {
                 res.render('login/reset_password', {
                     message: "login.reset_password.successMail"
                 });
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
-                models.E_user.update({
-                    f_token_password_reset: null
-                }, {
-                    where: {
-                        id: idUser
-                    }
-                }).then(function(){
+                models.E_user.update({f_token_password_reset: null}, {where: {id: idUser}}).then(function(){
                     res.render('login/reset_password', {
                         message: err.message
                     });
