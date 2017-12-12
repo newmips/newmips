@@ -1,0 +1,30 @@
+@import url("../../light.css");
+
+/*
+ * Skin: Green Light
+ * ---------
+ */
+.main-header .navbar {
+  background-color: #00a65a;
+}
+.main-header .navbar .sidebar-toggle:hover {
+  background-color: #008d4c;
+}
+@media (max-width: 767px) {
+  .main-header .navbar .dropdown-menu li a:hover {
+    background: #008d4c;
+  }
+}
+.main-header .logo {
+  background-color: #00a65a;
+}
+.main-header .logo:hover {
+  background-color: #00a157;
+}
+.main-header li.user-header {
+  background-color: #00a65a;
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  border-left-color: #00a65a;
+}

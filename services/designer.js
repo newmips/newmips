@@ -2334,7 +2334,25 @@ exports.setLayout = function(attr, callback) {
     });
 }
 
-exports.setSkin = function(attr, callback) {
+exports.setTheme = function(attr, callback) {
+    structure_ui.setTheme(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+
+        callback(null, infoStructure);
+    });
+}
+
+exports.listTheme = function(attr, callback) {
+    structure_ui.listTheme(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+
+        callback(null, infoStructure);
+    });
+}
+
+/*exports.setSkin = function(attr, callback) {
     structure_ui.setSkin(attr, function(err, infoStructure){
         if(err)
             return callback(err, null);
@@ -2350,7 +2368,7 @@ exports.listSkin = function(attr, callback) {
 
         callback(null, infoStructure);
     });
-}
+}*/
 
 exports.listIcon = function(attr, callback) {
     callback(null, {

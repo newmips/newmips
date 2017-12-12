@@ -89,7 +89,78 @@ exports.setLayout = function(attr, callback) {
     }
 }
 
-exports.setSkin = function(attr, callback) {
+exports.setTheme = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+    var askedTheme = attr.options.value.toLowerCase();
+    askedTheme = askedTheme.trim().replace(/ /g, "-");
+
+    var themePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
+    var themesDir = fs.readdirSync(themePath).filter(function(folder) {
+        return (folder.indexOf('.') == -1);
+    });
+
+    var themeListAvailable = [];
+
+    themesDir.forEach(function(theme) {
+        themeListAvailable.push(theme);
+    });
+
+    if(themeListAvailable.indexOf(askedTheme) != -1){
+
+        var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+
+        domHelper.read(mainLayoutPath).then(function($) {
+            var oldTheme = $("link[data-type='theme']").attr("data-theme");
+            $("link[data-type='theme']").replaceWith("<link href='/themes/"+askedTheme+"/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='"+askedTheme+"'>");
+            //$("body").removeClass("theme-"+oldTheme);
+            //$("body").addClass("theme-"+askedTheme);
+            domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
+                var info = {};
+                info.message = "Theme set to " + attr.options.value + " !";
+                callback(null, info);
+            });
+        }).catch(function(err){
+            callback(err, null);
+        });
+    } else {
+        var err = new Error();
+        err.message = "structure.ui.theme.cannotFind";
+        var msgParams = "";
+        for(var i=0; i<themeListAvailable.length; i++){
+            msgParams += "-  " + themeListAvailable[i] + "<br>";
+        }
+        err.messageParams = [msgParams];
+        callback(err, null);
+    }
+}
+
+exports.listTheme = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+
+    var themePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
+    var themesDir = fs.readdirSync(themePath).filter(function(folder) {
+        return (folder.indexOf('.') == -1);
+    });
+
+    var themeListAvailable = [];
+
+    themesDir.forEach(function(theme) {
+        themeListAvailable.push(theme);
+    });
+
+    var info = {};
+    info.message = "structure.ui.theme.list";
+    var msgParams = "";
+    for(var i=0; i<themeListAvailable.length; i++){
+        msgParams += "-  " + themeListAvailable[i] + "<br>";
+    }
+    info.messageParams = [msgParams];
+    callback(null, info);
+}
+
+/*exports.setSkin = function(attr, callback) {
 
     var idApplication = attr.id_application;
     var askedSkin = attr.options.value.toLowerCase();
@@ -160,7 +231,7 @@ exports.listSkin = function(attr, callback) {
     }
     info.messageParams = [msgParams];
     callback(null, info);
-}
+}*/
 
 exports.setIcon = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;

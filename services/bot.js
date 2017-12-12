@@ -817,7 +817,29 @@ exports.setLayout = function (result) {
     return attr;
 };
 
-exports.setSkin = function (result) {
+exports.setTheme = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setTheme",
+        options: options
+    };
+    return attr;
+};
+
+exports.listTheme = function (result) {
+
+    var attr = {
+        function: "listTheme"
+    };
+    return attr;
+};
+
+/*exports.setSkin = function (result) {
 
     var value = result[1];
     var options = {
@@ -837,7 +859,7 @@ exports.listSkin = function (result) {
         function: "listSkin"
     };
     return attr;
-};
+};*/
 
 exports.listIcon = function (result) {
     return {function: 'listIcon'};
@@ -1315,15 +1337,14 @@ var training = {
         "lister champs",
         "lister les champs"
     ],
-    "listSkin": [
-        "list all skin",
-        "list skin",
-        "list available skin",
-        "lister les skins",
-        "lister les skin",
-        "lister skin",
-        "lister skins",
-        "lister les couleurs"
+    "listTheme": [
+        "list all theme",
+        "list theme",
+        "list available theme",
+        "lister les thèmes",
+        "lister les themes",
+        "lister thèmes",
+        "lister thèmes"
     ],
     "relationshipHasOne": [
         "entity (.*) has one (.*)",
@@ -1833,6 +1854,13 @@ var training = {
     "setLayout": [
         "set layout (.*)",
         "appliquer le layout (.*)"
+    ],
+    "setTheme": [
+        "set theme (.*)",
+        "appliquer le theme (.*)",
+        "appliquer le thème (.*)",
+        "appliquer theme (.*)",
+        "appliquer thème (.*)"
     ],
     "setSkin": [
         "set skin (.*)",
