@@ -134,11 +134,28 @@ exports.setFieldAttribute = function (result) {
     var options = {
         value: result[1],
         word: result[2],
+        attributeValue: result[3],
         processValue: true
     };
 
     var attr = {
         function: "setFieldAttribute",
+        options: options
+    };
+    return attr;
+};
+
+exports.setFieldKnownAttribute = function (result) {
+
+    // Set entity name as the first option in options array
+    var options = {
+        value: result[1],
+        word: result[2],
+        processValue: true
+    };
+
+    var attr = {
+        function: "setFieldKnownAttribute",
         options: options
     };
     return attr;
@@ -1078,7 +1095,7 @@ var training = {
         "sélectionner l'entité (.*)",
         "sélectionner entité (.*)"
     ],
-    "setFieldAttribute": [
+    "setFieldKnownAttribute": [
         "set field (.*) (.*)",
         "set the field (.*) (.*)",
         "mettre champ (.*) (.*)",
@@ -1086,6 +1103,14 @@ var training = {
         "mettre le champ (.*) en (.*)",
         "rendre champ (.*) (.*)",
         "rendre le champ (.*) (.*)"
+    ],
+    "setFieldAttribute": [
+        "set field (.*) (.*) (.*)",
+        "set the field (.*) (.*) (.*)",
+        "mettre champ (.*) (.*) (.*)",
+        "mettre le champ (.*) (.*) (.*)",
+        "rendre champ (.*) (.*) (.*)",
+        "rendre le champ (.*) (.*) (.*)"
     ],
     "setColumnVisibility": [
         "set column (.*) (.*)",
