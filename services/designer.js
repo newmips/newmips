@@ -833,7 +833,7 @@ exports.listDataField = function(attr, callback) {
 /* ---------------------- Field Attributes ----------------------- */
 /* --------------------------------------------------------------- */
 
-exports.setFieldAttribute = function(attr, callback) {
+exports.setFieldKnownAttribute = function(attr, callback) {
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
             return callback(err, null);
@@ -907,6 +907,24 @@ exports.setFieldAttribute = function(attr, callback) {
     });
 }
 
+exports.setFieldAttribute = function(attr, callback) {
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
+        if (err)
+            return callback(err, null);
+
+        attr.name_data_entity = dataEntity.codeName;
+
+        structure_data_field.setFieldAttribute(attr, function(err) {
+            if (err)
+                return callback(err, null);
+
+            callback(null, {
+                message: "structure.field.attributes.success",
+                messageParams: [attr.options.showValue, attr.options.word]
+            });
+        });
+    });
+}
 /* --------------------------------------------------------------- */
 /* -------------------------- Datalist --------------------------- */
 /* --------------------------------------------------------------- */
