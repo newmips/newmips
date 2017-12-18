@@ -3,66 +3,27 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 var languageConfig = require('../config/language');
-var message = "";
 var globalConf = require('../config/global');
 var multer = require('multer');
 var fs = require('fs');
 var fse = require('fs-extra');
-var moment = require("moment");
 var crypto = require('../utils/crypto_helper');
-var webdav_conf = require('../config/webdav');
 var upload = multer().single('file');
 var models = require('../models/');
 var Jimp = require("jimp");
 
-/* Connect WebDav with webdav-fs */
-var wfs = require("webdav-fs")(
-        webdav_conf.url,
-        webdav_conf.user_name,
-        webdav_conf.password
-        );
 // ===========================================
 // Redirection Home =====================
 // ===========================================
 
 // *** Dynamic Module | Do not remove ***
 
-// m_authentication
-router.get('/authentication', block_access.moduleAccessMiddleware("authentication"), function (req, res) {
-    var widgetPromises = [];
-
-    // *** Widget module m_authentication | Do not remove ***
-
-    Promise.all(widgetPromises).then(function (results) {
-        var data = {};
-        for (var i = 0; i < results.length; i++)
-            for (var prop in results[i])
-                data[prop] = results[i][prop];
-        res.render('default/m_authentication', data);
-    });
-});
-
-// m_home
-router.get('/home', block_access.moduleAccessMiddleware("home"), function (req, res) {
-    var widgetPromises = [];
-
-    // *** Widget module m_home | Do not remove ***
-
-    Promise.all(widgetPromises).then(function (results) {
-        var data = {};
-        for (var i = 0; i < results.length; i++)
-            for (var prop in results[i])
-                data[prop] = results[i][prop];
-        res.render('default/m_home', data);
-    });
-});
-
-// Page non autorisée
+// Unauthorized access
 router.get('/unauthorized', function (req, res) {
     res.render('common/unauthorized');
 });
 
-/* Fonction de changement du language */
+/*Change language function */
 router.post('/change_language', function (req, res) {
     req.session.lang_user = req.body.lang;
     res.locals.lang_user = req.body.lang;
@@ -74,10 +35,9 @@ router.post('/change_language', function (req, res) {
 });
 
 /* Dropzone FIELD ajax upload file */
-router.post('/file_upload', function (req, res) {
+router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
-            // Everything went fine
             if (req.body.storageType == 'local') {
                 var folder = req.file.originalname.split('-');
                 var dataEntity = req.body.dataEntity;
@@ -102,30 +62,44 @@ router.post('/file_upload', function (req, res) {
                                         Jimp.read(uploadPath, function (err, imgThumb) {
                                             if (!err) {
                                                 imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
-                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality 
+                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality
                                                         .write(basePath + req.file.originalname);
+                                            } else {
+                                                console.log(err);
                                             }
                                         });
+                                    } else {
+                                        console.log(err);
                                     }
                                 });
                             }
-                        } else
-                            res.end();
+                        } else{
+                            console.log(err);
+                            res.status(500).end(err);
+                        }
                     });
-
-                } else
-                    res.end();
-
+                } else{
+                    var err = new Error();
+                    err.message = 'Internal error, entity not found.';
+                    res.status(500).end(err);
+                }
             } else if (req.body.storageType == 'cloud') {
-                res.end();
-            } else
-                return res.json({success: false, message: 'storage type not found'});
-        } else
-            res.end();
+                var err = new Error();
+                err.message = 'Internal error, cloud file are not available.';
+                res.status(500).end(err);
+            } else{
+                var err = new Error();
+                err.message = 'Storage type not found.';
+                res.status(500).end(err);
+            }
+        } else{
+            console.log(err);
+            res.status(500).end(err);
+        }
     });
 });
 
-router.get('/get_file', function (req, res) {
+router.get('/get_file', block_access.isLoggedIn, function (req, res) {
     var entity = req.query.entity;
     var src = req.query.src;
     if (!!entity && !!src) {
@@ -151,7 +125,7 @@ router.get('/get_file', function (req, res) {
         res.end();
 });
 
-router.get('/download', function (req, res) {
+router.get('/download', block_access.isLoggedIn, function (req, res) {
     var entity = req.query.entity;
     var filepath = req.query.f;
     var p = new Promise(function (resolve, reject) {
@@ -182,7 +156,7 @@ router.get('/download', function (req, res) {
     });
 });
 
-router.post('/delete_file', function (req, res) {
+router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
     var entity = req.body.dataEntity;
     var dataStorage = req.body.dataStorage;
     var filename = req.body.filename;
