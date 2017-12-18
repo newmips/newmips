@@ -106,6 +106,7 @@ var mandatoryInstructions = [
     "add field role related to Role using label",
     "add field group related to Group using label",
     "add entity API credentials",
+    "add field Client Name",
     "add field Client Key",
     "add field Client Secret",
     "add field Token",
