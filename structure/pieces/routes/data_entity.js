@@ -244,36 +244,48 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
     models.MODEL_NAME.create(createObject).then(function (ENTITY_NAME) {
         var redirect = '/ENTITY_URL_NAME/show?id='+ENTITY_NAME.id;
         req.session.toastr = [{
-                message: 'message.create.success',
-                level: "success"
-            }];
+            message: 'message.create.success',
+            level: "success"
+        }];
+
+        var promises = [];
 
         if (typeof req.body.associationFlag !== 'undefined') {
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
-                if (!association) {
-                    ENTITY_NAME.destroy();
-                    var err = new Error();
-                    err.message = "Association not found."
-                    return entity_helper.error500(err, req, res, "/");
-                }
+            promises.push(new Promise(function(resolve, reject) {
+                models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+                    if (!association) {
+                        ENTITY_NAME.destroy();
+                        var err = new Error();
+                        err.message = "Association not found.";
+                        reject(err);
+                    }
 
-                var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
-                if (typeof association['add' + modelName] !== 'undefined')
-                    association['add' + modelName](ENTITY_NAME.id);
-                else {
-                    var obj = {};
-                    obj[req.body.associationForeignKey] = ENTITY_NAME.id;
-                    association.update(obj);
-                }
-            });
+                    var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+                    if (typeof association['add' + modelName] !== 'undefined'){
+                        association['add' + modelName](ENTITY_NAME.id).then(resolve).catch(function(err){
+                            reject(err);
+                        });
+                    } else {
+                        var obj = {};
+                        obj[req.body.associationForeignKey] = ENTITY_NAME.id;
+                        association.update(obj).then(resolve).catch(function(err){
+                            reject(err);
+                        });
+                    }
+                });
+            }));
         }
 
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
         // because those values are not updated for now
-        model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options);
-
-        res.redirect(redirect);
+        model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function(){
+            Promise.all(promises).then(function() {
+                res.redirect(redirect);
+            }).catch(function(err){
+                entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/create_form');
+            });
+        });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/create_form');
     });
@@ -346,7 +358,6 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    //updateObject = enums.values("ENTITY_NAME", updateObject, req.body);
 
     models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME) {
@@ -359,18 +370,19 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
-            model_builder.setAssocationManyValues(ENTITY_NAME, req.body, updateObject, options);
+            model_builder.setAssocationManyValues(ENTITY_NAME, req.body, updateObject, options).then(function () {
 
-            var redirect = '/ENTITY_URL_NAME/show?id=' + id_ENTITY_NAME;
-            if (typeof req.body.associationFlag !== 'undefined')
-                redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
+                var redirect = '/ENTITY_URL_NAME/show?id=' + id_ENTITY_NAME;
+                if (typeof req.body.associationFlag !== 'undefined')
+                    redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
-            req.session.toastr = [{
+                req.session.toastr = [{
                     message: 'message.update.success',
                     level: "success"
                 }];
 
-            res.redirect(redirect);
+                res.redirect(redirect);
+            });
         }).catch(function (err) {
             entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
         });

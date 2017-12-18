@@ -123,9 +123,7 @@ router.post('/file_upload', function (req, res) {
         } else
             res.end();
     });
-
 });
-
 
 router.get('/get_file', function (req, res) {
     var entity = req.query.entity;
@@ -152,7 +150,6 @@ router.get('/get_file', function (req, res) {
     } else
         res.end();
 });
-
 
 router.get('/download', function (req, res) {
     var entity = req.query.entity;
@@ -183,7 +180,6 @@ router.get('/download', function (req, res) {
         res.writeHead(303, {Location: req.headers.referer});
         res.end();
     });
-
 });
 
 router.post('/delete_file', function (req, res) {
@@ -220,7 +216,6 @@ router.post('/delete_file', function (req, res) {
         req.session.toastr.push({level: 'error', message: "File not found"});
         res.json({result: 404, message: ''});
     }
-
 });
 
 module.exports = router;
