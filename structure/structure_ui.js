@@ -31,11 +31,26 @@ exports.setColumnVisibility = function (attr, callback) {
                 info.messageParams = [attr.options.showValue];
                 callback(null, info);
             });
-        } else{
-            var err = new Error();
-            err.message = "structure.ui.columnVisibility.noColumn";
-            err.messageParams = [attr.options.showValue];
-            return callback(err);
+        } else {
+
+            // Check if it's a related to field
+            var fieldCodeName = "r_" + attr.options.value.substring(2);
+
+            if($("*[data-field='" + fieldCodeName + "']").length > 0){
+                $("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
+                domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
+                    var info = {};
+                    info.message = hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show";
+                    info.messageParams = [attr.options.showValue];
+                    callback(null, info);
+                });
+            } else {
+                // No column found
+                var err = new Error();
+                err.message = "structure.ui.columnVisibility.noColumn";
+                err.messageParams = [attr.options.showValue];
+                return callback(err);
+            }
         }
     }).catch(function (err) {
         callback(err, null);
