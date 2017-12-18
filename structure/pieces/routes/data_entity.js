@@ -179,12 +179,12 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         }
 
         /* Modify ENTITY_NAME value with the translated enum value in show result */
-        for (var item in data.enum)
+        /*for (var item in data.enum)
             for (var field in ENTITY_NAME.dataValues)
                 if (item == field)
                     for (var value in data.enum[item])
                         if (data.enum[item][value].value == ENTITY_NAME[field])
-                            ENTITY_NAME[field] = data.enum[item][value].translation;
+                            ENTITY_NAME[field] = data.enum[item][value].translation;*/
 
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;

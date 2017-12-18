@@ -1275,7 +1275,8 @@ exports.setupRelatedToField = function (attr, callback) {
                                 // Add <th> in list_field
                                 var toAddInList = {headers: '', body: ''};
                                 /* ------------- Add new FIELD in headers ------------- */
-                                var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
+                                var str = '<th data-field="' + alias + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
+                                //var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
                                 str += ' data-type="'+usingField[cpt].type+'"';
                                 str += '>\n';
                                 str += '{@__ key="entity.' + source + '.' + alias + '"/}&nbsp;-&nbsp;{@__ key="entity.' + target + '.' + targetField + '"/}\n';
@@ -1283,7 +1284,8 @@ exports.setupRelatedToField = function (attr, callback) {
                                 toAddInList.headers = str;
 
                                 /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-                                str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
+                                //str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
+                                str = '<td data-field="' + alias + '"';
                                 str += ' data-type="'+usingField[cpt].type+'"';
                                 str += ' >{' + alias + '.' + usingField[cpt].value + '}</td>';
                                 toAddInList.body = str;
