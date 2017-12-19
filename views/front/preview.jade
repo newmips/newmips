@@ -340,14 +340,13 @@ block custom_js
 		script.
 			/***************** Slack chat ******************/
 			/* ID des user de Slack à inviter dans la channel crée */
-			var usersToInvite = ["U1GLD90GK", "U1GARP962", "U1GCYEKPX", "U1HD3C60L", "U28GY8LLW", "U3M2P085C"];
-			/*var usersToInvite = [];*/
+			var usersToInvite = ["U1GLD90GK", "U28GY8LLW", "U1GARP962", "U1GCYEKPX", "U1HD3C60L", "U6X4BDYM6"];
 
-			var userId = localStorage.getItem("dixit_id_user_slack");
+			var userId = localStorage.getItem("newmips_slack_id_user");
 
 			if(userId == null){
-				localStorage.setItem("dixit_id_user_slack", Math.random()*1000000)
-				userId = localStorage.getItem("dixit_id_user_slack");
+				localStorage.setItem("newmips_slack_id_user", Math.random()*1000000)
+				userId = localStorage.getItem("newmips_slack_id_user");
 			}
 
 			var userUrlName = window.location.href.replace(/(^\w+:|^)\/\//, '');
