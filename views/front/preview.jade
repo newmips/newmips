@@ -580,9 +580,6 @@ block custom_js
 
 						// Reload iframe
 						var iframe = document.getElementById("iframe");
-						console.log(iframe);
-						console.log(iframe.src);
-						console.log(data.iframe_url);
 						iframe.src = data.iframe_url;
 
 						// Update session screen
@@ -652,6 +649,17 @@ block custom_js
 							var content = recursiveEditorFolders(data.workspaceFolder);
 							$("ul#sortable.sidebar-menu").append(content);
 							$(".sidebar .treeview").tree();
+							// Reset Editor
+							if(typeof myEditor !== "undefined"){
+								$("#codemirror-editor li.load-file").each(function(){
+									$(this).remove();
+								});
+								myEditor.setValue("");
+								myEditor.clearHistory();
+								myEditor.refresh();
+								myEditor.clearGutter();
+								$(".CodeMirror-code").empty();
+							}
 							// Wait a little for Iframe to refresh
 							setTimeout(function(){
 								$("#loadingIframe").hide();

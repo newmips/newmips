@@ -388,8 +388,6 @@ function init_datatable(tableID) {
         };
     }
 
-
-
     // Init DataTable
     var table = $(tableID).DataTable({
         "serverSide": true,
@@ -406,6 +404,7 @@ function init_datatable(tableID) {
         "aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
         "bAutoWidth": false,
         "dom": 'lBfrtip',
+        "order": [ 0, 'desc' ],
         "buttons": [
             {
                 extend: 'print',
