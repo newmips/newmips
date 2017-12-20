@@ -391,7 +391,8 @@
             },
             "layout": {
                 "list": "Available layout:<br>%s<br>",
-                "cannotFind": "Cannot find the asked layout. Available layout:<br> %s <br>"
+                "cannotFind": "Cannot find the asked layout. Available layout:<br> %s <br>",
+                "success": "Layout set to %s on module %s !"
             },
             "icon": {
                 "success": "Entity %s now have icon %s",

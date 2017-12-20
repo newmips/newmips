@@ -391,7 +391,8 @@
             },
             "layout": {
                 "list": "Layout disponibles:<br>%s<br>",
-                "cannotFind": "Impossible de trouver le layout demandée. Layouts disponibles :<br>%s<br>"
+                "cannotFind": "Impossible de trouver le layout demandée. Layouts disponibles :<br>%s<br>",
+                "success": "Disposition %s appliquée sur le module %s !"
             },
             "icon": {
                 "success": "L'entité %s a maintenant l'icône %s",

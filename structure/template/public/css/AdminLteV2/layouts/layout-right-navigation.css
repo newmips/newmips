@@ -1,19 +1,19 @@
-.layout-right-navigation .content-wrapper, .layout-right-navigation .right-side, .main-footer {
+.content-wrapper, .right-side, .main-footer {
 	margin-left: 0px;
 	margin-right: 230px;
 }
 
-.layout-right-navigation .main-sidebar, .layout-right-navigation .left-side {
+.main-sidebar, .left-side {
 	left: initial;
 	right: 0;
 }
 
-.layout-right-navigation .content-wrapper, .layout-right-navigation .main-footer {
+.content-wrapper, .main-footer {
 	border-left: 0 !important;
 	border-right: 1px solid #d2d6de !important;
 }
 
-.layout-right-navigation.sidebar-mini.sidebar-collapse .content-wrapper, .layout-right-navigation .sidebar-mini.sidebar-collapse .right-side, .layout-right-navigation .sidebar-mini.sidebar-collapse .main-footer {
+.sidebar-mini.sidebar-collapse .content-wrapper, .sidebar-mini.sidebar-collapse .right-side, .sidebar-mini.sidebar-collapse .main-footer {
 	margin-left: 0px !important;
 	margin-right: 50px !important;
 }
@@ -22,8 +22,8 @@
  * Component: Sidebar Mini
  */
  @media (min-width: 768px) {
- 	.layout-right-navigation.sidebar-mini.sidebar-collapse .sidebar-menu > li:hover > a > span:not(.pull-right),
- 	.layout-right-navigation.sidebar-mini.sidebar-collapse .sidebar-menu > li:hover > .treeview-menu {
+ 	.sidebar-mini.sidebar-collapse .sidebar-menu > li:hover > a > span:not(.pull-right),
+ 	.sidebar-mini.sidebar-collapse .sidebar-menu > li:hover > .treeview-menu {
  		left: initial;
  		right: 50px;
  	}

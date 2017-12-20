@@ -76,16 +76,18 @@ exports.setLayout = function(attr, callback) {
 
     if(layoutListAvailable.indexOf(askedLayout) != -1){
 
-        var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+        //var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+        var moduleLayout = __dirname + '/../workspace/' + idApplication + '/views/layout_'+attr.currentModule.codeName+'.dust';
 
-        domHelper.read(mainLayoutPath).then(function($) {
+        domHelper.read(moduleLayout).then(function($) {
             var oldLayout = $("link[data-type='layout']").attr("data-layout");
             $("link[data-type='layout']").replaceWith("<link href='/css/AdminLteV2/layouts/layout-"+askedLayout+".css' rel='stylesheet' type='text/css' data-type='layout' data-layout='"+askedLayout+"'>\n");
-            $("body").removeClass("layout-"+oldLayout);
-            $("body").addClass("layout-"+askedLayout);
-            domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
+            //$("body").removeClass("layout-"+oldLayout);
+            //$("body").addClass("layout-"+askedLayout);
+            domHelper.write(moduleLayout, $).then(function() {
                 var info = {};
-                info.message = "Layout set to " + attr.options.value + " !";
+                info.message = "structure.ui.layout.success";
+                info.messageParams = [attr.options.value, attr.currentModule.name];
                 callback(null, info);
             });
         }).catch(function(err){
