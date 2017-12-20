@@ -1,4 +1,10 @@
 {>"main_layout"/}
+
+{<custom_css}
+	{! Admin LTE Layout !}
+	<link href='/css/AdminLteV2/layouts/layout-default.css' rel='stylesheet' type='text/css' data-type="layout" data-layout="default">
+{/custom_css}
+
 {<modules}
 	<select id='dynamic_select' data-width="100%" class='form-control select' onchange='navigate()'></select>
 {/modules}

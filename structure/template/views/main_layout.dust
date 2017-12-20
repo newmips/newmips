@@ -13,8 +13,6 @@
         <link href="/css/AdminLteV2/AdminLTE.css" rel="stylesheet" type="text/css">
         {! Admin LTE Theme !}
         <link href='/themes/blue-light/css/style.css' rel='stylesheet' type='text/css' data-type="theme" data-theme="blue-light">
-        {! Admin LTE Layout !}
-        <link href='/css/AdminLteV2/layouts/layout-default.css' rel='stylesheet' type='text/css' data-type="layout" data-layout="default">
         {! Toastr !}
         <link href="/css/toastr/toastr.min.css" rel="stylesheet" type="text/css">
         {! Bootstrap Datepicker !}
