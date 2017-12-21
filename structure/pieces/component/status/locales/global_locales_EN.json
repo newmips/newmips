@@ -1,0 +1,16 @@
+{
+	"component": {
+		"status": {
+			"error": {
+				"illegal_status": "This status isn't valid"
+			},
+			"next_status": "Next status",
+			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure its status"
+		}
+	},
+	"entity": {
+		"e_status": {
+			"as_r_children": "Next status"
+		}
+	}
+}

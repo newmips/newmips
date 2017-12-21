@@ -1798,6 +1798,39 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
 /* --------------------------------------------------------------- */
 /* -------------------------- COMPONENT -------------------------- */
 /* --------------------------------------------------------------- */
+exports.createNewComponentStatus = function(attr, callback) {
+    var self = this;
+
+    db_entity.getDataEntityById(attr.id_data_entity, function(err, source_entity) {
+        if (err)
+            return callback(err, null);
+
+        // These instructions create a has many with a new entity history_status
+        // It also does a hasMany relation with e_status
+        attr.source = source_entity.codeName;
+        attr.history_table = 'history_'+attr.source+'_'+attr.options.value;
+        var instructions = [
+            "entity "+source_entity.name+' has many history_'+attr.source+'_'+attr.options.value+' called History '+attr.options.showValue,
+            "select entity history_"+attr.source+"_"+attr.options.value,
+            "add field "+attr.options.showValue+" related to Status using name, color",
+            "add field Comment with type text",
+            "entity status has many "+attr.history_table,
+            "select entity "+source_entity.name,
+            "add field "+attr.options.showValue+" related to Status using name"
+        ];
+
+        self.recursiveInstructionExecute(attr, instructions, 0, function(err){
+            if(err)
+                return callback(err, null);
+
+            structure_component.newStatus(attr, function(err) {
+                if (err)
+                    return callback(err, null);
+                callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.source]});
+            });
+        });
+    });
+}
 
 // Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = function (attr, callback) {
@@ -1821,62 +1854,58 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
             err.message = "structure.component.error.alreadyExistOnEntity";
             return callback(err, null);
         }
-        else{
-            // Check if a table as already the composant name
-            db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
-                if(dataEntity){
-                    var err = new Error();
-                    err.message = "structure.component.error.alreadyExistInApp";
-                    return callback(err, null);
-                }
-                else{
-                    // Get Data Entity Name needed for structure
-                    db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
-                        attr.options.source = sourceEntity.codeName;
-                        attr.options.showSource = sourceEntity.name;
-                        attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
-                        // Create the component in newmips database
-                        db_component.createNewComponentOnEntity(attr, function(err, info){
-                            if(err)
-                                return callback(err, null);
-                            // Setup the hasMany association in the source entity
-                            try{
-                                db_entity.createNewEntity(attr, function(err, infoDbEntity){
-                                    var associationOption = {
-                                        idApp: attr.id_application,
-                                        source: attr.options.source,
-                                        target: attr.options.value.toLowerCase(),
-                                        foreignKey: "fk_id_"+attr.options.source.toLowerCase(),
-                                        as: attr.options.value.toLowerCase(),
-                                        showAs: attr.options.showValue,
-                                        relation: "hasMany",
-                                        through: null,
-                                        toSync: false,
-                                        type: null
-                                    };
-                                    structure_data_entity.setupAssociation(associationOption, function(){
-                                        // Get module info needed for structure
-                                        db_module.getModuleById(attr.id_module, function(err, module){
-                                            if(err)
-                                                return callback(err, null);
-                                            attr.options.moduleName = module.codeName;
-                                            structure_component.newLocalFileStorage(attr, function(err){
-                                                if(err)
-                                                    return callback(err, null);
+        // Check if a table as already the composant name
+        db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function(err, dataEntity) {
+            if(dataEntity){
+                var err = new Error();
+                err.message = "structure.component.error.alreadyExistInApp";
+                return callback(err, null);
+            }
+            // Get Data Entity Name needed for structure
+            db_entity.getDataEntityById(attr.id_data_entity, function(err, sourceEntity){
+                attr.options.source = sourceEntity.codeName;
+                attr.options.showSource = sourceEntity.name;
+                attr.options.urlSource = attrHelper.removePrefix(sourceEntity.codeName, "entity");
+                // Create the component in newmips database
+                db_component.createNewComponentOnEntity(attr, function(err, info){
+                    if(err)
+                        return callback(err, null);
+                    // Setup the hasMany association in the source entity
+                    try{
+                        db_entity.createNewEntity(attr, function(err, infoDbEntity){
+                            var associationOption = {
+                                idApp: attr.id_application,
+                                source: attr.options.source,
+                                target: attr.options.value.toLowerCase(),
+                                foreignKey: "fk_id_"+attr.options.source.toLowerCase(),
+                                as: attr.options.value.toLowerCase(),
+                                showAs: attr.options.showValue,
+                                relation: "hasMany",
+                                through: null,
+                                toSync: false,
+                                type: null
+                            };
+                            structure_data_entity.setupAssociation(associationOption, function(){
+                                // Get module info needed for structure
+                                db_module.getModuleById(attr.id_module, function(err, module){
+                                    if(err)
+                                        return callback(err, null);
+                                    attr.options.moduleName = module.codeName;
+                                    structure_component.newLocalFileStorage(attr, function(err){
+                                        if(err)
+                                            return callback(err, null);
 
-                                                callback(null, info);
-                                            });
-                                        });
+                                        callback(null, info);
                                     });
                                 });
-                            } catch(err){
-                                return callback(err, null);
-                            }
+                            });
                         });
-                    });
-                }
+                    } catch(err){
+                        return callback(err, null);
+                    }
+                });
             });
-        }
+        });
     });
 }
 

@@ -16,15 +16,48 @@ var Jimp = require("jimp");
 // Redirection Home =====================
 // ===========================================
 
+/* GET status page to check if workspace is ready. */
+router.get('/status', function(req, res) {
+    res.sendStatus(200);
+});
+
 // *** Dynamic Module | Do not remove ***
 
-// Unauthorized access
-router.get('/unauthorized', function (req, res) {
+// m_authentication
+router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
+    var widgetPromises = [];
+
+    // *** Widget module m_authentication | Do not remove ***
+
+    Promise.all(widgetPromises).then(function (results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_authentication', data);
+    });
+});
+
+// m_home
+router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function (req, res) {
+    var widgetPromises = [];
+
+    // *** Widget module m_home | Do not remove ***
+
+    Promise.all(widgetPromises).then(function (results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_home', data);
+    });
+});
+
+router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
     res.render('common/unauthorized');
 });
 
-/*Change language function */
-router.post('/change_language', function (req, res) {
+router.post('/change_language', block_access.isLoggedIn, function (req, res) {
     req.session.lang_user = req.body.lang;
     res.locals.lang_user = req.body.lang;
     languageConfig.lang = req.body.lang;
