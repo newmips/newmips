@@ -4,6 +4,7 @@
 var file_helper = require('./file_helper');
 var logger = require('./logger');
 var fs = require('fs-extra');
+var language = require('../services/language');
 
 // Winston logger
 var logger = require('./logger');
@@ -13,6 +14,80 @@ module.exports = {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
     status: {
+        entityFieldTree: function (entity, alias) {
+            var fieldTree = {
+                entity: entity,
+                alias: alias || entity,
+                fields: [],
+                children: []
+            }
+
+            try {
+                var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+            } catch (e) {
+                console.error(e);
+                return fieldTree;
+            }
+
+            // Building field array
+            for (var field in entityFields)
+                fieldTree.fields.push(field);
+
+            // Building children array
+            for (var i = 0; i < entityAssociations.length; i++)
+                if (entityAssociations[i].relation == 'belongsTo')
+                    fieldTree.children.push(this.entityFieldTree(entityAssociations[i].target, entityAssociations[i].as));
+
+            return fieldTree;
+        },
+        entityFieldForSelect: function(entity, lang) {
+            var mainTree = this.entityFieldTree(entity);
+            var __ = language(lang).__;
+            var options = [];
+            function dive(obj, codename) {
+                for (var j = 0; j < obj.fields.length; j++) {
+                    if (obj.fields[j].indexOf('f_') != 0)
+                        continue;
+                    var traduction = __('entity.'+obj.entity+'.label_entity') + ' > ' +__('entity.'+obj.entity+'.'+obj.fields[j]);
+                    options.push({
+                        codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
+                        traduction: traduction
+                    });
+                }
+
+                for (var i = 0; i < obj.children.length; i++)
+                    dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias);
+            }
+
+            // Build options array
+            dive(mainTree);
+
+            // Sort options array
+            function sort(optsArray, i) {
+                if (!optsArray[i+1])
+                    return;
+                var firstParts = optsArray[i].traduction.split(separator);
+                var secondParts = optsArray[i+1].traduction.split(separator);
+                if (firstParts[0].toLowerCase() > secondParts[0].toLowerCase()) {
+                    var swap = optsArray[i+1];
+                    optsArray[i+1] = optsArray[i];
+                    optsArray[i] = swap;
+                    return sort(optsArray, i == 0 ? i : i-1);
+                }
+                else if (firstParts[0].toLowerCase() == secondParts[0].toLowerCase()
+                    && firstParts[1].toLowerCase() > secondParts[1].toLowerCase()) {
+                    var swap = optsArray[i+1];
+                    optsArray[i+1] = optsArray[i];
+                    optsArray[i] = swap;
+                    return sort(optsArray, i == 0 ? i : i-1);
+                }
+                return sort(optsArray, i+1);
+            }
+            sort(options, 0);
+
+            return options;
+        },
         entityStatusFieldList: function() {
             var self = this;
             var entities = [];

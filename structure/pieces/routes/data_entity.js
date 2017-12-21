@@ -11,7 +11,7 @@ var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
-var global = require('../config/global');
+var globalConfig = require('../config/global');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -66,7 +66,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
                         if (partOfFile.length > 1) {
                             //if field value have valide picture name, add new task in todo list
                             //we will use todo list to get all pictures binary
-                            var thumbnailFolder = global.thumbnail.folder;
+                            var thumbnailFolder = globalConfig.thumbnail.folder;
                             var filePath = thumbnailFolder + 'ENTITY_NAME/' + partOfFile[0] + '/' + value;
                             todo.push({
                                 value: value,
@@ -345,6 +345,9 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                 model: models.E_status,
                 as: statusAlias
             }]
+        }, {
+            // Include all associations that can later be used by media to include variables value
+            all: true, nested: true
         }]
     }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]){

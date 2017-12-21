@@ -129,6 +129,7 @@ var mandatoryInstructions = [
     "create entity Media",
     "add field Type with type enum and values Mail, Notification, Function",
     "add field Name",
+    "add field Target entity",
     "entity status has many Action called Actions",
     "select entity action",
     "add field Media related to Media using name",

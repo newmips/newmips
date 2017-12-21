@@ -1,8 +1,14 @@
 <div id="fields" class="row">
+    <div data-field="f_name" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_name"> {@__ key="entity.e_media.f_name"/} </label>
+            <input class="form-control input media-field" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="" type="text">
+        </div>
+    </div>
     <div data-field="f_type" class="col-xs-12">
         <div class="form-group">
             <label for="f_type"> {@__ key="entity.e_media.f_type"/} </label>
-            <select style="width:100%;" class="form-control select" name="f_media_type">
+            <select style="width:100%;" class="form-control select media-field" name="f_media_type">
                 <option value="" selected="">{@__ key="select.default" /}</option>
                 {#enum_radio.e_media.f_type}
                     <option value="{.value}"> {.translation} </option>
@@ -10,10 +16,15 @@
             </select>
         </div>
     </div>
-    <div data-field="f_name" class="col-xs-12">
+    <div data-field="f_target_entity" class="col-xs-12">
         <div class="form-group">
-            <label for="f_name"> {@__ key="entity.e_media.f_name"/} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="" type="text">
+            <label for="f_target_entity"> {@__ key="entity.e_media.f_target_entity"/} </label>
+            <select style="width:100%;" class="form-control select media-field" name="f_target_entity">
+                <option value="" selected="">{@__ key="select.default" /}</option>
+                {#target_entities}
+                    <option value="{codename}"> {@__ key=tradKey /} </option>
+                {/target_entities}
+            </select>
         </div>
     </div>
     <div id="media-mail" class="media-type col-xs-12" style="display: none;">

@@ -15,13 +15,17 @@ module.exports = function (sequelize, DataTypes) {
         instanceMethods: {
             execute: function(resolve, reject, dataInstance) {
                 var self = this;
-                function insertVariables(property) {
+                function insertVariablesValue(property) {
                     function diveData(object, depths, idx) {
-                        if (object[depths[idx]] && typeof object[depths[idx]] === 'object')
+                        if (!object[depths[idx]])
+                            return "";
+                        else if (typeof object[depths[idx]] === 'object') {
+                            if (object[depths[idx]] instanceof Date)
+                                return moment(object[depths[idx]]).format("DD/MM/YYYY");
                             return diveData(object[depths[idx]], depths, ++idx);
-                        else if (object[depths[idx]] && typeof object[depths[idx]] === 'string')
+                        }
+                        else
                             return object[depths[idx]];
-                        return "";
                     }
 
                     var newString = self[property];
@@ -34,14 +38,14 @@ module.exports = function (sequelize, DataTypes) {
                 }
 
                 var options = {
-                    from: insertVariables('f_from'),
-                    to: insertVariables('f_to'),
-                    cc: insertVariables('f_cc'),
-                    cci: insertVariables('f_cci'),
-                    subject: insertVariables('f_subject'),
+                    from: insertVariablesValue('f_from'),
+                    to: insertVariablesValue('f_to'),
+                    cc: insertVariablesValue('f_cc'),
+                    cci: insertVariablesValue('f_cci'),
+                    subject: insertVariablesValue('f_subject'),
                     data: dataInstance
                 };
-                mailer.sendHtml(self.f_content, options).then(resolve).catch(reject);
+                mailer.sendHtml(insertVariablesValue('f_content'), options).then(resolve).catch(reject);
             }
         },
         timestamps: true
