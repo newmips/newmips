@@ -145,6 +145,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create entity Media");
     instructions.push("add field Type with type enum and values Mail, Notification, Function");
     instructions.push("add field Name");
+    instructions.push("add field Target entity");
     instructions.push("entity Media has one Media Mail");
     instructions.push("entity Media has one Media Notification");
     instructions.push("entity Media has one Media Function");

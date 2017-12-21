@@ -19,6 +19,10 @@ var enums_radios = require('../utils/enum_radio.js');
 // Winston logger
 var logger = require('../utils/logger');
 
+router.get('/entityTree', function(req, res) {
+    res.json(entity_helper.status.entityFieldTree('e_action'));
+})
+
 router.post('/create', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
 
@@ -26,13 +30,14 @@ router.post('/create', block_access.actionAccessMiddleware("media", "write"), fu
         models.E_media.create({
             f_type: 'Mail',
             f_name: req.body.f_name,
+            f_target_entity: req.body.f_target_entity,
             fk_id_media_mail: e_media_mail.id
         }).then(function(e_media) {
             var redirect = '/media/show?id='+e_media.id;
             req.session.toastr = [{
-                    message: 'message.create.success',
-                    level: "success"
-                }];
+                message: 'message.create.success',
+                level: "success"
+            }];
 
             if (typeof req.body.associationFlag !== 'undefined') {
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
