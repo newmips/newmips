@@ -26,7 +26,7 @@ $(document).ready(function() {
         $('head').append("<link href='/css/codemirror/themes/" + chosenTheme + ".css' rel='stylesheet' type='text/css'>");
     }
 
-    var myEditor = CodeMirror(document.getElementById("codemirror-editor"), {
+    myEditor = CodeMirror(document.getElementById("codemirror-editor"), {
         value: "\n\n" + intro1 + intro2,
         theme: chosenTheme,
         keyMap: "sublime",

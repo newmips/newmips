@@ -134,11 +134,28 @@ exports.setFieldAttribute = function (result) {
     var options = {
         value: result[1],
         word: result[2],
+        attributeValue: result[3],
         processValue: true
     };
 
     var attr = {
         function: "setFieldAttribute",
+        options: options
+    };
+    return attr;
+};
+
+exports.setFieldKnownAttribute = function (result) {
+
+    // Set entity name as the first option in options array
+    var options = {
+        value: result[1],
+        word: result[2],
+        processValue: true
+    };
+
+    var attr = {
+        function: "setFieldKnownAttribute",
         options: options
     };
     return attr;
@@ -821,7 +838,43 @@ exports.createComponentChat = function (result) {
 }
 
 // ******* INTERFACE Actions ******* //
-exports.setSkin = function (result) {
+exports.setLayout = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setLayout",
+        options: options
+    };
+    return attr;
+};
+
+exports.setTheme = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setTheme",
+        options: options
+    };
+    return attr;
+};
+
+exports.listTheme = function (result) {
+
+    var attr = {
+        function: "listTheme"
+    };
+    return attr;
+};
+
+/*exports.setSkin = function (result) {
 
     var value = result[1];
     var options = {
@@ -841,7 +894,7 @@ exports.listSkin = function (result) {
         function: "listSkin"
     };
     return attr;
-};
+};*/
 
 exports.listIcon = function (result) {
     return {function: 'listIcon'};
@@ -1060,7 +1113,7 @@ var training = {
         "sélectionner l'entité (.*)",
         "sélectionner entité (.*)"
     ],
-    "setFieldAttribute": [
+    "setFieldKnownAttribute": [
         "set field (.*) (.*)",
         "set the field (.*) (.*)",
         "mettre champ (.*) (.*)",
@@ -1068,6 +1121,14 @@ var training = {
         "mettre le champ (.*) en (.*)",
         "rendre champ (.*) (.*)",
         "rendre le champ (.*) (.*)"
+    ],
+    "setFieldAttribute": [
+        "set field (.*) (.*) (.*)",
+        "set the field (.*) (.*) (.*)",
+        "mettre champ (.*) (.*) (.*)",
+        "mettre le champ (.*) (.*) (.*)",
+        "rendre champ (.*) (.*) (.*)",
+        "rendre le champ (.*) (.*) (.*)"
     ],
     "setColumnVisibility": [
         "set column (.*) (.*)",
@@ -1319,15 +1380,14 @@ var training = {
         "lister champs",
         "lister les champs"
     ],
-    "listSkin": [
-        "list all skin",
-        "list skin",
-        "list available skin",
-        "lister les skins",
-        "lister les skin",
-        "lister skin",
-        "lister skins",
-        "lister les couleurs"
+    "listTheme": [
+        "list all theme",
+        "list theme",
+        "list available theme",
+        "lister les thèmes",
+        "lister les themes",
+        "lister thèmes",
+        "lister thèmes"
     ],
     "relationshipHasOne": [
         "entity (.*) has one (.*)",
@@ -1843,6 +1903,17 @@ var training = {
     	"ajouter composant Discussion",
     	"ajouter le composant discussion",
     	"ajouter composant discussion"
+    ],
+    "setLayout": [
+        "set layout (.*)",
+        "appliquer le layout (.*)"
+    ],
+    "setTheme": [
+        "set theme (.*)",
+        "appliquer le theme (.*)",
+        "appliquer le thème (.*)",
+        "appliquer theme (.*)",
+        "appliquer thème (.*)"
     ],
     "setSkin": [
         "set skin (.*)",

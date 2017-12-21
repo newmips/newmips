@@ -1,0 +1,30 @@
+.content-wrapper, .right-side, .main-footer {
+	margin-left: 0px;
+	margin-right: 230px;
+}
+
+.main-sidebar, .left-side {
+	left: initial;
+	right: 0;
+}
+
+.content-wrapper, .main-footer {
+	border-left: 0 !important;
+	border-right: 1px solid #d2d6de !important;
+}
+
+.sidebar-mini.sidebar-collapse .content-wrapper, .sidebar-mini.sidebar-collapse .right-side, .sidebar-mini.sidebar-collapse .main-footer {
+	margin-left: 0px !important;
+	margin-right: 50px !important;
+}
+
+/*
+ * Component: Sidebar Mini
+ */
+ @media (min-width: 768px) {
+ 	.sidebar-mini.sidebar-collapse .sidebar-menu > li:hover > a > span:not(.pull-right),
+ 	.sidebar-mini.sidebar-collapse .sidebar-menu > li:hover > .treeview-menu {
+ 		left: initial;
+ 		right: 50px;
+ 	}
+ }

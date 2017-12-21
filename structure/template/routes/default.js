@@ -3,24 +3,15 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 var languageConfig = require('../config/language');
-var message = "";
 var globalConf = require('../config/global');
 var multer = require('multer');
 var fs = require('fs');
 var fse = require('fs-extra');
-var moment = require("moment");
 var crypto = require('../utils/crypto_helper');
-var webdav_conf = require('../config/webdav');
 var upload = multer().single('file');
 var models = require('../models/');
 var Jimp = require("jimp");
 
-/* Connect WebDav with webdav-fs */
-var wfs = require("webdav-fs")(
-        webdav_conf.url,
-        webdav_conf.user_name,
-        webdav_conf.password
-        );
 // ===========================================
 // Redirection Home =====================
 // ===========================================
@@ -62,12 +53,10 @@ router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware
     });
 });
 
-// Page non autorisée
 router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
     res.render('common/unauthorized');
 });
 
-/* Fonction de changement du language */
 router.post('/change_language', block_access.isLoggedIn, function (req, res) {
     req.session.lang_user = req.body.lang;
     res.locals.lang_user = req.body.lang;
@@ -82,7 +71,6 @@ router.post('/change_language', block_access.isLoggedIn, function (req, res) {
 router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
-            // Everything went fine
             if (req.body.storageType == 'local') {
                 var folder = req.file.originalname.split('-');
                 var dataEntity = req.body.dataEntity;
@@ -107,30 +95,42 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                                         Jimp.read(uploadPath, function (err, imgThumb) {
                                             if (!err) {
                                                 imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
-                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality 
+                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality
                                                         .write(basePath + req.file.originalname);
+                                            } else {
+                                                console.log(err);
                                             }
                                         });
+                                    } else {
+                                        console.log(err);
                                     }
                                 });
                             }
-                        } else
-                            res.end();
+                        } else{
+                            console.log(err);
+                            res.status(500).end(err);
+                        }
                     });
-
-                } else
-                    res.end();
-
+                } else{
+                    var err = new Error();
+                    err.message = 'Internal error, entity not found.';
+                    res.status(500).end(err);
+                }
             } else if (req.body.storageType == 'cloud') {
-                res.end();
-            } else
-                return res.json({success: false, message: 'storage type not found'});
-        } else
-            res.end();
+                var err = new Error();
+                err.message = 'Internal error, cloud file are not available.';
+                res.status(500).end(err);
+            } else{
+                var err = new Error();
+                err.message = 'Storage type not found.';
+                res.status(500).end(err);
+            }
+        } else{
+            console.log(err);
+            res.status(500).end(err);
+        }
     });
-
 });
-
 
 router.get('/get_file', block_access.isLoggedIn, function (req, res) {
     var entity = req.query.entity;
@@ -157,7 +157,6 @@ router.get('/get_file', block_access.isLoggedIn, function (req, res) {
     } else
         res.end();
 });
-
 
 router.get('/download', block_access.isLoggedIn, function (req, res) {
     var entity = req.query.entity;
@@ -188,7 +187,6 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
         res.writeHead(303, {Location: req.headers.referer});
         res.end();
     });
-
 });
 
 router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
@@ -225,7 +223,6 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
         req.session.toastr.push({level: 'error', message: "File not found"});
         res.json({result: 404, message: ''});
     }
-
 });
 
 module.exports = router;

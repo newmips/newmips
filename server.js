@@ -152,6 +152,7 @@ app.use('/users', require('./routes/users'));
 app.use('/instruction_script', require('./routes/instruction_script'));
 app.use('/import', require('./routes/import'));
 app.use('/editor', require('./routes/editor'));
+app.use('/themes', require('./routes/themes'));
 app.use('/ui_editor', require('./routes/ui_editor'));
 
 // Handle 404
