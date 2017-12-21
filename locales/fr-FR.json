@@ -4,7 +4,7 @@
     },
     "login": {
         "log_in": "Se connecter",
-        "reset_password": "Mot de passe oublié",
+        "reset_password": "Changement de mot de passe",
         "emailResetSent": "Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.",
         "tokenNotFound": "Impossible de retrouver votre token, nous ne pouvons pas valider votre demande.",
         "passwordReset": "Votre mot de passe a été réinitialisé.",
@@ -39,7 +39,9 @@
         "error": "Erreur",
         "back": "Back office",
         "users": "Users",
-        "logs": "Logs"
+        "logs": "Logs",
+        "account": "Mon compte",
+        "themes": "Mes thèmes"
     },
     "button": {
         "generate": "Générer",
@@ -71,6 +73,7 @@
         "directlinks": {
             "title": "Gestion des Applications",
             "script": "Script",
+            "theme": "Thèmes",
             "live": "Direct",
             "import": "Import de données",
             "settings": "Paramètres"
@@ -118,8 +121,20 @@
     },
     "settings": {
         "legend": "Paramètres",
-        "display_language": "Afficher les langages",
-        "activate_translation": "Activer la traduction automatique (Internet + Clée API valide requis)",
+        "display_language": "Langue du générateur",
+        "display_infos": "Vos informations",
+        "infos": {
+            "login": "Login",
+            "role": "Rôle",
+            "lastname": "Nom",
+            "firstname": "Prénom",
+            "phone": "Téléphone",
+            "email": "Email"
+        },
+        "change_password": "Réinitialiser son mot de passe",
+        "reset_button": "Réinitialiser",
+        "sure_reset": "Êtes-vous sur ? Vous allez être déconnecté, votre mot de passe sera réinitialisé et vous allez recevoir un email pour en configurer un nouveau.",
+        "activate_translation": "Activer la traduction automatique (Connexion internet + Clée API Google valide requises)",
         "english": "Anglais",
         "french": "Français"
     },
@@ -370,9 +385,14 @@
                 "show": "La colonne %s est désormais visible.",
                 "noColumn": "Impossible de trouver la colonne %s."
             },
-            "skin": {
-                "list": "Couleurs disponibles:<br>%s<br>",
-                "cannotFind": "Impossible de trouver la couleur demandée. Couleurs disponibles :<br>%s<br>"
+            "theme": {
+                "list": "Thèmes disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver le thème demandé. Thèmes disponibles :<br>%s<br>"
+            },
+            "layout": {
+                "list": "Layout disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver le layout demandée. Layouts disponibles :<br>%s<br>",
+                "success": "Disposition %s appliquée sur le module %s !"
             },
             "icon": {
                 "success": "L'entité %s a maintenant l'icône %s",
@@ -391,5 +411,11 @@
         "help" : "Vous avez demandé de l'aide. Accédez aux vidéos d'aide sur notre <a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>chaîne YouTube</a> ou à la documentation en ligne ici <a href='https://docs.newmips.com/' target='_blank'>https://docs.newmips.com/</a>",
         "applicationavailable": "L'application est disponible ici : <br> <a href='%s' target='_blank'>%s</a>",
         "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
+    },
+    "themes":{
+        "download-default": "Télécharger le modèle de thème",
+        "generating": "Génération en cours...",
+        "add-theme": "Uploader un thème",
+        "wrongExt": "Seul les .zip sont accepté."
     }
 }

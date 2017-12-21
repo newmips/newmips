@@ -34,13 +34,22 @@ function select2_ajaxsearch(elementID, entity, searchFields) {
 }
 
 $(document).ready(function () {
-
     /* Display color td with fa classes instead of color value */
     $("td[data-type=color]").each(function() {
         if ($(this).find('i').length > 0)
             return;
         var color = $(this).text();
         $(this).html('<i class="fa fa-lg fa-circle" style="color:'+color+'"></i>');
+    });
+
+    /* Save mini sidebar preference */
+    $(document).on("click", ".sidebar-toggle", function(){
+        if (sidebarPref == "true" || sidebarPref == null)
+            sidebarPref = false;
+        else
+            sidebarPref = true;
+
+        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
 
     /* Clear print tab component */
@@ -641,44 +650,62 @@ $(document).ready(function () {
             dropzoneInit.emit('addedfile', mockFile);
             dropzoneInit.emit('complete', mockFile);
         }
+        dropzoneInit.done = false;
         dropzonesFieldArray.push(dropzoneInit);
     });
 
     /* Dropzone files managment already done ? */
     var filesProceeded = false;
+    var fileInProcess = false;
+
+    function isFileProcessing(){
+        for (var i = 0; i < dropzonesFieldArray.length; i++) {
+            if(!dropzonesFieldArray[i].done){
+                return true;
+            }
+        }
+        return false;
+    }
 
     $(document).on("submit", "form", function(e) {
 
         var thatForm = $(this);
+        var fileInProcess = isFileProcessing();
+
         if (!filesProceeded && dropzonesFieldArray.length > 0) {
             /* If there are files to write, stop submit and do this before */
             e.preventDefault();
-
+            filesProceeded = true;
             /* Send dropzone file */
             for (var i = 0; i < dropzonesFieldArray.length; i++) {
-                //prevent sent file if mockfile
+                // Prevent sent file if mockfile
                 if (dropzonesFieldArray[i].files.length > 0 && dropzonesFieldArray[i].files[0].type != 'mockfile') {
                     var dropzone = dropzonesFieldArray[i];
+                    fileInProcess = true;
                     dropzone.processQueue();
                     (function(ibis, myform) {
                         dropzone.on("complete", function(file, response) {
-                            if (ibis == dropzonesFieldArray.length - 1) {
-                                filesProceeded = true;
+                            dropzonesFieldArray[ibis].done = true;
+                            fileInProcess = isFileProcessing();
+                            if (ibis == dropzonesFieldArray.length - 1 || !fileInProcess) {
                                 myform.submit();
                             }
                         });
                     })(i, $(this))
                 } else {
-                    if (i == dropzonesFieldArray.length - 1) {
-                        filesProceeded = true;
+                    dropzonesFieldArray[i].done = true;
+                    fileInProcess = isFileProcessing();
+                    if (i == dropzonesFieldArray.length - 1 || !fileInProcess) {
                         $(this).submit();
                     }
                 }
             }
+        } else if(fileInProcess){
+            e.preventDefault();
         }
 
         // If we are done with files upload
-        if (filesProceeded || dropzonesFieldArray.length == 0) {
+        if (!fileInProcess && filesProceeded || dropzonesFieldArray.length == 0) {
             /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
             if (lang_user == "fr-FR") {
                 /* Datepicker FR convert*/

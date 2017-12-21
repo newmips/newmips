@@ -858,14 +858,12 @@ exports.setRequiredAttribute = function (attr, callback) {
                     });
                 });
             }).catch(function(e) {
-                console.log(e);
                 var err = new Error();
                 err.message = "structure.field.attributes.fieldNoFound";
                 err.messageParams = [attr.options.showValue];
                 callback(err, null);
             });
         } else {
-            console.log('Dans le else');
             var err = new Error();
             err.message = "structure.field.attributes.fieldNoFound";
             err.messageParams = [attr.options.showValue];
@@ -906,6 +904,51 @@ exports.setUniqueField = function (attr, callback) {
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
     callback();
+}
+
+exports.setFieldAttribute = function (attr, callback) {
+
+    var idApp = attr.id_application;
+    var targetField = attr.options.value;
+    var targetEntity = attr.name_data_entity.toLowerCase();
+    var attribute = attr.options.word.toLowerCase();
+    var attributeValue = attr.options.attributeValue.toLowerCase();
+    var pathToViews = __dirname + '/../workspace/' + idApp + '/views/' + targetEntity;
+
+    // Update create_fields.dust file
+    domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
+        if ($("*[data-field='" + targetField + "']").length > 0) {
+
+            $("*[data-field='" + targetField + "']").find('input').attr(attribute, attributeValue);
+            $("*[data-field='" + targetField + "']").find('select').attr(attribute, attributeValue);
+
+            domHelper.write(pathToViews + '/create_fields.dust', $).then(function () {
+
+                // Update update_fields.dust file
+                domHelper.read(pathToViews + '/update_fields.dust').then(function ($) {
+
+                    $("*[data-field='" + targetField + "']").find('input').attr(attribute, attributeValue);
+                    $("*[data-field='" + targetField + "']").find('select').attr(attribute, attributeValue);
+
+                    domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
+                        callback();
+                    });
+                });
+            }).catch(function(e) {
+                var err = new Error();
+                err.message = "structure.field.attributes.fieldNoFound";
+                err.messageParams = [attr.options.showValue];
+                callback(err, null);
+            });
+        } else {
+            var err = new Error();
+            err.message = "structure.field.attributes.fieldNoFound";
+            err.messageParams = [attr.options.showValue];
+            callback(err, null);
+        }
+    }).catch(function (err) {
+        callback(err, null);
+    });
 }
 
 function addTab(attr, file, newLi, newTabContent) {
@@ -1232,7 +1275,8 @@ exports.setupRelatedToField = function (attr, callback) {
                                 // Add <th> in list_field
                                 var toAddInList = {headers: '', body: ''};
                                 /* ------------- Add new FIELD in headers ------------- */
-                                var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
+                                var str = '<th data-field="' + alias + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
+                                //var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
                                 str += ' data-type="'+usingField[cpt].type+'"';
                                 str += '>\n';
                                 str += '{@__ key="entity.' + source + '.' + alias + '"/}&nbsp;-&nbsp;{@__ key="entity.' + target + '.' + targetField + '"/}\n';
@@ -1240,7 +1284,8 @@ exports.setupRelatedToField = function (attr, callback) {
                                 toAddInList.headers = str;
 
                                 /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-                                str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
+                                //str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
+                                str = '<td data-field="' + alias + '"';
                                 str += ' data-type="'+usingField[cpt].type+'"';
                                 str += ' >{' + alias + '.' + usingField[cpt].value + '}</td>';
                                 toAddInList.body = str;

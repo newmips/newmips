@@ -147,42 +147,65 @@ exports.associationsFinder = function associationsFinder(models, options, attrib
 }
 
 // Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
+// Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
 exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
-    // We have to find value in req.body that are linked to an hasMany or belongsToMany association
-    // because those values are not updated for now
+    return new Promise(function(resolve, reject) {
+        // We have to find value in req.body that are linked to an hasMany or belongsToMany association
+        // because those values are not updated for now
 
-    // List unsed value in req.body for now
-    var unusedValueFromReqBody = [];
+        // List unsed value in req.body for now
+        var unusedValueFromReqBody = [];
 
-    for(var propBody in body){
-        var toAdd = true;
-        for(var propObj in buildForRouteObj){
-            if(propBody == "id" || propBody == propObj)
-                toAdd=false;
+        for(var propBody in body){
+            var toAdd = true;
+            for(var propObj in buildForRouteObj){
+                if(propBody == "id" || propBody == propObj)
+                    toAdd=false;
+            }
+            if(toAdd)
+                unusedValueFromReqBody.push(propBody);
         }
-        if(toAdd)
-            unusedValueFromReqBody.push(propBody);
-    }
 
-    // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
-    for (var i=0; i<options.length; i++) {
-        // Loop on the unused (for now) values in body
-        for (var j=0; j<unusedValueFromReqBody.length; j++) {
-            // if the alias match between the option and the body
-            if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
-                // BelongsTo association have been already done before
-                if(options[i].relation != "belongsTo"){
-                    var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
-                    var value = [];
+        var cpt = 0;
 
-                    if(body[unusedValueFromReqBody[j]].length > 0)
-                        value = body[unusedValueFromReqBody[j]];
+        // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
+        for (var i=0; i<options.length; i++) {
+            if(unusedValueFromReqBody.length == 0)
+                done();
+            // Loop on the unused (for now) values in body
+            for (var j=0; j<unusedValueFromReqBody.length; j++) {
+                // if the alias match between the option and the body
+                if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
+                    // BelongsTo association have been already done before
+                    if(options[i].relation != "belongsTo"){
+                        var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+                        var value = [];
 
-                    model['set' + target](value);
+                        if(body[unusedValueFromReqBody[j]].length > 0)
+                            value = body[unusedValueFromReqBody[j]];
+
+                        model['set' + target](value).then(function(){
+                            done();
+                        });
+                    } else {
+                        done();
+                    }
+                } else {
+                    done();
                 }
             }
         }
-    }
+
+        done();
+
+        function done(){
+            if(cpt == options.length){
+                resolve();
+            } else {
+                cpt++;
+            }
+        }
+    });
 }
 
 exports.getDatalistInclude = function getDatalistInclude(models, options) {

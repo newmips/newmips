@@ -99,3 +99,79 @@ div.dataTables_length select {
 .sub-module-arianne{
     color: #444 !important;
 }
+
+/* Standard skin */
+
+.main-header .navbar .nav > li > a {
+  color: #ffffff;
+}
+.main-header .navbar .nav > li > a:hover,
+.main-header .navbar .nav > li > a:active,
+.main-header .navbar .nav > li > a:focus,
+.main-header .navbar .nav .open > a,
+.main-header .navbar .nav .open > a:hover,
+.main-header .navbar .nav .open > a:focus,
+.main-header .navbar .nav > .active > a {
+  background: rgba(0, 0, 0, 0.1);
+  color: #f6f6f6;
+}
+.main-header .navbar .sidebar-toggle {
+  color: #ffffff;
+}
+.main-header .navbar .sidebar-toggle:hover {
+  color: #f6f6f6;
+  background: rgba(0, 0, 0, 0.1);
+}
+.main-header .navbar .sidebar-toggle {
+  color: #fff;
+}
+@media (max-width: 767px) {
+  .main-header .navbar .dropdown-menu li.divider {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .main-header .navbar .dropdown-menu li a {
+    color: #fff;
+  }
+}
+.main-header .logo {
+  color: #ffffff;
+  border-bottom: 0 solid transparent;
+}
+.content-header {
+  background: transparent;
+}
+.sidebar-form {
+  border-radius: 3px;
+  margin: 10px 10px;
+}
+.sidebar-form input[type="text"],
+.sidebar-form .btn {
+  box-shadow: none;
+  border: 1px solid transparent;
+  height: 35px;
+}
+.sidebar-form input[type="text"] {
+  color: #666;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 2px;
+}
+.sidebar-form input[type="text"]:focus,
+.sidebar-form input[type="text"]:focus + .input-group-btn .btn {
+  background-color: #fff;
+  color: #666;
+}
+.sidebar-form input[type="text"]:focus + .input-group-btn .btn {
+  border-left-color: #fff;
+}
+.sidebar-form .btn {
+  color: #999;
+  border-top-left-radius: 0;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 0;
+}
+.sidebar a:hover {
+  text-decoration: none;
+}

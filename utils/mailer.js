@@ -18,7 +18,7 @@ function sendMailAsync(mailOptions) {
     transporter.sendMail(mailOptions, function(error, info){
       if(error) {
         console.error(error);
-        reject(false);
+        reject(error);
       }
       resolve(true);
     });
