@@ -188,9 +188,9 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
                         var iframe_status_url = protocol_iframe + '://';
                         if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                            iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/status';
+                            iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/default/status';
                         else
-                            iframe_status_url += host + ":" + port + "/status";
+                            iframe_status_url += host + ":" + port + "/default/status";
                         request({
                             "rejectUnauthorized": false,
                             "url": iframe_status_url,
@@ -412,9 +412,9 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
                                     var iframe_status_url = protocol_iframe + '://';
                                     if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                                        iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
+                                        iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/default/status';
                                     else
-                                        iframe_status_url += host + ":" + port + "/status";
+                                        iframe_status_url += host + ":" + port + "/default/status";
                                     request({
                                         "rejectUnauthorized": false,
                                         "url": iframe_status_url,
@@ -661,9 +661,9 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 
                                     var iframe_status_url = protocol_iframe + '://';
                                     if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                                        iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/status';
+                                        iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/default/status';
                                     else
-                                        iframe_status_url += host + ":" + port + "/status";
+                                        iframe_status_url += host + ":" + port + "/default/status";
                                     request({
                                         "rejectUnauthorized": false,
                                         "url": iframe_status_url,

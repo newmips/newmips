@@ -141,9 +141,11 @@ function addPrefix(string, instructionFunction){
         case 'deleteComponentPrint':
             return "c_"+string;
             break;
+        case 'createNewComponentStatus':
+            return "s_"+string;
+        default:
+            return "u_"+string;
     }
-
-    return "u_"+string;
 }
 
 function removePrefix(string, type){

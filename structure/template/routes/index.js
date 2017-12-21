@@ -11,7 +11,9 @@ module.exports = function(app) {
 		file = file.slice(0, -3);
 		if (file === 'routes')
 			app.use('/', require('./'+file));
-		else if (file === 'default' || file === 'chat')
+		else if (file === 'default')
+			app.use('/'+file, require('./'+file));
+		else if (file === 'chat')
 			app.use('/'+attrHelper.removePrefix(file, "entityOrComponent"), block_access.isLoggedIn, require('./'+file));
 		else
 			app.use('/'+attrHelper.removePrefix(file, "entityOrComponent"), block_access.isLoggedIn, block_access.entityAccessMiddleware(attrHelper.removePrefix(file, "entityOrComponent")), require('./'+file));

@@ -34,6 +34,13 @@ function select2_ajaxsearch(elementID, entity, searchFields) {
 }
 
 $(document).ready(function () {
+    /* Display color td with fa classes instead of color value */
+    $("td[data-type=color]").each(function() {
+        if ($(this).find('i').length > 0)
+            return;
+        var color = $(this).text();
+        $(this).html('<i class="fa fa-lg fa-circle" style="color:'+color+'"></i>');
+    });
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function(){
@@ -53,8 +60,6 @@ $(document).ready(function () {
         $(this).css("padding", "0");
         if($(this).attr("type") == "hidden")
             $(this).remove();
-        /*else if()
-            $(this).replaceWith("<br><span>" + $(this).val() + "</span>");*/
     });
 
     $(".print-tab input[type='color']").each(function() {
@@ -861,7 +866,7 @@ $(document).ready(function () {
     });
 
     /* --------------- Initialisation des select --------------- */
-    $("select").select2();
+    $("select:not(.regular-select)").select2();
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function(){
