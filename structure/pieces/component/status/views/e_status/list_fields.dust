@@ -1,0 +1,104 @@
+<table id="table_e_status" data-url="/status/datalist" class="dataTable table table-bordered table-striped">
+    <thead class="main">
+        <tr class="fields">
+            <th data-field="id" data-col="id">
+                {@__ key="entity.e_status.id_entity"/}&nbsp;
+                {@__ key="entity.e_status.label_entity"/}
+            </th>
+            <th data-field="f_entity" data-col="f_entity" data-type="string">
+                {@__ key="entity.e_status.f_entity"/}
+            </th>
+            <th data-field="f_field" data-col="f_field" data-type="string">
+                {@__ key="entity.e_status.f_field"/}
+            </th>
+            <th data-field="f_name" data-col="f_name" data-type="string">
+                {@__ key="entity.e_status.f_name"/}
+            </th>
+            <th data-field="f_color" data-col="f_color" data-type="color">
+                {@__ key="entity.e_status.f_color"/}
+            </th>
+            <th data-field="f_position" data-col="f_position" data-type="integer">
+                {@__ key="entity.e_status.f_position"/}
+            </th>
+            <th data-field="f_default" data-col="f_default" data-type="boolean">
+                {@__ key="entity.e_status.f_default"/}
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="fields">
+            <th data-field="id" data-col="id">
+                {@__ key="entity.e_status.id_entity"/}&nbsp;
+                {@__ key="entity.e_status.label_entity"/}
+            </th>
+            <th data-field="f_entity" data-col="f_entity" data-type="string">
+                {@__ key="entity.e_status.f_entity"/}
+            </th>
+            <th data-field="f_field" data-col="f_field" data-type="string">
+                {@__ key="entity.e_status.f_field"/}
+            </th>
+            <th data-field="f_name" data-col="f_name" data-type="string">
+                {@__ key="entity.e_status.f_name"/}
+            </th>
+            <th data-field="f_color" data-col="f_color" data-type="color">
+                {@__ key="entity.e_status.f_color"/}
+            </th>
+            <th data-field="f_position" data-col="f_position" data-type="integer">
+                {@__ key="entity.e_status.f_position"/}
+            </th>
+            <th data-field="f_default" data-col="f_default" data-type="boolean">
+                {@__ key="entity.e_status.f_default"/}
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {#e_status}
+        <tr id="bodyTR">
+            <td data-field="id">{id}</td>
+            <td data-field="f_entity" data-type="string">{@__ key=f_entity /}</td>
+            <td data-field="f_field" data-type="string">{@__ key=f_field /}</td>
+            <td data-field="f_name" data-type="string">{f_name}</td>
+            <td data-field="f_color" data-type="color"><i class="fa fa-lg fa-circle" style="color: {f_color}"></i></td>
+            <td data-field="f_position" data-type="integer">{f_position}</td>
+            <td data-field="f_default" data-type="boolean">{f_default}</td>
+            <td>
+                {@eq key=for value="fieldset"}
+                <form class="fieldsetform">
+                    <input type="hidden" value="{id}" name="idRemove">
+                    <button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
+                </form>
+                {/eq}
+                {@eq key=for value="hasMany"}
+                <!--<a class="btn btn-primary" href="/status/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}-->
+                {/eq}
+            </td>
+            <td>
+                {@eq key=for value="hasMany"}
+                <a class="btn btn-warning" href="/status/update_form?id={id}&amp;associationAlias={associationAlias}&amp;associationForeignKey={associationForeignKey}&amp;associationFlag={associationFlag}&amp;associationSource={associationSource}&amp;associationUrl={associationUrl}"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update" /}</span></a>
+                {/eq}
+            </td>
+            <td>
+                {@eq key=for value="hasMany"}
+                <form action="/status/delete" method="post">
+                    <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+			                <span>{@__ key="button.delete" /}</span>
+			                <input name="id" value="{id}" type="hidden">
+			                <input name="associationAlias" value="{associationAlias}" type="hidden">
+			                <input name="associationForeignKey" value="{associationForeignKey}" type="hidden">
+			                <input name="associationFlag" value="{associationFlag}" type="hidden">
+			                <input name="associationSource" value="{associationSource}" type="hidden">
+			                <input name="associationUrl" value="{associationUrl}" type="hidden">
+			            </button>
+                </form>
+                {/eq}
+            </td>
+        </tr>
+        {/e_status}
+    </tbody>
+</table>

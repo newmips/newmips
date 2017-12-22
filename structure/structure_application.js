@@ -195,6 +195,87 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
+function finalizeApplication(id_application) {
+    return new Promise(function(resolve, reject) {
+        var piecesPath = __dirname+'/pieces';
+        var workspacePath = __dirname+'/../workspace/'+id_application;
+
+        // Reset toSync file
+        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
+
+        var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
+        workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+            // Create application's DNS through dns_manager
+            if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
+                    resolve();
+                });
+            else
+                resolve();
+        });
+    });
+}
+
+function initializeWorkflow(id_application) {
+    return new Promise(function(resolve, reject) {
+        var piecesPath = __dirname+'/pieces/component/status';
+        var workspacePath = __dirname+'/../workspace/'+id_application;
+
+        // Remove existing has many from Status, the instruction is only used to generate the tab and views
+        var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
+        for (var i = 0; i < statusModel.length; i++)
+            if (statusModel[i].target == 'e_status')
+                {statusModel.splice(i, 1); break;}
+
+        // Create Status belongsToMany with itself as target
+        statusModel.push({
+            relation: 'belongsToMany',
+            target: 'e_status',
+            through: id_application+'_status_children',
+            foreignKey: 'fk_id_parent_status',
+            otherKey: 'fk_id_child_status',
+            as: 'r_children'
+        });
+        fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
+
+        // Copy e_status pieces
+        fs.copySync(piecesPath+'/views/e_status/', workspacePath+'/views/e_status/');
+        var modelStatus = fs.readFileSync(piecesPath+'/models/e_status.js', 'utf8');
+        modelStatus = modelStatus.replace(/ID_APPLICATION/g, id_application);
+        fs.writeFileSync(workspacePath+'/models/e_status.js', modelStatus, 'utf8');
+
+        // Copy media views pieces
+        fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');
+        // Copy media mail views pieces
+        fs.copySync(piecesPath+'/views/e_media_mail/', workspacePath+'/views/e_media_mail/');
+
+        // Copy translation views
+        fs.copySync(piecesPath+'/views/e_translation/', workspacePath+'/views/e_translation/');
+
+        // Copy action views
+        fs.copySync(piecesPath+'/views/e_action/', workspacePath+'/views/e_action/');
+
+        // Copy ALL routes
+        fs.copySync(piecesPath+'/routes/', workspacePath+'/routes/');
+
+        // Media pieces
+        var modelMedia = fs.readFileSync(piecesPath+'/models/e_media.js', 'utf8');
+        modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+        fs.writeFileSync(workspacePath+'/models/e_media.js', modelMedia, 'utf8');
+        // Media mail
+        modelMedia = fs.readFileSync(piecesPath+'/models/e_media_mail.js', 'utf8');
+        modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+        fs.writeFileSync(workspacePath+'/models/e_media_mail.js', modelMedia, 'utf8');
+
+        // Write new locales trees
+        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
+        translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
+        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
+        translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
+        finalizeApplication(id_application).then(resolve).catch(reject);
+    });
+}
+
 exports.initializeApplication = function(id_application, id_user, name_application) {
     return new Promise(function(resolve, reject) {
         // Copy authentication entities views
@@ -217,20 +298,15 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                         if (err)
                             console.log(err);
 
-                        // Make user login field unique
-                        var userModel = require(workspacePath+'/models/attributes/e_user.json');
-                        userModel.f_login.unique = true;
-                        fs.writeFileSync(workspacePath+'/models/attributes/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
-
-                        // Make role label field unique
-                        var roleModel = require(workspacePath+'/models/attributes/e_role.json');
-                        roleModel.f_label.unique = true;
-                        fs.writeFileSync(workspacePath+'/models/attributes/e_role.json', JSON.stringify(roleModel, null, 4), 'utf8');
-
-                        // Make group label field unique
-                        var groupModel = require(workspacePath+'/models/attributes/e_group.json');
-                        groupModel.f_label.unique = true;
-                        fs.writeFileSync(workspacePath+'/models/attributes/e_group.json', JSON.stringify(groupModel, null, 4), 'utf8');
+                        // Make fields unique
+                        function uniqueField(entity, field) {
+                            var model = require(workspacePath+'/models/attributes/'+entity+'.json');
+                            model[field].unique = true;
+                            fs.writeFileSync(workspacePath+'/models/attributes/'+entity+'.json', JSON.stringify(model, null, 4), 'utf8');
+                        }
+                        uniqueField('e_user', 'f_login');
+                        uniqueField('e_role', 'f_label');
+                        uniqueField('e_group', 'f_label');
 
                         // Manualy add settings to access file because it's not a real entity
                         var access = require(workspacePath+'/config/access.json');
@@ -288,19 +364,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
-                                                // Reset toSync file
-                                                fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
-
-                                                var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
-                                                workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
-                                                    // Create application's DNS through dns_manager
-                                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                                                        dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
-                                                            resolve();
-                                                        });
-                                                    else
-                                                        resolve();
-                                                });
+                                                initializeWorkflow(id_application).then(resolve).catch(reject);
                                             });
                                         });
                                     });
