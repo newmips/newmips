@@ -7,6 +7,9 @@ var moment = require('moment');
 var request = require('request');
 var docBuilder = require('../utils/api_doc_builder');
 
+var upload = multer().single('file');
+var Jimp = require("jimp");
+
 // Winston logger
 var logger = require('../utils/logger');
 
@@ -20,6 +23,7 @@ var session_manager = require('../services/session.js');
 // Parser
 var designer = require('../services/designer.js');
 var fs = require("fs");
+var fse = require('fs-extra');
 var parser = require('../services/bot.js');
 
 var globalConf = require('../config/global.js');
@@ -218,6 +222,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                                 iframe_home_url += host + ":" + port + "/default/home";
 
                             data.iframe_url = iframe_home_url;
+                            data.idApp = application.id;
 
                             // Let's do git init or commit depending the env (only on cloud env for now)
                             gitHelper.doGit(attr, function(err){
@@ -728,6 +733,72 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     res.send(data);
                 });
             });
+        }
+    });
+});
+
+/* Dropzone FIELD ajax upload file */
+router.post('/set_logo', block_access.isLoggedIn, function (req, res) {
+    upload(req, res, function (err) {
+        if (!err) {
+            if (req.body.storageType == 'local') {
+                var configLogo = {
+                    folder: 'thumbnail/',
+                    height: 30,
+                    width: 30,
+                    quality: 60
+                };
+                var dataEntity = req.body.dataEntity;
+                if (!!dataEntity) {
+                    var basePath = __dirname + "/../workspace/" + req.body.idApp + "/public/img/" + dataEntity + '/';
+                    fse.mkdirs(basePath, function (err) {
+                        if (!err) {
+                            var uploadPath = basePath + req.file.originalname;
+                            var outStream = fs.createWriteStream(uploadPath);
+                            outStream.write(req.file.buffer);
+                            outStream.end();
+                            outStream.on('finish', function (err) {
+                                res.json({
+                                    success: true
+                                });
+                            });
+                            if (req.body.dataType == 'picture') {
+                                //We make thumbnail and reuse it in datalist
+                                basePath = __dirname + "/../workspace/"+req.body.idApp+"/public/img/"+ dataEntity + '/' +  configLogo.folder ;
+                                fse.mkdirs(basePath, function (err) {
+                                    if (!err) {
+                                        Jimp.read(uploadPath, function (err, imgThumb) {
+                                            if (!err) {
+                                                imgThumb.resize(configLogo.height, configLogo.width)
+                                                        .quality(configLogo.quality)  // set JPEG quality
+                                                        .write(basePath + req.file.originalname);
+                                            } else {
+                                                console.log(err);
+                                            }
+                                        });
+                                    } else {
+                                        console.log(err);
+                                    }
+                                });
+                            }
+                        } else{
+                            console.log(err);
+                            res.status(500).end(err);
+                        }
+                    });
+                } else{
+                    var err = new Error();
+                    err.message = 'Internal error, entity not found.';
+                    res.status(500).end(err);
+                }
+            } else{
+                var err = new Error();
+                err.message = 'Storage type not found.';
+                res.status(500).end(err);
+            }
+        } else{
+            console.log(err);
+            res.status(500).end(err);
         }
     });
 });

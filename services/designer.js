@@ -2343,6 +2343,22 @@ exports.deleteComponentAddress = function (attr, callback) {
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */
+exports.setLogo = function(attr, callback) {
+    structure_ui.setLogo(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+        callback(null, infoStructure);
+    });
+}
+
+exports.removeLogo = function(attr, callback) {
+    structure_ui.removeLogo(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+        callback(null, infoStructure);
+    });
+}
+
 exports.setLayout = function(attr, callback) {
     db_module.getModuleById(attr.id_module, function(err, currentModule){
         if(err)

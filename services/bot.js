@@ -40,7 +40,6 @@ exports.deploy = function (result) {
 };
 
 exports.restart = function (result) {
-
     var attr = {};
     attr.function = "restart";
     return attr;
@@ -820,6 +819,25 @@ exports.createComponentChat = function (result) {
 }
 
 // ******* INTERFACE Actions ******* //
+exports.setLogo = function (result) {
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setLogo",
+        options: options
+    };
+    return attr;
+};
+
+exports.removeLogo = function (result) {
+    var attr = {};
+    attr.function = "removeLogo";
+    return attr;
+};
+
 exports.setLayout = function (result) {
 
     var value = result[1];
@@ -1876,9 +1894,32 @@ var training = {
     	"ajouter le composant discussion",
     	"ajouter composant discussion"
     ],
+    "setLogo": [
+        "add logo (.*)",
+        "add a logo (.*)",
+        "set a logo (.*)",
+        "set logo (.*)",
+        "mettre un logo (.*)",
+        "mettre logo (.*)",
+        "ajouter logo (.*)",
+        "ajouter un logo (.*)"
+    ],
+    "removeLogo": [
+        "remove logo",
+        "remove the logo",
+        "delete the logo",
+        "delete logo",
+        "supprimer un logo",
+        "supprimer logo",
+        "enlever le logo",
+        "enlever logo"
+    ],
     "setLayout": [
         "set layout (.*)",
-        "appliquer le layout (.*)"
+        "appliquer le layout (.*)",
+        "appliquer la disposition (.*)",
+        "appliquer layout (.*)",
+        "appliquer disposition (.*)"
     ],
     "setTheme": [
         "set theme (.*)",
