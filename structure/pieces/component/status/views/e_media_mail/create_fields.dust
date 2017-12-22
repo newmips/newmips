@@ -1,0 +1,38 @@
+<div id="fields" class="row">
+    <div data-field="f_to" class="col-xs-12">
+        <div class="form-group">
+            <label style="width:250px;" for="f_to"> {@__ key="entity.e_media_mail.f_to"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_to" /}' name="f_to" value="" type="text">
+        </div>
+    </div>
+    <div data-field="f_cc" class="col-xs-12">
+        <div class="form-group">
+            <label style="width:250px;" for="f_cc"> {@__ key="entity.e_media_mail.f_cc"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_cc" /}' name="f_cc" value="" type="text">
+        </div>
+    </div>
+    <div data-field="f_cci" class="col-xs-12">
+        <div class="form-group">
+            <label style="width:250px;" for="f_cci"> {@__ key="entity.e_media_mail.f_cci"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_cci" /}' name="f_cci" value="" type="text">
+        </div>
+    </div>
+    <div data-field="f_from" class="col-xs-12">
+        <div class="form-group">
+            <label style="width:250px;" for="f_from"> {@__ key="entity.e_media_mail.f_from"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_from" /}' name="f_from" value="" type="text">
+        </div>
+    </div>
+    <div data-field="f_subject" class="col-xs-12">
+        <div class="form-group">
+            <label style="width:250px;" for="f_subject"> {@__ key="entity.e_media_mail.f_subject"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_subject" /}' name="f_subject" value="" type="text">
+        </div>
+    </div>
+    <div data-field="f_content" class="col-xs-12">
+        <div class="form-group">
+            <label style="width:250px;" for="f_content"> {@__ key="entity.e_media_mail.f_content"/} </label>
+            <textarea class="form-control textarea" placeholder='{@__ key="entity.e_media_mail.f_content" /}' name="f_content" id="f_content_textareaid" type="text">{f_content|s}</textarea>
+        </div>
+    </div>
+</div>

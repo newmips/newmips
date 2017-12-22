@@ -4,8 +4,8 @@ var dbconfig = require('../config/database');
 // route middleware to make sure
 exports.isLoggedIn = function(req, res, next) {
     // Autologin for newmips's "iframe" live preview context
-    if (AUTO_LOGIN_INITIALIZED == true){
-        AUTO_LOGIN_INITIALIZED = false;
+    if (AUTO_LOGIN == true){
+        AUTO_LOGIN = false;
         models.E_user.findOne({
             where: {
                 id: 1
@@ -18,10 +18,9 @@ exports.isLoggedIn = function(req, res, next) {
                 as: 'r_role'
             }]
         }).then(function(user) {
-            req.session.passport = {
-                user: user
-            };
-            return next();
+            req.login(user,function() {
+                return next();
+            });
         });
     }
     else if (req.isAuthenticated())
@@ -65,6 +64,8 @@ exports.moduleAccess = moduleAccess;
 
 exports.moduleAccessMiddleware = function(moduleName) {
     return function(req, res, next) {
+        if (!req.isAuthenticated())
+            res.redirect('/login');
         var userGroup = req.session.passport.user.r_group.f_label;
         if (moduleAccess(userGroup, moduleName))
             return next();
@@ -72,7 +73,6 @@ exports.moduleAccessMiddleware = function(moduleName) {
             level: 'error',
             'message': "Your Group doesn't have access to this module"
         });
-        res.redirect('/default/home');
     }
 }
 

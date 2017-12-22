@@ -242,9 +242,8 @@ function addTab(attr, file, newLi, newTabContent) {
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
-            } else {
+            } else
                 context = $("#tabs");
-            }
 
             // Append created elements to `context` to handle presence of tab or not
             $(".nav-tabs", context).append(newLi);
@@ -255,6 +254,9 @@ function addTab(attr, file, newLi, newTabContent) {
             domHelper.write(file, $).then(function () {
                 resolve();
             });
+        }).catch(function(err) {
+            console.log(err);
+            reject(err);
         });
     });
 }
@@ -781,6 +783,81 @@ exports.newCra = function (attr, callback) {
         callback(err);
     }
 };
+
+exports.newStatus = function(attr, callback) {
+    var workspacePath = __dirname + '/../workspace/' + attr.id_application;
+    var piecesPath = __dirname + '/../structure/pieces/component/status';
+
+    // Add virtual status field to source entity (s_statusName)
+    var attributesObj = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+attr.source+'.json'));
+    attributesObj[attr.options.value] = {
+        type: "VIRTUAL"
+    };
+    fs.writeFileSync(workspacePath+'/models/attributes/'+attr.source+'.json', JSON.stringify(attributesObj, null, 4), 'utf8');
+
+    // Remove useless options on e_status
+    var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
+    for (var i = 0; i < statusModel.length; i++)
+        if (statusModel[i].target == 'e_'+attr.history_table)
+            {statusModel.splice(i, 1); break;}
+    fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
+
+    // Remove useless history tab from Status views
+    domHelper.read(workspacePath+"/views/e_status/show_fields.dust").then(function($) {
+        var historyId = 'r_'+attr.history_table;
+        $("#"+historyId+"-click").parent().remove();
+        $("#"+historyId).remove();
+        domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
+
+            // Remove show/update button from history tab list
+            domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
+                $("tbody tr td").slice(4, 7).remove();
+                $("thead").each(function() {
+                    $(this).find("tr th").slice(4, 7).remove();
+                });
+                domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
+
+                    // Display status as a badge instead of an input
+                    // Also add next status buttons after status field
+                    domHelper.read(workspacePath+'/views/'+attr.source+'/show_fields.dust').then(function($) {
+                        var statusAlias = 'r_'+attr.options.value.substring(2);
+
+                        var statusBadgeHtml = '<br><span class="badge" style="background: {'+statusAlias+'.f_color};">{'+statusAlias+'.f_name}</span>';
+                        var nextStatusHtml = '';
+                        nextStatusHtml += '<div class="form-group">';
+                        nextStatusHtml += '{#'+statusAlias+'.r_children '+attr.source.substring(2)+'id=id}';
+                        nextStatusHtml += '<a href="/'+attr.source.substring(2)+'/set_status/{'+attr.source.substring(2)+'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
+                        nextStatusHtml += '{/'+statusAlias+'.r_children}';
+                        nextStatusHtml += '</div>';
+                        $("div[data-field='"+statusAlias+"']").find('input').replaceWith(statusBadgeHtml);
+                        $("div[data-field='"+statusAlias+"']").append(nextStatusHtml);
+
+                        // Remove create button
+                        var historyTabId = "#r_history_"+attr.options.urlValue;
+                        $(historyTabId).find('a.btn-success').remove();
+                        domHelper.write(workspacePath+'/views/'+attr.source+'/show_fields.dust', $).then(function() {
+
+                            // Remove status field from update_fields and create_fields
+                            domHelper.read(workspacePath+'/views/'+attr.source+'/create_fields.dust').then(function($) {
+                                $("div[data-field='f_"+attr.options.value.substring(2)+"']").remove();
+                                domHelper.write(workspacePath+'/views/'+attr.source+'/create_fields.dust', $).then(function() {
+                                    domHelper.read(workspacePath+'/views/'+attr.source+'/update_fields.dust').then(function($) {
+                                        $("div[data-field='f_"+attr.options.value.substring(2)+"']").remove();
+                                        domHelper.write(workspacePath+'/views/'+attr.source+'/update_fields.dust', $).then(function() {
+                                            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
+                                                callback(null);
+                                            });
+                                        });
+                                    });
+                                });
+                            })
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
 
 exports.setupChat = function(attr, callback) {
     try {
