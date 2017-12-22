@@ -3,6 +3,7 @@
 {<custom_css}
 	{! Admin LTE Layout !}
 	<link href='/css/AdminLteV2/layouts/layout-default.css' rel='stylesheet' type='text/css' data-type="layout" data-layout="default">
+	{+custom_css_2 /}
 {/custom_css}
 
 {<modules}

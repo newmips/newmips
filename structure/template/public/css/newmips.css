@@ -35,8 +35,10 @@ div.dataTables_filter input {
 div.dataTables_length select {
     border-radius: 5px;
 }
-.dt-button{
-    border-radius: 5px !important;
+.dt-button {
+    margin-right: 7px !important;
+    border: 1px solid #cbcbcb !important;
+    background-image: none !important;
 }
 .content-header{
     background: #F9FAFC none repeat scroll 0 0 !important;
