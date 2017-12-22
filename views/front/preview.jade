@@ -32,7 +32,36 @@ block header
 					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 					span #{__("button.disconnect")}
 
+		.modal.fade#modalsetlogo(tabindex='-1', role='dialog', aria-labelledby='Set logo')
+			.modal-dialog.modal-lg(role='document')
+				.modal-content
+					.modal-header
+						button.close(type='button', data-dismiss='modal', aria-label='Close')
+							span(aria-hidden='true') ×
+						h4.modal-title #{__("preview.logo.title")}
+					.modal-body
+						p.text-center
+							img(src='/img/avatar.png', alt="Mipsy", style="display:block;margin:auto;width: 150px;")
+							br
+							| #{__("preview.logo.text")}
+							br
+							br
+							.col-xs-12(data-field='set_logo')
+								.form-group
+									label(for='set_logo') Logo
+									#set_logo_dropzone.dropzone.dropzone-field(data-storage='local', data-type='picture', data-entity='logo')
+									input#set_logo_dropzone_hidden(type='hidden', name='set_logo', value='')
+							br
+							br
+							.col-xs-12.text-center
+								button.btn.btn-success#addLogo
+									| #{__("button.add")}
+					.modal-footer
+						button.btn.btn-default(type='button', data-dismiss='modal') #{__("button.close")}
+
 block custom_css
+	// Dropzone
+	link(href='/css/dropzone/dropzone.min.css', rel='stylesheet', type='text/css')
 	// CodeMirror
 	link(href='/css/codemirror/codemirror.css', rel='stylesheet', type='text/css')
 	link(href='/css/codemirror/customcodemirror.css', rel='stylesheet', type='text/css')
@@ -52,6 +81,7 @@ block custom_css
 		.dynamic-writing{
 			display: none;
 		}
+
 block content
 	#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 		ul.nav.nav-tabs#primary-navtabs(role="tablist")
@@ -331,6 +361,11 @@ block custom_js
 	script(src='/js/plugins/jquery.slimscroll.min.js', type='text/javascript')
 	// Sidebar
 	script(src='/js/AdminLTE/sidebar.js', type='text/javascript')
+	// Dropzone
+	script(src='/js/plugins/dropzone/dropzone.min.js', type='text/javascript')
+	script.
+		var idApp = "#{idApp}";
+	script(src='/js/Newmips/logo-instruction.js', type='text/javascript')
 	// Dynamic Writing
 	script(src='/js/Newmips/dynamic-writing.js', type='text/javascript')
 	// Slack
@@ -427,6 +462,7 @@ block custom_js
 				newRow.find('.ui-sortable').remove();
 				$(".ge-add-column").remove();
 			});
+
 			$(document).delegate('.ge-addRowGroup', 'click', function() {
 				var newRow = $("body").find('.ui-sortable').last().parent();
 				newRow.find('.ge-add-row').click();
@@ -441,6 +477,7 @@ block custom_js
 					$("#pages").slideDown();
 				}
 			});
+
 			var entity, page;
 			$(".ui_editor_page").click(function() {
 				var self = this;
@@ -466,6 +503,7 @@ block custom_js
 					}
 				});
 			});
+
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
 				cleanEditor();
@@ -515,6 +553,22 @@ block custom_js
 			});
 
 			/////////
+			// Set Logo
+			/////////
+			dropzoneSetLogo.on("complete", function(file, response) {
+				$("form#previewForm").submit();
+			});
+
+			$(document).on("click", "#addLogo", function(){
+				dropzoneSetLogo.processQueue();
+			});
+
+			$('#modalsetlogo').on('hidden.bs.modal', function () {
+				$("input[name='set_logo']").val("");
+				dropzoneSetLogo.removeAllFiles(true);
+			});
+
+			/////////
 			// Input instruction
 			/////////
 			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
@@ -560,15 +614,31 @@ block custom_js
 					toastr.error("Error, empty instruction.");
 					return false;
 				}
+
+				var setLogoInstructions = ["add logo", "add a logo", "set a logo", "set logo", "mettre un logo", "mettre logo", "ajouter logo", "ajouter un logo"];
+				var givenInstruction = $("#instruction").val().toLowerCase();
+				var logoFileName = $("input[name='set_logo']").val();
+				if(setLogoInstructions.indexOf(givenInstruction) != -1 && logoFileName == ""){
+					// Ask to add a logo
+					$('#modalsetlogo').modal();
+					return false;
+				} else if (setLogoInstructions.indexOf(givenInstruction) != -1 && logoFileName != ""){
+					// Logo already given, now do the instruction and add the logo name in the form
+					$("#instruction").val($("#instruction").val() + " " + logoFileName);
+					$('#modalsetlogo').modal("toggle");
+					$("input[name='set_logo']").val("");
+					dropzoneSetLogo.removeAllFiles(true);
+				}
+
 				if ($("#instruction").val() != "restart server") {
 					if (instructionHistory == null)
 						instructionHistory = [];
 			    	instructionHistory.push($("#instruction").val());
 			        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
 				}
+
 				$("#execute_instruction").html("Loading...");
 				$("#execute_instruction").prop("disabled", true);
-				//$("#execute_instruction").parents('form').submit();
 				$("#loadingIframe").show();
 				$.ajax({
 					url: "/application/fastpreview",

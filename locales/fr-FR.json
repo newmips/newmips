@@ -60,6 +60,7 @@
         "no": "Non",
         "close": "Fermer",
         "send": "Envoyer",
+        "add": "Ajouter",
         "documentation": "Documentation"
     },
     "home": {
@@ -150,6 +151,13 @@
             "noApplication": "Aucune application sélectionnée",
             "noModule": "Aucune module sélectionné",
             "noEntity": "Aucune entité sélectionnée"
+        },
+        "logo": {
+            "title": "Ajouter un logo",
+            "text": "Veuillez ajouter votre logo ci-dessous (Taille conseillée 180px x 100px) :",
+            "add": "Le nouveau logo a bien été ajouté.",
+            "remove": "Le logo a bien été supprimé.",
+            "noLogo": "Désolé mais vous n'avez actuellement pas de logo, vous pouver en ajouter un avec l'instruction:<br> -<b class='click-instruction'> ajouter un logo</b>"
         }
     },
     "project": {

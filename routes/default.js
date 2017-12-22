@@ -109,4 +109,5 @@ router.post('/ajaxtranslate', function(req, res) {
         value: language(req.body.lang).__(req.body.key, req.body.params)
     });
 });
+
 module.exports = router;

@@ -60,6 +60,7 @@
         "no": "No",
         "close": "Close",
         "send": "Send",
+        "add": "Add",
         "documentation": "Documentation"
     },
     "home": {
@@ -150,6 +151,14 @@
             "noApplication": "No application selected",
             "noModule": "No module selected",
             "noEntity": "No entity selected"
+        },
+        "logo": {
+            "title": "Add a logo",
+            "text": "Please add your logo just below (Recommended size 180px x 100px) :",
+            "add": "The new logo has been successfully added.",
+            "remove": "The logo has been successfully removed.",
+            "noLogo": "Sorry but you do not currently have a logo, you can add one with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
+
         }
     },
     "project":{
