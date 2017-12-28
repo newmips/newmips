@@ -265,7 +265,23 @@ app.use(function(req, res, next) {
 	        locals.toastr = req.session.toastr;
 	        req.session.toastr = [];
         }
-        render.call(res, view, locals, cb);
+
+    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1) {
+    		var entityName = view.split('/')[0];
+    		models.E_inline_help.findAll({where: {f_entity: entityName}}).then(function(aides) {
+    			dust.helpers.inline_help = function(ch, con, bod, params){
+    				for (var i = 0; i < aides.length; i++) {
+    					if (params.field == aides[i].f_field)
+    						return true;
+    				}
+    				return false;
+    			}
+
+		        render.call(res, view, locals, cb);
+    		});
+    	}
+    	else
+        	render.call(res, view, locals, cb);
     };
     next();
 });

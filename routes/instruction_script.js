@@ -152,6 +152,11 @@ var mandatoryInstructions = [
     "select entity media function",
     "add field Title",
     "add field Function with type text",
+
+    "add entity Inline Help",
+    "add field Entity",
+    "add field Field",
+    "add field Content with type text",
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;

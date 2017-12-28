@@ -103,6 +103,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create application " + name_application);
     instructions.push("create module home");
 
+    // Authentication module
     instructions.push("create module Administration");
     instructions.push("create entity User");
     instructions.push("add field login");
@@ -129,6 +130,8 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field group related to Group using label");
     instructions.push("add field Token");
     instructions.push("add field Token timeout TMSP");
+
+    // Component status base
     instructions.push("add entity Status");
     instructions.push("set icon tags");
     instructions.push("add field Entity");
@@ -167,6 +170,12 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select entity media function");
     instructions.push("add field Title");
     instructions.push("add field Function with type text");
+
+    // Inline help
+    instructions.push("add entity Inline Help");
+    instructions.push("add field Entity");
+    instructions.push("add field Field");
+    instructions.push("add field Content with type text");
     instructions.push("select module home");
 
     function recursiveExecute(recurInstructions, idx) {
