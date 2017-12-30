@@ -34,6 +34,58 @@ function select2_ajaxsearch(elementID, entity, searchFields) {
 }
 
 $(document).ready(function () {
+
+    // Inline help
+    var currentHelp, modalOpen = false;
+    $(".inline-help").click(function() {
+        currentHelp = this;
+        var parts = window.location.href.split('/');
+        parts = parts[parts.length-2];
+        var field = $(this).data('field');
+        $.ajax({
+            url: "/inline_help/help/"+parts+"/"+field,
+            success: function(content) {
+                $("#prevHelp, #nextHelp").hide();
+                var totalHelp = $(".inline-help").length-1;
+                var currentIdx = $(".inline-help").index(currentHelp);
+                if (totalHelp - currentIdx > 0)
+                    $("#nextHelp").show();
+                if (currentIdx > 0)
+                    $("#prevHelp").show();
+                $(".modal-title").html($(currentHelp).parents('label').text());
+                $(".modal-body").html(content);
+                $("#inlineHelp").modal('show');
+            }
+        });
+    });
+    // Prev/next Help en ligne buttons
+    $("#nextHelp, #prevHelp").click(function() {
+        var count = $("#fields .inline-help").length-1;
+        var current = $("#fields .inline-help").index(currentHelp);
+        if ($(this).attr('id') == 'nextHelp' && count > current)
+            $("#fields .inline-help").eq(current+1).click();
+        else if ($(this).attr('id') == 'prevHelp' && current > 0)
+            $("#fields .inline-help").eq(current-1).click();
+    });
+    // Handle tab and shift+tab modal navigation
+    $("#inlineHelp").on('show.bs.modal', function() {
+        modalOpen = true;
+    });
+    $("#inlineHelp").on('hide.bs.modal', function() {
+        modalOpen = false;
+    });
+    $(document).keypress(function(e) {
+        if (modalOpen == false)
+            return;
+        var code = e.keyCode || e.which;
+        // Tabulation
+        if (e.shiftKey && code == '9')
+            $("#prevHelp").click();
+        else if (code == '9')
+            $("#nextHelp").click();
+    });
+
+
     /* Display color td with fa classes instead of color value */
     $("td[data-type=color]").each(function() {
         if ($(this).find('i').length > 0)

@@ -1,0 +1,53 @@
+<div id="fields" class="row">
+    <div data-field="f_entity" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_entity"> {@__ key="entity.e_inline_help.f_entity"/}  </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_inline_help.f_entity" /}' name="f_entity" value='{@__ key=f_entity /}' type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_field" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_field"> {@__ key="entity.e_inline_help.f_field"/} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_inline_help.f_field" /}' name="f_field" value="{@__ key=f_field /}" type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_content" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_content"> {@__ key="entity.e_inline_help.f_content"/}  </label>
+            <textarea class="form-control textarea" placeholder='{@__ key="entity.e_inline_help.f_content" /}' name="f_content" id="f_content_textareaid" value="{f_content|s}" type="text" readonly="">{f_content|s}</textarea>
+        </div>
+    </div>
+</div>
+<div class="actions">
+    <form action="/inline_help/delete" method="post">
+        <div class="quicklinks">
+            <span>
+                <button class="btn btn-danger">
+                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.delete"/}</span>
+            </button>
+            <input name="id" type="hidden" value="{e_inline_help.id}" class="form-control">
+            </span>
+            <span>
+                <a href="/inline_help/update_form?id={e_inline_help.id}" class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update"/}</span>
+            </a>
+            </span>
+            {^hideButton}
+            <span>
+                    <a href="/inline_help/create_form" class="btn btn-success">
+                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.create"/}</span>
+            </a>
+            </span>
+            <span>
+                    <a href="/inline_help/list" type="submit" class="btn btn-primary">
+                        <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.list"/}</span>
+            </a>
+            </span>
+            {/hideButton}
+        </div>
+    </form>
+</div>
