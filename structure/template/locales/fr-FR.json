@@ -91,7 +91,10 @@
         "download": "Télécharger",
         "search": "Rechercher",
         "send": "Envoyer",
-        "validation": "Valider"
+        "validation": "Valider",
+        "previous": "Précédent",
+        "next": "Suivant",
+        "close": "Fermer"
     },
     "operation": {
         "show": "Afficher",

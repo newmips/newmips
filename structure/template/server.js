@@ -258,20 +258,20 @@ app.use(function(req, res, next) {
 app.use(function(req, res, next) {
     var render = res.render;
     res.render = function(view, locals, cb) {
-    	if(typeof locals === "undefined"){
-            var locals = {};
-        }
+    	if(typeof locals === "undefined")
+            locals = {};
     	if (req.session.toastr && req.session.toastr.length > 0) {
 	        locals.toastr = req.session.toastr;
 	        req.session.toastr = [];
         }
 
+        // Load inline-help when rendering create or update page
     	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1) {
     		var entityName = view.split('/')[0];
-    		models.E_inline_help.findAll({where: {f_entity: entityName}}).then(function(aides) {
+    		models.E_inline_help.findAll({where: {f_entity: entityName}}).then(function(helps) {
     			dust.helpers.inline_help = function(ch, con, bod, params){
-    				for (var i = 0; i < aides.length; i++) {
-    					if (params.field == aides[i].f_field)
+    				for (var i = 0; i < helps.length; i++) {
+    					if (params.field == helps[i].f_field)
     						return true;
     				}
     				return false;

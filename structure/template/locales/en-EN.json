@@ -91,7 +91,10 @@
     	"download": "Download",
     	"search": "Search",
     	"send": "Send",
-    	"validation": "Validate"
+    	"validation": "Validate",
+    	"previous": "Previous",
+    	"next": "Next",
+    	"close": "Close"
 	},
 	"operation": {
 		"show": "Show",
