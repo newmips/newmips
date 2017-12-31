@@ -1,13 +1,13 @@
-{>"layout_m_COMPONENT_VALUE_MODULE"/}
+{>"layout_m_administration"/}
 {<custom_css}
     <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
 {/custom_css}
 {<header}
-    <h1>{@__ key="module.COMPONENT_VALUE_MODULE"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.COMPONENT_VALUE_MODULE"/}</a></li>
-        <li class="active">{@__ key="module.COMPONENT_VALUE_MODULE"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
+        <li class="active">{@__ key="module.m_administration"/}</li>
     </ol>
 {/header}
 {<content}
@@ -15,20 +15,20 @@
         <div class="col-xs-12 connectedSortable">
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="operation.show"/} {@__ key="component.c_address.name_component" /}</h3>
+                    <h3 class="box-title">{@__ key="operation.show"/} {@__ key="entity.e_inline_help.name_entity" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="box-body">
-                    {#COMPONENT_NAME}
+                    {#e_inline_help}
                         <div class="form-group">
-                            <label for="id">{@__ key="component.c_address.id_component"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {@__ key="component.c_address.name_component"/}</label>
-                            <input type="text" value="{COMPONENT_NAME.id}" disabled="" class="form-control"/>
+                            <label for="id">{@__ key="entity.e_inline_help.id_entity"/} {@__ key="entity.e_inline_help.name_entity"/}</label>
+                            <input type="text" value="{e_inline_help.id}" disabled="" class="form-control"/>
                         </div>
-                        {>"COMPONENT_NAME/show_fields"/}
-                    {/COMPONENT_NAME}
+                        {>"e_inline_help/show_fields"/}
+                    {/e_inline_help}
                 </div>
             </div>
         </div>
@@ -51,12 +51,6 @@
             / Table's filters are doubled, we remove them, actions are doubled, we hide the 2nd and more occurences */
             $(".filters").remove();
             $(".actions:not(:first)").hide();
-            /* Avoid .tab inception in relation show tabs. Takes content of main tab of the association
-            / and print it at .tab top level */
-            /*var tabContentToKeep = $("#tabs .tab-content").find(".tab-pane:first");
-            for (var i = 1; i < tabContentToKeep.length; i++) {
-                $(tabContentToKeep[i]).parents('.tab-pane').find("#tabs").html($(tabContentToKeep[i]).html());
-            }*/ /* ==========> REPLACED BY hideTab param in dust inclusion of show fields */
 
             /* Check url to go on tabs */
             var url = document.location.toString();
@@ -69,9 +63,9 @@
 
             $(".fieldsetform").submit(function() {
                 var alias = $(this).parents('.tab-pane').attr('id');
-                var url = '/URL_COMPONENT_ADDRESS/fieldset/'+alias+'/remove';
+                var url = '/inline_help/fieldset/'+alias+'/remove';
                 var data = $(this).serialize();
-                data += '&idcomponent={COMPONENT_NAME.id}';
+                data += '&idEntity={e_inline_help.id}';
                 var form = this;
                 $.ajax({
                     url: url,
@@ -90,7 +84,7 @@
                 var component = $(this).attr("data-component");
                 var url = '/'+component+'/delete';
                 var data = $(this).serialize();
-                data += '&idcomponent={COMPONENT_NAME.id}';
+                data += '&idEntity={e_inline_help.id}';
                 var form = this;
                 $.ajax({
                     url: url,
