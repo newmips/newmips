@@ -10,6 +10,10 @@ Core: General style
   cursor: pointer;
 }
 
+.inline-help:hover {
+  cursor: pointer;
+}
+
 /* required field */
 label.required:after {
     color: #e32;
