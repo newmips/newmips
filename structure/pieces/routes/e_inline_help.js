@@ -178,7 +178,7 @@ router.get('/help/:entity/:field', function(req, res) {
     models.E_inline_help.findOne({where: {f_entity: 'e_'+req.params.entity, f_field: req.params.field}}).then(function(help) {
         if (!help)
             res.status(404).end();
-        res.send(help.f_contenu);
+        res.send(help.f_content);
     });
 })
 
@@ -207,7 +207,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "w
 
 router.post('/create', block_access.actionAccessMiddleware("inline_help", "write"), function (req, res) {
 
-    var createObject = {f_entity: req.body.f_entity, f_field: req.body.f_field.split('.')[1], f_contenu: req.body.f_contenu};
+    var createObject = {f_entity: req.body.f_entity, f_field: req.body.f_field.split('.')[1], f_content: req.body.f_content};
 
     models.E_inline_help.create(createObject).then(function (e_inline_help) {
         var redirect = '/inline_help/list';

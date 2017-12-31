@@ -20,7 +20,7 @@
                     </div>
                     <div class="box-body">
                         <div class="form-group">
-                            <label for="id">{@__ key="component.c_address.id_component"/} {@__ key="component.c_address.name_component"/}</label>
+                            <label for="id">{@__ key="component.c_address.id_component"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {@__ key="component.c_address.name_component"/}</label>
                             <input name="id" type="hidden" placeholder="{c_address.id_component}" value="{COMPONENT_NAME.id}" class="form-control input"/>
                             <input name="id_display" type="text" placeholder="{c_address.id_component}" value="{COMPONENT_NAME.id}" disabled="" class="form-control input"/>
                         </div>

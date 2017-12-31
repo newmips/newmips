@@ -13,7 +13,7 @@
             <div id="fields" class="row">
                 <div data-field="f_type" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_type"> {@__ key="entity.e_media.f_type"/} </label>
+                        <label for="f_type"> {@__ key="entity.e_media.f_type"/} {@inline_help field="f_type"}&nbsp;<i data-field="f_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
                         {^f_type}
                         <input class="form-control input" placeholder='{@__ key="entity.e_media.f_type" /}' name="f_type" type="text" readonly="">
                         {/f_type}
@@ -26,7 +26,7 @@
                 </div>
                 <div data-field="f_name" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_name"> {@__ key="entity.e_media.f_name"/} </label>
+                        <label for="f_name"> {@__ key="entity.e_media.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
                         <input class="form-control input" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
                     </div>
                 </div>
