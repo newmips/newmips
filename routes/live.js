@@ -173,6 +173,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
     // Inline help
     instructions.push("add entity Inline Help");
+    instructions.push("set icon question");
     instructions.push("add field Entity");
     instructions.push("add field Field");
     instructions.push("add field Content with type text");
