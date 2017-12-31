@@ -2,7 +2,7 @@
     <div class="col-xs-12" data-field="f_login">
         <div class="form-group">
             <label for="f_login">
-                {@__ key="entity.e_user.f_login"/}
+                {@__ key="entity.e_user.f_login"/} {@inline_help field="f_login"}&nbsp;<i data-field="f_login" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
             </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text" readonly="">
         </div>
@@ -10,7 +10,7 @@
     <div class="col-xs-12" data-field="f_email">
         <div class="form-group">
             <label for="f_email">
-                {@__ key="entity.e_user.f_email"/}
+                {@__ key="entity.e_user.f_email"/} {@inline_help field="f_email"}&nbsp;<i data-field="f_email" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
             </label>
             <div class="input-group">
                 <div class="input-group-addon"> <i class="fa fa-envelope"></i>
@@ -23,14 +23,14 @@
     <div class="col-xs-12" data-field="r_role">
         <div class="form-group">
             <label for="r_role">
-                {@__ key="entity.e_user.r_role"/}
+                {@__ key="entity.e_user.r_role"/} {@inline_help field="r_role"}&nbsp;<i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
             </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_user.r_role" /}' name="r_role" value="{r_role.f_label}" type="text" readonly="">
         </div>
     </div>
     <div class="col-xs-12" data-field="r_group">
         <div class="form-group">
-            <label for="r_group">{@__ key="entity.e_user.r_group"/}</label>
+            <label for="r_group">{@__ key="entity.e_user.r_group"/} {@inline_help field="r_group"}&nbsp;<i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
             <input class="form-control input" placeholder='{@__ key="entity.e_user.r_group" /}' name="r_group" value="{r_group.f_label}" type="text" readonly="">
         </div>
     </div>

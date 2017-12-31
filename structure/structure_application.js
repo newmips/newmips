@@ -285,6 +285,10 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
             if (err)
                 console.log(err);
 
+            // Copy inline-help route and views
+            fs.copySync(piecesPath+'/routes/e_inline_help.js', workspacePath+'/routes/e_inline_help.js');
+            fs.copySync(piecesPath+'/views/e_inline_help/', workspacePath+'/views/e_inline_help/');
+
             // Copy api entities views
             fs.copy(piecesPath+'/api/views/e_api_credentials', workspacePath+'/views/e_api_credentials', function(err) {
                 if (err)

@@ -12,19 +12,19 @@
             <div id="fields" class="row">
                 <div data-field="f_month" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_month"> {@__ key="entity.e_cra.f_month"/} </label>
+                        <label for="f_month"> {@__ key="entity.e_cra.f_month"/} {@inline_help field="f_month"}&nbsp;<i data-field="f_month" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
                         <input class="form-control input" placeholder='{@__ key="entity.e_cra.f_month" /}' name="f_month" value="{f_month}" type="number" readonly="">
                     </div>
                 </div>
                 <div data-field="f_year" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_year"> {@__ key="entity.e_cra.f_year"/} </label>
+                        <label for="f_year"> {@__ key="entity.e_cra.f_year"/} {@inline_help field="f_year"}&nbsp;<i data-field="f_year" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
                         <input class="form-control input" placeholder='{@__ key="entity.e_cra.f_year" /}' name="f_year" value="{f_year}" type="number" readonly="">
                     </div>
                 </div>
                 <div data-field="f_user_validated" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_user_validated"> {@__ key="entity.e_cra.f_user_validated"/} </label> &nbsp;
+                        <label for="f_user_validated"> {@__ key="entity.e_cra.f_user_validated"/} {@inline_help field="f_user_validated"}&nbsp;<i data-field="f_user_validated" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label> &nbsp;
                         <br>
                         {@ifTrue key=f_user_validated}<input class="form-control input" name="f_user_validated" value="{f_user_validated}" type="checkbox" checked="" disabled="">
                         {:else}<input class="form-control input" name="f_user_validated" value="{f_user_validated}" type="checkbox" disabled="">
@@ -33,7 +33,7 @@
                 </div>
                 <div data-field="f_admin_validated" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_admin_validated"> {@__ key="entity.e_cra.f_admin_validated"/} </label> &nbsp;
+                        <label for="f_admin_validated"> {@__ key="entity.e_cra.f_admin_validated"/} {@inline_help field="f_admin_validated"}&nbsp;<i data-field="f_admin_validated" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label> &nbsp;
                         <br>
                         {@ifTrue key=f_admin_validated}<input class="form-control input" name="f_admin_validated" value="{f_admin_validated}" type="checkbox" checked="" disabled="">
                         {:else}<input class="form-control input" name="f_admin_validated" value="{f_admin_validated}" type="checkbox" disabled="">
