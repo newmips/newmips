@@ -158,6 +158,9 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
         /* Update local e_media data before show */
         data.e_media = e_media;
         var associationsFinder = model_builder.associationsFinder(models, options);
+        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_notification')));
+        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_mail')));
+        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_function')));
 
         Promise.all(associationsFinder).then(function (found) {
             for (var i = 0; i < found.length; i++) {
@@ -191,7 +194,9 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "write")
         data.associationUrl = req.query.associationUrl;
     }
 
+    var notifOptions = require('../models/options/e_media_notification');
     var associationsFinder = model_builder.associationsFinder(models, options);
+    associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, notifOptions));
 
     Promise.all(associationsFinder).then(function (found) {
         for (var i = 0; i < found.length; i++)
@@ -263,7 +268,9 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", "write")
         data.associationUrl = req.query.associationUrl;
     }
 
+    var notifOptions = require('../models/options/e_media_notification');
     var associationsFinder = model_builder.associationsFinder(models, options);
+    associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, notifOptions));
 
     Promise.all(associationsFinder).then(function (found) {
         models.E_media.findOne({where: {id: id_e_media}, include: [{all: true}]}).then(function (e_media) {

@@ -67,9 +67,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
     var str = "<div data-field='" + dataField + "' class='col-xs-12'>\n<div class='form-group'>\n";
-    str += "\t<label for='" + dataField + "'>\n{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}\n";
-    str += '&nbsp;{@inline_help field="'+dataField+'"}<i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}'
-    str += "</label>\n"
+    str += "\t<label for='" + dataField + "'>\n\t\t\t\t{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}\n";
+    str += '\t\t\t\t&nbsp;{@inline_help field="'+dataField+'"}<i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}\n'
+    str += "\t\t\t</label>\n"
     // Check type of field
     switch (type) {
         case "string" :

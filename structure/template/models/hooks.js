@@ -30,7 +30,7 @@ module.exports = function(model_name, attributes) {
 		                        	include: [{
 		                        		model: getModels().E_media,
 		                        		as: 'r_media',
-		                        		include: [{all: true}]
+		                        		include: [{all: true, nested: true}]
 		                        	}]
 		                        }]
 		                    }).spread(function(status, created) {
