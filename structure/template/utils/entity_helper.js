@@ -44,12 +44,13 @@ module.exports = {
         entityFieldForSelect: function(entity, lang) {
             var mainTree = this.entityFieldTree(entity);
             var __ = language(lang).__;
+            var separator = ' > ';
             var options = [];
             function dive(obj, codename) {
                 for (var j = 0; j < obj.fields.length; j++) {
                     if (obj.fields[j].indexOf('f_') != 0)
                         continue;
-                    var traduction = __('entity.'+obj.entity+'.label_entity') + ' > ' +__('entity.'+obj.entity+'.'+obj.fields[j]);
+                    var traduction = __('entity.'+obj.entity+'.label_entity') + separator +__('entity.'+obj.entity+'.'+obj.fields[j]);
                     options.push({
                         codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
                         traduction: traduction

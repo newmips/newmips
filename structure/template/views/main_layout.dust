@@ -73,6 +73,35 @@
                     </a>
                     <div class="navbar-custom-menu">
                         <ul class="nav navbar-nav">
+                            {! NOTIFICATIONS !}
+                            <li class="dropdown messages-menu open">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    <i class="fa fa-bell-o"></i>
+                                    <span class="label label-warning">{notificationsCount}</span>
+                                </a>
+                                <ul id="notifications" class="dropdown-menu">
+                                    <li class="header">You have {notificationsCount} notifications</li>
+                                    {#notifications}
+                                        <li>
+                                            <ul class="menu">
+                                                <li>
+                                                    <a href="{f_url}">
+                                                        <div class="pull-left">
+                                                            <i class="fa {f_icon} fa-2x" style="color: {f_color};"></i>
+                                                        </div>
+                                                        <h4>
+                                                            {f_title}
+                                                            <small><i class="fa fa-clock-o"></i>&nbsp;{createdAt|date}</small>
+                                                        </h4>
+                                                        <p>{f_description}</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    {/notifications}
+                                    <li class="footer"><a href="#">Delete All Notifications</a></li>
+                                </ul>
+                            </li>
                             <li class="dropdown user user-menu">
                                 <a href="#" data-toggle="dropdown" class="dropdown-toggle">
                                     <i class="glyphicon glyphicon-user"></i>
@@ -211,8 +240,14 @@
 
         {! SocketIO !}
         {#config.socket.enabled}
-        <script src="/js/plugins/socketio/socket.io.js" type="text/javascript"></script>
+            <script src="/js/plugins/socketio/socket.io.js" type="text/javascript"></script>
+            <script type="text/javascript">
+                var socket = io();
+            </script>
         {/config.socket.enabled}
+        {#config.socket.notification}
+            <script src="/js/Newmips/component/notification.js" type="text/javascript"></script>
+        {/config.socket.notification}
         {#config.socket.chat}
             <script src="/js/Newmips/component/chat.js" type="text/javascript"></script>
         {/config.socket.chat}

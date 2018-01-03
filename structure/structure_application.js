@@ -244,35 +244,46 @@ function initializeWorkflow(id_application) {
         modelStatus = modelStatus.replace(/ID_APPLICATION/g, id_application);
         fs.writeFileSync(workspacePath+'/models/e_status.js', modelStatus, 'utf8');
 
-        // Copy media views pieces
+        // Copy views pieces
+        // media
         fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');
-        // Copy media mail views pieces
+        // media mail
         fs.copySync(piecesPath+'/views/e_media_mail/', workspacePath+'/views/e_media_mail/');
-
-        // Copy translation views
+        // translation
         fs.copySync(piecesPath+'/views/e_translation/', workspacePath+'/views/e_translation/');
-
-        // Copy action views
+        // action
         fs.copySync(piecesPath+'/views/e_action/', workspacePath+'/views/e_action/');
 
-        // Copy ALL routes
+        // Copy routes
         fs.copySync(piecesPath+'/routes/', workspacePath+'/routes/');
 
-        // Media pieces
-        var modelMedia = fs.readFileSync(piecesPath+'/models/e_media.js', 'utf8');
-        modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
-        fs.writeFileSync(workspacePath+'/models/e_media.js', modelMedia, 'utf8');
-        // Media mail
-        modelMedia = fs.readFileSync(piecesPath+'/models/e_media_mail.js', 'utf8');
-        modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
-        fs.writeFileSync(workspacePath+'/models/e_media_mail.js', modelMedia, 'utf8');
+        // Copy notification client socket js
+        fs.copySync(piecesPath+'/../socket/notifications/notification.js', workspacePath+'/public/js/Newmips/component/notification.js');
+        // Remove notification from administration sidebar
+        domHelper.read(workspacePath+'/views/layout_m_administration.dust').then(function($) {
+            $("#notification_menu_item").remove();
+            domHelper.write(workspacePath+'/views/layout_m_administration.dust', $).then(function() {
+                // Media pieces
+                var modelMedia = fs.readFileSync(piecesPath+'/models/e_media.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath+'/models/e_media.js', modelMedia, 'utf8');
+                // Media mail
+                modelMedia = fs.readFileSync(piecesPath+'/models/e_media_mail.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath+'/models/e_media_mail.js', modelMedia, 'utf8');
+                // Media mail
+                modelMedia = fs.readFileSync(piecesPath+'/models/e_media_notification.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath+'/models/e_media_notification.js', modelMedia, 'utf8');
 
-        // Write new locales trees
-        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
-        translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
-        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
-        translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
-        finalizeApplication(id_application).then(resolve).catch(reject);
+                // Write new locales trees
+                var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_EN.json'));
+                translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
+                var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
+                translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
+                finalizeApplication(id_application).then(resolve).catch(reject);
+            });
+        });
     });
 }
 

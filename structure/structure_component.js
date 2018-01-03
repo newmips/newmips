@@ -864,10 +864,6 @@ exports.setupChat = function(attr, callback) {
         var workspacePath = __dirname + '/../workspace/'+attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/socket';
 
-        // Check if file exists (in case notification have been implemented first)
-        if (!fs.existsSync(workspacePath+'/services/socket.js'))
-            fs.copySync(piecesPath+'/socket.js', workspacePath+'/services/socket.js')
-
         // Copy chat files
         fs.copySync(piecesPath+'/chat/js/chat.js', workspacePath+'/public/js/Newmips/component/chat.js');
         fs.copySync(piecesPath+'/chat/chat_utils.js', workspacePath+'/utils/chat.js');

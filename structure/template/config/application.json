@@ -2,9 +2,9 @@
 	"version": 0,
 	"api_enabled": true,
 	"socket": {
-		"enabled": false,
+		"enabled": true,
 		"chat": false,
-		"notifications": false
+		"notification": true
 	},
 	"maintenance": false
 }
