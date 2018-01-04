@@ -1,0 +1,100 @@
+<div id="fields" class="row">
+    <div data-field="f_title" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_title">
+                {@__ key="entity.e_media_notification.f_title"/}
+                &nbsp;{@inline_help field="f_title"}<i data-field="f_title" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_description" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_description">
+                {@__ key="entity.e_media_notification.f_description"/}
+                &nbsp;{@inline_help field="f_description"}<i data-field="f_description" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_description" /}' name="f_description" value="{f_description}" type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_icon" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_icon">
+                {@__ key="entity.e_media_notification.f_icon"/}
+                &nbsp;{@inline_help field="f_icon"}<i data-field="f_icon" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <br>
+            <i class="fa fa-2x {f_icon}"></i>
+        </div>
+    </div>
+    <div data-field="f_color" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_color">
+                {@__ key="entity.e_media_notification.f_color"/}
+                &nbsp;{@inline_help field="f_color"}<i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
+        </div>
+    </div>
+    <div data-field="f_target_groups" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_target_groups">{@__ key="entity.e_media_notification.r_target_groups" /}</label>
+            <select multiple="" style="width:100%;" class="form-control" name="r_target_groups" disabled="" readonly="">
+     {#r_target_groups_global_list}
+         {@inArray field="id" array=e_media.r_media_notification.r_target_groups value=id}
+             <option value="{f_label|string}" selected="">{f_label|string}</option>
+         {:else}
+             <option value="{f_label|string}">{f_label|string}</option>
+         {/inArray}
+     {/r_target_groups_global_list}
+</select>
+        </div>
+    </div>
+    <div data-field="f_target_users" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_target_users">{@__ key="entity.e_media_notification.r_target_users" /}</label>
+            <select multiple="" style="width:100%;" class="form-control" name="r_target_users" disabled="" readonly="">
+     {#r_target_users_global_list}
+         {@inArray field="id" array=e_media.r_media_notification.r_target_users value=id}
+             <option value="{f_login|string}" selected="">{f_login|string}</option>
+         {:else}
+             <option value="{f_login|string}">{f_login|string}</option>
+         {/inArray}
+     {/r_target_users_global_list}
+</select>
+        </div>
+    </div>
+</div>
+<div class="actions">
+    <form action="/media/delete" method="post">
+        <div class="quicklinks">
+            <span>
+                <button class="btn btn-danger">
+                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.delete"/}</span>
+            </button>
+            <input name="id" type="hidden" value="{r_media_notification.id}" class="form-control">
+            </span>
+            <span>
+                <a href="/media/update_form?id={r_media_notification.id}" class="btn btn-warning">
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.update"/}</span>
+            </a>
+            </span>
+            {^hideButton}
+            <span>
+                    <a href="/media/create_form" class="btn btn-success">
+                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.create"/}</span>
+            </a>
+            </span>
+            <span>
+                    <a href="/media/list" type="submit" class="btn btn-primary">
+                        <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                        <span>{@__ key="button.list"/}</span>
+            </a>
+            </span>
+            {/hideButton}
+        </div>
+    </form>
+</div>

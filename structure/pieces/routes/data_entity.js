@@ -407,20 +407,20 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(ENTITY_NAME);
-
-            // Create history record for this status field
-            // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
-            var createObject = {}
-            createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-            createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-            models[historyModel].create(createObject).then(function() {
-                ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
-            }).catch(function(err) {
-                entity_helper.error500(err, req, res, errorRedirect);
+            nextStatus.executeActions(ENTITY_NAME).then(function() {
+                // Create history record for this status field
+                // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
+                var createObject = {}
+                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+                models[historyModel].create(createObject).then(function() {
+                    ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+                });
             });
         });
+    }).catch(function(err) {
+        entity_helper.error500(err, req, res, errorRedirect);
     });
 });
 
