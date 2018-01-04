@@ -249,6 +249,8 @@ function initializeWorkflow(id_application) {
         fs.copySync(piecesPath+'/views/e_media/', workspacePath+'/views/e_media/');
         // media mail
         fs.copySync(piecesPath+'/views/e_media_mail/', workspacePath+'/views/e_media_mail/');
+        // media notification
+        fs.copySync(piecesPath+'/views/e_media_notification/', workspacePath+'/views/e_media_notification/');
         // translation
         fs.copySync(piecesPath+'/views/e_translation/', workspacePath+'/views/e_translation/');
         // action

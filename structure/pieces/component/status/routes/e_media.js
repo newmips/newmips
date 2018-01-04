@@ -14,6 +14,7 @@ var file_helper = require('../utils/file_helper');
 var globalConf = require('../config/global');
 var fs = require('fs-extra');
 
+var icon_list = require('../config/icon_list');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -203,6 +204,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "write")
             data[found[i].model] = found[i].rows;
 
         data.target_entities = targetEntities;
+        data.icon_list = icon_list;
         res.render('e_media/create', data);
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
@@ -273,7 +275,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", "write")
     associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, notifOptions));
 
     Promise.all(associationsFinder).then(function (found) {
-        models.E_media.findOne({where: {id: id_e_media}, include: [{all: true}]}).then(function (e_media) {
+        models.E_media.findOne({where: {id: id_e_media}, include: [{all: true, nested: true}]}).then(function (e_media) {
             if (!e_media) {
                 data.error = 404;
                 return res.render('common/error', data);
@@ -302,7 +304,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", "write")
             }
 
             data.target_entities = targetEntities;
-            req.session.toastr = [];
+            data.icon_list = icon_list;
             res.render('e_media/update', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");

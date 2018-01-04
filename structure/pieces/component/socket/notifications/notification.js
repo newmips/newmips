@@ -7,10 +7,10 @@ function formatDate(value) {
 
 socket.on('notification', function(notification) {
 	var notifHtml = '';
-    notifHtml += '<li>';
+    notifHtml += '<li class="notification">';
     notifHtml += '    <ul class="menu">';
     notifHtml += '        <li>';
-    notifHtml += '            <a href="'+notification.f_url+'">';
+    notifHtml += '            <a href="/notification/read/'+notification.id+'">';
     notifHtml += '                <div class="pull-left">';
     notifHtml += '                    <i class="fa '+notification.f_icon+' fa-2x" style="color: '+notification.f_color+';"></i>';
     notifHtml += '                </div>';
@@ -24,5 +24,23 @@ socket.on('notification', function(notification) {
     notifHtml += '    </ul>';
     notifHtml += '</li>';
 
+    var currentNotifCount = 0;
+    if ($("#notification-total").text() != "" && !isNaN($("#notification-total").text()))
+        currentNotifCount = parseInt($("#notification-total").text());
+
+    $("#notification-total, #notification-header").text(++currentNotifCount);
     $("#notifications li:first").after(notifHtml);
+});
+
+$(function() {
+    $(".delete-all").click(function() {
+        $.ajax({
+            url: '/notification/deleteAll',
+            success:function() {
+                $(".notification").remove();
+                $("#notification-header").text(0);
+                $("#notification-total").text("");
+            }
+        });
+    });
 });

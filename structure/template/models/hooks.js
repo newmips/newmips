@@ -43,8 +43,9 @@ module.exports = function(model_name, attributes) {
 		                        getModels()[historyModel].create(historyObject).then(function() {
 									model['setR_'+fieldIn.substring(2)](status.id);
 									if (!created)
-										status.executeActions(model);
-		                            resolve();
+										status.executeActions(model).then(resolve);
+									else
+		                            	resolve();
 		                        });
 		                    }).catch(function(e){reject(e);});
 		                })(field);

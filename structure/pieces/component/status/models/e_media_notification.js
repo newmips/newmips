@@ -64,11 +64,11 @@ module.exports = function (sequelize, DataTypes) {
 
                     var notificationObj = {
                         f_color: self.f_color,
-                        f_icon: self.f_icon,
+                        f_icon: insertVariablesValue('f_icon'),
                         f_title: insertVariablesValue('f_title'),
                         f_description: insertVariablesValue('f_description'),
                         f_url: '/'+dataInstance.$modelOptions.name.singular.substring(2)+'/show?id='+dataInstance.id
-                    }
+                    };
                     models.E_notification.create(notificationObj).then(function(notification) {
                         notification.setR_user(targetIds);
                         socket.sendNotification(notification, targetIds);
