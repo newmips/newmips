@@ -932,15 +932,20 @@ a:focus {
   box-shadow: none;
   border-color: #eee;
 }
-.dropdown-menu > li > a {
+.dropdown-menu > li > a,
+.dropdown-menu > div > li > a {
   color: #777;
 }
 .dropdown-menu > li > a > .glyphicon,
+.dropdown-menu > div > li > a,
 .dropdown-menu > li > a > .fa,
-.dropdown-menu > li > a > .ion {
+.dropdown-menu > div > li > a,
+.dropdown-menu > li > a > .ion,
+.dropdown-menu > div > li > a {
   margin-right: 10px;
 }
-.dropdown-menu > li > a:hover {
+.dropdown-menu > li > a:hover,
+.dropdown-menu > div > li > a {
   background-color: #e1e3e9;
   color: #333;
 }
@@ -957,11 +962,13 @@ a:focus {
 }
 .navbar-nav > .notifications-menu > .dropdown-menu > li,
 .navbar-nav > .messages-menu > .dropdown-menu > li,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li,
 .navbar-nav > .tasks-menu > .dropdown-menu > li {
   position: relative;
 }
 .navbar-nav > .notifications-menu > .dropdown-menu > li.header,
 .navbar-nav > .messages-menu > .dropdown-menu > li.header,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li.header,
 .navbar-nav > .tasks-menu > .dropdown-menu > li.header {
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
@@ -975,6 +982,7 @@ a:focus {
 }
 .navbar-nav > .notifications-menu > .dropdown-menu > li.footer > a,
 .navbar-nav > .messages-menu > .dropdown-menu > li.footer > a,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li.footer > a,
 .navbar-nav > .tasks-menu > .dropdown-menu > li.footer > a {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -990,6 +998,7 @@ a:focus {
 @media (max-width: 991px) {
   .navbar-nav > .notifications-menu > .dropdown-menu > li.footer > a,
   .navbar-nav > .messages-menu > .dropdown-menu > li.footer > a,
+  .navbar-nav > .messages-menu > .dropdown-menu > div > li.footer > a,
   .navbar-nav > .tasks-menu > .dropdown-menu > li.footer > a {
     background: #fff !important;
     color: #444 !important;
@@ -997,12 +1006,14 @@ a:focus {
 }
 .navbar-nav > .notifications-menu > .dropdown-menu > li.footer > a:hover,
 .navbar-nav > .messages-menu > .dropdown-menu > li.footer > a:hover,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li.footer > a:hover,
 .navbar-nav > .tasks-menu > .dropdown-menu > li.footer > a:hover {
   text-decoration: none;
   font-weight: normal;
 }
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu,
 .navbar-nav > .messages-menu > .dropdown-menu > li .menu,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li .menu,
 .navbar-nav > .tasks-menu > .dropdown-menu > li .menu {
   max-height: 200px;
   margin: 0;
@@ -1012,6 +1023,7 @@ a:focus {
 }
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a,
 .navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li .menu > li > a,
 .navbar-nav > .tasks-menu > .dropdown-menu > li .menu > li > a {
   display: block;
   white-space: nowrap;
@@ -1020,6 +1032,7 @@ a:focus {
 }
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a:hover,
 .navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a:hover,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li .menu > li > a:hover,
 .navbar-nav > .tasks-menu > .dropdown-menu > li .menu > li > a:hover {
   background: #f4f4f4;
   text-decoration: none;
@@ -1035,30 +1048,35 @@ a:focus {
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .ion {
   width: 20px;
 }
-.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a {
+.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li .menu > li > a {
   margin: 0;
   padding: 10px 10px;
 }
-.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > div > img {
+.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > div > img,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li .menu > li > a > div > img {
   margin: auto 10px auto auto;
   width: 40px;
   height: 40px;
 }
-.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > h4 {
+.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > h4,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li .menu > li > a > h4 {
   padding: 0;
   margin: 0 0 0 45px;
   color: #444444;
   font-size: 15px;
   position: relative;
 }
-.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > h4 > small {
+.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > h4 > small,
+.navbar-nav > .messages-menu > .dropdown-menu >  div > li .menu > li > a > h4 > small {
   color: #999999;
   font-size: 10px;
   position: absolute;
   top: 0;
   right: 0;
 }
-.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > p {
+.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > p,
+.navbar-nav > .messages-menu > .dropdown-menu > div > li .menu > li > a > p {
   margin: 0 0 0 45px;
   font-size: 12px;
   color: #888888;
