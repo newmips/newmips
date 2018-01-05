@@ -265,20 +265,23 @@ app.use(function(req, res, next) {
 	        req.session.toastr = [];
         }
 
+        // Load notifications
         var userId;
         try {
         	userId = req.session.passport.user.id;
         } catch(e) {
         	userId = null;
         }
-        // Load notifications
         models.E_notification.findAndCountAll({
         	include: [{
         		model: models.E_user,
         		as: 'r_user',
         		where: {id: userId}
         	}],
-        	order: 'createdAt DESC'
+        	subQuery: false,
+        	order: 'createdAt DESC',
+        	offset: 0,
+        	limit: 10
         }).then(function(notifications) {
         	locals.notificationsCount = notifications.count;
         	locals.notifications = notifications.rows;
