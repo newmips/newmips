@@ -23,12 +23,12 @@
                 {@__ key="entity.e_media_notification.f_icon"/}
                 &nbsp;{@inline_help field="f_icon"}<i data-field="f_icon" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
             </label>
-            <input type="hidden" name="f_icon" value="{f_icon}">
+            <input type="hidden" class="media-field" name="f_icon" value="{f_icon}">
             <br>
             <i id="current-icon" data-current-icon="{f_icon}" class="fa {f_icon} fa-2x" style="margin-bottom: 5px;"></i>
             <div class="dropdown" style="width: 100%;">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    - Choose icon -
+                    {@__ key="notification.icon.choose" /}
                 </button>
                 <div class="dropdown-menu" style="max-height:250px;overflow-y: scroll;">
                     {#icon_list}

@@ -1,3 +1,4 @@
+
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
@@ -7,6 +8,27 @@ var models = require('../models/');
 
 // Winston logger
 var logger = require('../utils/logger');
+
+router.get('/load/:offset', function(req, res) {
+    var offset = parseInt(req.params.offset);
+
+    models.E_notification.findAll({
+        include: [{
+            model: models.E_user,
+            as: 'r_user',
+            where: {id: req.session.passport.user.id}
+        }],
+        subQuery: false,
+        order: 'createdAt DESC',
+        limit: 10,
+        offset: offset
+    }).then(function(notifications) {
+        res.json(notifications);
+    }).catch(function(err) {
+        console.log(err);
+        res.sendStatus(500);
+    });
+});
 
 // Delete notification and redirect to notif's url
 router.get('/read/:id', function (req, res) {
@@ -19,6 +41,10 @@ router.get('/read/:id', function (req, res) {
             user.removeR_notification(notification.id).then(function(){
                 res.redirect(redirect);
             });
+        }).catch(function(err) {
+            console.log(err);
+            logger.debug("No notification found.");
+            return res.render('common/error', {error: 404});
         });
     }).catch(function (err) {
         console.log(err);

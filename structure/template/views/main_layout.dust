@@ -88,24 +88,26 @@
                                 </a>
                                 <ul id="notifications" class="dropdown-menu">
                                     <li class="header"><span id="notification-header">{notificationsCount}</span> notifications</li>
-                                    {#notifications}
-                                        <li class="notification">
-                                            <ul class="menu">
-                                                <li>
-                                                    <a href="/notification/read/{id}">
-                                                        <div class="pull-left">
-                                                            <i class="fa {f_icon} fa-2x" style="color: {f_color};"></i>
-                                                        </div>
-                                                        <h4>
-                                                            {f_title}
-                                                            <small><i class="fa fa-clock-o"></i>&nbsp;{createdAt|date}</small>
-                                                        </h4>
-                                                        <p>{f_description}</p>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    {/notifications}
+                                    <div id="notification-wrapper" style="max-height: 300px;overflow-y:scroll;">
+                                        {#notifications}
+                                            <li class="notification">
+                                                <ul class="menu">
+                                                    <li>
+                                                        <a href="/notification/read/{id}">
+                                                            <div class="pull-left">
+                                                                <i class="fa {f_icon} fa-2x" style="color: {f_color};"></i>
+                                                            </div>
+                                                            <h4>
+                                                                {f_title}
+                                                                <small><i class="fa fa-clock-o"></i>&nbsp;{createdAt|date}</small>
+                                                            </h4>
+                                                            <p>{f_description}</p>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        {/notifications}
+                                    </div>
                                     <li class="footer delete-all"><a href="#">{@__ key="notification.deleteAll" /}</a></li>
                                 </ul>
                             </li>

@@ -1,3 +1,4 @@
+// Format date depending on user language
 function formatDate(value) {
     if (lang_user == "fr-FR")
         return moment(new Date(value)).format("DD/MM/YYYY");
@@ -5,8 +6,9 @@ function formatDate(value) {
         return moment(new Date(value)).format("YYYY-MM-DD");
 }
 
-socket.on('notification', function(notification) {
-	var notifHtml = '';
+// Prepend notification to notification list
+function displayNotification(notification, isNew) {
+    var notifHtml = '';
     notifHtml += '<li class="notification">';
     notifHtml += '    <ul class="menu">';
     notifHtml += '        <li>';
@@ -28,11 +30,40 @@ socket.on('notification', function(notification) {
     if ($("#notification-total").text() != "" && !isNaN($("#notification-total").text()))
         currentNotifCount = parseInt($("#notification-total").text());
 
-    $("#notification-total, #notification-header").text(++currentNotifCount);
-    $("#notifications li:first").after(notifHtml);
-});
+    if (isNew !== false)
+        $("#notification-total, #notification-header").text(++currentNotifCount);
+    $("#notification-wrapper").prepend(notifHtml);
+}
+
+// Receive notification from server
+socket.on('notification', displayNotification);
 
 $(function() {
+
+    // Load new notifications on scroll
+    var lastNotifReached = false;
+    $("#notification-wrapper").scroll(function() {
+        var wrapper = $(this);
+
+        // Scrollbar reached bottom
+        if (wrapper[0].scrollHeight - wrapper.scrollTop() == wrapper.height()) {
+            var notificationOffset = wrapper.children('li').length;
+
+            // Stop ajax calls if there is no more notification to load
+            if (lastNotifReached)
+                return;
+            $.ajax({
+                url: '/notification/load/'+notificationOffset,
+                success: function(notifications) {
+                    if (notifications.length == 0)
+                        lastNotifReached = true;
+                    for (var i = 0; i < notifications.length; i++)
+                        displayNotification(notifications[i], false);
+                }
+            });
+        }
+    });
+
     $(".delete-all").click(function() {
         $.ajax({
             url: '/notification/deleteAll',

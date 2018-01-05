@@ -3,7 +3,7 @@
         "name": "Application"
     },
     "notification": {
-        "deleteAll": "Delete all notifications",
+        "deleteAll": "Supprimer toutes les notifications",
         "icon": {
             "choose": "Choisir une icône"
         }

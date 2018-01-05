@@ -23,7 +23,7 @@
                 {@__ key="entity.e_media_notification.f_icon"/}
                 &nbsp;{@inline_help field="f_icon"}<i data-field="f_icon" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
             </label>
-            <input type="hidden" name="f_icon" value="fa-exclamation">
+            <input type="hidden" class="media-field" name="f_icon" value="fa-exclamation">
             <br>
             <i id="current-icon" data-current-icon="fa-exclamation" class="fa fa-exclamation fa-2x" style="margin-bottom: 5px;"></i>
             <div class="dropdown" style="width: 100%;">
