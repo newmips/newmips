@@ -11,6 +11,10 @@
 	"entity": {
 		"e_status": {
 			"as_r_children": "Next status"
+		},
+		"e_media_notification": {
+			"r_target_groups": "Groupes cibles",
+			"r_target_users" "Utilisateurs cibles"
 		}
 	}
 }

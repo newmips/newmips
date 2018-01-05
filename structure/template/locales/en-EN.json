@@ -2,6 +2,12 @@
 	"app": {
 		"name": "Application"
 	},
+	"notification": {
+		"deleteAll": "Delete all notifications",
+		"icon": {
+			"choose": "Choose icon"
+		}
+	},
 	"login": {
 		"log_in": "Log in",
 		"reset_password": {

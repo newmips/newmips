@@ -30,7 +30,7 @@ module.exports = function(model_name, attributes) {
 		                        	include: [{
 		                        		model: getModels().E_media,
 		                        		as: 'r_media',
-		                        		include: [{all: true}]
+		                        		include: [{all: true, nested: true}]
 		                        	}]
 		                        }]
 		                    }).spread(function(status, created) {
@@ -43,8 +43,9 @@ module.exports = function(model_name, attributes) {
 		                        getModels()[historyModel].create(historyObject).then(function() {
 									model['setR_'+fieldIn.substring(2)](status.id);
 									if (!created)
-										status.executeActions(model);
-		                            resolve();
+										status.executeActions(model).then(resolve);
+									else
+		                            	resolve();
 		                        });
 		                    }).catch(function(e){reject(e);});
 		                })(field);

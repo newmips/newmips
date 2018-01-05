@@ -5,6 +5,7 @@ var mailer = require('../utils/mailer.js');
 var attributes_origin = require("./attributes/e_media_mail.json");
 var associations = require("./options/e_media_mail.json");
 
+var sock = require('../services/socket')();
 module.exports = function (sequelize, DataTypes) {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
@@ -36,7 +37,6 @@ module.exports = function (sequelize, DataTypes) {
 
                     return newString || "";
                 }
-
                 var options = {
                     from: insertVariablesValue('f_from'),
                     to: insertVariablesValue('f_to'),

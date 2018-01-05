@@ -146,6 +146,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Language");
     instructions.push("add field Value");
     instructions.push("create entity Media");
+    instructions.push("set icon envelope");
     instructions.push("add field Type with type enum and values Mail, Notification, Function");
     instructions.push("add field Name");
     instructions.push("add field Target entity");
@@ -166,10 +167,22 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Content with type text");
     instructions.push("select entity media notification");
     instructions.push("add field Title");
-    instructions.push("add field Content with type text");
+    instructions.push("add field Description");
+    instructions.push("add field Icon");
+    instructions.push("add field Color with type color");
+    instructions.push("add field Target Groups related to many Group using label");
+    instructions.push("add field Target Users related to many User using login");
+    instructions.push("add entity notification");
+    instructions.push("add field title");
+    instructions.push("add field description");
+    instructions.push("add field url");
+    instructions.push("add field color with type color");
+    instructions.push("add field icon");
     instructions.push("select entity media function");
     instructions.push("add field Title");
     instructions.push("add field Function with type text");
+    instructions.push("entity user has many notification");
+    instructions.push("entity notification has many user");
 
     // Inline help
     instructions.push("add entity Inline Help");
@@ -177,6 +190,8 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Entity");
     instructions.push("add field Field");
     instructions.push("add field Content with type text");
+
+    // Set home module selected
     instructions.push("select module home");
 
     function recursiveExecute(recurInstructions, idx) {
