@@ -1,5 +1,5 @@
 {>"layout_m_home"/}
-{<custom_css}
+{<custom_css_2}
 	<link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' />
 	<link href='/css/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
 	<link href='/css/fullcalendar/fullcalendar.print.min.css' rel='stylesheet' media='print' />
@@ -13,7 +13,7 @@
 			cursor: pointer;
 		}
 	</style>
-{/custom_css}
+{/custom_css_2}
 {<header}
 	<h1>
 		{@__ key="module.m_home"/}
