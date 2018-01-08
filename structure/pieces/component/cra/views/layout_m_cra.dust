@@ -1,7 +1,23 @@
 {>"main_layout"/}
 {<modules}
-<select id="dynamic_select" class="form-control select" onchange="navigate()">{@moduleAccess module="home"}<option data-module="m_home" value="/default/home">{@__ key="module.m_home" /}</option>{/moduleAccess}{@moduleAccess module="authentication"}<option data-module="m_authentication" value="/default/authentication">{@__ key="module.m_authentication" /}</option>{/moduleAccess}{@moduleAccess module="cra"}<option data-module="m_cra" value="/default/cra" selected="">{@__ key="module.m_cra" /}</option>{/moduleAccess}</select>
+    <select id="dynamic_select" class="form-control select" onchange="navigate()">
+        {@moduleAccess module="home"}
+            <option data-module="m_home" value="/default/home">{@__ key="module.m_home" /}</option>
+        {/moduleAccess}
+        {@moduleAccess module="authentication"}
+            <option data-module="m_authentication" value="/default/authentication">{@__ key="module.m_authentication" /}</option>
+        {/moduleAccess}
+        {@moduleAccess module="cra"}
+            <option data-module="m_cra" value="/default/cra" selected="">{@__ key="module.m_cra" /}</option>
+        {/moduleAccess}
+    </select>
 {/modules}
+
+{<custom_css}
+    {! Admin LTE Layout !}
+    <link href='/css/AdminLteV2/layouts/layout-default.css' rel='stylesheet' type='text/css' data-type="layout" data-layout="default">
+    {+custom_css_2 /}
+{/custom_css}
 
 {<sidebar}
 <ul id="sortable" class="sidebar-menu" style="white-space: pre-wrap;">

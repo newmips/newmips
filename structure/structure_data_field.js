@@ -860,6 +860,8 @@ exports.setRequiredAttribute = function (attr, callback) {
 
                         if (attributesObj[attr.options.value]) {
                             attributesObj[attr.options.value].allowNull = set ? false : true;
+                            if(!attributesObj[attr.options.value].allowNull && attributesObj[attr.options.value].defaultValue == null)
+                                attributesObj[attr.options.value].defaultValue = "";
                             fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
                         }
                         callback();

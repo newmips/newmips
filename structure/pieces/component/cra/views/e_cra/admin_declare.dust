@@ -1,5 +1,5 @@
 {>"layout_MODULE_NAME"/}
-{<custom_css}
+{<custom_css_2}
     <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
     <style>
@@ -23,7 +23,7 @@
             cursor: pointer;
         }
     </style>
-{/custom_css}
+{/custom_css_2}
 {<header}
     <h1>{@__ key="module.m_cra"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">

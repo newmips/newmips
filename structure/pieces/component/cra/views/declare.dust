@@ -1,29 +1,29 @@
 {>"layout_m_home"/}
-{<custom_css}
-<link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
-<link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
-<style>
-.taskInput{
-    max-width: 20px;
-    margin: 0;
-    border: 1px solid #d2dadd;
-}
-#craTable{
-    background-color: #F4F4F5;
-    border-radius: 10px;
-}
-#notificationAdmin{
-    width: 100%;
-    resize: none;
-}
-.closedDay{
-    background-color: lightgrey;
-}
-thead{
-    cursor: pointer;
-}
-</style>
-{/custom_css}
+{<custom_css_2}
+    <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
+    <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
+    <style>
+    .taskInput{
+        max-width: 20px;
+        margin: 0;
+        border: 1px solid #d2dadd;
+    }
+    #craTable{
+        background-color: #F4F4F5;
+        border-radius: 10px;
+    }
+    #notificationAdmin{
+        width: 100%;
+        resize: none;
+    }
+    .closedDay{
+        background-color: lightgrey;
+    }
+    thead{
+        cursor: pointer;
+    }
+    </style>
+{/custom_css_2}
 {<header}
     <h1>{@__ key="module.m_cra"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
