@@ -195,7 +195,7 @@ exports.setupApplication = function(attr, callback) {
     });
 }
 
-function finalizeApplication(id_application) {
+function finalizeApplication(id_application, name_application) {
     return new Promise(function(resolve, reject) {
         var piecesPath = __dirname+'/pieces';
         var workspacePath = __dirname+'/../workspace/'+id_application;
@@ -216,7 +216,7 @@ function finalizeApplication(id_application) {
     });
 }
 
-function initializeWorkflow(id_application) {
+function initializeWorkflow(id_application, name_application) {
     return new Promise(function(resolve, reject) {
         var piecesPath = __dirname+'/pieces/component/status';
         var workspacePath = __dirname+'/../workspace/'+id_application;
@@ -283,7 +283,7 @@ function initializeWorkflow(id_application) {
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
                 var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath+'/locales/global_locales_FR.json'));
                 translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
-                finalizeApplication(id_application).then(resolve).catch(reject);
+                finalizeApplication(id_application, name_application).then(resolve).catch(reject);
             });
         });
     });
@@ -381,7 +381,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
                                                 translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
-                                                initializeWorkflow(id_application).then(resolve).catch(reject);
+                                                initializeWorkflow(id_application, name_application).then(resolve).catch(reject);
                                             });
                                         });
                                     });
