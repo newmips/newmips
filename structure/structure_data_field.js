@@ -1156,7 +1156,6 @@ exports.saveHasManyData = function (attr, data, foreignKey, callback){
     for(var i=0; i<data.length; i++){
         toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
     }
-    console.log(toSync.queries);
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
     callback();
 }

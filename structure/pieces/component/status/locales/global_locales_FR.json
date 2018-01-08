@@ -43,6 +43,10 @@
 			"f_from": "Expéditeur",
 			"f_subject": "Sujet",
 			"f_content": "Contenu"
+		},
+		"e_media_notification": {
+			"r_target_groups": "Groupes ciblés",
+			"r_target_users": "Utilisateurs ciblés"
 		}
 	}
 }
