@@ -1141,12 +1141,13 @@ var training = {
         "rendre le champ (.*) (.*)"
     ],
     "setFieldAttribute": [
-        "set field (.*) (.*) (.*)",
-        "set the field (.*) (.*) (.*)",
-        "mettre champ (.*) (.*) (.*)",
-        "mettre le champ (.*) (.*) (.*)",
-        "rendre champ (.*) (.*) (.*)",
-        "rendre le champ (.*) (.*) (.*)"
+        "set field attribute (.*) (.*) (.*)",
+        "set the field attribute (.*) (.*) (.*)",
+        "mettre attribut champ (.*) (.*) (.*)",
+        "mettre l'attribut du champ (.*) (.*) (.*)",
+        "mettre l'attribut champ (.*) (.*) (.*)",
+        "rendre attribut champ  (.*) (.*) (.*)",
+        "rendre l'attribut du champ (.*) (.*) (.*)"
     ],
     "setColumnVisibility": [
         "set column (.*) (.*)",
