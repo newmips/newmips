@@ -181,7 +181,7 @@ function recursiveExecute(req, instructions, idx) {
         if (scriptData[req.session.passport.user.id].totalInstruction == idx){
             var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
             // Api documentation
-            docBuilder.build(req.session.id_application);
+            docBuilder.build(idApplication);
             resolve(idApplication);
         } else {
             // If project and application are created and we're at the instruction that

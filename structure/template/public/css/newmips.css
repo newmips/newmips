@@ -7,17 +7,14 @@ Core: General style
 ----------------------------
 */
 .hover:hover {
-  cursor: pointer;
+    cursor: pointer;
 }
-
 .inline-help:hover {
-  cursor: pointer;
+    cursor: pointer;
 }
-
 .icon-wrap:nth-child(12n) {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
-
 /* required field */
 label.required:after {
     color: #e32;
@@ -47,6 +44,9 @@ div.dataTables_length select {
     margin-right: 7px !important;
     border: 1px solid #cbcbcb !important;
     background-image: none !important;
+}
+.dt-buttons {
+    margin-left: 20px !important;
 }
 .content-header{
     background: #F9FAFC none repeat scroll 0 0 !important;
@@ -89,7 +89,6 @@ div.dataTables_length select {
 .print-tab button, .print-tab a.btn{
     display: none;
 }
-
 /* Sub table in show fields, overflow x managment */
 .sub-tab-table .dataTables_wrapper{
     overflow: auto;
@@ -97,7 +96,6 @@ div.dataTables_length select {
 .sub-tab-table .dataTable{
     width: 99.9%;
 }
-
 .show-textarea{
     border: 1px solid #d2d6de;
     padding:5px;
@@ -105,15 +103,12 @@ div.dataTables_length select {
     height:200px;
     border-radius: 2px;
 }
-
 .sub-module-arianne{
     color: #444 !important;
 }
-
 /* Standard skin */
-
 .main-header .navbar .nav > li > a {
-  color: #ffffff;
+    color: #ffffff;
 }
 .main-header .navbar .nav > li > a:hover,
 .main-header .navbar .nav > li > a:active,
@@ -122,66 +117,66 @@ div.dataTables_length select {
 .main-header .navbar .nav .open > a:hover,
 .main-header .navbar .nav .open > a:focus,
 .main-header .navbar .nav > .active > a {
-  background: rgba(0, 0, 0, 0.1);
-  color: #f6f6f6;
+    background: rgba(0, 0, 0, 0.1);
+    color: #f6f6f6;
 }
 .main-header .navbar .sidebar-toggle {
-  color: #ffffff;
+    color: #ffffff;
 }
 .main-header .navbar .sidebar-toggle:hover {
-  color: #f6f6f6;
-  background: rgba(0, 0, 0, 0.1);
+    color: #f6f6f6;
+    background: rgba(0, 0, 0, 0.1);
 }
 .main-header .navbar .sidebar-toggle {
-  color: #fff;
+    color: #fff;
 }
 @media (max-width: 767px) {
-  .main-header .navbar .dropdown-menu li.divider {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  .main-header .navbar .dropdown-menu li a {
-    color: #fff;
-  }
+    .main-header .navbar .dropdown-menu li.divider {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    .main-header .navbar .dropdown-menu li a {
+        color: #fff;
+    }
 }
 .main-header .logo {
-  color: #ffffff;
-  border-bottom: 0 solid transparent;
+    color: #ffffff;
+    border-bottom: 0 solid transparent;
 }
 .content-header {
-  background: transparent;
+    background: transparent;
 }
 .sidebar-form {
-  border-radius: 3px;
-  margin: 10px 10px;
+    border-radius: 3px;
+    margin: 10px 10px;
 }
 .sidebar-form input[type="text"],
 .sidebar-form .btn {
-  box-shadow: none;
-  border: 1px solid transparent;
-  height: 35px;
+    box-shadow: none;
+    border: 1px solid transparent;
+    height: 35px;
 }
 .sidebar-form input[type="text"] {
-  color: #666;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 2px;
+    color: #666;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 2px;
 }
 .sidebar-form input[type="text"]:focus,
 .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
-  background-color: #fff;
-  color: #666;
+    background-color: #fff;
+    color: #666;
 }
 .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
-  border-left-color: #fff;
+    border-left-color: #fff;
 }
 .sidebar-form .btn {
-  color: #999;
-  border-top-left-radius: 0;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
-  border-bottom-left-radius: 0;
+    color: #999;
+    border-top-left-radius: 0;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 0;
 }
 .sidebar a:hover {
-  text-decoration: none;
+    text-decoration: none;
 }
