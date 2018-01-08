@@ -23,7 +23,7 @@ exports.buildForModel = function objectify(attributes, DataTypes) {
     var object = {};
     for (var prop in attributes) {
         var currentValue = attributes[prop];
-        if (typeof currentValue === 'object') {
+        if (typeof currentValue === 'object' && currentValue != null) {
             if (currentValue.type == 'ENUM')
                 object[prop] = DataTypes.ENUM(currentValue.values);
             else

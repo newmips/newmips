@@ -80,9 +80,15 @@ sequelize.customAfterSync = function() {
                             break;
                     }
 
+                    if(typeof toSyncObject[entity].attributes[attribute].defaultValue === "undefined")
+                        toSyncObject[entity].attributes[attribute].defaultValue = null;
+                    if(toSyncObject[entity].attributes[attribute].defaultValue != null)
+                        toSyncObject[entity].attributes[attribute].defaultValue = "'" + toSyncObject[entity].attributes[attribute].defaultValue + "'";
+
                     var request = "ALTER TABLE ";
                     request += entity;
-                    request += " ADD COLUMN `" + attribute + "` " + type + " DEFAULT NULL;";
+                    request += " ADD COLUMN `" + attribute + "` " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
+
                     (function(query, entityB, attributeB) {
                         promises.push(new Promise(function(resolve0, reject0) {
                             sequelize.query(query).then(function() {
