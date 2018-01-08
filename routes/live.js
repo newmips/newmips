@@ -36,22 +36,21 @@ router.post('/index', block_access.isLoggedIn, function(req, res) {
 
     var instruction = req.body.instruction || '';
 
-    var data = {};
-
-    data.instruction = instruction;
+    var data = {
+        instruction: instruction
+    };
 
     instruction = instruction.split(';');
 
-    var done = 0
+    var done = 0;
     for (var i = 0; i < instruction.length; i++) {
         execute(req, instruction[i]).then(function() {
-            //data.answers = req.session.answers.join('<br><br>');
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);
             }
-        }).catch(function() {
-            //data.answers = req.session.answers.join('<br><br>');
+        }).catch(function(err) {
+            console.log(err);
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);

@@ -204,7 +204,7 @@ function finalizeApplication(id_application, name_application) {
         fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
 
         var workspaceSequelize = require(__dirname+ '/../workspace/'+id_application+'/models/');
-        workspaceSequelize.sequelize.sync({ logging: console.log, hooks: false }).then(function(){
+        workspaceSequelize.sequelize.sync({ logging: false, hooks: false }).then(function(){
             // Create application's DNS through dns_manager
             if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
                 dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
