@@ -481,7 +481,7 @@ exports.setupDataField = function (attr, callback) {
     var name_data_field = options.value;
     var show_name_data_field = options.showValue;
     var defaultValue = null;
-    if (typeof options.defaultValue !== "undefined")
+    if (typeof options.defaultValue !== "undefined" && options.defaultValue != null)
         defaultValue = options.defaultValue;
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
@@ -682,11 +682,13 @@ exports.setupDataField = function (attr, callback) {
         }
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "values": cleanEnumValues
+            "values": cleanEnumValues,
+            "defaultValue": defaultValue
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "values": cleanEnumValues
+            "values": cleanEnumValues,
+            "defaultValue": defaultValue
         };
     } else if(type_data_field == "radio"){
         // Remove all special caractere for all enum values
@@ -701,20 +703,24 @@ exports.setupDataField = function (attr, callback) {
         }
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "values": cleanRadioValues
+            "values": cleanRadioValues,
+            "defaultValue": defaultValue
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "values": cleanRadioValues
+            "values": cleanRadioValues,
+            "defaultValue": defaultValue
         };
     } else {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "newmipsType": type_data_field
+            "newmipsType": type_data_field,
+            "defaultValue": defaultValue
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
-            "newmipsType": type_data_field
+            "newmipsType": type_data_field,
+            "defaultValue": defaultValue
         }
     }
 
