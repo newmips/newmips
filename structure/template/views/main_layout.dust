@@ -124,7 +124,7 @@
                                 <ul class="dropdown-menu">
                                     {! User image !}
                                     <li class="user-header">
-                                        <img src="/img/avatar.jpg" alt="" class="img-circle">
+                                        <img src="/img/mipsy-avatar.png" alt="" class="img-circle">
                                         <p>
                                             {session.passport.user.f_login} {session.passport.user.f_email}
                                             <small>{session.passport.user.r_role.f_label}</small>

@@ -391,6 +391,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
             });
             scriptData[userId].over = true;
         } else{
+            // Set default theme if different than blue-light
+            if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
+                mandatoryInstructions.push("set theme "+req.session.defaultTheme);
             scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 // Workspace sequelize instance
@@ -606,6 +609,9 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             });
             scriptData[userId].over = true;
         } else{
+            // Set default theme if different than blue-light
+            if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
+                mandatoryInstructions.push("set theme "+req.session.defaultTheme);
             scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 // Workspace sequelize instance

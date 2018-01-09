@@ -152,7 +152,7 @@ block custom_js
 						data: {instruction: $(self).find("input[name='instruction']").val()},
 						success: function() {
 							toastr.success("#{__('listApplication.projectDelete')}");
-							$(self).parents('.col-lg-6').remove();
+							$(self).parents('.col-lg-8').remove();
 							$(document.body).css({cursor: 'default'});
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);

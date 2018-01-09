@@ -190,6 +190,10 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Field");
     instructions.push("add field Content with type text");
 
+    // Set default theme if different than blue-light
+    if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
+        instructions.push("set theme "+req.session.defaultTheme);
+
     // Set home module selected
     instructions.push("select module home");
 
