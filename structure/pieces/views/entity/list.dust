@@ -32,6 +32,7 @@
                 <div class="col-xs-12 connectedSortable">
                     {>"custom_data_entity/list_fields"/}
                     <br>
+                    <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="button.return"/}</a>&nbsp;&nbsp;
                     <a href="/custom_url_data_entity/create_form">
                         <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
                         </button>
