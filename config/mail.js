@@ -7,8 +7,8 @@ var mailConf = {
             port: 465,
             secure: true,
             auth: {
-                user: 'stephane.bourdier@newmips.com',
-                pass: '*C16abo33/'
+                user: '',
+                pass: ''
             }
         },
         expediteur: 'NoReply <no-reply@newmips.com>',

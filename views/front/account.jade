@@ -1,0 +1,117 @@
+extends ../main_layout
+block header
+	.row
+		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
+			h1
+				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
+				| #{__("menu.account")}
+				small #{__("menu.module")}
+
+		.hidden-xs.col-sm-2.col-md-2.col-lg-1
+			.clearfix
+				span.pull-left Instructions
+				small.pull-right
+					if cptInstruction > 300
+						b
+							| 300+
+					else
+						b
+							| #{cptInstruction}
+			.progress.xs(style="margin-bottom:0px;")
+				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
+
+		.col-xs-12.col-sm-6.col-md-5.col-lg-3
+			.btn-group.pull-right(role="group")
+				a.btn.btn-default(href='/default/home')
+					i.fa.fa-home(style="margin-right:5px;")
+					| #{__("menu.home")}
+				a.btn.btn-default(href='/account')
+					i.fa.fa-user(style="margin-right:5px;")
+					| #{__("menu.account")}
+				a.btn.btn-default.pull-right(href='/logout')
+					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
+					span #{__("button.disconnect")}
+
+block content
+	.row
+		.col-xs-12.col-lg-offset-2.col-lg-8
+			.box.box-solid.box-default
+				.box-header.bg-primary
+					h3.box-title(style="color: #fff") #{__("menu.account")}
+				.box-body
+					br
+					.row
+						.col-xs-12
+							.form-group
+								label #{__("settings.display_infos")}
+								br
+								br
+								.col-xs-12.col-sm-4
+									| #{__("settings.infos.login")}:
+									br
+									input.form-control.input(value="#{user.login}", disabled)
+									br
+									br
+									| #{__("settings.infos.role")}:
+									br
+									input.form-control.input(value="#{user.role.name}", disabled)
+									br
+									br
+								.col-xs-12.col-sm-4
+									| #{__("settings.infos.lastname")}:
+									br
+									input.form-control.input(value="#{user.last_name}", disabled)
+									br
+									br
+									| #{__("settings.infos.firstname")}:
+									br
+									input.form-control.input(value="#{user.first_name}", disabled)
+								.col-xs-12.col-sm-4
+									| #{__("settings.infos.phone")}:
+									br
+									input.form-control.input(value="#{user.phone}", disabled)
+									br
+									br
+									| #{__("settings.infos.email")}:
+									br
+									input.form-control.input(value="#{user.email}", disabled)
+						.col-xs-12
+							br
+							.form-group
+								label #{__("settings.change_password")}
+								br
+								br
+								a.resetPassword.btn(class="btn-primary")
+									| #{__("settings.reset_button")}
+
+block custom_js
+	script.
+		var sureResetMsg = '#{__("settings.sure_reset")}';
+		var loginUser = "#{user.login}";
+		var mailUser = "#{user.email}";
+		$(document).ready(function() {
+			$(document).on("click", ".resetPassword", function(){
+				var sure = confirm(sureResetMsg);
+				if(sure){
+					var ajaxdata = {
+						login: loginUser,
+						mail: mailUser
+					};
+
+					$.ajax({
+						url : '/settings/reset_password',
+						type : 'POST',
+						data : JSON.stringify(ajaxdata),
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (success) {
+							window.location.href = "/logout";
+						},
+						error: function (error) {
+							location.reload();
+						}
+					});
+				}
+			});
+		});
