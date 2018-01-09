@@ -2010,7 +2010,9 @@ var training = {
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "ajouter widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
-        "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
+        "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+        "créer widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
+        "créer widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],
     "createWidgetLastRecords": [
         "add widget last records with columns (.*)",
@@ -2029,8 +2031,13 @@ var training = {
         "créer un widget (.*) sur l'entité (.*)",
         "ajouter une (.*) sur l'entité (.*)",
         "ajouter un widget (.*) sur l'entité (.*)",
+        "créer widget (.*) sur l'entité (.*)",
+        "ajouter (.*) sur l'entité (.*)",
+        "ajouter widget (.*) sur l'entité (.*)",
         "add widget (.*) on entity (.*)",
-        "create widget (.*) on entity (.*)"
+        "create widget (.*) on entity (.*)",
+        "add a widget (.*) on entity (.*)",
+        "create a widget (.*) on entity (.*)"
     ],
     "createWidget": [
         "add widget (.*)",
