@@ -4,6 +4,9 @@
     <form action="/custom_url_data_entity/delete" method="post">
         <div class="quicklinks">
             <span>
+                <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="button.return"/}</a>
+            </span>
+            <span>
                 <button class="btn btn-danger">
                     <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                     <span>{@__ key="button.delete"/}</span>
