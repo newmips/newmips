@@ -84,7 +84,7 @@ function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, va
     });
 }
 
-function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, callback) {
+function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, moduleName, callback) {
 
     // Calendar View
     var codeName = valueComponent.toLowerCase();
@@ -99,6 +99,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
     var viewTemplate = fs.readFileSync(viewFile, 'utf8');
     viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
     viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+    viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
     viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
     viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
 
@@ -187,37 +188,6 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 
 
         callback();
-
-        /*var eventShowFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/show_fields.dust';
-        var eventCreateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/create_fields.dust';
-        var eventUpdateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/update_fields.dust'
-
-        var eventShowTemplate = fs.readFileSync(eventShowFile, 'utf8');
-        var eventCreateTemplate = fs.readFileSync(eventCreateFile, 'utf8');
-        var eventUpdateTemplate = fs.readFileSync(eventUpdateFile, 'utf8');
-
-        eventShowTemplate = eventShowTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-        eventShowTemplate = eventShowTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-        eventCreateTemplate = eventCreateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-        eventCreateTemplate = eventCreateTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-        eventUpdateTemplate = eventUpdateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-        eventUpdateTemplate = eventUpdateTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-
-        var writeStreamEventShow = fs.createWriteStream(eventShowFile);
-        writeStreamEventShow.write(eventShowTemplate);
-        writeStreamEventShow.end();
-
-        var writeStreamEventCreate = fs.createWriteStream(eventCreateFile);
-        writeStreamEventCreate.write(eventCreateTemplate);
-        writeStreamEventCreate.end();
-
-        var writeStreamEventUpdate = fs.createWriteStream(eventUpdateFile);
-        writeStreamEventUpdate.write(eventUpdateTemplate);
-        writeStreamEventUpdate.end();
-
-        writeStreamEventUpdate.on('finish', function () {
-            callback();
-        });*/
     });
 }
 
@@ -601,7 +571,7 @@ exports.newAgenda = function (attr, callback) {
     // Agenda Route
     setupComponentRouteForAgenda(idApplication, valueComponent, valueEvent, valueCategory, function () {
         // Agenda view
-        setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, function () {
+        setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, attr.options.moduleName, function () {
             // Add access managment to Agenda
             addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function () {
                 // Add Event translation
