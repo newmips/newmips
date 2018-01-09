@@ -424,6 +424,7 @@
         "download-default": "Télécharger le modèle de thème",
         "generating": "Génération en cours...",
         "add-theme": "Uploader un thème",
-        "wrongExt": "Seul les .zip sont accepté."
+        "wrongExt": "Seul les .zip sont accepté.",
+        "default": "Thème par défaut"
     }
 }
