@@ -779,12 +779,24 @@ exports.newStatus = function(attr, callback) {
         $("#"+historyId).remove();
         domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
 
-            // Remove show/update button from history tab list
+            // Customize history tab list
             domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
+                // Remove buttons
                 $("tbody tr td").slice(4, 7).remove();
                 $("thead").each(function() {
                     $(this).find("tr th").slice(4, 7).remove();
                 });
+                // Remove id column
+                $("[data-field=id]").remove();
+                // Add createdAt column in thead/tbody
+                var newTh = '';
+                newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
+                newTh += '    {@__ key="defaults.createdAt"/}\n';
+                newTh += '</th>\n';
+                $(".fields").append(newTh);
+                $("#bodyTR").append('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
+                $("table").after('<input name="custom_order" data-index="3" data-order="DESC" type="hidden">');
+
                 domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
 
                     // Display status as a badge instead of an input
@@ -801,6 +813,7 @@ exports.newStatus = function(attr, callback) {
                         nextStatusHtml += '</div>';
                         $("div[data-field='"+statusAlias+"']").find('input').replaceWith(statusBadgeHtml);
                         $("div[data-field='"+statusAlias+"']").append(nextStatusHtml);
+                        // Input used for default ordering
 
                         // Remove create button
                         var historyTabId = "#r_history_"+attr.options.urlValue;

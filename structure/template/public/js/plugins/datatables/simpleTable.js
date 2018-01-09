@@ -51,17 +51,15 @@ else {
 // tables needs to be global
 var tables = [];
 $(document).ready(function() {
-	// Init DataTable
-	$(".dataTable").each(function() {
-		tables[$(this).attr('id')] = $(this).DataTable( {
-			"responsive": true,
-			"language": str_language,
-			"bLengthChange": true,
-			"iDisplayLength": 50,
-			"aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
-			"bAutoWidth": false,
-			"dom": 'lBfrtip',
-			"buttons": [
+	var options = {
+		"responsive": true,
+		"language": str_language,
+		"bLengthChange": true,
+		"iDisplayLength": 50,
+		"aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
+		"bAutoWidth": false,
+		"dom": 'lBfrtip',
+		"buttons": [
 			{
 				extend:    'print',
 				text:      '<i class="fa fa-print"></i>',
@@ -94,7 +92,13 @@ $(document).ready(function() {
 					columns: ':visible'
 				}
 			}
-			]
-		});
+		]
+	}
+	if ($("input[name='custom_order']").length)
+		options.order = [$("input[name='custom_order']").data('index'), $("input[name='custom_order']").data('order')];
+
+	// Init DataTable
+	$(".dataTable").each(function() {
+		tables[$(this).attr('id')] = $(this).DataTable(options);
 	});
 });
