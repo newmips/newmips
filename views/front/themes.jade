@@ -91,7 +91,7 @@ block content
 					br
 					.row
 						for theme in availableTheme
-							.col-xs-4(id="box-#{theme.codeName}")
+							.col-xs-3(id="box-#{theme.codeName}")
 								.box.theme-box.animated.fadeIn
 									.box-header.with-border(style="border-bottom: 1px solid #f4f4f4;")
 										h3.box-title #{theme.name}
@@ -109,11 +109,11 @@ block content
 													input.defaultThemeInput(type='checkbox', style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;", data-codename="#{theme.codeName}", checked)
 												else
 													input.defaultThemeInput(type='checkbox', style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;", data-codename="#{theme.codeName}")
-												| &nbsp;&nbsp;Thème par défaut
+												| &nbsp;#{__("themes.default")}
 										.pull-right
 											a.btn.btn-danger#deleteTheme(data-codename="#{theme.codeName}")
 												i.fa.fa-close.fa-md
-												span &nbsp;&nbsp;
+												span &nbsp;
 													| #{__('button.delete')}
 block custom_js
 	script(src='/js/Newmips/instructionsScriptStatus.js', type='text/javascript')

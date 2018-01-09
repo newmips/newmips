@@ -425,6 +425,7 @@
         "download-default": "Download the theme model",
         "generating": "Generation in progress...",
         "add-theme": "Upload a theme",
-        "wrongExt": "Only .zip are accepted."
+        "wrongExt": "Only .zip are accepted.",
+        "default": "Default theme"
     }
 }
