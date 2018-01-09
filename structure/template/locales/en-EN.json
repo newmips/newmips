@@ -157,7 +157,8 @@
 			"stats": {
 				"more_info": "More info"
 			}
-		}
+		},
+		"createdAt": "Creation date"
 	},
 	"error": {
         "404": {
