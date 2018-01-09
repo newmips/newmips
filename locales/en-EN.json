@@ -349,11 +349,11 @@
             "deleteTab": "The tab %s has been successfully deleted.",
             "hasOne": {
                 "successEntity": "A tab «%s» has just been added to the entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
-                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
+                "successSubEntity": "A tab «%s» has just been added to the entity %s.<br>Warning this tab refers to a sub-entity, so it does not appear in the menu.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasMany": {
                 "successEntity": "A new tab «%s» has been created on entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
-                "successSubEntity": "A new tab «%s» has been created on the entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
+                "successSubEntity": "A new tab «%s» has been created on the entity %s.<br>Warning this tab refers to a sub-entity, so it does not appear in the menu.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasManyExisting": {
                 "success": "New relation has many existing with entity %s created on %s."
