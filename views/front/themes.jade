@@ -2,7 +2,7 @@ extends ../main_layout
 block custom_css
 	link(href='/css/animated.css', rel='stylesheet', type='text/css')
 	style.
-		.theme-box .box-footer a span {
+		/*.theme-box .box-footer a span {
 			max-width: 0;
 			-webkit-transition: -webkit-transform 0.3s ease-in-out, max-width 0.3s ease-in-out;
 			-moz-transition: -moz-transform 0.3s ease-in-out, max-width 0.3s ease-in-out;
@@ -15,7 +15,7 @@ block custom_css
 		}
 		.theme-box .box-footer a:hover span {
 			max-width: 15rem;
-		}
+		}*/
 block header
 	.row
 		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
@@ -70,13 +70,13 @@ block content
 									| #{__('themes.add-theme')}
 					br
 
-					.row(style="display: none;")
+					//.row(style="display: none;")
 						form(action='/instruction_script/execute', id='instructionsScript', method='POST', enctype="multipart/form-data", style="display: none;")
 							textarea#createScriptTextarea(name='instructionsText', cols='150', rows='10', style='float:left;display: none;')
 								| !{contentArea}
 							a#addScript(href="#")
 
-					.row#generateRow(style="display: none;")
+					//.row#generateRow(style="display: none;")
 						.col-xs-12
 							| #{__("themes.generating")}
 							br
@@ -99,11 +99,17 @@ block content
 									.box-body
 										img(src="data:image/;base64,#{theme.buffer}", width="100%", height="150px")
 									.box-footer(style="height:55px;")
-										.pull-left
-											a.btn.btn-primary#previewTheme(data-codename="#{theme.codeName}")
+										.pull-left(style="margin-top: 6px;")
+											//a.btn.btn-primary#previewTheme(data-codename="#{theme.codeName}")
 												i.fa.fa-eye.fa-md
 												span &nbsp;&nbsp;
 													| #{__('button.preview')}
+											label(style="display: block;padding-left: 15px;text-indent: -15px;cursor:pointer;")
+												if defaultTheme == theme.codeName
+													input.defaultThemeInput(type='checkbox', style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;", data-codename="#{theme.codeName}", checked)
+												else
+													input.defaultThemeInput(type='checkbox', style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;", data-codename="#{theme.codeName}")
+												| &nbsp;&nbsp;Thème par défaut
 										.pull-right
 											a.btn.btn-danger#deleteTheme(data-codename="#{theme.codeName}")
 												i.fa.fa-close.fa-md
@@ -114,7 +120,7 @@ block custom_js
 	script.
 		var wrongExt = "#{__('themes.wrongExt')}";
 		$(document).ready(function() {
-			$(document).on("click", ".theme-box .box-footer a#previewTheme", function(){
+			/*$(document).on("click", ".theme-box .box-footer a#previewTheme", function(){
 				var codeNameTheme = $(this).data("codename");
 				var instructions = ""+
 				"add project My Project "+codeNameTheme+"\n"+
@@ -126,6 +132,26 @@ block custom_js
 
 				$("html, body").animate({ scrollTop: 0 }, "slow");
 				$("#generateRow").show();
+			});*/
+
+			$(document).on("click", "input[type='checkbox'].defaultThemeInput", function(){
+				var currentChecked = $("input[type='checkbox'].defaultThemeInput:checked").not("[data-codename='"+$(this).attr("data-codename")+"']");
+				var currentClicked = $(this);
+				if(currentChecked.length == 0)
+					currentClicked.prop("checked", true);
+				else
+					currentChecked.prop("checked", false);
+					$.ajax({
+		                url: "/themes/default_theme",
+		                method: 'post',
+		                data: {theme: $(this).data("codename")},
+		                context: this,
+		                success: function() {
+		                },
+		                error: function(err) {
+		                    console.log(err);
+		                }
+		            });
 			});
 
 			$(document).on("click", ".theme-box .box-footer a#deleteTheme", function(){

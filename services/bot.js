@@ -870,6 +870,14 @@ exports.setLayout = function (result) {
     return attr;
 };
 
+exports.listLayout = function (result) {
+
+    var attr = {
+        function: "listLayout"
+    };
+    return attr;
+};
+
 exports.setTheme = function (result) {
 
     var value = result[1];
@@ -1986,6 +1994,14 @@ var training = {
         "appliquer la disposition (.*)",
         "appliquer layout (.*)",
         "appliquer disposition (.*)"
+    ],
+    "listLayout": [
+        "list layout",
+        "list all layout",
+        "lister les layout",
+        "lister disposition",
+        "lister les dispositions",
+        "afficher les dispositions"
     ],
     "setTheme": [
         "set theme (.*)",
