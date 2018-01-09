@@ -1,4 +1,4 @@
-{>"layout_m_home"/}
+{>"layout_MODULE_NAME"/}
 {<custom_css_2}
 	<link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' />
 	<link href='/css/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
