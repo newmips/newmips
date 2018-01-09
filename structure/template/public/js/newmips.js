@@ -296,6 +296,11 @@ $(document).ready(function () {
 
     /* Uncomment if you want to apply a mask on tel input */
     /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
+    $("input[type='tel']").inputmask({mask: "## ## ## ## ##"});
+    $("input[type='tel']").keyup(function(e) {
+        if(isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace")
+            $(this).val("");
+    });
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
     $('.simpledate-toconvert').each(function() {

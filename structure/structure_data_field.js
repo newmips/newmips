@@ -239,7 +239,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-phone'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "fax" :

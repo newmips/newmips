@@ -1477,6 +1477,10 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant",
         "l'entité (.*) a plusieurs (.*) déjà prédéfini",
         "l'entité (.*) a plusieurs (.*) déjà existant",
+        "entité (.*) a plusieurs (.*) prédéfini",
+        "entité (.*) a plusieurs (.*) existant",
+        "entité (.*) a plusieurs (.*) déjà prédéfini",
+        "entité (.*) a plusieurs (.*) déjà existant",
 
         "entity (.*) has many preset (.*) called (.*)",
         "entity (.*) has many existing (.*) called (.*)",
@@ -1490,6 +1494,14 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant appelées (.*)",
         "l'entité (.*) a plusieurs (.*) déjà prédéfini appelées (.*)",
         "l'entité (.*) a plusieurs (.*) déjà existant appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant appelés (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfini appelés (.*)",
+        "entité (.*) a plusieurs (.*) déjà existant appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant appelées (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfini appelées (.*)",
+        "entité (.*) a plusieurs (.*) déjà existant appelées (.*)"
     ],
     "relationshipHasManyPresetUsing": [
         "entity (.*) has many preset (.*) using (.*)",
@@ -1512,6 +1524,14 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
 
         "entity (.*) has many preset (.*) using (.*) called (.*)",
         "entity (.*) has many existing (.*) using (.*) called (.*)",
@@ -1555,6 +1575,23 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)",
+
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)"
     ],
     "createFieldRelatedToMultiple": [
         "create field (.*) related to multiple (.*)",
@@ -2010,7 +2047,9 @@ var training = {
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "ajouter widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
-        "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
+        "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+        "créer widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
+        "créer widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],
     "createWidgetLastRecords": [
         "add widget last records with columns (.*)",
@@ -2029,8 +2068,13 @@ var training = {
         "créer un widget (.*) sur l'entité (.*)",
         "ajouter une (.*) sur l'entité (.*)",
         "ajouter un widget (.*) sur l'entité (.*)",
+        "créer widget (.*) sur l'entité (.*)",
+        "ajouter (.*) sur l'entité (.*)",
+        "ajouter widget (.*) sur l'entité (.*)",
         "add widget (.*) on entity (.*)",
-        "create widget (.*) on entity (.*)"
+        "create widget (.*) on entity (.*)",
+        "add a widget (.*) on entity (.*)",
+        "create a widget (.*) on entity (.*)"
     ],
     "createWidget": [
         "add widget (.*)",
