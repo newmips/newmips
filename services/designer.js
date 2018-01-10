@@ -1810,7 +1810,7 @@ exports.createNewComponentStatus = function(attr, callback) {
         attr.source = source_entity.codeName;
         attr.history_table = 'history_'+attr.source+'_'+attr.options.value;
         var instructions = [
-            "entity "+source_entity.name+' has many history_'+attr.source+'_'+attr.options.value+' called History '+attr.options.showValue,
+            "entity "+source_entity.name+' has many '+attr.history_table+' called History '+attr.options.showValue,
             "select entity history_"+attr.source+"_"+attr.options.value,
             "add field "+attr.options.showValue+" related to Status using name, color",
             "add field Comment with type text",

@@ -259,8 +259,6 @@ function initializeWorkflow(id_application, name_application) {
         // Copy routes
         fs.copySync(piecesPath+'/routes/', workspacePath+'/routes/');
 
-        // Copy notification client socket js
-        fs.copySync(piecesPath+'/../socket/notifications/notification.js', workspacePath+'/public/js/Newmips/component/notification.js');
         // Remove notification from administration sidebar
         domHelper.read(workspacePath+'/views/layout_m_administration.dust').then(function($) {
             $("#notification_menu_item").remove();

@@ -164,7 +164,7 @@ var mandatoryInstructions = [
     "add field Title",
     "add field Function with type text",
     "add entity Inline Help",
-    "set icon question",
+    "set icon question-circle-o",
     "add field Entity",
     "add field Field",
     "add field Content with type text",
