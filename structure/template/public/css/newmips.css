@@ -12,8 +12,8 @@ Core: General style
 .inline-help:hover {
     cursor: pointer;
 }
-.icon-wrap:nth-child(12n) {
-    margin-bottom: 10px;
+.icon-wrap {
+    margin-bottom: 20px;
 }
 /* required field */
 label.required:after {

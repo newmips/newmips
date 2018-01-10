@@ -778,6 +778,7 @@ exports.newStatus = function(attr, callback) {
         $("#"+historyId+"-click").parent().remove();
         $("#"+historyId).remove();
         domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
+            var statusAlias = 'r_'+attr.options.value.substring(2);
 
             // Customize history tab list
             domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
@@ -797,13 +798,23 @@ exports.newStatus = function(attr, callback) {
                 $("#bodyTR").append('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
                 $("table").after('<input name="custom_order" data-index="3" data-order="DESC" type="hidden">');
 
+                // Change history tab locales
+                var localesFR = JSON.parse(fs.readFileSync(workspacePath+'/locales/fr-FR.json', 'utf8'));
+                localesFR.entity['e_'+attr.history_table]['as_r_history_'+attr.options.showValue] = "Historique "+attr.options.showValue;
+                localesFR.entity['e_'+attr.history_table]['f_comment'] = "Commentaire";
+                localesFR.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].label_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
+                var localesEN = JSON.parse(fs.readFileSync(workspacePath+'/locales/en-EN.json', 'utf8'));
+                localesEN.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                localesEN.entity['e_'+attr.history_table].label_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
+
                 domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
 
                     // Display status as a badge instead of an input
                     // Also add next status buttons after status field
                     domHelper.read(workspacePath+'/views/'+attr.source+'/show_fields.dust').then(function($) {
-                        var statusAlias = 'r_'+attr.options.value.substring(2);
-
                         var statusBadgeHtml = '<br><span class="badge" style="background: {'+statusAlias+'.f_color};">{'+statusAlias+'.f_name}</span>';
                         var nextStatusHtml = '';
                         nextStatusHtml += '<div class="form-group">';

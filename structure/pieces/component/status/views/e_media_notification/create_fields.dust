@@ -30,14 +30,11 @@
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {@__ key="notification.icon.choose" /}
                 </button>
-                <div class="dropdown-menu" style="max-height:250px;overflow-y: scroll;">
-                    {#icon_list}
-                        {@eq key=. value="fa-exclamation"}
-                            <div class="col-xs-1 icon-wrap label-primary" style="text-align: center;"><i class="fa {.} hover icon-selection" data-awesome="{.}"></i></div>
-                        {:else}
-                            <div class="col-xs-1 icon-wrap" style="text-align: center;"><i class="fa {.} hover icon-selection" data-awesome="{.}"></i></div>
-                        {/eq}
-                    {/icon_list}
+                <div id="icons" class="dropdown-menu" style="max-height:250px;overflow-y: scroll;width:100%;">
+                    <div class="input-group form-group">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                        <input id='filter' class="input form-control" placeholder="Filter...">
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,7 +72,43 @@
 
 <script type="text/javascript">
     $(function() {
-        $(".icon-selection").click(function() {
+        var icons = "{icon_list}".split(',');
+        function addIcon(icon) {
+            currentIcon = $("input[name=f_icon]").val();
+            var iconHtml = '';
+            iconHtml += '<div class="col-xs-2 icon-wrap '+(icon == currentIcon ? 'label-primary' : '')+'" style="text-align: center;">';
+            iconHtml += '    <i class="fa '+icon+' hover icon-selection" data-awesome="'+icon+'"></i>';
+            iconHtml += '    <br>';
+            iconHtml += '    '+icon.substring(3);
+            iconHtml += '</div>';
+            $("#icons").append(iconHtml);
+        }
+
+        /* Init icons list */
+        var iconsHtml = '';
+        for (var i = 0; i < icons.length; i++)
+            addIcon(icons[i]);
+
+        /* Prevent icon dropdown from closing on filter focus */
+        $("#filter").click(function(e) {
+            e.stopPropagation();
+        });
+        if (lang_user == 'fr-FR')
+            $("#filter").prop('placeholder', 'Filtrer');
+        /* Generate filtered icon list */
+        $("#filter").keyup(function() {
+            var filter = $(this).val();
+            $(".icon-wrap").remove();
+            var addCount = 0;
+            for (var i = 0; i < icons.length; i++)
+                if (filter == '' || icons[i].substring(3).indexOf(filter) != -1)
+                    {addIcon(icons[i]);addCount++;}
+            if (addCount == 0)
+                $("#icons").append('<div class="icon-wrap col-xs-12">'+(lang_user == 'fr-FR' ? 'Aucun résultat' : 'No results...')+'</div>');
+        });
+
+        /* Icon selected (clicked) */
+        $(document).delegate('.icon-selection', 'click', function() {
             $(".icon-selection").each(function() {
                 $(this).parent().removeClass('label-primary');
             });
