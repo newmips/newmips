@@ -14,5 +14,8 @@ module.exports = function (sequelize, DataTypes) {
     };
 
     var Model = sequelize.define('E_chatmessage', attributes, options);
+
+    builder.addHooks(Model, "e_chatmessage", attributes_origin);
+
     return Model;
 };
