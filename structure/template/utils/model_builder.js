@@ -147,7 +147,6 @@ exports.associationsFinder = function associationsFinder(models, options, attrib
 }
 
 // Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
-// Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
 exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
     return new Promise(function(resolve, reject) {
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
