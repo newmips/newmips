@@ -2140,7 +2140,6 @@ exports.parse = function (instruction) {
     }
     var attr = {};
     if (typeof instructionResult.action !== "undefined") {
-        console.log(instructionResult.action);
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
     } else {
