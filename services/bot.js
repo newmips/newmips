@@ -2010,14 +2010,6 @@ var training = {
         "appliquer theme (.*)",
         "appliquer thème (.*)"
     ],
-    "setSkin": [
-        "set skin (.*)",
-        "set color (.*)",
-        "set colour (.*)",
-        "appliquer le style (.*)",
-        "appliquer la couleur (.*)",
-        "mettre la couleur (.*)"
-    ],
     "listIcon" : [
         "list icon",
         "list icons",
@@ -2148,6 +2140,7 @@ exports.parse = function (instruction) {
     }
     var attr = {};
     if (typeof instructionResult.action !== "undefined") {
+        console.log(instructionResult.action);
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
     } else {
