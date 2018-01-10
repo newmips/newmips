@@ -2401,6 +2401,15 @@ exports.setLayout = function(attr, callback) {
     });
 }
 
+exports.listLayout = function(attr, callback) {
+    structure_ui.listLayout(attr, function(err, infoStructure){
+        if(err)
+            return callback(err, null);
+
+        callback(null, infoStructure);
+    });
+}
+
 exports.setTheme = function(attr, callback) {
     structure_ui.setTheme(attr, function(err, infoStructure){
         if(err)

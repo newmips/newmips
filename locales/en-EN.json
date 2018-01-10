@@ -61,7 +61,8 @@
         "close": "Close",
         "send": "Send",
         "add": "Add",
-        "documentation": "Documentation"
+        "documentation": "Documentation",
+        "cancel": "Cancel"
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -425,6 +426,7 @@
         "download-default": "Download the theme model",
         "generating": "Generation in progress...",
         "add-theme": "Upload a theme",
-        "wrongExt": "Only .zip are accepted."
+        "wrongExt": "Only .zip are accepted.",
+        "default": "Default theme"
     }
 }

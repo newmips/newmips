@@ -148,6 +148,7 @@ app.use('/default', require('./routes/default'));
 app.use('/application', require('./routes/application'));
 app.use('/live', require('./routes/live'));
 app.use('/settings', require('./routes/settings'));
+app.use('/account', require('./routes/account'));
 app.use('/users', require('./routes/users'));
 app.use('/instruction_script', require('./routes/instruction_script'));
 app.use('/import', require('./routes/import'));

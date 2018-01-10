@@ -11,7 +11,7 @@ var crypto = require('crypto');
 var mail = require('../utils/mailer');
 
 // ===========================================
-// Redirection Live =====================
+// Redirection Settings =====================
 // ===========================================
 
 // Index

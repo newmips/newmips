@@ -9,6 +9,8 @@
                 {@__ key="entity.e_user.f_login"/}
             </th>
             <th data-field="f_email" data-col="f_email">{@__ key="entity.e_user.f_email"/}</th>
+            <th data-field="r_role.f_label" data-col="r_role.f_label">{@__ key="entity.e_user.r_role"/}</th>
+            <th data-field="r_group.f_label" data-col="r_group.f_label">{@__ key="entity.e_user.r_group"/}</th>
             <th></th>
             <th></th>
             <th></th>
@@ -24,6 +26,8 @@
                 {@__ key="entity.e_user.f_login"/}
             </th>
             <th data-field="f_email" data-col="f_email">{@__ key="entity.e_user.f_email"/}</th>
+            <th data-field="r_role.f_label" data-col="r_role.f_label">{@__ key="entity.e_user.r_role"/}</th>
+            <th data-field="r_group.f_label" data-col="r_group.f_label">{@__ key="entity.e_user.r_group"/}</th>
             <th></th>
             <th></th>
             <th></th>
@@ -40,7 +44,7 @@
                 <form class="fieldsetform">
                     <input type="hidden" value="{id}" name="idRemove">
                     <button type="submit" class="btn btn-danger">   <i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
-    <span>{@__ key="button.remove" /}</span>
+                        <span>{@__ key="button.remove" /}</span>
 
                     </button>
                 </form>
@@ -66,20 +70,20 @@
                 {@eq key=for value="hasMany"}
                 <form action="/user/delete" method="post">
                     <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"> <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
- <span>{@__ key="button.delete" /}</span>
+                       <span>{@__ key="button.delete" /}</span>
 
-                        <input
-                        name="id" value="{id}" type="hidden">
-                            <input name="associationAlias" value="{associationAlias}" type="hidden">
-                            <input name="associationForeignKey" value="{associationForeignKey}" type="hidden">
-                            <input name="associationFlag" value="{associationFlag}" type="hidden">
-                            <input name="associationSource" value="{associationSource}" type="hidden">
-                            <input name="associationUrl" value="{associationUrl}" type="hidden">
-                    </button>
-                </form>
-                {/eq}
-            </td>
-        </tr>
-        {/e_user}
-    </tbody>
+                       <input
+                       name="id" value="{id}" type="hidden">
+                       <input name="associationAlias" value="{associationAlias}" type="hidden">
+                       <input name="associationForeignKey" value="{associationForeignKey}" type="hidden">
+                       <input name="associationFlag" value="{associationFlag}" type="hidden">
+                       <input name="associationSource" value="{associationSource}" type="hidden">
+                       <input name="associationUrl" value="{associationUrl}" type="hidden">
+                   </button>
+               </form>
+               {/eq}
+           </td>
+       </tr>
+       {/e_user}
+   </tbody>
 </table>

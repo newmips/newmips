@@ -1,3 +1,9 @@
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.sidebar-menu{
+		top: -13px !important;
+	}
+}
+
 @media (min-width: 768px) {
 	.sidebar-toggle{
 		display: none;
@@ -23,7 +29,7 @@
 		padding: 10px;
 		position: relative;
 		overflow: visible;
-		top: -35px;
+		top: -39px;
 		height: 50px;
 		max-width: 80%;
 	}
@@ -33,7 +39,6 @@
 		position: relative;
 		float: left;
 		top: -10px;
-		background: #FFF;
 	}
 
 	.content-wrapper, .right-side, .main-footer {

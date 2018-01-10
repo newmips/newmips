@@ -30,7 +30,7 @@ block header
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
 					| #{__("menu.home")}
-				a.btn.btn-default(href='/settings')
+				a.btn.btn-default(href='/account')
 					i.fa.fa-user(style="margin-right:5px;")
 					| #{__("menu.account")}
 				a.btn.btn-default.pull-right(href='/logout')
@@ -44,7 +44,7 @@ block content
 			.box-body
 				br
 				each project in projects
-					.col-lg-offset-3.col-lg-6
+					.col-lg-offset-2.col-lg-8
 						.box.box-solid.box-default
 							.box-header.bg-primary
 								h3.box-title(style="color: #fff")
@@ -152,7 +152,7 @@ block custom_js
 						data: {instruction: $(self).find("input[name='instruction']").val()},
 						success: function() {
 							toastr.success("#{__('listApplication.projectDelete')}");
-							$(self).parents('.col-lg-6').remove();
+							$(self).parents('.col-lg-8').remove();
 							$(document.body).css({cursor: 'default'});
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);

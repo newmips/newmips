@@ -1,9 +1,9 @@
-.layout-boxed html,
-.layout-boxed body {
+html,
+body {
   height: 100%;
 }
 
-.layout-boxed .wrapper {
+.wrapper {
   max-width: 1250px;
   margin: 0 auto;
   min-height: 100%;
@@ -11,10 +11,6 @@
   position: relative;
 }
 
-.layout-boxed {
-  /*background: url('../img/boxed-bg.jpg') repeat fixed;*/
-}
-
-.fixed.layout-boxed .wrapper {
+.fixed.wrapper {
   max-width: 100%;
-}
+}s

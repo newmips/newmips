@@ -96,7 +96,7 @@ $(document).ready(function () {
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function(){
-        if (sidebarPref == "true" || sidebarPref == null)
+        if (typeof sidebarPref !== "undefined" && (sidebarPref == "true" || sidebarPref == null))
             sidebarPref = false;
         else
             sidebarPref = true;
