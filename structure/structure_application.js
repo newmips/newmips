@@ -292,6 +292,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
         // Copy authentication entities views
         var piecesPath = __dirname+'/pieces';
         var workspacePath = __dirname+'/../workspace/'+id_application;
+
         fs.copy(piecesPath+'/administration/views/e_user', workspacePath+'/views/e_user', function(err) {
             if (err)
                 console.log(err);

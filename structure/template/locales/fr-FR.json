@@ -100,7 +100,9 @@
         "validation": "Valider",
         "previous": "Précédent",
         "next": "Suivant",
-        "close": "Fermer"
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "return": "Retour"
     },
     "operation": {
         "show": "Afficher",

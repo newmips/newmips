@@ -163,7 +163,6 @@ var mandatoryInstructions = [
     "select entity media function",
     "add field Title",
     "add field Function with type text",
-
     "add entity Inline Help",
     "set icon question-circle-o",
     "add field Entity",
@@ -179,10 +178,29 @@ function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
         // All instructions executed, mandatory instruction included
         if (scriptData[req.session.passport.user.id].totalInstruction == idx){
-            var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
-            // Api documentation
-            docBuilder.build(idApplication);
-            resolve(idApplication);
+            function done(){
+                var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
+                if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
+                    structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
+                        // Api documentation
+                        docBuilder.build(idApplication);
+                        resolve(idApplication);
+                    });
+                } else {
+                    // Api documentation
+                    docBuilder.build(idApplication);
+                    resolve(idApplication);
+                }
+            }
+            // Set default theme if different than blue-light
+            if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light"){
+                execute(req, "set theme "+req.session.defaultTheme).then(function() {
+                    done();
+                });
+            } else {
+                done();
+            }
+
         } else {
             // If project and application are created and we're at the instruction that
             // follows create application, insert mandatory instructions to instruction array
@@ -458,6 +476,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     res.end();
 });
 
+/* Execute when it's not a file upload but a file written in textarea */
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
     // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
     idxAtMandatoryInstructionStart = -1;

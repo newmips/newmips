@@ -100,7 +100,9 @@
     	"validation": "Validate",
     	"previous": "Previous",
     	"next": "Next",
-    	"close": "Close"
+    	"close": "Close",
+    	"cancel": "Cancel",
+    	"return": "Return"
 	},
 	"operation": {
 		"show": "Show",

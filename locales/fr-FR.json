@@ -61,7 +61,8 @@
         "close": "Fermer",
         "send": "Envoyer",
         "add": "Ajouter",
-        "documentation": "Documentation"
+        "documentation": "Documentation",
+        "cancel": "Annuler"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
@@ -135,7 +136,7 @@
         "change_password": "Réinitialiser son mot de passe",
         "reset_button": "Réinitialiser",
         "sure_reset": "Êtes-vous sur ? Vous allez être déconnecté, votre mot de passe sera réinitialisé et vous allez recevoir un email pour en configurer un nouveau.",
-        "activate_translation": "Activer la traduction automatique (Connexion internet + Clée API Google valide requises)",
+        "activate_translation": "Activer la traduction automatique (connexion internet + clé API Google valide requises)",
         "english": "Anglais",
         "french": "Français"
     },
@@ -423,7 +424,8 @@
     "themes":{
         "download-default": "Télécharger le modèle de thème",
         "generating": "Génération en cours...",
-        "add-theme": "Uploader un thème",
-        "wrongExt": "Seul les .zip sont accepté."
+        "add-theme": "Déposer un thème",
+        "wrongExt": "Seul les .zip sont accepté.",
+        "default": "Thème par défaut"
     }
 }

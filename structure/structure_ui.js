@@ -149,6 +149,32 @@ exports.setLayout = function(attr, callback) {
     }
 }
 
+exports.listLayout = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+
+    var layoutPath = __dirname + '/../workspace/' + idApplication + '/public/css/AdminLteV2/layouts';
+    var layoutsDir = fs.readdirSync(layoutPath).filter(function(file) {
+        return (file.indexOf('.') !== 0) && (file.slice(-4) === '.css' && (file.slice(0, 1) !== '_'));
+    });
+
+    var layoutListAvailable = [];
+
+    layoutsDir.forEach(function(file) {
+        var layout = file.slice(7, -4);
+        layoutListAvailable.push(layout);
+    });
+
+    var info = {};
+    info.message = "structure.ui.layout.list";
+    var msgParams = "";
+    for(var i=0; i<layoutListAvailable.length; i++){
+        msgParams += "-  " + layoutListAvailable[i] + "<br>";
+    }
+    info.messageParams = [msgParams];
+    callback(false, info);
+}
+
 exports.setTheme = function(attr, callback) {
 
     var idApplication = attr.id_application;

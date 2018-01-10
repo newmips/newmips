@@ -36,6 +36,12 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     }
 
     data.availableTheme = availableTheme;
+
+    if(typeof req.session.defaultTheme !== "undefined")
+        data.defaultTheme = req.session.defaultTheme;
+    else
+        data.defaultTheme = "blue-light";
+
     res.render('front/themes', data);
 });
 
@@ -74,6 +80,11 @@ router.post('/delete_theme', function(req, res) {
         console.log(err);
         res.status(500).send(err);
     }
+});
+
+router.post('/default_theme', function(req, res) {
+    req.session.defaultTheme = req.body.theme;
+    res.status(200).send(true);
 });
 
 router.post('/upload_theme', multer({
