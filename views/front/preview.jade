@@ -572,10 +572,10 @@ block custom_js
 			// Input instruction
 			/////////
 			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
-			$("#instruction").keyup(function(e) {
+			/*$("#instruction").keyup(function(e) {
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
-			});
+			});*/
 
 			var idApplication = "#{session.application.id_application}";
 			var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_"+idApplication));

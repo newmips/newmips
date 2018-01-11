@@ -335,7 +335,7 @@
         },
         "field": {
             "attributes": {
-                "success": "Le champ %s est désormais %s.",
+                "success": "Le champ %s est désormais %s = %s.",
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",

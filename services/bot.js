@@ -900,28 +900,6 @@ exports.listTheme = function (result) {
     return attr;
 };
 
-/*exports.setSkin = function (result) {
-
-    var value = result[1];
-    var options = {
-        value: value
-    };
-
-    var attr = {
-        function: "setSkin",
-        options: options
-    };
-    return attr;
-};
-
-exports.listSkin = function (result) {
-
-    var attr = {
-        function: "listSkin"
-    };
-    return attr;
-};*/
-
 exports.listIcon = function (result) {
     return {function: 'listIcon'};
 }
@@ -1149,13 +1127,21 @@ var training = {
         "rendre le champ (.*) (.*)"
     ],
     "setFieldAttribute": [
-        "set field attribute (.*) (.*) (.*)",
-        "set the field attribute (.*) (.*) (.*)",
-        "mettre attribut champ (.*) (.*) (.*)",
-        "mettre l'attribut du champ (.*) (.*) (.*)",
-        "mettre l'attribut champ (.*) (.*) (.*)",
-        "rendre attribut champ  (.*) (.*) (.*)",
-        "rendre l'attribut du champ (.*) (.*) (.*)"
+        "set field (.*) attribute (.*) (.*)",
+        "set field (.*) with attribute (.*) (.*)",
+        "set the field (.*) with attribute (.*) (.*)",
+        "set field (.*) attribute (.*) = (.*)",
+        "set field (.*) with attribute (.*) = (.*)",
+        "set the field (.*) with attribute (.*) = (.*)",
+        "set field (.*) attribute (.*)=(.*)",
+        "set field (.*) with attribute (.*)=(.*)",
+        "set the field (.*) with attribute (.*)=(.*)",
+        "mettre le champ (.*) avec l'attribut (.*) (.*)",
+        "ajouter sur le champ (.*) l'attribut (.*) (.*)",
+        "mettre le champ (.*) avec l'attribut (.*) = (.*)",
+        "ajouter sur le champ (.*) l'attribut (.*) = (.*)",
+        "mettre le champ (.*) avec l'attribut (.*)=(.*)",
+        "ajouter sur le champ (.*) l'attribut (.*)=(.*)"
     ],
     "setColumnVisibility": [
         "set column (.*) (.*)",
