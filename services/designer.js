@@ -920,7 +920,7 @@ exports.setFieldAttribute = function(attr, callback) {
 
             callback(null, {
                 message: "structure.field.attributes.success",
-                messageParams: [attr.options.showValue, attr.options.word]
+                messageParams: [attr.options.showValue, attr.options.word, attr.options.attributeValue]
             });
         });
     });
