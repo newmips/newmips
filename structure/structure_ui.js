@@ -66,8 +66,9 @@ exports.setLogo = function(attr, callback) {
             $(".main-sidebar .sidebar .user-panel .image img").remove();
         }
         $("body link[rel='icon']").remove();
+        $("head link[rel='icon']").remove();
         $(".main-sidebar .sidebar .user-panel .image").prepend("<img src='/img/logo/"+attr.options.value+"' alt='Logo' >");
-        $("body").prepend("<link href='/img/logo/thumbnail/"+attr.options.value+"' rel=\"icon\" >");
+        $("head").append("<link href='/img/logo/thumbnail/"+attr.options.value+"' rel=\"icon\" >");
         domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
             var info = {};
             info.message = "preview.logo.add";
@@ -87,7 +88,8 @@ exports.removeLogo = function(attr, callback) {
         if($(".main-sidebar .sidebar .user-panel .image img").length > 0){
             $(".main-sidebar .sidebar .user-panel .image img").remove();
             $("body link[rel='icon']").remove();
-            $("body").prepend("<link href=\"/FAVICON-COULEUR-01.png\" rel=\"icon\" type=\"image/png\"> ");
+            $("head link[rel='icon']").remove();
+            $("head").append("<link href=\"/FAVICON-COULEUR-01.png\" rel=\"icon\" type=\"image/png\"> ");
             info.message = "preview.logo.remove";
         } else {
             info.message = "preview.logo.noLogo";
