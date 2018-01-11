@@ -112,7 +112,7 @@ function setChat(req, idApp, idUser, user, content, params){
 router.get('/preview', block_access.isLoggedIn, function(req, res) {
 
     var id_application = req.query.id_application;
-    var timeoutServer = 15000;
+    var timeoutServer = 30000;
     if(typeof req.query.timeout !== "undefined")
         timeoutServer = req.query.timeout;
     var currentUserID = req.session.passport.user.id;
