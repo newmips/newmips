@@ -743,6 +743,28 @@ exports.createNewComponentAgendaWithName = function (result) {
     return checkAndCreateAttr("createNewComponentAgenda", options, value);
 };
 
+exports.deleteAgenda = function (result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteAgenda",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteAgendaWithName = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("deleteAgenda", options, value);
+};
+
 /* CRA */
 exports.createNewComponentCra = function (result) {
     return {
@@ -1845,6 +1867,60 @@ var training = {
         "ajouter une ligne de temps avec le nom (.*)",
         "créer une ligne de temps appelé (.*)",
         "ajouter une ligne de temps appelé (.*)"
+    ],
+    "deleteAgenda": [
+        "delete component agenda",
+        "remove component agenda",
+        "remove an agenda",
+        "delete an agenda",
+        "remove agenda",
+        "delete agenda",
+        "delete component timeline",
+        "remove component timeline",
+        "remove an timeline",
+        "remove timeline",
+
+        "supprimer composant agenda",
+        "supprimer le composant agenda",
+        "supprimer agenda",
+        "supprimer l'agenda",
+        "supprimer le composant ligne de temps",
+        "supprimer la ligne de temps"
+    ],
+    "deleteAgendaWithName": [
+        "delete component agenda with name (.*)",
+        "remove component agenda with name (.*)",
+        "remove an agenda with name (.*)",
+        "delete an agenda with name (.*)",
+        "remove agenda with name (.*)",
+        "delete agenda with name (.*)",
+        "delete component timeline with name (.*)",
+        "remove component timeline with name (.*)",
+        "remove an timeline with name (.*)",
+        "remove timeline with name (.*)",
+        "delete component agenda called (.*)",
+        "remove component agenda called (.*)",
+        "remove an agenda called (.*)",
+        "delete an agenda called (.*)",
+        "remove agenda called (.*)",
+        "delete agenda called (.*)",
+        "delete component timeline called (.*)",
+        "remove component timeline called (.*)",
+        "remove an timeline called (.*)",
+        "remove timeline called (.*)",
+
+        "supprimer composant agenda appelé (.*)",
+        "supprimer le composant agenda appelé (.*)",
+        "supprimer agenda appelé (.*)",
+        "supprimer l'agenda appelé (.*)",
+        "supprimer le composant ligne de temps appelée (.*)",
+        "supprimer la ligne de temps appelée (.*)",
+        "supprimer composant agenda nommé (.*)",
+        "supprimer le composant agenda nommé (.*)",
+        "supprimer agenda nommé (.*)",
+        "supprimer l'agenda nommé (.*)",
+        "supprimer le composant ligne de temps nommée (.*)",
+        "supprimer la ligne de temps nommée (.*)"
     ],
     "createNewComponentCra": [
         "ajouter composant gestion de temps",

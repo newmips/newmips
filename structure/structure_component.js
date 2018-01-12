@@ -662,6 +662,40 @@ exports.newAgenda = function (attr, callback) {
     });
 }
 
+exports.deleteAgenda = function (attr, callback) {
+
+    var idApplication = attr.id_application;
+    var urlComponent = attr.options.urlValue.toLowerCase();
+
+    var baseFolder = __dirname + '/../workspace/' + idApplication;
+    var layoutFileName = baseFolder + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
+
+    // Delete views folder
+    helpers.rmdirSyncRecursive(baseFolder + '/views/' + attr.options.value);
+
+    domHelper.read(layoutFileName).then(function ($) {
+
+        $("#" + urlComponent + "_menu_item").remove();
+        // Write back to file
+        domHelper.write(layoutFileName, $).then(function () {
+
+            // Clean empty and useless dust helper created by removing <li>
+            var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+            // Remove empty dust helper
+            layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+
+            var writeStream = fs.createWriteStream(layoutFileName);
+            writeStream.write(layoutContent);
+            writeStream.end();
+            writeStream.on('finish', function () {
+                callback();
+            });
+        });
+    }).catch(function (err) {
+        callback(err, null);
+    });
+}
+
 exports.newCra = function (attr, callback) {
     try {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;
