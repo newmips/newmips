@@ -2086,6 +2086,64 @@ exports.createNewComponentAgenda = function(attr, callback) {
     });
 }
 
+exports.deleteAgenda = function(attr, callback) {
+
+    var exportsContext = this;
+
+    /* If there is no defined name for the module */
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "c_agenda";
+        attr.options.urlValue = "agenda";
+        attr.options.showValue = "Agenda";
+    }
+
+    // Check if component with this name is in this module
+    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value ,attr.options.showValue, function(err, component){
+        if(!component){
+            var err = new Error();
+            err.message = "database.component.notFound.notFoundedInModule";
+            err.messageParams = [attr.options.showValue, attr.id_module];
+            return callback(err, null);
+        } else{
+
+            var showValueEvent = attr.options.showValue+" Event";
+            var showValueCategory = attr.options.showValue+" Category";
+
+            var instructions = [
+                "delete entity "+showValueCategory,
+                "delete entity "+showValueEvent,
+            ];
+
+            // Start doing necessary instruction for component creation
+            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+                if(err)
+                    return callback(err, null);
+
+                // Create the component in newmips database
+                db_component.deleteComponentOnModule(attr.options.value, attr.id_module, function(err, info){
+                    if(err)
+                        return callback(err, null);
+
+                    db_module.getModuleById(attr.id_module, function(err, module){
+                        if(err)
+                            return callback(err, null);
+
+                        attr.options.moduleName = module.codeName;
+                        structure_component.deleteAgenda(attr, function(err){
+                            if(err)
+                                return callback(err, null);
+                            var info = {
+                                message: "database.component.delete.success"
+                            };
+                            callback(null, info);
+                        });
+                    });
+                });
+            });
+        }
+    });
+}
+
 // Component to create a C.R.A module
 exports.createNewComponentCra = function(attr, callback) {
 

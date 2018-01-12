@@ -138,6 +138,7 @@ function addPrefix(string, instructionFunction){
             break;
         case 'createNewComponentLocalFileStorage':
         case 'createNewComponentAgenda':
+        case 'deleteAgenda':
         case 'createNewComponentCra':
         case 'createNewComponentPrint':
         case 'deleteComponentPrint':
