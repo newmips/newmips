@@ -15,6 +15,10 @@ Core: General style
 .icon-wrap {
     margin-bottom: 20px;
 }
+label.no-weight {
+    font-weight: normal !important;
+}
+
 /* required field */
 label.required:after {
     color: #e32;

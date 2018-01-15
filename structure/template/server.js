@@ -337,9 +337,10 @@ if (protocol == 'https') {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                fk_id_role_role: 1,
-                                fk_id_group_group: 1,
                                 f_enabled: 0
+                            }).then(function(user) {
+                            	user.setR_role(1);
+                            	user.setR_group(1);
                             });
                         });
                     });
@@ -377,10 +378,11 @@ else {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                fk_id_role_role: 1,
-                                fk_id_group_group: 1,
                                 f_enabled: 0,
                                 version: 0
+                            }).then(function(user) {
+                            	user.setR_role(1);
+                            	user.setR_group(1);
                             });
                         });
                     });
