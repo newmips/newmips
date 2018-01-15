@@ -157,18 +157,23 @@ block custom_js
 			$(document).on("click", ".theme-box .box-footer a#deleteTheme", function(){
 				var confirm = window.confirm("#{__('listApplication.sureToDelete')}");
 				if(confirm){
-					$.ajax({
-		                url: "/themes/delete_theme",
-		                method: 'post',
-		                data: {theme: $(this).data("codename")},
-		                context: this,
-		                success: function() {
-		                	$("#box-"+$(this).data("codename")).remove();
-		                },
-		                error: function(err) {
-		                    console.log(err);
-		                }
-		            });
+					var currentDefaultCodeName = $("input[type='checkbox'].defaultThemeInput:checked").data("codename");
+					if(currentDefaultCodeName == $(this).data("codename")){
+						toastr.error("This is the default theme, please change the default theme before deleting it.");
+					} else {
+						$.ajax({
+			                url: "/themes/delete_theme",
+			                method: 'post',
+			                data: {theme: $(this).data("codename")},
+			                context: this,
+			                success: function() {
+			                	$("#box-"+$(this).data("codename")).remove();
+			                },
+			                error: function(err) {
+			                    console.log(err);
+			                }
+			            });
+					}
 				}
 			});
 

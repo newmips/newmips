@@ -1044,13 +1044,15 @@ exports.setupHasManyTab = function (attr, callback) {
             // Create new tab content
             var newTab = '';
             newTab += '	<div id="' + alias + '" class="tab-pane fade" data-tabType="hasMany">\n';
-            newTab += '		<!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTab += '			<!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTab += '				{>"' + target + '/list_fields" associationAlias="' + alias + '" associationForeignKey="' + foreignKey + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + urlSource + '" for="hasMany" /}\n';
-            newTab += '			<!--{/eq}-->\n';
-            newTab += '		<!--{:else}-->\n';
-            newTab += '				{>"' + target + '/list_fields" /}\n';
-            newTab += '		<!--{/' + alias + '}-->\n';
+            newTab += '     <div class="sub-tab-table">\n';
+            newTab += '		   <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
+            newTab += '			  <!--{@eq key=id value=' + target + '[0].id}-->\n';
+            newTab += '				 {>"' + target + '/list_fields" associationAlias="' + alias + '" associationForeignKey="' + foreignKey + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + urlSource + '" for="hasMany" /}\n';
+            newTab += '			  <!--{/eq}-->\n';
+            newTab += '		   <!--{:else}-->\n';
+            newTab += '				 {>"' + target + '/list_fields" /}\n';
+            newTab += '		   <!--{/' + alias + '}-->\n';
+            newTab += '     </div>\n';
             newTab += '		<br>\n';
 
             // Create button to directly associate created object to relation
@@ -1133,7 +1135,6 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             newTabContent += '      <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
             newTabContent += '      <input type="hidden" value="{' + source + '.id}" name="idEntity">\n';
             newTabContent += '  </form>\n';
-            //newTabContent += '    <br>\n';
             // Include association's fields
             newTabContent += '  <div class="sub-tab-table">\n';
             newTabContent += '      <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';

@@ -85,6 +85,8 @@ function clearString(string){
 
     // €
     string = string.replace(String.fromCharCode(65533), "e");
+    string = string.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
     return string;
 }
 
@@ -136,6 +138,7 @@ function addPrefix(string, instructionFunction){
             break;
         case 'createNewComponentLocalFileStorage':
         case 'createNewComponentAgenda':
+        case 'deleteAgenda':
         case 'createNewComponentCra':
         case 'createNewComponentPrint':
         case 'deleteComponentPrint':
