@@ -177,7 +177,7 @@ exports.setupDataEntity = function (attr, callback) {
             li += '             <i class="fa fa-angle-left pull-right"></i>\n';
             li += '         </a>\n';
             li += '         <ul class="treeview-menu">\n';
-            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="write"}-->';
+            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
@@ -301,8 +301,9 @@ exports.setupDataEntity = function (attr, callback) {
                                                                                 groups: [],
                                                                                 actions: {
                                                                                     read: [],
-                                                                                    write: [],
-                                                                                    delete: []
+                                                                                    create: [],
+                                                                                    delete: [],
+                                                                                    update: []
                                                                                 }
                                                                             });
                                                                             fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {

@@ -198,7 +198,7 @@ router.post('/set_children', block_access.actionAccessMiddleware("status", "read
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("status", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("status", "create"), function (req, res) {
     var data = {
         menu: "e_status",
         sub_menu: "create_e_status",
@@ -229,7 +229,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "write"
 
 });
 
-router.post('/create', block_access.actionAccessMiddleware("status", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("status", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
 
@@ -280,7 +280,7 @@ router.post('/create', block_access.actionAccessMiddleware("status", "write"), f
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("status", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("status", 'update'), function (req, res) {
     var id_e_status = req.query.id;
     var data = {
         menu: "e_status",
@@ -337,7 +337,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("status", "write"
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("status", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("status", 'update'), function (req, res) {
     var id_e_status = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')

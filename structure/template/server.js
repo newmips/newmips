@@ -144,20 +144,20 @@ app.use(function(req, res, next) {
 
 		// Access control
 		dust.helpers.moduleAccess = function(chunk, context, bodies, params) {
-			var userGroup = req.session.passport.user.r_group.f_label;
+			var userGroups = req.session.passport.user.r_group;
 			var moduleName = params.module;
-			return block_access.moduleAccess(userGroup, moduleName);
+			return block_access.moduleAccess(userGroups, moduleName);
 		};
 		dust.helpers.entityAccess = function(chunk, context, bodies, params) {
-			var userGroup = req.session.passport.user.r_group.f_label;
+			var userGroups = req.session.passport.user.r_group;
 			var entityName = params.entity;
-			return block_access.entityAccess(userGroup, entityName);
+			return block_access.entityAccess(userGroups, entityName);
 		}
 		dust.helpers.actionAccess = function(chunk, context, bodies, params) {
-			var userRole = req.session.passport.user.r_role.f_label;
+			var userRoles = req.session.passport.user.r_role;
 			var entityName = params.entity;
 			var action = params.action;
-			return block_access.actionAccess(userRole, entityName, action);
+			return block_access.actionAccess(userRoles, entityName, action);
 		}
 	}
 

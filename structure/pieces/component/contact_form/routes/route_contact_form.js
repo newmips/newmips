@@ -120,7 +120,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.MODEL_VALUE_CONTACT.findOne({where: {id: idEntity}}).then(function (CODE_VALUE_CONTACT) {
@@ -200,7 +200,7 @@ router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
     var data = {
         menu: "CODE_VALUE_CONTACT",
         sub_menu: "create_CODE_VALUE_CONTACT",
@@ -228,7 +228,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
 
     models.MODEL_VALUE_SETTINGS.findById(1).then(function(settings){
         var from = req.body.f_name+" <"+req.body.f_sender+">";
@@ -324,7 +324,7 @@ router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
     });
 });
 
-router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "write"), function (req, res) {
+router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), function (req, res) {
     id_CODE_VALUE_SETTINGS = 1;
     var data = {
         menu: "CODE_VALUE_SETTINGS",
@@ -386,7 +386,7 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
     });
 });
 
-router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "write"), function (req, res) {
+router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), function (req, res) {
     var id_CODE_VALUE_SETTINGS = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))

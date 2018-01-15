@@ -72,7 +72,7 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
     });
 });
 
-router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "write"), function(req, res) {
+router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
     var enable = req.body.enable;
 
     var applicationConfig = require(__dirname+'/../config/application.json');
@@ -83,7 +83,7 @@ router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionA
     res.status(200).end();
 });
 
-router.post('/set_group_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "write"), function(req, res) {
+router.post('/set_group_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
     var form = req.body;
     var newModuleAccess = {}, newEntityAccess = {};
     for (var inputName in form) {
@@ -107,13 +107,13 @@ router.post('/set_group_access', block_access.isLoggedIn, block_access.actionAcc
     res.redirect('/access_settings/show');
 });
 
-router.post('/set_role_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "write"), function(req, res) {
+router.post('/set_role_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
     var form = req.body;
     var newActionRoles = {};
     for (var inputName in form) {
         var parts = inputName.split('.');
         if (typeof newActionRoles[parts[0]] === 'undefined')
-            newActionRoles[parts[0]] = {read: [], write: [], delete: []};
+            newActionRoles[parts[0]] = {read: [], create: [], update: [], delete: []};
         if (form[inputName] != 'true')
             newActionRoles[parts[0]][parts[2]].push(parts[1]);
     }

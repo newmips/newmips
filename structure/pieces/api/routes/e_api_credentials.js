@@ -82,7 +82,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("api_
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("api_credentials", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("api_credentials", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_api_credentials.findOne({where: {id: idEntity}}).then(function (e_api_credentials) {
@@ -164,7 +164,7 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("api_credentials", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("api_credentials", "create"), function (req, res) {
     var data = {
         menu: "e_api_credentials",
         sub_menu: "create_e_api_credentials",
@@ -192,7 +192,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("api_credentials"
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("api_credentials", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("api_credentials", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("e_api_credentials", createObject, req.body);
@@ -274,7 +274,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "w
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("api_credentials", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("api_credentials", 'update'), function (req, res) {
     id_e_api_credentials = req.query.id;
     var data = {
         menu: "e_api_credentials",
@@ -336,7 +336,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("api_credentials"
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("api_credentials", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("api_credentials", 'update'), function (req, res) {
     var id_e_api_credentials = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined")

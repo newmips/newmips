@@ -20,7 +20,7 @@ var enums_radios = require('../utils/enum_radio.js');
 var logger = require('../utils/logger');
 
 
-router.post('/create', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
 
@@ -82,7 +82,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "write"), fu
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
     var id_e_media_notification = req.query.id;
     var data = {
         menu: "e_media",
@@ -139,7 +139,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", "write")
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
     var id_e_media_notification = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -181,7 +181,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", "write"), fu
     });
 });
 
-router.get('/set_status/:id_media_notification/:status/:id_new_status', block_access.actionAccessMiddleware("media_notification", "write"), function(req, res) {
+router.get('/set_status/:id_media_notification/:status/:id_new_status', block_access.actionAccessMiddleware("media_notification", "create"), function(req, res) {
     var historyModel = 'E_history_e_media_notification_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
     var statusAlias = 'r_'+req.params.status.substring(2);
@@ -295,7 +295,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_notification", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_notification", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_media_notification.findOne({where: {id: idEntity}}).then(function (e_media_notification) {
