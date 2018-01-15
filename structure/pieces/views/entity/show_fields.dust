@@ -6,6 +6,7 @@
             <span>
                 <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="button.return"/}</a>
             </span>
+            {@actionAccess entity="custom_url_data_entity" action="delete"}
             <span>
                 <button class="btn btn-danger">
                     <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
@@ -13,25 +14,33 @@
                 </button>
                 <input name="id" type="hidden" value="{custom_data_entity.id}" class="form-control"/>
             </span>
+            {/actionAccess}
+
+            {@actionAccess entity="custom_url_data_entity" action="update"}
             <span>
                 <a href="/custom_url_data_entity/update_form?id={custom_data_entity.id}" class="btn btn-warning">
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
                     <span>{@__ key="button.update"/}</span>
                 </a>
             </span>
+            {/actionAccess}
             {^hideButton}
+                {@actionAccess entity="custom_url_data_entity" action="create"}
                 <span>
                     <a href="/custom_url_data_entity/create_form" class="btn btn-success">
                         <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
                         <span>{@__ key="button.create"/}</span>
                     </a>
                 </span>
+                {/actionAccess}
+                {@actionAccess entity="custom_url_data_entity" action="read"}
                 <span>
                     <a href="/custom_url_data_entity/list" type="submit" class="btn btn-primary">
                         <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
                         <span>{@__ key="button.list"/}</span>
                     </a>
                 </span>
+                {/actionAccess}
             {/hideButton}
         </div>
     </form>

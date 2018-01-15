@@ -41,6 +41,7 @@
             </div>
         </div>
     </div>
+    {@actionAccess entity="custom_url_data_entity" action="read"}
     <div id="table_custom_data_entity_show" style="display:none;">
         <a class="btn-show" href="/custom_url_data_entity/show?id=">
             <button class="btn btn-primary">
@@ -49,6 +50,8 @@
             </button>
         </a>
     </div>
+    {/actionAccess}
+    {@actionAccess entity="custom_url_data_entity" action="update"}
     <div id="table_custom_data_entity_update" style="display:none;">
         <a href="/custom_url_data_entity/update_form?id=">
             <button class="btn btn-warning">
@@ -57,6 +60,8 @@
             </button>
         </a>
     </div>
+    {/actionAccess}
+    {@actionAccess entity="custom_url_data_entity" action="delete"}
     <div id="table_custom_data_entity_delete" style="display:none;">
         <form action="/custom_url_data_entity/delete" method="post">
             <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
@@ -66,6 +71,7 @@
             </button>
         </form>
     </div>
+    {/actionAccess}
 {/content}
 {<custom_js}
     <!-- jQuery UI 1.10.3-->

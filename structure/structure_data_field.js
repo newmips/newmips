@@ -961,7 +961,7 @@ exports.setFieldAttribute = function (attr, callback) {
     });
 }
 
-function addTab(attr, file, newLi, newTabContent) {
+function addTab(attr, file, newLi, newTabContent, target) {
     return new Promise(function (resolve, reject) {
         var source = attr.options.source.toLowerCase();
         domHelper.read(file).then(function ($) {
@@ -988,10 +988,11 @@ function addTab(attr, file, newLi, newTabContent) {
             }
 
             // Append created elements to `context` to handle presence of tab or not
+            newLi = '<!--{@entityAccess entity="'+target.substring(2)+'"}-->\n'+newLi+'\n<!--{/entityAccess}-->';
             $(".nav-tabs", context).append(newLi);
-            $(".tab-content", context).append('<!--{^hideTab}-->');
+            $(".tab-content", context).append('<!--{^hideTab}-->\n\t\t\t<!--{@entityAccess entity="'+target.substring(2)+'"}-->');
             $(".tab-content", context).append(newTabContent);
-            $(".tab-content", context).append('<!--{/hideTab}-->');
+            $(".tab-content", context).append('<!--{/entityAccess}-->\n\t\t\t<!--{/hideTab}-->');
 
             $('body').empty().append(context);
             domHelper.write(file, $).then(function () {
@@ -1062,7 +1063,7 @@ exports.setupHasManyTab = function (attr, callback) {
             newTab += '</div>\n';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
-                addTab(attr, file, newLi, newTab).then(callback);
+                addTab(attr, file, newLi, newTab, target).then(callback);
             });
         });
     });
@@ -1148,7 +1149,7 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             newTabContent += '</div>\n';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
-                addTab(attr, file, newLi, newTabContent).then(callback);
+                addTab(attr, file, newLi, newTabContent, target).then(callback);
             });
         });
     });
@@ -1503,7 +1504,7 @@ exports.setupHasOneTab = function (attr, callback) {
 
             newTab += '</div>\n';
             printHelper.addHasOne(fileBase, target, alias).then(function(){
-                addTab(attr, file, newLi, newTab).then(callback);
+                addTab(attr, file, newLi, newTab, target).then(callback);
             });
         });
     });

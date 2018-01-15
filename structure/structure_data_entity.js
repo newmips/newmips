@@ -232,7 +232,6 @@ exports.setupDataEntity = function (attr, callback) {
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }
