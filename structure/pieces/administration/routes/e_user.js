@@ -78,6 +78,15 @@ router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), fu
                     }
                 }
             }
+
+            // Delete users sensitive informations
+            for (var i = 0; i < data.data.length; i++) {
+                var user = data.data[i];
+                user.f_password = undefined;
+                user.f_token_password_reset = undefined;
+                user.f_enabled = undefined;
+            }
+
             //check if we have to get some picture buffer before send data
             if (todo.length) {
                 var counter=0;
@@ -122,7 +131,7 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
     /* Looking for two level of include to get all associated data in show tab list */
     var include = model_builder.getTwoLevelIncludeAll(models, options);
 
-    models.E_user.findOne({where: {id: id_e_user}, include: include}).then(function (e_user) {
+    models.E_user.findOne({attributes: {exclude: ['f_password', 'f_token_password_reset', 'f_enabled']}, where: {id: id_e_user}, include: include}).then(function (e_user) {
         if (!e_user) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -180,7 +189,10 @@ router.get('/create_form', block_access.actionAccessMiddleware("user", "create")
 router.post('/create', block_access.actionAccessMiddleware("user", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    //createObject = enums.values("e_user", createObject, req.body);
+    // Make sure it's impossible to set sensitive information through create form
+    createObject.f_token_password_reset = undefined;
+    createObject.f_enabled = undefined;
+    createObject.f_password = undefined;
 
     models.E_user.create(createObject).then(function (e_user) {
         var redirect = '/user/show?id='+e_user.id;
@@ -251,7 +263,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("user", "update")
     var associationsFinder = model_builder.associationsFinder(models, options);
 
     Promise.all(associationsFinder).then(function (found) {
-        models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function (e_user) {
+        models.E_user.findOne({attributes: {exclude: ['f_password', 'f_token_password_reset', 'f_enabled']}, where: {id: id_e_user}, include: [{all: true}]}).then(function (e_user) {
             if (!e_user) {
                 data.error = 404;
                 return res.render('common/error', data);
@@ -306,7 +318,10 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
             return res.render('common/error', data);
         }
 
-        e_user.update(updateObject).then(function () {
+            updateObject.f_token_password_reset = undefined;
+            updateObject.f_enabled = undefined;
+            updateObject.f_password = undefined;
+            e_user.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now

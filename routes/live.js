@@ -120,6 +120,8 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select entity User");
     instructions.push("add field role related to many Role using label");
     instructions.push("add field group related to many Group using label");
+    instructions.push("entity Role has many user");
+    instructions.push("entity Group has many user");
     instructions.push("add entity API credentials");
     instructions.push("add field Client Name");
     instructions.push("add field Client Key");

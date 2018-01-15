@@ -105,6 +105,8 @@ var mandatoryInstructions = [
     "select entity User",
     "add field role related to many Role using label",
     "add field group related to many Group using label",
+    "entity Role has many user",
+    "entity Group has many user",
     "add entity API credentials",
     "add field Client Name",
     "add field Client Key",
