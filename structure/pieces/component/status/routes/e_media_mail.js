@@ -23,7 +23,7 @@ router.get('/entityTree', function(req, res) {
     res.json(entity_helper.status.entityFieldTree('e_action'));
 })
 
-router.post('/create', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
 
     models.E_media_mail.create(createObject).then(function (e_media_mail) {
@@ -71,7 +71,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "write"), fu
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
     var id_e_media_mail = req.query.id;
     var data = {
         menu: "e_media",
@@ -128,7 +128,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", "write")
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
     var id_e_media_mail = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -172,7 +172,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", "write"), fu
     });
 });
 
-router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.actionAccessMiddleware("media", "write"), function(req, res) {
+router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.actionAccessMiddleware("media", "create"), function(req, res) {
     var historyModel = 'E_history_e_media_mail_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
     var statusAlias = 'r_'+req.params.status.substring(2);
@@ -268,7 +268,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_media_mail.findOne({where: {id: idEntity}}).then(function (e_media_mail) {

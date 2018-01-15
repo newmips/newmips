@@ -153,10 +153,16 @@
 															<input name="{name}.{f_label}.read" type="checkbox"> {@__ key="settings.auth_component.action.read"/}
 														{/isActionChecked}
 														<br>
-														{@isActionChecked action="write" source=currentEntity target=f_label}
-															<input name="{name}.{f_label}.write" type="checkbox" checked> {@__ key="settings.auth_component.action.write"/}
+														{@isActionChecked action="create" source=currentEntity target=f_label}
+															<input name="{name}.{f_label}.create" type="checkbox" checked> {@__ key="settings.auth_component.action.create"/}
 														{:else}
-															<input name="{name}.{f_label}.write" type="checkbox"> {@__ key="settings.auth_component.action.write"/}
+															<input name="{name}.{f_label}.create" type="checkbox"> {@__ key="settings.auth_component.action.create"/}
+														{/isActionChecked}
+														<br>
+														{@isActionChecked action="update" source=currentEntity target=f_label}
+															<input name="{name}.{f_label}.update" type="checkbox" checked> {@__ key="settings.auth_component.action.update"/}
+														{:else}
+															<input name="{name}.{f_label}.update" type="checkbox"> {@__ key="settings.auth_component.action.update"/}
 														{/isActionChecked}
 														<br>
 														{@isActionChecked action="delete" source=currentEntity target=f_label}

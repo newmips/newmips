@@ -118,15 +118,15 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field label");
     instructions.push("set icon users");
     instructions.push("select entity User");
-    instructions.push("add field role related to Role using label");
-    instructions.push("add field group related to Group using label");
+    instructions.push("add field role related to many Role using label");
+    instructions.push("add field group related to many Group using label");
     instructions.push("add entity API credentials");
     instructions.push("add field Client Name");
     instructions.push("add field Client Key");
     instructions.push("add field Client Secret");
     instructions.push("set icon unlink");
-    instructions.push("add field role related to Role using label");
-    instructions.push("add field group related to Group using label");
+    instructions.push("add field role related to many Role using label");
+    instructions.push("add field group related to many Group using label");
     instructions.push("add field Token");
     instructions.push("add field Token timeout TMSP");
 

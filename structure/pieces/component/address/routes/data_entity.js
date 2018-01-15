@@ -155,7 +155,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
@@ -237,7 +237,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "create_ENTITY_NAME",
@@ -265,7 +265,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("ENTITY_NAME", createObject, req.body);
@@ -307,7 +307,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 'update'), function (req, res) {
     var id_ENTITY_NAME = req.query.id;
     var data = {
         menu: "ENTITY_NAME",
@@ -369,7 +369,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 'update'), function (req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')

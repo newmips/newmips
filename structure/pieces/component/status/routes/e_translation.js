@@ -171,7 +171,7 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("translation", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("translation", "create"), function (req, res) {
     var data = {
         menu: "e_translation",
         sub_menu: "create_e_translation",
@@ -196,7 +196,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("translation", "w
     res.render('e_translation/create', data);
 });
 
-router.post('/create', block_access.actionAccessMiddleware("translation", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("translation", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("e_translation", createObject, req.body);
@@ -239,7 +239,7 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "write
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("translation", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("translation", 'update'), function (req, res) {
     var id_e_translation = req.query.id;
     var data = {
         menu: "e_translation",
@@ -296,7 +296,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("translation", "w
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("translation", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("translation", 'update'), function (req, res) {
     var id_e_translation = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -338,7 +338,7 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "write
     });
 });
 
-router.get('/set_status/:id_translation/:status/:id_new_status', block_access.actionAccessMiddleware("translation", "write"), function(req, res) {
+router.get('/set_status/:id_translation/:status/:id_new_status', block_access.actionAccessMiddleware("translation", "create"), function(req, res) {
     var historyModel = 'E_history_e_translation_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
     var statusAlias = 'r_'+req.params.status.substring(2);
@@ -451,7 +451,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("tran
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("translation", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("translation", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_translation.findOne({where: {id: idEntity}}).then(function (e_translation) {

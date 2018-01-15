@@ -69,7 +69,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "write"), function(req, res) {
+router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "create"), function(req, res) {
 
     if(req.body.idCategory == "" || req.body.idCategory == 0)
         req.body.idCategory = null;
@@ -96,7 +96,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "writ
     });
 });
 
-router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE", "write"), function(req, res) {
+router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE", "create"), function(req, res) {
 
     var updateObj = {
         f_start_date: req.body.start,
@@ -110,7 +110,7 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE", "w
     });
 });
 
-router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE", "write"), function(req, res) {
+router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE", 'update'), function(req, res) {
 
     var updateObj = {
         f_start_date: req.body.start,

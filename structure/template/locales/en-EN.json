@@ -49,7 +49,8 @@
             "api_doc": "API Documentation",
 			"action":{
 				"read": "Show",
-				"write": "Create",
+				"create": "Create",
+				"update": "Update",
 				"delete": "Delete"
 			}
 		},

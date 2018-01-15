@@ -118,7 +118,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("cra_
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra_team", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_cra_team.findOne({where: {id: idEntity}}).then(function (e_cra_team) {
@@ -236,7 +236,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
     });
 });
 
-router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team", "create"), function (req, res) {
     var countryLang = req.body.lang.split('-');
     var country = countryLang[1];
     var lang = countryLang[0];
@@ -267,7 +267,7 @@ router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team"
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("cra_team", "create"), function (req, res) {
     var data = {
         menu: "e_cra_team",
         sub_menu: "create_e_cra_team",
@@ -295,7 +295,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra_team", "writ
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("cra_team", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("e_cra_team", createObject, req.body);
@@ -353,7 +353,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "write"),
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("cra_team", 'update'), function (req, res) {
     id_e_cra_team = req.query.id;
     var data = {
         menu: "e_cra_team",
@@ -415,7 +415,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra_team", "writ
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("cra_team", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("cra_team", 'update'), function (req, res) {
     var id_e_cra_team = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))

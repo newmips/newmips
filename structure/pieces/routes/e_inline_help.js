@@ -113,7 +113,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inli
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("inline_help", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("inline_help", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_inline_help.findOne({where: {id: idEntity}}).then(function (e_inline_help) {
@@ -182,7 +182,7 @@ router.get('/help/:entity/:field', function(req, res) {
     });
 })
 
-router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "create"), function (req, res) {
     var data = {
         menu: "e_inline_help",
         sub_menu: "create_e_inline_help",
@@ -205,7 +205,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "w
     res.render('e_inline_help/create', data);
 });
 
-router.post('/create', block_access.actionAccessMiddleware("inline_help", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("inline_help", "create"), function (req, res) {
 
     var createObject = {f_entity: req.body.f_entity, f_field: req.body.f_field.split('.')[1], f_content: req.body.f_content};
 
@@ -218,7 +218,7 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "write
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("inline_help", 'update'), function (req, res) {
     var id_e_inline_help = req.query.id;
     var data = {
         menu: "e_inline_help",
@@ -243,7 +243,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "w
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("inline_help", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("inline_help", 'update'), function (req, res) {
     var id_e_inline_help = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
