@@ -35,7 +35,9 @@
 
                     <div class="box-footer">
                         <a class="btn btn-default" href="javascript:history.back();">{@__ key="button.cancel"/}</a>&nbsp;&nbsp;
-                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                        {@actionAccess entity="custom_url_data_entity" action="create"}
+                            <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                        {/actionAccess}
                     </div>
 
                     {#associationFlag}
