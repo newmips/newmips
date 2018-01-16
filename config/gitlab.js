@@ -1,3 +1,5 @@
+var globalConf = require('./global');
+
 var config = {
     develop: {
         "doGit": false,
