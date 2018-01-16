@@ -15,7 +15,7 @@ var logger = require('../utils/logger');
 
 // Gitlab
 var globalConf = require('../config/global.js');
-var gitlabConf = require('../config/gitlab.json');
+var gitlabConf = require('../config/gitlab.js');
 
 try{
     if(gitlabConf.doGit){
@@ -27,7 +27,7 @@ try{
     }
 } catch(err){
     console.log("Error connection Gitlab repository: "+err);
-    console.log("Please set doGit in config/gitlab.json to false");
+    console.log("Please set doGit in config/gitlab.js to false");
 }
 
 //Sequelize
@@ -164,7 +164,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                 message: "Error connection Gitlab repository: " + err
                             };
                             console.log("Error connection Gitlab repository: "+err);
-                            console.log("Please set doGit in config/gitlab.json to false");
+                            console.log("Please set doGit in config/gitlab.js to false");
                             done();
                         }
                     } else{
@@ -439,7 +439,7 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
 
                     if(!exist){
                         req.session.toastr = [{
-                            message: "Erreur, impossible de se connecter au compte Gitlab. Veuillez desactiver doGit dans config/gitlab.json si vous ne souhaitez pas utiliser Gitlab.",
+                            message: "Erreur, impossible de se connecter au compte Gitlab. Veuillez desactiver doGit dans config/gitlab.js si vous ne souhaitez pas utiliser Gitlab.",
                             level: "error"
                         }];
                         res.redirect('/logout');
