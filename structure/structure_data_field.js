@@ -1545,6 +1545,7 @@ exports.deleteDataField = function (attr, callback) {
             if(dataToWrite[i].structureType == "relatedToMultiple"){
                 info.isMultipleConstraint = true;
                 info.target = dataToWrite[i].target;
+                info.fieldToDrop = dataToWrite[i].foreignKey+"_"+url_value;
             }
 
             dataToWrite.splice(i, 1);
