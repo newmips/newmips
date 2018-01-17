@@ -38,13 +38,18 @@ var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {flags:
 app.use(morgan('dev', {
 	skip: function (req, res) {
 		// Empeche l'apparition de certain log polluant.
-		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status", "/"];
-		if(skipArray.indexOf(req.url) != -1){
+		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status", "/completion", "/"];
+		var currentURL = req.url;
+		if(currentURL.indexOf("?") != -1){
+			// Remove params from URL
+			currentURL = currentURL.split("?")[0];
+		}
+		if(skipArray.indexOf(currentURL) != -1){
 			return true;
 		}
 	},
 	stream: split().on('data', function (line) {
-		if(allLogStream.bytesWritten < 20000){
+		if(allLogStream.bytesWritten < 10000){
 			allLogStream.write(ansiToHtml.toHtml(line)+"\n");
 			process.stdout.write(line+"\n");
 		} else{
