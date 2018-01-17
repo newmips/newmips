@@ -313,7 +313,7 @@
         "global": {
             "restart": {
                 "success": "Server restarded!",
-                "error": "Couldn't start server due to critical error."
+                "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
             },
             "gitPush": {
                 "success": "The application has been saved!"

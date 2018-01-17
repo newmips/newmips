@@ -261,6 +261,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
     env.PORT = port;
     var protocol_iframe = globalConf.protocol_iframe;
     var host = globalConf.host;
+    var timeoutServer = 30000;
 
     // Parse instruction and set results
     models.Application.findById(req.session.id_application).then(function(application) {
@@ -406,7 +407,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
                                 var initialTimestamp = new Date().getTime();
                                 function checkServer() {
-                                    if (new Date().getTime() - initialTimestamp > 15000) {
+                                    if (new Date().getTime() - initialTimestamp > timeoutServer) {
                                         // req.session.toastr = [{level: 'error', message: 'Server couldn\'t start'}];
                                         // return res.redirect('/default/home');
                                         data.iframe_url = -1;
@@ -502,6 +503,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
     env.PORT = port;
     var protocol_iframe = globalConf.protocol_iframe;
     var host = globalConf.host;
+    var timeoutServer = 30000;
 
     // Parse instruction and set results
     models.Application.findById(req.session.id_application).then(function(application) {
@@ -657,7 +659,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 
                                 var initialTimestamp = new Date().getTime();
                                 function checkServer() {
-                                    if (new Date().getTime() - initialTimestamp > 15000) {
+                                    if (new Date().getTime() - initialTimestamp > timeoutServer) {
                                         data.iframe_url = -1;
                                         setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error");
                                         data.chat = chats[currentAppID][currentUserID];
