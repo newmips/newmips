@@ -312,7 +312,7 @@
         "global": {
             "restart": {
                 "success": "Le serveur a bien été redémarré!",
-                "error": "Impossible de démarrer le serveur suite à une erreur critique."
+                "error": "Oups, le serveur de l'application ne répond pas, vous pouvez essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>"
             },
             "gitPush": {
                 "success": "L'application a bien été sauvegardée !"
