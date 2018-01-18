@@ -6,7 +6,7 @@ var translateHelper = require("../utils/translate");
 
 // Global conf
 var globalConf = require('../config/global.js');
-var gitlabConf = require('../config/gitlab.json');
+var gitlabConf = require('../config/gitlab.js');
 
 var dns_manager;
 if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
@@ -22,7 +22,7 @@ try {
     }
 } catch (err) {
     console.log("Error connection Gitlab repository: " + err);
-    console.log("Please set doGit in config/gitlab.json to false");
+    console.log("Please set doGit in config/gitlab.js to false");
 }
 
 //Sequelize
@@ -153,7 +153,7 @@ exports.setupApplication = function(attr, callback) {
                                 });
                             } catch (err) {
                                 console.log("Error connection Gitlab repository: " + err);
-                                console.log("Please set doGit in config/gitlab.json to false");
+                                console.log("Please set doGit in config/gitlab.js to false");
                                 callback(err);
                             }
                         }
@@ -475,7 +475,7 @@ exports.deleteApplication = function(id_application, callback) {
                 });
             } catch (err) {
                 console.log("Error connection Gitlab repository: " + err);
-                console.log("Please set doGit in config/gitlab.json to false");
+                console.log("Please set doGit in config/gitlab.js to false");
                 callback();
             }
         });

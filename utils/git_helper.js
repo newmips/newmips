@@ -1,6 +1,6 @@
 var fs = require("fs");
 var globalConf = require('../config/global.js');
-var gitlabConf = require('../config/gitlab.json');
+var gitlabConf = require('../config/gitlab.js');
 
 //Sequelize
 var models = require('../models/');

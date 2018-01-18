@@ -312,7 +312,7 @@
         "global": {
             "restart": {
                 "success": "Le serveur a bien été redémarré!",
-                "error": "Impossible de démarrer le serveur suite à une erreur critique."
+                "error": "Oups, le serveur de l'application ne répond pas, vous pouvez essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>"
             },
             "gitPush": {
                 "success": "L'application a bien été sauvegardée !"
@@ -325,7 +325,7 @@
             },
             "error": {
                 "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
-                "notDoGit": "L'option 'doGit' dans config/gitlab.json est désactivée, l'instruction demandée ne fera donc rien."
+                "notDoGit": "L'option 'doGit' dans config/gitlab.js est désactivée, l'instruction demandée ne fera donc rien."
             }
         },
         "module": {

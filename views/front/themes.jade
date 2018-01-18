@@ -2,6 +2,14 @@ extends ../main_layout
 block custom_css
 	link(href='/css/animated.css', rel='stylesheet', type='text/css')
 	style.
+		@media screen and (min-width: 1200px) and (max-width: 1830px) {
+			.box .box-footer {
+				height: 90px !important;
+			}
+			.box .box-footer .pull-right{
+				float: left !important;
+			}
+		}
 		/*.theme-box .box-footer a span {
 			max-width: 0;
 			-webkit-transition: -webkit-transform 0.3s ease-in-out, max-width 0.3s ease-in-out;
@@ -91,7 +99,7 @@ block content
 					br
 					.row
 						for theme in availableTheme
-							.col-xs-3(id="box-#{theme.codeName}")
+							.col-xs-12.col-sm-6.col-md-4.col-lg-3(id="box-#{theme.codeName}")
 								.box.theme-box.animated.fadeIn
 									.box-header.with-border(style="border-bottom: 1px solid #f4f4f4;")
 										h3.box-title #{theme.name}
