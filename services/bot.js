@@ -2227,9 +2227,6 @@ exports.complete = function(instruction) {
         // Check each blocks
         for (var i = 0; i < training[action].length; i++) {
 
-            // console.log(template);
-            // console.log(instr);
-
             // Template to compare to
             var template = training[action][i].split(" ");
 
@@ -2347,7 +2344,7 @@ exports.complete = function(instruction) {
 
     // Sort array of results
     out.sort();
-
+    out.reverse();
     return out;
 }
 
