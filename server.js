@@ -84,7 +84,7 @@ app.use(session({
 	cookieName: 'newmipsCookie',
 	secret: 'newmipsmakeyourlifebetter',
 	resave: true,
-	saveUninitialized: true,
+	saveUninitialized: false,
 	maxAge: 360*5,
 	key: 'newmipsCookie'
  } )); // session secret
@@ -100,10 +100,12 @@ app.use(function(req, res, next) {
 	// Applications created with newmips only have fr-FR.
 	// To avoid cookie conflict between newmips and this app, set fr-FR by default
 	var lang = 'fr-FR';
-	if (req.session.lang_user)
-        lang = req.session.lang_user;
-    else
-    	req.session.lang_user = lang;
+	if (req.isAuthenticated()){
+		if (req.session.lang_user)
+	        lang = req.session.lang_user;
+	    else
+	    	req.session.lang_user = lang;
+	}
 	// Pass translate function to jade templates
 	res.locals = extend(res.locals, language(lang));
 	next();
