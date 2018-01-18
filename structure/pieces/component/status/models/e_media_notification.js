@@ -49,8 +49,12 @@ module.exports = function (sequelize, DataTypes) {
                     groupsIds.push(self.r_target_groups[i].id);
                 // Find all with group
                 models.E_user.findAll({
-                    where: {fk_id_group_group: {$in: groupsIds}},
                     attributes: ['id'],
+                    include: [{
+                        model: models.E_group,
+                        as: 'r_group',
+                        where: {id: {$in: groupsIds}}
+                    }],
                     raw: true
                 }).then(function(groupUsers) {
                     for (var i = 0; i < groupUsers.length; i++)
