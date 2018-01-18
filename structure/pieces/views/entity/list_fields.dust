@@ -20,9 +20,15 @@
     		<th data-field="id" data-col="id">
 				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
 			</th>
-			<th></th>
-			<th></th>
-			<th></th>
+			{@actionAccess entity="custom_url_data_entity" action="read"}
+				<th></th>
+			{/actionAccess}
+			{@actionAccess entity="custom_url_data_entity" action="update"}
+				<th></th>
+			{/actionAccess}
+			{@actionAccess entity="custom_url_data_entity" action="delete"}
+				<th></th>
+			{/actionAccess}
     	</tr>
     </thead>
     <tbody>
@@ -32,10 +38,10 @@
 			{@eq key=for value="fieldset"}
 				{@actionAccess entity="custom_url_data_entity" action="update"}
 					<td>
-					<form class='fieldsetform'>
-						<input type='hidden' value='{id}' name='idRemove'>
-						<button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
-					</form>
+						<form class='fieldsetform'>
+							<input type='hidden' value='{id}' name='idRemove'>
+							<button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
+						</form>
 					</td>
 				{/actionAccess}
 			{/eq}
