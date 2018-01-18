@@ -305,7 +305,8 @@
                 "deleted": "Field %s deleted !"
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no field with this ID : %s."
+                "withThisID": "Sorry, but there is no field with this ID : %s.",
+                "withThisName": "Sorry, but there is no field %s in the entity %s."
             }
         }
     },

@@ -775,34 +775,42 @@ block custom_js
 		                return false;
 		            },
 		            select: function(event, ui) {
-		                var completeVal = ui.item.value;
-		                // If complete value have already typed string in it, dont concat with current value
-		                if (completeVal.indexOf(this.value) == 0) {
-		                    this.value = completeVal.split("[variable]").join("").trim();
-		                } else {
-		                    // Remove the last word of already typed instruction because it is also in the completed value
-		                    var parts = this.value.split(' ');
-		                    if (parts[parts.length - 1] == " ")
-		                        parts.pop();
-		                    else {
-		                        compareNum = 0;
-		                        l = Math.min(completeVal.length, parts[parts.length - 1].length);
-		                        for (i = 0; i < l; i++) {
-		                            if (completeVal.charAt(i) == parts[parts.length - 1].charAt(i)) compareNum++;
-		                        }
-		                        if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
-		                            parts.pop();
-		                    }
-		                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
-		                }
 
-		                var TABKEY = 9;
-			            if (event.keyCode == TABKEY) {
-			                event.preventDefault();
-			                this.value = this.value+" ";
-			                $('#instruction').focus();
+		            	var ENTERKEY = 13;
+		            	if (event.keyCode != ENTERKEY) {
+			                var completeVal = ui.item.value;
+			                // If complete value have already typed string in it, dont concat with current value
+			                if (completeVal.indexOf(this.value) == 0) {
+			                    this.value = completeVal.split("[variable]").join("").trim();
+			                } else {
+			                    // Remove the last word of already typed instruction because it is also in the completed value
+			                    var parts = this.value.split(' ');
+			                    if (parts[parts.length - 1] == " ")
+			                        parts.pop();
+			                    else {
+			                        compareNum = 0;
+			                        l = Math.min(completeVal.length, parts[parts.length - 1].length);
+			                        for (i = 0; i < l; i++) {
+			                            if (completeVal.charAt(i) == parts[parts.length - 1].charAt(i)) compareNum++;
+			                        }
+			                        if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
+			                            parts.pop();
+			                    }
+			                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
+			                }
+
+			                var TABKEY = 9;
+				            if (event.keyCode == TABKEY) {
+				                event.preventDefault();
+				                this.value = this.value+" ";
+				                $('#instruction').focus();
+				            }
+			                return false;
+			            } else {
+			            	event.preventDefault();
+			            	$('#execute_instruction').click();
+			            	return false;
 			            }
-		                return false;
 		            }
 		        });
 				// }
