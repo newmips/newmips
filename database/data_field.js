@@ -219,3 +219,24 @@ exports.getCodeNameByNameArray = function(names, id_entity, callback) {
         callback(err);
     });
 }
+
+exports.getFieldByCodeName = function (attr, callback) {
+
+    models.DataField.findOne({
+        where: {
+            codeName: attr.fieldToDrop,
+            id_data_entity: attr.id_data_entity
+        }
+    }).then(function (field) {
+        if (!field) {
+            var err = new Error();
+            err.message = "database.field.notFound.withThisName";
+            err.messageParams = [attr.options.showValue, attr.show_name_data_entity];
+            return callback(err, null);
+        }
+
+        callback(null, field);
+    }).catch(function (err) {
+        callback(err, null);
+    });
+}

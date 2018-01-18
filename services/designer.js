@@ -749,7 +749,6 @@ exports.deleteTab = deleteTab;
 
 // Delete
 function deleteDataField(attr, callback) {
-
     // Get Entity or Type Id
     db_entity.getDataEntityById(attr.id_data_entity, function(err, dataEntity) {
         if (err)
@@ -798,20 +797,27 @@ function deleteDataField(attr, callback) {
                         dropFunction = 'dropFKMultipleDataField';
                     }
 
-                    database[dropFunction](attr, function(err, info) {
+                    // Check if field exist
+                    db_field.getFieldByCodeName(attr, function(err, fieldExist) {
                         if (err)
                             return callback(err, null);
 
-                        // Missing id_ in attr.options.value, so we use fieldToDrop
-                        attr.options.value = attr.fieldToDrop;
-                        // Delete record from software
-                        db_field.deleteDataField(attr, function(err, infoDB) {
+                        database[dropFunction](attr, function(err, info) {
                             if (err)
                                 return callback(err, null);
 
-                            callback(null, infoDB);
+                            // Missing id_ in attr.options.value, so we use fieldToDrop
+                            attr.options.value = attr.fieldToDrop;
+                            // Delete record from software
+                            db_field.deleteDataField(attr, function(err, infoDB) {
+                                if (err)
+                                    return callback(err, null);
+
+                                callback(null, infoDB);
+                            });
                         });
                     });
+
                 });
             });
         } catch(err){
