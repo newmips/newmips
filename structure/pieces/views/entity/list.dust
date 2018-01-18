@@ -33,10 +33,12 @@
                     {>"custom_data_entity/list_fields"/}
                     <br>
                     <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="button.return"/}</a>&nbsp;&nbsp;
+                    {@actionAccess entity="custom_url_data_entity" action="create"}
                     <a href="/custom_url_data_entity/create_form">
                         <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
                         </button>
                     </a>
+                    {/actionAccess}
                 </div>
             </div>
         </div>

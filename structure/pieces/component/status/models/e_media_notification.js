@@ -39,7 +39,7 @@ module.exports = function (sequelize, DataTypes) {
                     return newString || "";
                 }
 
-                // Find all target users id
+                // Find all target users idY87
                 var targetIds = [];var groupsIds = [];
                 // User list
                 for (var i = 0; i < self.r_target_users.length; i++)
