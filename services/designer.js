@@ -1648,7 +1648,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
         }
 
         // Now we know the source entity, so we can generate the foreign key
-        attr.options.foreignKey = "fk_id_"+attr.options.urlSource+"_"+attr.options.as.toLowerCase().substring(2);
+        attr.options.foreignKey = "fk_id_"+attr.options.source+"_"+attr.options.as.toLowerCase().substring(2);
 
         var allUsingExist = true;
 
@@ -1751,15 +1751,9 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                 options: {
                     showForeignKey: attr.options.showAs,
                     foreignKey: attr.options.foreignKey,
-                    source: attr.options.target,
-                    showSource: attr.options.showTarget,
-                    urlSource: attr.options.urlTarget,
-                    target: attr.options.source,
-                    showTarget: attr.options.showSource,
-                    urlTarget: attr.options.urlSource
+                    source: attr.options.source,
                 },
-                id_data_entity: entityTarget.id,
-                id_module: attr.id_module,
+                id_data_entity: attr.id_data_entity,
                 id_application: attr.id_application
             };
 

@@ -313,7 +313,7 @@
         "global": {
             "restart": {
                 "success": "Server restarded!",
-                "error": "Couldn't start server due to critical error."
+                "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
             },
             "gitPush": {
                 "success": "The application has been saved!"
@@ -326,7 +326,7 @@
             },
             "error": {
                 "alreadyInProcess": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
-                "notDoGit": "You choose to not do git in config/gitlab.json, so this instruction will do nothing."
+                "notDoGit": "You choose to not do git in config/gitlab.js, so this instruction will do nothing."
             }
         },
         "module": {
