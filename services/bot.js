@@ -1645,11 +1645,15 @@ var training = {
         "create component status called (.*)",
         "add component status called (.*)",
         "create component status with name (.*)",
-        "add component status with name (.*)"
+        "add component status with name (.*)",
+        "ajouter un composant statut appelé (.*)",
+        "créer un composant statut appelé (.*)"
     ],
     "createNewComponentStatus": [
         "create component status",
-        "add component status"
+        "add component status",
+        "ajouter un composant statut",
+        "créer un composant statut"
     ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",

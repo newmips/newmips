@@ -133,6 +133,7 @@ var mandatoryInstructions = [
     "set icon envelope",
     "add field Type with type enum and values Mail, Notification, Function",
     "add field Name",
+    "set field Name required",
     "add field Target entity",
     "entity status has many Action called Actions",
     "select entity action",

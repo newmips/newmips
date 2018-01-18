@@ -3,7 +3,7 @@ var fs = require('fs-extra');
 
 var attributes_origin = require("./attributes/e_media_notification.json");
 var associations = require("./options/e_media_notification.json");
-var socket = require('../services/socket')();
+var socket;
 var models;
 
 module.exports = function (sequelize, DataTypes) {
@@ -33,9 +33,8 @@ module.exports = function (sequelize, DataTypes) {
 
                     var newString = self[property];
                     var regex = new RegExp(/{([^}]*)}/g), matches = null;
-                    while ((matches = regex.exec(self[property])) != null) {
-                        newString = self[property].replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
-                    }
+                    while ((matches = regex.exec(self[property])) != null)
+                        newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 
                     return newString || "";
                 }
@@ -71,6 +70,8 @@ module.exports = function (sequelize, DataTypes) {
                     };
                     models.E_notification.create(notificationObj).then(function(notification) {
                         notification.setR_user(targetIds);
+                        if (!socket)
+                             socket = require('../services/socket')();
                         socket.sendNotification(notification, targetIds);
                         resolve();
                     }).catch(reject);
