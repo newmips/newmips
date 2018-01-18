@@ -298,7 +298,7 @@ $(document).ready(function () {
     /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
     $("input[type='tel']").inputmask({mask: "## ## ## ## ##"});
     $("input[type='tel']").keyup(function(e) {
-        if(isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace")
+        if(isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace" && e.key != "Shift")
             $(this).val("");
     });
 
