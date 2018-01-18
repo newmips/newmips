@@ -304,7 +304,8 @@
                 "deleted": "Champ %s supprimé !"
             },
             "notFound": {
-                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s."
+                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s.",
+                "withThisName": "Désolé, mais il n'y a pas de champ %s dans l'entité %s."
             }
         }
     },
