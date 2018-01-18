@@ -4,7 +4,13 @@ var languages = [];
 function fetchText(key, lang) {
 	if (!key)
 		return "";
-	var keys = key.split('.');
+	var keys;
+	try {
+		keys = key.split('.');
+	} catch(e) {
+		return key;
+	}
+
 	if (typeof languages[lang] === 'undefined') {
 		try {
 			languages[lang] = require(__dirname + '/../locales/'+lang);
