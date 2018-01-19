@@ -1181,6 +1181,8 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext){
                                         resolve();
                                     });
                                 } else if(attr.targetType == "relatedToMultiple"){
+                                    if(typeof optionObj.usingField !== "undefined")
+                                        reversedAttr.options.usingField = optionObj.usingField;
                                     structure_data_field.setupRelatedToMultipleField(reversedAttr, function(){
                                         resolve();
                                     });
@@ -1531,40 +1533,39 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
             attr.options.urlSource = attrHelper.removePrefix(source_entity.codeName, "entity");
         }
 
-        var allUsingExist = true;
-
-        // If a using field or fields has been asked, we have to check if those fields exist in the entity
-        if(typeof attr.options.usingField !== "undefined"){
-            var attributesPath = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.options.target.toLowerCase()
-            delete require.cache[require.resolve(attributesPath)];
-            var attributeTarget = require(attributesPath);
-            for(var i=0; i<attr.options.usingField.length; i++){
-                if (typeof attributeTarget[attr.options.usingField[i]] === "undefined") {
-                    allUsingExist = false;
-                    var missingField = attr.options.showUsingField[i];
-                } else{
-                    attr.options.usingField[i] = {
-                        value: attr.options.usingField[i],
-                        type: attributeTarget[attr.options.usingField[i]].newmipsType
-                    }
-                }
-            }
-        }
-
-        // If a asked using field doesn't exist in the target entity we send an error
-        if (!allUsingExist) {
-            var err = new Error();
-            err.message = "structure.association.relatedTo.missingField";
-            err.messageParams = [missingField, attr.options.showTarget];
-            return callback(err, null);
-        }
-
-
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectEntityTarget(attr, function (err, dataEntity) {
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
+
+            var allUsingExist = true;
+
+            // If a using field or fields has been asked, we have to check if those fields exist in the entity
+            if(typeof attr.options.usingField !== "undefined"){
+                var attributesPath = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.options.target.toLowerCase()
+                delete require.cache[require.resolve(attributesPath)];
+                var attributeTarget = require(attributesPath);
+                for(var i=0; i<attr.options.usingField.length; i++){
+                    if (typeof attributeTarget[attr.options.usingField[i]] === "undefined") {
+                        allUsingExist = false;
+                        var missingField = attr.options.showUsingField[i];
+                    } else{
+                        attr.options.usingField[i] = {
+                            value: attr.options.usingField[i],
+                            type: attributeTarget[attr.options.usingField[i]].newmipsType
+                        }
+                    }
+                }
+            }
+
+            // If a asked using field doesn't exist in the target entity we send an error
+            if (!allUsingExist) {
+                var err = new Error();
+                err.message = "structure.association.relatedTo.missingField";
+                err.messageParams = [missingField, attr.options.showTarget];
+                return callback(err, null);
+            }
 
             // Check if an association already exists from source to target
             var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
@@ -1619,6 +1620,9 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                     toSync: true,
                     type: "relatedTo"
                 };
+                if(typeof attr.options.usingField !== "undefined"){
+                    associationOption.usingField = attr.options.usingField;
+                }
                 structure_data_entity.setupAssociation(associationOption, function () {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToField(attr, function (err, data) {
@@ -1656,40 +1660,39 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
         // Now we know the source entity, so we can generate the foreign key
         attr.options.foreignKey = "fk_id_"+attr.options.source+"_"+attr.options.as.toLowerCase().substring(2);
 
-        var allUsingExist = true;
-
-        // If a using field or fields has been asked, we have to check if those fields exist in the entity
-        if(typeof attr.options.usingField !== "undefined"){
-            var attributesPath = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.options.target.toLowerCase()
-            delete require.cache[require.resolve(attributesPath)];
-            var attributeTarget = require(attributesPath);
-            for(var i=0; i<attr.options.usingField.length; i++){
-                if (typeof attributeTarget[attr.options.usingField[i]] === "undefined") {
-                    allUsingExist = false;
-                    var missingField = attr.options.showUsingField[i];
-                } else{
-                    attr.options.usingField[i] = {
-                        value: attr.options.usingField[i],
-                        type: attributeTarget[attr.options.usingField[i]].newmipsType
-                    }
-                }
-            }
-        }
-
-        // If a asked using field doesn't exist in the target entity we send an error
-        if (!allUsingExist) {
-            var err = new Error();
-            err.message = "structure.association.relatedTo.missingField";
-            err.messageParams = [missingField, attr.options.showTarget];
-            return callback(err, null);
-        }
-
-
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
         db_entity.selectEntityTarget(attr, function(err, entityTarget) {
             // If target entity doesn't exists, send error
             if (err)
                 return callback(err, null);
+
+            var allUsingExist = true;
+
+            // If a using field or fields has been asked, we have to check if those fields exist in the entity
+            if(typeof attr.options.usingField !== "undefined"){
+                var attributesPath = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.options.target.toLowerCase()
+                delete require.cache[require.resolve(attributesPath)];
+                var attributeTarget = require(attributesPath);
+                for(var i=0; i<attr.options.usingField.length; i++){
+                    if (typeof attributeTarget[attr.options.usingField[i]] === "undefined") {
+                        allUsingExist = false;
+                        var missingField = attr.options.showUsingField[i];
+                    } else{
+                        attr.options.usingField[i] = {
+                            value: attr.options.usingField[i],
+                            type: attributeTarget[attr.options.usingField[i]].newmipsType
+                        }
+                    }
+                }
+            }
+
+            // If a asked using field doesn't exist in the target entity we send an error
+            if (!allUsingExist) {
+                var err = new Error();
+                err.message = "structure.association.relatedTo.missingField";
+                err.messageParams = [missingField, attr.options.showTarget];
+                return callback(err, null);
+            }
 
             // Check if an association already exists from source to target
             var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
@@ -1764,10 +1767,8 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
             };
 
             db_field.createNewForeignKey(reversedAttr, function(err, created_foreignKey){
-                if(err){
-                    console.log(err);
+                if(err)
                     return callback(err, null);
-                }
                 // Create the belongsToMany link between source and target
                 var associationOption = {
                     idApp: attr.id_application,
@@ -1781,6 +1782,9 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                     toSync: toSync,
                     type: "relatedToMultiple"
                 };
+                if(typeof attr.options.usingField !== "undefined"){
+                    associationOption.usingField = attr.options.usingField;
+                }
                 structure_data_entity.setupAssociation(associationOption, function(){
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToMultipleField(attr, function(){
