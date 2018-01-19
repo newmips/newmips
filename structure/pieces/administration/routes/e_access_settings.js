@@ -62,7 +62,7 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
             var currentSource = params.source;
             var currentTarget = params.target;
             var action = params.action;
-            if (currentSource.actions[action].indexOf(currentTarget) == -1)
+            if (currentSource.actions[action] && currentSource.actions[action].indexOf(currentTarget) == -1)
                 return true;
             return false;
         }
