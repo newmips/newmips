@@ -481,8 +481,11 @@ exports.setupDataField = function (attr, callback) {
     var name_data_field = options.value;
     var show_name_data_field = options.showValue;
     var defaultValue = null;
+    var defaultValueForOption = null;
+
     if (typeof options.defaultValue !== "undefined" && options.defaultValue != null)
         defaultValue = options.defaultValue;
+
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
         type_data_field = options.type.toLowerCase();
@@ -669,6 +672,21 @@ exports.setupDataField = function (attr, callback) {
             break;
     }
 
+    // Default value managment
+    if (typeof options.defaultValue !== "undefined" && options.defaultValue != null){
+        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM"){
+            defaultValueForOption = options.defaultValue;
+        } else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue)){
+            defaultValueForOption = options.defaultValue;
+        } else if(typeForModel == "BOOLEAN"){
+            if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                defaultValueForOption = 1;
+            } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                defaultValueForOption = 2;
+            }
+        }
+    }
+
     if (type_data_field == "enum") {
         // Remove all special caractere for all enum values
         var cleanEnumValues = [];
@@ -683,12 +701,12 @@ exports.setupDataField = function (attr, callback) {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues,
-            "defaultValue": defaultValue
+            "defaultValue": defaultValueForOption
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues,
-            "defaultValue": defaultValue
+            "defaultValue": defaultValueForOption
         };
     } else if(type_data_field == "radio"){
         // Remove all special caractere for all enum values
@@ -704,23 +722,23 @@ exports.setupDataField = function (attr, callback) {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues,
-            "defaultValue": defaultValue
+            "defaultValue": defaultValueForOption
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues,
-            "defaultValue": defaultValue
+            "defaultValue": defaultValueForOption
         };
     } else {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "newmipsType": type_data_field,
-            "defaultValue": defaultValue
+            "defaultValue": defaultValueForOption
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "newmipsType": type_data_field,
-            "defaultValue": defaultValue
+            "defaultValue": defaultValueForOption
         }
     }
 
