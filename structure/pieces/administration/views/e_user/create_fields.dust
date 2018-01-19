@@ -24,8 +24,8 @@
     </div>
     <div data-field="f_role" class="col-xs-12">
         <div class="form-group">
-            <label for="f_role">{@__ key="entity.e_user.r_role" /}</label>
-            <select multiple="" style="width:100%;" class="form-control" name="r_role">
+            <label for="f_role" class="required">{@__ key="entity.e_user.r_role" /}</label>
+            <select multiple="" required style="width:100%;" class="form-control" name="r_role">
                 {#r_role}
                 <option value="{id}">{f_label|string}</option>
                 {/r_role}
@@ -34,8 +34,8 @@
     </div>
     <div data-field="f_group" class="col-xs-12">
         <div class="form-group">
-            <label for="f_group">{@__ key="entity.e_user.r_group" /}</label>
-            <select multiple="" style="width:100%;" class="form-control" name="r_group">
+            <label for="f_group" class="required">{@__ key="entity.e_user.r_group" /}</label>
+            <select multiple="" required style="width:100%;" class="form-control" name="r_group">
                 {#r_group}
                 <option value="{id}">{f_label|string}</option>
                 {/r_group}
