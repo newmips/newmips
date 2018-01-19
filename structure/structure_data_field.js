@@ -488,9 +488,9 @@ exports.setupDataField = function (attr, callback) {
 
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
-        type_data_field = options.type.toLowerCase();
+        type_data_field = options.type.toLowerCase().trim();
     else
-        type_data_field = "string"
+        type_data_field = "string";
 
     // Cut allValues for ENUM or other type
     if (typeof options.allValues !== "undefined") {
@@ -538,6 +538,7 @@ exports.setupDataField = function (attr, callback) {
 
     var typeForModel = "STRING";
     var typeForDatalist = "string";
+
     switch (type_data_field) {
         case "password" :
         case "mot de passe":
