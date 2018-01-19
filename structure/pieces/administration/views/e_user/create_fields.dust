@@ -2,19 +2,18 @@
     <div data-field="f_login" class="col-xs-12">
         <div class="form-group">
             <label for="f_login">
-				{@__ key="entity.e_user.f_login"/}
-				&nbsp;{@inline_help field="f_login"}<i data-field="f_login" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
-			</label>
+                {@__ key="entity.e_user.f_login"/}
+                &nbsp;{@inline_help field="f_login"}<i data-field="f_login" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="" type="text">
         </div>
     </div>
-
     <div data-field="f_email" class="col-xs-12">
         <div class="form-group">
             <label for="f_email">
-				{@__ key="entity.e_user.f_email"/}
-				&nbsp;{@inline_help field="f_email"}<i data-field="f_email" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
-			</label>
+                {@__ key="entity.e_user.f_email"/}
+                &nbsp;{@inline_help field="f_email"}<i data-field="f_email" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
             <div class="input-group">
                 <div class="input-group-addon">
                     <i class="fa fa-envelope"></i>
@@ -23,28 +22,24 @@
             </div>
         </div>
     </div>
-
-
-
-
     <div data-field="f_role" class="col-xs-12">
         <div class="form-group">
             <label for="f_role">{@__ key="entity.e_user.r_role" /}</label>
             <select multiple="" style="width:100%;" class="form-control" name="r_role">
-         {#r_role}
-             <option value="{id}">{f_label|string}</option>
-         {/r_role}
-     </select>
+                {#r_role}
+                <option value="{id}">{f_label|string}</option>
+                {/r_role}
+            </select>
         </div>
     </div>
     <div data-field="f_group" class="col-xs-12">
         <div class="form-group">
             <label for="f_group">{@__ key="entity.e_user.r_group" /}</label>
             <select multiple="" style="width:100%;" class="form-control" name="r_group">
-         {#r_group}
-             <option value="{id}">{f_label|string}</option>
-         {/r_group}
-     </select>
+                {#r_group}
+                <option value="{id}">{f_label|string}</option>
+                {/r_group}
+            </select>
         </div>
     </div>
 </div>
