@@ -191,7 +191,7 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     // Make sure it's impossible to set sensitive information through create form
     createObject.f_token_password_reset = undefined;
-    createObject.f_enabled = undefined;
+    createObject.f_enabled = 0;
     createObject.f_password = undefined;
 
     models.E_user.create(createObject).then(function (e_user) {
