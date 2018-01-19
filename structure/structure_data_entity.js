@@ -39,6 +39,10 @@ exports.setupAssociation = function (associationOption, callback) {
     else
         baseOptions.structureType = "";
 
+    // Save using field in related to and related to many fields
+    if(typeof associationOption.usingField !== "undefined")
+        baseOptions.usingField = associationOption.usingField;
+
     optionsObject.push(baseOptions);
 
     if (toSync) {
