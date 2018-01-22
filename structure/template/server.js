@@ -79,7 +79,7 @@ var sessionInstance = session({
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
 	resave: true,
-	saveUninitialized: true,
+	saveUninitialized: false,
 	maxAge: 360*5,
 	// We concat port for a workspace specific session, instead of generator specific
 	key: 'workspaceCookie'+port
@@ -129,10 +129,15 @@ app.get('/*', function(req, res, next) {
 app.use(function(req, res, next) {
     var lang = languageConfig.lang;
 
-    if (req.session.lang_user)
-        lang = req.session.lang_user;
-    else
-    	req.session.lang_user = lang;
+    if(req.isAuthenticated()){
+	    if (req.session.lang_user)
+	        lang = req.session.lang_user;
+	    else
+	    	req.session.lang_user = lang;
+
+	    if (typeof req.session.toastr === 'undefined')
+			req.session.toastr = [];
+    }
 
     res.locals.lang_user = lang;
     res.locals.config = globalConf;
@@ -160,9 +165,6 @@ app.use(function(req, res, next) {
 			return block_access.actionAccess(userRoles, entityName, action);
 		}
 	}
-
-	if (typeof req.session.toastr === 'undefined')
-		req.session.toastr = [];
 
 	res.locals.clean = function(item){
 		if (item === undefined || item === null)
