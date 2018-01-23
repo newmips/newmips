@@ -184,3 +184,12 @@ div.dataTables_length select {
 .sidebar a:hover {
     text-decoration: none;
 }
+
+/* Notification tweak */
+.navbar-nav > .messages-menu > .dropdown-menu > div#notification-wrapper > li .menu > li > a{
+    white-space: inherit !important;
+}
+
+.navbar-nav > .messages-menu > .dropdown-menu > div#notification-wrapper > li .menu > li > a > h4{
+    padding-top: 13px !important;
+}
