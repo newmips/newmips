@@ -28,8 +28,12 @@ router.get('/login', block_access.loginAccess, function(req, res) {
     if (typeof redirect === 'undefined')
         redirect = "/default/home";
 
+    var msg = "";
+    if(typeof req.session.flash !== "undefined")
+        msg = req.flash('loginMessage');
+
     res.render('login/login', {
-        message: req.flash('loginMessage'),
+        message: msg,
         redirect: redirect
     });
 });
@@ -41,11 +45,11 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     else
         req.session.cookie.expires = false;
 
-    if (req.session.rejectedUrl) {
+    /*if (req.session.rejectedUrl) {
         var url = req.session.rejectedUrl;
         req.session.rejectedUrl = undefined;
         return res.redirect(url);
-    }
+    }*/
     res.redirect("/default/home");
 });
 
