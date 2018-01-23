@@ -36,7 +36,8 @@
             "name_entity": "Média",
             "plural_entity": "Média",
             "id_entity": "ID",
-            "as_r_media": "Média"
+            "as_r_media": "Média",
+            "f_target_entity": "Entité ciblé"
 		},
 		"e_media_mail": {
 			"f_to": "Destinataire",
@@ -47,6 +48,12 @@
 		"e_media_notification": {
 			"r_target_groups": "Groupes ciblés",
 			"r_target_users": "Utilisateurs ciblés"
+		},
+		"e_inline_help": {
+			"label_entity": "Aide en ligne",
+			"f_content": "Contenu",
+			"f_entity": "Entité",
+			"f_field": "Champ"
 		}
 	}
 }
