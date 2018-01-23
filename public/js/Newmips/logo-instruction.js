@@ -1,3 +1,9 @@
+/*!
+ * Newmips v2.5
+ * Copyright 2016
+ * Licensed under GPLV3.0 https://www.gnu.org/licenses/gpl.html
+ */
+
 /* Avoid .dropzone to be automaticaly initialized */
 Dropzone.autoDiscover = false;
 var el = $('#modalsetlogo .dropzone-field');

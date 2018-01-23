@@ -67,6 +67,8 @@ Newmips Software documentation is available at http://docs.newmips.com.
 ## License                      #
 ################################
 
-Newmips is released under the GNU/AGPLv3 license.
+Newmips is released under the GNU GPL v3.0 license.
+In contains several open source components distributed under the MIT, BSD or GNU GPL V3.0 licenses.
+
 
 <br>

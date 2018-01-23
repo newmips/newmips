@@ -1,3 +1,9 @@
+/*!
+ * Newmips v2.5
+ * Copyright 2016
+ * Licensed under GPLV3.0 https://www.gnu.org/licenses/gpl.html
+ */
+
 	var final_transcript = '';
 	var recognizing = false;
 
