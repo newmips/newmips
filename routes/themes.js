@@ -93,7 +93,7 @@ router.post('/upload_theme', multer({
     dest: './upload/'
 }).single('themefile'), function(req, res) {
     if(req.file.size < 15000000){
-        if(req.file.mimetype == "application/zip"){
+        if(req.file.mimetype == "application/zip" || req.file.mimetype == "application/x-zip-compressed"){
             // Looking for infos.json
             fs.createReadStream('./' + req.file.path)
                 .pipe(unzip.Parse())
