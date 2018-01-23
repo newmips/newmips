@@ -411,7 +411,7 @@ $(function() {
 		// Send message
 		$("#messageForm").submit(function() {
 			var msg = $("input[name='discussion-message']").val();
-			if (!msg || msg == '' || !discussion || !discussion.id || !discussion.id_contact)
+			if (!msg || msg == '' || !discussion || (!discussion.id && !discussion.id_contact))
 				return false;
 			if (discussion.type == 'chat')
 				socket.emit('chat-message', {message: msg, id_chat: discussion.id, id_contact: discussion.id_contact});
