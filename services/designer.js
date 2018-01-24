@@ -856,7 +856,7 @@ exports.setFieldKnownAttribute = function(attr, callback) {
                     return callback(err, null);
 
                 callback(null, {
-                    message: "structure.field.attributes.success",
+                    message: "structure.field.attributes.successKnownAttribute",
                     messageParams: [attr.options.showValue, attr.options.word]
                 });
             });
@@ -885,7 +885,7 @@ exports.setFieldKnownAttribute = function(attr, callback) {
                         return callback(err, null);
 
                     callback(null, {
-                        message: "structure.field.attributes.success",
+                        message: "structure.field.attributes.successKnownAttribute",
                         messageParams: [attr.options.showValue, attr.options.word]
                     });
                 });
@@ -1812,6 +1812,7 @@ exports.createNewComponentStatus = function(attr, callback) {
         // These instructions create a has many with a new entity history_status
         // It also does a hasMany relation with e_status
         attr.source = source_entity.codeName;
+        attr.showSource = source_entity.name;
         attr.history_table = 'history_'+attr.source+'_'+attr.options.value;
         var instructions = [
             "entity "+source_entity.name+' has many '+attr.history_table+' called History '+attr.options.showValue,
@@ -1830,7 +1831,7 @@ exports.createNewComponentStatus = function(attr, callback) {
             structure_component.newStatus(attr, function(err) {
                 if (err)
                     return callback(err, null);
-                callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.source]});
+                callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.showSource]});
             });
         });
     });

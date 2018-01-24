@@ -40,6 +40,11 @@ html
 			section.content
 				block content
 
+		if version != ""
+			div(style="position: fixed;bottom: 0;padding:15px;width: 100%;color:grey;font-size:12px;")
+				.pull-right
+					| Newmips GPL V3 | #{version}
+
 		block message-modal
 
 		// ---------------- JAVASCRIPT ---------------- //
