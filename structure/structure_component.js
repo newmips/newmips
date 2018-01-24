@@ -880,8 +880,10 @@ exports.newStatus = function(attr, callback) {
                 newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
                 newTh += '    {@__ key="defaults.createdAt"/}\n';
                 newTh += '</th>\n';
-                $(".fields").append(newTh);
-                $("#bodyTR").append('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
+                $(".fields th:eq(2)").after(newTh);
+                $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
+                // Remove delete button
+                $("#bodyTR td:last").remove();
                 $("table").after('<input name="custom_order" data-index="3" data-order="DESC" type="hidden">');
 
                 // Change history tab locales
