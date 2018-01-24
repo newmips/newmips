@@ -351,7 +351,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             }]
         }, {
             // Include all associations that can later be used by media to include variables value
-            all: true, nested: true
+            all: true
         }]
     }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]){

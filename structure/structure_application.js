@@ -308,6 +308,8 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                     // Clean user show fields
                     domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function($) {
                         $("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
+                        $("#r_notification-click").parents('li').remove();
+                        $("#r_notification").remove();
 
                         domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function() {
                             // Clean user create fields
