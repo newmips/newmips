@@ -338,6 +338,7 @@
         "field": {
             "attributes": {
                 "success": "The field %s is now %s = %s.",
+                "successKnownAttribute": "The field %s is now %s.",
                 "notUnderstandGiveAvailable": "Sorry, I do not understand what you want to do. Available attributes:<br>%s<br>",
                 "notUnderstand": "Unable to understand the given attribute.",
                 "fieldNoFound": "No field with name %s found in the current entity.",
