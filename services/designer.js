@@ -856,7 +856,7 @@ exports.setFieldKnownAttribute = function(attr, callback) {
                     return callback(err, null);
 
                 callback(null, {
-                    message: "structure.field.attributes.success",
+                    message: "structure.field.attributes.successKnownAttribute",
                     messageParams: [attr.options.showValue, attr.options.word]
                 });
             });
@@ -885,7 +885,7 @@ exports.setFieldKnownAttribute = function(attr, callback) {
                         return callback(err, null);
 
                     callback(null, {
-                        message: "structure.field.attributes.success",
+                        message: "structure.field.attributes.successKnownAttribute",
                         messageParams: [attr.options.showValue, attr.options.word]
                     });
                 });
