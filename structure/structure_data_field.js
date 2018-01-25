@@ -370,6 +370,15 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "    <textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
             }
             break;
+        case "regular text" :
+        case "texte standard" :
+            value = "{" + dataField + "|s}";
+            if (file == 'show') {
+                str += "    <div class='show-textarea'>"+value+"</div>\n";
+            } else{
+                str += "    <textarea class='form-control textarea regular-textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
+            }
+            break;
         case "localfile" :
         case "fichier":
         case "file":
@@ -632,6 +641,8 @@ exports.setupDataField = function (attr, callback) {
             break;
         case "text" :
         case "texte" :
+        case "regular text" :
+        case "texte standard" :
             typeForModel = "TEXT";
             typeForDatalist = "text";
             break;
