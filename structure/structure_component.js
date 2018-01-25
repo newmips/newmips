@@ -239,8 +239,9 @@ function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
         name: urlComponent,
         groups: [],
         actions: {
+            create: [],
+            update: [],
             read: [],
-            write: [],
             delete: []
         }
     });
@@ -786,51 +787,39 @@ exports.newCra = function (attr, callback) {
         teamAttributesObj.fk_id_admin_user = {type:"INTEGER", newmipsType:"integer"};
         fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
 
-        // Get select of module before copying pieces
-        domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($workS) {
-            var select = $workS("#dynamic_select").html();
-            fs.copySync(piecesPath + '/views/layout_m_cra.dust', workspacePath + '/views/layout_m_cra.dust');
-            domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($newWorkS) {
-                // Insert select of module to copied pieces
-                $newWorkS("#dynamic_select").html(select);
+        // Replace locales
+        // fr-FR
+        var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
+        var frLocales = require(piecesPath + '/locales/fr-FR.json');
+        for (var entity in frLocales)
+            workspaceFrLocales.entity[entity] = frLocales[entity];
+        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
 
-                domHelper.write(workspacePath + '/views/layout_m_cra.dust', $newWorkS).then(function () {
-                    // Replace locales
-                    // fr-FR
-                    var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
-                    var frLocales = require(piecesPath + '/locales/fr-FR.json');
-                    for (var entity in frLocales)
-                        workspaceFrLocales.entity[entity] = frLocales[entity];
-                    fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+        // en-EN
+        var workspaceEnLocales = require(workspacePath + '/locales/en-EN.json');
+        var enLocales = require(piecesPath + '/locales/en-EN.json');
+        for (var entity in enLocales)
+            workspaceEnLocales.entity[entity] = enLocales[entity];
+        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
 
-                    // en-EN
-                    var workspaceEnLocales = require(workspacePath + '/locales/en-EN.json');
-                    var enLocales = require(piecesPath + '/locales/en-EN.json');
-                    for (var entity in enLocales)
-                        workspaceEnLocales.entity[entity] = enLocales[entity];
-                    fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+        // Update user translations
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
 
-                    // Update user translations
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+        // // Update module name
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "Gestion de temps");
+        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "Timesheet");
 
-                    // // Update module name
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "Gestion de temps");
-                    translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "Timesheet");
-
-                    // Remove unwanted tab from user
-                    domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
-                        $("#r_cra-click").parents('li').remove();
-                        $("#r_cra").remove();
-                        domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
-                            // Check activity activate field in create field
-                            domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
-                                $("input[name='f_active']").attr("checked", "checked");
-                                domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
-                                    callback(null, {message: 'Module C.R.A created'});
-                                });
-                            });
-                        });
+        // Remove unwanted tab from user
+        domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
+            $("#r_cra-click").parents('li').remove();
+            $("#r_cra").remove();
+            domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
+                // Check activity activate field in create field
+                domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
+                    $("input[name='f_active']").attr("checked", "checked");
+                    domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
+                        callback(null, {message: 'Module C.R.A created'});
                     });
                 });
             });
@@ -888,7 +877,7 @@ exports.newStatus = function(attr, callback) {
 
                 // Change history tab locales
                 var localesFR = JSON.parse(fs.readFileSync(workspacePath+'/locales/fr-FR.json', 'utf8'));
-                localesFR.entity['e_'+attr.history_table]['as_r_history_'+attr.options.showValue] = "Historique "+attr.options.showValue;
+                localesFR.entity['e_'+attr.history_table]['as_r_history_'+attr.options.urlValue] = "Historique "+attr.options.showValue;
                 localesFR.entity['e_'+attr.history_table]['f_comment'] = "Commentaire";
                 localesFR.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
                 localesFR.entity['e_'+attr.history_table].label_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
