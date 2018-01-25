@@ -30,7 +30,7 @@
                         <input class="form-control input" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
                     </div>
                 </div>
-                {@eq key=f_type value="Mail"}
+                {@eq key=f_type value="mail"}
                     <div id="r_media_mail" class="col-xs-12">
                         {#r_media_mail}
                         {>"e_media_mail/show_fields" hideTab="true"/}
@@ -39,7 +39,7 @@
                         {/r_media_mail}
                     </div>
                 {/eq}
-                {@eq key=f_type value="Notification"}
+                {@eq key=f_type value="notification"}
                     <div id="r_media_notification" class="col-xs-12">
                         {#r_media_notification}
                         {>"e_media_notification/show_fields" hideTab="true"/}
@@ -48,7 +48,7 @@
                         {/r_media_notification}
                     </div>
                 {/eq}
-                {@eq key=f_type value="Function"}
+                {@eq key=f_type value="function"}
                     <div id="r_media_function" class="col-xs-12">
                         {#r_media_function}
                         {>"e_media_function/show_fields" hideTab="true"/}

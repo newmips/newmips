@@ -39,6 +39,12 @@ exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, 
     var exportsContext = this;
     // Create the attr obj
     var recursiveAttr = bot.parse(instructions[idx]);
+console.log(instructions[idx]);
+    if (recursiveAttr.error) {
+        console.log(recursiveAttr.error);
+        return callback(error);
+    }
+
     // Rework the attr obj
     recursiveAttr = attrHelper.reworkAttr(recursiveAttr);
 
@@ -2164,7 +2170,7 @@ exports.createNewComponentCra = function(attr, callback) {
             "add entity CRA Team",
             "add field Name",
             "set field Name required",
-            "add fieldset Users related to user using login",
+            "entity CRA Team has many preset user using login",
             "entity CRA Team has one CRA Calendar Settings",
             "select entity CRA Calendar Settings",
             "add field Monday with type boolean",
