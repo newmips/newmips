@@ -12,7 +12,14 @@ module.exports = function(ioParam) {
 		io = ioParam;
 	if (io)
 		io.on('connection', function(socket) {
-			var user = socket.handshake.session.passport.user;
+			var user;
+			try {
+				user = socket.handshake.session.passport.user;
+			} catch (e) {
+				console.error("Bad session for socket.");
+				return;
+			}
+
 			// Socket initialization
 			{
 				// On connection, register user to connectedUsers array

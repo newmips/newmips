@@ -405,10 +405,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
             }
 
             // Execute newStatus actions
-            for (var i = 0; i < nextStatus.r_actions.length; i++) {
-                var action = nextStatus.r_actions[i];
-                action.r_media.execute(e_action);
-            }
+            nextStatus.executeActions(e_media_notification);
 
             // Create history record for this status field
             // Beeing the most recent history for action it will now be its current status
