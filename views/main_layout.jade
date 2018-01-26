@@ -40,7 +40,7 @@ html
 			section.content
 				block content
 
-		if version != ""
+		if version != "" && typeof version !== "undefined" && version != null
 			div(style="position: fixed;bottom: 0;padding:15px;width: 100%;color:grey;font-size:12px;")
 				.pull-right
 					| Newmips GPL V3 | #{version}

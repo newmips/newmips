@@ -828,6 +828,23 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
         ]
     }).then(function(projects) {
         var data = {};
+
+        var iframe_status_url;
+        var host = globalConf.host;
+        var port;
+
+        for(var i=0; i<projects.length; i++){
+            for(var j=0; j<projects[i].Applications.length; j++){
+                iframe_status_url = globalConf.protocol_iframe + '://';
+                port = 9000 + parseInt(projects[i].Applications[j].id);
+                if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                    iframe_status_url += host + '-' + application.codeName.substring(2) + globalConf.dns + '/';
+                else
+                    iframe_status_url += host + ":" + port + "/";
+
+                projects[i].dataValues.Applications[j].dataValues.url = iframe_status_url;
+            }
+        }
         data.projects = projects;
         res.render('front/application', data);
     }).catch(function(error) {

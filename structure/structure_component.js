@@ -536,7 +536,7 @@ exports.newContactForm = function (attr, callback) {
         li += "    			<i class=\"fa fa-angle-left pull-right\"></i>\n";
         li += "			</a>\n";
         li += "			<ul class=\"treeview-menu\">\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"write\"}-->\n";
+        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/create_form\">\n";
         li += "            			<i class=\"fa fa-paper-plane\"></i>\n";
@@ -552,7 +552,7 @@ exports.newContactForm = function (attr, callback) {
         li += "        			</a>\n";
         li += "    			</li>\n";
         li += "    			<!--{/actionAccess}-->\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlNameSettings + "\" action=\"write\"}-->\n";
+        li += "    			<!--{@actionAccess entity=\"" + urlNameSettings + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/settings\">\n";
         li += "            			<i class=\"fa fa-cog\"></i>\n";
