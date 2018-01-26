@@ -60,6 +60,7 @@ block content
 														th #{__("listApplication.id")}
 														th #{__("listApplication.name")}
 														th #{__("listApplication.nbModules")}
+														th URL
 														th(colspan="2", style="text-align:center;") #{__("listApplication.action")}
 												tbody
 													each application, index in project.Applications
@@ -70,6 +71,8 @@ block content
 																| #{application.displayName}
 															td
 																| #{application.Modules.length}
+															td
+																| #{application.dataValues.url}
 															td.text-center
 																a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
 																	i.fa.fa-desktop.fa-md &nbsp;&nbsp;

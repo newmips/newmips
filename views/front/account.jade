@@ -48,34 +48,39 @@ block content
 								br
 								br
 								.col-xs-12.col-sm-4
+									| #{__("settings.infos.env")}:
+									br
+									input.form-control.input#inputEnv(disabled)
+									br
+									br
 									| #{__("settings.infos.login")}:
 									br
-									input.form-control.input(value="#{user.login}", disabled)
+									input.form-control.input(value=user.login, disabled)
 									br
 									br
 									| #{__("settings.infos.role")}:
 									br
-									input.form-control.input(value="#{user.role.name}", disabled)
+									input.form-control.input(value=user.role.name, disabled)
 									br
 									br
 								.col-xs-12.col-sm-4
 									| #{__("settings.infos.lastname")}:
 									br
-									input.form-control.input(value="#{user.last_name}", disabled)
+									input.form-control.input(value=user.last_name, disabled)
 									br
 									br
 									| #{__("settings.infos.firstname")}:
 									br
-									input.form-control.input(value="#{user.first_name}", disabled)
+									input.form-control.input(value=user.first_name, disabled)
 								.col-xs-12.col-sm-4
 									| #{__("settings.infos.phone")}:
 									br
-									input.form-control.input(value="#{user.phone}", disabled)
+									input.form-control.input(value=user.phone, disabled)
 									br
 									br
 									| #{__("settings.infos.email")}:
 									br
-									input.form-control.input(value="#{user.email}", disabled)
+									input.form-control.input(value=user.email, disabled)
 						.col-xs-12
 							br
 							.form-group
@@ -91,6 +96,7 @@ block custom_js
 		var loginUser = "#{user.login}";
 		var mailUser = "#{user.email}";
 		$(document).ready(function() {
+			$("#inputEnv").val(window.location.href.split("/account")[0]);
 			$(document).on("click", ".resetPassword", function(){
 				var sure = confirm(sureResetMsg);
 				if(sure){

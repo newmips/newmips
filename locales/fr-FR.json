@@ -131,7 +131,8 @@
             "lastname": "Nom",
             "firstname": "Prénom",
             "phone": "Téléphone",
-            "email": "Email"
+            "email": "Email",
+            "env": "Environnement"
         },
         "change_password": "Réinitialiser son mot de passe",
         "reset_button": "Réinitialiser",
