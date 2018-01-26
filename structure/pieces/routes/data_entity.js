@@ -409,6 +409,8 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
                 });
+            }).catch(function(err) {
+                entity_helper.error500(err, req, res, errorRedirect);
             });
         });
     }).catch(function(err) {
