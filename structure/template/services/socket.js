@@ -38,6 +38,8 @@ module.exports = function(ioParam) {
 
 	return {
 		sendNotification: function(notification, targetIds) {
+			if (!globalConf.socket.enabled || !globalConf.socket.notification)
+				return console.log('Sockets or notifications disabled. Notification ID '+notification.id+' couldn\'t be sent');
 			for (var i = 0; i < targetIds.length; i++)
 				if (connectedUsers[targetIds[i]])
 					connectedUsers[targetIds[i]].socket.emit('notification', notification);
