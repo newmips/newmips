@@ -131,7 +131,8 @@
             "lastname": "Lastname",
             "firstname": "Firstname",
             "phone": "Phone",
-            "email": "Email"
+            "email": "Email",
+            "env": "Environment"
         },
         "change_password": "Reset your password",
         "reset_button": "Reset",
