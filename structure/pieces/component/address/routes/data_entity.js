@@ -111,9 +111,8 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
                             value: task.value,
                             buffer: buffer
                         };
-                        if (counter === todo.length) 
+                        if (counter === todo.length)
                             res.send(data).end();
-                        
                     });
                 }(_todo));
             }
