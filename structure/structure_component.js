@@ -758,7 +758,7 @@ exports.newCra = function (attr, callback) {
         fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');
         fs.copySync(piecesPath + '/routes/e_cra_team.js', workspacePath + '/routes/e_cra_team.js');
         fs.copySync(piecesPath + '/views/e_cra/', workspacePath + '/views/e_cra/');
-        fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
+        // fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
         fs.copySync(piecesPath + '/js/', workspacePath + '/public/js/Newmips/component/');
 
         // Replace layout to point to current module

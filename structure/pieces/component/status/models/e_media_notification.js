@@ -5,6 +5,7 @@ var attributes_origin = require("./attributes/e_media_notification.json");
 var associations = require("./options/e_media_notification.json");
 var socket;
 var models;
+var moment = require('moment');
 
 module.exports = function (sequelize, DataTypes) {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);

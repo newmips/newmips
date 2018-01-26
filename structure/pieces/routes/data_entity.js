@@ -372,7 +372,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
-                        include: [{all: true, nested: true}]
+                        include: {all: true}
                     }]
                 }]
             }]
@@ -410,7 +410,18 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
                 });
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, errorRedirect);
+                console.error(err);
+                req.session.toastr = [{
+                    level: 'warning',
+                    message: 'component.status.error.action_error'
+                }]
+                var createObject = {}
+                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+                models[historyModel].create(createObject).then(function() {
+                    ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+                });
             });
         });
     }).catch(function(err) {
