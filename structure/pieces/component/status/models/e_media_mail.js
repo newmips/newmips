@@ -4,6 +4,7 @@ var mailer = require('../utils/mailer.js');
 
 var attributes_origin = require("./attributes/e_media_mail.json");
 var associations = require("./options/e_media_mail.json");
+var moment = require('moment');
 
 module.exports = function (sequelize, DataTypes) {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);

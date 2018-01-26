@@ -2,7 +2,8 @@
 	"component": {
 		"status": {
 			"error": {
-				"illegal_status": "This status isn't valid"
+				"illegal_status": "This status isn't valid",
+				"action_error": "One or more actions couldn't be executed. Verify that notifications are enabled or that you have a correct mail configuration"
 			},
 			"next_status": "Next status",
 			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure its status"
