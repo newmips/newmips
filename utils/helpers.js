@@ -66,7 +66,7 @@ function sortEditorFolder(workspaceFolder) {
     return underArray.concat(fileArray);
 }
 
-function readdirSyncRecursive(path, exclude) {
+function readdirSyncRecursive(path, excludeFolder, excludeFile) {
     var workspace = [];
     if (fs.existsSync(path)) {
         if (path.substr(path.length - 1) == "/") {
@@ -75,19 +75,21 @@ function readdirSyncRecursive(path, exclude) {
         fs.readdirSync(path).forEach(function (file, index) {
             var curPath = path + "/" + file;
             var splitPath = curPath.split("/");
-            if (exclude.indexOf(file) == -1) {
+            if (excludeFolder.indexOf(file) == -1) {
                 if (fs.lstatSync(curPath).isDirectory()) {
                     var obj = {
                         title: splitPath[splitPath.length - 1],
-                        under: readdirSyncRecursive(curPath, exclude)
+                        under: readdirSyncRecursive(curPath, excludeFolder, excludeFile)
                     }
                     workspace.push(obj);
                 } else {
-                    var obj = {
-                        title: splitPath[splitPath.length - 1],
-                        path: curPath
+                    if (excludeFile.indexOf(splitPath[splitPath.length - 1]) == -1) {
+                        var obj = {
+                            title: splitPath[splitPath.length - 1],
+                            path: curPath
+                        }
+                        workspace.push(obj);
                     }
-                    workspace.push(obj);
                 }
             }
         });
