@@ -57,7 +57,7 @@ module.exports = {
             "        <hr>\n"+
             "    </div>\n"+
             "    <div class=\"col-xs-12\">\n"+
-            "       <table id=\"table_print_"+componentName+"\" class=\"dataTable table table-bordered table-striped\" style=\"margin-bottom: 50px;\">\n"+
+            "       <table id=\"table_print_"+componentName+"\" class=\"table table-bordered table-striped\" style=\"margin-bottom: 50px;\">\n"+
             "           <thead class=\"main\">\n"+
             "               <tr class=\"fields\">\n"+
             "                   <th data-col=\"id\">ID</th>\n"+
