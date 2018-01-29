@@ -103,7 +103,11 @@
     "ui_editor": {
         "page_not_found": "Impossible de trouver le fichier",
         "page_saved": "Votre nouveau design a été sauvergardé",
-        "select_entity": "Sélectionnez une entité à éditer"
+        "select_entity": "Sélectionnez une entité à éditer",
+        "create_page": "Page de création",
+        "update_page": "Page de mise à jour",
+        "show_page": "Page d'affichage",
+        "print_page": "Page d'impression"
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",
