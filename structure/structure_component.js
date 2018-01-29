@@ -883,10 +883,14 @@ exports.newStatus = function(attr, callback) {
                 localesFR.entity['e_'+attr.history_table]['f_comment'] = "Commentaire";
                 localesFR.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
                 localesFR.entity['e_'+attr.history_table].label_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].name_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].plural_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
                 fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
                 var localesEN = JSON.parse(fs.readFileSync(workspacePath+'/locales/en-EN.json', 'utf8'));
                 localesEN.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
                 localesEN.entity['e_'+attr.history_table].label_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                localesEN.entity['e_'+attr.history_table].name_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                localesEN.entity['e_'+attr.history_table].plural_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
                 fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 
                 domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
