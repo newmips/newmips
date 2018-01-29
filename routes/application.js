@@ -838,7 +838,7 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
                 iframe_status_url = globalConf.protocol_iframe + '://';
                 port = 9000 + parseInt(projects[i].Applications[j].id);
                 if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                    iframe_status_url += host + '-' + application.codeName.substring(2) + globalConf.dns + '/';
+                    iframe_status_url += host + '-' + projects[i].Applications[j].codeName.substring(2) + globalConf.dns + '/';
                 else
                     iframe_status_url += host + ":" + port + "/";
 
