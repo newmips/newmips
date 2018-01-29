@@ -103,7 +103,11 @@
     "ui_editor": {
         "page_not_found": "Couldn't find corresponding file",
         "page_saved": "Your new design have been saved",
-        "select_entity": "Select an entity to edit"
+        "select_entity": "Select an entity to edit",
+        "create_page": "Create page",
+        "update_page": "Update page",
+        "show_page": "Show page",
+        "print_page": "Print page"
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",

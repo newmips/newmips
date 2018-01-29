@@ -136,7 +136,7 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
     }).then(function(toRemoveComponent){
         if(toRemoveComponent){
 
-            fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.filename);
+            fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
             models.COMPONENT_NAME.destroy({
                 where: {
                     id: req.body.idRemove
