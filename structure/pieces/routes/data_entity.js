@@ -372,7 +372,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
-                        include: {all: true}
+                        include: {all: true, nested: true}
                     }]
                 }]
             }]

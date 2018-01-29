@@ -43,10 +43,10 @@ module.exports = function (sequelize, DataTypes) {
                 // Find all target users idY87
                 var targetIds = [];var groupsIds = [];
                 // User list
-                for (var i = 0; i < self.r_target_users.length; i++)
+                for (var i = 0; self.r_target_users && i < self.r_target_users.length; i++)
                     targetIds.push(self.r_target_users[i].id);
                 // Group list
-                for (var i = 0; i < self.r_target_groups.length; i++)
+                for (var i = 0; self.r_target_groups && i < self.r_target_groups.length; i++)
                     groupsIds.push(self.r_target_groups[i].id);
                 // Find all with group
                 models.E_user.findAll({
