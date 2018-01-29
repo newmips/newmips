@@ -39,7 +39,8 @@ var gitHelper = require('../utils/git_helper');
 var models = require('../models/');
 
 // Exclude from Editor
-var exclude = ["node_modules", "config", "sql", "services", "api", "utils", "upload", ".git"];
+var excludeFolder = ["node_modules", "sql", "services", "api", "utils", "upload", ".git"];
+var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
 // ====================================================
 // Redirection application =====================
@@ -51,7 +52,7 @@ function initPreviewData(idApplication, data){
 
         // Editor
         var workspacePath = __dirname + "/../workspace/" + idApplication + "/";
-        var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+        var folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
         /* Sort folder first, file after */
         data.workspaceFolder = helpers.sortEditorFolder(folder);
 
@@ -838,7 +839,7 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
                 iframe_status_url = globalConf.protocol_iframe + '://';
                 port = 9000 + parseInt(projects[i].Applications[j].id);
                 if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                    iframe_status_url += host + '-' + application.codeName.substring(2) + globalConf.dns + '/';
+                    iframe_status_url += host + '-' + projects[i].Applications[j].codeName.substring(2) + globalConf.dns + '/';
                 else
                     iframe_status_url += host + ":" + port + "/";
 
