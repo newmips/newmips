@@ -367,7 +367,7 @@ exports.newPrint = function(attr, callback){
         tabContent += "                content: none !important;";
         tabContent += "            }";
         tabContent += "        }";
-        tabContent += "     </style>";
+        tabContent += "     </style>\n";
         tabContent += "     <button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
         tabContent += "     <div id='"+nameComponent+"-content' class='print-tab'>\n";
         tabContent += "         {>\""+entityLower+"/print_fields\"/}\n";

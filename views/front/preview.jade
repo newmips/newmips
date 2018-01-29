@@ -244,15 +244,19 @@ block content
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='create')
 									i.fa.fa-file
-									| create page
+									| #{__("ui_editor.create_page")}
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='update')
 									i.fa.fa-file
-									| update page
+									| #{__("ui_editor.update_page")}
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='show')
 									i.fa.fa-file
-									| show page
+									| #{__("ui_editor.show_page")}
+							li.ui-state-default.treeview(style='display:block;')
+								a(class='ui_editor_page' href='#' data-entity='' data-page='print')
+									i.fa.fa-file
+									| #{__("ui_editor.print_page")}
 
 					.col-xs-12.col-sm-10
 						#ui_editor
@@ -500,7 +504,7 @@ block custom_js
 					},
 					error: function(err) {
 						console.log(err);
-						toastr.error(err.messageText);
+						toastr.error(err.responseText);
 					}
 				});
 			});
@@ -516,7 +520,8 @@ block custom_js
 						toastr.success(msg);
 					},
 					error: function(err) {
-						toastr.error(err.messageText);
+						console.log(err);
+						toastr.error(err.responseText);
 					}
 				});
 			});
