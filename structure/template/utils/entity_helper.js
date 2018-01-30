@@ -9,7 +9,7 @@ var language = require('../services/language');
 // Winston logger
 var logger = require('./logger');
 
-module.exports = {
+var funcs = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
@@ -40,6 +40,25 @@ module.exports = {
                     fieldTree.children.push(this.entityFieldTree(entityAssociations[i].target, entityAssociations[i].as));
 
             return fieldTree;
+        },
+        generateEntityInclude: function(models, entity) {
+            var entityTree = this.entityFieldTree(entity);
+
+            function includeBuilder(obj) {
+                var includes = [];
+                for (var i = 0; obj.children && i < obj.children.length; i++) {
+                    var include = {};
+                    var child = obj.children[i];
+                    include.as = child.alias;
+                    include.model = models[funcs.capitalizeFirstLetter(child.entity)];
+                    if (child.children && child.children.length != 0) {
+                        include.include = includeBuilder(child);
+                    }
+                    includes.push(include);
+                }
+                return includes;
+            }
+            return includeBuilder(this.entityFieldTree(entity));
         },
         entityFieldForSelect: function(entity, lang) {
             var mainTree = this.entityFieldTree(entity);
@@ -319,3 +338,5 @@ module.exports = {
         }
     }
 };
+
+module.exports = funcs;

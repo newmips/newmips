@@ -140,7 +140,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
 });
 
 router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
-    var id_e_media_notification = parseInt(req.body.id);
+    var id_e_media_notification = parseInt(req.body.id_media_notification);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
         req.body.version = parseInt(req.body.version) + 1;
@@ -162,7 +162,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
             // because those values are not updated for now
             model_builder.setAssocationManyValues(e_media_notification, req.body, updateObject, options).then(function () {
 
-                var redirect = '/media/show?id=' + id_e_media_notification;
+                var redirect = '/media/show?id=' + req.body.id;
                 if (typeof req.body.associationFlag !== 'undefined')
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 

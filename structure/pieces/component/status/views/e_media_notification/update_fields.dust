@@ -76,6 +76,7 @@
             </select>
         </div>
     </div>
+    <input name="id_media_notification" type="hidden" value="{id}">
 </div>
 
 <script type="text/javascript">

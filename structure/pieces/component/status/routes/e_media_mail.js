@@ -20,8 +20,8 @@ var enums_radios = require('../utils/enum_radio.js');
 var logger = require('../utils/logger');
 
 router.get('/entityTree', function(req, res) {
-    res.json(entity_helper.status.entityFieldTree('e_action'));
-})
+    res.json(entity_helper.status.entityFieldTree('e_media_mail'));
+});
 
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
@@ -129,7 +129,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
 });
 
 router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
-    var id_e_media_mail = parseInt(req.body.id);
+    var id_e_media_mail = parseInt(req.body.id_media_mail);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
         req.body.version = parseInt(req.body.version) + 1;
@@ -137,7 +137,6 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    //updateObject = enums.values("e_media_mail", updateObject, req.body);
 
     models.E_media_mail.findOne({where: {id: id_e_media_mail}}).then(function (e_media_mail) {
         if (!e_media_mail) {

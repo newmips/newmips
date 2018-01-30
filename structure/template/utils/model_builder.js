@@ -1,4 +1,5 @@
 var bcrypt = require('bcrypt-nodejs');
+var fs = require('fs-extra');
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -236,16 +237,34 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
         };
 
         /* Go deeper in second level include */
-        var jsonPath = '../models/options/' + options[i].target.toLowerCase();
-        delete require.cache[require.resolve(jsonPath)];
-        var optionsSecondLevel = require(jsonPath);
+        var optionsSecondLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/' + options[i].target.toLowerCase()+'.json', 'utf8'));
         var includeSecondLevel = [];
         for (var j = 0; j < optionsSecondLevel.length; j++) {
             var targetSecondLevel = capitalizeFirstLetter(optionsSecondLevel[j].target.toLowerCase());
-            includeSecondLevel.push({
+
+            var include = {
                 model: models[targetSecondLevel],
-                as: optionsSecondLevel[j].as
-            });
+                as: optionsSecondLevel[j].as,
+                include: []
+            };
+
+            if (optionsSecondLevel[j].target.indexOf('e_history_e_') != 0) {
+                try {
+                    // Check if second level entity has a status component
+                    // If so, add thrid include level to fetch status's children and be able to print next buttons
+                    var optionsThirdLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+optionsSecondLevel[j].target+'.json', 'utf8'));
+                    for (var k = 0; k < optionsThirdLevel.length; k++) {
+                        if (optionsThirdLevel[k].target == 'e_status') {
+                            include.include.push({
+                                model: models.E_status,
+                                as: 'r_children'
+                            });
+                            break;
+                        }
+                    }
+                    includeSecondLevel.push(include);
+                } catch (e){console.error("Problem fetching 3rd level include for subentity status display");}
+            }
         }
 
         toPush.include = includeSecondLevel;

@@ -36,7 +36,7 @@ fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
 router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
     var entityTree = entity_helper.status.entityFieldForSelect(req.params.entity, req.session.lang_user);
     res.json(entityTree).end();
-})
+});
 
 router.get('/list', block_access.actionAccessMiddleware("media", "read"), function (req, res) {
     var data = {
