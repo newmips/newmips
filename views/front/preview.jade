@@ -501,6 +501,9 @@ block custom_js
 						$("#ui_editor_save").show();
 						$(".ui_editor_page").parents('li').removeClass('active');
 						$(self).parents('li').addClass('active');
+
+						if(page == "print")
+							$("a#custom-grid-editor-print-layout").trigger("click");
 					},
 					error: function(err) {
 						console.log(err);
