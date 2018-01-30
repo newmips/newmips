@@ -4222,3 +4222,31 @@ fieldset[disabled] .btn-vk.active {
 b.click-instruction{
   cursor: pointer;
 }
+
+.ge-content input, .ge-content select, .ge-content textarea{
+  display: none;
+}
+.ge-content input::-webkit-input-placeholder {
+  color: transparent;
+}
+.ge-content input:-moz-placeholder {
+  color: transparent;
+}
+.ge-content input::-moz-placeholder {
+  color: transparent;
+}
+.ge-content input:-ms-input-placeholder {
+  color: transparent;
+}
+.ge-content textarea::-webkit-input-placeholder {
+  color: transparent;
+}
+.ge-content textarea:-moz-placeholder {
+  color: transparent;
+}
+.ge-content textarea::-moz-placeholder {
+  color: transparent;
+}
+.ge-content textarea:-ms-input-placeholder {
+  color: transparent;
+}
