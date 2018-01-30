@@ -61,6 +61,8 @@
 		},
 		"e_inline_help": {
 			"label_entity": "Aide en ligne",
+			"name_entity": "Aide en ligne",
+			"plural_entity" "Aides en ligne"
 			"f_content": "Contenu",
 			"f_entity": "Entité",
 			"f_field": "Champ"
