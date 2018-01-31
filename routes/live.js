@@ -176,12 +176,12 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Color with type color");
     instructions.push("add field Target Groups related to many Group using label");
     instructions.push("add field Target Users related to many User using login");
-    instructions.push("add entity notification");
-    instructions.push("add field title");
-    instructions.push("add field description");
-    instructions.push("add field url");
-    instructions.push("add field color with type color");
-    instructions.push("add field icon");
+    instructions.push("add entity Notification");
+    instructions.push("add field Title");
+    instructions.push("add field Description");
+    instructions.push("add field URL");
+    instructions.push("add field Color with type color");
+    instructions.push("add field Icon");
     instructions.push("select entity media function");
     instructions.push("add field Title");
     instructions.push("add field Function with type text");
