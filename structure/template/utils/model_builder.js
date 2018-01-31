@@ -251,7 +251,7 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
             if (optionsSecondLevel[j].target.indexOf('e_history_e_') != 0) {
                 try {
                     // Check if second level entity has a status component
-                    // If so, add thrid include level to fetch status's children and be able to print next buttons
+                    // If so, add thrid include level to fetch status's children and be able to display next buttons
                     var optionsThirdLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+optionsSecondLevel[j].target+'.json', 'utf8'));
                     for (var k = 0; k < optionsThirdLevel.length; k++) {
                         if (optionsThirdLevel[k].target == 'e_status' && optionsThirdLevel[k].relation == 'belongsTo') {
