@@ -262,9 +262,9 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
                             break;
                         }
                     }
-                    includeSecondLevel.push(include);
                 } catch (e){console.error("Problem fetching 3rd level include for subentity status display");}
             }
+            includeSecondLevel.push(include);
         }
 
         toPush.include = includeSecondLevel;
