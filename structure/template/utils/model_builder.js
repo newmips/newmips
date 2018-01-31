@@ -254,7 +254,7 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
                     // If so, add thrid include level to fetch status's children and be able to display next buttons
                     var optionsThirdLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+optionsSecondLevel[j].target+'.json', 'utf8'));
                     for (var k = 0; k < optionsThirdLevel.length; k++) {
-                        if (optionsThirdLevel[k].target == 'e_status' && optionsThirdLevel[k].relation == 'belongsTo') {
+                        if (optionsThirdLevel[k].target == 'e_status') {
                             include.include.push({
                                 model: models.E_status,
                                 as: optionsThirdLevel[k].as
