@@ -1420,8 +1420,6 @@ var training = {
         "list theme",
         "list available theme",
         "lister les thèmes",
-        "lister les themes",
-        "lister thèmes",
         "lister thèmes"
     ],
     "relationshipHasOne": [
@@ -1490,34 +1488,75 @@ var training = {
         "entity (.*) has many preset (.*)",
         "entity (.*) has many existing (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfini",
-        "l'entité (.*) a plusieurs (.*) existant",
+        "l'entité (.*) a plusieurs (.*) prédéfinis",
+        "l'entité (.*) a plusieurs (.*) prédéfinie",
+        "l'entité (.*) a plusieurs (.*) prédéfinies",
         "l'entité (.*) a plusieurs (.*) déjà prédéfini",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinis",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinie",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinies",
+        "l'entité (.*) a plusieurs (.*) existant",
+        "l'entité (.*) a plusieurs (.*) existants",
+        "l'entité (.*) a plusieurs (.*) existante",
+        "l'entité (.*) a plusieurs (.*) existantes",
         "l'entité (.*) a plusieurs (.*) déjà existant",
+        "l'entité (.*) a plusieurs (.*) déjà existants",
+        "l'entité (.*) a plusieurs (.*) déjà existante",
+        "l'entité (.*) a plusieurs (.*) déjà existantes",
         "entité (.*) a plusieurs (.*) prédéfini",
+        "entité (.*) a plusieurs (.*) prédéfinis",
+        "entité (.*) a plusieurs (.*) prédéfinie",
+        "entité (.*) a plusieurs (.*) prédéfinies",
         "entité (.*) a plusieurs (.*) existant",
+        "entité (.*) a plusieurs (.*) existants",
+        "entité (.*) a plusieurs (.*) existante",
+        "entité (.*) a plusieurs (.*) existantes",
         "entité (.*) a plusieurs (.*) déjà prédéfini",
+        "entité (.*) a plusieurs (.*) déjà prédéfinis",
+        "entité (.*) a plusieurs (.*) déjà prédéfinie",
+        "entité (.*) a plusieurs (.*) déjà prédéfinies",
         "entité (.*) a plusieurs (.*) déjà existant",
+        "entité (.*) a plusieurs (.*) déjà existants",
+        "entité (.*) a plusieurs (.*) déjà existante",
+        "entité (.*) a plusieurs (.*) déjà existantes",
 
         "entity (.*) has many preset (.*) called (.*)",
         "entity (.*) has many existing (.*) called (.*)",
         "entity (.*) has many preset (.*) with name (.*)",
         "entity (.*) has many existing (.*) with name (.*)",
-        "l'entité (.*) a plusieurs (.*) prédéfini appelés (.*)",
-        "l'entité (.*) a plusieurs (.*) existant appelés (.*)",
-        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelés (.*)",
-        "l'entité (.*) a plusieurs (.*) déjà existant appelés (.*)",
-        "l'entité (.*) a plusieurs (.*) prédéfini appelées (.*)",
-        "l'entité (.*) a plusieurs (.*) existant appelées (.*)",
-        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelées (.*)",
-        "l'entité (.*) a plusieurs (.*) déjà existant appelées (.*)",
-        "entité (.*) a plusieurs (.*) prédéfini appelés (.*)",
-        "entité (.*) a plusieurs (.*) existant appelés (.*)",
-        "entité (.*) a plusieurs (.*) déjà prédéfini appelés (.*)",
-        "entité (.*) a plusieurs (.*) déjà existant appelés (.*)",
-        "entité (.*) a plusieurs (.*) prédéfini appelées (.*)",
-        "entité (.*) a plusieurs (.*) existant appelées (.*)",
-        "entité (.*) a plusieurs (.*) déjà prédéfini appelées (.*)",
-        "entité (.*) a plusieurs (.*) déjà existant appelées (.*)"
+
+        "l'entité (.*) a plusieurs (.*) prédéfini appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinis appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinie appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinies appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinis appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinie appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinies appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) existants appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existante appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) existantes appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existant appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existants appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existante appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existantes appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini appelé (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinis appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinie appelée (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinies appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant appelé (.*)",
+        "entité (.*) a plusieurs (.*) existants appelés (.*)",
+        "entité (.*) a plusieurs (.*) existante appelée (.*)",
+        "entité (.*) a plusieurs (.*) existantes appelées (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfini appelé (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinis appelés (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinie appelée (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinies appelées (.*)",
+        "entité (.*) a plusieurs (.*) déjà existant appelé (.*)",
+        "entité (.*) a plusieurs (.*) déjà existants appelés (.*)",
+        "entité (.*) a plusieurs (.*) déjà existante appelée (.*)",
+        "entité (.*) a plusieurs (.*) déjà existantes appelées (.*)"
     ],
     "relationshipHasManyPresetUsing": [
         "entity (.*) has many preset (.*) using (.*)",
@@ -2013,30 +2052,30 @@ var training = {
         "supprimer le composant impression appelé (.*)"
     ],
     "createNewComponentAddress": [
-    	"add component Address with name (.*)",
-    	"add component address with name (.*)",
+        "add component Address with name (.*)",
+        "add component address with name (.*)",
         "add component Address called (.*)",
         "add component address called (.*)",
-    	"ajouter un composant adresse nommé (.*)",
-    	"ajouter un composant adresse appelé (.*)",
-    	"ajouter un composant Adresse nommé (.*)",
-    	"ajouter un composant Adresse appelé (.*)",
-    	"ajouter composant adresse nommé (.*)",
-    	"ajouter composant adresse appelé (.*)",
-    	"ajouter composant Adresse nommé (.*)",
-    	"ajouter composant Adresse appelé (.*)"
+        "ajouter un composant adresse nommé (.*)",
+        "ajouter un composant adresse appelé (.*)",
+        "ajouter un composant Adresse nommé (.*)",
+        "ajouter un composant Adresse appelé (.*)",
+        "ajouter composant adresse nommé (.*)",
+        "ajouter composant adresse appelé (.*)",
+        "ajouter composant Adresse nommé (.*)",
+        "ajouter composant Adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
-    	"delete component address",
-    	"supprimer le composant adresse"
+        "delete component address",
+        "supprimer le composant adresse"
     ],
     "createComponentChat": [
         "add component chat",
         "create component chat",
-    	"ajouter le composant Discussion",
-    	"ajouter composant Discussion",
-    	"ajouter le composant discussion",
-    	"ajouter composant discussion"
+        "ajouter le composant Discussion",
+        "ajouter composant Discussion",
+        "ajouter le composant discussion",
+        "ajouter composant discussion"
     ],
     "setLogo": [
         "add logo (.*)",
@@ -2063,7 +2102,11 @@ var training = {
         "appliquer le layout (.*)",
         "appliquer la disposition (.*)",
         "appliquer layout (.*)",
-        "appliquer disposition (.*)"
+        "appliquer disposition (.*)",
+        "mettre le layout (.*)",
+        "mettre la disposition (.*)",
+        "mettre layout (.*)",
+        "mettre disposition (.*)"
     ],
     "listLayout": [
         "list layout",
@@ -2075,10 +2118,10 @@ var training = {
     ],
     "setTheme": [
         "set theme (.*)",
-        "appliquer le theme (.*)",
         "appliquer le thème (.*)",
-        "appliquer theme (.*)",
-        "appliquer thème (.*)"
+        "appliquer thème (.*)",
+        "mettre le thème (.*)",
+        "mettre thème (.*)"
     ],
     "listIcon" : [
         "list icon",
@@ -2182,7 +2225,6 @@ var training = {
         "supprimer tous les widgets de l'entité (.*)"
     ]
 };
-
 // ******* Parse *******
 exports.parse = function (instruction) {
 
