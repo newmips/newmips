@@ -209,6 +209,11 @@ var funcs = {
     error500: function(err, req, res, redirect) {
         var isKnownError = false;
         try {
+            var lang = "fr-FR";
+            if(typeof req.session.lang_user !== "undefined")
+                lang = req.session.lang_user;
+
+            var __ = language(lang).__;
 
             //Sequelize validation error
             if (err.name == "SequelizeValidationError") {
@@ -218,7 +223,8 @@ var funcs = {
 
             // Unique value constraint error
             if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
-                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                var message = __('message.unique') + " " + err.errors[0].path;
+                req.session.toastr.push({level: 'error', message: message});
                 isKnownError = true;
             }
 
