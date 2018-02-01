@@ -625,7 +625,7 @@ block custom_js
 				}
 
 				var setLogoInstructions = ["add logo", "add a logo", "set a logo", "set logo", "mettre un logo", "mettre logo", "ajouter logo", "ajouter un logo"];
-				var givenInstruction = $("#instruction").val().toLowerCase();
+				var givenInstruction = $("#instruction").val().toLowerCase().trim();
 				var logoFileName = $("input[name='set_logo']").val();
 				if(setLogoInstructions.indexOf(givenInstruction) != -1 && logoFileName == ""){
 					// Ask to add a logo
