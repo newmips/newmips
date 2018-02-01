@@ -117,7 +117,7 @@
             $('tbody').on('click', 'tr', function () {
                 if ($(this).find('.dataTables_empty').length > 0)
                     return;
-                if(!scrolling)
+                if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
                     window.location = $(this).find('td > a.btn-show:first').attr('href');
             });
         });
