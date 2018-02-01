@@ -61,6 +61,13 @@ exports.setLogo = function(attr, callback) {
     var idApplication = attr.id_application;
     var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
 
+    //Check if logo exist
+    if (!fs.existsSync(__dirname + '/../workspace/' + idApplication + '/public/img/logo/'+attr.options.value)) {
+        var err = new Error();
+        err.message = "preview.logo.notExist";
+        return callback(err, null);
+    }
+
     domHelper.read(mainLayoutPath).then(function($) {
         if($(".main-sidebar .sidebar .user-panel .image img").length > 0){
             $(".main-sidebar .sidebar .user-panel .image img").remove();

@@ -163,7 +163,8 @@
             "text": "Please add your logo just below (Recommended size 180px x 100px) :",
             "add": "The new logo has been successfully added.",
             "remove": "The logo has been successfully removed.",
-            "noLogo": "Sorry but you do not currently have a logo, you can add one with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
+            "noLogo": "Sorry but you do not currently have a logo, you can add one with the instruction:<br> -<b class='click-instruction'> add a logo</b>",
+            "notExist": "Sorry but this logo file does not exist, you can add it with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
 
         }
     },
