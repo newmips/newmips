@@ -2679,7 +2679,7 @@ function deleteEntityWidgets(attr, callback) {
     attr.widgetTypes = ['info','stats', 'lastrecords'];
     deleteWidget(attr, function(err) {
         if (err)
-            callback(err);
+            return callback(err);
         callback(null, {message: "structure.ui.widget.all_deleted", messageParams: [attr.entityTarget]});
     });
 }
