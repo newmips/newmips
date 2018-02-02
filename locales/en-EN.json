@@ -405,7 +405,12 @@
             },
             "theme": {
                 "list": "Available themes:<br>%s<br>",
-                "cannotFind": "Cannot find the asked theme. Available themes:<br> %s <br>"
+                "cannotFind": "Cannot find the asked theme. Available themes:<br> %s <br>",
+                "missingCss": "You need at least 1 .css file in the theme!",
+                "missingInfo": "The file infos.json is missing!",
+                "missingScreenshot": "The file screenshot.png is missing!",
+                "alreadyExist": "This theme name already exist, please rename the theme name in infos.json.",
+                "successUpload": "The theme was successfully uploaded!"
             },
             "layout": {
                 "list": "Available layout:<br>%s<br>",
