@@ -2563,17 +2563,23 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var entityDbFunction = '', param = '';
     console.log(attr);
     if (attr.entityTarget) {
-        entityDbFunction = 'getDataEntityByName';
-        param = attr.entityTarget;
+        db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
+            if (err)
+                return callback(err);
+            withDataEntity(entity);
+        });
     }
     else {
-        entityDbFunction = 'getDataEntityById';
-        param = attr.id_data_entity;
+        db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
+            if (err)
+                return callback(err);
+            withDataEntity(entity);
+        });
     }
 
-    db_entity[entityDbFunction](param, function(err, entity) {
-        if (err)
-            return callback(err);
+
+
+    function withDataEntity(entity) {
         db_module.getModuleById(entity.id_module, function(err, module) {
             if (err)
                 return callback(err);
@@ -2615,7 +2621,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
             });
 
         });
-    });
+    }
 }
 
 exports.createWidgetOnEntity = function(attr, callback) {
