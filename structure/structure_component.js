@@ -2,6 +2,7 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
+var printHelper = require("../utils/print_helper");
 var moment = require("moment");
 
 function setupComponentModel(idApplication, folderComponent, componentName, filename, callback) {
@@ -83,7 +84,7 @@ function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, va
     });
 }
 
-function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, callback) {
+function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, moduleName, callback) {
 
     // Calendar View
     var codeName = valueComponent.toLowerCase();
@@ -98,6 +99,7 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
     var viewTemplate = fs.readFileSync(viewFile, 'utf8');
     viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
     viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+    viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
     viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
     viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
 
@@ -186,37 +188,6 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
 
 
         callback();
-
-        /*var eventShowFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/show_fields.dust';
-        var eventCreateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/create_fields.dust';
-        var eventUpdateFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/update_fields.dust'
-
-        var eventShowTemplate = fs.readFileSync(eventShowFile, 'utf8');
-        var eventCreateTemplate = fs.readFileSync(eventCreateFile, 'utf8');
-        var eventUpdateTemplate = fs.readFileSync(eventUpdateFile, 'utf8');
-
-        eventShowTemplate = eventShowTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-        eventShowTemplate = eventShowTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-        eventCreateTemplate = eventCreateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-        eventCreateTemplate = eventCreateTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-        eventUpdateTemplate = eventUpdateTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-        eventUpdateTemplate = eventUpdateTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-
-        var writeStreamEventShow = fs.createWriteStream(eventShowFile);
-        writeStreamEventShow.write(eventShowTemplate);
-        writeStreamEventShow.end();
-
-        var writeStreamEventCreate = fs.createWriteStream(eventCreateFile);
-        writeStreamEventCreate.write(eventCreateTemplate);
-        writeStreamEventCreate.end();
-
-        var writeStreamEventUpdate = fs.createWriteStream(eventUpdateFile);
-        writeStreamEventUpdate.write(eventUpdateTemplate);
-        writeStreamEventUpdate.end();
-
-        writeStreamEventUpdate.on('finish', function () {
-            callback();
-        });*/
     });
 }
 
@@ -241,9 +212,8 @@ function addTab(attr, file, newLi, newTabContent) {
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
-            } else {
+            } else
                 context = $("#tabs");
-            }
 
             // Append created elements to `context` to handle presence of tab or not
             $(".nav-tabs", context).append(newLi);
@@ -254,6 +224,9 @@ function addTab(attr, file, newLi, newTabContent) {
             domHelper.write(file, $).then(function () {
                 resolve();
             });
+        }).catch(function(err) {
+            console.log(err);
+            reject(err);
         });
     });
 }
@@ -266,8 +239,9 @@ function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
         name: urlComponent,
         groups: [],
         actions: {
+            create: [],
+            update: [],
             read: [],
-            write: [],
             delete: []
         }
     });
@@ -312,10 +286,14 @@ exports.newLocalFileStorage = function (attr, callback) {
                         componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
 
                         var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{@__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
-                        var file = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower + '/show_fields.dust';
 
-                        // CREATE THE TAB IN SHOW FIELDS
-                        addTab(attr, file, newLi, componentContent).then(callback);
+                        var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
+                        var file = fileBase + '/show_fields.dust';
+
+                        printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function(){
+                            // CREATE THE TAB IN SHOW FIELDS
+                            addTab(attr, file, newLi, componentContent).then(callback);
+                        });
                     });
                 });
             });
@@ -331,94 +309,73 @@ exports.newPrint = function(attr, callback){
 	var entityLower = attr.options.source.toLowerCase();
 	var idApp = attr.id_application;
 
-	translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
-		var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
+	var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
 
-		domHelper.read(showFieldsPath).then(function($) {
-			var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
-			var componentContent = "";
-			componentContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
-			componentContent += "<style>";
-			componentContent += "	@media print {";
-			componentContent += "		body{";
-			componentContent += "			height: 100%;";
-			componentContent += "		}";
-			componentContent += "		body * {";
-			componentContent += "			visibility: hidden;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		#"+nameComponentLower+"-content,";
-			componentContent += "		#"+nameComponentLower+"-content * {";
-			componentContent += "			visibility: visible;";
-			componentContent += "		}";
-			componentContent += "		#"+nameComponentLower+"-content {";
-			componentContent += "			position: absolute;";
-			componentContent += "			left: 0;";
-			componentContent += "			top: 0;";
-			componentContent += "			margin: 0px;";
-			componentContent += "			padding: 15px;";
-			componentContent += "			border: 0px;";
-			componentContent += "			width: 100%;";
-			componentContent += "			height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		#"+nameComponentLower+"{";
-			componentContent += "			height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		.tab-content{";
-			componentContent += "			height: 100%;";
-			componentContent += "			min-height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		.content-wrapper{";
-			componentContent += "			height: 100%;";
-			componentContent += "			min-height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "		.wrapper{";
-			componentContent += "			height: 100%;";
-			componentContent += "			min-height: 100%;";
-			componentContent += "			overflow: visible;";
-			componentContent += "		}";
-			componentContent += "	}";
-			componentContent += "</style>";
-			componentContent += "	<button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{@__ key=\"global_component.print.action\"/}--></button>\n";
-			componentContent += "	<div id='"+nameComponent+"-content' class='print-tab'>\n";
+	domHelper.read(showFieldsPath).then(function($) {
+		var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
 
-			if($("#tabs .tab-pane").length == 0){
-				var titleTab = attr.options.showSource;
-				var htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
-				var contentToAdd = "<div class='dontbreakitplz'><legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>";
+        var tabContent = "";
+        tabContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
+        tabContent += "     <style>";
+        tabContent += "        @page { size: auto;  margin: 0mm; }";
+        tabContent += "        @media print {";
+        tabContent += "            body{";
+        tabContent += "                height: 100%;";
+        tabContent += "            }";
+        tabContent += "            body * {";
+        tabContent += "                visibility: hidden;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            #"+nameComponent+"-content,";
+        tabContent += "            #"+nameComponent+"-content * {";
+        tabContent += "                visibility: visible;";
+        tabContent += "            }";
+        tabContent += "            #"+nameComponent+"-content {";
+        tabContent += "                position: absolute;";
+        tabContent += "                left: 0;";
+        tabContent += "                top: 0;";
+        tabContent += "                margin: 0px;";
+        tabContent += "                padding: 15px;";
+        tabContent += "                border: 0px;";
+        tabContent += "                width: 100%;";
+        tabContent += "                height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            ."+nameComponent+" {";
+        tabContent += "                height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            .tab-content{";
+        tabContent += "                height: 100%;";
+        tabContent += "                min-height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            .content-wrapper{";
+        tabContent += "                height: 100%;";
+        tabContent += "                min-height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            .wrapper{";
+        tabContent += "                height: 100%;";
+        tabContent += "                min-height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            #"+nameComponent+"-content a:after {";
+        tabContent += "                content: '';";
+        tabContent += "            }";
+        tabContent += "            #"+nameComponent+"-content a[href]:after {";
+        tabContent += "                content: none !important;";
+        tabContent += "            }";
+        tabContent += "        }";
+        tabContent += "     </style>\n";
+        tabContent += "     <button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
+        tabContent += "     <div id='"+nameComponent+"-content' class='print-tab'>\n";
+        tabContent += "         {>\""+entityLower+"/print_fields\"/}\n";
+		tabContent += "     </div>\n";
+		tabContent += "</div>\n";
 
-				// Change ID to prevent JS errors in DOM
-				contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-				componentContent += contentToAdd;
-			} else{
-				$("#tabs .tab-pane").each(function(){
-					// Don't add other print tab in the new print tab
-					if($(this).find(".print-tab").length == 0){
-						var titleTab = $("a[href='#"+$(this).attr("id")+"']").html();
-						var htmlToInclude = "";
-						if($(this).attr("id") == "home")
-							htmlToInclude = "{>\""+entityLower+"/show_fields\" hideTab=\"true\"/}"
-						else
-							htmlToInclude = $(this)[0].innerHTML;
-
-						var contentToAdd = "<div class='dontbreakitplz'><legend>" + titleTab + "</legend>" + htmlToInclude+ "</div>";
-
-						// Change ID to prevent JS errors in DOM
-						contentToAdd = contentToAdd.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-						componentContent += contentToAdd;
-					}
-				});
-			}
-
-			componentContent += "	</div>";
-			componentContent += "</div>";
-			componentContent = componentContent.replace("&nbsp;", "");
-
-			addTab(attr, showFieldsPath, newLi, componentContent).then(callback);
+        translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
+            addTab(attr, showFieldsPath, newLi, tabContent).then(callback);
 		});
 	});
 }
@@ -579,7 +536,7 @@ exports.newContactForm = function (attr, callback) {
         li += "    			<i class=\"fa fa-angle-left pull-right\"></i>\n";
         li += "			</a>\n";
         li += "			<ul class=\"treeview-menu\">\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"write\"}-->\n";
+        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/create_form\">\n";
         li += "            			<i class=\"fa fa-paper-plane\"></i>\n";
@@ -595,7 +552,7 @@ exports.newContactForm = function (attr, callback) {
         li += "        			</a>\n";
         li += "    			</li>\n";
         li += "    			<!--{/actionAccess}-->\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlNameSettings + "\" action=\"write\"}-->\n";
+        li += "    			<!--{@actionAccess entity=\"" + urlNameSettings + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/settings\">\n";
         li += "            			<i class=\"fa fa-cog\"></i>\n";
@@ -667,7 +624,7 @@ exports.newAgenda = function (attr, callback) {
     // Agenda Route
     setupComponentRouteForAgenda(idApplication, valueComponent, valueEvent, valueCategory, function () {
         // Agenda view
-        setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, function () {
+        setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, attr.options.moduleName, function () {
             // Add access managment to Agenda
             addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function () {
                 // Add Event translation
@@ -696,31 +653,31 @@ exports.newAgenda = function (attr, callback) {
                         $("#" + urlCategory + "_menu_item").remove();
 
                         var li = '';
-                        li += "<li id='" + urlComponent + "_menu_item' class='treeview'>\n";
+                        li += "<li id='" + urlComponent + "_menu_item' style='display:block;' class='treeview'>\n";
                         li += "    <a href='#'>\n";
                         li += "        <i class='fa fa-calendar-o'></i> <span><!--{@__ key=\"component." + valueComponentLower + ".label_component\" /}--></span>\n";
-                        li += "        <span class='pull-right-container'>\n";
+                        //li += "        <span class='pull-right-container'>\n";
                         li += "            <i class='fa fa-angle-left pull-right'></i>\n";
-                        li += "        </span>\n";
+                        //li += "        </span>\n";
                         li += "    </a>\n";
                         li += "    <ul class='treeview-menu'>\n";
                         li += "        <li><a href='/" + urlComponent + "'><i class='fa fa-calendar'></i> <!--{@__ key=\"global_component.agenda.menu\" /}--></a></li>\n";
-                        li += "        <li id='" + urlEvent + "_menu_item' class='treeview'>\n";
+                        li += "        <li id='" + urlEvent + "_menu_item' style='display:block;' class='treeview'>\n";
                         li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> <!--{@__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n";
-                        li += "                <span class='pull-right-container'>\n";
+                        //li += "                <span class='pull-right-container'>\n";
                         li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-                        li += "                </span>\n";
+                        //li += "                </span>\n";
                         li += "            </a>\n";
                         li += "            <ul class='treeview-menu'>\n";
                         li += "                <li><a href='/" + urlEvent + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity." + valueEvent + ".label_entity\" /}--></a></li>\n";
                         li += "                <li><a href='/" + urlEvent + "/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}--> <!--{@__ key=\"entity." + valueEvent + ".plural_entity\" /}--></a></li>\n";
                         li += "            </ul>\n";
                         li += "        </li>\n";
-                        li += "        <li id='" + urlCategory + "_menu_item' class='treeview'>\n";
+                        li += "        <li id='" + urlCategory + "_menu_item' style='display:block;' class='treeview'>\n";
                         li += "            <a href='#'><i class='fa fa-bookmark'></i> <!--{@__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n";
-                        li += "                <span class='pull-right-container'>\n";
+                        //li += "                <span class='pull-right-container'>\n";
                         li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-                        li += "                </span>\n";
+                        //li += "                </span>\n";
                         li += "            </a>\n";
                         li += "            <ul class='treeview-menu'>\n";
                         li += "                <li><a href='/" + urlCategory + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity." + valueCategory + ".label_entity\" /}--></a></li>\n";
@@ -758,6 +715,40 @@ exports.newAgenda = function (attr, callback) {
     });
 }
 
+exports.deleteAgenda = function (attr, callback) {
+
+    var idApplication = attr.id_application;
+    var urlComponent = attr.options.urlValue.toLowerCase();
+
+    var baseFolder = __dirname + '/../workspace/' + idApplication;
+    var layoutFileName = baseFolder + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
+
+    // Delete views folder
+    helpers.rmdirSyncRecursive(baseFolder + '/views/' + attr.options.value);
+
+    domHelper.read(layoutFileName).then(function ($) {
+
+        $("#" + urlComponent + "_menu_item").remove();
+        // Write back to file
+        domHelper.write(layoutFileName, $).then(function () {
+
+            // Clean empty and useless dust helper created by removing <li>
+            var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+            // Remove empty dust helper
+            layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+
+            var writeStream = fs.createWriteStream(layoutFileName);
+            writeStream.write(layoutContent);
+            writeStream.end();
+            writeStream.on('finish', function () {
+                callback();
+            });
+        });
+    }).catch(function (err) {
+        callback(err, null);
+    });
+}
+
 exports.newCra = function (attr, callback) {
     try {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;
@@ -767,8 +758,16 @@ exports.newCra = function (attr, callback) {
         fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');
         fs.copySync(piecesPath + '/routes/e_cra_team.js', workspacePath + '/routes/e_cra_team.js');
         fs.copySync(piecesPath + '/views/e_cra/', workspacePath + '/views/e_cra/');
-        fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
+        // fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
         fs.copySync(piecesPath + '/js/', workspacePath + '/public/js/Newmips/component/');
+
+        // Replace layout to point to current module
+        var files = ['admin_declare.dust', 'declare.dust', 'list.dust'];
+        for (var i = 0; i < files.length; i++) {
+            var view = fs.readFileSync(piecesPath+'/views/e_cra/'+files[i], 'utf8');
+            view = view.replace(/MODULE_NAME/g, attr.module.codeName);
+            fs.writeFileSync(workspacePath+'/views/e_cra/'+files[i], view, 'utf8');
+        }
 
         // Create belongsToMany relation between team and activity for default activities
         var teamOptionsPath = workspacePath + '/models/options/e_cra_team.json';
@@ -788,51 +787,39 @@ exports.newCra = function (attr, callback) {
         teamAttributesObj.fk_id_admin_user = {type:"INTEGER", newmipsType:"integer"};
         fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
 
-        // Get select of module before copying pieces
-        domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($workS) {
-            var select = $workS("#dynamic_select").html();
-            fs.copySync(piecesPath + '/views/layout_m_cra.dust', workspacePath + '/views/layout_m_cra.dust');
-            domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($newWorkS) {
-                // Insert select of module to copied pieces
-                $newWorkS("#dynamic_select").html(select);
+        // Replace locales
+        // fr-FR
+        var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
+        var frLocales = require(piecesPath + '/locales/fr-FR.json');
+        for (var entity in frLocales)
+            workspaceFrLocales.entity[entity] = frLocales[entity];
+        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
 
-                domHelper.write(workspacePath + '/views/layout_m_cra.dust', $newWorkS).then(function () {
-                    // Replace locales
-                    // fr-FR
-                    var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
-                    var frLocales = require(piecesPath + '/locales/fr-FR.json');
-                    for (var entity in frLocales)
-                        workspaceFrLocales.entity[entity] = frLocales[entity];
-                    fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+        // en-EN
+        var workspaceEnLocales = require(workspacePath + '/locales/en-EN.json');
+        var enLocales = require(piecesPath + '/locales/en-EN.json');
+        for (var entity in enLocales)
+            workspaceEnLocales.entity[entity] = enLocales[entity];
+        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
 
-                    // en-EN
-                    var workspaceEnLocales = require(workspacePath + '/locales/en-EN.json');
-                    var enLocales = require(piecesPath + '/locales/en-EN.json');
-                    for (var entity in enLocales)
-                        workspaceEnLocales.entity[entity] = enLocales[entity];
-                    fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+        // Update user translations
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
 
-                    // Update user translations
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+        // // Update module name
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "Gestion de temps");
+        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "Timesheet");
 
-                    // Update module name
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "C.R.A");
-                    translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "A.R");
-
-                    // Remove unwanted tab from user
-                    domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
-                        $("#r_cra-click").parents('li').remove();
-                        $("#r_cra").remove();
-                        domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
-                            // Check activity activate field in create field
-                            domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
-                                $("input[name='f_active']").attr("checked", "checked");
-                                domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
-                                    callback(null, {message: 'Module C.R.A created'});
-                                });
-                            });
-                        });
+        // Remove unwanted tab from user
+        domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
+            $("#r_cra-click").parents('li').remove();
+            $("#r_cra").remove();
+            domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
+                // Check activity activate field in create field
+                domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
+                    $("input[name='f_active']").attr("checked", "checked");
+                    domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
+                        callback(null, {message: 'Module C.R.A created'});
                     });
                 });
             });
@@ -842,14 +829,117 @@ exports.newCra = function (attr, callback) {
     }
 };
 
+exports.newStatus = function(attr, callback) {
+    var workspacePath = __dirname + '/../workspace/' + attr.id_application;
+    var piecesPath = __dirname + '/../structure/pieces/component/status';
+
+    // Add virtual status field to source entity (s_statusName)
+    var attributesObj = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+attr.source+'.json'));
+    attributesObj[attr.options.value] = {
+        type: "VIRTUAL"
+    };
+    fs.writeFileSync(workspacePath+'/models/attributes/'+attr.source+'.json', JSON.stringify(attributesObj, null, 4), 'utf8');
+
+    // Remove useless options on e_status
+    var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
+    for (var i = 0; i < statusModel.length; i++)
+        if (statusModel[i].target == 'e_'+attr.history_table)
+            {statusModel.splice(i, 1); break;}
+    fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
+
+    // Remove useless history tab from Status views
+    domHelper.read(workspacePath+"/views/e_status/show_fields.dust").then(function($) {
+        var historyId = 'r_'+attr.history_table;
+        $("#"+historyId+"-click").parent().remove();
+        $("#"+historyId).remove();
+        domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
+            var statusAlias = 'r_'+attr.options.value.substring(2);
+
+            // Customize history tab list
+            domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
+                // Remove buttons
+                $("tbody tr td").slice(4, 7).remove();
+                $("thead").each(function() {
+                    $(this).find("tr th").slice(4, 7).remove();
+                });
+                // Remove id column
+                $("[data-field=id]").remove();
+                // Add createdAt column in thead/tbody
+                var newTh = '';
+                newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
+                newTh += '    {@__ key="defaults.createdAt"/}\n';
+                newTh += '</th>\n';
+                $(".fields").each(function() {
+                    $(this).find("th:eq(2)").after(newTh);
+                });
+                $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
+                // Remove delete button
+                $("#bodyTR td:last").remove();
+                $("table").after('<input name="custom_order" data-index="3" data-order="DESC" type="hidden">');
+
+                // Change history tab locales
+                var localesFR = JSON.parse(fs.readFileSync(workspacePath+'/locales/fr-FR.json', 'utf8'));
+                localesFR.entity['e_'+attr.history_table]['as_r_history_'+attr.options.urlValue] = "Historique "+attr.options.showValue;
+                localesFR.entity['e_'+attr.history_table]['f_comment'] = "Commentaire";
+                localesFR.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].label_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].name_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].plural_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
+                var localesEN = JSON.parse(fs.readFileSync(workspacePath+'/locales/en-EN.json', 'utf8'));
+                localesEN.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                localesEN.entity['e_'+attr.history_table].label_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                localesEN.entity['e_'+attr.history_table].name_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                localesEN.entity['e_'+attr.history_table].plural_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
+
+                domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
+
+                    // Display status as a badge instead of an input
+                    // Also add next status buttons after status field
+                    domHelper.read(workspacePath+'/views/'+attr.source+'/show_fields.dust').then(function($) {
+                        var statusBadgeHtml = '<br><span class="badge" style="background: {'+statusAlias+'.f_color};">{'+statusAlias+'.f_name}</span>';
+                        var nextStatusHtml = '';
+                        nextStatusHtml += '<div class="form-group">';
+                        nextStatusHtml += '{#'+statusAlias+'.r_children '+attr.source.substring(2)+'id=id}';
+                        nextStatusHtml += '<a href="/'+attr.source.substring(2)+'/set_status/{'+attr.source.substring(2)+'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
+                        nextStatusHtml += '{/'+statusAlias+'.r_children}';
+                        nextStatusHtml += '</div>';
+                        $("div[data-field='"+statusAlias+"']").find('input').replaceWith(statusBadgeHtml);
+                        $("div[data-field='"+statusAlias+"']").append(nextStatusHtml);
+                        // Input used for default ordering
+
+                        // Remove create button
+                        var historyTabId = "#r_history_"+attr.options.urlValue;
+                        $(historyTabId).find('a.btn-success').remove();
+                        domHelper.write(workspacePath+'/views/'+attr.source+'/show_fields.dust', $).then(function() {
+
+                            // Remove status field from update_fields and create_fields
+                            domHelper.read(workspacePath+'/views/'+attr.source+'/create_fields.dust').then(function($) {
+                                $("div[data-field='f_"+attr.options.value.substring(2)+"']").remove();
+                                domHelper.write(workspacePath+'/views/'+attr.source+'/create_fields.dust', $).then(function() {
+                                    domHelper.read(workspacePath+'/views/'+attr.source+'/update_fields.dust').then(function($) {
+                                        $("div[data-field='f_"+attr.options.value.substring(2)+"']").remove();
+                                        domHelper.write(workspacePath+'/views/'+attr.source+'/update_fields.dust', $).then(function() {
+                                            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
+                                                callback(null);
+                                            });
+                                        });
+                                    });
+                                });
+                            })
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
 exports.setupChat = function(attr, callback) {
     try {
         var workspacePath = __dirname + '/../workspace/'+attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/socket';
-
-        // Check if file exists (in case notification have been implemented first)
-        if (!fs.existsSync(workspacePath+'/services/socket.js'))
-            fs.copySync(piecesPath+'/socket.js', workspacePath+'/services/socket.js')
 
         // Copy chat files
         fs.copySync(piecesPath+'/chat/js/chat.js', workspacePath+'/public/js/Newmips/component/chat.js');
@@ -1060,7 +1150,9 @@ exports.addNewComponentAddress = function (attr, callback) {
         fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
         fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
         setupComponentModel(attr.id_application, 'address', componentName, 'address', function () {
-            callback(null);
+            printHelper.addAddressComponent(application_path + 'views/' + source, componentName).then(function(){
+                callback(null);
+            });
         });
     } catch (e) {
         callback(e);

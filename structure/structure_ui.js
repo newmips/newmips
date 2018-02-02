@@ -31,85 +31,240 @@ exports.setColumnVisibility = function (attr, callback) {
                 info.messageParams = [attr.options.showValue];
                 callback(null, info);
             });
-        } else{
-            var err = new Error();
-            err.message = "structure.ui.columnVisibility.noColumn";
-            err.messageParams = [attr.options.showValue];
-            return callback(err);
+        } else {
+
+            // Check if it's a related to field
+            var fieldCodeName = "r_" + attr.options.value.substring(2);
+
+            if($("*[data-field='" + fieldCodeName + "']").length > 0){
+                $("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
+                domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
+                    var info = {};
+                    info.message = hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show";
+                    info.messageParams = [attr.options.showValue];
+                    callback(null, info);
+                });
+            } else {
+                // No column found
+                var err = new Error();
+                err.message = "structure.ui.columnVisibility.noColumn";
+                err.messageParams = [attr.options.showValue];
+                return callback(err);
+            }
         }
     }).catch(function (err) {
         callback(err, null);
     });
 }
 
-exports.setSkin = function(attr, callback) {
+exports.setLogo = function(attr, callback) {
+    var idApplication = attr.id_application;
+    var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+
+    domHelper.read(mainLayoutPath).then(function($) {
+        if($(".main-sidebar .sidebar .user-panel .image img").length > 0){
+            $(".main-sidebar .sidebar .user-panel .image img").remove();
+        }
+        $("body link[rel='icon']").remove();
+        $("head link[rel='icon']").remove();
+        $(".main-sidebar .sidebar .user-panel .image").prepend("<img src='/img/logo/"+attr.options.value+"' alt='Logo' >");
+        $("head").append("<link href='/img/logo/thumbnail/"+attr.options.value+"' rel=\"icon\" >");
+        domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
+            var info = {};
+            info.message = "preview.logo.add";
+            callback(null, info);
+        });
+    }).catch(function(err){
+        callback(err, null);
+    });
+}
+
+exports.removeLogo = function(attr, callback) {
+    var idApplication = attr.id_application;
+    var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+    var info = {};
+
+    domHelper.read(mainLayoutPath).then(function($) {
+        if($(".main-sidebar .sidebar .user-panel .image img").length > 0){
+            $(".main-sidebar .sidebar .user-panel .image img").remove();
+            $("body link[rel='icon']").remove();
+            $("head link[rel='icon']").remove();
+            $("head").append("<link href=\"/FAVICON-COULEUR-01.png\" rel=\"icon\" type=\"image/png\"> ");
+            info.message = "preview.logo.remove";
+        } else {
+            info.message = "preview.logo.noLogo";
+        }
+        domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
+            callback(null, info);
+        });
+    }).catch(function(err){
+        callback(err, null);
+    });
+}
+
+exports.setLayout = function(attr, callback) {
 
     var idApplication = attr.id_application;
-    var askedSkin = attr.options.value.toLowerCase();
+    var askedLayout = attr.options.value.toLowerCase().trim().replace(/ /g, "-");
 
-    var skinPath = __dirname + '/../workspace/' + idApplication + '/public/css/AdminLteV2/skins';
-    var skinsDir = fs.readdirSync(skinPath).filter(function(file) {
-        return (file.indexOf('.') !== 0) && (file.slice(-7) === 'min.css' && (file.slice(0, 1) !== '_'));
+    var layoutPath = __dirname + '/../workspace/' + idApplication + '/public/css/AdminLteV2/layouts';
+    var layoutsDir = fs.readdirSync(layoutPath).filter(function(file) {
+        return (file.indexOf('.') !== 0) && (file.slice(-4) === '.css' && (file.slice(0, 1) !== '_'));
     });
 
-    var skinListAvailable = [];
+    var layoutListAvailable = [];
 
-    skinsDir.forEach(function(file) {
-        var skin = file.slice(5, -8);
-        skinListAvailable.push(skin);
+    layoutsDir.forEach(function(file) {
+        var layout = file.slice(7, -4);
+        layoutListAvailable.push(layout);
     });
 
-    if(skinListAvailable.indexOf(askedSkin) != -1){
+    if(layoutListAvailable.indexOf(askedLayout) != -1){
 
-    	var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+        //var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+        var moduleLayout = __dirname + '/../workspace/' + idApplication + '/views/layout_'+attr.currentModule.codeName+'.dust';
 
-    	domHelper.read(mainLayoutPath).then(function($) {
-    		var oldSkin = $("link[data-type='skin']").attr("data-skin");
-			$("link[data-type='skin']").replaceWith("<link href='/css/AdminLteV2/skins/skin-"+askedSkin+".min.css' rel='stylesheet' type='text/css' data-type='skin' data-skin='"+askedSkin+"'>");
-			$("body").removeClass("skin-"+oldSkin);
-			$("body").addClass("skin-"+askedSkin);
-			domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
-				var info = {};
-			    info.message = "Skin set to " + attr.options.value + " !";
-			    callback(null, info);
-			});
-		}).catch(function(err){
-			callback(err, null);
-		});
+        domHelper.read(moduleLayout).then(function($) {
+            var oldLayout = $("link[data-type='layout']").attr("data-layout");
+            $("link[data-type='layout']").replaceWith("<link href='/css/AdminLteV2/layouts/layout-"+askedLayout+".css' rel='stylesheet' type='text/css' data-type='layout' data-layout='"+askedLayout+"'>\n");
+            //$("body").removeClass("layout-"+oldLayout);
+            //$("body").addClass("layout-"+askedLayout);
+            domHelper.write(moduleLayout, $).then(function() {
+                var info = {};
+                info.message = "structure.ui.layout.success";
+                info.messageParams = [attr.options.value, attr.currentModule.name];
+                callback(null, info);
+            });
+        }).catch(function(err){
+            callback(err, null);
+        });
     }
     else{
-    	var err = new Error();
-    	err.message = "structure.ui.skin.cannotFind";
+        var err = new Error();
+        err.message = "structure.ui.layout.cannotFind";
         var msgParams = "";
-    	for(var i=0; i<skinListAvailable.length; i++){
-    		msgParams += "-  " + skinListAvailable[i] + "<br>";
-    	}
+        for(var i=0; i<layoutListAvailable.length; i++){
+            msgParams += "-  " + layoutListAvailable[i] + "<br>";
+        }
         err.messageParams = [msgParams];
-    	callback(err, null);
+        callback(err, null);
     }
 }
 
-exports.listSkin = function(attr, callback) {
+exports.listLayout = function(attr, callback) {
 
     var idApplication = attr.id_application;
 
-    var skinPath = __dirname + '/../workspace/' + idApplication + '/public/css/AdminLteV2/skins';
-    var skinsDir = fs.readdirSync(skinPath).filter(function(file) {
-        return (file.indexOf('.') !== 0) && (file.slice(-7) === 'min.css' && (file.slice(0, 1) !== '_'));
+    var layoutPath = __dirname + '/../workspace/' + idApplication + '/public/css/AdminLteV2/layouts';
+    var layoutsDir = fs.readdirSync(layoutPath).filter(function(file) {
+        return (file.indexOf('.') !== 0) && (file.slice(-4) === '.css' && (file.slice(0, 1) !== '_'));
     });
 
-    var skinListAvailable = [];
+    var layoutListAvailable = [];
 
-    skinsDir.forEach(function(file) {
-        var skin = file.slice(5, -8);
-        skinListAvailable.push(skin);
+    layoutsDir.forEach(function(file) {
+        var layout = file.slice(7, -4);
+        layoutListAvailable.push(layout);
     });
 
     var info = {};
-    info.message = "structure.ui.skin.list";
+    info.message = "structure.ui.layout.list";
     var msgParams = "";
-    for(var i=0; i<skinListAvailable.length; i++){
-        msgParams += "-  " + skinListAvailable[i] + "<br>";
+    for(var i=0; i<layoutListAvailable.length; i++){
+        msgParams += "-  " + layoutListAvailable[i] + "<br>";
+    }
+    info.messageParams = [msgParams];
+    callback(false, info);
+}
+
+exports.setTheme = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+    var askedTheme = attr.options.value.toLowerCase();
+    askedTheme = askedTheme.trim().replace(/ /g, "-");
+
+    function retrieveTheme(themePath){
+        var themesDir = fs.readdirSync(themePath).filter(function(folder) {
+            return (folder.indexOf('.') == -1);
+        });
+
+        var themeListAvailable = [];
+
+        themesDir.forEach(function(theme) {
+            themeListAvailable.push(theme);
+        });
+
+        return themeListAvailable;
+    }
+
+    var themeWorkspacePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
+    var themeListAvailableWorkspace = retrieveTheme(themeWorkspacePath);
+
+    if(themeListAvailableWorkspace.indexOf(askedTheme) != -1){
+        themeReady();
+    } else{
+        // If not found in workspace, look for not imported theme exisiting in structure/template
+        var themeTemplatePath = __dirname + '/../structure/template/public/themes';
+        var themeListAvailableTemplate = retrieveTheme(themeTemplatePath);
+        console.log(themeListAvailableTemplate)
+        if(themeListAvailableTemplate.indexOf(askedTheme) != -1){
+            console.log("ok");
+            fs.copySync(themeTemplatePath + "/" + askedTheme + "/", themeWorkspacePath + "/" + askedTheme + "/");
+            themeReady();
+        } else
+            notFound();
+    }
+
+    function notFound(){
+        var err = new Error();
+        err.message = "structure.ui.theme.cannotFind";
+        var msgParams = "";
+        for(var i=0; i<themeListAvailableWorkspace.length; i++){
+            msgParams += "-  " + themeListAvailableWorkspace[i] + "<br>";
+        }
+        err.messageParams = [msgParams];
+        callback(err, null);
+    }
+
+    function themeReady(){
+        var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+
+        domHelper.read(mainLayoutPath).then(function($) {
+            var oldTheme = $("link[data-type='theme']").attr("data-theme");
+            $("link[data-type='theme']").replaceWith("<link href='/themes/"+askedTheme+"/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='"+askedTheme+"'>");
+            //$("body").removeClass("theme-"+oldTheme);
+            //$("body").addClass("theme-"+askedTheme);
+            domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
+                var info = {};
+                info.message = "Theme set to " + attr.options.value + " !";
+                callback(null, info);
+            });
+        }).catch(function(err){
+            callback(err, null);
+        });
+    }
+}
+
+exports.listTheme = function(attr, callback) {
+
+    var idApplication = attr.id_application;
+
+    var themePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
+    var themesDir = fs.readdirSync(themePath).filter(function(folder) {
+        return (folder.indexOf('.') == -1);
+    });
+
+    var themeListAvailable = [];
+
+    themesDir.forEach(function(theme) {
+        themeListAvailable.push(theme);
+    });
+
+    var info = {};
+    info.message = "structure.ui.theme.list";
+    var msgParams = "";
+    for(var i=0; i<themeListAvailable.length; i++){
+        msgParams += "-  " + themeListAvailable[i] + "<br>";
     }
     info.messageParams = [msgParams];
     callback(null, info);

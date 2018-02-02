@@ -40,6 +40,11 @@ html
 			section.content
 				block content
 
+		if version != "" && typeof version !== "undefined" && version != null
+			div(style="position: fixed;bottom: 0;padding:15px;width: 100%;color:grey;font-size:12px;")
+				.pull-right
+					| Newmips GPL V3 | #{version}
+
 		block message-modal
 
 		// ---------------- JAVASCRIPT ---------------- //
@@ -54,6 +59,7 @@ html
 		script.
 			var toastrArray = [];
 		if toastr
+			- for (var i=0; i<toastr.length; i++) {toastr[i].message = __(toastr[i].message, []);}
 			- var toastrString = JSON.stringify(toastr).replace('\'', '&#39;');
 			script.
 				toastrArray = JSON.parse('!{toastrString}');

@@ -4,7 +4,7 @@
     },
     "login": {
         "log_in": "Log in",
-        "reset_password": "Forgotten password",
+        "reset_password": "Password modification",
         "emailResetSent": "An email allowing you to reset your password has been sent to you.",
         "tokenNotFound": "Sorry, unable to find your token, we can not validate your request.",
         "passwordReset": "Your password has been reset.",
@@ -39,7 +39,9 @@
         "error": "Error",
         "back": "Back office",
         "users": "Users",
-        "logs": "Logs"
+        "logs": "Logs",
+        "account": "My account",
+        "themes": "My themes"
     },
     "button": {
         "generate": "Generate",
@@ -58,7 +60,9 @@
         "no": "No",
         "close": "Close",
         "send": "Send",
-        "documentation": "Documentation"
+        "add": "Add",
+        "documentation": "Documentation",
+        "cancel": "Cancel"
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -67,9 +71,11 @@
         "ytmodaltitle": "Welcome to the Newmips Generator",
         "ytmodalcontent": "To get started, follow our tutorials and quickly learn how to use the Newmips generator.",
         "accessbuttonyt": "Let's go!",
+        "lastthreeapp": "Your last 3 applications",
         "directlinks": {
             "title": "Application manager",
             "script": "Script",
+            "theme": "Themes",
             "live": "Live",
             "import": "Data Import",
             "settings": "Settings"
@@ -97,7 +103,11 @@
     "ui_editor": {
         "page_not_found": "Couldn't find corresponding file",
         "page_saved": "Your new design have been saved",
-        "select_entity": "Select an entity to edit"
+        "select_entity": "Select an entity to edit",
+        "create_page": "Create page",
+        "update_page": "Update page",
+        "show_page": "Show page",
+        "print_page": "Print page"
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
@@ -117,13 +127,27 @@
     },
     "settings": {
         "legend": "Settings",
-        "display_language": "Diplaying language",
-        "activate_translation": "Activate automatic translation (Internet connection and valid API Key is required)",
+        "display_language": "Displaying language",
+        "display_infos": "Your information",
+        "infos": {
+            "login": "Login",
+            "role": "Role",
+            "lastname": "Lastname",
+            "firstname": "Firstname",
+            "phone": "Phone",
+            "email": "Email",
+            "env": "Environment"
+        },
+        "change_password": "Reset your password",
+        "reset_button": "Reset",
+        "sure_reset": "Are you sure ? You will logout, your password will be reset and you\\'ll receive an email to set a new one.",
+        "activate_translation": "Activate automatic translation (Internet connection and valid Google API Key is required)",
         "english": "English",
         "french": "French"
     },
     "preview":{
         "title": "Preview",
+        "execute": "Execute your instructions here !",
         "reload": "Restart server",
         "issue-button": "Report an issue",
         "help-button": "Need help ?",
@@ -133,6 +157,14 @@
             "noApplication": "No application selected",
             "noModule": "No module selected",
             "noEntity": "No entity selected"
+        },
+        "logo": {
+            "title": "Add a logo",
+            "text": "Please add your logo just below (Recommended size 180px x 100px) :",
+            "add": "The new logo has been successfully added.",
+            "remove": "The logo has been successfully removed.",
+            "noLogo": "Sorry but you do not currently have a logo, you can add one with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
+
         }
     },
     "project":{
@@ -162,7 +194,9 @@
         "texttwo": "go to the home page",
         "or": "or",
         "textthree": "simply go back.",
-        "404": "The link you followed may be broken, or the page may have been removed."
+        "404": "The link you followed may be broken, or the page may have been removed.",
+        "valueTooLong": "The given value is too long (>30).",
+        "cannotFindInstruction": "Sorry, I do not understand what you're asking of me."
     },
     "back":{
         "list": "List",
@@ -276,7 +310,8 @@
                 "deleted": "Field %s deleted !"
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no field with this ID : %s."
+                "withThisID": "Sorry, but there is no field with this ID : %s.",
+                "withThisName": "Sorry, but there is no field %s in the entity %s."
             }
         }
     },
@@ -284,7 +319,7 @@
         "global": {
             "restart": {
                 "success": "Server restarded!",
-                "error": "Couldn't start server due to critical error."
+                "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
             },
             "gitPush": {
                 "success": "The application has been saved!"
@@ -297,7 +332,7 @@
             },
             "error": {
                 "alreadyInProcess": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
-                "notDoGit": "You choose to not do git in config/gitlab.json, so this instruction will do nothing."
+                "notDoGit": "You choose to not do git in config/gitlab.js, so this instruction will do nothing."
             }
         },
         "module": {
@@ -307,7 +342,8 @@
         },
         "field": {
             "attributes": {
-                "success": "The field %s is now %s.",
+                "success": "The field %s is now %s = %s.",
+                "successKnownAttribute": "The field %s is now %s.",
                 "notUnderstandGiveAvailable": "Sorry, I do not understand what you want to do. Available attributes:<br>%s<br>",
                 "notUnderstand": "Unable to understand the given attribute.",
                 "fieldNoFound": "No field with name %s found in the current entity.",
@@ -318,13 +354,14 @@
             }
         },
         "association": {
+            "deleteTab": "The tab %s has been successfully deleted.",
             "hasOne": {
                 "successEntity": "A tab «%s» has just been added to the entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
-                "successSubEntity": "A tab «%s» has just been added to the sub-entity %s.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
+                "successSubEntity": "A tab «%s» has just been added to the entity %s.<br>Warning this tab refers to a sub-entity, so it does not appear in the menu.<br>You will be able to access this tab by showing a %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasMany": {
-                "successEntity": "New relation has many with entity %s created.",
-                "successSubEntity": "New relation has many with sub-entity %s created."
+                "successEntity": "A new tab «%s» has been created on entity %s.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>",
+                "successSubEntity": "A new tab «%s» has been created on the entity %s.<br>Warning this tab refers to a sub-entity, so it does not appear in the menu.<br>You can use this tab by showing the entity %s.<br>To delete this tab, type the instruction:<br>- <b class='click-instruction'>delete tab %s</b>"
             },
             "hasManyExisting": {
                 "success": "New relation has many existing with entity %s created on %s."
@@ -365,9 +402,14 @@
                 "show": "The column %s is now visible.",
                 "noColumn": "Cannot find the column %s."
             },
-            "skin": {
-                "list": "Available skin:<br>%s<br>",
-                "cannotFind": "Cannot find the asked skin. Available skin:<br> %s <br>"
+            "theme": {
+                "list": "Available themes:<br>%s<br>",
+                "cannotFind": "Cannot find the asked theme. Available themes:<br> %s <br>"
+            },
+            "layout": {
+                "list": "Available layout:<br>%s<br>",
+                "cannotFind": "Cannot find the asked layout. Available layout:<br> %s <br>",
+                "success": "Layout set to %s on module %s !"
             },
             "icon": {
                 "success": "Entity %s now have icon %s",
@@ -386,5 +428,12 @@
         "help" : "You need help. Please subscribe to our <a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>YouTube channel</a> or have a look to the online documentation here <a href='https://docs.newmips.com/' target='_blank'>https://docs.newmips.com/</a>",
         "applicationavailable": "The application is available here : <br> <a href='%s' target='_blank'>%s</a>",
         "deployment": "We are currently deploying your application...<br> As it may take a while, please wait and then click on the following link :<br> <a href='%s' target='_blank'>%s</a>"
+    },
+    "themes":{
+        "download-default": "Download the theme model",
+        "generating": "Generation in progress...",
+        "add-theme": "Upload a theme",
+        "wrongExt": "Only .zip are accepted.",
+        "default": "Default theme"
     }
 }

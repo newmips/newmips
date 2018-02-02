@@ -1,7 +1,21 @@
 var bcrypt = require('bcrypt-nodejs');
+var fs = require('fs-extra');
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+}
+
+exports.addHooks = function (Model, model_name, attributes) {
+    var hooks = require('../models/hooks')(model_name, attributes);
+    for (var hookType in hooks) {
+        for (var i = 0; i < hooks[hookType].length; i++) {
+            var hook = hooks[hookType][i];
+            if (hook.name)
+                Model.addHook(hookType, hook.name, hook.func);
+            else
+                Model.addHook(hookType, hook.func);
+        }
+    }
 }
 
 // Build the attribute object for sequelize model's initialization
@@ -10,7 +24,7 @@ exports.buildForModel = function objectify(attributes, DataTypes) {
     var object = {};
     for (var prop in attributes) {
         var currentValue = attributes[prop];
-        if (typeof currentValue === 'object') {
+        if (typeof currentValue === 'object' && currentValue != null) {
             if (currentValue.type == 'ENUM')
                 object[prop] = DataTypes.ENUM(currentValue.values);
             else
@@ -87,8 +101,20 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
 }
 
 // Find list of associations to display into list on create_form and update_form
-exports.associationsFinder = function associationsFinder(models, options) {
+exports.associationsFinder = function associationsFinder(models, options, attributes) {
     var foundAssociations = [];
+
+    /* Example limitAttr, set just the needed fields instead of load them all
+    var limitAttr = {
+        r_collectivite: ["id", "f_code_gestion", "f_nom"],
+        r_dechetteries_a_visiter: ["id", "f_code_gestion", "f_nom"],
+        r_intervenant_ecodds: ["id", "f_email"]
+    };*/
+
+    var limitAttr = [];
+    if(typeof attributes !== "undefined")
+        limitAttr = attributes;
+
     for (var i = 0; i < options.length; i++) {
         foundAssociations.push(new Promise(function (resolve, reject) {
             var asso = options[i];
@@ -100,11 +126,21 @@ exports.associationsFinder = function associationsFinder(models, options) {
                     target = option.as.toLowerCase();
                 }
 
-                models[modelName].findAll().then(function (entities) {
-                    resolve({model: target, rows: entities || []});
-                }).catch(function (err) {
-                    reject(err);
-                });
+                if(typeof limitAttr[target] !== "undefined"){
+                    models[modelName].findAll({
+                        attributes: limitAttr[target]
+                    }).then(function (entities) {
+                        resolve({model: target, rows: entities || []});
+                    }).catch(function (err) {
+                        reject(err);
+                    });
+                } else {
+                    models[modelName].findAll().then(function (entities) {
+                        resolve({model: target, rows: entities || []});
+                    }).catch(function (err) {
+                        reject(err);
+                    });
+                }
             })(asso);
         }));
     }
@@ -113,77 +149,63 @@ exports.associationsFinder = function associationsFinder(models, options) {
 
 // Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
 exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
-    // We have to find value in req.body that are linked to an hasMany or belongsToMany association
-    // because those values are not updated for now
+    return new Promise(function(resolve, reject) {
+        // We have to find value in req.body that are linked to an hasMany or belongsToMany association
+        // because those values are not updated for now
 
-    // List unsed value in req.body for now
-    var unusedValueFromReqBody = [];
+        // List unsed value in req.body for now
+        var unusedValueFromReqBody = [];
 
-    for(var propBody in body){
-        var toAdd = true;
-        for(var propObj in buildForRouteObj){
-            if(propBody == "id" || propBody == propObj)
-                toAdd=false;
+        for(var propBody in body){
+            var toAdd = true;
+            for(var propObj in buildForRouteObj){
+                if(propBody == "id" || propBody == propObj)
+                    toAdd=false;
+            }
+            if(toAdd)
+                unusedValueFromReqBody.push(propBody);
         }
-        if(toAdd)
-            unusedValueFromReqBody.push(propBody);
-    }
 
-    // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
-    for (var i=0; i<options.length; i++) {
-        // Loop on the unused (for now) values in body
-        for (var j=0; j<unusedValueFromReqBody.length; j++) {
-            // if the alias match between the option and the body
-            if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
-                // BelongsTo association have been already done before
-                if(options[i].relation != "belongsTo"){
-                    var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
-                    var value = [];
+        var cpt = 0;
 
-                    if(body[unusedValueFromReqBody[j]].length > 0)
-                        value = body[unusedValueFromReqBody[j]];
+        // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
+        for (var i=0; i<options.length; i++) {
+            if(unusedValueFromReqBody.length == 0)
+                done();
+            // Loop on the unused (for now) values in body
+            for (var j=0; j<unusedValueFromReqBody.length; j++) {
+                // if the alias match between the option and the body
+                if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
+                    // BelongsTo association have been already done before
+                    if(options[i].relation != "belongsTo"){
+                        var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+                        var value = [];
 
-                    model['set' + target](value);
+                        if(body[unusedValueFromReqBody[j]].length > 0)
+                            value = body[unusedValueFromReqBody[j]];
+
+                        model['set' + target](value).then(function(){
+                            done();
+                        });
+                    } else {
+                        done();
+                    }
+                } else {
+                    done();
                 }
             }
         }
-    }
-}
 
-// Find list of associations to create the datalist structure
-exports.getDatalistStructure = function getDatalistStructure(options, attributes, mainEntity) {
-    var structureDatalist = [];
+        done();
 
-    /* Get first attributes from the main entity */
-    for (var attr in attributes) {
-        if (attributes[attr].showValueInList) {
-            structureDatalist.push({
-                field: attr,
-                type: attributes[attr].newmipsType,
-                traductionKey: "entity." + mainEntity + "." + attr,
-                associated: false
-            });
-        }
-    }
-
-    /* Then get attributes from other entity associated to main entity */
-    for (var j = 0; j < options.length; j++) {
-        if (options[j].relation.toLowerCase() == "hasone" || options[j].relation.toLowerCase() == "belongsto") {
-            var currentAttributes = require('../models/attributes/' + options[j].target);
-            for (var currentAttr in currentAttributes) {
-                if (currentAttributes[currentAttr].showValueInList) {
-                    structureDatalist.push({
-                        field: currentAttr,
-                        type: currentAttributes[currentAttr].newmipsType,
-                        entity: options[j].as,
-                        traductionKey: "entity." + options[j].target + "." + currentAttr,
-                        associated: true
-                    });
-                }
+        function done(){
+            if(cpt == options.length){
+                resolve();
+            } else {
+                cpt++;
             }
         }
-    }
-    return structureDatalist;
+    });
 }
 
 exports.getDatalistInclude = function getDatalistInclude(models, options) {
@@ -215,14 +237,34 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
         };
 
         /* Go deeper in second level include */
-        var optionsSecondLevel = require('../models/options/' + options[i].target.toLowerCase());
+        var optionsSecondLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/' + options[i].target.toLowerCase()+'.json', 'utf8'));
         var includeSecondLevel = [];
         for (var j = 0; j < optionsSecondLevel.length; j++) {
             var targetSecondLevel = capitalizeFirstLetter(optionsSecondLevel[j].target.toLowerCase());
-            includeSecondLevel.push({
+
+            var include = {
                 model: models[targetSecondLevel],
-                as: optionsSecondLevel[j].as
-            });
+                as: optionsSecondLevel[j].as,
+                include: []
+            };
+
+            if (optionsSecondLevel[j].target.indexOf('e_history_e_') != 0) {
+                try {
+                    // Check if second level entity has a status component
+                    // If so, add thrid include level to fetch status's children and be able to display next buttons
+                    var optionsThirdLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+optionsSecondLevel[j].target+'.json', 'utf8'));
+                    for (var k = 0; k < optionsThirdLevel.length; k++) {
+                        if (optionsThirdLevel[k].target == 'e_status') {
+                            include.include.push({
+                                model: models.E_status,
+                                as: optionsThirdLevel[k].as
+                            });
+                            break;
+                        }
+                    }
+                } catch (e){console.error("Problem fetching 3rd level include for subentity status display");}
+            }
+            includeSecondLevel.push(include);
         }
 
         toPush.include = includeSecondLevel;

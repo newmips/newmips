@@ -10,20 +10,26 @@ function read(fileName) {
 	return new Promise(function(resolve, reject) {
 		var fileData = helpers.readFileSyncWithCatch(fileName);
 
-		// Comment `dust` elements. We need to comment them to allow jsdom to parse the file correctly
-		fileData = fileData.replace(/({[<@^:#\/].+?})/g, '<!--$1-->');
-		// Replace {@__ key=""} in placeholder by {@__ key=||} to avoid jsDom to fail parsing
-		fileData = fileData.replace(/placeholder='(.+?)(")(.+?)(")(.+?)'/g, "placeholder='$1|$3|$5'");
+		if(typeof fileData !== "undefined"){
+			// Comment `dust` elements. We need to comment them to allow jsdom to parse the file correctly
+			fileData = fileData.replace(/({[<@^:#\/].+?})/g, '<!--$1-->');
+			// Replace {@__ key=""} in placeholder by {@__ key=||} to avoid jsDom to fail parsing
+			fileData = fileData.replace(/placeholder='(.+?)(")(.+?)(")(.+?)'/g, "placeholder='$1|$3|$5'");
 
-		jsdom.env({
-			html: fileData,
-			src: [jquery],
-			done: function (err, window) {
-				if(err)
-					return reject(err);
-				resolve(window.$);
-			}
-		});
+			jsdom.env({
+				html: fileData,
+				src: [jquery],
+				done: function (err, window) {
+					if(err)
+						return reject(err);
+					resolve(window.$);
+				}
+			});
+		} else {
+			var err = new Error();
+			err.message = "Unable to read the file: " + fileName.split("/workspace/").pop();
+			reject(err);
+		}
 	});
 }
 exports.read = read;

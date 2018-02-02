@@ -1,13 +1,14 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-9#header-title
+		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
 			h1
 				a(href="/")
 					img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
 				| #{__("menu.preview")}
 				small #{__("menu.module")}
-		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
+
+		.hidden-xs.col-sm-2.col-md-2.col-lg-1
 			.clearfix
 				span.pull-left Instructions
 				small.pull-right
@@ -19,16 +20,49 @@ block header
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
 				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-7.col-sm-4.col-md-3.col-lg-2#header-button
+
+		.col-xs-12.col-sm-6.col-md-5.col-lg-3
 			.btn-group.pull-right(role="group")
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
 					| #{__("menu.home")}
+				a.btn.btn-default(href='/account')
+					i.fa.fa-user(style="margin-right:5px;")
+					| #{__("menu.account")}
 				a.btn.btn-default.pull-right(href='/logout')
 					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 					span #{__("button.disconnect")}
 
+		.modal.fade#modalsetlogo(tabindex='-1', role='dialog', aria-labelledby='Set logo')
+			.modal-dialog.modal-lg(role='document')
+				.modal-content
+					.modal-header
+						button.close(type='button', data-dismiss='modal', aria-label='Close')
+							span(aria-hidden='true') ×
+						h4.modal-title #{__("preview.logo.title")}
+					.modal-body
+						p.text-center
+							img(src='/img/avatar.png', alt="Mipsy", style="display:block;margin:auto;width: 150px;")
+							br
+							| #{__("preview.logo.text")}
+							br
+							br
+							.col-xs-12(data-field='set_logo')
+								.form-group
+									label(for='set_logo') Logo
+									#set_logo_dropzone.dropzone.dropzone-field(data-storage='local', data-type='picture', data-entity='logo')
+									input#set_logo_dropzone_hidden(type='hidden', name='set_logo', value='')
+							br
+							br
+							.col-xs-12.text-center
+								button.btn.btn-success#addLogo
+									| #{__("button.add")}
+					.modal-footer
+						button.btn.btn-default(type='button', data-dismiss='modal') #{__("button.close")}
+
 block custom_css
+	// Dropzone
+	link(href='/css/dropzone/dropzone.min.css', rel='stylesheet', type='text/css')
 	// CodeMirror
 	link(href='/css/codemirror/codemirror.css', rel='stylesheet', type='text/css')
 	link(href='/css/codemirror/customcodemirror.css', rel='stylesheet', type='text/css')
@@ -48,6 +82,7 @@ block custom_css
 		.dynamic-writing{
 			display: none;
 		}
+
 block content
 	#tabs.nav-tabs-custom(style="margin-bottom:0px;")
 		ul.nav.nav-tabs#primary-navtabs(role="tablist")
@@ -64,48 +99,60 @@ block content
 			#preview.tab-pane.fade.in.active
 				.row
 					.col-xs-12.col-md-8.col-lg-9
+						form#previewForm(action='/application/preview', method='post')
+							.input-group.ui-widget(style="margin-bottom:7px;")
+								.input-group-btn
+									a.btn.btn-default(href="#", id="btn-speech", alt="Enregistrer une instruction")
+										i.fa.fa-microphone.fa-md
+								input.form-control(id='instruction', placeholder="#{__('preview.execute')}", name='instruction', type='text', autocomplete="off", autofocus, required, value='' x-webkit-speech)
+								input.form-control.input(id='iframe_url', name='iframe_url', type='hidden', value='#{iframe_url}')
+								//input.form-control.input(id='iframe', name='iframe', type='hidden', value='true')
+								input.form-control.input(id='chat', name='chat', type='hidden', value='#{JSON.stringify(chat)}')
+								.input-group-btn
+									button.btn.btn-success#execute_instruction
+										| #{__("button.execute")}
 						.row
-							.col-xs-12.connectedSortable
+							.col-xs-12
 								.box-body
-									div.responsive-iframe
-										img.iframe-ratio(src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7")
+									.responsive-iframe
+										//img.iframe-ratio(src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7")
 										if iframe_url != -1
-											iframe(id="iframe", name="iframe", height="800px", width="600px", src="#{iframe_url}", webkitAllowFullScreen, mozallowfullscreen, allowFullScreen)
-										div(id="loadingIframe", style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.25);display:none;")
+											iframe(id="iframe", height="764px", width="600px", src="#{iframe_url}", webkitAllowFullScreen, mozallowfullscreen, allowFullScreen, style="height:764px;border: 1px solid grey;border-radius: 3px;")
+										div(id="loadingIframe", style="position: absolute;top: 0;left: 0;width: 100%;height: 764px;background-color: rgba(0, 0, 0, 0.25);display:none;")
 											img.animated.pulse.infinite(src='/img/LOGO-PNG-01-min.png', alt='Loading', style="display:block;margin: auto;margin-top:300px;width:200px;")
-									br
+										br
 					.col-xs-12.col-md-4.col-lg-3
 						// Chat box
-						form#previewForm(action='/application/preview', method='post')
-							.box.box-solid
-								.box-header
-									h4.box-title
-										i.fa.fa-comments-o
-										|  Instructions
-								#chat-box.box-body.chat(style="height:400px;max-height:400px;overflow-y:scroll;")
-									// Each item has : user, dateEmission, content
-									each msg in chat.items
-										hr
-										.item
-											if (msg.user == "Mipsy")
-												img(src='/img/avatar.png', alt='user image')
-											else
-												img(src='/img/user.png', alt='user image')
-											p.message
-												a.name(href='#')
-													small.text-muted.pull-right
-														| #{msg.dateEmission}
-													if (msg.user == "Mipsy")
-														| Mipsy
-													else
-														| #{profile.login}
-												if (msg.content == "chat.welcome")
-													span.dynamic-writing
-														| !{__(msg.content, msg.params)}
+						.box.box-solid(style="margin-bottom:10px;")
+							.box-header
+								h4.box-title
+									i.fa.fa-comments-o
+									|  Instructions
+							br
+							#chat-box.box-body.chat(style="height:450px;max-height:450px;overflow-y:scroll;")
+								// Each item has : user, dateEmission, content
+								each msg in chat.items
+									.item
+										if (msg.user == "Mipsy")
+											img(src='/img/avatar.png', alt='user image')
+										else
+											img(src='/img/user.png', alt='user image')
+										p.message
+											a.name(href='#')
+												small.text-muted.pull-right
+													| #{msg.dateEmission}
+												if (msg.user == "Mipsy")
+													| Mipsy
 												else
-													span.standard-writing
-														| !{__(msg.content, msg.params)}
-								.box-footer
+													| #{profile.login}
+											if (msg.content == "chat.welcome")
+												span.dynamic-writing
+													| !{__(msg.content, msg.params)}
+											else
+												span.standard-writing
+													| !{__(msg.content, msg.params)}
+									hr
+								//.box-footer
 									.row
 										.col-xs-1
 											a.btn.btn-default(href="#", id="btn-speech", alt="Enregistrer une instruction")
@@ -120,7 +167,7 @@ block content
 													button.btn.btn-success#execute_instruction
 														| #{__("button.execute")}
 						// Session
-						.box.box-solid
+						.box.box-solid(style="margin-bottom:0px;")
 							.box-header
 								h4.box-title
 									i.fa.fa-gear
@@ -166,19 +213,19 @@ block content
 								.text-center
 									a.btn.btn-app#restart-server(href="#")
 										i.fa.fa-refresh
-										|&nbsp; #{__("preview.reload")}
+										|#{__("preview.reload")}
 									if globalConf.env != 'cloud'
 										a.btn.btn-app(target="_blank", href="https://github.com/newmips/newmips/issues/new")
-											i.fa.fa-lg.fa-github
-											|&nbsp; #{__("preview.issue-button")}
+											i.fa.fa-github
+											|#{__("preview.issue-button")}
 									else if globalConf.env == 'cloud' || globalConf.env == 'cloud_recette'
 										div.btn.btn-app#message-box(title="", data-toggle="tooltip", data-original-title="Talk bubble")
 											i.fa.fa-comment
 											div(class="badge badge-danger slack-message-count", style="display: none;")
-											| &nbsp;#{__("preview.help-button")}
+											|#{__("preview.help-button")}
 									a.btn.btn-app(target="_blank", href="http://docs.newmips.com")
-										i.fa.fa-lg.fa-book
-										|&nbsp; #{__("button.documentation")}
+										i.fa.fa-book
+										|#{__("button.documentation")}
 
 			#ui-editor.tab-pane.fade.in(style="min-height:750px;")
 				.row
@@ -197,15 +244,19 @@ block content
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='create')
 									i.fa.fa-file
-									| create page
+									| #{__("ui_editor.create_page")}
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='update')
 									i.fa.fa-file
-									| update page
+									| #{__("ui_editor.update_page")}
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='show')
 									i.fa.fa-file
-									| show page
+									| #{__("ui_editor.show_page")}
+							li.ui-state-default.treeview(style='display:block;')
+								a(class='ui_editor_page' href='#' data-entity='' data-page='print')
+									i.fa.fa-file
+									| #{__("ui_editor.print_page")}
 
 					.col-xs-12.col-sm-10
 						#ui_editor
@@ -315,6 +366,11 @@ block custom_js
 	script(src='/js/plugins/jquery.slimscroll.min.js', type='text/javascript')
 	// Sidebar
 	script(src='/js/AdminLTE/sidebar.js', type='text/javascript')
+	// Dropzone
+	script(src='/js/plugins/dropzone/dropzone.min.js', type='text/javascript')
+	script.
+		var idApp = "#{idApp}";
+	script(src='/js/Newmips/logo-instruction.js', type='text/javascript')
 	// Dynamic Writing
 	script(src='/js/Newmips/dynamic-writing.js', type='text/javascript')
 	// Slack
@@ -324,14 +380,13 @@ block custom_js
 		script.
 			/***************** Slack chat ******************/
 			/* ID des user de Slack à inviter dans la channel crée */
-			var usersToInvite = ["U1GLD90GK", "U1GARP962", "U1GCYEKPX", "U1HD3C60L", "U28GY8LLW", "U3M2P085C"];
-			/*var usersToInvite = [];*/
+			var usersToInvite = ["U1GLD90GK", "U28GY8LLW", "U1GARP962", "U1GCYEKPX", "U1HD3C60L", "U6X4BDYM6"];
 
-			var userId = localStorage.getItem("dixit_id_user_slack");
+			var userId = localStorage.getItem("newmips_slack_id_user");
 
 			if(userId == null){
-				localStorage.setItem("dixit_id_user_slack", Math.random()*1000000)
-				userId = localStorage.getItem("dixit_id_user_slack");
+				localStorage.setItem("newmips_slack_id_user", Math.random()*1000000)
+				userId = localStorage.getItem("newmips_slack_id_user");
 			}
 
 			var userUrlName = window.location.href.replace(/(^\w+:|^)\/\//, '');
@@ -412,6 +467,7 @@ block custom_js
 				newRow.find('.ui-sortable').remove();
 				$(".ge-add-column").remove();
 			});
+
 			$(document).delegate('.ge-addRowGroup', 'click', function() {
 				var newRow = $("body").find('.ui-sortable').last().parent();
 				newRow.find('.ge-add-row').click();
@@ -426,6 +482,7 @@ block custom_js
 					$("#pages").slideDown();
 				}
 			});
+
 			var entity, page;
 			$(".ui_editor_page").click(function() {
 				var self = this;
@@ -444,13 +501,17 @@ block custom_js
 						$("#ui_editor_save").show();
 						$(".ui_editor_page").parents('li').removeClass('active');
 						$(self).parents('li').addClass('active');
+
+						if(page == "print")
+							$("a#custom-grid-editor-print-layout").trigger("click");
 					},
 					error: function(err) {
 						console.log(err);
-						toastr.error(err.messageText);
+						toastr.error(err.responseText);
 					}
 				});
 			});
+
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
 				cleanEditor();
@@ -462,7 +523,8 @@ block custom_js
 						toastr.success(msg);
 					},
 					error: function(err) {
-						toastr.error(err.messageText);
+						console.log(err);
+						toastr.error(err.responseText);
 					}
 				});
 			});
@@ -500,13 +562,29 @@ block custom_js
 			});
 
 			/////////
+			// Set Logo
+			/////////
+			dropzoneSetLogo.on("complete", function(file, response) {
+				$("form#previewForm").submit();
+			});
+
+			$(document).on("click", "#addLogo", function(){
+				dropzoneSetLogo.processQueue();
+			});
+
+			$('#modalsetlogo').on('hidden.bs.modal', function () {
+				$("input[name='set_logo']").val("");
+				dropzoneSetLogo.removeAllFiles(true);
+			});
+
+			/////////
 			// Input instruction
 			/////////
 			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
-			$("#instruction").keyup(function(e) {
+			/*$("#instruction").keyup(function(e) {
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
-			});
+			});*/
 
 			var idApplication = "#{session.application.id_application}";
 			var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_"+idApplication));
@@ -545,15 +623,31 @@ block custom_js
 					toastr.error("Error, empty instruction.");
 					return false;
 				}
+
+				var setLogoInstructions = ["add logo", "add a logo", "set a logo", "set logo", "mettre un logo", "mettre logo", "ajouter logo", "ajouter un logo"];
+				var givenInstruction = $("#instruction").val().toLowerCase();
+				var logoFileName = $("input[name='set_logo']").val();
+				if(setLogoInstructions.indexOf(givenInstruction) != -1 && logoFileName == ""){
+					// Ask to add a logo
+					$('#modalsetlogo').modal();
+					return false;
+				} else if (setLogoInstructions.indexOf(givenInstruction) != -1 && logoFileName != ""){
+					// Logo already given, now do the instruction and add the logo name in the form
+					$("#instruction").val($("#instruction").val() + " " + logoFileName);
+					$('#modalsetlogo').modal("toggle");
+					$("input[name='set_logo']").val("");
+					dropzoneSetLogo.removeAllFiles(true);
+				}
+
 				if ($("#instruction").val() != "restart server") {
 					if (instructionHistory == null)
 						instructionHistory = [];
 			    	instructionHistory.push($("#instruction").val());
 			        localStorage.setItem("newmips_given_instruction_history_"+idApplication, JSON.stringify(instructionHistory));
 				}
+
 				$("#execute_instruction").html("Loading...");
 				$("#execute_instruction").prop("disabled", true);
-				//$("#execute_instruction").parents('form').submit();
 				$("#loadingIframe").show();
 				$.ajax({
 					url: "/application/fastpreview",
@@ -590,12 +684,12 @@ block custom_js
 						indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
 						// User instruction
 						var userItem = data.chat.items[data.chat.items.length-2];
-						$("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+userItem.dateEmission+"</small>"+userItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+userItem.content+"</span></p>");
+						$("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+userItem.dateEmission+"</small>"+userItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+userItem.content+"</span></p></div><hr>");
 
 						// Mipsy answer
 						var mipsyItem = data.chat.items[data.chat.items.length-1];
 						getTranslation(mipsyItem.content, mipsyItem.params, function(mipsyAnswer){
-							$("#chat-box").append("<div class='item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+mipsyItem.dateEmission+"</small>"+mipsyItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+mipsyAnswer+"</span></p>");
+							$("#chat-box").append("<div class='animated pulse item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">"+mipsyItem.dateEmission+"</small>"+mipsyItem.user+"</a><span class=\"standard-writing\" style=\"display: block;\">"+mipsyAnswer+"</span></p></div><hr>");
 
 							$("#instruction").val("");
 							$("#instruction").blur().focus();
@@ -634,6 +728,17 @@ block custom_js
 							var content = recursiveEditorFolders(data.workspaceFolder);
 							$("ul#sortable.sidebar-menu").append(content);
 							$(".sidebar .treeview").tree();
+							// Reset Editor
+							if(typeof myEditor !== "undefined"){
+								$("#codemirror-editor li.load-file").each(function(){
+									$(this).remove();
+								});
+								myEditor.setValue("");
+								myEditor.clearHistory();
+								myEditor.refresh();
+								myEditor.clearGutter();
+								$(".CodeMirror-code").empty();
+							}
 							// Wait a little for Iframe to refresh
 							setTimeout(function(){
 								$("#loadingIframe").hide();
@@ -663,44 +768,60 @@ block custom_js
 			    	return split( term ).pop();
 			    }
 
-				$("#instruction").autocomplete({
-			        source: function( request, response ) {
-			          $.getJSON( '/default/completion', {
-			            "str": newstr
-			          }, response );
-			        },
-			        search: function() {
-						return true;
-			        },
-			        focus: function() {
-			          // prevent value inserted on focus
-			          return false;
-			        },
-			        select: function( event, ui ) {
-			        	var completeVal = ui.item.value;
-			        	// If complete value have already typed string in it, dont concat with current value
-				        if (completeVal.indexOf(this.value) == 0){
-							this.value = completeVal.split("[variable]").join("").trim();
-				        }
-						else {
-							// Remove the last word of already typed instruction because it is also in the completed value
-							var parts = this.value.split(' ');
-							if(parts[parts.length-1] == " ")
-								parts.pop();
-							else{
-								compareNum = 0;
-								l = Math.min(completeVal.length, parts[parts.length-1].length);
-								for( i=0; i<l; i++) {
-								    if( completeVal.charAt(i) == parts[parts.length-1].charAt(i)) compareNum++;
-								}
-								if(compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length-1])
-									parts.pop();
-							}
-							this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
-						}
-						return false;
-			        }
-		    	});
+		        $("#instruction").autocomplete({
+		            autoFocus: true,
+		            delay: 0,
+		            source: function(request, response) {
+		                $.getJSON('/default/completion', {
+		                    "str": newstr
+		                }, response);
+		            },
+		            search: function() {
+		                return true;
+		            },
+		            focus: function() {
+		                // prevent value inserted on focus
+		                return false;
+		            },
+		            select: function(event, ui) {
+
+		            	var ENTERKEY = 13;
+		            	if (event.keyCode != ENTERKEY) {
+			                var completeVal = ui.item.value;
+			                // If complete value have already typed string in it, dont concat with current value
+			                if (completeVal.indexOf(this.value) == 0) {
+			                    this.value = completeVal.split("[variable]").join("").trim();
+			                } else {
+			                    // Remove the last word of already typed instruction because it is also in the completed value
+			                    var parts = this.value.split(' ');
+			                    if (parts[parts.length - 1] == " ")
+			                        parts.pop();
+			                    else {
+			                        compareNum = 0;
+			                        l = Math.min(completeVal.length, parts[parts.length - 1].length);
+			                        for (i = 0; i < l; i++) {
+			                            if (completeVal.charAt(i) == parts[parts.length - 1].charAt(i)) compareNum++;
+			                        }
+			                        if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
+			                            parts.pop();
+			                    }
+			                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
+			                }
+
+			                var TABKEY = 9;
+				            if (event.keyCode == TABKEY) {
+				                event.preventDefault();
+				                this.value = this.value+" ";
+				                $('#instruction').focus();
+				            }
+			                return false;
+			            } else {
+			            	event.preventDefault();
+			            	$('#execute_instruction').click();
+			            	return false;
+			            }
+		            }
+		        });
 				// }
 			});
 

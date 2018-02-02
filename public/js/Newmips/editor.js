@@ -1,3 +1,9 @@
+/*!
+ * Newmips v2.5
+ * Copyright 2016
+ * Licensed under GPLV3.0 https://www.gnu.org/licenses/gpl.html
+ */
+
 $(document).ready(function() {
 
     var editorContent = {};
@@ -26,7 +32,7 @@ $(document).ready(function() {
         $('head').append("<link href='/css/codemirror/themes/" + chosenTheme + ".css' rel='stylesheet' type='text/css'>");
     }
 
-    var myEditor = CodeMirror(document.getElementById("codemirror-editor"), {
+    myEditor = CodeMirror(document.getElementById("codemirror-editor"), {
         value: "\n\n" + intro1 + intro2,
         theme: chosenTheme,
         keyMap: "sublime",
@@ -217,8 +223,6 @@ $(document).ready(function() {
                         myEditor.setOption("readOnly", true);
                     else
                         myEditor.setOption("readOnly", false);
-
-
                 } else {
                     /* Tab already exist */
                     $("li[data-path='"+data.path+"']").addClass("active");

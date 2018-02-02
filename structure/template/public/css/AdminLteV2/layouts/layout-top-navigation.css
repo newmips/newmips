@@ -1,0 +1,85 @@
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.sidebar-menu{
+		top: -13px !important;
+	}
+}
+
+@media (min-width: 768px) {
+	.sidebar-toggle{
+		display: none;
+	}
+
+	.main-sidebar, .left-side {
+		min-height: 0 !important;
+		width: 100%;
+	}
+
+	.sidebar {
+		padding-bottom: 0px;
+		height: 15px;
+	}
+
+	.user-panel {
+		width: 230px;
+		display: inline-block;
+	}
+
+	.user-panel .image img {
+		display: none;
+	}
+
+	.sidebar-menu{
+		display: inline-block;
+		padding: 10px;
+		position: relative;
+		overflow: visible;
+		top: -39px;
+		height: 50px;
+		max-width: 80%;
+	}
+
+	.sidebar-menu > li {
+		display: block;
+		position: relative;
+		float: left;
+		top: -10px;
+	}
+
+	.content-wrapper, .right-side, .main-footer {
+		margin-left: 0px;
+	}
+
+	.content-header{
+		margin-top: 70px;
+	}
+
+	.treeview-menu{
+		position: absolute;
+		width: 100%;
+		z-index: 999;
+	}
+
+	.sidebar-menu li > a > .fa-angle-left, .sidebar-menu li > a > .fa-angle-right  {
+		position: initial;
+		top: initial;
+		right: initial;
+		margin-top: 3px;
+		margin-left: 15px;
+	}
+
+	.content-header {
+	    border-top: 1px solid #d2d6de !important;
+	}
+
+	.sidebar-menu .treeview-menu .treeview-menu {
+		background: #f4f4f5;
+	    margin-left: 116px;
+	    margin-top: -47px;
+	}
+}
+
+@media screen and (min-width: 768px) and (max-width: 1150px) {
+	.sidebar-menu{
+		max-width: 70%;
+	}
+}

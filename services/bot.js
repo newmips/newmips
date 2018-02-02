@@ -10,8 +10,8 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     }
 
     if(valueToCheck.length > 30){
-        console.log("Value is too long => "+valueToCheck);
-        attr.error = "The given value is too long (>30)."
+        console.log("Value is too long => "+valueToCheck+"("+valueToCheck.length+")");
+        attr.error = "error.valueTooLong";
     }
 
     return attr;
@@ -40,7 +40,6 @@ exports.deploy = function (result) {
 };
 
 exports.restart = function (result) {
-
     var attr = {};
     attr.function = "restart";
     return attr;
@@ -113,7 +112,7 @@ exports.selectModule = function (result) {
     return attr;
 };
 
-exports.selectDataEntity = function (result) {
+exports.selectEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -121,7 +120,7 @@ exports.selectDataEntity = function (result) {
     };
 
     var attr = {
-        function: "selectDataEntity",
+        function: "selectEntity",
         options: options
     };
     return attr;
@@ -134,11 +133,28 @@ exports.setFieldAttribute = function (result) {
     var options = {
         value: result[1],
         word: result[2],
+        attributeValue: result[3],
         processValue: true
     };
 
     var attr = {
         function: "setFieldAttribute",
+        options: options
+    };
+    return attr;
+};
+
+exports.setFieldKnownAttribute = function (result) {
+
+    // Set entity name as the first option in options array
+    var options = {
+        value: result[1],
+        word: result[2],
+        processValue: true
+    };
+
+    var attr = {
+        function: "setFieldKnownAttribute",
         options: options
     };
     return attr;
@@ -227,7 +243,7 @@ exports.createNewModule = function (result) {
     return checkAndCreateAttr("createNewModule", options, value);
 };
 
-exports.createNewDataEntity = function (result) {
+exports.createNewEntity = function (result) {
 
     var value = result[1];
     var options = {
@@ -235,7 +251,7 @@ exports.createNewDataEntity = function (result) {
         processValue: true
     };
 
-    return checkAndCreateAttr("createNewDataEntity", options, value);
+    return checkAndCreateAttr("createNewEntity", options, value);
 };
 
 exports.createNewDataField = function (result) {
@@ -598,12 +614,18 @@ exports.relationshipHasManyWithName = function (result) {
 exports.relationshipHasManyPreset = function (result) {
     var source = result[1];
     var target = result[2];
+    var as = target;
+    var foreignKey = "id_" + source.toLowerCase();
+
+    if(typeof result[3] !== "undefined")
+        as = result[3];
+        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
-        as: target,
+        foreignKey: foreignKey,
+        as: as,
         processValue: true
     };
 
@@ -614,12 +636,18 @@ exports.relationshipHasManyPresetUsing = function (result) {
     var source = result[1];
     var target = result[2];
     var usingField = result[3];
+    var as = target;
+    var foreignKey = "id_" + source.toLowerCase();
+
+    if(typeof result[4] !== "undefined")
+        as = result[4];
+        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
         source: source,
-        foreignKey: "id_" + source.toLowerCase(),
-        as: target,
+        foreignKey: foreignKey,
+        as: as,
         usingField: usingField,
         processValue: true
     };
@@ -628,6 +656,24 @@ exports.relationshipHasManyPresetUsing = function (result) {
 };
 
 // ******* COMPONENT Actions ******* //
+exports.createNewComponentStatus = function(result) {
+    var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
+    return {
+        function: "createNewComponentStatus",
+        options: {value: defaultValue, processValue: true}
+    };
+}
+
+exports.createNewComponentStatusWithName = function(result) {
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewComponentStatus", options, value);
+}
+
 /* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = function (result) {
 
@@ -695,6 +741,28 @@ exports.createNewComponentAgendaWithName = function (result) {
     };
 
     return checkAndCreateAttr("createNewComponentAgenda", options, value);
+};
+
+exports.deleteAgenda = function (result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteAgenda",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteAgendaWithName = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("deleteAgenda", options, value);
 };
 
 /* CRA */
@@ -791,7 +859,26 @@ exports.createComponentChat = function (result) {
 }
 
 // ******* INTERFACE Actions ******* //
-exports.setSkin = function (result) {
+exports.setLogo = function (result) {
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setLogo",
+        options: options
+    };
+    return attr;
+};
+
+exports.removeLogo = function (result) {
+    var attr = {};
+    attr.function = "removeLogo";
+    return attr;
+};
+
+exports.setLayout = function (result) {
 
     var value = result[1];
     var options = {
@@ -799,16 +886,38 @@ exports.setSkin = function (result) {
     };
 
     var attr = {
-        function: "setSkin",
+        function: "setLayout",
         options: options
     };
     return attr;
 };
 
-exports.listSkin = function (result) {
+exports.listLayout = function (result) {
 
     var attr = {
-        function: "listSkin"
+        function: "listLayout"
+    };
+    return attr;
+};
+
+exports.setTheme = function (result) {
+
+    var value = result[1];
+    var options = {
+        value: value
+    };
+
+    var attr = {
+        function: "setTheme",
+        options: options
+    };
+    return attr;
+};
+
+exports.listTheme = function (result) {
+
+    var attr = {
+        function: "listTheme"
     };
     return attr;
 };
@@ -867,8 +976,8 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-console.log(result);
-console.log(result.length);
+    console.log(result);
+    console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
@@ -1024,13 +1133,13 @@ var training = {
         "sélectionner le module (.*)",
         "sélectionner module (.*)"
     ],
-    "selectDataEntity": [
+    "selectEntity": [
         "select entity (.*)",
         "select data entity (.*)",
         "sélectionner l'entité (.*)",
         "sélectionner entité (.*)"
     ],
-    "setFieldAttribute": [
+    "setFieldKnownAttribute": [
         "set field (.*) (.*)",
         "set the field (.*) (.*)",
         "mettre champ (.*) (.*)",
@@ -1038,6 +1147,23 @@ var training = {
         "mettre le champ (.*) en (.*)",
         "rendre champ (.*) (.*)",
         "rendre le champ (.*) (.*)"
+    ],
+    "setFieldAttribute": [
+        "set field (.*) attribute (.*) (.*)",
+        "set field (.*) with attribute (.*) (.*)",
+        "set the field (.*) with attribute (.*) (.*)",
+        "set field (.*) attribute (.*) = (.*)",
+        "set field (.*) with attribute (.*) = (.*)",
+        "set the field (.*) with attribute (.*) = (.*)",
+        "set field (.*) attribute (.*)=(.*)",
+        "set field (.*) with attribute (.*)=(.*)",
+        "set the field (.*) with attribute (.*)=(.*)",
+        "mettre le champ (.*) avec l'attribut (.*) (.*)",
+        "ajouter sur le champ (.*) l'attribut (.*) (.*)",
+        "mettre le champ (.*) avec l'attribut (.*) = (.*)",
+        "ajouter sur le champ (.*) l'attribut (.*) = (.*)",
+        "mettre le champ (.*) avec l'attribut (.*)=(.*)",
+        "ajouter sur le champ (.*) l'attribut (.*)=(.*)"
     ],
     "setColumnVisibility": [
         "set column (.*) (.*)",
@@ -1084,7 +1210,7 @@ var training = {
         "ajouter un module (.*)",
         "ajouter le module (.*)"
     ],
-    "createNewDataEntity": [
+    "createNewEntity": [
         "create entity (.*)",
         "create data entity (.*)",
         "add entity (.*)",
@@ -1289,15 +1415,12 @@ var training = {
         "lister champs",
         "lister les champs"
     ],
-    "listSkin": [
-        "list all skin",
-        "list skin",
-        "list available skin",
-        "lister les skins",
-        "lister les skin",
-        "lister skin",
-        "lister skins",
-        "lister les couleurs"
+    "listTheme": [
+        "list all theme",
+        "list theme",
+        "list available theme",
+        "lister les thèmes",
+        "lister thèmes"
     ],
     "relationshipHasOne": [
         "entity (.*) has one (.*)",
@@ -1310,6 +1433,7 @@ var training = {
     ],
     "relationshipHasOneWithName": [
         "entity (.*) has one (.*) called (.*)",
+        "entity (.*) has one (.*) with name (.*)",
         "entité (.*) possède un (.*) appelé (.*)",
         "entité (.*) possède une (.*) appelée (.*)",
         "entité (.*) possède (.*) appelé (.*)",
@@ -1352,6 +1476,7 @@ var training = {
     ],
     "relationshipHasManyWithName": [
         "entity (.*) has many (.*) called (.*)",
+        "entity (.*) has many (.*) with name (.*)",
         "entité (.*) possède plusieurs (.*) appelés (.*)",
         "entité (.*) a plusieurs (.*) appelés (.*)",
         "entité (.*) possède plusieurs (.*) appelées (.*)",
@@ -1363,9 +1488,75 @@ var training = {
         "entity (.*) has many preset (.*)",
         "entity (.*) has many existing (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfini",
-        "l'entité (.*) a plusieurs (.*) existant",
+        "l'entité (.*) a plusieurs (.*) prédéfinis",
+        "l'entité (.*) a plusieurs (.*) prédéfinie",
+        "l'entité (.*) a plusieurs (.*) prédéfinies",
         "l'entité (.*) a plusieurs (.*) déjà prédéfini",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinis",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinie",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinies",
+        "l'entité (.*) a plusieurs (.*) existant",
+        "l'entité (.*) a plusieurs (.*) existants",
+        "l'entité (.*) a plusieurs (.*) existante",
+        "l'entité (.*) a plusieurs (.*) existantes",
         "l'entité (.*) a plusieurs (.*) déjà existant",
+        "l'entité (.*) a plusieurs (.*) déjà existants",
+        "l'entité (.*) a plusieurs (.*) déjà existante",
+        "l'entité (.*) a plusieurs (.*) déjà existantes",
+        "entité (.*) a plusieurs (.*) prédéfini",
+        "entité (.*) a plusieurs (.*) prédéfinis",
+        "entité (.*) a plusieurs (.*) prédéfinie",
+        "entité (.*) a plusieurs (.*) prédéfinies",
+        "entité (.*) a plusieurs (.*) existant",
+        "entité (.*) a plusieurs (.*) existants",
+        "entité (.*) a plusieurs (.*) existante",
+        "entité (.*) a plusieurs (.*) existantes",
+        "entité (.*) a plusieurs (.*) déjà prédéfini",
+        "entité (.*) a plusieurs (.*) déjà prédéfinis",
+        "entité (.*) a plusieurs (.*) déjà prédéfinie",
+        "entité (.*) a plusieurs (.*) déjà prédéfinies",
+        "entité (.*) a plusieurs (.*) déjà existant",
+        "entité (.*) a plusieurs (.*) déjà existants",
+        "entité (.*) a plusieurs (.*) déjà existante",
+        "entité (.*) a plusieurs (.*) déjà existantes",
+
+        "entity (.*) has many preset (.*) called (.*)",
+        "entity (.*) has many existing (.*) called (.*)",
+        "entity (.*) has many preset (.*) with name (.*)",
+        "entity (.*) has many existing (.*) with name (.*)",
+
+        "l'entité (.*) a plusieurs (.*) prédéfini appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinis appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinie appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinies appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfini appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinis appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinie appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinies appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) existants appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existante appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) existantes appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existant appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existants appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existante appelée (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existantes appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini appelé (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinis appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinie appelée (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinies appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant appelé (.*)",
+        "entité (.*) a plusieurs (.*) existants appelés (.*)",
+        "entité (.*) a plusieurs (.*) existante appelée (.*)",
+        "entité (.*) a plusieurs (.*) existantes appelées (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfini appelé (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinis appelés (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinie appelée (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinies appelées (.*)",
+        "entité (.*) a plusieurs (.*) déjà existant appelé (.*)",
+        "entité (.*) a plusieurs (.*) déjà existants appelés (.*)",
+        "entité (.*) a plusieurs (.*) déjà existante appelée (.*)",
+        "entité (.*) a plusieurs (.*) déjà existantes appelées (.*)"
     ],
     "relationshipHasManyPresetUsing": [
         "entity (.*) has many preset (.*) using (.*)",
@@ -1388,21 +1579,76 @@ var training = {
         "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
         "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
+
+        "entity (.*) has many preset (.*) using (.*) called (.*)",
+        "entity (.*) has many existing (.*) using (.*) called (.*)",
+        "entity (.*) has many preset (.*) through (.*) called (.*)",
+        "entity (.*) has many existing (.*) through (.*) called (.*)",
+        "entity (.*) has many preset (.*) using field (.*) called (.*)",
+        "entity (.*) has many existing (.*) using field (.*) called (.*)",
+        "entity (.*) has many preset (.*) through field (.*) called (.*)",
+        "entity (.*) has many existing (.*) through field (.*) called (.*)",
+        "entity (.*) has many preset (.*) using the field (.*) called (.*)",
+        "entity (.*) has many existing (.*) using the field (.*) called (.*)",
+        "entity (.*) has many preset (.*) through the field (.*) called (.*)",
+        "entity (.*) has many existing (.*) through the field (.*) called (.*)",
+
+        "entity (.*) has many preset (.*) using (.*) with name (.*)",
+        "entity (.*) has many existing (.*) using (.*) with name (.*)",
+        "entity (.*) has many preset (.*) through (.*) with name (.*)",
+        "entity (.*) has many existing (.*) through (.*) with name (.*)",
+        "entity (.*) has many preset (.*) using field (.*) with name (.*)",
+        "entity (.*) has many existing (.*) using field (.*) with name (.*)",
+        "entity (.*) has many preset (.*) through field (.*) with name (.*)",
+        "entity (.*) has many existing (.*) through field (.*) with name (.*)",
+        "entity (.*) has many preset (.*) using the field (.*) with name (.*)",
+        "entity (.*) has many existing (.*) using the field (.*) with name (.*)",
+        "entity (.*) has many preset (.*) through the field (.*) with name (.*)",
+        "entity (.*) has many existing (.*) through the field (.*) with name (.*)",
+
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)",
+
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)"
     ],
     "createFieldRelatedToMultiple": [
-        "create fieldset (.*) related to (.*)",
-        "add fieldset (.*) related to (.*)",
-        "create list of (.*) related to (.*)",
-        "add list of (.*) related to (.*)",
-        "créer une liste de (.*) lié à (.*)",
-        "créer une liste de (.*) liée à (.*)",
-        "créer liste de (.*) liée à (.*)",
-        "créer liste de (.*) lié à (.*)",
-        "ajouter une liste de (.*) lié à (.*)",
-        "ajouter une liste de (.*) liée à (.*)",
-        "ajouter liste de (.*) liée à (.*)",
-        "ajouter liste de (.*) lié à (.*)",
-
         "create field (.*) related to multiple (.*)",
         "add field (.*) related to multiple (.*)",
         "create data field (.*) related to multiple (.*)",
@@ -1417,19 +1663,6 @@ var training = {
         "ajouter champ (.*) relié à plusieurs (.*)"
     ],
     "createFieldRelatedToMultipleUsing": [
-        "create fieldset (.*) related to (.*) using (.*)",
-        "add fieldset (.*) related to (.*) using (.*)",
-        "create list of (.*) related to (.*) using (.*)",
-        "add list of (.*) related to (.*) using (.*)",
-        "créer une liste de (.*) lié à (.*) en affichant (.*)",
-        "créer une liste de (.*) liée à (.*) en affichant (.*)",
-        "créer liste de (.*) lié à (.*) en affichant (.*)",
-        "créer liste de (.*) liée à (.*) en affichant (.*)",
-        "ajouter une liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter une liste de (.*) liée à (.*) en affichant (.*)",
-        "ajouter liste de (.*) lié à (.*) en affichant (.*)",
-        "ajouter liste de (.*) liée à (.*) en affichant (.*)",
-
         "create field (.*) related to multiple (.*) using (.*)",
         "add field (.*) related to multiple (.*) using (.*)",
         "create data field (.*) related to multiple (.*) using (.*)",
@@ -1447,11 +1680,33 @@ var training = {
         "ajouter champ (.*) relié à plusieurs (.*) en utilisant (.*)",
         "ajouter champ (.*) relié à plusieurs (.*) en affichant (.*)"
     ],
+    "createNewComponentStatusWithName": [
+        "create component status called (.*)",
+        "add component status called (.*)",
+        "create component status with name (.*)",
+        "add component status with name (.*)",
+        "ajouter un composant statut appelé (.*)",
+        "ajouter composant statut appelé (.*)",
+        "créer composant statut appelé (.*)",
+        "créer un composant statut appelé (.*)"
+    ],
+    "createNewComponentStatus": [
+        "create component status",
+        "add component status",
+        "ajouter un composant statut",
+        "créer un composant statut",
+        "ajouter composant statut",
+        "créer composant statut"
+    ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",
         "create component localfilestorage with name (.*)",
         "add component local file storage with name (.*)",
         "add component localfilestorage with name (.*)",
+        "create component local file storage called (.*)",
+        "create component localfilestorage called (.*)",
+        "add component local file storage called (.*)",
+        "add component localfilestorage called (.*)",
         "créer composant localfilestorage appelé (.*)",
         "ajouter composant localfilestorage appelé (.*)",
         "créer un composant localfilestorage appelé (.*)",
@@ -1545,6 +1800,11 @@ var training = {
         "add component contactform with name (.*)",
         "add component contact form with name (.*)",
 
+        "create component contactform called (.*)",
+        "create component contact form called (.*)",
+        "add component contactform called (.*)",
+        "add component contact form called (.*)",
+
         "créer un composant formulaire de contact appelé (.*)",
         "ajouter un composant formulaire de contact appelé (.*)",
         "créer composant formulaire de contact appelé (.*)",
@@ -1616,6 +1876,9 @@ var training = {
         "create component agenda with name (.*)",
         "add component agenda with name (.*)",
         "add agenda with name (.*)",
+        "create component agenda called (.*)",
+        "add component agenda called (.*)",
+        "add agenda called (.*)",
         "créer un composant agenda appelé (.*)",
         "ajouter un composant agenda appelé (.*)",
         "créer le composant agenda appelé (.*)",
@@ -1652,7 +1915,63 @@ var training = {
         "créer une ligne de temps appelé (.*)",
         "ajouter une ligne de temps appelé (.*)"
     ],
+    "deleteAgenda": [
+        "delete component agenda",
+        "remove component agenda",
+        "remove an agenda",
+        "delete an agenda",
+        "remove agenda",
+        "delete agenda",
+        "delete component timeline",
+        "remove component timeline",
+        "remove an timeline",
+        "remove timeline",
+
+        "supprimer composant agenda",
+        "supprimer le composant agenda",
+        "supprimer agenda",
+        "supprimer l'agenda",
+        "supprimer le composant ligne de temps",
+        "supprimer la ligne de temps"
+    ],
+    "deleteAgendaWithName": [
+        "delete component agenda with name (.*)",
+        "remove component agenda with name (.*)",
+        "remove an agenda with name (.*)",
+        "delete an agenda with name (.*)",
+        "remove agenda with name (.*)",
+        "delete agenda with name (.*)",
+        "delete component timeline with name (.*)",
+        "remove component timeline with name (.*)",
+        "remove an timeline with name (.*)",
+        "remove timeline with name (.*)",
+        "delete component agenda called (.*)",
+        "remove component agenda called (.*)",
+        "remove an agenda called (.*)",
+        "delete an agenda called (.*)",
+        "remove agenda called (.*)",
+        "delete agenda called (.*)",
+        "delete component timeline called (.*)",
+        "remove component timeline called (.*)",
+        "remove an timeline called (.*)",
+        "remove timeline called (.*)",
+
+        "supprimer composant agenda appelé (.*)",
+        "supprimer le composant agenda appelé (.*)",
+        "supprimer agenda appelé (.*)",
+        "supprimer l'agenda appelé (.*)",
+        "supprimer le composant ligne de temps appelée (.*)",
+        "supprimer la ligne de temps appelée (.*)",
+        "supprimer composant agenda nommé (.*)",
+        "supprimer le composant agenda nommé (.*)",
+        "supprimer agenda nommé (.*)",
+        "supprimer l'agenda nommé (.*)",
+        "supprimer le composant ligne de temps nommée (.*)",
+        "supprimer la ligne de temps nommée (.*)"
+    ],
     "createNewComponentCra": [
+        "ajouter composant gestion de temps",
+        "ajouter un composant gestion de temps",
         "create component cra",
         "add component cra",
         "create component activity report",
@@ -1688,6 +2007,9 @@ var training = {
         "create component print with name (.*)",
         "add component print with name (.*)",
         "add print with name (.*)",
+        "create component print called (.*)",
+        "add component print called (.*)",
+        "add print called (.*)",
         "créer un composant impression appelé (.*)",
         "ajouter un composant impression appelé (.*)",
         "créer le composant impression appelé (.*)",
@@ -1722,42 +2044,84 @@ var training = {
     "deleteComponentPrintWithName": [
         "delete component print with name (.*)",
         "delete print component with name (.*)",
+        "delete component print called (.*)",
+        "delete print component called (.*)",
         "supprimer composant impression nommé (.*)",
         "supprimer composant impression appelé (.*)",
         "supprimer le composant impression nommé (.*)",
         "supprimer le composant impression appelé (.*)"
     ],
     "createNewComponentAddress": [
-	"add component Address with name (.*)",
-	"add component address with name (.*)",
-	"ajouter un composant adresse nommé (.*)",
-	"ajouter un composant adresse appelé (.*)",
-	"ajouter un composant Adresse nommé (.*)",
-	"ajouter un composant Adresse appelé (.*)",
-	"ajouter composant adresse nommé (.*)",
-	"ajouter composant adresse appelé (.*)",
-	"ajouter composant Adresse nommé (.*)",
-	"ajouter composant Adresse appelé (.*)"
+        "add component Address with name (.*)",
+        "add component address with name (.*)",
+        "add component Address called (.*)",
+        "add component address called (.*)",
+        "ajouter un composant adresse nommé (.*)",
+        "ajouter un composant adresse appelé (.*)",
+        "ajouter un composant Adresse nommé (.*)",
+        "ajouter un composant Adresse appelé (.*)",
+        "ajouter composant adresse nommé (.*)",
+        "ajouter composant adresse appelé (.*)",
+        "ajouter composant Adresse nommé (.*)",
+        "ajouter composant Adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
-	"delete component address",
-	"supprimer le composant adresse"
+        "delete component address",
+        "supprimer le composant adresse"
     ],
     "createComponentChat": [
         "add component chat",
         "create component chat",
-	"ajouter le composant Discussion",
-	"ajouter composant Discussion",
-	"ajouter le composant discussion",
-	"ajouter composant discussion"
+        "ajouter le composant Discussion",
+        "ajouter composant Discussion",
+        "ajouter le composant discussion",
+        "ajouter composant discussion"
     ],
-    "setSkin": [
-        "set skin (.*)",
-        "set color (.*)",
-        "set colour (.*)",
-        "appliquer le style (.*)",
-        "appliquer la couleur (.*)",
-        "mettre la couleur (.*)"
+    "setLogo": [
+        "add logo (.*)",
+        "add a logo (.*)",
+        "set a logo (.*)",
+        "set logo (.*)",
+        "mettre un logo (.*)",
+        "mettre logo (.*)",
+        "ajouter logo (.*)",
+        "ajouter un logo (.*)"
+    ],
+    "removeLogo": [
+        "remove logo",
+        "remove the logo",
+        "delete the logo",
+        "delete logo",
+        "supprimer un logo",
+        "supprimer logo",
+        "enlever le logo",
+        "enlever logo"
+    ],
+    "setLayout": [
+        "set layout (.*)",
+        "appliquer le layout (.*)",
+        "appliquer la disposition (.*)",
+        "appliquer layout (.*)",
+        "appliquer disposition (.*)",
+        "mettre le layout (.*)",
+        "mettre la disposition (.*)",
+        "mettre layout (.*)",
+        "mettre disposition (.*)"
+    ],
+    "listLayout": [
+        "list layout",
+        "list all layout",
+        "lister les layout",
+        "lister disposition",
+        "lister les dispositions",
+        "afficher les dispositions"
+    ],
+    "setTheme": [
+        "set theme (.*)",
+        "appliquer le thème (.*)",
+        "appliquer thème (.*)",
+        "mettre le thème (.*)",
+        "mettre thème (.*)"
     ],
     "listIcon" : [
         "list icon",
@@ -1804,7 +2168,9 @@ var training = {
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "ajouter widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
         "créer un widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
-        "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
+        "créer un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
+        "créer widget derniers enregistrements limité à (.*) enregistrements avec les colonnes (.*)",
+        "créer widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],
     "createWidgetLastRecords": [
         "add widget last records with columns (.*)",
@@ -1823,8 +2189,13 @@ var training = {
         "créer un widget (.*) sur l'entité (.*)",
         "ajouter une (.*) sur l'entité (.*)",
         "ajouter un widget (.*) sur l'entité (.*)",
+        "créer widget (.*) sur l'entité (.*)",
+        "ajouter (.*) sur l'entité (.*)",
+        "ajouter widget (.*) sur l'entité (.*)",
         "add widget (.*) on entity (.*)",
-        "create widget (.*) on entity (.*)"
+        "create widget (.*) on entity (.*)",
+        "add a widget (.*) on entity (.*)",
+        "create a widget (.*) on entity (.*)"
     ],
     "createWidget": [
         "add widget (.*)",
@@ -1854,7 +2225,6 @@ var training = {
         "supprimer tous les widgets de l'entité (.*)"
     ]
 };
-
 // ******* Parse *******
 exports.parse = function (instruction) {
 
@@ -1885,7 +2255,7 @@ exports.parse = function (instruction) {
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
     } else {
-        attr.error = "Unable to find a matching instruction.";
+        attr.error = "error.cannotFindInstruction";
     }
 
     return attr;
@@ -1902,9 +2272,6 @@ exports.complete = function(instruction) {
 
         // Check each blocks
         for (var i = 0; i < training[action].length; i++) {
-
-            // console.log(template);
-            // console.log(instr);
 
             // Template to compare to
             var template = training[action][i].split(" ");
@@ -2023,7 +2390,7 @@ exports.complete = function(instruction) {
 
     // Sort array of results
     out.sort();
-
+    out.reverse();
     return out;
 }
 

@@ -88,7 +88,7 @@ function execute(req, instruction) {
 
 var mandatoryInstructions = [
     "create module home",
-    "create module Authentication",
+    "create module Administration",
     "create entity User",
     "add field login",
     "add field password",
@@ -103,16 +103,78 @@ var mandatoryInstructions = [
     "add field label",
     "set icon users",
     "select entity User",
-    "add field role related to Role using label",
-    "add field group related to Group using label",
+    "add field Role related to many Role using label",
+    "add field Group related to many Group using label",
+    "set field Role required",
+    "set field Group required",
+    "entity Role has many user",
+    "entity Group has many user",
     "add entity API credentials",
+    "add field Client Name",
     "add field Client Key",
     "add field Client Secret",
     "add field Token",
     "add field Token timeout TMSP",
     "set icon unlink",
-    "add field role related to Role using label",
-    "add field group related to Group using label",
+    "add field role related to many Role using label",
+    "add field group related to many Group using label",
+    "add entity Status",
+    "set icon tags",
+    "add field Entity",
+    "add field Field",
+    "add field Name",
+    "add field Color with type color",
+    "add field Position with type number",
+    "add field Default with type boolean",
+    "entity Status has many Status called Children",
+    "entity status has many Translation called Translations",
+    "select entity translation",
+    "add field Language",
+    "add field Value",
+    "create entity Media",
+    "set icon envelope",
+    "add field Type with type enum and values Mail, Notification, Function",
+    "add field Name",
+    "set field Name required",
+    "add field Target entity",
+    "entity status has many Action called Actions",
+    "select entity action",
+    "add field Media related to Media using name",
+    "add field Order with type number",
+    "add field Execution with type enum and values Immédiate, Différée and with default value Immédiate",
+    "entity Media has one Media Mail",
+    "entity Media has one Media Notification",
+    "entity Media has one Media Function",
+    "select entity media mail",
+    "add field To",
+    "add field Cc",
+    "add field Cci",
+    "add field From",
+    "add field Subject",
+    "add field Content with type text",
+    "select entity media notification",
+    "add field Title",
+    "add field Description",
+    "add field Icon",
+    "add field Color with type color",
+    "add field Target Groups related to many group",
+    "add field Target Users related to many user",
+    "add entity Notification",
+    "add field Title",
+    "add field Description",
+    "add field URL",
+    "add field Color with type color",
+    "add field Icon",
+    "select entity media function",
+    "add field Title",
+    "add field Function with type text",
+    "add entity Inline Help",
+    "set icon question-circle-o",
+    "add field Entity",
+    "add field Field",
+    "add field Content with type text",
+    "entity user has many notification",
+    "entity notification has many user",
     "select module home"
 ];
 var idxAtMandatoryInstructionStart = -1;
@@ -121,10 +183,29 @@ function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
         // All instructions executed, mandatory instruction included
         if (scriptData[req.session.passport.user.id].totalInstruction == idx){
-            var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
-            // Api documentation
-            docBuilder.build(req.session.id_application);
-            resolve(idApplication);
+            function done(){
+                var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
+                if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
+                    structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
+                        // Api documentation
+                        docBuilder.build(idApplication);
+                        resolve(idApplication);
+                    });
+                } else {
+                    // Api documentation
+                    docBuilder.build(idApplication);
+                    resolve(idApplication);
+                }
+            }
+            // Set default theme if different than blue-light
+            if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light"){
+                execute(req, "set theme "+req.session.defaultTheme).then(function() {
+                    done();
+                });
+            } else {
+                done();
+            }
+
         } else {
             // If project and application are created and we're at the instruction that
             // follows create application, insert mandatory instructions to instruction array
@@ -202,7 +283,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     var fileContent = fs.readFileSync(req.file.path);
     var encoding = require('jschardet').detect(fileContent);
     // If extension or encoding is not supported, send error
-    if ((extensionFile != 'txt' && extensionFile != 'nps') || (encoding.encoding.toLowerCase() != 'utf-8' && encoding.encoding.toLowerCase() != 'ascii')) {
+    if ((extensionFile != 'txt' && extensionFile != 'nps') || (encoding.encoding.toLowerCase() != 'utf-8' && encoding.encoding.toLowerCase() != 'windows-1252' && encoding.encoding.toLowerCase() != 'ascii')) {
         scriptData[userId].answers.push({
             message: "File need to have .nps or .txt extension and utf8 or ascii encoding.<br>Your file have '"+extensionFile+"' extension and '"+encoding.encoding+"' encoding"
         });
@@ -296,13 +377,13 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication"){
                 exception.createModuleAuthentication.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "user"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user"){
                 exception.createEntityUser.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "role"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role"){
                 exception.createEntityRole.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "group"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group"){
                 exception.createEntityGroup.value += 1;
             }
             fileLines.push(line);
@@ -400,6 +481,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     res.end();
 });
 
+/* Execute when it's not a file upload but a file written in textarea */
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
     // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
     idxAtMandatoryInstructionStart = -1;
@@ -511,13 +593,13 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication"){
                 exception.createModuleAuthentication.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "user"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user"){
                 exception.createEntityUser.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "role"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role"){
                 exception.createEntityRole.value += 1;
             }
-            if(designerFunction == "createNewDataEntity" && designerValue.toLowerCase() == "group"){
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group"){
                 exception.createEntityGroup.value += 1;
             }
             fileLines.push(line);

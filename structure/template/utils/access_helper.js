@@ -35,6 +35,7 @@ exports.getPreviewData = function() {
 
 exports.setGroupAccess = function(modules, entities) {
 	var accessFileName = __dirname+'/../config/access.json';
+	delete require.cache[require.resolve(accessFileName)];
 	var access = require(accessFileName);
 
 	// Loop through access.json modules
@@ -60,6 +61,7 @@ exports.setGroupAccess = function(modules, entities) {
 
 exports.setRoleAccess = function(entities) {
 	var accessFileName = __dirname+'/../config/access.json';
+	delete require.cache[require.resolve(accessFileName)];
 	var access = require(accessFileName);
 
 	for (var module in access) {

@@ -1,12 +1,14 @@
 extends ../main_layout
 block header
 	.row
-		.col-header.col-xs-3.col-sm-4.col-md-6.col-lg-9#header-title
+		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
 			h1
-				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
+				a(href="/")
+					img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
 				| #{__("menu.home")}
 				small #{__("menu.module")}
-		.col-header.hidden-xs.col-sm-2.col-md-2.col-lg-1
+
+		.hidden-xs.col-sm-2.col-md-2.col-lg-1
 			.clearfix
 				span.pull-left Instructions
 				small.pull-right
@@ -18,11 +20,15 @@ block header
 							| #{cptInstruction}
 			.progress.xs(style="margin-bottom:0px;")
 				.progress-bar.progress-bar-striped.progress-bar-success(role='progressbar', aria-valuenow='#{pourcentInstruction}', aria-valuemin='0', aria-valuemax='100', style='width:#{pourcentInstruction}%')
-		.col-header.col-xs-7.col-sm-4.col-md-3.col-lg-2#header-button
+
+		.col-xs-12.col-sm-6.col-md-5.col-lg-3
 			.btn-group.pull-right(role="group")
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
 					| #{__("menu.home")}
+				a.btn.btn-default(href='/account')
+					i.fa.fa-user(style="margin-right:5px;")
+					| #{__("menu.account")}
 				a.btn.btn-default.pull-right(href='/logout')
 					i.fa.fa-sign-out.fa-md &nbsp;&nbsp;
 					span #{__("button.disconnect")}
@@ -32,7 +38,7 @@ block content
 			img(src="/img/newLogo.png", alt="Newmips Logo", style="width:200px;display:block;margin:auto;margin-bottom: 25px")
 	.row
 		.col-xs-12
-			section.col-xs-12.col-lg-offset-3.col-lg-6
+			section.col-xs-12.col-lg-offset-2.col-lg-8
 				.box.box-solid.box-default
 					.box-header.bg-primary
 						h3.box-title(style="color: #fff") #{__("home.header")}
@@ -100,7 +106,7 @@ block content
 											.progress-bar.progress-bar-striped.progress-bar-success.active#pourcent_generation(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width:0%')
 	.row
 		.col-xs-12
-			section.col-lg-offset-3.col-lg-6
+			section.col-xs-12.col-lg-offset-2.col-lg-8
 				.box.box-solid.box-default
 					.box-header
 						h4.box-title #{__('home.directlinks.title')}
@@ -115,6 +121,10 @@ block content
 								i.fa.fa-list-ol
 								| #{__("home.directlinks.script")}
 
+							a.btn.btn-app(href='/themes')
+								i.fa.fa-window-maximize
+								| #{__("home.directlinks.theme")}
+
 							//- a.btn.btn-app(href='/live/index')
 							//- 	i.fa.fa-microphone
 							//- 	| #{__("home.directlinks.live")}
@@ -123,9 +133,32 @@ block content
 								i.fa.fa-hdd-o
 								| #{__("home.directlinks.import")}
 
-							a.btn.btn-app(href='/settings/index')
+							a.btn.btn-app(href='/settings')
 								i.fa.fa-cog
-								| #{__("home.directlinks.settings")}
+								| #{__("menu.settings")}
+	if nb_application > 0
+		.row
+			.col-xs-12
+				section.col-xs-12.col-lg-offset-2.col-lg-8
+					.box.box-solid.box-default
+						.box-header
+							h4.box-title #{__('home.lastthreeapp')}
+						.box-body
+							.table-responsive
+								table.table.no-margin
+									thead
+										tr
+											th #{__("listApplication.name")}
+											th.text-right(colspan="2") #{__("listApplication.action")}
+									tbody
+										each application, index in lastThreeApp
+											tr
+												td
+													| #{application.displayName}
+												td.text-right
+													a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
+														i.fa.fa-desktop.fa-md &nbsp;&nbsp;
+														span #{__("button.preview")}
 	if showytpopup
 		.modal.fade#modalyttuto(tabindex='-1', role='dialog', aria-labelledby='You Tube Tuto')
 			.modal-dialog.modal-lg(role='document')
@@ -145,8 +178,6 @@ block content
 								|#{__("home.accessbuttonyt")}
 					.modal-footer
 						button.btn.btn-default(type='button', data-dismiss='modal') #{__("button.close")}
-
-
 
 block custom_js
 	if showytpopup

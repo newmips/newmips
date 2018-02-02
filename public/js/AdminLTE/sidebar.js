@@ -8,7 +8,7 @@ $(function() {
     }).css("width", "100%");
 
     $('#chat-box').slimScroll({
-        height: '400px',
+        height: '450px',
         start: 'bottom'
     });
 

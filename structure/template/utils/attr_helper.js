@@ -25,7 +25,7 @@ module.exports = {
             case 'createNewModule':
                 return "M_" + string;
                 break;
-            case 'createNewDataEntity':
+            case 'createNewEntity':
                 return "E_" + string;
                 break;
             case 'createNewDataField':
@@ -35,9 +35,12 @@ module.exports = {
             case 'createNewComponentContactForm':
                 return "C_" + string;
                 break;
+            case 'createNewComponentStatus':
+                return 's_'+string;
+                break;
+            default:
+                return "U_" + string;
         }
-
-        return "U_" + string;
     },
     removePrefix: function (string, type) {
         var stringLower = string.toLowerCase();

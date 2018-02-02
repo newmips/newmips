@@ -7,7 +7,6 @@ function pushToSyncQuery(id_application, query) {
         if (!toSync.queries)
             toSync.queries = [];
         toSync.queries.push(query);
-        console.log(query);
         fs.writeFileSync('workspace/'+id_application+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
     } catch(e){
         console.log(e);
@@ -47,6 +46,9 @@ exports.dropFKDataField = function(attr, callback) {
     var query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '"+attr.fieldToDrop+"' && `TABLE_NAME` = '"+table_name+"'";
 
     sequelize.query(query).then(function(constraintName) {
+        if(typeof constraintName[0][0] === "undefined"){
+            return callback();
+        }
         query = "ALTER TABLE "+table_name+" DROP FOREIGN KEY "+constraintName[0][0].constraint_name+"; ALTER TABLE "+table_name+" DROP "+attr.fieldToDrop.toLowerCase();
         if (!pushToSyncQuery(attr.id_application, query))
             return callback("ERROR: Can't delete in database");
@@ -64,6 +66,9 @@ exports.dropFKMultipleDataField = function(attr, callback) {
 
     var query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '"+attr.fieldToDrop+"' && `TABLE_NAME` = '"+table_name+"'";
     sequelize.query(query).then(function(constraintName) {
+        if(typeof constraintName[0][0] === "undefined"){
+            return callback();
+        }
         query = "ALTER TABLE "+table_name+" DROP FOREIGN KEY "+constraintName[0][0].constraint_name+"; ALTER TABLE "+table_name+" DROP "+attr.fieldToDrop.toLowerCase();
         if (!pushToSyncQuery(attr.id_application, query))
             return callback("ERROR: Can't delete in database");

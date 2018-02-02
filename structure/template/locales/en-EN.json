@@ -2,6 +2,12 @@
 	"app": {
 		"name": "Application"
 	},
+	"notification": {
+		"deleteAll": "Delete all notifications",
+		"icon": {
+			"choose": "Choose icon"
+		}
+	},
 	"login": {
 		"log_in": "Log in",
 		"reset_password": {
@@ -43,7 +49,8 @@
             "api_doc": "API Documentation",
 			"action":{
 				"read": "Show",
-				"write": "Create",
+				"create": "Create",
+				"update": "Update",
 				"delete": "Delete"
 			}
 		},
@@ -91,7 +98,12 @@
     	"download": "Download",
     	"search": "Search",
     	"send": "Send",
-    	"validation": "Validate"
+    	"validation": "Validate",
+    	"previous": "Previous",
+    	"next": "Next",
+    	"close": "Close",
+    	"cancel": "Cancel",
+    	"return": "Return"
 	},
 	"operation": {
 		"show": "Show",
@@ -148,7 +160,8 @@
 			"stats": {
 				"more_info": "More info"
 			}
-		}
+		},
+		"createdAt": "Creation date"
 	},
 	"error": {
         "404": {
@@ -162,6 +175,7 @@
         "goHome": "If you wish to return to the homepage, click here",
         "goBack": "If you want to go back, click here",
         "goBackText": "Go back",
-        "home": "Home"
+        "home": "Home",
+        "valueTooLong": "The given value is too long (>30)."
     }
 }

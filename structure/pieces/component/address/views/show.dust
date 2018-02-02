@@ -1,8 +1,8 @@
 {>"layout_m_COMPONENT_VALUE_MODULE"/}
-{<custom_css}
+{<custom_css_2}
     <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
-{/custom_css}
+{/custom_css_2}
 {<header}
     <h1>{@__ key="module.COMPONENT_VALUE_MODULE"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
@@ -24,7 +24,7 @@
                 <div class="box-body">
                     {#COMPONENT_NAME}
                         <div class="form-group">
-                            <label for="id">{@__ key="component.c_address.id_component"/} {@__ key="component.c_address.name_component"/}</label>
+                            <label for="id">{@__ key="component.c_address.id_component"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {@__ key="component.c_address.name_component"/}</label>
                             <input type="text" value="{COMPONENT_NAME.id}" disabled="" class="form-control"/>
                         </div>
                         {>"COMPONENT_NAME/show_fields"/}

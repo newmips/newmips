@@ -1,0 +1,191 @@
+{>"layout_m_administration" /}
+{<content}
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="settings.auth_component.api_status" /}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                	<div class="row">
+	                	<div class="col-lg-4">{@__ key="settings.auth_component.api_status" /}</div>
+	                	<div class="col-lg-1">
+	                		{?api_enabled}
+	                			<button class="apiOn btn btn-primary">ON</button>
+	                		{:else}
+	                			<button class="apiOn btn btn-default">ON</button>
+	                		{/api_enabled}
+	                	</div>
+	                	<div class="col-lg-1">
+	                		{^api_enabled}
+	                			<button class="apiOff btn btn-primary">OFF</button>
+	                		{:else}
+	                			<button class="apiOff btn btn-default">OFF</button>
+	                		{/api_enabled}
+	                	</div>
+	                </div>
+	                <div class="row">
+	                	<div class="col-lg-12">
+	                		<a href="/api_documentation" target="_blank">{@__ key="settings.auth_component.api_doc" /}</a>
+	                	</div>
+	                </div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="settings.auth_component.access_managment" /}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+					<form id='group-access-form' action='/access_settings/set_group_access' method='post'>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>
+										{@__ key="settings.auth_component.moduleList"/}
+									</th>
+									<th>
+										{@__ key="settings.auth_component.entityList"/}
+									</th>
+									{#allGroups}
+										<th>
+											{f_label}
+										</th>
+									{/allGroups}
+								</tr>
+							</thead>
+							<tbody>
+								{#modules}
+									<tr>
+										<td>
+											{@__ key=tradKeyModule /}
+										</td>
+										<td></td>
+										{#allGroups currentModule=.}
+											{@ne key=name value="home"}
+													<td>
+														{@isGroupChecked source=currentModule target=f_label}
+															<input name="module.{name}.{f_label}" checked type="checkbox">
+														{:else}
+															<input name="module.{name}.{f_label}" type="checkbox">
+														{/isGroupChecked}
+													</td>
+											{:else}
+												<td><input name="module.{name}" style="display:none;" disabled readonly checked></td>
+											{/ne}
+										{/allGroups}
+									</tr>
+									{#entities}
+										<tr>
+											<td></td>
+											<td>
+												{@__ key=tradKeyEntity /}
+											</td>
+											{#allGroups currentEntity=.}
+												<td>
+													{@isGroupChecked source=currentEntity target=f_label}
+														<input name="entity.{name}.{f_label}" checked type="checkbox">
+													{:else}
+														<input name="entity.{name}.{f_label}" type="checkbox">
+													{/isGroupChecked}
+												</td>
+											{/allGroups}
+										</tr>
+									{/entities}
+								{/modules}
+							</tbody>
+						</table>
+						<button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="settings.auth_component.action_managment" /}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+					<form id="action-access-form" action='/access_settings/set_role_access' method='post'>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>
+										{@__ key="settings.auth_component.entityList"/}
+									</th>
+									{#allRoles}
+										<th>{f_label}</th>
+									{/allRoles}
+								</tr>
+							</thead>
+							<tbody>
+								{#modules}
+									{#entities}
+										{@ne key=name value="access_settings"}
+											<tr>
+												<td>
+													{@__ key=tradKeyEntity /}
+												</td>
+												{#allRoles currentEntity=.}
+													<td>
+														{@isActionChecked action="read" source=currentEntity target=f_label}
+															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox" checked> {@__ key="settings.auth_component.action.read"/}</label>
+														{:else}
+															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox"> {@__ key="settings.auth_component.action.read"/}</label>
+														{/isActionChecked}
+														<br>
+														{@isActionChecked action="create" source=currentEntity target=f_label}
+															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox" checked> {@__ key="settings.auth_component.action.create"/}</label>
+														{:else}
+															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox"> {@__ key="settings.auth_component.action.create"/}</label>
+														{/isActionChecked}
+														<br>
+														{@isActionChecked action="update" source=currentEntity target=f_label}
+															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox" checked> {@__ key="settings.auth_component.action.update"/}</label>
+														{:else}
+															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox"> {@__ key="settings.auth_component.action.update"/}</label>
+														{/isActionChecked}
+														<br>
+														{@isActionChecked action="delete" source=currentEntity target=f_label}
+															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox" checked> {@__ key="settings.auth_component.action.delete"/}</label>
+														{:else}
+															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox"> {@__ key="settings.auth_component.action.delete"/}</label>
+														{/isActionChecked}
+													</td>
+												{/allRoles}
+											</tr>
+										{/ne}
+									{/entities}
+								{/modules}
+							</tbody>
+						</table>
+						<button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{/content}
+
+{<custom_js}
+<script src="/js/Newmips/access_settings.js" type="text/javascript"></script>
+{/custom_js}

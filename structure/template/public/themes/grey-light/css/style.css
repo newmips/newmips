@@ -1,0 +1,30 @@
+@import url("../../light.css");
+
+/*
+ * Skin: Grey Light
+ * ---------
+ */
+.main-header .navbar {
+  background-color: #808080;
+}
+.main-header .navbar .sidebar-toggle:hover {
+  background-color: #939393;
+}
+@media (max-width: 767px) {
+  .main-header .navbar .dropdown-menu li a:hover {
+    background: #939393;
+  }
+}
+.main-header .logo {
+  background-color: #808080;
+}
+.main-header .logo:hover {
+  background-color: #939393;
+}
+.main-header li.user-header {
+  background-color: #808080;
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  border-left-color: #808080;
+}

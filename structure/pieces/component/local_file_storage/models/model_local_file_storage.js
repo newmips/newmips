@@ -9,9 +9,13 @@ module.exports = function(sequelize, DataTypes) {
 		tableName: 'TABLE_NAME',
 		classMethods: {
 			associate: builder.buildAssociation('COMPONENT_NAME', associations)
-		}
+		},
+        timestamps: true
 	};
 
     var Model = sequelize.define('COMPONENT_NAME', attributes, options);
+
+    builder.addHooks(Model, 'COMPONENT_NAME_LOWER', attributes_origin);
+
     return Model;
 };

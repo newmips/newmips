@@ -5,20 +5,33 @@ var helpers = require('../utils/helpers');
 var translateHelper = require("../utils/translate");
 
 //Create association between the models
-exports.setupAssociation = function (idApplication, sourceDataEntity, targetDataEntity, foreignKey, as, relation, through, toSync, type, callback) {
+exports.setupAssociation = function (associationOption, callback) {
+
+    var idApp = associationOption.idApp;
+    var source = associationOption.source;
+    var target = associationOption.target;
+    var foreignKey = associationOption.foreignKey;
+    var as = associationOption.as;
+    var showAs = associationOption.showAs;
+    var relation = associationOption.relation;
+    var through = associationOption.through;
+    var toSync = associationOption.toSync;
+    var type = associationOption.type;
+
     // SETUP MODEL OPTIONS FILE
-    var optionsFileName = './workspace/' + idApplication + '/models/options/' + sourceDataEntity.toLowerCase() + '.json';
+    var optionsFileName = './workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
     var optionsFile = fs.readFileSync(optionsFileName);
     var optionsObject = JSON.parse(optionsFile);
 
-    var baseOptions = {target: targetDataEntity.toLowerCase(), relation: relation};
+    var baseOptions = {target: target.toLowerCase(), relation: relation};
     baseOptions.foreignKey = foreignKey;
     baseOptions.as = as;
+    baseOptions.showAs = showAs;
 
     if (relation == "belongsToMany") {
         baseOptions.through = through;
-        baseOptions.foreignKey = "fk_id_"+sourceDataEntity;
-        baseOptions.otherKey = "fk_id_"+targetDataEntity;
+        baseOptions.foreignKey = "fk_id_"+source;
+        baseOptions.otherKey = "fk_id_"+target;
     }
 
     if(type != null)
@@ -26,21 +39,25 @@ exports.setupAssociation = function (idApplication, sourceDataEntity, targetData
     else
         baseOptions.structureType = "";
 
+    // Save using field in related to and related to many fields
+    if(typeof associationOption.usingField !== "undefined")
+        baseOptions.usingField = associationOption.usingField;
+
     optionsObject.push(baseOptions);
 
     if (toSync) {
         // SETUP toSync.json
-        var toSyncFileName = './workspace/' + idApplication + '/models/toSync.json';
+        var toSyncFileName = './workspace/' + idApp + '/models/toSync.json';
         var toSyncFile = fs.readFileSync(toSyncFileName);
         var toSyncObject = JSON.parse(toSyncFile);
 
-        if (typeof toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()] === "undefined") {
-            toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()] = {};
-            toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options = [];
-        } else if (typeof toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options === "undefined") {
-            toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options = [];
+        if (typeof toSyncObject[idApp + "_" + source.toLowerCase()] === "undefined") {
+            toSyncObject[idApp + "_" + source.toLowerCase()] = {};
+            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
+        } else if (typeof toSyncObject[idApp + "_" + source.toLowerCase()].options === "undefined") {
+            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
         }
-        toSyncObject[idApplication + "_" + sourceDataEntity.toLowerCase()].options.push(baseOptions);
+        toSyncObject[idApp + "_" + source.toLowerCase()].options.push(baseOptions);
     }
 
     var writeStream = fs.createWriteStream(optionsFileName);
@@ -164,7 +181,7 @@ exports.setupDataEntity = function (attr, callback) {
             li += '             <i class="fa fa-angle-left pull-right"></i>\n';
             li += '         </a>\n';
             li += '         <ul class="treeview-menu">\n';
-            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="write"}-->';
+            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
@@ -203,12 +220,22 @@ exports.setupDataEntity = function (attr, callback) {
         var result = data.replace(/custom_module/g, nameModule.toLowerCase());
         result = result.replace(/custom_show_module/g, showNameModule.toLowerCase());
 
+        if(nameModule.toLowerCase() != "m_home"){
+            var htmlToAdd = ""+
+            "<li>"+
+            "   <a class='sub-module-arianne' href='/default/"+nameModule.toLowerCase().substring(2)+"'>"+
+            "       {@__ key=\"module."+nameModule.toLowerCase()+"\"/}"+
+            "   </a>"+
+            "</li>";
+
+            result = result.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
+        }
+
         var stream_file = fs.createWriteStream(fileToWrite);
         /* Node.js 0.10+ emits finish when complete */
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }
@@ -252,39 +279,43 @@ exports.setupDataEntity = function (attr, callback) {
                                     replaceCustomModule(fileBase, "show.dust", name_module, show_name_module, function () {
                                         /* Replace all variables 'custom_data_entity' in show.dust */
                                         replaceCustomDataEntity(fileBase, "show.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                            /* Replace all variables 'custom_data_entity' in show_fields.dust */
-                                            replaceCustomDataEntity(fileBase, "show_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                /* Replace all variables 'custom_module' in update.dust */
-                                                replaceCustomModule(fileBase, "update.dust", name_module, show_name_module, function () {
-                                                    /* Replace all variables 'custom_data_entity' in update.dust */
-                                                    replaceCustomDataEntity(fileBase, "update.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                        /* Replace all variables 'custom_data_entity' in update_fields.dust */
-                                                        replaceCustomDataEntity(fileBase, "update_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                            /* Replace all variables 'custom_module' in list.dust */
-                                                            replaceCustomModule(fileBase, "list.dust", name_module, show_name_module, function () {
-                                                                /* Replace all variables 'custom_data_entity' in list.dust */
-                                                                replaceCustomDataEntity(fileBase, "list.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                                    /* Replace all variables 'custom_data_entity' in list_fields.dust */
-                                                                    replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                            /* Replace all variables 'custom_data_entity' in show.dust */
+                                            replaceCustomDataEntity(fileBase, "print_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                /* Replace all variables 'custom_data_entity' in show_fields.dust */
+                                                replaceCustomDataEntity(fileBase, "show_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                    /* Replace all variables 'custom_module' in update.dust */
+                                                    replaceCustomModule(fileBase, "update.dust", name_module, show_name_module, function () {
+                                                        /* Replace all variables 'custom_data_entity' in update.dust */
+                                                        replaceCustomDataEntity(fileBase, "update.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                            /* Replace all variables 'custom_data_entity' in update_fields.dust */
+                                                            replaceCustomDataEntity(fileBase, "update_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                                /* Replace all variables 'custom_module' in list.dust */
+                                                                replaceCustomModule(fileBase, "list.dust", name_module, show_name_module, function () {
+                                                                    /* Replace all variables 'custom_data_entity' in list.dust */
+                                                                    replaceCustomDataEntity(fileBase, "list.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                                                                        /* Replace all variables 'custom_data_entity' in list_fields.dust */
+                                                                        replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
 
-                                                                        // Write new data entity to access.json file, within module's context
-                                                                        var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
-                                                                        var accessObject = require(accessPath);
-                                                                        accessObject[name_module.substring(2).toLowerCase()].entities.push({
-                                                                            name: url_name_data_entity,
-                                                                            groups: [],
-                                                                            actions: {
-                                                                                read: [],
-                                                                                write: [],
-                                                                                delete: []
-                                                                            }
-                                                                        });
-                                                                        fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-                                                                            /* --------------- New translation --------------- */
-                                                                            translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
-                                                                                callback();
+                                                                            // Write new data entity to access.json file, within module's context
+                                                                            var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
+                                                                            var accessObject = require(accessPath);
+                                                                            accessObject[name_module.substring(2).toLowerCase()].entities.push({
+                                                                                name: url_name_data_entity,
+                                                                                groups: [],
+                                                                                actions: {
+                                                                                    read: [],
+                                                                                    create: [],
+                                                                                    delete: [],
+                                                                                    update: []
+                                                                                }
                                                                             });
-                                                                        })
+                                                                            fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
+                                                                                /* --------------- New translation --------------- */
+                                                                                translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
+                                                                                    callback();
+                                                                                });
+                                                                            })
+                                                                        });
                                                                     });
                                                                 });
                                                             });

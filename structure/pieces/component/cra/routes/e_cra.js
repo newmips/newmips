@@ -61,31 +61,33 @@ function teamAdminMiddleware(req, res, next) {
             as: 'r_users'
         }]
     }).then(function(team) {
+        req.isAdmin = true;
         if (!team) {
-            if(req.originalUrl == "/cra/list" || req.originalUrl == "/cra/datalist"){
+            if(req.originalUrl == "/cra/list" || req.originalUrl == "/cra/datalist")
                 req.isAdmin = false;
-                next();
-            } else{
+            else if (req.originalUrl == '/cra/declare' && req.session.passport.user.r_group.f_label != 'admin')
+                req.isAdmin = true;
+            else {
                 req.session.toastr.push({level: 'error', message: 'entity.e_cra_team.admin_only'});
                 return res.redirect('/default/cra');
             }
-        } else{
-            req.isAdmin = true;
-            req.team = team;
-            next();
         }
+        else
+            req.team = team;
+        next();
     });
 }
 
 router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
     var data = {
         "menu": "e_cra",
-        "sub_menu": "list_e_cra"
+        "sub_menu": "list_e_cra",
+        isAdmin: req.isAdmin || req.session.passport.user.r_group.f_label == 'admin'
     };
-    data.toastr = req.session.toastr;
-    req.session.toastr = [];
 
+    // Team admin
     if(req.isAdmin){
+        // Get cra waiting to be validated for first list of page
         var idTeamUsers = [];
         for (var i = 0; i < req.team.r_users.length; i++)
             idTeamUsers.push(req.team.r_users[i].id);
@@ -98,9 +100,27 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
             }
         }).then(function(cra) {
             data.cra = cra;
+            data.users = req.team.r_users;
+
             res.render('e_cra/list', data);
         });
-    } else{
+    }
+    // Global admin
+    else if (data.isAdmin) {
+        models.E_cra.findAll({
+            where: {
+                f_admin_validated: false,
+                f_user_validated: true
+            }
+        }).then(function(cra) {
+            data.cra = cra;
+            models.E_user.findAll().then(function(users) {
+                data.users = users;
+                res.render('e_cra/list', data);
+            });
+        });
+    }
+    else {
         data.noAdmin = true;
         res.render('e_cra/list', data);
     }
@@ -119,7 +139,9 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
         where = {
             fk_id_user: {$in: idTeamUsers}
         }
-    } else{
+    }
+    // if admin, no speWhere parameter, all cra fetched
+    else if (req.session.passport.user.r_role.f_label != 'admin') {
         where = {
             fk_id_user: req.session.passport.user.id
         }
@@ -178,7 +200,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("cra"
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_cra.findOne({where: {id: idEntity}}).then(function (e_cra) {
@@ -248,7 +270,7 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
     });
 });
 
-router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'create'), function(req, res) {
     var id_cra = req.params.id;
 
     models.E_cra.findById(id_cra).then(function(cra) {
@@ -265,7 +287,7 @@ router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccess
     });
 });
 
-router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'update'), function(req, res) {
     var body = req.body;
     var id_cra = parseInt(body.id_cra);
 
@@ -281,7 +303,7 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
         }]
     }).then(function(cra) {
         if (!cra)
-            return res.status(500).send("Couldn't find previously saved C.R.A");
+            return res.status(500).send("Couldn't find previously saved Timesheet");
 
         if (cra.f_user_validated && cra.f_admin_validated)
             return res.status(403).send("You can't update if admin validated");
@@ -394,12 +416,20 @@ router.get('/declare', block_access.actionAccessMiddleware("cra", 'read'), funct
         sub_menu: "create_e_cra"
     };
 
+    var userId;
+    if (req.query.idUser) {
+        userId = req.query.idUser
+        data.declareForUserId = userId;
+    }
+    else
+        userId = req.session.passport.user.id;
+
     models.E_cra_activity.findAll({where: {f_active: true}}).then(function(activities) {
         models.E_cra_team.findOne({
             include: [{
                 model: models.E_user,
                 as: 'r_users',
-                where: {id: req.session.passport.user.id}
+                where: {id: userId}
             }, {
                 model: models.E_cra_activity,
                 as: 'r_default_cra_activity'
@@ -469,12 +499,12 @@ router.get('/getCra', block_access.actionAccessMiddleware("cra", 'read'), functi
     });
 });
 
-router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra", 'create'), function(req, res) {
     var id_cra = parseInt(req.params.id_cra);
 
     models.E_cra.update({f_user_validated: true}, {where: {id: id_cra}}).then(function(cra) {
         if (!cra)
-            return res.status(404).send("Couldn't find C.R.A with id "+id_cra);
+            return res.status(404).send("Couldn't find Timesheet with id "+id_cra);
         res.status(200).end();
     }).catch(function(err) {
         console.log(err);
@@ -482,11 +512,11 @@ router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra
     });
 });
 
-router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'create'), function(req, res) {
     var body = req.body;
     body.year = parseInt(body.year);
     body.month = parseInt(body.month);
-    var id_user = req.session.passport.user.id;
+    var id_user = req.body.declareForUserId ? req.body.declareForUserId : req.session.passport.user.id;
 
     models.E_cra.create({
         f_month: body.month,
@@ -555,16 +585,16 @@ router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write
                 cra.update({f_open_days_in_month: openDays});
             })
         }).catch(function(err) {
-            return res.status(500).send("Can't create your C.R.A");
+            return res.status(500).send("Can't create your Timesheet");
         });
     });
 });
 
-router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'update'), function(req, res) {
     var body = req.body;
     body.year = parseInt(body.year);
     body.month = parseInt(body.month);
-    var id_user = req.session.passport.user.id;
+    var id_user = req.body.declareForUserId ? req.body.declareForUserId : req.session.passport.user.id;
 
     models.E_cra.findOne({
         where: {
@@ -582,7 +612,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
         }]
     }).then(function(cra) {
         if (!cra)
-            return res.status(500).send("Couldn't find previously saved C.R.A");
+            return res.status(500).send("Couldn't find previously saved Timesheet");
 
         if (cra.f_user_validated && cra.f_admin_validated)
             return res.status(403).send("You can't update if admin validated");
@@ -634,9 +664,9 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
     });
 });
 
-router.get('/getData/:month/:year', function(req, res) {
+router.get('/getData/:month/:year/:forUserId*?', block_access.actionAccessMiddleware("cra", 'read'), function(req, res) {
     var data = {};
-    var id_user = req.session.passport.user.id;
+    var id_user = req.params.forUserId ? req.params.forUserId : req.session.passport.user.id;
     var month = parseInt(req.params.month);
     var year = parseInt(req.params.year);
 
@@ -851,7 +881,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra", "read"), function
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
     var data = {
         menu: "e_cra",
         sub_menu: "create_e_cra",
@@ -879,7 +909,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "write"), 
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("e_cra", createObject, req.body);
@@ -922,7 +952,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra", "write"), func
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("cra", 'update'), function (req, res) {
     id_e_cra = req.query.id;
     var data = {
         menu: "e_cra",
@@ -984,7 +1014,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), 
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("cra", 'update'), function (req, res) {
     var id_e_cra = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
