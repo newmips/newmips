@@ -405,7 +405,12 @@
             },
             "theme": {
                 "list": "Thèmes disponibles:<br>%s<br>",
-                "cannotFind": "Impossible de trouver le thème demandé. Thèmes disponibles :<br>%s<br>"
+                "cannotFind": "Impossible de trouver le thème demandé. Thèmes disponibles :<br>%s<br>",
+                "missingCss": "Il faut au moins 1 fichier .css dans votre thème !",
+                "missingInfo": "Le fichier infos.json est manquant !",
+                "missingScreenshot": "Le fichier screenshot.png est manquant !",
+                "alreadyExist": "Un thème avec ce nom existe déjà, merci de changer le nom du thème dans le infos.json.",
+                "successUpload": "Le thème a bien été ajouté !"
             },
             "layout": {
                 "list": "Layout disponibles:<br>%s<br>",
