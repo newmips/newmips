@@ -2561,7 +2561,6 @@ exports.setIconToEntity = function(attr, callback) {
 
 exports.createWidgetLastRecords = function(attr, callback) {
     var entityDbFunction = '', param = '';
-    console.log(attr);
     if (attr.entityTarget) {
         db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function(err, entity) {
             if (err)
@@ -2576,8 +2575,6 @@ exports.createWidgetLastRecords = function(attr, callback) {
             withDataEntity(entity);
         });
     }
-
-
 
     function withDataEntity(entity) {
         db_module.getModuleById(entity.id_module, function(err, module) {
