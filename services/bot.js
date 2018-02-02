@@ -2052,30 +2052,30 @@ var training = {
         "supprimer le composant impression appelé (.*)"
     ],
     "createNewComponentAddress": [
-    	"add component Address with name (.*)",
-    	"add component address with name (.*)",
+        "add component Address with name (.*)",
+        "add component address with name (.*)",
         "add component Address called (.*)",
         "add component address called (.*)",
-    	"ajouter un composant adresse nommé (.*)",
-    	"ajouter un composant adresse appelé (.*)",
-    	"ajouter un composant Adresse nommé (.*)",
-    	"ajouter un composant Adresse appelé (.*)",
-    	"ajouter composant adresse nommé (.*)",
-    	"ajouter composant adresse appelé (.*)",
-    	"ajouter composant Adresse nommé (.*)",
-    	"ajouter composant Adresse appelé (.*)"
+        "ajouter un composant adresse nommé (.*)",
+        "ajouter un composant adresse appelé (.*)",
+        "ajouter un composant Adresse nommé (.*)",
+        "ajouter un composant Adresse appelé (.*)",
+        "ajouter composant adresse nommé (.*)",
+        "ajouter composant adresse appelé (.*)",
+        "ajouter composant Adresse nommé (.*)",
+        "ajouter composant Adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
-    	"delete component address",
-    	"supprimer le composant adresse"
+        "delete component address",
+        "supprimer le composant adresse"
     ],
     "createComponentChat": [
         "add component chat",
         "create component chat",
-    	"ajouter le composant Discussion",
-    	"ajouter composant Discussion",
-    	"ajouter le composant discussion",
-    	"ajouter composant discussion"
+        "ajouter le composant Discussion",
+        "ajouter composant Discussion",
+        "ajouter le composant discussion",
+        "ajouter composant discussion"
     ],
     "setLogo": [
         "add logo (.*)",
@@ -2225,7 +2225,6 @@ var training = {
         "supprimer tous les widgets de l'entité (.*)"
     ]
 };
-
 // ******* Parse *******
 exports.parse = function (instruction) {
 

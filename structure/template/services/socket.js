@@ -16,7 +16,7 @@ module.exports = function(ioParam) {
 			try {
 				user = socket.handshake.session.passport.user;
 			} catch (e) {
-				console.error("Bad session for socket.");
+				console.error("Bad session for socket");
 				return;
 			}
 
