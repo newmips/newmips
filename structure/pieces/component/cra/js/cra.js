@@ -251,8 +251,11 @@ $(function() {
         var month = event.date.getMonth() + 1;
         var year = event.date.getFullYear();
         // Look for exisiting data for month/year
+        var url = '/cra/getData/' + month + '/' + year;
+        if (declareForUserId != '')
+            url += '/'+declareForUserId;
         $.ajax({
-            url: '/cra/getData/' + month + '/' + year,
+            url: url,
             success: function(data) {
                 globalData = data;
                 // Display information divs if required
@@ -286,6 +289,9 @@ $(function() {
                     generateAddActivityRow(data);
                     showButtonGroup(false, false, false);
                 }
+
+                if (declareForUserId != '')
+                    $("#craForm").append('<input type="hidden" value="'+declareForUserId+'" name="declareForUserId">');
 
                 // Add month and year to form data
                 $("input[name=month]").val(month);
@@ -322,7 +328,7 @@ $(function() {
         $("#monthYearPicker").datepicker('setDate', currentDate);
     });
 
-    // Create/Update C.R.A tasks
+    // Create/Update Timesheet tasks
     $("#craForm").on('submit', function() {
         $.ajax({
             url: $(this).attr('action'),

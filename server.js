@@ -38,13 +38,18 @@ var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {flags:
 app.use(morgan('dev', {
 	skip: function (req, res) {
 		// Empeche l'apparition de certain log polluant.
-		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status", "/"];
-		if(skipArray.indexOf(req.url) != -1){
+		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status", "/completion", "/"];
+		var currentURL = req.url;
+		if(currentURL.indexOf("?") != -1){
+			// Remove params from URL
+			currentURL = currentURL.split("?")[0];
+		}
+		if(skipArray.indexOf(currentURL) != -1){
 			return true;
 		}
 	},
 	stream: split().on('data', function (line) {
-		if(allLogStream.bytesWritten < 200000){
+		if(allLogStream.bytesWritten < 10000){
 			allLogStream.write(ansiToHtml.toHtml(line)+"\n");
 			process.stdout.write(line+"\n");
 		} else{
@@ -57,9 +62,11 @@ app.use(morgan('dev', {
 
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
-	extended: true
+	extended: true,
+	limit: "50mb"
 }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
+//app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade'); // set up jade for templating
 
@@ -79,7 +86,7 @@ app.use(session({
 	cookieName: 'newmipsCookie',
 	secret: 'newmipsmakeyourlifebetter',
 	resave: true,
-	saveUninitialized: true,
+	saveUninitialized: false,
 	maxAge: 360*5,
 	key: 'newmipsCookie'
  } )); // session secret
@@ -95,10 +102,12 @@ app.use(function(req, res, next) {
 	// Applications created with newmips only have fr-FR.
 	// To avoid cookie conflict between newmips and this app, set fr-FR by default
 	var lang = 'fr-FR';
-	if (req.session.lang_user)
-        lang = req.session.lang_user;
-    else
-    	req.session.lang_user = lang;
+	if (req.isAuthenticated()){
+		if (req.session.lang_user)
+	        lang = req.session.lang_user;
+	    else
+	    	req.session.lang_user = lang;
+	}
 	// Pass translate function to jade templates
 	res.locals = extend(res.locals, language(lang));
 	next();
@@ -148,10 +157,12 @@ app.use('/default', require('./routes/default'));
 app.use('/application', require('./routes/application'));
 app.use('/live', require('./routes/live'));
 app.use('/settings', require('./routes/settings'));
+app.use('/account', require('./routes/account'));
 app.use('/users', require('./routes/users'));
 app.use('/instruction_script', require('./routes/instruction_script'));
 app.use('/import', require('./routes/import'));
 app.use('/editor', require('./routes/editor'));
+app.use('/themes', require('./routes/themes'));
 app.use('/ui_editor', require('./routes/ui_editor'));
 
 // Handle 404

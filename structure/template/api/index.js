@@ -7,7 +7,7 @@ function isApiEnabled(req, res, next) {
 	var appConf = require('../config/application.json');
 	if (appConf.api_enabled)
 		return next();
-	res.status(404).json({error: 'API not enabled'});
+	res.status(501).json({error: 'API not enabled'});
 }
 
 module.exports = function(app) {

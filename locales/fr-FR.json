@@ -4,7 +4,7 @@
     },
     "login": {
         "log_in": "Se connecter",
-        "reset_password": "Mot de passe oublié",
+        "reset_password": "Changement de mot de passe",
         "emailResetSent": "Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.",
         "tokenNotFound": "Impossible de retrouver votre token, nous ne pouvons pas valider votre demande.",
         "passwordReset": "Votre mot de passe a été réinitialisé.",
@@ -39,7 +39,9 @@
         "error": "Erreur",
         "back": "Back office",
         "users": "Users",
-        "logs": "Logs"
+        "logs": "Logs",
+        "account": "Mon compte",
+        "themes": "Mes thèmes"
     },
     "button": {
         "generate": "Générer",
@@ -58,7 +60,9 @@
         "no": "Non",
         "close": "Fermer",
         "send": "Envoyer",
-        "documentation": "Documentation"
+        "add": "Ajouter",
+        "documentation": "Documentation",
+        "cancel": "Annuler"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
@@ -67,9 +71,11 @@
         "ytmodaltitle": "Bienvenue sur le générateur Newmips",
         "ytmodalcontent": "Pour bien démarrer, suivez nos tutoriels et apprenez rapidement à utiliser le générateur Newmips !",
         "accessbuttonyt": "C'est parti !",
+        "lastthreeapp": "Vos 3 dernières applications",
         "directlinks": {
             "title": "Gestion des Applications",
             "script": "Script",
+            "theme": "Thèmes",
             "live": "Direct",
             "import": "Import de données",
             "settings": "Paramètres"
@@ -97,7 +103,11 @@
     "ui_editor": {
         "page_not_found": "Impossible de trouver le fichier",
         "page_saved": "Votre nouveau design a été sauvergardé",
-        "select_entity": "Sélectionnez une entité à éditer"
+        "select_entity": "Sélectionnez une entité à éditer",
+        "create_page": "Page de création",
+        "update_page": "Page de mise à jour",
+        "show_page": "Page d'affichage",
+        "print_page": "Page d'impression"
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",
@@ -117,13 +127,27 @@
     },
     "settings": {
         "legend": "Paramètres",
-        "display_language": "Afficher les langages",
-        "activate_translation": "Activer la traduction automatique (Internet + Clée API valide requis)",
+        "display_language": "Langue du générateur",
+        "display_infos": "Vos informations",
+        "infos": {
+            "login": "Login",
+            "role": "Rôle",
+            "lastname": "Nom",
+            "firstname": "Prénom",
+            "phone": "Téléphone",
+            "email": "Email",
+            "env": "Environnement"
+        },
+        "change_password": "Réinitialiser son mot de passe",
+        "reset_button": "Réinitialiser",
+        "sure_reset": "Êtes-vous sur ? Vous allez être déconnecté, votre mot de passe sera réinitialisé et vous allez recevoir un email pour en configurer un nouveau.",
+        "activate_translation": "Activer la traduction automatique (connexion internet + clé API Google valide requises)",
         "english": "Anglais",
         "french": "Français"
     },
     "preview": {
         "title": "Prévisualisation",
+        "execute": "Exécuter vos instructions ici !",
         "reload": "Redémarrer le serveur",
         "issue-button": "Signaler un bug",
         "help-button": "Besoin d'aide ?",
@@ -133,6 +157,13 @@
             "noApplication": "Aucune application sélectionnée",
             "noModule": "Aucune module sélectionné",
             "noEntity": "Aucune entité sélectionnée"
+        },
+        "logo": {
+            "title": "Ajouter un logo",
+            "text": "Veuillez ajouter votre logo ci-dessous (Taille conseillée 180px x 100px) :",
+            "add": "Le nouveau logo a bien été ajouté.",
+            "remove": "Le logo a bien été supprimé.",
+            "noLogo": "Désolé mais vous n'avez actuellement pas de logo, vous pouver en ajouter un avec l'instruction:<br> -<b class='click-instruction'> ajouter un logo</b>"
         }
     },
     "project": {
@@ -162,7 +193,9 @@
         "texttwo": "retourner à l'accueil",
         "or": "ou",
         "textthree": "simplement revenir en arrière.",
-        "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+        "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
+        "valueTooLong": "La valeur renseignée dépasse la longueur maximum autorisée(>30).",
+        "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez."
     },
     "back":{
         "list": "Lister les",
@@ -276,7 +309,8 @@
                 "deleted": "Champ %s supprimé !"
             },
             "notFound": {
-                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s."
+                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s.",
+                "withThisName": "Désolé, mais il n'y a pas de champ %s dans l'entité %s."
             }
         }
     },
@@ -284,7 +318,7 @@
         "global": {
             "restart": {
                 "success": "Le serveur a bien été redémarré!",
-                "error": "Impossible de démarrer le serveur suite à une erreur critique."
+                "error": "Oups, le serveur de l'application ne répond pas, vous pouvez essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>"
             },
             "gitPush": {
                 "success": "L'application a bien été sauvegardée !"
@@ -297,7 +331,7 @@
             },
             "error": {
                 "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
-                "notDoGit": "L'option 'doGit' dans config/gitlab.json est désactivée, l'instruction demandée ne fera donc rien."
+                "notDoGit": "L'option 'doGit' dans config/gitlab.js est désactivée, l'instruction demandée ne fera donc rien."
             }
         },
         "module": {
@@ -307,7 +341,8 @@
         },
         "field": {
             "attributes": {
-                "success": "Le champ %s est désormais %s.",
+                "success": "Le champ %s est désormais %s = %s.",
+                "successKnownAttribute": "Le champ %s est désormais %s.",
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
@@ -318,13 +353,14 @@
             }
         },
         "association": {
+            "deleteTab": "L'onglet %s a bien été supprimé.",
             "hasOne": {
-                "successEntity": "Un onglet «%s» vient d’être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
-                "successSubEntity": "Un onglet «%s» vient d’être ajouté à la sous-entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
+                "successEntity": "Un onglet «%s» vient d'être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
+                "successSubEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Attention cet onglet référence une sous-entité, elle ne s'affiche donc pas dans le menu.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
             },
             "hasMany": {
-                "successEntity": "Un onglet «%s» vient d’être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
-                "successSubEntity": "Un onglet «%s» vient d’être ajouté à la sous-entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
+                "successEntity": "Un onglet «%s» vient d'être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
+                "successSubEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Attention cet onglet référence une sous-entité, elle ne s'affiche donc pas dans le menu.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
             },
             "hasManyExisting": {
                 "success": "Nouvelle association 'Has Many Existing' avec l'entité %s créée sur %s."
@@ -365,9 +401,14 @@
                 "show": "La colonne %s est désormais visible.",
                 "noColumn": "Impossible de trouver la colonne %s."
             },
-            "skin": {
-                "list": "Couleurs disponibles:<br>%s<br>",
-                "cannotFind": "Impossible de trouver la couleur demandée. Couleurs disponibles :<br>%s<br>"
+            "theme": {
+                "list": "Thèmes disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver le thème demandé. Thèmes disponibles :<br>%s<br>"
+            },
+            "layout": {
+                "list": "Layout disponibles:<br>%s<br>",
+                "cannotFind": "Impossible de trouver le layout demandée. Layouts disponibles :<br>%s<br>",
+                "success": "Disposition %s appliquée sur le module %s !"
             },
             "icon": {
                 "success": "L'entité %s a maintenant l'icône %s",
@@ -386,5 +427,12 @@
         "help" : "Vous avez demandé de l'aide. Accédez aux vidéos d'aide sur notre <a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>chaîne YouTube</a> ou à la documentation en ligne ici <a href='https://docs.newmips.com/' target='_blank'>https://docs.newmips.com/</a>",
         "applicationavailable": "L'application est disponible ici : <br> <a href='%s' target='_blank'>%s</a>",
         "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
+    },
+    "themes":{
+        "download-default": "Télécharger le modèle de thème",
+        "generating": "Génération en cours...",
+        "add-theme": "Déposer un thème",
+        "wrongExt": "Seul les .zip sont accepté.",
+        "default": "Thème par défaut"
     }
 }

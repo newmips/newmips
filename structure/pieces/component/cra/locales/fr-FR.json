@@ -1,8 +1,8 @@
 {
     "e_cra": {
-        "label_entity": "C.R.A",
-        "name_entity": "C.R.A",
-        "plural_entity": "C.R.A",
+        "label_entity": "Gestion de temps",
+        "name_entity": "Gestion de temps",
+        "plural_entity": "Gestion de temps",
         "id_entity": "ID",
         "f_month": "Mois",
         "f_year": "Année",
@@ -12,15 +12,17 @@
         "f_notification_admin": "Notification administrateur",
         "custom_button_declare": "Déclarer",
         "custom_button_admin_validate": "Voir déclaration",
-        "as_r_cra": "C.R.A",
+        "as_r_cra": "Feuille de temps",
         "validate": "Valider",
         "export": "Export PDF",
-        "no_activities": "Vous n'avez pas d'activités. Vous avez besoin d'activités pour déclarer votre C.R.A",
+        "no_activities": "Vous n'avez pas d'activités. Vous avez besoin d'activités pour déclarer votre Feuille de temps",
         "no_calendar_settings": "Aucun calendrier de jours ouvrés et de jours non travaillés n'est défini pour votre équipe.",
-        "waiting_validation_list": "C.R.A en attente de validation",
-        "noTeam": "Vous devez être associé à une équipe pour pouvoir déclarer votre C.R.A.",
-        "saveSuccess": "Le C.R.A a bien été sauvegardé.",
-        "validateSuccess": "Le C.R.A a bien été validé."
+        "waiting_validation_list": "Feuille de temps en attente de validation",
+        "noTeam": "Vous devez être associé à une équipe pour pouvoir déclarer votre Feuille de temps.",
+        "saveSuccess": "La Feuille de temps a bien été sauvegardée.",
+        "validateSuccess": "La Feuille de temps a bien été validée.",
+        "showItBro": "Voir les feuilles de temps",
+        "declare_for": "Déclarer pour un utilisateur..."
     },
     "e_cra_team": {
         "label_entity": "Équipe",

@@ -2,6 +2,12 @@
     "app": {
         "name": "Application"
     },
+    "notification": {
+        "deleteAll": "Supprimer toutes les notifications",
+        "icon": {
+            "choose": "Choisir une icône"
+        }
+    },
     "login": {
         "log_in": "Log in",
         "reset_password": {
@@ -43,7 +49,8 @@
             "api_doc": "Documentation de l'API",
             "action": {
                 "read": "Afficher",
-                "write": "Créer",
+                "create": "Créer",
+                "update": "Modifier",
                 "delete": "Supprimer"
             }
         },
@@ -91,7 +98,12 @@
         "download": "Télécharger",
         "search": "Rechercher",
         "send": "Envoyer",
-        "validation": "Valider"
+        "validation": "Valider",
+        "previous": "Précédent",
+        "next": "Suivant",
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "return": "Retour"
     },
     "operation": {
         "show": "Afficher",
@@ -148,7 +160,8 @@
             "stats": {
                 "more_info": "Plus d'infos"
             }
-        }
+        },
+        "createdAt": "Date de création"
     },
     "error": {
         "404": {
@@ -162,6 +175,7 @@
         "goHome": "Si vous souhaitez retourner à la page d'accueil, cliquez-ici",
         "goBack": "Si vous souhaitez revenir en arrière, cliquez-ici",
         "goBackText": "Revenir en arrière",
-        "home": "Accueil"
+        "home": "Accueil",
+        "valueTooLong": "La valeur renseignée dépasse la longueur maximum autorisée(>30)."
     }
 }

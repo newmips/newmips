@@ -6,10 +6,10 @@ function capitalizeFirstLetter(word) {
 }
 
 // DataEntity
-exports.selectDataEntity = function(attr, callback) {
+exports.selectEntity = function(attr, callback) {
 
 	var options = attr.options;
-	var type_option;
+	var optionType;
 
 	// Check if only space
     if (!options.value.replace(/\s/g, '').length) {
@@ -36,7 +36,7 @@ exports.selectDataEntity = function(attr, callback) {
 					}]
 				}]
 			};
-			type_option = "ID";
+			optionType = "ID";
 		}
 		else {
 			where = {
@@ -53,29 +53,30 @@ exports.selectDataEntity = function(attr, callback) {
 					}]
 				}]
 			};
-			type_option = "Name";
+			optionType = "Name";
 		}
 
-		models.DataEntity.findOne(where).then(function(model) {
-			if (!model) {
+		models.DataEntity.findOne(where).then(function(entity) {
+			if (!entity) {
 				var err = new Error();
-				err.message = "database.entity.notFound.withThis" + type_option;
+				err.message = "database.entity.notFound.withThis" + optionType;
 				err.messageParams = [options.value];
 				return callback(err,null);
 			}
 
 			var info = {
-				insertId: model.id,
+				insertId: entity.id,
+				moduleId: entity.Module.id,
+				urlEntity: entity.codeName.substring(2),
 				message: "database.entity.select.selected",
-				messageParams: [model.name, model.id]
+				messageParams: [entity.name, entity.id]
 			};
 
-			callback(null,info);
+			callback(null, info);
 		}).catch(function(err) {
 			callback(err, null);
 		});
-	}
-	else {
+	} else {
 		var err = new Error();
 		err.message = "database.entity.select.valid";
 		callback(err, null);
@@ -83,7 +84,7 @@ exports.selectDataEntity = function(attr, callback) {
 }
 
 // DataEntity with just a name
-exports.selectDataEntityTarget = function(attr, callback) {
+exports.selectEntityTarget = function(attr, callback) {
 
 	models.DataEntity.findOne({
 		where: {
@@ -111,7 +112,7 @@ exports.selectDataEntityTarget = function(attr, callback) {
 	});
 }
 
-exports.createNewDataEntity = function(attr, callback) {
+exports.createNewEntity = function(attr, callback) {
 
 	// Set id_information_system of future data_entity according to session value transmitted in attributes
 	var id_module = attr.id_module;
@@ -151,11 +152,13 @@ exports.createNewDataEntity = function(attr, callback) {
 			id_module: id_module,
 			version: 1
 		}).then(function(newEntity) {
-			var info = {};
-			info.insertId = newEntity.id;
-			info.message = "database.entity.create.success";
 			models.Module.findById(id_module).then(function(module){
-				info.messageParams = [newEntity.name, newEntity.id, module.name, newEntity.name];
+				var info = {
+					insertId: newEntity.id,
+					urlEntity: newEntity.codeName.substring(2),
+					message: "database.entity.create.success",
+					messageParams: [newEntity.name, newEntity.id, module.name, newEntity.name]
+				};
 				callback(null,info);
 			});
 		});
@@ -164,7 +167,7 @@ exports.createNewDataEntity = function(attr, callback) {
 	});
 }
 
-exports.createNewDataEntityTarget = function(attr, callback) {
+exports.createNewEntityTarget = function(attr, callback) {
 	models.DataEntity.findOne({
 		where: {
 			$or: [{name: attr.options.showTarget}, {codeName: attr.options.target}]
@@ -373,7 +376,6 @@ exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) 
 
 // Get a DataEntity with a given name
 exports.getDataEntityByName = function(nameEntity, idModule, callback) {
-
     models.DataEntity.findOne({
     	where: {
     		name: nameEntity,

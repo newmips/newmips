@@ -1,0 +1,138 @@
+{>"layout_m_administration"/}
+{<header}
+    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
+        <li class="active">{@__ key="module.m_administration"/}</li>
+    </ol>
+{/header}
+{<content}
+    <div class="row">
+        <div class="col-xs-12 connectedSortable">
+            <form action="/media/create" method="post">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">{@__ key="operation.create"/} {@__ key="entity.e_media.name_entity"/}</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        {>"e_media/create_fields"/}
+                        <div class="form-group">
+                            <input name="version" value="1" type="hidden" />
+                        </div>
+                    </div>
+
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                    </div>
+
+                    {#associationFlag}
+                        <input type="hidden" name='associationFlag' value="{.}">
+                    {/associationFlag}
+                    {#associationSource}
+                        <input type="hidden" name='associationSource' value="{.}">
+                    {/associationSource}
+                    {#associationForeignKey}
+                        <input type="hidden" name='associationForeignKey' value="{.}">
+                    {/associationForeignKey}
+                    {#associationAlias}
+                        <input type="hidden" name='associationAlias' value="{.}">
+                    {/associationAlias}
+                    {#associationUrl}
+                        <input type="hidden" name='associationUrl' value="{.}">
+                    {/associationUrl}
+                </div>
+            </form>
+        </div>
+    </div>
+{/content}
+{<custom_js}
+    <script type="text/javascript">
+        $(function() {
+            function displayVariableSelector(entityTree) {
+                /* Create select  and options */
+                var treeSelect = '<select name="treeSelect" style="width:100%;">';
+                treeSelect += '<option default value="-1">Inserer une variable...</option>';
+                for (var i = 0; i < entityTree.length; i++)
+                    treeSelect += '<option value="'+entityTree[i].codename+'">'+entityTree[i].traduction+'</option>';
+                treeSelect += '</select>';
+
+                /* Append to each form's inputs */
+                $("input:not('.media-field'), textarea").each(function() {
+                    var label = $(this).parent().find('label');
+                    $(treeSelect).appendTo(label).css('width', '100%').select2();
+                });
+
+                /* Bind select event */
+                $('[name=treeSelect]').on('select2:selecting', function(e) {
+                    var data = e.params.args.data;
+                    var event = e.params.args.originalEvent;
+
+                    /* Placeholder selection */
+                    if (data.id == "-1")
+                        return;
+                    var targetElement = $(this).parents('.form-group').find('input, textarea').eq(0);
+
+                    if (targetElement.is('input')) {
+                        var value = targetElement.val();
+                        value += '\{'+data.id+'\}';
+                        targetElement.val(value);
+                    }
+                    else if (targetElement.is('textarea')) {
+                        /* Build jquery element from summernote's html */
+                        var rootElement = $('<div>'+targetElement.summernote('code')+'</div>');
+
+                        /* Find last element onto which append text (end of textarea, before <br>) */
+                        var value = rootElement.find(":last-child:not(br)");
+
+                        /* Remove br appended by summernote */
+                        if (value.find('br:last-child'))
+                            value.find('br:last-child').remove();
+
+                        /* Append variable codename */
+                        value.append(document.createTextNode('\{'+data.id+'\}'));
+
+                        /* Set back summernote's html */
+                        targetElement.summernote('code', rootElement.html());
+                    }
+                    $(this).find("option:first").prop('selected', true);
+                    $(this).select2('close');
+
+                    event.stopPropagation();
+                    event.preventDefault();
+                    return false;
+                });
+            }
+
+            /* Display form corresponding to selected Media type */
+            $("select[name=f_media_type]").change(function() {
+                var value = $("select[name=f_media_type] option:selected").val().toLowerCase();
+                $(".media-type").hide().find('input, select, textarea').prop('disabled', true);
+                if (value == '')
+                    return;
+
+                $("#media-"+value).parents('form').prop('action', '/media_'+value+'/create');
+                $("#media-"+value).show().find('input, select, textarea').prop('disabled', false);
+            });
+
+            $("[name=f_target_entity]").change(function(){
+                $("[name=treeSelect]").each(function() {
+                    $(this).select2('destroy').remove();
+                });
+                var entity = $(this).find('option:selected').val();
+                if (!entity)
+                    return;
+
+                $.ajax({
+                    url: '/media/entity_tree/'+entity,
+                    success: function(entityTree) {
+                        displayVariableSelector(entityTree);
+                    }
+                });
+            });
+        });
+    </script>
+{/custom_js}

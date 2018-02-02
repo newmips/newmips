@@ -37,7 +37,7 @@ Command line :<br>
 or<br>
 <pre>./start_newmips.sh</pre><br>
 
-Open your browser on http://127.0.0.1:1337 (don't use localhost) and log as "admin/admin" by default.
+Open your browser on http://127.0.0.1:1337 and log as "admin/admin" by default.
 
 Notice : to create your first application, ports 9000 and 9001 must be available on your computer.
 
@@ -67,6 +67,8 @@ Newmips Software documentation is available at http://docs.newmips.com.
 ## License                      #
 ################################
 
-Newmips is released under the GNU/AGPLv3 license.
+Newmips is released under the GNU GPL v3.0 license.
+It contains several open source components distributed under the MIT, BSD or GNU GPL V3.0 licenses.
+
 
 <br>

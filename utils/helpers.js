@@ -4,13 +4,13 @@ var crypto = require("crypto");
 var models = require('../models/');
 
 function getNbInstruction(callback) {
-    models.Project.findAndCountAll().then(function (projects) {
-        models.Application.findAndCountAll().then(function (applications) {
-            models.Module.findAndCountAll().then(function (modules) {
-                models.DataEntity.findAndCountAll().then(function (dataEntities) {
-                    models.Component.findAndCountAll().then(function (components) {
-                        models.DataField.findAndCountAll().then(function (dataFields) {
-                            var totalInstruction = projects.count + applications.count + modules.count + dataEntities.count + components.count + dataFields.count;
+    models.Project.count().then(function (projects) {
+        models.Application.count().then(function (applications) {
+            models.Module.count().then(function (modules) {
+                models.DataEntity.count().then(function (dataEntities) {
+                    models.Component.count().then(function (components) {
+                        models.DataField.count().then(function (dataFields) {
+                            var totalInstruction = projects + applications + modules + dataEntities + components + dataFields;
                             callback(totalInstruction);
                         });
                     });
@@ -66,7 +66,7 @@ function sortEditorFolder(workspaceFolder) {
     return underArray.concat(fileArray);
 }
 
-function readdirSyncRecursive(path, exclude) {
+function readdirSyncRecursive(path, excludeFolder, excludeFile) {
     var workspace = [];
     if (fs.existsSync(path)) {
         if (path.substr(path.length - 1) == "/") {
@@ -75,19 +75,21 @@ function readdirSyncRecursive(path, exclude) {
         fs.readdirSync(path).forEach(function (file, index) {
             var curPath = path + "/" + file;
             var splitPath = curPath.split("/");
-            if (exclude.indexOf(file) == -1) {
+            if (excludeFolder.indexOf(file) == -1) {
                 if (fs.lstatSync(curPath).isDirectory()) {
                     var obj = {
                         title: splitPath[splitPath.length - 1],
-                        under: readdirSyncRecursive(curPath, exclude)
+                        under: readdirSyncRecursive(curPath, excludeFolder, excludeFile)
                     }
                     workspace.push(obj);
                 } else {
-                    var obj = {
-                        title: splitPath[splitPath.length - 1],
-                        path: curPath
+                    if (excludeFile.indexOf(splitPath[splitPath.length - 1]) == -1) {
+                        var obj = {
+                            title: splitPath[splitPath.length - 1],
+                            path: curPath
+                        }
+                        workspace.push(obj);
                     }
-                    workspace.push(obj);
                 }
             }
         });

@@ -204,7 +204,7 @@ function init_datatable(tableID) {
                         for (var attr in row[entityRelation]) {
                             if (row[entityRelation][attr] != null && typeof row[entityRelation][attr] === "object") {
                                 for (var attr2 in row[entityRelation][attr]) {
-                                    if (attr2 == attributeRelation)
+                                    if (attr == entityRelation && attr2 == attributeRelation)
                                         valueFromArray += "- " + row[entityRelation][attr][attr2] + "<br>";
                                 }
                             } else {
@@ -221,9 +221,8 @@ function init_datatable(tableID) {
                     }
                 }
                 // Regular value
-                else{
+                else
                     cellValue = row[columns[meta.col].data];
-                }
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
@@ -389,8 +388,6 @@ function init_datatable(tableID) {
         };
     }
 
-
-
     // Init DataTable
     var table = $(tableID).DataTable({
         "serverSide": true,
@@ -407,6 +404,7 @@ function init_datatable(tableID) {
         "aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
         "bAutoWidth": false,
         "dom": 'lBfrtip',
+        "order": [ 0, 'desc' ],
         "buttons": [
             {
                 extend: 'print',
@@ -443,39 +441,62 @@ function init_datatable(tableID) {
         ]
     });
 
+    // Bind search fields
+    function saveFilter(value, el, tableId, field) {
+        var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
+        if (filterSave == null)
+            filterSave = {};
+        filterSave[field] = value;
+        localStorage.setItem("newmips_filter_save_" + tableId, JSON.stringify(filterSave));
+    }
 
+    function getFilterSave(tableId, field) {
+        var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
+        if (filterSave == null)
+            return "";
+        else if (typeof filterSave[field] === "undefined")
+            return "";
+        else
+            return filterSave[field];
+    }
     // Bind search fields
     $(tableID + ' .filters th').each(function (i) {
         var title = $(tableID + ' thead th').eq(i).text();
-        var search = '<input type="text" placeholder="' + title + '" />';
         var mainTh = $(tableID + ' .main th').eq(i);
+        // Custom
+        var currentField = mainTh.data('field');
+        var val = getFilterSave(tableID.substring(1), currentField);
+        var search = '<input type="text" value="' + val + '" placeholder="' + title + '" />';
+        function searchInDatalist(searchValue) {
+            var valueObject = {type: '', value: ''};
+            // Special data types re-formating for search
+            if (typeof mainTh.data('type') !== 'undefined') {
+                // Date
+                if (mainTh.data('type') == 'date') {
+                    valueObject.type = 'date';
+                    searchValue = lang_user == 'fr-FR' ? formatDateFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                }
+                // Date
+                else if (mainTh.data('type') == 'time') {
+                    valueObject.type = 'time';
+                    searchValue = formatTime($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                }
+                // DateTime
+                else if (mainTh.data('type') == 'datetime') {
+                    valueObject.type = 'datetime';
+                    searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                }
+            }
+            valueObject.value = searchValue;
+            table.columns(i).search(JSON.stringify(valueObject)).draw();
+        }
         if (title != '') {
             $(this).html('');
             $(search).appendTo(this).keyup(function () {
                 var searchValue = this.value;
-                var valueObject = {type: '', value: ''};
-                // Special data types re-formating for search
-                if (typeof mainTh.data('type') !== 'undefined') {
-                    // Date
-                    if (mainTh.data('type') == 'date') {
-                        valueObject.type = 'date';
-                        searchValue = lang_user == 'fr-FR' ? formatDateFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
-                    }
-                    // Date
-                    else if (mainTh.data('type') == 'time') {
-                        valueObject.type = 'time';
-                        searchValue = formatTime($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
-                    }
-                    // DateTime
-                    else if (mainTh.data('type') == 'datetime') {
-                        valueObject.type = 'datetime';
-                        searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
-                    }
-                }
-                valueObject.value = searchValue;
-                table.columns(i).search(JSON.stringify(valueObject)).draw();
+                saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
+                searchInDatalist(searchValue);
             });
-
             // Initialize masks on filters inputs
             if (typeof mainTh.data('type') !== 'undefined') {
                 if (lang_user == 'fr-FR') {
@@ -509,45 +530,45 @@ function init_datatable(tableID) {
                     });
             }
         }
+        if (val != "") {
+            searchInDatalist(val);
+        }
     });
 
-
     //modal on click on picture cell
-    $(tableID + ' tbody')
-            .on('click', 'td img', function () {
-                var colIdx = table.cell($(this).parent()).index().column;
-                if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
-                    var entity = tableID.replace('#table_', '');
-                    var cellData = table.cell($(this).parent()).data();
-                    $.ajax({
-                        url: '/default/get_file',
-                        type: 'GET',
-                        data: {entity: entity, src: cellData.value},
-                        success: function (result) {
-                            if (result.success) {
-                                var text = '<div class="modal fade" tabindex="-1" role="dialog">'
-                                        + '<div class="modal-dialog" role="document">'
-                                        + '<div class="modal-content">'
-                                        + '<div class="modal-header skin-blue-light">'
-                                        + '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-                                        + '<h4 class="modal-title">' + result.file + '</h4>'
-                                        + '</div>'
-                                        + '<div class="modal-body">'
-                                        + '<p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
-                                        + '</div>'
-                                        + '<div class="modal-footer">'
-                                        + ' <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>'
-                                        + '</div>'
-                                        + '</div>'
-                                        + '</div>'
-                                        + '</div>';
-                                $(text).modal('show');
-                            }
-                        }
-                    });
+    $(tableID + ' tbody').on('click', 'td img', function () {
+        var colIdx = table.cell($(this).parent()).index().column;
+        if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
+            var entity = tableID.replace('#table_', '');
+            var cellData = table.cell($(this).parent()).data();
+            $.ajax({
+                url: '/default/get_file',
+                type: 'GET',
+                data: {entity: entity, src: cellData.value},
+                success: function (result) {
+                    if (result.success) {
+                        var text = '<div class="modal fade" tabindex="-1" role="dialog">'
+                                + '<div class="modal-dialog" role="document">'
+                                + '<div class="modal-content">'
+                                + '<div class="modal-header skin-blue-light">'
+                                + '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                                + '<h4 class="modal-title">' + result.file + '</h4>'
+                                + '</div>'
+                                + '<div class="modal-body">'
+                                + '<p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
+                                + '</div>'
+                                + '<div class="modal-footer">'
+                                + ' <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>'
+                                + '</div>'
+                                + '</div>'
+                                + '</div>'
+                                + '</div>';
+                        $(text).modal('show');
+                    }
                 }
             });
-
+        }
+    });
 
     //Les butons exports
     $('.dt-buttons').css("margin-left", '20px');

@@ -2,7 +2,15 @@
 var languages = [];
 
 function fetchText(key, lang) {
-	var keys = key.split('.');
+	if (!key)
+		return "";
+	var keys;
+	try {
+		keys = key.split('.');
+	} catch(e) {
+		return key;
+	}
+
 	if (typeof languages[lang] === 'undefined') {
 		try {
 			languages[lang] = require(__dirname + '/../locales/'+lang);

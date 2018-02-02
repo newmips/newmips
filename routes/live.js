@@ -36,22 +36,21 @@ router.post('/index', block_access.isLoggedIn, function(req, res) {
 
     var instruction = req.body.instruction || '';
 
-    var data = {};
-
-    data.instruction = instruction;
+    var data = {
+        instruction: instruction
+    };
 
     instruction = instruction.split(';');
 
-    var done = 0
+    var done = 0;
     for (var i = 0; i < instruction.length; i++) {
         execute(req, instruction[i]).then(function() {
-            //data.answers = req.session.answers.join('<br><br>');
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);
             }
-        }).catch(function() {
-            //data.answers = req.session.answers.join('<br><br>');
+        }).catch(function(err) {
+            console.log(err);
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.render('front/live', data);
@@ -103,7 +102,8 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create application " + name_application);
     instructions.push("create module home");
 
-    instructions.push("create module Authentication");
+    // Authentication module
+    instructions.push("create module Administration");
     instructions.push("create entity User");
     instructions.push("add field login");
     instructions.push("add field password");
@@ -118,17 +118,88 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field label");
     instructions.push("set icon users");
     instructions.push("select entity User");
-    instructions.push("add field role related to Role using label");
-    instructions.push("add field group related to Group using label");
+    instructions.push("add field Role related to many Role using label");
+    instructions.push("add field Group related to many Group using label");
+    instructions.push("set field Role required");
+    instructions.push("set field Group required");
+    instructions.push("entity Role has many user");
+    instructions.push("entity Group has many user");
     instructions.push("add entity API credentials");
     instructions.push("add field Client Name");
     instructions.push("add field Client Key");
     instructions.push("add field Client Secret");
     instructions.push("set icon unlink");
-    instructions.push("add field role related to Role using label");
-    instructions.push("add field group related to Group using label");
+    instructions.push("add field role related to many Role using label");
+    instructions.push("add field group related to many Group using label");
     instructions.push("add field Token");
     instructions.push("add field Token timeout TMSP");
+
+    // Component status base
+    instructions.push("add entity Status");
+    instructions.push("set icon tags");
+    instructions.push("add field Entity");
+    instructions.push("add field Field");
+    instructions.push("add field Name");
+    instructions.push("add field Color with type color");
+    instructions.push("add field Position with type number");
+    instructions.push("add field Default with type boolean");
+    instructions.push("entity Status has many Status called Children");
+    instructions.push("entity status has many Translation called Translations");
+    instructions.push("select entity translation");
+    instructions.push("add field Language");
+    instructions.push("add field Value");
+    instructions.push("create entity Media");
+    instructions.push("set icon envelope");
+    instructions.push("add field Type with type enum and values Mail, Notification, Function");
+    instructions.push("add field Name");
+    instructions.push("set field Name required");
+    instructions.push("add field Target entity");
+    instructions.push("entity Media has one Media Mail");
+    instructions.push("entity Media has one Media Notification");
+    instructions.push("entity Media has one Media Function");
+    instructions.push("entity status has many Action called Actions");
+    instructions.push("select entity action");
+    instructions.push("add field Media related to Media using name");
+    instructions.push("add field Order with type number");
+    instructions.push("add field Execution with type enum and values Immédiate, Différée with default value Immédiate");
+    instructions.push("select entity media mail");
+    instructions.push("add field To");
+    instructions.push("add field Cc");
+    instructions.push("add field Cci");
+    instructions.push("add field From");
+    instructions.push("add field Subject");
+    instructions.push("add field Content with type text");
+    instructions.push("select entity media notification");
+    instructions.push("add field Title");
+    instructions.push("add field Description");
+    instructions.push("add field Icon");
+    instructions.push("add field Color with type color");
+    instructions.push("add field Target Groups related to many Group using label");
+    instructions.push("add field Target Users related to many User using login");
+    instructions.push("add entity Notification");
+    instructions.push("add field Title");
+    instructions.push("add field Description");
+    instructions.push("add field URL");
+    instructions.push("add field Color with type color");
+    instructions.push("add field Icon");
+    instructions.push("select entity media function");
+    instructions.push("add field Title");
+    instructions.push("add field Function with type text");
+    instructions.push("entity user has many notification");
+    instructions.push("entity notification has many user");
+
+    // Inline help
+    instructions.push("add entity Inline Help");
+    instructions.push("set icon question-circle-o");
+    instructions.push("add field Entity");
+    instructions.push("add field Field");
+    instructions.push("add field Content with type text");
+
+    // Set default theme if different than blue-light
+    if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
+        instructions.push("set theme "+req.session.defaultTheme);
+
+    // Set home module selected
     instructions.push("select module home");
 
     function recursiveExecute(recurInstructions, idx) {
@@ -157,7 +228,6 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
-        //req.session.answers = (typeof req.session.answers === 'undefined') ? [] : req.session.answers;
         try {
 
             /* Lower the first word for the basic parser jison */
@@ -185,17 +255,15 @@ function execute(req, instruction) {
             var __ = require("../services/language")(req.session.lang_user).__;
 
             if (typeof attr.error !== 'undefined')
-                throw new Error(attr.error);
+                throw attr.error;
 
             // Function is finally executed as "global()" using the static dialog designer
             // "Options" and "Session values" are sent using the attr attribute
             return designer[attr.function](attr, function(err, info) {
-
                 if (err) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
                     console.log("ERROR : ", msgErr);
-                    //req.session.answers.unshift(instruction + " :<br>" + msgErr);
                     reject(msgErr);
                 } else {
 
@@ -219,8 +287,8 @@ function execute(req, instruction) {
                             req.session.id_module = info.insertId;
                             req.session.id_data_entity = null;
                             break;
-                        case "createNewDataEntity":
-                        case "selectDataEntity":
+                        case "createNewEntity":
+                        case "selectEntity":
                         case "createNewEntityWithBelongsTo":
                         case "createNewEntityWithHasMany":
                         case "createNewBelongsTo":
@@ -246,13 +314,10 @@ function execute(req, instruction) {
                     }
 
                     var msgInfo = __(info.message, info.messageParams || []);
-
-                    //req.session.answers.unshift(instruction + " :<br>" + msgInfo);
                     resolve();
                 }
             });
         } catch (e) {
-            //req.session.answers.unshift(instruction + " :<br>" + e.message);
             reject(e);
         }
     });

@@ -1,7 +1,23 @@
 {>"main_layout"/}
 {<modules}
-<select id="dynamic_select" class="form-control select" onchange="navigate()">{@moduleAccess module="home"}<option data-module="m_home" value="/default/home">{@__ key="module.m_home" /}</option>{/moduleAccess}{@moduleAccess module="authentication"}<option data-module="m_authentication" value="/default/authentication">{@__ key="module.m_authentication" /}</option>{/moduleAccess}{@moduleAccess module="cra"}<option data-module="m_cra" value="/default/cra" selected="">{@__ key="module.m_cra" /}</option>{/moduleAccess}</select>
+    <select id="dynamic_select" class="form-control select" onchange="navigate()">
+        {@moduleAccess module="home"}
+            <option data-module="m_home" value="/default/home">{@__ key="module.m_home" /}</option>
+        {/moduleAccess}
+        {@moduleAccess module="authentication"}
+            <option data-module="m_authentication" value="/default/authentication">{@__ key="module.m_authentication" /}</option>
+        {/moduleAccess}
+        {@moduleAccess module="cra"}
+            <option data-module="m_cra" value="/default/cra" selected="">{@__ key="module.m_cra" /}</option>
+        {/moduleAccess}
+    </select>
 {/modules}
+
+{<custom_css}
+    {! Admin LTE Layout !}
+    <link href='/css/AdminLteV2/layouts/layout-default.css' rel='stylesheet' type='text/css' data-type="layout" data-layout="default">
+    {+custom_css_2 /}
+{/custom_css}
 
 {<sidebar}
 <ul id="sortable" class="sidebar-menu" style="white-space: pre-wrap;">
@@ -13,7 +29,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         <ul class="treeview-menu">
-            {@actionAccess entity="cra" action="write"}
+            {@actionAccess entity="cra" action="create"}
             <li>
                 <a href="/cra/declare">
                     <i class="fa fa-angle-double-right"></i>
@@ -40,7 +56,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         <ul class="treeview-menu">
-            {@actionAccess entity="cra_team" action="write"}
+            {@actionAccess entity="cra_team" action="create"}
             <li>
                 <a href="/cra_team/create_form">
                     <i class="fa fa-angle-double-right"></i>
@@ -67,7 +83,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         <ul class="treeview-menu">
-            {@actionAccess entity="cra_calendar_settings" action="write"}
+            {@actionAccess entity="cra_calendar_settings" action="create"}
             <li>
                 <a href="/cra_calendar_settings/create_form">
                     <i class="fa fa-angle-double-right"></i>
@@ -94,7 +110,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         <ul class="treeview-menu">
-            {@actionAccess entity="cra_calendar_exception" action="write"}
+            {@actionAccess entity="cra_calendar_exception" action="create"}
             <li>
                 <a href="/cra_calendar_exception/create_form">
                     <i class="fa fa-angle-double-right"></i>
@@ -121,7 +137,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         <ul class="treeview-menu">
-            {@actionAccess entity="cra_activity" action="write"}
+            {@actionAccess entity="cra_activity" action="create"}
             <li>
                 <a href="/cra_activity/create_form">
                     <i class="fa fa-angle-double-right"></i>
@@ -148,7 +164,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         <ul class="treeview-menu">
-            {@actionAccess entity="cra_client" action="write"}
+            {@actionAccess entity="cra_client" action="create"}
             <li>
                 <a href="/cra_client/create_form">
                     <i class="fa fa-angle-double-right"></i>
@@ -177,7 +193,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         <ul class="treeview-menu">
-            {@actionAccess entity="cra_task" action="write"}
+            {@actionAccess entity="cra_task" action="create"}
             <li>
                 <a href="/cra_task/create_form">
                     <i class="fa fa-angle-double-right"></i> {@__ key="operation.create" /} {@__ key="entity.e_cra_task.name_entity" /}

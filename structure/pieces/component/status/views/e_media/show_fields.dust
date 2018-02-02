@@ -1,0 +1,63 @@
+<div class="nav-tabs-custom" id="tabs">
+    {^hideTab}
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#home">
+                {@__ key="entity.e_media.label_entity" /}
+            </a>
+        </li>
+    </ul>
+    {/hideTab}
+    <div class="tab-content" style="min-height:275px;">
+        <div id="home" class="tab-pane fade in active">
+            <div id="fields" class="row">
+                <div data-field="f_type" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_type"> {@__ key="entity.e_media.f_type"/} {@inline_help field="f_type"}&nbsp;<i data-field="f_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+                        {^f_type}
+                        <input class="form-control input" placeholder='{@__ key="entity.e_media.f_type" /}' name="f_type" type="text" readonly="">
+                        {/f_type}
+                        {#enum_radio.e_media.f_type}
+                        {@eq key=f_type value="{.value}" }
+                        <input class="form-control input" placeholder='{@__ key="entity.e_media.f_type" /}' name="f_type" value="{.translation}" type="text" readonly="">
+                        {/eq}
+                        {/enum_radio.e_media.f_type}
+                    </div>
+                </div>
+                <div data-field="f_name" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_name"> {@__ key="entity.e_media.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+                    </div>
+                </div>
+                {@eq key=f_type value="mail"}
+                    <div id="r_media_mail" class="col-xs-12">
+                        {#r_media_mail}
+                        {>"e_media_mail/show_fields" hideTab="true"/}
+                        {:else}
+                        {@__ key="message.empty" /}<br><br>
+                        {/r_media_mail}
+                    </div>
+                {/eq}
+                {@eq key=f_type value="notification"}
+                    <div id="r_media_notification" class="col-xs-12">
+                        {#r_media_notification}
+                        {>"e_media_notification/show_fields" hideTab="true"/}
+                        {:else}
+                        {@__ key="message.empty" /}<br><br>
+                        {/r_media_notification}
+                    </div>
+                {/eq}
+                {@eq key=f_type value="function"}
+                    <div id="r_media_function" class="col-xs-12">
+                        {#r_media_function}
+                        {>"e_media_function/show_fields" hideTab="true"/}
+                        {:else}
+                        {@__ key="message.empty" /}<br><br>
+                        {/r_media_function}
+                    </div>
+                {/eq}
+            </div>
+        </div>
+    </div>
+</div>

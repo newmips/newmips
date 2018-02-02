@@ -26,27 +26,29 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
 
     models.Project.findAll({
         include: [{
-            model: models.Application,
-            include: [{
-                model: models.Module,
-                include: [{
-                    model: models.DataEntity
-                }]
-            }]
+            model: models.Application
         }]
     }).then(function(projects) {
         // Count number of available Applications
         // Get application module
-        models.Application.count().then(function(nbApplication){
-            data.nb_application = nbApplication;
-            data.projects = projects;
-            data.showytpopup = false;
-            // Check if we have to show the You Tube popup
-            if(req.session.showytpopup){
-                data.showytpopup = true;
-                req.session.showytpopup = false;
-            }
-            res.render('front/home', data);
+        models.Application.findAll({order: [['id', 'DESC']], limit: 3}).then(function(lastThreeApp){
+            models.Application.count().then(function(nbApp){
+                data.projects = projects;
+                data.lastThreeApp = lastThreeApp;
+                data.nb_application = nbApp;
+                data.showytpopup = false;
+                // Check if we have to show the You Tube popup
+                if(req.session.showytpopup){
+                    data.showytpopup = true;
+                    req.session.showytpopup = false;
+                }
+
+                data.version = "";
+                if(fs.existsSync(__dirname+"/../public/version.txt"))
+                    data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
+
+                res.render('front/home', data);
+            });
         }).catch(function(err){
             data.code = 500;
             res.render('common/error', data);
@@ -68,7 +70,7 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
             });
         }
         else{
-            res.status(500).send("Oups, something broken");
+            res.status(500).send("Oups, something's broken.");
         }
     });
 });
@@ -112,4 +114,5 @@ router.post('/ajaxtranslate', function(req, res) {
         value: language(req.body.lang).__(req.body.key, req.body.params)
     });
 });
+
 module.exports = router;

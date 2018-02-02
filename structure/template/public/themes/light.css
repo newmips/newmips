@@ -1,0 +1,62 @@
+.wrapper,
+.main-sidebar,
+.left-side {
+  background-color: #f9fafc;
+}
+.content-wrapper,
+.main-footer {
+  border-left: 1px solid #d2d6de;
+}
+.user-panel > .info,
+.user-panel > .info > a {
+  color: #444444;
+}
+.sidebar-menu > li {
+  -webkit-transition: border-left-color 0.3s ease;
+  -o-transition: border-left-color 0.3s ease;
+  transition: border-left-color 0.3s ease;
+}
+.sidebar-menu > li.header {
+  color: #848484;
+  background: #f9fafc;
+}
+.sidebar-menu > li > a {
+  border-left: 3px solid transparent;
+  font-weight: 600;
+}
+.sidebar-menu > li:hover > a,
+.sidebar-menu > li.active > a {
+  color: #000000;
+  background: #f4f4f5;
+}
+.sidebar-menu > li.active > a {
+  font-weight: 600;
+}
+.sidebar-menu > li > .treeview-menu {
+  background: #f4f4f5;
+}
+.sidebar a {
+  color: #444444;
+}
+.treeview-menu > li > a {
+  color: #777777;
+}
+.treeview-menu > li.active > a,
+.treeview-menu > li > a:hover {
+  color: #000000;
+}
+.treeview-menu > li.active > a {
+  font-weight: 600;
+}
+.sidebar-form {
+  border: 1px solid #d2d6de;
+}
+.sidebar-form input[type="text"],
+.sidebar-form .btn {
+  background-color: #fff;
+}
+@media (min-width: 768px) {
+  .sidebar-mini.sidebar-collapse .sidebar-menu > li > .treeview-menu {
+    border-left: 1px solid #d2d6de;
+  }
+}

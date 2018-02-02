@@ -1,0 +1,19 @@
+<div id="fields" class="row">
+    <div data-field="f_language" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_language"> {@__ key="entity.e_translation.f_language"/} {@inline_help field="f_language"}&nbsp;<i data-field="f_language" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <select name="f_language" class="form-control">
+                <option default>{@__ key="select.default" /}</option>
+                {#languages}
+                    <option value="{.}">{.}</option>
+                {/languages}
+            </select>
+        </div>
+    </div>
+    <div data-field="f_value" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_value"> {@__ key="entity.e_translation.f_value"/} {@inline_help field="f_value"}&nbsp;<i data-field="f_value" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_translation.f_value" /}' name="f_value" value="" type="text">
+        </div>
+    </div>
+</div>

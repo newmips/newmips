@@ -1,13 +1,21 @@
 {>"layout_custom_module"/}
-{<custom_css}
+{<custom_css_2}
     <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
-{/custom_css}
+{/custom_css_2}
 {<header}
     <h1>{@__ key="module.custom_module"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.custom_module"/}</li>
+        <li>
+            <a href="/">
+                <i class="fa fa-home"></i>
+                {@__ key="module.home"/}
+            </a>
+        </li>
+        <!-- SUB MODULE - DO NOT REMOVE -->
+        <li class="active">
+            {@__ key="entity.custom_data_entity.name_entity"/}
+        </li>
     </ol>
 {/header}
 {<content}

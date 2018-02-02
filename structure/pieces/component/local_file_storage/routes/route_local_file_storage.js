@@ -26,7 +26,7 @@ function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
-router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "write"), function(req, res) {
+router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
 
     var version = parseInt(req.body.version) + 1;
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
@@ -79,7 +79,7 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 });
 
 /* Dropzone COMPONENT ajax upload file */
-router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "write"), function(req, res) {
+router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
 
     // FONCTION UPLOAD DE FICHIER DE MULTER ( FICHIER DANS req.file )
     upload(req, res, function(err) {
@@ -112,7 +112,7 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
 });
 
 /* COMPONENT ajax download file */
-router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "write"), function(req, res) {
+router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
 
     if(req.body.storageType == "local"){
         /* ---------------------------------------------------------- */
@@ -126,7 +126,7 @@ router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAM
     }
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "write"), function(req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
     var id_COMPONENT_NAME = req.body.id;
 
     models.COMPONENT_NAME.findOne({
@@ -136,7 +136,7 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
     }).then(function(toRemoveComponent){
         if(toRemoveComponent){
 
-            fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.filename);
+            fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
             models.COMPONENT_NAME.destroy({
                 where: {
                     id: req.body.idRemove

@@ -1,0 +1,16 @@
+html,
+body {
+  height: 100%;
+}
+
+.wrapper {
+  max-width: 1250px;
+  margin: 0 auto;
+  min-height: 100%;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.fixed.wrapper {
+  max-width: 100%;
+}

@@ -1,0 +1,71 @@
+{
+	"component": {
+		"status": {
+			"error": {
+				"illegal_status": "This status isn't valid",
+				"action_error": "Une ou plusieurs actions n'ont pas pu être éxecutée. Verifiez que les notifications sont activées et verifiez votre configuration mail"
+			},
+			"next_status": "Statut suivant",
+			"no_status_field": "Vous n'avez pas d'entité ayant un composant statut. Utilisez le générateur pour ajouter un composant statut et cette page vous permettra de configurer ces statuts"
+		}
+	},
+	"entity": {
+		"e_status": {
+            "label_entity": "Statut",
+            "name_entity": "Statut",
+            "plural_entity": "Statuts",
+			"as_r_children": "Statuts suivants",
+            "f_entity": "Entité",
+            "f_field": "Champ",
+            "f_name": "Nom",
+            "f_color": "Couleur",
+            "f_default": "Défaut"
+		},
+		"e_translation": {
+			"label_entity": "Traduction",
+			"name_entity": "Traduction",
+			"plural_entity": "Traductions",
+			"as_r_translations": "Traductions",
+			"f_value": "Valeur",
+			"f_language": "Langage"
+		},
+        "e_notification": {
+            "f_title": "Titre",
+            "f_description": "Description",
+            "f_url": "URL",
+            "f_color": "Couleur",
+            "f_icon": "Icône",
+            "as_r_notification": "Notification"
+        },
+		"e_action": {
+			"f_execution": "Exécution",
+			"f_order": "Ordre"
+		},
+		"e_media": {
+            "label_entity": "Média",
+            "name_entity": "Média",
+            "plural_entity": "Média",
+            "id_entity": "ID",
+            "as_r_media": "Média",
+            "f_target_entity": "Entité ciblé"
+		},
+		"e_media_mail": {
+			"f_to": "Destinataire",
+			"f_from": "Expéditeur",
+			"f_subject": "Sujet",
+			"f_content": "Contenu"
+		},
+		"e_media_notification": {
+			"r_target_groups": "Groupes ciblés",
+			"r_target_users": "Utilisateurs ciblés"
+		},
+		"e_inline_help": {
+			"label_entity": "Aide en ligne",
+			"name_entity": "Aide en ligne",
+			"plural_entity": "Aides en ligne",
+			"f_content": "Contenu",
+			"f_entity": "Entité",
+			"f_field": "Champ"
+		}
+	}
+}

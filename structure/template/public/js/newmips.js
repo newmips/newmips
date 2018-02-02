@@ -35,6 +35,75 @@ function select2_ajaxsearch(elementID, entity, searchFields) {
 
 $(document).ready(function () {
 
+    // Inline help
+    var currentHelp, modalOpen = false;
+    $(".inline-help").click(function() {
+        currentHelp = this;
+        var parts = window.location.href.split('/');
+        parts = parts[parts.length-2];
+        var field = $(this).data('field');
+        $.ajax({
+            url: "/inline_help/help/"+parts+"/"+field,
+            success: function(content) {
+                $("#prevHelp, #nextHelp").hide();
+                var totalHelp = $(".inline-help").length-1;
+                var currentIdx = $(".inline-help").index(currentHelp);
+                if (totalHelp - currentIdx > 0)
+                    $("#nextHelp").show();
+                if (currentIdx > 0)
+                    $("#prevHelp").show();
+                $(".modal-title").html($(currentHelp).parents('label').text());
+                $(".modal-body").html(content);
+                $("#inlineHelp").modal('show');
+            }
+        });
+    });
+    // Prev/next Help en ligne buttons
+    $("#nextHelp, #prevHelp").click(function() {
+        var count = $("#fields .inline-help").length-1;
+        var current = $("#fields .inline-help").index(currentHelp);
+        if ($(this).attr('id') == 'nextHelp' && count > current)
+            $("#fields .inline-help").eq(current+1).click();
+        else if ($(this).attr('id') == 'prevHelp' && current > 0)
+            $("#fields .inline-help").eq(current-1).click();
+    });
+    // Handle tab and shift+tab modal navigation
+    $("#inlineHelp").on('show.bs.modal', function() {
+        modalOpen = true;
+    });
+    $("#inlineHelp").on('hide.bs.modal', function() {
+        modalOpen = false;
+    });
+    $(document).keypress(function(e) {
+        if (modalOpen == false)
+            return;
+        var code = e.keyCode || e.which;
+        // Tabulation
+        if (e.shiftKey && code == '9')
+            $("#prevHelp").click();
+        else if (code == '9')
+            $("#nextHelp").click();
+    });
+
+
+    /* Display color td with fa classes instead of color value */
+    $("td[data-type=color]").each(function() {
+        if ($(this).find('i').length > 0)
+            return;
+        var color = $(this).text();
+        $(this).html('<i class="fa fa-lg fa-circle" style="color:'+color+'"></i>');
+    });
+
+    /* Save mini sidebar preference */
+    $(document).on("click", ".sidebar-toggle", function(){
+        if (typeof sidebarPref !== "undefined" && (sidebarPref == "true" || sidebarPref == null))
+            sidebarPref = false;
+        else
+            sidebarPref = true;
+
+        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
+    });
+
     /* Clear print tab component */
     $(".print-tab input").each(function() {
         $(this).prop("disabled", true);
@@ -43,8 +112,6 @@ $(document).ready(function () {
         $(this).css("padding", "0");
         if($(this).attr("type") == "hidden")
             $(this).remove();
-        /*else if()
-            $(this).replaceWith("<br><span>" + $(this).val() + "</span>");*/
     });
 
     $(".print-tab input[type='color']").each(function() {
@@ -64,6 +131,32 @@ $(document).ready(function () {
         $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
     });
 
+    $(".print-tab input[type='radio']:checked").each(function() {
+        var formGroup = $(this).parent(".form-group");
+        var label = formGroup.find("label");
+        var htmlToWrite = label[0].outerHTML+"\n";
+        formGroup.find("input[type='radio']").each(function(){
+            if($(this).prop("checked")){
+                htmlToWrite += "<br><span>" + $(this).val() + "</span>";
+            }
+        });
+        formGroup.html(htmlToWrite);
+    });
+
+    $(".print-tab input[type='checkbox']").each(function() {
+        var formGroup = $(this).parents(".form-group");
+        var label = formGroup.find("label").html();
+        var htmlToWrite = "<b>"+label+"</b>\n";
+        formGroup.find("input[type='checkbox']").each(function(){
+            if($(this).prop("checked")){
+                htmlToWrite += "<br><span><i class='fa fa-check'></i></span>";
+            } else {
+                htmlToWrite += "<br><span><i class='fa fa-close'></i></span>";
+            }
+        });
+        formGroup.html(htmlToWrite);
+    });
+
     $(".print-tab textarea").each(function() {
         $(this).replaceWith("<br><span>"+$(this).val()+"</span>");
     });
@@ -73,6 +166,10 @@ $(document).ready(function () {
     });
 
     $(".print-tab form").each(function() {
+        $(this).remove();
+    });
+
+    $(".print-tab .print-remove").each(function() {
         $(this).remove();
     });
 
@@ -162,9 +259,11 @@ $(document).ready(function () {
         disabledClass: ''
     });
 
-    /* --------------- Initialisation des CKEDITOR --------------- */
+    /* --------------- Initialisation des Textarea --------------- */
     $("textarea:not(.regular-textarea)").each(function() {
-        CKEDITOR.replace($(this).attr("id"));
+        $(this).summernote({
+            height: 200
+        });
     });
 
     /* --------------- Initialisation des timepicker --------------- */
@@ -181,6 +280,13 @@ $(document).ready(function () {
         }
     });
 
+    /* --------------- Max length on input number --------------- */
+    $("input[type='number']").keyup(function(e) {
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0,10);
+        }
+    });
+
     /* --------------- Initialisation des DateTimepicker --------------- */
     /* --------------- Initialisation des datepicker --------------- */
     /* --------------- Initialisation des Input Maks --------------- */
@@ -190,55 +296,73 @@ $(document).ready(function () {
 
     /* Uncomment if you want to apply a mask on tel input */
     /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
+    $("input[type='tel']").inputmask({mask: "## ## ## ## ##"});
+    $("input[type='tel']").keyup(function(e) {
+        if(isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace" && e.key != "Shift")
+            $(this).val("");
+    });
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
     $('.simpledate-toconvert').each(function() {
-        if (lang_user == "fr-FR")
-            $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-        else
-            $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+            }
+        }
     });
 
     $('.datepicker-toconvert').each(function() {
-        if ($(this).val() != "" && $(this).val() != "Invalid date" && $(this).val() != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).val(moment(new Date($(this).val())).format("DD/MM/YYYY"));
-            else
-                $(this).val(moment(new Date($(this).val())).format("YYYY-MM-DD"));
+        var currentVal = $(this).val();
+        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
+            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY"));
+                else
+                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD"));
+            }
         } else {
             $(this).val("");
         }
     });
 
     $('.datetimepicker-toconvert').each(function() {
-        if ($(this).attr("value") != "" && $(this).attr("value") != "Invalid date" && $(this).attr("value") != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).val(moment(new Date($(this).attr("value"))).format("DD/MM/YYYY HH:mm")).change();
-            else
-                $(this).val(moment(new Date($(this).attr("value"))).format("YYYY-MM-DD HH:mm")).change();
+        var currentVal = $(this).attr("value");
+        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
+            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY HH:mm")).change();
+                else
+                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD HH:mm")).change();
+            }
         } else {
             $(this).val("");
         }
     });
 
     $("td[data-type='date']").each(function() {
-        if ($(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-            else
-                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+            }
         } else {
             $(this).html("");
         }
     });
 
-
     $("td[data-type='datetime']").each(function() {
-        if ($(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if (lang_user == "fr-FR")
-                $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
-            else
-                $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+            }
         } else {
             $(this).html("");
         }
@@ -583,44 +707,62 @@ $(document).ready(function () {
             dropzoneInit.emit('addedfile', mockFile);
             dropzoneInit.emit('complete', mockFile);
         }
+        dropzoneInit.done = false;
         dropzonesFieldArray.push(dropzoneInit);
     });
 
     /* Dropzone files managment already done ? */
     var filesProceeded = false;
+    var fileInProcess = false;
+
+    function isFileProcessing(){
+        for (var i = 0; i < dropzonesFieldArray.length; i++) {
+            if(!dropzonesFieldArray[i].done){
+                return true;
+            }
+        }
+        return false;
+    }
 
     $(document).on("submit", "form", function(e) {
 
         var thatForm = $(this);
+        var fileInProcess = isFileProcessing();
+
         if (!filesProceeded && dropzonesFieldArray.length > 0) {
             /* If there are files to write, stop submit and do this before */
             e.preventDefault();
-
+            filesProceeded = true;
             /* Send dropzone file */
             for (var i = 0; i < dropzonesFieldArray.length; i++) {
-                //prevent sent file if mockfile
+                // Prevent sent file if mockfile
                 if (dropzonesFieldArray[i].files.length > 0 && dropzonesFieldArray[i].files[0].type != 'mockfile') {
                     var dropzone = dropzonesFieldArray[i];
+                    fileInProcess = true;
                     dropzone.processQueue();
                     (function(ibis, myform) {
                         dropzone.on("complete", function(file, response) {
-                            if (ibis == dropzonesFieldArray.length - 1) {
-                                filesProceeded = true;
+                            dropzonesFieldArray[ibis].done = true;
+                            fileInProcess = isFileProcessing();
+                            if (ibis == dropzonesFieldArray.length - 1 || !fileInProcess) {
                                 myform.submit();
                             }
                         });
                     })(i, $(this))
                 } else {
-                    if (i == dropzonesFieldArray.length - 1) {
-                        filesProceeded = true;
+                    dropzonesFieldArray[i].done = true;
+                    fileInProcess = isFileProcessing();
+                    if (i == dropzonesFieldArray.length - 1 || !fileInProcess) {
                         $(this).submit();
                     }
                 }
             }
+        } else if(fileInProcess){
+            e.preventDefault();
         }
 
         // If we are done with files upload
-        if (filesProceeded || dropzonesFieldArray.length == 0) {
+        if (!fileInProcess && filesProceeded || dropzonesFieldArray.length == 0) {
             /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
             if (lang_user == "fr-FR") {
                 /* Datepicker FR convert*/
@@ -781,7 +923,7 @@ $(document).ready(function () {
     });
 
     /* --------------- Initialisation des select --------------- */
-    $("select").select2();
+    $("select:not(.regular-select)").select2();
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function(){

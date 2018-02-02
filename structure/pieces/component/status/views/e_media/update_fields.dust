@@ -1,0 +1,53 @@
+<div id="fields" class="row">
+    <div data-field="f_name" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_name" class="required"> {@__ key="entity.e_media.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input media-field" required placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+        </div>
+    </div>
+    <div data-field="f_type" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_media_type"> {@__ key="entity.e_media.f_type"/} {@inline_help field="f_media_type"}&nbsp;<i data-field="f_media_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <select style="width:100%;" disabled class="form-control select media-field" name="f_media_type">
+                <option value="">{@__ key="select.default" /}</option>
+                {#enum_radio.e_media.f_type}
+                    {@eq key=f_type value="{.value}" }
+                        <option value="{.value}" selected=""> {.translation} </option>
+                    {:else}
+                        <option value="{.value}"> {.translation} </option>
+                    {/eq}
+                {/enum_radio.e_media.f_type}
+            </select>
+        </div>
+    </div>
+    <div data-field="f_target_entity" class="col-xs-12 media-field">
+        <div class="form-group">
+            <label for="f_target_entity"> {@__ key="entity.e_media.f_target_entity"/} {@inline_help field="f_target_entity"}&nbsp;<i data-field="f_target_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <select style="width:100%;" class="form-control select media-field" name="f_target_entity">
+                <option value="-1">{@__ key="select.default" /}</option>
+                {#target_entities}
+                    {@eq key=f_target_entity value="{codename}"}
+                        <option value="{codename}" selected> {@__ key=tradKey /} </option>
+                    {:else}
+                        <option value="{codename}"> {@__ key=tradKey /} </option>
+                    {/eq}
+                {/target_entities}
+            </select>
+        </div>
+    </div>
+    {#r_media_mail}
+        <div id="media-mail" class="media-type col-xs-12">
+            {>"e_media_mail/update_fields" /}
+        </div>
+    {/r_media_mail}
+    {#r_media_notification}
+        <div id="media-notification" class="media-type col-xs-12">
+            {>"e_media_notification/update_fields" /}
+        </div>
+    {/r_media_notification}
+    {#r_media_function}
+        <div id="media-function" class="media-type col-xs-12">
+            {>"e_media_function/update_fields" /}
+        </div>
+    {/r_media_function}
+</div>

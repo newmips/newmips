@@ -1,0 +1,118 @@
+<div id="fields" class="row">
+    <div data-field="f_title" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_title">
+                {@__ key="entity.e_media_notification.f_title"/}
+                &nbsp;{@inline_help field="f_title"}<i data-field="f_title" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_title" /}' name="f_title" value="" type="text">
+        </div>
+    </div>
+    <div data-field="f_description" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_description">
+                {@__ key="entity.e_media_notification.f_description"/}
+                &nbsp;{@inline_help field="f_description"}<i data-field="f_description" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_description" /}' name="f_description" value="" type="text">
+        </div>
+    </div>
+    <div data-field="f_icon" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_icon">
+                {@__ key="entity.e_media_notification.f_icon"/}
+                &nbsp;{@inline_help field="f_icon"}<i data-field="f_icon" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <input type="hidden" class="media-field" name="f_icon" value="fa-exclamation">
+            <br>
+            <i id="current-icon" data-current-icon="fa-exclamation" class="fa fa-exclamation fa-2x" style="margin-bottom: 5px;"></i>
+            <div class="dropdown" style="width: 100%;">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {@__ key="notification.icon.choose" /}
+                </button>
+                <div id="icons" class="dropdown-menu" style="max-height:250px;overflow-y: scroll;width:100%;">
+                    <div class="input-group form-group">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                        <input id='filter' class="input form-control" placeholder="Filter...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-field="f_color" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_color">
+                {@__ key="entity.e_media_notification.f_color"/}
+                &nbsp;{@inline_help field="f_color"}<i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_color" /}' name="f_color" value="#000000" type="color">
+        </div>
+    </div>
+    <div data-field="f_target_groups" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_target_groups">{@__ key="entity.e_media_notification.r_target_groups" /}</label>
+            <select multiple="" style="width:100%;" class="form-control" name="r_target_groups">
+                {#r_target_groups}
+                <option value="{id}">{f_label|string}</option>
+                {/r_target_groups}
+            </select>
+        </div>
+    </div>
+    <div data-field="f_target_users" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_target_users">{@__ key="entity.e_media_notification.r_target_users" /}</label>
+            <select multiple="" style="width:100%;" class="form-control" name="r_target_users">
+                {#r_target_users}
+                <option value="{id}">{f_login|string}</option>
+                {/r_target_users}
+            </select>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function() {
+        var icons = "{icon_list}".split(',');
+        function addIcon(icon) {
+            currentIcon = $("input[name=f_icon]").val();
+            var iconHtml = '';
+            iconHtml += '<div class="col-xs-2 icon-wrap '+(icon == currentIcon ? 'label-primary' : '')+'" style="text-align: center;">';
+            iconHtml += '    <i class="fa '+icon+' hover icon-selection" data-awesome="'+icon+'"></i>';
+            iconHtml += '    <br>';
+            iconHtml += '    '+icon.substring(3);
+            iconHtml += '</div>';
+            $("#icons").append(iconHtml);
+        }
+        /* Init icons list */
+        var iconsHtml = '';
+        for (var i = 0; i < icons.length; i++)
+            addIcon(icons[i]);
+        /* Prevent icon dropdown from closing on filter focus */
+        $("#filter").click(function(e) {
+            e.stopPropagation();
+        });
+        if (lang_user == 'fr-FR')
+            $("#filter").prop('placeholder', 'Filtrer');
+        /* Generate filtered icon list */
+        $("#filter").keyup(function() {
+            var filter = $(this).val();
+            $(".icon-wrap").remove();
+            var addCount = 0;
+            for (var i = 0; i < icons.length; i++)
+                if (filter == '' || icons[i].substring(3).indexOf(filter) != -1)
+                    {addIcon(icons[i]);addCount++;}
+                if (addCount == 0)
+                    $("#icons").append('<div class="icon-wrap col-xs-12">'+(lang_user == 'fr-FR' ? 'Aucun résultat' : 'No results...')+'</div>');
+            });
+        /* Icon selected (clicked) */
+        $(document).delegate('.icon-selection', 'click', function() {
+            $(".icon-selection").each(function() {
+                $(this).parent().removeClass('label-primary');
+            });
+            $(this).parent().addClass('label-primary');
+            $("#current-icon").removeClass();
+            $("#current-icon").addClass('fa fa-2x '+$(this).data('awesome'));
+            $("input[name=f_icon]").val($(this).data('awesome'));
+        });
+    });
+</script>
