@@ -114,6 +114,16 @@ $(document).ready(function () {
             $(this).remove();
     });
 
+     $(".print-tab a:not([href=''])").each(function() {
+        if($(this).text() == "")
+            if($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
+                $(this).replaceWith("Aucun fichier");
+            else
+                $(this).replaceWith("-");
+        else
+            $(this).replaceWith($(this).text());
+    });
+
     $(".print-tab input[type='color']").each(function() {
         $(this).css("width", "20%");
     });
