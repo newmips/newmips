@@ -124,6 +124,11 @@ $(document).ready(function () {
             $(this).replaceWith($(this).text());
     });
 
+     $(".print-tab select[multiple]").each(function() {
+        if($(this).val() == null)
+            $(this).replaceWith("<br>-");
+    });
+
     $(".print-tab input[type='color']").each(function() {
         $(this).css("width", "20%");
     });
