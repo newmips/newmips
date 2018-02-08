@@ -384,7 +384,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "file":
             if (file != 'show') {
                 str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
             }
             else {
                 str += "	<div class='input-group'>\n";
@@ -401,7 +401,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "photo":
             if (file != 'show') {
                 str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
             }
             else {
                 str += "	<div class='input-group'>\n";
