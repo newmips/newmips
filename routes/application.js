@@ -535,7 +535,6 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             var attr = parser.parse(instruction);
             /* Rework the attr to get value for the code / url / show */
             attr = attrHelper.reworkAttr(attr);
-
             data.iframe_url = process_manager.childUrl(req, attr.function);
             // We simply add session values in attributes array
             attr.instruction = instruction;

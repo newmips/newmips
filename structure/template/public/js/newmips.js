@@ -37,16 +37,16 @@ $(document).ready(function () {
 
     // Inline help
     var currentHelp, modalOpen = false;
-    $(".inline-help").click(function() {
+    $(".inline-help").click(function () {
         currentHelp = this;
         var parts = window.location.href.split('/');
-        parts = parts[parts.length-2];
+        parts = parts[parts.length - 2];
         var field = $(this).data('field');
         $.ajax({
-            url: "/inline_help/help/"+parts+"/"+field,
-            success: function(content) {
+            url: "/inline_help/help/" + parts + "/" + field,
+            success: function (content) {
                 $("#prevHelp, #nextHelp").hide();
-                var totalHelp = $(".inline-help").length-1;
+                var totalHelp = $(".inline-help").length - 1;
                 var currentIdx = $(".inline-help").index(currentHelp);
                 if (totalHelp - currentIdx > 0)
                     $("#nextHelp").show();
@@ -59,22 +59,22 @@ $(document).ready(function () {
         });
     });
     // Prev/next Help en ligne buttons
-    $("#nextHelp, #prevHelp").click(function() {
-        var count = $("#fields .inline-help").length-1;
+    $("#nextHelp, #prevHelp").click(function () {
+        var count = $("#fields .inline-help").length - 1;
         var current = $("#fields .inline-help").index(currentHelp);
         if ($(this).attr('id') == 'nextHelp' && count > current)
-            $("#fields .inline-help").eq(current+1).click();
+            $("#fields .inline-help").eq(current + 1).click();
         else if ($(this).attr('id') == 'prevHelp' && current > 0)
-            $("#fields .inline-help").eq(current-1).click();
+            $("#fields .inline-help").eq(current - 1).click();
     });
     // Handle tab and shift+tab modal navigation
-    $("#inlineHelp").on('show.bs.modal', function() {
+    $("#inlineHelp").on('show.bs.modal', function () {
         modalOpen = true;
     });
-    $("#inlineHelp").on('hide.bs.modal', function() {
+    $("#inlineHelp").on('hide.bs.modal', function () {
         modalOpen = false;
     });
-    $(document).keypress(function(e) {
+    $(document).keypress(function (e) {
         if (modalOpen == false)
             return;
         var code = e.keyCode || e.which;
@@ -87,15 +87,15 @@ $(document).ready(function () {
 
 
     /* Display color td with fa classes instead of color value */
-    $("td[data-type=color]").each(function() {
+    $("td[data-type=color]").each(function () {
         if ($(this).find('i').length > 0)
             return;
         var color = $(this).text();
-        $(this).html('<i class="fa fa-lg fa-circle" style="color:'+color+'"></i>');
+        $(this).html('<i class="fa fa-lg fa-circle" style="color:' + color + '"></i>');
     });
 
     /* Save mini sidebar preference */
-    $(document).on("click", ".sidebar-toggle", function(){
+    $(document).on("click", ".sidebar-toggle", function () {
         if (sidebarPref == "true" || sidebarPref == null)
             sidebarPref = false;
         else
@@ -105,50 +105,50 @@ $(document).ready(function () {
     });
 
     /* Clear print tab component */
-    $(".print-tab input").each(function() {
+    $(".print-tab input").each(function () {
         $(this).prop("disabled", true);
         $(this).attr("placeholder", "-");
         $(this).css("cursor", "default");
         $(this).css("padding", "0");
-        if($(this).attr("type") == "hidden")
+        if ($(this).attr("type") == "hidden")
             $(this).remove();
     });
 
-    $(".print-tab input[type='color']").each(function() {
+    $(".print-tab input[type='color']").each(function () {
         $(this).css("width", "20%");
     });
 
-    $(".print-tab a[data-type='url']").each(function() {
-        if($(this).text() == "")
+    $(".print-tab a[data-type='url']").each(function () {
+        if ($(this).text() == "")
             $(this).replaceWith("-");
     });
 
-    $(".print-tab .input-group-addon").each(function() {
+    $(".print-tab .input-group-addon").each(function () {
         $(this).remove();
     });
 
-    $(".print-tab select").each(function() {
+    $(".print-tab select").each(function () {
         $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
     });
 
-    $(".print-tab input[type='radio']:checked").each(function() {
+    $(".print-tab input[type='radio']:checked").each(function () {
         var formGroup = $(this).parent(".form-group");
         var label = formGroup.find("label");
-        var htmlToWrite = label[0].outerHTML+"\n";
-        formGroup.find("input[type='radio']").each(function(){
-            if($(this).prop("checked")){
+        var htmlToWrite = label[0].outerHTML + "\n";
+        formGroup.find("input[type='radio']").each(function () {
+            if ($(this).prop("checked")) {
                 htmlToWrite += "<br><span>" + $(this).val() + "</span>";
             }
         });
         formGroup.html(htmlToWrite);
     });
 
-    $(".print-tab input[type='checkbox']").each(function() {
+    $(".print-tab input[type='checkbox']").each(function () {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
-        var htmlToWrite = "<b>"+label+"</b>\n";
-        formGroup.find("input[type='checkbox']").each(function(){
-            if($(this).prop("checked")){
+        var htmlToWrite = "<b>" + label + "</b>\n";
+        formGroup.find("input[type='checkbox']").each(function () {
+            if ($(this).prop("checked")) {
                 htmlToWrite += "<br><span><i class='fa fa-check'></i></span>";
             } else {
                 htmlToWrite += "<br><span><i class='fa fa-close'></i></span>";
@@ -157,19 +157,19 @@ $(document).ready(function () {
         formGroup.html(htmlToWrite);
     });
 
-    $(".print-tab textarea").each(function() {
-        $(this).replaceWith("<br><span>"+$(this).val()+"</span>");
+    $(".print-tab textarea").each(function () {
+        $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
     });
 
-    $(".print-tab button, .print-tab .btn").each(function() {
+    $(".print-tab button, .print-tab .btn").each(function () {
         $(this).remove();
     });
 
-    $(".print-tab form").each(function() {
+    $(".print-tab form").each(function () {
         $(this).remove();
     });
 
-    $(".print-tab .print-remove").each(function() {
+    $(".print-tab .print-remove").each(function () {
         $(this).remove();
     });
 
@@ -195,7 +195,7 @@ $(document).ready(function () {
             "hideMethod": "fadeOut"
         };
         for (var i = 0; i < toastrArray.length; i++) {
-            setTimeout(function(toast) {
+            setTimeout(function (toast) {
                 switch (toast.level) {
                     case "info":
                         toastr.info(toast.message);
@@ -215,16 +215,16 @@ $(document).ready(function () {
     } catch (e) {
         console.log(e);
         toastr = {
-            success: function() {
+            success: function () {
                 return true;
             },
-            info: function() {
+            info: function () {
                 return true;
             },
-            error: function() {
+            error: function () {
                 return true;
             },
-            warning: function() {
+            warning: function () {
                 return true;
             }
         };
@@ -260,7 +260,7 @@ $(document).ready(function () {
     });
 
     /* --------------- Initialisation des Textarea --------------- */
-    $("textarea:not(.regular-textarea)").each(function() {
+    $("textarea:not(.regular-textarea)").each(function () {
         $(this).summernote({
             height: 200
         });
@@ -273,7 +273,7 @@ $(document).ready(function () {
     });
 
     /* --------------- Regex on decimal input --------------- */
-    $("input[data-custom-type='decimal']").keyup(function(e) {
+    $("input[data-custom-type='decimal']").keyup(function (e) {
         var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
         while ($(this).val() != "" && !reg.test($(this).val())) {
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
@@ -281,9 +281,9 @@ $(document).ready(function () {
     });
 
     /* --------------- Max length on input number --------------- */
-    $("input[type='number']").keyup(function(e) {
+    $("input[type='number']").keyup(function (e) {
         if (this.value.length > 10) {
-            this.value = this.value.slice(0,10);
+            this.value = this.value.slice(0, 10);
         }
     });
 
@@ -297,15 +297,15 @@ $(document).ready(function () {
     /* Uncomment if you want to apply a mask on tel input */
     /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
     $("input[type='tel']").inputmask({mask: "## ## ## ## ##"});
-    $("input[type='tel']").keyup(function(e) {
-        if(isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace")
+    $("input[type='tel']").keyup(function (e) {
+        if (isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace")
             $(this).val("");
     });
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
-    $('.simpledate-toconvert').each(function() {
+    $('.simpledate-toconvert').each(function () {
         if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
                 else
@@ -314,10 +314,10 @@ $(document).ready(function () {
         }
     });
 
-    $('.datepicker-toconvert').each(function() {
+    $('.datepicker-toconvert').each(function () {
         var currentVal = $(this).val();
         if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY"));
                 else
@@ -328,10 +328,10 @@ $(document).ready(function () {
         }
     });
 
-    $('.datetimepicker-toconvert').each(function() {
+    $('.datetimepicker-toconvert').each(function () {
         var currentVal = $(this).attr("value");
         if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY HH:mm")).change();
                 else
@@ -342,9 +342,9 @@ $(document).ready(function () {
         }
     });
 
-    $("td[data-type='date']").each(function() {
-        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+    $("td[data-type='date']").each(function () {
+        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
                 else
@@ -355,9 +355,9 @@ $(document).ready(function () {
         }
     });
 
-    $("td[data-type='datetime']").each(function() {
-        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+    $("td[data-type='datetime']").each(function () {
+        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
                 else
@@ -368,7 +368,7 @@ $(document).ready(function () {
         }
     });
 
-    $(this).find('img[data-type="picture"]').each(function() {
+    $(this).find('img[data-type="picture"]').each(function () {
         var src = $(this).attr('src');
         //remove all pictures with null src value
         if (typeof src != 'undefined' && src.split(',')[1] == '') {
@@ -381,7 +381,7 @@ $(document).ready(function () {
 
     /* Show boolean with a square in datalist */
 
-    $('td[data-type="boolean"]').each(function() {
+    $('td[data-type="boolean"]').each(function () {
         var val = $(this).html();
         if (val == 'true' || val == '1')
             $(this).html('<i class="fa fa-check-square-o fa-lg"></i>');
@@ -441,13 +441,13 @@ $(document).ready(function () {
     }
 
     /* Set default date if needed */
-    $('.datepicker').each(function(){
-        if($(this).attr("data-today") == 1)
+    $('.datepicker').each(function () {
+        if ($(this).attr("data-today") == 1)
             $(this).datepicker("setDate", "0");
     });
 
-    $('.datetimepicker').each(function(){
-        if($(this).attr("data-today") == 1)
+    $('.datetimepicker').each(function () {
+        if ($(this).attr("data-today") == 1)
             $(this).data("DateTimePicker").defaultDate(moment());
     });
 
@@ -459,7 +459,7 @@ $(document).ready(function () {
     var dropzonesComponentArray = [];
 
     /* File Storage Component */
-    $('.dropzone_local_file_component').each(function(index) {
+    $('.dropzone_local_file_component').each(function (index) {
         var that = $(this);
         var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
             url: "/" + that.attr("data-component") + "/file_upload",
@@ -470,8 +470,8 @@ $(document).ready(function () {
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
-            init: function() {
-                this.on("addedfile", function() {
+            init: function () {
+                this.on("addedfile", function () {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
@@ -480,7 +480,7 @@ $(document).ready(function () {
                         $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
                     }
                 });
-                this.on("sending", function(file, xhr, formData) {
+                this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataComponent = that.attr("data-component");
                     var dataSource = that.attr("data-source");
@@ -490,17 +490,17 @@ $(document).ready(function () {
                     formData.append("dataSource", dataSource);
                     formData.append("dataSourceID", dataSourceID);
                 });
-                this.on("maxfilesexceeded", function() {
+                this.on("maxfilesexceeded", function () {
                     this.removeFile(this.files[1]);
                     toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                 });
-                this.on("error", function(file, message) {
+                this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
             },
-            renameFilename: function(filename) {
+            renameFilename: function (filename) {
                 var timeFile = moment().format("YYYYMMDD-HHmmss");
                 $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
                 return timeFile + '_' + filename;
@@ -515,7 +515,7 @@ $(document).ready(function () {
     var filesComponentProceeded = false;
 
     /* Proceed dropzone before submit the component form */
-    $(document).on("submit", ".component-form", function(e) {
+    $(document).on("submit", ".component-form", function (e) {
         if (!filesComponentProceeded && dropzonesComponentArray[$(this).attr("data-component")].length > 0) {
             /* If there are files to write, stop submit and do this before */
             e.preventDefault();
@@ -524,8 +524,8 @@ $(document).ready(function () {
             for (var i = 0; i < dropzonesComponentArray[$(this).attr("data-component")].length; i++) {
                 if (dropzonesComponentArray[$(this).attr("data-component")][i].files.length > 0) {
                     dropzonesComponentArray[$(this).attr("data-component")][i].processQueue();
-                    (function(ibis, myform) {
-                        dropzonesComponentArray[myform.attr("data-component")][i].on("complete", function(file) {
+                    (function (ibis, myform) {
+                        dropzonesComponentArray[myform.attr("data-component")][i].on("complete", function (file) {
                             if (ibis == dropzonesComponentArray[myform.attr("data-component")].length - 1) {
                                 filesComponentProceeded = true;
                                 myform.submit();
@@ -547,12 +547,12 @@ $(document).ready(function () {
 
     // Counter to avoid same id generation
     var ctpQrCode = 0;
-    $(this).find("input[data-type='qrcode']").each(function() {
+    $(this).find("input[data-type='qrcode']").each(function () {
         if ($(this).val() != '') {
             //Update View, set attr parent id, Qrcode only work with component Id
-            $(this).parent().parent().attr("id", $(this).attr('name')+ctpQrCode);
+            $(this).parent().parent().attr("id", $(this).attr('name') + ctpQrCode);
             //$(this).attr('name') = this parent id
-            var qrcode = new QRCode($(this).attr('name')+ctpQrCode, {
+            var qrcode = new QRCode($(this).attr('name') + ctpQrCode, {
                 text: $(this).val(),
                 width: 128,
                 height: 128,
@@ -565,7 +565,7 @@ $(document).ready(function () {
         }
     });
 
-    var displayBarCode = function(element) {
+    var displayBarCode = function (element) {
         var jq_element = $(element);
         var id = jq_element.attr('name');
         var img = '<br><img id="' + id + '" class="img img-responsive"/>';
@@ -588,12 +588,12 @@ $(document).ready(function () {
         }
     };
     //input barcode
-    $(this).find("input[data-type='barcode']").each(function() {
+    $(this).find("input[data-type='barcode']").each(function () {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
             if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
-                $(this).on('keyup', function() {
+                $(this).on('keyup', function () {
                     $(this).val($(this).val().toUpperCase());
                 });
             }
@@ -601,14 +601,14 @@ $(document).ready(function () {
     });
 
     //input barcode
-    $(this).find("input[data-type='code39'],input[data-type='alpha39']").each(function() {
-        $(this).on('keyup', function() {
+    $(this).find("input[data-type='code39'],input[data-type='alpha39']").each(function () {
+        $(this).on('keyup', function () {
             $(this).val($(this).val().toUpperCase());
         });
     });
 
     //Mask for data-type currency
-    $(this).find("[data-type='currency']").each(function() {
+    $(this).find("[data-type='currency']").each(function () {
         $(this).maskMoney({
             thousands: ' ',
             decimal: '.',
@@ -620,7 +620,7 @@ $(document).ready(function () {
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
     var dropzonesFieldArray = [];
 
-    $('.dropzone-field').each(function(index) {
+    $('.dropzone-field').each(function (index) {
         var that = $(this);
         var type = that.attr('data-type');
         var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
@@ -633,8 +633,8 @@ $(document).ready(function () {
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
             autoDiscover: false,
-            init: function() {
-                this.on("addedfile", function() {
+            init: function () {
+                this.on("addedfile", function () {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
@@ -644,7 +644,7 @@ $(document).ready(function () {
                     }
                 });
 
-                this.on("sending", function(file, xhr, formData) {
+                this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataEntity = that.attr("data-entity");
                     var dataType = that.attr("data-type") || '';
@@ -652,16 +652,16 @@ $(document).ready(function () {
                     formData.append("dataEntity", dataEntity);
                     formData.append("dataType", dataType);
                 });
-                this.on("maxfilesexceeded", function() {
+                this.on("maxfilesexceeded", function () {
                     this.removeFile(this.files[1]);
                     toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                 });
-                this.on("error", function(file, message) {
+                this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
-                this.on('removedfile', function(file) {
+                this.on('removedfile', function (file) {
                     if (file.status != "error") {
                         var dropzone = this;
                         x = confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?');
@@ -675,7 +675,7 @@ $(document).ready(function () {
                                 dataStorage: that.attr("data-storage"),
                                 filename: $("#" + that.attr("id") + "_hidden").val()
                             },
-                            success: function(success) {
+                            success: function (success) {
                                 $("#" + that.attr("id") + "_hidden").val('');
                                 if (dropzone.files.length) {
                                     dropzone.removeAllFiles(true);
@@ -686,7 +686,7 @@ $(document).ready(function () {
 
                 });
             },
-            renameFilename: function(filename) {
+            renameFilename: function (filename) {
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
                     var timeFile = moment().format("YYYYMMDD-HHmmss");
                     $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
@@ -697,6 +697,8 @@ $(document).ready(function () {
         });
         if (type == 'picture')
             dropzoneInit.options.acceptedFiles = 'image/*';
+        else if (type === "docx/pdf")
+            dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         var dropzoneId = $(this).attr('id') + '';
         if ($('#' + dropzoneId + '_hidden').val() != '') {
             var mockFile = {
@@ -715,16 +717,16 @@ $(document).ready(function () {
     var filesProceeded = false;
     var fileInProcess = false;
 
-    function isFileProcessing(){
+    function isFileProcessing() {
         for (var i = 0; i < dropzonesFieldArray.length; i++) {
-            if(!dropzonesFieldArray[i].done){
+            if (!dropzonesFieldArray[i].done) {
                 return true;
             }
         }
         return false;
     }
 
-    $(document).on("submit", "form", function(e) {
+    $(document).on("submit", "form", function (e) {
 
         var thatForm = $(this);
         var fileInProcess = isFileProcessing();
@@ -740,8 +742,8 @@ $(document).ready(function () {
                     var dropzone = dropzonesFieldArray[i];
                     fileInProcess = true;
                     dropzone.processQueue();
-                    (function(ibis, myform) {
-                        dropzone.on("complete", function(file, response) {
+                    (function (ibis, myform) {
+                        dropzone.on("complete", function (file, response) {
                             dropzonesFieldArray[ibis].done = true;
                             fileInProcess = isFileProcessing();
                             if (ibis == dropzonesFieldArray.length - 1 || !fileInProcess) {
@@ -757,7 +759,7 @@ $(document).ready(function () {
                     }
                 }
             }
-        } else if(fileInProcess){
+        } else if (fileInProcess) {
             e.preventDefault();
         }
 
@@ -766,7 +768,7 @@ $(document).ready(function () {
             /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
             if (lang_user == "fr-FR") {
                 /* Datepicker FR convert*/
-                $(this).find('.datepicker').each(function() {
+                $(this).find('.datepicker').each(function () {
                     if ($(this).val().length > 0) {
                         // Sécurité
                         $(this).prop("readOnly", true);
@@ -782,7 +784,7 @@ $(document).ready(function () {
                 });
 
                 /* Datetimepicer FR convert */
-                $(this).find('.datetimepicker').each(function() {
+                $(this).find('.datetimepicker').each(function () {
                     if ($(this).val().length > 0) {
                         // Sécurité
                         $(this).prop("readOnly", true);
@@ -800,7 +802,7 @@ $(document).ready(function () {
             }
 
             /* Convert all times in UTC */
-            $(this).find('.datetimepicker').each(function() {
+            $(this).find('.datetimepicker').each(function () {
                 if ($(this).val().length > 0) {
                     // Sécurité
                     $(this).prop("readOnly", true);
@@ -809,7 +811,7 @@ $(document).ready(function () {
             });
 
             /* If a select multiple is empty we want to have an empty value in the req.body */
-            $(this).find("select[multiple]").each(function() {
+            $(this).find("select[multiple]").each(function () {
                 if ($(this).val() == null) {
                     var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
                     thatForm.append($(input));
@@ -817,7 +819,7 @@ $(document).ready(function () {
             });
 
             /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
-            $(this).find("input[type='checkbox']").each(function() {
+            $(this).find("input[type='checkbox']").each(function () {
                 if ($(this).prop("checked")) {
                     $(this).val(true);
                 } else {
@@ -828,7 +830,7 @@ $(document).ready(function () {
             });
 
             /* Vérification que les input mask EMAIL sont bien complétés jusqu'au bout */
-            $(this).find("input[data-type='email']").each(function() {
+            $(this).find("input[data-type='email']").each(function () {
                 if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
                     $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
                     e.preventDefault();
@@ -837,7 +839,7 @@ $(document).ready(function () {
             });
 
             /* Vérification que les input mask URL sont bien complétés jusqu'au bout */
-            $(this).find("input[data-type='url']").each(function() {
+            $(this).find("input[data-type='url']").each(function () {
                 if ($(this).val() != '' && !$(this).inputmask("isComplete")) {
                     toastr.error(" Le champ " + $(this).attr("placeholder") + " est invalide");
                     e.preventDefault();
@@ -846,7 +848,7 @@ $(document).ready(function () {
             });
 
             /* Vérification des types barcode */
-            $(this).find("input[data-type='barcode']").each(function() {
+            $(this).find("input[data-type='barcode']").each(function () {
                 var val = $(this).val();
                 if (val != '') {
                     var customType = $(this).attr('data-customtype');
@@ -905,7 +907,7 @@ $(document).ready(function () {
             });
 
             /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
-            $(this).find("input[type='tel']").each(function() {
+            $(this).find("input[type='tel']").each(function () {
                 if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
                     $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
                     e.preventDefault();
@@ -913,7 +915,7 @@ $(document).ready(function () {
                 }
             });
 
-            $(this).find("input[data-type='currency']").each(function() {
+            $(this).find("input[data-type='currency']").each(function () {
                 //replace number of zero par maskMoneyPrecision value, default 2
                 $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
             });
@@ -924,9 +926,42 @@ $(document).ready(function () {
 
     /* --------------- Initialisation des select --------------- */
     $("select:not(.regular-select)").select2();
-
+    /** Do not remove **/
+    /** Do not remove **/
+    $("#component_document_template").each(function () {
+        $(this).select2({
+            ajax: {
+                url: '/document_template/search',
+                dataType: 'json',
+                method: 'POST',
+                delay: 250,
+                contentType: "application/json",
+                context: this,
+                data: function (params) {
+                    var ajaxdata = {
+                        search: params.term,
+                        entity: $(this).attr('entity')
+                    };
+                    return JSON.stringify(ajaxdata);
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 1,
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            templateResult: function (data) {
+                return data.text;
+            }
+        });
+    });
     /* Component print button action */
-    $(document).on("click", ".component-print-button", function(){
+    $(document).on("click", ".component-print-button", function () {
         window.print();
         return true;
     });

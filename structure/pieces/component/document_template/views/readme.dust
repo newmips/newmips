@@ -1,0 +1,165 @@
+{>"layout_document_template"/}
+{<header}
+    <h1>Document template</h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
+    </ol>
+    {/header}
+    {<content}
+
+        <div class="box box-solid">
+            <div class="box-header with-border">
+                <h3 class="box-title">Modèle de document : variables utilisables</h3>
+                <br><br>
+                <p style="text-align:justify;"> 
+                    Les modèles de document sont utilisables dans l'onglet où est positionné le composant <strong>document template</strong> de chaque entité.
+                    Pour ce faire, vous devez inclure dans les documents de type Word (Docx) ou PDF 
+                    les variables listées ci-dessous.</p>
+                <p style="text-align:justify;"> 
+                    Pour un template Docx, les variables doivent être copiées tel quel dans votre texte placées entre accolades.
+                    Elles seront remplacées à la volée par les données de l'entité au moment où vous cliquerez sur le bouton "Générer".
+                </p>
+                <p>NB: cliquez sur les titres des sections de chaque entité pour découvrir l'usage des variables.
+                </p>
+            </div>
+            <div class="box-body">
+                <div class="box-group" id="accordion">
+                    {#entities}
+                    <div class="panel box" style="border-top-color:{color}">
+                        <div class="box-header with-border">
+                            <h4 class="box-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse{id}" aria-expanded="false" class="collapsed">
+                                    Informations concernant l'entité {entity}
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse{id}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                            <div class="col-xs-12">{message|s}</div>
+                            <div class="box-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px">Entité</th>
+                                            <th>Variables</th>
+                                            <th>Accès variable format Docx</th>
+                                            <th>Accès variable format PDF</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {#attributes}
+                                        <tr>
+                                            <td><span class="badge bg-red">{entity}</span></td>
+                                            <td><span>{.}</span></td>
+                                            <td>
+                                                {@eq key=relation value="belongsTo"}
+                                                &#123;{as}.{.}&#125;
+                                                {:else}
+                                                &#123;{.}&#125;
+                                                {/eq}
+                                            </td>
+                                            <td>
+                                                {@eq key=relation value="belongsTo"}
+                                                {as}.{.}
+                                                {:else}
+                                                {.}
+                                                {/eq}
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        {/attributes}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {/entities}
+                </div>
+            </div>
+        </div>
+        {/content}
+        {<custom_js}
+            <!-- jQuery UI 1.10.3-->
+        <script src="/js/UI/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+            <!-- DATA TABES SCRIPT-->
+            <script src="/js/plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
+            <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
+            <script src="/js/plugins/datatables/dataTableBuilder.js" type="text/javascript"></script>
+            <!-- DATATABLE EXPORT-->
+            <script src="/js/plugins/datatables/buttons/datatableButton.min.js" type="text/javascript"></script>
+            <script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>
+            <script src="/js/plugins/datatables/buttons/buttons.html5.min.js" type="text/javascript"></script>
+            <script src="/js/plugins/datatables/buttons/buttons.print.min.js" type="text/javascript"></script>
+            <script type="text/javascript">
+                $(function () {
+                    function buildHTML(data) {
+                        var html = '';
+                        data.forEach(function (entity) {
+                            html += '<div class="panel box" style="border-top-color:' + entity.color + '">';
+                            html += '<div class="box-header with-border">';
+                            html += '             <h4 class="box-title">';
+                            html += '                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse' + entity.id + '" aria-expanded="false" class="collapsed">';
+                            html += '                     Informations concernant l\'entité ' + entity.entity;
+                            html += '                 </a>';
+                            html += '             </h4>';
+                            html += '        </div>';
+                            html += '         <div id="collapse' + entity.id + '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">';
+                            html += '             <div class="col-xs-12">' + entity.message + '</div>';
+                            html += '             <div class="box-body">';
+                            html += '                 <table class="table table-striped">';
+                            html += '                     <thead>';
+                            html += '                        <tr>';
+                            html += '                            <th style="width: 40px">Entité</th>';
+                            html += '                            <th>Variables</th>';
+                            html += '                            <th>Accès variable format Docx</th>';
+                            html += '                            <th>Accès variable format PDF</th>';
+                            html += '                             <th>Description</th>';
+                            html += '                         </tr>';
+                            html += '                    </thead>';
+                            html += '                    <tbody>';
+                            entity.attributes.forEach(function (attribute) {
+                                html += '            <tr>';
+                                html += '            <td><span class="badge bg-red">' + entity.entity + '</span></td>';
+                                html += '            <td><span>' + attribute + '</span></td>';
+                                html += '             <td>';
+                                if (entity.relation == 'belongsTo') {
+                                    html += '&#123;' + entity.as + '.' + attribute + '&#125;';
+                                } else {
+                                    html += '&#123;' + attribute + '&#125;';
+                                }
+                                html += '             </td>';
+                                html += '             <td>';
+                                if (entity.relation == 'belongsTo') {
+                                    html += entity.as + '.' + attribute;
+                                } else {
+                                    html += attribute;
+                                }
+                                html += '             </td>';
+                                html += '             <td></td>';
+                                html += '         </tr>';
+                            });
+
+
+                            html += '                   </tbody>';
+                            html += '               </table>';
+                            html += '           </div>';
+                            html += '       </div>';
+                            html += '   </div>';
+                        });
+                        return html;
+                    }
+                    $(this).find('#f_entity').each(function () {
+                        $(this).on('change', function () {
+                            $.ajax({
+                                url: '/document_template/entity/' + $(this).val() + '/relations',
+                                methode: 'GET',
+                                success: function (data) {
+                                    $('#accordion').empty();
+                                    $('#accordion').html(buildHTML(data));
+                                }
+                            });
+                        });
+                    });
+                });
+            </script>
+            {/custom_js}
