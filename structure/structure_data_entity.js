@@ -30,11 +30,11 @@ exports.setupAssociation = function (associationOption, callback) {
 
     if (relation == "belongsToMany") {
         baseOptions.through = through;
-        baseOptions.foreignKey = "fk_id_"+source;
-        baseOptions.otherKey = "fk_id_"+target;
+        baseOptions.foreignKey = "fk_id_" + source;
+        baseOptions.otherKey = "fk_id_" + target;
     }
 
-    if(type != null)
+    if (type != null)
         baseOptions.structureType = type;
     else
         baseOptions.structureType = "";
@@ -216,13 +216,13 @@ exports.setupDataEntity = function (attr, callback) {
         var result = data.replace(/custom_module/g, nameModule.toLowerCase());
         result = result.replace(/custom_show_module/g, showNameModule.toLowerCase());
 
-        if(nameModule.toLowerCase() != "m_home"){
-            var htmlToAdd = ""+
-            "<li>"+
-            "   <a class='sub-module-arianne' href='/default/"+nameModule.toLowerCase().substring(2)+"'>"+
-            "       {@__ key=\"module."+nameModule.toLowerCase()+"\"/}"+
-            "   </a>"+
-            "</li>";
+        if (nameModule.toLowerCase() != "m_home") {
+            var htmlToAdd = "" +
+                    "<li>" +
+                    "   <a class='sub-module-arianne' href='/default/" + nameModule.toLowerCase().substring(2) + "'>" +
+                    "       {@__ key=\"module." + nameModule.toLowerCase() + "\"/}" +
+                    "   </a>" +
+                    "</li>";
 
             result = result.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
         }
@@ -348,26 +348,26 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
     fs.unlinkSync(baseFolder + '/models/attributes/' + name_data_entity + '.json');
 
     // Remove relationships in options.json files
-    var optionFiles = fs.readdirSync(baseFolder+ '/models/options/');
+    var optionFiles = fs.readdirSync(baseFolder + '/models/options/');
     for (var file in optionFiles) {
-        var options = require(baseFolder+ '/models/options/'+optionFiles[file]);
+        var options = require(baseFolder + '/models/options/' + optionFiles[file]);
         var optionsCpy = [];
         for (var i = 0; i < options.length; i++)
             if (options[i].target != name_data_entity)
                 optionsCpy.push(options[i]);
         if (optionsCpy.length != options.length)
-            fs.writeFileSync(baseFolder+ '/models/options/'+optionFiles[file], JSON.stringify(optionsCpy, null, 4));
+            fs.writeFileSync(baseFolder + '/models/options/' + optionFiles[file], JSON.stringify(optionsCpy, null, 4));
     }
 
     name_module = name_module.toLowerCase();
 
     // Clean up access config
-    var access = require(baseFolder+'/config/access.json');
+    var access = require(baseFolder + '/config/access.json');
     for (var i = 0; i < access[name_module.substring(2)].entities.length; i++) {
         if (access[name_module.substring(2)].entities[i].name == url_name_data_entity)
             access[name_module.substring(2)].entities.splice(i, 1);
     }
-    fs.writeFileSync(baseFolder+'/config/access.json', JSON.stringify(access, null, 4));
+    fs.writeFileSync(baseFolder + '/config/access.json', JSON.stringify(access, null, 4));
 
     // Remove entity entry from layout select
     var filePath = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module + '.dust';
@@ -378,3 +378,4 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
         });
     });
 };
+

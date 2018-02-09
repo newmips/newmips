@@ -100,7 +100,9 @@
         "validation": "Valider",
         "previous": "Précédent",
         "next": "Suivant",
-        "close": "Fermer"
+        "close": "Fermer",
+        "generate":"Générer",
+        "help":"Aide"
     },
     "operation": {
         "show": "Afficher",
