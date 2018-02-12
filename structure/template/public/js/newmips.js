@@ -110,22 +110,24 @@ $(document).ready(function () {
         $(this).attr("placeholder", "-");
         $(this).css("cursor", "default");
         $(this).css("padding", "0");
-        if($(this).attr("type") == "hidden")
+        if ($(this).attr("type") == "hidden")
             $(this).remove();
     });
 
-     $(".print-tab a:not([href=''])").each(function() {
-        if($(this).text() == "")
-            if($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
-                $(this).replaceWith("Aucun fichier");
+    $(".print-tab a:not([href=''])").each(function() {
+        if ($(this).find("img").length == 0) {
+            if ($(this).text() == "")
+                if ($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
+                    $(this).replaceWith("Aucun fichier");
+                else
+                    $(this).replaceWith("-");
             else
-                $(this).replaceWith("-");
-        else
-            $(this).replaceWith($(this).text());
+                $(this).replaceWith($(this).text());
+        }
     });
 
-     $(".print-tab select[multiple]").each(function() {
-        if($(this).val() == null)
+    $(".print-tab select[multiple]").each(function() {
+        if ($(this).val() == null)
             $(this).replaceWith("<br>-");
     });
 
@@ -134,7 +136,7 @@ $(document).ready(function () {
     });
 
     $(".print-tab a[data-type='url']").each(function() {
-        if($(this).text() == "")
+        if ($(this).text() == "")
             $(this).replaceWith("-");
     });
 
@@ -149,15 +151,14 @@ $(document).ready(function () {
     $(".print-tab input[type='radio']:checked").each(function() {
         var formGroup = $(this).parent(".form-group");
         var label = formGroup.find("label");
-        var htmlToWrite = label[0].outerHTML+"\n";
-        formGroup.find("input[type='radio']").each(function(){
-            if($(this).prop("checked")){
+        var htmlToWrite = label[0].outerHTML + "\n";
+        formGroup.find("input[type='radio']").each(function() {
+            if ($(this).prop("checked")) {
                 htmlToWrite += "<br><span>" + $(this).val() + "</span>";
             }
         });
         formGroup.html(htmlToWrite);
     });
-
     $(".print-tab input[type='checkbox']").each(function() {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
