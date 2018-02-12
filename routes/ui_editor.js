@@ -81,6 +81,25 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			$(this).parent().removeClass('column').html(toExtract);
 		});
 
+		// If it's a print page we need to remove all col-sm, col-md and col-lg, only col-xs are used
+		if(page == "print_fields.dust"){
+			$("div[data-field]").each(function() {
+				var classes = $(this).attr("class").split(" ");
+				for(var i=0; i<classes.length; i++){
+					if(classes[i].indexOf("col-") != -1 && classes[i].indexOf("col-xs") == -1){
+						$(this).removeClass(classes[i]);
+					}
+				}
+			});
+		}
+
+		if(page == "print_fields.dust"){
+			$("div[data-field]").each(function() {
+				var classes = $(this).attr("class").split(" ");
+				console.log(classes);
+			});
+		}
+
 		// Find all rows and group them to be appended to #fields
 		var packedRow = '';
 		for (var i = 0; i < $("body").children('.row').length; i++)
