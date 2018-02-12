@@ -1431,13 +1431,9 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                 select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
                 select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
                 select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '" disabled readonly>\n';
-                select += '     <!--{#' + alias + '_global_list}-->\n';
-                select += '         <!--{@inArray field="id" array=' + alias + ' value=id}-->\n';
-                select += '             <option value="'+usingFieldContent+'" selected>'+usingFieldContent+'</option>\n';
-                select += '         <!--{:else}-->\n';
-                select += '             <option value="'+usingFieldContent+'">'+usingFieldContent+'</option>\n';
-                select += '         <!--{/inArray}-->\n';
-                select += '     <!--{/' + alias + '_global_list}-->\n';
+                select += '     <!--{#' + alias + '}-->\n';
+                select += '         <option value="'+usingFieldContent+'" selected>'+usingFieldContent+'</option>\n';
+                select += '     <!--{/' + alias + '}-->\n';
                 select += '</select>\n';
                 select += '</div>\n</div>\n';
                 $("#fields").append(select);
