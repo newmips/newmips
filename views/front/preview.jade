@@ -260,9 +260,11 @@ block content
 
 					.col-xs-12.col-sm-10
 						#ui_editor
+						i#ui_editor_tips(style="display:none;") #{__("ui_editor.tips")}
+						br
 						br
 						input#ui_editor_apply_all(type="checkbox", style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;margin-right:5px;display:none;")
-						span#ui_editor_apply_all_span(style="display:none;") Apply to entity
+						span#ui_editor_apply_all_span(style="display:none;") #{__("ui_editor.applyAll")}
 						br
 						br
 						button#ui_editor_save.btn.btn-primary(style="display:none;")
@@ -504,6 +506,7 @@ block custom_js
 						$("#ui_editor").gridEditor();
 						cleanEditor();
 						$("#ui_editor_save").show();
+						$("#ui_editor_tips").show();
 						$("#ui_editor_apply_all").show();
 						$("#ui_editor_apply_all_span").show();
 						$(".ui_editor_page").parents('li').removeClass('active');
