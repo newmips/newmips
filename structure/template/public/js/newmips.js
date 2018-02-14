@@ -96,10 +96,14 @@ $(document).ready(function () {
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function(){
-        if (typeof sidebarPref !== "undefined" && (sidebarPref == "true" || sidebarPref == null))
-            sidebarPref = false;
-        else
-            sidebarPref = true;
+        if (typeof sidebarPref !== "undefined" && sidebarPref != "null"){
+            if (sidebarPref == "close")
+                sidebarPref = "open";
+            else if (sidebarPref == "open")
+                sidebarPref = "close";
+        } else{
+            sidebarPref = "open";
+        }
 
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
