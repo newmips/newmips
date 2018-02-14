@@ -49,6 +49,60 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 	});
 });
 
+function applyToAllEntity(colFields, notPage, entity, idApp, screenMode){
+	return new Promise(function(resolve, reject){
+		var pageFiles = ['create_fields.dust',  'update_fields.dust',  'show_fields.dust',  'print_fields.dust'];
+		var ctp = 0;
+		for(var i=0; i<pageFiles.length; i++){
+			if(pageFiles[i] != notPage){
+				var pageUri = __dirname+'/../workspace/'+idApp+'/views/'+entity+'/'+pageFiles[i];
+				(function(currentURI, currentPage){
+					domHelper.read(currentURI).then(function($) {
+						$("div[data-field]").each(function() {
+							var classes = $(this).attr("class").split(" ");
+							var currentField = $(this).attr("data-field");
+							if(typeof colFields[currentField] !== "undefined"){
+								for(var i=0; i<classes.length; i++){
+									if(classes[i].indexOf("col-") != -1){
+										$(this).removeClass(classes[i]);
+									}
+								}
+
+								if(currentPage == "print_fields.dust"){
+									var gridSize = "12";
+									switch(screenMode){
+										case "Desktop":
+											gridSize = /col-md-([^ ]+)/.exec(colFields[currentField])[1];
+											break;
+										case "Tablet":
+											gridSize = /col-md-([^ ]+)/.exec(colFields[currentField])[1];
+											break;
+										case "Phone":
+											gridSize = /col-md-([^ ]+)/.exec(colFields[currentField])[1];
+											break;
+									}
+									$(this).addClass("col-xs-"+gridSize);
+								} else{
+									$(this).addClass(colFields[currentField]);
+								}
+							}
+						});
+						domHelper.write(currentURI, $).then(function() {
+							done(++ctp);
+						});
+					});
+				})(pageUri, pageFiles[i]);
+			}
+		}
+
+		function done(cpt){
+			if(cpt == pageFiles.length - 1){
+				resolve();
+			}
+		}
+	});
+}
+
 router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
 	var page = req.params.page;
 	var generatorLanguage = language(req.session.lang_user);
@@ -81,6 +135,21 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			$(this).parent().removeClass('column').html(toExtract);
 		});
 
+		// If the user ask to apply on all entity
+		var colFields = {};
+		if(req.body.applyAll == "true"){
+			$("div[data-field]").each(function() {
+				var classes = $(this).attr("class").split(" ");
+				var currentField = $(this).attr("data-field");
+				colFields[currentField] = "";
+				for(var i=0; i<classes.length; i++){
+					if(classes[i].indexOf("col-") != -1){
+						colFields[currentField] += " "+classes[i];
+					}
+				}
+			});
+		}
+
 		// If it's a print page we need to remove all col-sm, col-md and col-lg, only col-xs are used
 		if(page == "print_fields.dust"){
 			$("div[data-field]").each(function() {
@@ -90,13 +159,6 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 						$(this).removeClass(classes[i]);
 					}
 				}
-			});
-		}
-
-		if(page == "print_fields.dust"){
-			$("div[data-field]").each(function() {
-				var classes = $(this).attr("class").split(" ");
-				console.log(classes);
 			});
 		}
 
@@ -118,12 +180,24 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			gitHelper.gitCommit(attr, function(err, infoGit){
 		        if(err)
 		        	console.log(err);
-		        res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
+		        if(req.body.applyAll == "true")
+		        	res.status(200).send(generatorLanguage.__("ui_editor.page_saved_all"));
+		        else
+		        	res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
 		    });
 		}
 
 		domHelper.insertHtml(pageUri, "#fields", packedRow).then(function() {
-			git();
+
+			// If the user ask to apply on all entity
+			if(req.body.applyAll == "true"){
+				applyToAllEntity(colFields, page, entity, req.session.id_application, req.body.screenMode).then(function(){
+					git();
+				})
+			} else{
+
+				git();
+			}
 		});
 
 	}).catch(function(e) {
