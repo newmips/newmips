@@ -167,7 +167,7 @@ app.use('/ui_editor', require('./routes/ui_editor'));
 
 // Handle 404
 app.use(function(req, res) {
-	res.status(400);
+	res.status(404);
 	res.render('common/404');
 });
 

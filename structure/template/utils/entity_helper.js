@@ -208,6 +208,8 @@ var funcs = {
     },
     error500: function(err, req, res, redirect) {
         var isKnownError = false;
+        var ajax = req.query.ajax || false;
+
         try {
             var lang = "fr-FR";
             if(typeof req.session.lang_user !== "undefined")
@@ -229,6 +231,8 @@ var funcs = {
             }
 
         } finally {
+            if (ajax)
+                return res.status(500).send(req.session.toastr)
             if (isKnownError)
                 return res.redirect(redirect || '/');
             else
@@ -237,7 +241,7 @@ var funcs = {
             var data = {};
             data.code = 500;
             data.message = err.message || null;
-            res.render('common/error', data);
+            res.status(data.code).render('common/error', data);
         }
     },
     getPicturesBuffers: function(entity, attributes, options, modelName)  {

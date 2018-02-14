@@ -15,11 +15,14 @@ var upload = multer().single('file');
 
 var config = require('../config/global');
 
-function error500(err, res) {
+function error500(err, req, res) {
     console.error(err);
     var data = {};
     data.error = 500;
-    res.render('common/error', data);
+    if (req.query.ajax)
+        res.status(500).send(data.error);
+    else
+        res.render('common/error', data);
 }
 
 function capitalizeFirstLetter(word) {
@@ -74,7 +77,7 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 
         res.redirect(redirect);
     }).catch(function(err){
-        error500(err, res);
+        error500(err, req, res);
     });
 });
 
@@ -136,7 +139,11 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
     }).then(function(toRemoveComponent){
         if(toRemoveComponent){
 
-            fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
+            try {
+                fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
+            } catch(e) {
+                return error500(e, req, res);
+            }
             models.COMPONENT_NAME.destroy({
                 where: {
                     id: req.body.idRemove
@@ -148,7 +155,7 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
                 }];
                 res.redirect('/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.idEntity+'#COMPONENT_NAME_LOWER');
             }).catch(function(err){
-                error500(err, res);
+                error500(err, req, res);
             });
         }else{
             req.session.toastr = [{
