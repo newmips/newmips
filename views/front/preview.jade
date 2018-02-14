@@ -260,6 +260,11 @@ block content
 
 					.col-xs-12.col-sm-10
 						#ui_editor
+						br
+						input#ui_editor_apply_all(type="checkbox", style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;margin-right:5px;display:none;")
+						span#ui_editor_apply_all_span(style="display:none;") Apply to entity
+						br
+						br
 						button#ui_editor_save.btn.btn-primary(style="display:none;")
 							| #{__("button.save")}
 
@@ -499,6 +504,8 @@ block custom_js
 						$("#ui_editor").gridEditor();
 						cleanEditor();
 						$("#ui_editor_save").show();
+						$("#ui_editor_apply_all").show();
+						$("#ui_editor_apply_all_span").show();
 						$(".ui_editor_page").parents('li').removeClass('active');
 						$(self).parents('li').addClass('active');
 
@@ -514,12 +521,14 @@ block custom_js
 
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
+				var currentScreenMode = $(".ge-layout-mode button span").text();
 				cleanEditor();
 				$.ajax({
 					url: '/ui_editor/setPage/'+entity+'/'+page,
 					method: 'post',
-					data: {html: html},
+					data: {html: html, screenMode: currentScreenMode, applyAll: $("#ui_editor_apply_all").prop("checked")},
 					success: function(msg) {
+						$("#ui_editor_apply_all").prop("checked", false);
 						toastr.success(msg);
 					},
 					error: function(err) {
