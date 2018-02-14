@@ -843,11 +843,11 @@ block custom_js
 			}
 
 			function fetchStatus() {
-				updateScroll();
 			    $.ajax({
 			        url: '/default/update_logs',
 			        success: function(data) {
 		                $("#logs-content").html(data);
+		                updateScroll();
 		                setTimeout(fetchStatus, 1000);
 			        },
 			        error: function(err) {
