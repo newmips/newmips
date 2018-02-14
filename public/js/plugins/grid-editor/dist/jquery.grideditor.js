@@ -290,6 +290,9 @@ $.fn.gridEditor = function( options ) {
                     if (e.shiftKey) {
                         newSize = colSizes[0];
                     }
+                    if (e.ctrlKey) {
+                        newSize = colSizes[5];
+                    }
                     setColSize(col, curColClass, Math.max(newSize, 1));
                 });
 
@@ -301,6 +304,9 @@ $.fn.gridEditor = function( options ) {
                     var newSize = colSizes[newColSizeIndex];
                     if (e.shiftKey) {
                         newSize = colSizes[colSizes.length - 1];
+                    }
+                    if (e.ctrlKey) {
+                        newSize = colSizes[5];
                     }
                     setColSize(col, curColClass, Math.min(newSize, MAX_COL_SIZE));
                 });
