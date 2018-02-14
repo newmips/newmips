@@ -50,7 +50,8 @@ else {
 
 // tables needs to be global
 var tables = [];
-$(document).ready(function() {
+
+function simpleTable(table) {
 	var options = {
 		"responsive": true,
 		"language": str_language,
@@ -97,8 +98,13 @@ $(document).ready(function() {
 	if ($("input[name='custom_order']").length)
 		options.order = [$("input[name='custom_order']").data('index'), $("input[name='custom_order']").data('order')];
 
+	tables[table.attr('id')] = table.DataTable(options);
+}
+
+$(document).ready(function() {
+
 	// Init DataTable
 	$(".dataTable").each(function() {
-		tables[$(this).attr('id')] = $(this).DataTable(options);
+		simpleTable($(this));
 	});
 });

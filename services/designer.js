@@ -1176,12 +1176,12 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext){
                                     id_data_entity: attr.id_data_entity
                                 };
 
-                                if(attr.targetType == "hasmany"){
+                                if(attr.targetType == "hasMany"){
                                     structure_data_field.setupHasManyTab(reversedAttr, function(){
                                         resolve();
                                     });
                                 }
-                                else if(attr.targetType == "hasmanypreset"){
+                                else if(attr.targetType == "hasManyPreset"){
                                     structure_data_field.setupHasManyPresetTab(reversedAttr, function(){
                                         resolve();
                                     });
@@ -1468,30 +1468,11 @@ exports.createNewHasManyPreset = function(attr, callback) {
 
             // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
             // If not we continue doing a simple has many association.
-            if(!doingBelongsToMany){
-                /*var reversedAttr = {
-                    options: {
-                        source: attr.options.target,
-                        showSource: attr.options.showTarget,
-                        target: attr.options.source,
-                        showTarget: attr.options.showSource,
-                        foreignKey: attr.options.foreignKey,
-                        showForeignKey: attr.options.showForeignKey
-                    },
-                    id_data_entity: attr.id_data_entity,
-                    id_module: attr.id_module,
-                    id_application: attr.id_application
-                };*/
-
-                //db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
+            if(!doingBelongsToMany) {
                 db_field.createNewForeignKey(attr, function (err, created_foreignKey) {
                     if (err) {
                         return callback(err, null);
                     }
-
-                    // Right now we have id_TARGET_as and we want id_SOURCE_as
-                    //var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
-                    //newForeignKey = newForeignKey.toLowerCase();
 
                     var associationOption = {
                         idApp: attr.id_application,
@@ -1503,6 +1484,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
                         relation: "hasMany",
                         through: null,
                         toSync: toSync,
+                        usingField: attr.options.usingField || undefined,
                         type: "hasManyPreset"
                     };
                     // Créer le lien belongsTo en la source et la target
@@ -1893,7 +1875,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                                 relation: "hasMany",
                                 through: null,
                                 toSync: false,
-                                type: null
+                                type: 'localfilestorage'
                             };
                             structure_data_entity.setupAssociation(associationOption, function(){
                                 // Get module info needed for structure

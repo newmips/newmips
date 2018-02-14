@@ -1070,27 +1070,10 @@ exports.setupHasManyTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasmany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '';
-            newTab += '	<div id="' + alias + '" class="tab-pane fade" data-tabType="hasMany">\n';
-            newTab += '     <div class="sub-tab-table">\n';
-            newTab += '		   <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTab += '			  <!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTab += '				 {>"' + target + '/list_fields" associationAlias="' + alias + '" associationForeignKey="' + foreignKey + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + urlSource + '" for="hasMany" /}\n';
-            newTab += '			  <!--{/eq}-->\n';
-            newTab += '		   <!--{:else}-->\n';
-            newTab += '				 {>"' + target + '/list_fields" /}\n';
-            newTab += '		   <!--{/' + alias + '}-->\n';
-            newTab += '     </div>\n';
-            newTab += '		<br>\n';
-
-            // Create button to directly associate created object to relation
-            newTab += '		<a href="/' + urlTarget + '/create_form?associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-success">\n';
-            newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
-            newTab += '		</a>\n';
-            newTab += '</div>\n';
+            var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTab, target).then(callback);
@@ -1145,38 +1128,9 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
 
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasmanypreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
-            var newTabContent = '';
-            // Create select to add elements
-            newTabContent += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasManyPreset">\n';
-            newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
-            newTabContent += '      <select style="width:200px;" class="form-control" name="ids" required multiple>\n';
-            newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
-            newTabContent += '              {@existInContextById ofContext=' + alias + ' key=id}\n';
-            newTabContent += '              {:else}\n';
-            newTabContent += '                  <!--{#' + usingField + '}-->\n';
-            newTabContent += '                      <option value="{id}">{' + usingField + '}</option>\n';
-            newTabContent += '                  <!--{:else}-->\n';
-            newTabContent += '                      <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-            newTabContent += '                  <!--{/' + usingField + '}-->\n';
-            newTabContent += '              {/existInContextById}\n';
-            newTabContent += '          <!--{/' + alias + '_global_list}-->\n';
-            newTabContent += '      </select>\n';
-            newTabContent += '      <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
-            newTabContent += '      <input type="hidden" value="{' + source + '.id}" name="idEntity">\n';
-            newTabContent += '  </form>\n';
-            // Include association's fields
-            newTabContent += '  <div class="sub-tab-table">\n';
-            newTabContent += '      <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTabContent += '              <!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTabContent += '          {>"' + target + '/list_fields" for="fieldset" /}\n';
-            newTabContent += '              <!--{/eq}-->\n';
-            newTabContent += '      <!--{:else}-->\n';
-            newTabContent += '              {>"' + target + '/list_fields" /}\n';
-            newTabContent += '      <!--{/' + alias + '}-->\n';
-            newTabContent += '  </div>\n';
-            newTabContent += '</div>\n';
+            var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTabContent, target).then(callback);
@@ -1500,39 +1454,8 @@ exports.setupHasOneTab = function (attr, callback) {
             var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '';
-            newTab += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasOne">\n';
+            var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
 
-            // Include association's fields
-            newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '     {>"' + target + '/show_fields" hideTab="true"/}\n';
-            newTab += '<!--{:else}-->\n';
-            newTab += '     {@__ key="message.empty" /}<br><br>\n';
-            newTab += '<!--{/' + alias + '}-->\n';
-
-            newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '		<form action="/' + urlTarget + '/delete" method="post">\n';
-            newTab += '			<a style="margin-right:8px;" href="/' + urlTarget + '/update_form?id={id}&associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-warning">\n';
-            newTab += '				<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>\n';
-            newTab += '			</a>\n';
-            newTab += '			<button onclick="return confirm(\'Êtes-vous sûr de vouloir supprimer cet enregistrement ?\');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
-            newTab += '				<span>{@__ key="button.delete" /}</span>\n';
-            newTab += '				<input name="id" value="{id}" type="hidden"/>\n';
-            newTab += '				<input name="associationAlias" value="' + alias + '" type="hidden"/>\n';
-            newTab += '				<input name="associationForeignKey" value="' + foreignKey + '" type="hidden"/>\n';
-            newTab += '				<input name="associationFlag" value="{' + source + '.id}" type="hidden"/>\n';
-            newTab += '				<input name="associationSource" value="' + source + '" type="hidden"/>\n';
-            newTab += '				<input name="associationUrl" value="' + urlSource + '" type="hidden"/>\n';
-            newTab += '			</button>\n';
-            newTab += '		</form>\n';
-            newTab += '<!--{:else}-->\n';
-            // Create button to directly associate created object to relation
-            newTab += '		<a href="/' + urlTarget + '/create_form?associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-success">\n';
-            newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
-            newTab += '		</a>\n';
-            newTab += '<!--{/' + alias + '}-->\n';
-
-            newTab += '</div>\n';
             printHelper.addHasOne(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTab, target).then(callback);
             });

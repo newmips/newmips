@@ -284,16 +284,19 @@ exports.newLocalFileStorage = function (attr, callback) {
                         var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, componentNameLower);
                         componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
                         componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
+                        fs.mkdirSync(__dirname + '/../workspace/' + attr.id_application + '/views/'+componentName, 0766);
+                        fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/views/'+componentName+'/list_fields.dust', componentContent, 'utf8');
 
                         var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{@__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
 
                         var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
                         var file = fileBase + '/show_fields.dust';
 
-                        printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function(){
+                        // printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function(){
                             // CREATE THE TAB IN SHOW FIELDS
-                            addTab(attr, file, newLi, componentContent).then(callback);
-                        });
+                            var newTab = '<div id="'+componentNameLower+'" class="ajax-tab tab-pane fade" data-tabtype="localfilestorage" data-asso-flag="{'+sourceLower+'.id}" data-asso-alias="'+componentNameLower+'"><div class="ajax-content"></div></div>';
+                            addTab(attr, file, newLi, newTab).then(callback);
+                        // });
                     });
                 });
             });
