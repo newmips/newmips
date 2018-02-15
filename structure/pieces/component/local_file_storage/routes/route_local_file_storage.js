@@ -86,47 +86,40 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
 
     // FONCTION UPLOAD DE FICHIER DE MULTER ( FICHIER DANS req.file )
     upload(req, res, function(err) {
-        if (!err) {
-            if(req.body.storageType == "local"){
-                /* ---------------------------------------------------------- */
-                /* ------------- Local Storage in upload folder ------------- */
-                /* ---------------------------------------------------------- */
-                fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
-                var uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
-                var byte;
-                var outStream = fs.createWriteStream(uploadPath);
-                outStream.write(req.file.buffer);
-                outStream.end();
-                outStream.on('finish', function(err){
-                    res.json({
-                        success: true
-                    });
-                });
-            }
-        } else {
+        if (err) {
             res.status(415);
-            console.log(err);
-            res.json({
+            return res.json({
                 success: false,
-                error: "Une erreur s'est produite."
+                error: "An error occured."
             });
         }
+        /* ---------------------------------------------------------- */
+        /* ------------- Local Storage in upload folder ------------- */
+        /* ---------------------------------------------------------- */
+        fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
+        var uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
+        var byte;
+        var outStream = fs.createWriteStream(uploadPath);
+        outStream.write(req.file.buffer);
+        outStream.end();
+        outStream.on('finish', function(err){
+            res.json({
+                success: true
+            });
+        });
     });
 });
 
 /* COMPONENT ajax download file */
 router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
+    /* ---------------------------------------------------------- */
+    /* ----------------- Download a local file ----------------- */
+    /* ---------------------------------------------------------- */
+    var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
+    var fileName = req.body.originalname;
 
-    if(req.body.storageType == "local"){
-        /* ---------------------------------------------------------- */
-        /* ----------------- Download a local file ----------------- */
-        /* ---------------------------------------------------------- */
-        var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
-        var fileName = req.body.originalname;
-
-        res.download(downloadPath, fileName, function(err) {
-        });
-    }
+    res.download(downloadPath, fileName, function(err) {
+    });
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {

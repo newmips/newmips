@@ -151,7 +151,8 @@ function bindTabActions(tab, data) {
         });
     });
     // Bind each new form
-    tab.find('form:not(.fieldsetform.componentFileDownloadForm)').each(function(){
+    tab.find('form:not(".fieldsetform"):not(".componentFileDownloadForm"):not(".component-form")').each(function(){
+        console.log($(this).attr('class'));
         ajaxForm($(this));
     });
 }

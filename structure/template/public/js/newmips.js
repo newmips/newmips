@@ -34,6 +34,7 @@ function select2_ajaxsearch(elementID, entity, searchFields) {
 }
 
 // INIT FORM
+var dropzonesFieldArray = [];
 function initForm(context) {
     if (!context)
         context = document;
@@ -319,8 +320,6 @@ function initForm(context) {
         }).maskMoney('mask');
     });
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
-    var dropzonesFieldArray = [];
-
     $('.dropzone-field', context).each(function(index) {
         var that = $(this);
         var type = that.attr('data-type');
@@ -417,16 +416,13 @@ function initForm(context) {
 }
 
 // DROPZONE
+var dropzonesComponentArray = [];
 function initDropZone(context) {
     if (!context)
         context = document;
 
     /* Avoid .dropzone to be automaticaly initialized */
     Dropzone.autoDiscover = false;
-
-    /* --------------- Initialisation de DROPZONE JS - COMPONENT --------------- */
-
-    var dropzonesComponentArray = [];
 
     /* File Storage Component */
     $('.dropzone_local_file_component', context).each(function(index) {
@@ -451,11 +447,9 @@ function initDropZone(context) {
                     }
                 });
                 this.on("sending", function(file, xhr, formData) {
-                    var storageType = that.attr("data-storage");
                     var dataComponent = that.attr("data-component");
                     var dataSource = that.attr("data-source");
                     var dataSourceID = that.attr("data-sourceId");
-                    formData.append("storageType", storageType);
                     formData.append("dataComponent", dataComponent);
                     formData.append("dataSource", dataSource);
                     formData.append("dataSourceID", dataSourceID);
