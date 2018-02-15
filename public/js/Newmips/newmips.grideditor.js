@@ -477,7 +477,7 @@ $.fn.gridEditor = function( options ) {
 
         function createColumn(size) {
             //return $('<div/>').addClass(colClasses.map(function(c) { return c + size; }).join(' ')).append(createDefaultContentWrapper().html(getRTE(settings.content_types[0]).initialContent));
-            return $('<div style="height: 78px;" />').addClass("fieldLineHeight").addClass(colClasses.map(function(c) { return c + size; }).join(' '));
+            return $('<div style="min-height: 75px;" />').addClass("emptySpaceColumn").addClass(colClasses.map(function(c) { return c + size; }).join(' '));
         }
 
         /**

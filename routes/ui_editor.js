@@ -49,7 +49,7 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 	});
 });
 
-function applyToAllEntity(colFields, notPage, entity, idApp, screenMode){
+function applyToAllEntity(colFields, colSpace, notPage, entity, idApp, screenMode){
 	return new Promise(function(resolve, reject){
 		var pageFiles = ['create_fields.dust',  'update_fields.dust',  'show_fields.dust',  'print_fields.dust'];
 		var ctp = 0;
@@ -87,6 +87,14 @@ function applyToAllEntity(colFields, notPage, entity, idApp, screenMode){
 								}
 							}
 						});
+
+						for(var i=0; i<colSpace.length; i++){
+							if(typeof colSpace[i].before !== "undefined"){
+								$("div[data-field='"+colSpace[i].before+"']").before(colSpace[i].div);
+							} else {
+								$("#fields").append(colSpace[i].div);
+							}
+						}
 						domHelper.write(currentURI, $).then(function() {
 							done(++ctp);
 						});
@@ -137,6 +145,7 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 
 		// If the user ask to apply on all entity
 		var colFields = {};
+		var colSpace = [];
 		if(req.body.applyAll == "true"){
 			$("div[data-field]").each(function() {
 				var classes = $(this).attr("class").split(" ");
@@ -147,6 +156,13 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 						colFields[currentField] += " "+classes[i];
 					}
 				}
+			});
+
+			$("div.emptySpaceColumn").each(function() {
+				colSpace.push({
+					before: $(this).next("div[data-field]").attr("data-field"),
+					div: $(this)[0].outerHTML
+				});
 			});
 		}
 
@@ -191,7 +207,7 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 
 			// If the user ask to apply on all entity
 			if(req.body.applyAll == "true"){
-				applyToAllEntity(colFields, page, entity, req.session.id_application, req.body.screenMode).then(function(){
+				applyToAllEntity(colFields, colSpace, page, entity, req.session.id_application, req.body.screenMode).then(function(){
 					git();
 				})
 			} else{
