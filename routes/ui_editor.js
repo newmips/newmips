@@ -49,57 +49,62 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 	});
 });
 
-function applyToAllEntity(colFields, colSpace, notPage, entity, idApp, screenMode){
+function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode){
 	return new Promise(function(resolve, reject){
 		var pageFiles = ['create_fields.dust',  'update_fields.dust',  'show_fields.dust',  'print_fields.dust'];
 		var ctp = 0;
+
 		for(var i=0; i<pageFiles.length; i++){
 			if(pageFiles[i] != notPage){
 				var pageUri = __dirname+'/../workspace/'+idApp+'/views/'+entity+'/'+pageFiles[i];
-				(function(currentURI, currentPage){
+				(function(currentURI, currentPage, currentHtmlBis){
 					domHelper.read(currentURI).then(function($) {
-						$("div[data-field]").each(function() {
-							var classes = $(this).attr("class").split(" ");
-							var currentField = $(this).attr("data-field");
-							if(typeof colFields[currentField] !== "undefined"){
-								for(var i=0; i<classes.length; i++){
-									if(classes[i].indexOf("col-") != -1){
-										$(this).removeClass(classes[i]);
-									}
-								}
+						var saveDataField = {};
 
-								if(currentPage == "print_fields.dust"){
-									var gridSize = "12";
-									switch(screenMode){
-										case "Desktop":
-											gridSize = /col-md-([^ ]+)/.exec(colFields[currentField])[1];
-											break;
-										case "Tablet":
-											gridSize = /col-md-([^ ]+)/.exec(colFields[currentField])[1];
-											break;
-										case "Phone":
-											gridSize = /col-md-([^ ]+)/.exec(colFields[currentField])[1];
-											break;
-									}
-									$(this).addClass("col-xs-"+gridSize);
-								} else{
-									$(this).addClass(colFields[currentField]);
-								}
-							}
+						$("div[data-field]").each(function() {
+							saveDataField[$(this).attr("data-field")] = $(this)[0].innerHTML;
 						});
 
-						for(var i=0; i<colSpace.length; i++){
-							if(typeof colSpace[i].before !== "undefined"){
-								$("div[data-field='"+colSpace[i].before+"']").before(colSpace[i].div);
-							} else {
-								$("#fields").append(colSpace[i].div);
-							}
+						if(currentPage == "print_fields.dust"){
+							currentHtmlBis("div[data-field]").each(function() {
+								var gridSize = "12";
+								var classes = currentHtmlBis(this).attr("class").split(" ");
+								switch(screenMode) {
+									case "Desktop":
+										gridSize = /col-md-([^ ]+)/.exec(currentHtmlBis(this).attr("class"))[1];
+										break;
+									case "Tablet":
+										gridSize = /col-sm-([^ ]+)/.exec(currentHtmlBis(this).attr("class"))[1];
+										break;
+									case "Phone":
+										gridSize = /col-xs-([^ ]+)/.exec(currentHtmlBis(this).attr("class"))[1];
+										break;
+								}
+
+								for(var i=0; i<classes.length; i++){
+									if(classes[i].indexOf("col-") != -1){
+										currentHtmlBis(this).removeClass(classes[i]);
+									}
+								}
+								currentHtmlBis(this).addClass("col-xs-"+gridSize);
+							});
 						}
-						domHelper.write(currentURI, $).then(function() {
+
+						currentHtmlBis("div[data-field]").each(function() {
+							currentHtmlBis(this).html(saveDataField[currentHtmlBis(this).attr("data-field")]);
+						});
+
+						// Find all rows and group them to be appended to #fields
+						var packedRow = '';
+						for (var i = 0; i < currentHtmlBis("body").children('.row').length; i++)
+							if (currentHtmlBis("body").children('.row').eq(i).html() != "")
+								packedRow += currentHtmlBis("body").children('.row').eq(i).html();
+
+						domHelper.insertHtml(currentURI, "#fields", packedRow).then(function() {
 							done(++ctp);
 						});
 					});
-				})(pageUri, pageFiles[i]);
+				})(pageUri, pageFiles[i], currentHtml);
 			}
 		}
 
@@ -143,29 +148,6 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			$(this).parent().removeClass('column').html(toExtract);
 		});
 
-		// If the user ask to apply on all entity
-		var colFields = {};
-		var colSpace = [];
-		if(req.body.applyAll == "true"){
-			$("div[data-field]").each(function() {
-				var classes = $(this).attr("class").split(" ");
-				var currentField = $(this).attr("data-field");
-				colFields[currentField] = "";
-				for(var i=0; i<classes.length; i++){
-					if(classes[i].indexOf("col-") != -1){
-						colFields[currentField] += " "+classes[i];
-					}
-				}
-			});
-
-			$("div.emptySpaceColumn").each(function() {
-				colSpace.push({
-					before: $(this).next("div[data-field]").attr("data-field"),
-					div: $(this)[0].outerHTML
-				});
-			});
-		}
-
 		// If it's a print page we need to remove all col-sm, col-md and col-lg, only col-xs are used
 		if(page == "print_fields.dust"){
 			$("div[data-field]").each(function() {
@@ -207,9 +189,9 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 
 			// If the user ask to apply on all entity
 			if(req.body.applyAll == "true"){
-				applyToAllEntity(colFields, colSpace, page, entity, req.session.id_application, req.body.screenMode).then(function(){
+				applyToAllEntity($, page, entity, req.session.id_application, req.body.screenMode).then(function(){
 					git();
-				})
+				});
 			} else{
 
 				git();

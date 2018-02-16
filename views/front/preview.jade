@@ -466,11 +466,6 @@ block custom_js
 			////////////
 			// UI Editor
 			////////////
-			function cleanEditor() {
-				// Remove unwanted buttons
-				//$(".ge-add-column").remove();
-			}
-
 			$(document).delegate('.ge-add-row', 'click', function() {
 				var newRow = $(this).parent().parent().children(".row .ui-sortable").last();
 				newRow.find('.ui-sortable').remove();
@@ -506,7 +501,6 @@ block custom_js
 
 						// Enable gridEditor
 						$("#ui_editor").gridEditor();
-						cleanEditor();
 						$("#ui_editor_save").show();
 						$("#ui_editor_tips").show();
 						$("#ui_editor_apply_all").show();
@@ -527,7 +521,6 @@ block custom_js
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
 				var currentScreenMode = $(".ge-layout-mode button span").text();
-				cleanEditor();
 				$.ajax({
 					url: '/ui_editor/setPage/'+entity+'/'+page,
 					method: 'post',
