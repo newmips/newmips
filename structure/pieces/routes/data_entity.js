@@ -121,7 +121,15 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (ENTITY_NAME) {
+    var relatedToList = [];
+    for (var i = 0; i < options.length; i++)
+        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple')
+            relatedToList.push({
+                model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
+                as: options[i].as
+            });
+
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: relatedToList}).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -326,6 +334,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     idSubentity = ENTITY_URL_NAME[option.as].id;
                     ENTITY_URL_NAME[option.as].hideTab = true;
                 }
+                dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                 dustFile = option.target+'/show_fields';
             break;
 

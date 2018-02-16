@@ -31,7 +31,8 @@ function select2_ajaxsearch(select) {
         },
         templateResult: function (data) {
             return data.text;
-        }
+        },
+        placeholder: SELECT_DEFAULT_TEXT
     });
 }
 

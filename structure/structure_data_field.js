@@ -1317,30 +1317,19 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         // Update update_fields file
         updateFile(fileBase, file, select, function () {
 
+            select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
+            select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+            select += '     <select multiple disabled readOnly style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+            select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+            select += '         <!--{#' + alias + '}-->\n';
+            select += '            <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
+            select += '         <!--{/' + alias + '}-->\n';
+            select += '     </select>\n';
+            select += '</div>\n</div>\n';
+
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
-
-                var usingFieldContent = "";
-                for(var i=0; i<usingField.length; i++){
-                    usingFieldContent += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-                    if(i != usingField.length - 1)
-                        usingFieldContent += " - ";
-                }
-
-                // Add read only field in show file. No tab required
-                select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-                select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-                select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '" disabled readonly>\n';
-                select += '     <!--{#' + alias + '_global_list}-->\n';
-                select += '         <!--{@inArray field="id" array=' + alias + ' value=id}-->\n';
-                select += '             <option value="'+usingFieldContent+'" selected>'+usingFieldContent+'</option>\n';
-                select += '         <!--{:else}-->\n';
-                select += '             <option value="'+usingFieldContent+'">'+usingFieldContent+'</option>\n';
-                select += '         <!--{/inArray}-->\n';
-                select += '     <!--{/' + alias + '_global_list}-->\n';
-                select += '</select>\n';
-                select += '</div>\n</div>\n';
                 $("#fields").append(select);
 
                 domHelper.write(file, $).then(function () {
