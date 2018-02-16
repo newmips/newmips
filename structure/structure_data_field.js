@@ -1166,7 +1166,7 @@ exports.setupRelatedToField = function (attr, callback) {
     var showAlias = attr.options.showAs;
     var urlAs = attr.options.urlAs.toLowerCase();
 
-    // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
+    // Check if field is used in select, default to id
     var usingField = [{value:"id", type:"string"}];
     var showUsingField = ["ID"];
 
@@ -1175,20 +1175,19 @@ exports.setupRelatedToField = function (attr, callback) {
     if (typeof attr.options.showUsingField !== "undefined")
         showUsingField = attr.options.showUsingField;
 
+    var usingList = [], usingOption = [];
+    for(var i=0; i<usingField.length; i++) {
+        usingList.push(usingField[i].value);
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+    }
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-    select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
-    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+    select += '     <select style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+    select += "         <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}">';
-    for(var i=0; i<usingField.length; i++){
-        select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-        if(i != usingField.length - 1)
-            select += " - ";
-    }
-    select += '</option>\n';
+    select += '             <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1197,33 +1196,6 @@ exports.setupRelatedToField = function (attr, callback) {
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
     updateFile(fileBase, file, select, function () {
-
-        // Setup association field for update_fields
-        select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-        select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += "     <option value=''>{@__ key=\"select.default\" /}</option>\n";
-        select += '     <!--{#' + alias + '_global_list}-->\n';
-        select += '         <!--{@eq key=' + alias + '.id value=id}-->\n';
-        select += '             <option value="{id}" selected>';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{:else}-->\n';
-        select += '             <option value="{id}">';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{/eq}-->\n';
-        select += '     <!--{/' + alias + '_global_list}-->\n';
-        select += '</select>\n';
-        select += '</div>\n</div>\n';
 
         file = 'update_fields';
         // Update update_fields file
@@ -1319,19 +1291,19 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     if (typeof attr.options.showUsingField !== "undefined")
         showUsingField = attr.options.showUsingField;
 
+    var usingList = [], usingOption = [];
+    for(var i=0; i<usingField.length; i++) {
+        usingList.push(usingField[i].value);
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+    }
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-    select += '     <select multiple style="width:100%;" class="form-control" name="' + alias + '">\n';
+    select += '     <select multiple style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}">';
-    for(var i=0; i<usingField.length; i++){
-        select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-        if(i != usingField.length - 1)
-            select += " - ";
-    }
-    select += '</option>\n';
+    select += '            <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1340,31 +1312,6 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
     updateFile(fileBase, file, select, function () {
-
-        select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-        select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += '     <!--{#' + alias + '_global_list}-->\n';
-        select += '         <!--{@inArray field="id" array=' + alias + ' value=id}-->\n';
-        select += '             <option value="{id}" selected>';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{:else}-->\n';
-        select += '             <option value="{id}">';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{/inArray}-->\n';
-        select += '     <!--{/' + alias + '_global_list}-->\n';
-        select += '</select>\n';
-        select += '</div>\n</div>\n';
 
         file = 'update_fields';
         // Update update_fields file

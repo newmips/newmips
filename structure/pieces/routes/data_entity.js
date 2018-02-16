@@ -155,23 +155,13 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-
-        var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
-        res.render(view, data);
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
+    var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
+    res.render(view, data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    //createObject = enums.values("ENTITY_NAME", createObject, req.body);
 
     models.MODEL_NAME.create(createObject).then(function (ENTITY_NAME) {
         var redirect = '/ENTITY_URL_NAME/show?id='+ENTITY_NAME.id;
@@ -239,44 +229,17 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: [{all: true}]}).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, raw: true, include: [{all: true}]}).then(function (ENTITY_NAME) {
-            if (!ENTITY_NAME) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
-
-            data.ENTITY_NAME = ENTITY_NAME;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can find adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.ENTITY_NAME[name_global_list] = rows;
-
-                // Set associated property to item that are related to be able to make them selected client side
-                if (rows.length > 1)
-                    for (var j = 0; j < data[model].length; j++)
-                        if (ENTITY_NAME[model] != null)
-                            for (var k = 0; k < ENTITY_NAME[model].length; k++)
-                                if (data[model][j].id == ENTITY_NAME[model][k].id)
-                                    data[model][j].dataValues.associated = true;
-            }
-
-            if (req.query.ajax)
-                res.render('ENTITY_NAME/update_fields', ENTITY_NAME);
-            else
-                res.render('ENTITY_NAME/update', data);
-        }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
-        });
+        data.ENTITY_NAME = ENTITY_NAME;
+        if (req.query.ajax)
+            res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
+        else
+            res.render('ENTITY_NAME/update', data);
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
     });
