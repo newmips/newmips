@@ -99,7 +99,7 @@ $.fn.gridEditor = function( options ) {
             var wrapper = $('<div class="ge-wrapper ge-top" />').appendTo(mainControls);
 
             // Add row
-            /*addRowGroup = $('<div class="ge-addRowGroup btn-group" />').appendTo(wrapper);
+            addRowGroup = $('<div class="ge-addRowGroup btn-group" />').appendTo(wrapper);
             $.each(settings.new_row_layouts, function(j, layout) {
                 var btn = $('<a class="btn btn-xs btn-primary" />')
                     .attr('title', 'Add row ' + layout.join('-'))
@@ -122,7 +122,7 @@ $.fn.gridEditor = function( options ) {
                 });
                 icon += '</div>';
                 btn.append(icon);
-            });*/
+            });
 
             // Buttons on right
             var layoutDropdown = $('<div class="dropdown pull-right ge-layout-mode">' +
@@ -250,24 +250,28 @@ $.fn.gridEditor = function( options ) {
                 if (row.find('> .ge-tools-drawer').length) { return; }
 
                 var drawer = $('<div class="ge-tools-drawer" />').prependTo(row);
-                /*createTool(drawer, 'Move', 'ge-move', 'glyphicon-move');
-                createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
+                createTool(drawer, 'Move', 'ge-move', 'glyphicon-move');
+                /*createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
                     details.toggle();
-                });
+                });*/
                 settings.row_tools.forEach(function(t) {
                     createTool(drawer, t.title || '', t.className || '', t.iconClass || 'glyphicon-wrench', t.on);
                 });
                 createTool(drawer, 'Remove row', '', 'glyphicon-trash', function() {
-                    if (window.confirm('Delete row?')) {
-                        row.slideUp(function() {
-                            row.remove();
-                        });
+                    if(row.find("div[data-field]").length > 0){
+                        window.alert("Cannot delete row because it contains a field ! Please move the field before deleting the row.")
+                    } else {
+                        if (window.confirm('Delete row?')) {
+                            row.slideUp(function() {
+                                row.remove();
+                            });
+                        }
                     }
-                });*/
-                createTool(drawer, 'Add empty space column', 'ge-add-column', 'glyphicon-plus-sign', function() {
+                });
+                /*createTool(drawer, 'Add empty space column', 'ge-add-column', 'glyphicon-plus-sign', function() {
                     row.append(createColumn(6));
                     init();
-                });
+                });*/
 
                 var details = createDetails(row, settings.row_classes).appendTo(drawer);
             });
@@ -319,24 +323,32 @@ $.fn.gridEditor = function( options ) {
                     createTool(drawer, t.title || '', t.className || '', t.iconClass || 'glyphicon-wrench', t.on);
                 });
 
-                createTool(drawer, 'Remove col', '', 'glyphicon-trash', function() {
-                    if (window.confirm('Delete column?')) {
-                        col.animate({
-                            opacity: 'hide',
-                            width: 'hide',
-                            height: 'hide'
-                        }, 400, function() {
-                            col.remove();
-                        });
-                    }
-                });
+                if(typeof col.attr("data-field") === "undefined" || col.attr("data-field") == ""){
+                    createTool(drawer, 'Remove col', '', 'glyphicon-trash', function() {
+                        if(col.find("div[data-field]").length > 0){
+                            window.alert("Cannot delete column because it contains a field ! Please move the field before deleting the column.")
+                        } else {
+                            if (window.confirm('Delete column?')) {
+                                col.animate({
+                                    opacity: 'hide',
+                                    width: 'hide',
+                                    height: 'hide'
+                                }, 400, function() {
+                                    col.remove();
+                                });
+                            }
+                        }
+                    });
+                }
 
-                /*createTool(drawer, 'Add row', 'ge-add-row', 'glyphicon-plus-sign', function() {
-                    var row = createRow();
-                    col.append(row);
-                    row.append(createColumn(6)).append(createColumn(6));
-                    init();
-                });*/
+                if(typeof col.attr("data-field") === "undefined" || col.attr("data-field") == ""){
+                    createTool(drawer, 'Add row', 'ge-add-row', 'glyphicon-plus-sign', function() {
+                        var row = createRow();
+                        col.append(row);
+                        row.append(createColumn(6)).append(createColumn(6));
+                        init();
+                    });
+                }
 
                 var details = createDetails(col, settings.col_classes).appendTo(drawer);
             });
