@@ -53,6 +53,31 @@ router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware
     });
 });
 
+router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
+    var source = req.params.source;
+    var id = req.params.id;
+
+    models[entity_helper.capitalizeFirstLetter(source)].findOne({
+        where: {id: id},
+        include: [{all: true, eager: true}]
+    }).then(function(dustData){
+        // Open and render dust file
+        var file = fs.readFileSync(__dirname+'/../views/'+source+'/print_fields.dust', 'utf8');
+        dust.renderSource(file, dustData || {}, function(err, rendered) {
+            if (err) {
+                console.error(err);
+                return res.status(500).end();
+            }
+
+            // Send response to ajax request
+            res.json({
+                content: rendered,
+                option: {structureType: 'print'}
+            });
+        });
+    });
+});
+
 router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
     res.render('common/unauthorized');
 });

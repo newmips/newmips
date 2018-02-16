@@ -290,9 +290,14 @@ app.use(function(req, res, next) {
         	locals.notifications = notifications.rows;
 
 	        // Load inline-help when rendering create or update page
-	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1) {
+	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
 	    		var entityName = view.split('/')[0];
-	    		models.E_inline_help.findAll({where: {f_entity: entityName}}).then(function(helps) {
+	    		var options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
+	    		var entityList = [entityName];
+	    		for (var i = 0; i < options.length; i++)
+	    			entityList.push(options[i].target);
+
+	    		models.E_inline_help.findAll({where: {f_entity: {$in: entityList}}}).then(function(helps) {
 	    			dust.helpers.inline_help = function(ch, con, bod, params){
 	    				for (var i = 0; i < helps.length; i++) {
 	    					if (params.field == helps[i].f_field)

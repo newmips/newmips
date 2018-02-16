@@ -14,6 +14,7 @@ function handleError(error, par2, par3) {
         console.error(error, par2, par3);
     }
 }
+
 function buildAssociationHref(tab) {
     var associationData = {
         associationAlias: tab.data('asso-alias'),
@@ -28,7 +29,34 @@ function buildAssociationHref(tab) {
     return href+'ajax=true';
 }
 
-function select2_ajaxsearch(select, data) {
+function bindFieldsetForm(tab, data) {
+    tab.find('.fieldsetform').each(function() {
+        $(this).submit(function() {
+            var alias = $(this).parents('.tab-pane').attr('id');
+            var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
+            var reqData = $(this).serialize();
+            reqData += '&idEntity='+data.sourceId;
+            var form = this;
+            $.ajax({
+                url: url,
+                method: 'post',
+                data: reqData,
+                success:function() {
+                    /* tables is a global var comming from simpleTable.js */
+                    tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
+                },
+                error: handleError
+            });
+            return false;
+        });
+    });
+}
+
+function reloadTab(tab) {
+    $('#'+tab.attr('id')+'-click').click();
+}
+
+function select2_fieldset(select, data) {
     var searchField = data.option.usingField || ['id'];
     select.select2({
         ajax: {
@@ -64,37 +92,14 @@ function select2_ajaxsearch(select, data) {
     });
 }
 
-function bindFieldsetForm(tab, data) {
-    tab.find('.fieldsetform').each(function() {
-        $(this).submit(function() {
-            var alias = $(this).parents('.tab-pane').attr('id');
-            var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
-            var reqData = $(this).serialize();
-            reqData += '&idEntity='+data.sourceId;
-            var form = this;
-            $.ajax({
-                url: url,
-                method: 'post',
-                data: reqData,
-                success:function() {
-                    /* tables is a global var comming from simpleTable.js */
-                    tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
-                },
-                error: handleError
-            });
-            return false;
-        });
-    });
-}
-
-function reloadTab(tab) {
-    $('#'+tab.attr('id')+'-click').click();
-}
-
 function bindTabActions(tab, data) {
     // Handle form submition and tab reload
     function ajaxForm(form) {
         form.on('submit', function(e) {
+            if (!validateForm(form))
+                return false;
+            console.log(validateForm(form));
+            console.log("SUBMITING FROM SHOW.JS");
             $.ajax({
                 url: $(this).attr('action')+'?ajax=true',
                 method: 'post',
@@ -152,7 +157,6 @@ function bindTabActions(tab, data) {
     });
     // Bind each new form
     tab.find('form:not(".fieldsetform"):not(".componentFileDownloadForm"):not(".component-form")').each(function(){
-        console.log($(this).attr('class'));
         ajaxForm($(this));
     });
 }
@@ -211,7 +215,7 @@ function initHasManyPreset(tab, data) {
     tab.find('.ajax-content').html(fieldsetForm);
 
     // Select2 search for fieldset
-    select2_ajaxsearch(tab.find('select:eq(0)'), data);
+    select2_fieldset(tab.find('select:eq(0)'), data);
 
     // Display list
     tab.find('.ajax-content').append(data.content);
@@ -231,6 +235,15 @@ function initLocalFileStorage(tab, data) {
     simpleTable(tab.find('table'));
 }
 
+// PRINT
+function initPrint(tab, data) {
+    tab.find('.ajax-content').html(data.content);
+    tab.find('.filters').remove();
+    tab.find('table').each(function(){
+        simpleTable($(this));
+    });
+}
+
 // INITIALIZE
 $(function() {
     // Tab click, load and bind tab content
@@ -241,13 +254,25 @@ $(function() {
         var id = $("input[name=sourceId]").val();
         var source = $("input[name=sourceName]").val().substring(2);
         var subentityAlias = tab.prop('id');
+
+        // Build url. Special url for print tab
+        var url = tab.data('tabtype') == 'print'
+            ? '/default/print/'+tab.data('asso-source')+'/'+id
+            : '/'+source+'/loadtab/'+id+'/'+subentityAlias+buildAssociationHref(tab);
+
+        // Loading icon until ajax callback
+        tab.find('.ajax-content').html('<i class="fa fa-spin fa-spinner fa-3x" style="margin-left: 150px; margin-top: 50px;"></i>');
         $.ajax({
-            url: '/'+source+'/loadtab/'+id+'/'+subentityAlias+buildAssociationHref(tab),
+            url: url,
             success: function(data) {
-                location.hash = tab.attr('id');
-                tab.find('.ajax-content').html('');
                 data.sourceId = id;
                 data.sourceName = source;
+
+                // Set tab hash to URL
+                location.hash = tab.attr('id');
+
+                // Clear tab content
+                tab.find('.ajax-content').html('');
 
                 // Build tab content
                 if (data.option.structureType == 'hasOne')
@@ -258,9 +283,13 @@ $(function() {
                     initHasManyPreset(tab, data);
                 else if (data.option.structureType == 'localfilestorage')
                     initLocalFileStorage(tab, data);
+                else if (data.option.structureType == 'print')
+                    initPrint(tab, data);
                 else
                     console.error("Bad structureType in option");
 
+                // Init form and td
+                initForm(tab);
                 // Bind tab actions
                 bindTabActions(tab, data);
             },
@@ -268,6 +297,7 @@ $(function() {
                 if (pa1.status == 404)
                     return toastr.error('Unable to find '+subentityAlias);
                 console.error(pa1, pa2, pa3);
+                tab.find('.ajax-content').html('<i class="fa fa-exclamation-triangle fa-3x" style="color:red;margin-left: 150px; margin-top: 50px;"></i>');
             }
         });
     });
