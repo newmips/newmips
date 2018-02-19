@@ -91,6 +91,8 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode){
 						}
 
 						currentHtmlBis("div[data-field]").each(function() {
+							if(typeof saveDataField[currentHtmlBis(this).attr("data-field")] === "undefined")
+								console.log("ERROR: cannot find field "+currentHtmlBis(this).attr("data-field")+" in apply all UI designer function, it won't be restitute correctly !")
 							currentHtmlBis(this).html(saveDataField[currentHtmlBis(this).attr("data-field")]);
 						});
 
