@@ -333,8 +333,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 if (!empty) {
                     idSubentity = ENTITY_URL_NAME[option.as].id;
                     ENTITY_URL_NAME[option.as].hideTab = true;
+                    dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                 }
-                dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                 dustFile = option.target+'/show_fields';
             break;
 

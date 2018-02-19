@@ -95,64 +95,47 @@ router.post('/change_language', block_access.isLoggedIn, function (req, res) {
 /* Dropzone FIELD ajax upload file */
 router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     upload(req, res, function (err) {
-        if (!err) {
-            if (req.body.storageType == 'local') {
-                var folder = req.file.originalname.split('-');
-                var dataEntity = req.body.dataEntity;
-                if (folder.length > 1 && !!dataEntity) {
-                    var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
-                    fse.mkdirs(basePath, function (err) {
-                        if (!err) {
-                            var uploadPath = basePath + req.file.originalname;
-                            var outStream = fs.createWriteStream(uploadPath);
-                            outStream.write(req.file.buffer);
-                            outStream.end();
-                            outStream.on('finish', function (err) {
-                                res.json({
-                                    success: true
-                                });
-                            });
-                            if (req.body.dataType == 'picture') {
-                                //We make thumbnail and reuse it in datalist
-                                basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
-                                fse.mkdirs(basePath, function (err) {
-                                    if (!err) {
-                                        Jimp.read(uploadPath, function (err, imgThumb) {
-                                            if (!err) {
-                                                imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
-                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality
-                                                        .write(basePath + req.file.originalname);
-                                            } else {
-                                                console.log(err);
-                                            }
-                                        });
-                                    } else {
-                                        console.log(err);
-                                    }
-                                });
-                            }
-                        } else{
-                            console.log(err);
-                            res.status(500).end(err);
-                        }
-                    });
-                } else{
-                    var err = new Error();
-                    err.message = 'Internal error, entity not found.';
-                    res.status(500).end(err);
-                }
-            } else if (req.body.storageType == 'cloud') {
-                var err = new Error();
-                err.message = 'Internal error, cloud file are not available.';
-                res.status(500).end(err);
-            } else{
-                var err = new Error();
-                err.message = 'Storage type not found.';
-                res.status(500).end(err);
-            }
-        } else{
+        if (err) {
             console.log(err);
-            res.status(500).end(err);
+            return res.status(500).end(err);
+        }
+        var folder = req.file.originalname.split('-');
+        var dataEntity = req.body.dataEntity;
+        if (folder.length > 1 && !!dataEntity) {
+            var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
+            fse.mkdirs(basePath, function (err) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).end(err);
+                }
+                var uploadPath = basePath + req.file.originalname;
+                var outStream = fs.createWriteStream(uploadPath);
+                outStream.write(req.file.buffer);
+                outStream.end();
+                outStream.on('finish', function (err) {
+                    res.json({
+                        success: true
+                    });
+                });
+
+                if (req.body.dataType == 'picture') {
+                    //We make thumbnail and reuse it in datalist
+                    basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
+                    fse.mkdirs(basePath, function (err) {
+                        if (err)
+                            return console.log(err);
+
+                        Jimp.read(uploadPath, function (err, imgThumb) {
+                            if (err)
+                                return console.log(err);
+
+                            imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
+                                    .quality(globalConf.thumbnail.quality)
+                                    .write(basePath + req.file.originalname);
+                        });
+                    });
+                }
+            });
         }
     });
 });

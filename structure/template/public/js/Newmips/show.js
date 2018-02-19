@@ -98,8 +98,6 @@ function bindTabActions(tab, data) {
         form.on('submit', function(e) {
             if (!validateForm(form))
                 return false;
-            console.log(validateForm(form));
-            console.log("SUBMITING FROM SHOW.JS");
             $.ajax({
                 url: $(this).attr('action')+'?ajax=true',
                 method: 'post',
