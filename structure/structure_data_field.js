@@ -1224,7 +1224,7 @@ exports.setupRelatedToField = function (attr, callback) {
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+    select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
     select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
@@ -1246,7 +1246,7 @@ exports.setupRelatedToField = function (attr, callback) {
 
         // Setup association field for update_fields
         select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+        select += '<label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
         select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
         select += "     <option value=''>{@__ key=\"select.default\" /}</option>\n";
         select += '     <!--{#' + alias + '_global_list}-->\n';
@@ -1281,7 +1281,7 @@ exports.setupRelatedToField = function (attr, callback) {
 
                 // Add read only field in show file. No tab required
                 var str = "";
-                str = "<div data-field='" + alias + "' class='col-xs-12'>\n<div class='form-group'>\n";
+                str = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
                 str += "    <label for='" + alias + "'> {@__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
                 str += "    <input class='form-control input' placeholder='{@__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='";
                 for(var i=0; i<usingField.length; i++){
