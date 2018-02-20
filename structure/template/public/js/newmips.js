@@ -1,3 +1,6 @@
+var dropzonesFieldArray = [];
+var dropzonesComponentArray = [];
+Dropzone.autoDiscover = false;
 
 function select2_ajaxsearch(select) {
     var searchField = select.data('using').split(',');
@@ -37,7 +40,6 @@ function select2_ajaxsearch(select) {
 }
 
 // INIT FORM
-var dropzonesFieldArray = [];
 function initForm(context) {
     if (!context)
         context = document;
@@ -418,9 +420,6 @@ function initForm(context) {
 }
 
 // DROPZONE
-var dropzonesComponentArray = [];
-/* Avoid .dropzone to be automaticaly initialized */
-Dropzone.autoDiscover = false;
 function initDropZone(context) {
     if (!context)
         context = document;
@@ -490,14 +489,16 @@ function initPrint() {
             $(this).remove();
     });
 
-     $(".print-tab a:not([href=''])").each(function() {
-        if($(this).text() == "")
-            if($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
-                $(this).replaceWith("Aucun fichier");
+    $(".print-tab a:not([href=''])").each(function() {
+        if ($(this).find("img").length == 0) {
+            if ($(this).text() == "")
+                if ($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
+                    $(this).replaceWith("Aucun fichier");
+                else
+                    $(this).replaceWith("-");
             else
-                $(this).replaceWith("-");
-        else
-            $(this).replaceWith($(this).text());
+                $(this).replaceWith($(this).text());
+        }
     });
 
      $(".print-tab select[multiple]").each(function() {
@@ -575,17 +576,10 @@ function validateForm(form) {
                     return true;
         return false;
     }
-
-    // If there are files to write, block submition until files are uploaded
+    // If there are files to upload, block submition until files are uploaded
     if (isFileProcessing()) {
-        for (var i = 0; i < dropzonesFieldArray.length; i++) {
-            // Prevent sent file if mockfile
-            if (dropzonesFieldArray[i].files[0].type != 'mockfile') {
-                var dropzone = dropzonesFieldArray[i];
-                dropzone.processQueue();
-            }
-        }
-        return validateForm(form);
+        toastr.warning("Des images sont en telechargement, veuillez patienter un instant");
+        return false;
     }
 
     /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */

@@ -234,12 +234,14 @@ function initLocalFileStorage(tab, data) {
 }
 
 // PRINT
-function initPrint(tab, data) {
+function initPrintTab(tab, data) {
     tab.find('.ajax-content').html(data.content);
     tab.find('.filters').remove();
     tab.find('table').each(function(){
         simpleTable($(this));
     });
+    initForm(tab);
+    initPrint();
 }
 
 // INITIALIZE
@@ -255,7 +257,7 @@ $(function() {
 
         // Build url. Special url for print tab
         var url = tab.data('tabtype') == 'print'
-            ? '/default/print/'+tab.data('asso-source')+'/'+id
+            ? '/default/print/'+source+'/'+id
             : '/'+source+'/loadtab/'+id+'/'+subentityAlias+buildAssociationHref(tab);
 
         // Loading icon until ajax callback
@@ -282,7 +284,7 @@ $(function() {
                 else if (data.option.structureType == 'localfilestorage')
                     initLocalFileStorage(tab, data);
                 else if (data.option.structureType == 'print')
-                    initPrint(tab, data);
+                    initPrintTab(tab, data);
                 else
                     console.error("Bad structureType in option");
 

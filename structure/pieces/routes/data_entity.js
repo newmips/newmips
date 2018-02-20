@@ -139,10 +139,12 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
-        entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
-        res.render('ENTITY_NAME/show', data);
-
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
+            entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
+            res.render('ENTITY_NAME/show', data);
+        }).catch(function (err) {
+            entity_helper.error500(err, req, res, "/");
+        });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
     });
@@ -244,10 +246,15 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         }
 
         data.ENTITY_NAME = ENTITY_NAME;
-        if (req.query.ajax)
-            res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
-        else
-            res.render('ENTITY_NAME/update', data);
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
+            if (req.query.ajax)
+                res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
+            else
+                res.render('ENTITY_NAME/update', data);
+        }).catch(function (err) {
+            entity_helper.error500(err, req, res, "/");
+        });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
     });
@@ -325,7 +332,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 
         var dustData = ENTITY_URL_NAME[option.as];
         var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-        var dustFile, idSubentity;
+        var dustFile, idSubentity, promisesData = [];
 
         // Build tab specific variables
         switch (option.structureType) {
@@ -334,6 +341,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     idSubentity = ENTITY_URL_NAME[option.as].id;
                     ENTITY_URL_NAME[option.as].hideTab = true;
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
+                    promisesData.push(entity_helper.getPicturesBuffers(ENTITY_URL_NAME[option.as], option.target));
                 }
                 dustFile = option.target+'/show_fields';
             break;
@@ -361,21 +369,27 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 return res.status(500).end();
         }
 
-        // Open and render dust file
-        var file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
-        dust.renderSource(file, dustData || {}, function(err, rendered) {
-            if (err) {
-                console.error(err);
-                return res.status(500).end();
-            }
+        // Image buffer promise
+        Promise.all(promisesData).then(function() {
+            // Open and render dust file
+            var file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
+            dust.renderSource(file, dustData || {}, function(err, rendered) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end();
+                }
 
-            // Send response to ajax request
-            res.json({
-                content: rendered,
-                data: idSubentity || {},
-                empty: empty,
-                option: option
+                // Send response to ajax request
+                res.json({
+                    content: rendered,
+                    data: idSubentity || {},
+                    empty: empty,
+                    option: option
+                });
             });
+        }).catch(function(err) {
+            console.error(err);
+            res.status(500).send(err);
         });
     }).catch(function(err) {
         console.error(err);
