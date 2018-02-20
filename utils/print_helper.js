@@ -6,6 +6,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
+            content += '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n';
             content += "<div id='"+targetAlias+"_print' class='dontbreakitplz row'>\n";
             content += "    <div class=\"col-xs-12\">\n";
             content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
@@ -15,6 +16,7 @@ module.exports = {
             content += '        {#'+targetAlias+'}{>"' + target + '/print_fields" /}{/'+targetAlias+'}\n';
             content += "    </div>\n";
             content += "</div>\n";
+            content += '<!--{/entityAccess}-->\n';
             domHelper.read(sourceTemplatePath).then(function ($) {
                 $(".dontbreakitplz:last-child").after(content);
                 domHelper.write(sourceTemplatePath, $).then(resolve);
@@ -25,6 +27,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
+            content += '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n';
             content += "<div id='"+targetAlias+"_print' class=\"dontbreakitplz row\">\n";
             content += "    <div class=\"col-xs-12\">\n";
             content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
@@ -41,6 +44,7 @@ module.exports = {
             content += '    </div>\n';
             content += '<br>\n';
             content += '</div>\n';
+            content += '<!--{/entityAccess}-->\n';
             domHelper.read(sourceTemplatePath).then(function ($) {
                 $(".dontbreakitplz:last-child").after(content);
                 domHelper.write(sourceTemplatePath, $).then(resolve);
@@ -51,6 +55,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = ""+
+            '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n'+
             "<div id='"+componentName+"_print' class='dontbreakitplz row'>\n"+
             "    <div class=\"col-xs-12\">\n"+
             "        <h3><!--{@__ key=\"component."+componentName+".label_component\" /}--></h3>\n"+
@@ -74,7 +79,8 @@ module.exports = {
             "           </tbody>\n"+
             "       </table>\n"+
             "   </div>\n"+
-            "</div>\n";
+            "</div>\n"+
+            "<!--{/entityAccess}-->\n"
             domHelper.read(sourceTemplatePath).then(function ($) {
                 $(".dontbreakitplz:last-child").after(content);
                 domHelper.write(sourceTemplatePath, $).then(resolve);

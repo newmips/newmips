@@ -11,6 +11,8 @@ var crypto = require('../utils/crypto_helper');
 var upload = multer().single('file');
 var models = require('../models/');
 var Jimp = require("jimp");
+var entity_helper = require('../utils/entity_helper');
+var dust = require('dustjs-linkedin');
 
 // ===========================================
 // Redirection Home =====================
@@ -22,6 +24,34 @@ router.get('/status', function(req, res) {
 });
 
 // *** Dynamic Module | Do not remove ***
+
+// m_administration
+router.get('/administration', block_access.isLoggedIn, block_access.moduleAccessMiddleware("administration"), function(req, res) {
+    var widgetPromises = [];
+    // *** Widget module m_administration | Do not remove ***
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_administration', data);
+    });
+});
+
+
+// m_home
+router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function(req, res) {
+    var widgetPromises = [];
+    // *** Widget module m_home | Do not remove ***
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_home', data);
+    });
+});
+
 
 // m_authentication
 router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
@@ -57,22 +87,33 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
     var source = req.params.source;
     var id = req.params.id;
 
-    models[entity_helper.capitalizeFirstLetter(source)].findOne({
+    models['E_'+source].findOne({
         where: {id: id},
         include: [{all: true, eager: true}]
     }).then(function(dustData){
-        // Open and render dust file
-        var file = fs.readFileSync(__dirname+'/../views/'+source+'/print_fields.dust', 'utf8');
-        dust.renderSource(file, dustData || {}, function(err, rendered) {
-            if (err) {
-                console.error(err);
-                return res.status(500).end();
-            }
+        var sourceOptions;
+        try {
+            sourceOptions = JSON.parse(fs.readFileSync(__dirname+'/../models/options/e_'+source+'.json', 'utf8'));
+        } catch(e) {res.status(500).end()}
 
-            // Send response to ajax request
-            res.json({
-                content: rendered,
-                option: {structureType: 'print'}
+        imagePromises = [];
+        for (var i = 0; i < sourceOptions.length; i++)
+            imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as], sourceOptions[i].target));
+
+        Promise.all(imagePromises).then(function() {
+            // Open and render dust file
+            var file = fs.readFileSync(__dirname+'/../views/e_'+source+'/print_fields.dust', 'utf8');
+            dust.renderSource(file, dustData || {}, function(err, rendered) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end();
+                }
+
+                // Send response to ajax request
+                res.json({
+                    content: rendered,
+                    option: {structureType: 'print'}
+                });
             });
         });
     });

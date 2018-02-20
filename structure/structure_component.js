@@ -318,7 +318,7 @@ exports.newPrint = function(attr, callback){
 		var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
 
         var tabContent = "";
-        tabContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
+        tabContent += "<div id='"+nameComponentLower+"' class='tab-pane fade' data-tabtype='print'>\n";
         tabContent += "     <style>";
         tabContent += "        @page { size: auto;  margin: 0mm; }";
         tabContent += "        @media print {";
@@ -376,8 +376,7 @@ exports.newPrint = function(attr, callback){
         tabContent += "        }";
         tabContent += "     </style>\n";
         tabContent += "     <button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
-        tabContent += "     <div id='"+nameComponent+"-content' class='print-tab'>\n";
-        tabContent += "         {>\""+entityLower+"/print_fields\"/}\n";
+        tabContent += "     <div id='"+nameComponent+"-content' class='ajax-content print-tab'>\n";
 		tabContent += "     </div>\n";
 		tabContent += "</div>\n";
 
