@@ -115,7 +115,10 @@ function bindTabActions(tab, data) {
 
     // Load a create or update form. Bind buttons (create/update)
     tab.find('a.ajax').click(function(e) {
+        // Don't reload page
         e.stopPropagation();
+        // Don't change URL hash
+        e.preventDefault();
         var href = $(this).data('href');
         var id = $(this).data('id');
         $.ajax({

@@ -103,7 +103,8 @@
     	"next": "Next",
     	"close": "Close",
     	"cancel": "Cancel",
-    	"return": "Return"
+    	"return": "Return",
+    	"delete_confirm": "Are you sure you want to delete this file ?"
 	},
 	"operation": {
 		"show": "Show",
@@ -133,7 +134,8 @@
 	"entity": {},
 	"global_component": {
 		"local_file_storage": {
-			"filename": "Filename"
+			"filename": "Filename",
+			"wait_upload": "Some file(s) are still uploading, please wait a moment and save again"
 		},
 		"contact_form": {
 			"firstname": "Firstname",

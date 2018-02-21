@@ -63,6 +63,7 @@
                 var lang_user = "{lang_user}";
                 var id_user = "{session.passport.user.id}";
                 var SELECT_DEFAULT_TEXT = '{@__ key="select.default" /}';
+                var WAIT_UPLOAD_TEXT = '{@__ key="global_component.local_file_storage.wait_upload" /}';
             </script>
             <header class="main-header">
                 <a href="/default/home" class="logo">
