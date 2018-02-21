@@ -244,7 +244,7 @@ var funcs = {
             res.status(data.code).render('common/error', data);
         }
     },
-    getPicturesBuffers: function(entity, modelName)  {
+    getPicturesBuffers: function(entity, modelName, isThumbnail)  {
         return new Promise(function(resolve, reject) {
             var attributes;
             try {
@@ -261,6 +261,8 @@ var funcs = {
                             if (partOfValue.length <= 1)
                                 return resolveBuf();
                             var path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
+                            if (isThumbnail)
+                                path = 'thumbnail/'+path;
                             file_helper.getFileBuffer64(path, function(success, buffer) {
                                 entity.dataValues[keyCopy] = {
                                     value: value,
