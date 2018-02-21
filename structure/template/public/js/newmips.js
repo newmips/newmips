@@ -1,3 +1,4 @@
+var maskMoneyPrecision = 2;
 var dropzonesFieldArray = [];
 var dropzonesComponentArray = [];
 Dropzone.autoDiscover = false;
@@ -47,6 +48,7 @@ function initForm(context) {
     $("select.ajax", context).each(function() {
         select2_ajaxsearch($(this));
     });
+    $("select:not(.ajax)", context).select2();
 
     /* Display color td with fa classes instead of color value */
     $("td[data-type=color]", context).each(function() {
@@ -584,7 +586,7 @@ function validateForm(form) {
     }
     // If there are files to upload, block submition until files are uploaded
     if (isFileProcessing()) {
-        toastr.warning("Des images sont en telechargement, veuillez patienter un instant");
+        toastr.warning(WAIT_UPLOAD_TEXT);
         return false;
     }
 
@@ -820,7 +822,6 @@ $(document).ready(function () {
     });
 
     /* --------------- Toastr messages --------------- */
-    var maskMoneyPrecision = 2;
     try {
         toastr.options = {
             "closeButton": false,
