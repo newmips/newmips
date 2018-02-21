@@ -247,7 +247,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
             if (req.query.ajax)
                 res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
             else
@@ -350,9 +350,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
             case 'hasManyPreset':
                 dustFile = option.target+'/list_fields';
                 var obj = {};
-                obj['e'+option.as.substring(1)] = dustData; // From `r_alias` to `e_alias` because list_fields loop over `e_alias`
+                obj[option.target] = dustData;
                 dustData = obj;
                 dustData.for = option.structureType == 'hasMany' ? 'hasMany' : 'fieldset';
+                for (var i = 0; i < dustData[option.target].length; i++)
+                    promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
                 if (typeof req.query.associationFlag !== 'undefined')
                     {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
             break;

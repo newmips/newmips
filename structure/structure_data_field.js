@@ -110,12 +110,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "code39":
         case "alpha39":
         case "code128":
-        //case "codecip":
-        //case "cip":
-        //case "isbn":
-        //case "issn":
-        //case "hr":
-        //case "codehr":
             var inputType = 'number';
             if (type === "code39" || type === "alpha39" || type === "code128")
                 inputType = 'text';
@@ -401,7 +395,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "photo":
             if (file != 'show') {
                 str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{"+value2+".buffer}\"/>\n";
             }
             else {
                 str += "	<div class='input-group'>\n";
@@ -433,13 +427,18 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
     str += '</th>\n';
     ret.headers = str;
+
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
     str = '<td data-field="' + dataField + '"';
-    str += ' data-type="' + type + '"';
+    str += ' data-type="' + type + '">';
     if (type == "text")
-        str += ' >{' + dataField + '|s}</td>';
+        str += '{' + dataField + '|s}';
+    else if (type == 'picture')
+        str += '<img src="data:image/;base64,{'+dataField+'.buffer}" class="img img-responsive" data-type="picture" name="'+dataField+'" readonly="">';
     else
-        str += ' >{' + dataField + '}</td>';
+        str += '{' + dataField + '}';
+    str += '</td>';
+
     ret.body = str;
     return ret;
 }

@@ -174,7 +174,7 @@ function initForm(context) {
     $('img[data-type="picture"]', context).each(function() {
         var src = $(this).attr('src');
         //remove all pictures with null src value
-        if (typeof src != 'undefined' && src.split(',')[1] == '') {
+        if (typeof src !== 'undefined' && src.split(',')[1] == '') {
             var msg = 'No image selected';
             if (lang_user == 'fr-FR')
                 msg = 'Aucune image choisie';
@@ -342,11 +342,23 @@ function initForm(context) {
             dictCancelUpload: "Annuler",
             autoDiscover: false,
             init: function() {
+                var dropzoneId = that.attr('id');
+                if ($('#' + dropzoneId + '_hidden').val() != '') {
+                    var mockFile = {
+                        name: 'dfltImg_'+$('#' + dropzoneId + '_hidden').val(),
+                        type: 'mockfile',
+                        default: true
+                    };
+                    this.files.push(mockFile);
+                    this.emit('addedfile', mockFile);
+                    this.emit('thumbnail', mockFile, "data:image/;base64,"+$('#' + dropzoneId + '_hidden').data('buffer'));
+                }
+
                 this.on("addedfile", function() {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } else {
+                    } else if (!this.files[0].default) {
                         $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
                         $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
                     }
@@ -394,6 +406,8 @@ function initForm(context) {
                 });
             },
             renameFilename: function(filename) {
+                if (filename.indexOf('dfltImg_') != -1)
+                    return filename;
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
                     var timeFile = moment().format("YYYYMMDD-HHmmss");
                     $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
@@ -404,17 +418,7 @@ function initForm(context) {
         });
         if (type == 'picture')
             dropzoneInit.options.acceptedFiles = 'image/*';
-        var dropzoneId = $(this).attr('id') + '';
-        if ($('#' + dropzoneId + '_hidden').val() != '') {
-            var mockFile = {
-                name: $('#' + dropzoneId + '_hidden').val(),
-                type: 'mockfile'
-            };
-            dropzoneInit.files.push(mockFile);
-            dropzoneInit.emit('addedfile', mockFile);
-            dropzoneInit.emit('complete', mockFile);
-        }
-        dropzoneInit.done = false;
+
         dropzonesFieldArray.push(dropzoneInit);
     });
 }
@@ -572,8 +576,10 @@ function validateForm(form) {
     function isFileProcessing(){
         for (var i = 0; i < dropzonesFieldArray.length; i++)
             if (dropzonesFieldArray[i].files.length == 1)
-                if (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)
+                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
+                    console.log(dropzonesFieldArray[i].files[0]);
                     return true;
+                }
         return false;
     }
     // If there are files to upload, block submition until files are uploaded
