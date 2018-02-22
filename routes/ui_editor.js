@@ -49,6 +49,75 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 	});
 });
 
+function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode){
+	return new Promise(function(resolve, reject){
+		var pageFiles = ['create_fields.dust',  'update_fields.dust',  'show_fields.dust',  'print_fields.dust'];
+		var ctp = 0;
+
+		for(var i=0; i<pageFiles.length; i++){
+			if(pageFiles[i] != notPage){
+				var pageUri = __dirname+'/../workspace/'+idApp+'/views/'+entity+'/'+pageFiles[i];
+				(function(currentURI, currentPage, currentHtmlBis){
+					domHelper.read(currentURI).then(function($) {
+						var saveDataField = {};
+
+						$("div[data-field]").each(function() {
+							saveDataField[$(this).attr("data-field")] = $(this)[0].innerHTML;
+						});
+
+						if(currentPage == "print_fields.dust"){
+							currentHtmlBis("div[data-field]").each(function() {
+								var gridSize = "12";
+								var classes = currentHtmlBis(this).attr("class").split(" ");
+								switch(screenMode) {
+									case "Desktop":
+										gridSize = /col-md-([^ ]+)/.exec(currentHtmlBis(this).attr("class"))[1];
+										break;
+									case "Tablet":
+										gridSize = /col-sm-([^ ]+)/.exec(currentHtmlBis(this).attr("class"))[1];
+										break;
+									case "Phone":
+										gridSize = /col-xs-([^ ]+)/.exec(currentHtmlBis(this).attr("class"))[1];
+										break;
+								}
+
+								for(var i=0; i<classes.length; i++){
+									if(classes[i].indexOf("col-") != -1){
+										currentHtmlBis(this).removeClass(classes[i]);
+									}
+								}
+								currentHtmlBis(this).addClass("col-xs-"+gridSize);
+							});
+						}
+
+						currentHtmlBis("div[data-field]").each(function() {
+							if(typeof saveDataField[currentHtmlBis(this).attr("data-field")] === "undefined")
+								console.log("ERROR: cannot find field "+currentHtmlBis(this).attr("data-field")+" in apply all UI designer function, it won't be restitute correctly !")
+							currentHtmlBis(this).html(saveDataField[currentHtmlBis(this).attr("data-field")]);
+						});
+
+						// Find all rows and group them to be appended to #fields
+						var packedRow = '';
+						for (var i = 0; i < currentHtmlBis("body").children('.row').length; i++)
+							if (currentHtmlBis("body").children('.row').eq(i).html() != "")
+								packedRow += currentHtmlBis("body").children('.row').eq(i).html();
+
+						domHelper.insertHtml(currentURI, "#fields", packedRow).then(function() {
+							done(++ctp);
+						});
+					});
+				})(pageUri, pageFiles[i], currentHtml);
+			}
+		}
+
+		function done(cpt){
+			if(cpt == pageFiles.length - 1){
+				resolve();
+			}
+		}
+	});
+}
+
 router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
 	var page = req.params.page;
 	var generatorLanguage = language(req.session.lang_user);
@@ -81,6 +150,18 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			$(this).parent().removeClass('column').html(toExtract);
 		});
 
+		// If it's a print page we need to remove all col-sm, col-md and col-lg, only col-xs are used
+		if(page == "print_fields.dust"){
+			$("div[data-field]").each(function() {
+				var classes = $(this).attr("class").split(" ");
+				for(var i=0; i<classes.length; i++){
+					if(classes[i].indexOf("col-") != -1 && classes[i].indexOf("col-xs") == -1){
+						$(this).removeClass(classes[i]);
+					}
+				}
+			});
+		}
+
 		// Find all rows and group them to be appended to #fields
 		var packedRow = '';
 		for (var i = 0; i < $("body").children('.row').length; i++)
@@ -99,12 +180,24 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 			gitHelper.gitCommit(attr, function(err, infoGit){
 		        if(err)
 		        	console.log(err);
-		        res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
+		        if(req.body.applyAll == "true")
+		        	res.status(200).send(generatorLanguage.__("ui_editor.page_saved_all"));
+		        else
+		        	res.status(200).send(generatorLanguage.__("ui_editor.page_saved"));
 		    });
 		}
 
 		domHelper.insertHtml(pageUri, "#fields", packedRow).then(function() {
-			git();
+
+			// If the user ask to apply on all entity
+			if(req.body.applyAll == "true"){
+				applyToAllEntity($, page, entity, req.session.id_application, req.body.screenMode).then(function(){
+					git();
+				});
+			} else{
+
+				git();
+			}
 		});
 
 	}).catch(function(e) {

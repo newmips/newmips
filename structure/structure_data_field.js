@@ -66,7 +66,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
-    var str = "<div data-field='" + dataField + "' class='col-xs-12'>\n<div class='form-group'>\n";
+    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
     str += "\t<label for='" + dataField + "'>\n\t\t\t\t{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}\n";
     str += '\t\t\t\t&nbsp;{@inline_help field="'+dataField+'"}<i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}\n'
     str += "\t\t\t</label>\n"
@@ -1182,7 +1182,7 @@ exports.setupRelatedToField = function (attr, callback) {
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+    select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '     <select style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
     select += "         <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
@@ -1206,7 +1206,7 @@ exports.setupRelatedToField = function (attr, callback) {
 
                 // Add read only field in show file. No tab required
                 var str = "";
-                str = "<div data-field='" + alias + "' class='col-xs-12'>\n<div class='form-group'>\n";
+                str = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
                 str += "    <label for='" + alias + "'> {@__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
                 str += "    <input class='form-control input' placeholder='{@__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='";
                 for(var i=0; i<usingField.length; i++){
@@ -1298,7 +1298,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+    select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '     <select multiple style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
     select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
@@ -1317,7 +1317,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         updateFile(fileBase, file, select, function () {
 
             select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-            select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+            select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
             select += '     <select multiple disabled readOnly style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
             select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
             select += '         <!--{#' + alias + '}-->\n';
@@ -1329,6 +1329,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
+
                 $("#fields").append(select);
 
                 domHelper.write(file, $).then(function () {

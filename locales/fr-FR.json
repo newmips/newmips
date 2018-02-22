@@ -101,9 +101,12 @@
         "intro3": "Et vous pouvez appuyer sur F11 quand vous êtes sur l'éditeur pour passer en plein écran!"
     },
     "ui_editor": {
-        "page_not_found": "Impossible de trouver le fichier",
-        "page_saved": "Votre nouveau design a été sauvergardé",
-        "select_entity": "Sélectionnez une entité à éditer",
+        "page_not_found": "Impossible de trouver le fichier.",
+        "page_saved": "Votre nouvelle mise en page a bien été appliquée.",
+        "page_saved_all": "Votre nouvelle mise en page sur toute l'entité a bien été appliquée.",
+        "select_entity": "Sélectionnez une entité à éditer.",
+        "applyAll": "Appliquer sur toute l'entité.",
+        "tips": "Essayez Ctrl+Click ou encore Shift+Click sur les boutons de modification de taille pour gagner du temps !",
         "create_page": "Page de création",
         "update_page": "Page de mise à jour",
         "show_page": "Page d'affichage",

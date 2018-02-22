@@ -25,6 +25,7 @@ var logger = require('./utils/logger');
 var split = require('split');
 var AnsiToHTML = require('ansi-to-html');
 var ansiToHtml = new AnsiToHTML();
+var moment = require('moment');
 
 // pass passport for configuration
 require('./utils/authStrategies');
@@ -49,8 +50,8 @@ app.use(morgan('dev', {
 		}
 	},
 	stream: split().on('data', function (line) {
-		if(allLogStream.bytesWritten < 10000){
-			allLogStream.write(ansiToHtml.toHtml(line)+"\n");
+		if(allLogStream.bytesWritten < 1000){
+			allLogStream.write(moment().format("YY-MM-DD HH:mm:ss") + ": "+ansiToHtml.toHtml(line)+"\n");
 			process.stdout.write(line+"\n");
 		} else{
 			/* Clear all.log if to much bytes are written */

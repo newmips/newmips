@@ -216,6 +216,12 @@ function recursiveExecute(req, instructions, idx) {
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
             if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
                 structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
+                    // Write source script in generated workspace
+                    var historyPath = __dirname+'/../workspace/'+scriptData[req.session.passport.user.id].ids.id_application+"/history_script.nps";
+                    var instructionsToWrite = instructions.slice().splice(mandatoryInstructions.length + 2).join("\n");
+                    instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
+                    fs.writeFileSync(historyPath, instructionsToWrite);
+
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));

@@ -7,17 +7,17 @@
             </a>
         </li>
         <li>
-            <a id="r_children-click" data-toggle="tab" data-tabtype="hasmany" href="#r_children">
+            <a id="r_children-click" data-toggle="tab" data-tabtype="hasMany" href="#r_children">
                 {@__ key="entity.e_status.as_r_children" /}
             </a>
         </li>
         <li>
-            <a id="r_translations-click" data-toggle="tab" data-tabtype="hasmany" href="#r_translations">
+            <a id="r_translations-click" data-toggle="tab" data-tabtype="hasMany" href="#r_translations">
                 {@__ key="entity.e_translation.as_r_translations" /}
             </a>
         </li>
         <li>
-            <a id="r_actions-click" data-toggle="tab" data-tabtype="hasmany" href="#r_actions">
+            <a id="r_actions-click" data-toggle="tab" data-tabtype="hasMany" href="#r_actions">
                 {@__ key="entity.e_action.as_r_actions" /}
             </a>
         </li>

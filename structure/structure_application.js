@@ -104,12 +104,6 @@ exports.setupApplication = function(attr, callback) {
                 return callback(err, null);
             }
 
-            /* Save an instruction history in the history script in workspace folder */
-            var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
-            var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-            historyScript += "create application " + show_name_application + "\n";
-            fs.writeFileSync(historyScriptPath, historyScript);
-
             /* --------------- New translation --------------- */
             translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function() {
                 // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
