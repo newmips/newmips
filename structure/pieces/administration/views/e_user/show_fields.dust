@@ -10,7 +10,7 @@
         {/entityAccess}
         {@entityAccess entity="notification"}
         <li>
-            <a id="r_notification-click" data-toggle="tab" data-tabtype="hasmany" href="#r_notification">
+            <a id="r_notification-click" data-toggle="tab" data-tabtype="hasMany" href="#r_notification">
                 {@__ key="entity.e_notification.as_r_notification" /}
             </a>
         </li>

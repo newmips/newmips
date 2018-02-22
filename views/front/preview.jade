@@ -260,6 +260,13 @@ block content
 
 					.col-xs-12.col-sm-10
 						#ui_editor
+						i#ui_editor_tips(style="display:none;") #{__("ui_editor.tips")}
+						br
+						br
+						input#ui_editor_apply_all(type="checkbox", style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;margin-right:5px;display:none;")
+						span#ui_editor_apply_all_span(style="display:none;") #{__("ui_editor.applyAll")}
+						br
+						br
 						button#ui_editor_save.btn.btn-primary(style="display:none;")
 							| #{__("button.save")}
 
@@ -291,6 +298,8 @@ block content
 							| #{__("editor.legend")} :
 						#tabs-editor.nav-tabs-custom(style="margin-bottom:0px;")
 							ul.nav.nav-tabs#editor-navtabs(role="filelist")
+						div(id="loadingEditorIframe", style="position: absolute;top: 0;left: 0;width: 100%;height: 764px;background-color: transparent;display:block;")
+							img.animated.pulse.infinite(src='/img/FAVICON-GRAND-01.png', alt='Loading', style="display:block;margin: auto;margin-top:250px;width:125px;")
 				br
 				.row
 					.col-xs-5.col-sm-offset-2
@@ -359,7 +368,7 @@ block custom_js
 	// UI-Editor
 	//script(src='https://code.jquery.com/ui/1.12.1/jquery-ui.js', type='text/javascript')
 	script(src='/js/UI/jquery-ui-1.12.1.js', type='text/javascript')
-	script(src='/js/plugins/grid-editor/dist/jquery.grideditor.js', type='text/javascript')
+	script(src='/js/Newmips/newmips.grideditor.js', type='text/javascript')
 	// Speech Recognition
 	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
 	// Slim scroll
@@ -457,11 +466,6 @@ block custom_js
 			////////////
 			// UI Editor
 			////////////
-			function cleanEditor() {
-				// Remove unwanted buttons
-				$(".ge-add-column").remove();
-			}
-
 			$(document).delegate('.ge-add-row', 'click', function() {
 				var newRow = $(this).parent().parent().children(".row .ui-sortable").last();
 				newRow.find('.ui-sortable').remove();
@@ -497,8 +501,10 @@ block custom_js
 
 						// Enable gridEditor
 						$("#ui_editor").gridEditor();
-						cleanEditor();
 						$("#ui_editor_save").show();
+						$("#ui_editor_tips").show();
+						$("#ui_editor_apply_all").show();
+						$("#ui_editor_apply_all_span").show();
 						$(".ui_editor_page").parents('li').removeClass('active');
 						$(self).parents('li').addClass('active');
 
@@ -514,12 +520,13 @@ block custom_js
 
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
-				cleanEditor();
+				var currentScreenMode = $(".ge-layout-mode button span").text();
 				$.ajax({
 					url: '/ui_editor/setPage/'+entity+'/'+page,
 					method: 'post',
-					data: {html: html},
+					data: {html: html, screenMode: currentScreenMode, applyAll: $("#ui_editor_apply_all").prop("checked")},
 					success: function(msg) {
+						$("#ui_editor_apply_all").prop("checked", false);
 						toastr.success(msg);
 					},
 					error: function(err) {
@@ -557,6 +564,7 @@ block custom_js
 						"<script src='/js/plugins/codemirror/mode/sql/sql.js' type='text/javascript' />"+
 						"<script type='text/javascript' src='/js/Newmips/editor.js'/>");
 						isEditorStarted = true;
+						$("#loadingEditorIframe").remove();
 					}, 500);
 				}
 			});
@@ -843,11 +851,11 @@ block custom_js
 			}
 
 			function fetchStatus() {
-				updateScroll();
 			    $.ajax({
 			        url: '/default/update_logs',
 			        success: function(data) {
 		                $("#logs-content").html(data);
+		                updateScroll();
 		                setTimeout(fetchStatus, 1000);
 			        },
 			        error: function(err) {

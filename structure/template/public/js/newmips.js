@@ -58,6 +58,7 @@ function initForm(context) {
         $(this).html('<i class="fa fa-lg fa-circle" style="color:'+color+'"></i>');
     });
 
+
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
     $("input[type='checkbox'], input[type='radio']", context).iCheck({
         checkboxClass: 'icheckbox_flat-blue',
@@ -485,13 +486,13 @@ function initDropZone(context) {
 
 // PRINT
 function initPrint() {
-    /* Clear print tab component */
+   /* Clear print tab component */
     $(".print-tab input").each(function() {
         $(this).prop("disabled", true);
         $(this).attr("placeholder", "-");
         $(this).css("cursor", "default");
         $(this).css("padding", "0");
-        if($(this).attr("type") == "hidden")
+        if ($(this).attr("type") == "hidden")
             $(this).remove();
     });
 
@@ -507,8 +508,8 @@ function initPrint() {
         }
     });
 
-     $(".print-tab select[multiple]").each(function() {
-        if($(this).val() == null)
+    $(".print-tab select[multiple]").each(function() {
+        if ($(this).val() == null)
             $(this).replaceWith("<br>-");
     });
 
@@ -517,7 +518,7 @@ function initPrint() {
     });
 
     $(".print-tab a[data-type='url']").each(function() {
-        if($(this).text() == "")
+        if ($(this).text() == "")
             $(this).replaceWith("-");
     });
 
@@ -532,15 +533,14 @@ function initPrint() {
     $(".print-tab input[type='radio']:checked").each(function() {
         var formGroup = $(this).parent(".form-group");
         var label = formGroup.find("label");
-        var htmlToWrite = label[0].outerHTML+"\n";
-        formGroup.find("input[type='radio']").each(function(){
-            if($(this).prop("checked")){
+        var htmlToWrite = label[0].outerHTML + "\n";
+        formGroup.find("input[type='radio']").each(function() {
+            if ($(this).prop("checked")) {
                 htmlToWrite += "<br><span>" + $(this).val() + "</span>";
             }
         });
         formGroup.html(htmlToWrite);
     });
-
     $(".print-tab input[type='checkbox']").each(function() {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
@@ -813,10 +813,14 @@ $(document).ready(function () {
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function(){
-        if (typeof sidebarPref !== "undefined" && (sidebarPref == "true" || sidebarPref == null))
-            sidebarPref = false;
-        else
-            sidebarPref = true;
+        if (typeof sidebarPref !== "undefined" && sidebarPref != "null"){
+            if (sidebarPref == "close")
+                sidebarPref = "open";
+            else if (sidebarPref == "open")
+                sidebarPref = "close";
+        } else{
+            sidebarPref = "open";
+        }
 
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });

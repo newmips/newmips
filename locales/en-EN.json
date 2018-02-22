@@ -101,9 +101,12 @@
         "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
     },
     "ui_editor": {
-        "page_not_found": "Couldn't find corresponding file",
-        "page_saved": "Your new design have been saved",
-        "select_entity": "Select an entity to edit",
+        "page_not_found": "Couldn't find corresponding file.",
+        "page_saved": "Your new design have been applied.",
+        "page_saved_all": "Your new design have been applied on all the entity.",
+        "select_entity": "Select an entity to edit.",
+        "applyAll": "Apply on all the entity.",
+        "tips": "Try Ctrl+Click and also Shift+Click on the size modification buttons to save time !",
         "create_page": "Create page",
         "update_page": "Update page",
         "show_page": "Show page",
