@@ -96,9 +96,21 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
             sourceOptions = JSON.parse(fs.readFileSync(__dirname+'/../models/options/e_'+source+'.json', 'utf8'));
         } catch(e) {res.status(500).end()}
 
+
         imagePromises = [];
-        for (var i = 0; i < sourceOptions.length; i++)
-            imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as], sourceOptions[i].target));
+        // Source entity images
+        imagePromises.push(entity_helper.getPicturesBuffers(dustData, 'e_'+source));;
+        // Relations images
+        for (var i = 0; i < sourceOptions.length; i++) {
+            // Has many/preset
+            if (dustData[sourceOptions[i].as] instanceof Array) {
+                for (var j = 0; j < dustData[sourceOptions[i].as].length; j++)
+                    imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as][j], sourceOptions[i].target, true));;
+            }
+            // Has one
+            else
+                imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as], sourceOptions[i].target));
+        }
 
         Promise.all(imagePromises).then(function() {
             // Open and render dust file

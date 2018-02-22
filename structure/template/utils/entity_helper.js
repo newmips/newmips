@@ -246,6 +246,8 @@ var funcs = {
     },
     getPicturesBuffers: function(entity, modelName, isThumbnail)  {
         return new Promise(function(resolve, reject) {
+            if (!entity)
+                resolve();
             var attributes;
             try {
                 attributes = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+modelName+'.json'));
