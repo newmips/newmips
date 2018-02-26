@@ -251,8 +251,10 @@ exports.setSession = function(attrFunction, req, info, data) {
         case "selectEntity":
             req.session.id_data_entity = info.insertId;
             req.session.id_module = info.moduleId;
-            var iframeUrl = data.iframe_url.split("/");
-            data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/list";
+            if (info.doRedirect) {
+                var iframeUrl = data.iframe_url.split("/");
+                data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/list";
+            }
             break;
         case "createNewEntity":
             req.session.id_data_entity = info.insertId;
