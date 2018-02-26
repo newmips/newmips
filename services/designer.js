@@ -440,9 +440,17 @@ exports.deleteModule = function(attr, callback) {
 exports.selectEntity = function(attr, callback) {
     db_entity.selectEntity(attr, function(err, info) {
         if(err)
-            callback(err, null);
-        else
-            callback(null, info);
+            return callback(err, null);
+        db_module.getModuleById(info.moduleId, function(err, module) {
+            if (err)
+                return callback(err, null);
+            structure_data_field.selectEntity(attr.id_application, module.codeName, info.urlEntity, function(err, doRedirect) {
+                if (err)
+                    return callback(err, null);
+                info.doRedirect = doRedirect;
+                callback(null, info);
+            });
+        });
     });
 }
 

@@ -1577,3 +1577,15 @@ exports.deleteTab = function (attr, callback) {
         });
     });
 }
+
+exports.selectEntity = function(id_application, moduleCodeName, entityName, callback) {
+    var layout_path = __dirname+'/../workspace/'+id_application+'/views/layout_'+moduleCodeName+'.dust';
+    domHelper.read(layout_path).then(function($) {
+        if ($('#'+entityName+'_menu_item')[0].style.display === 'block')
+            return callback(null, true);
+        callback(null, false);
+    }).catch(function(err) {
+        console.log(err);
+        callback(err);
+    });
+}
