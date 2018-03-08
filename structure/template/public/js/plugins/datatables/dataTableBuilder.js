@@ -224,6 +224,10 @@ function init_datatable(tableID) {
                 else
                     cellValue = row[columns[meta.col].data];
 
+                function currencyFormat(num) {
+                    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")
+                }
+
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
                     // Date
@@ -250,7 +254,7 @@ function init_datatable(tableID) {
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'currency')
-                        cellValue = '<span data-type="currency">' + cellValue + '</span>';
+                        cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
                     else if (columns[meta.col].type == 'email' && (cellValue != null && cellValue != ''))
                         cellValue = '<a href="mailto:' + cellValue + '">' + cellValue + '</a>';
                     else if (columns[meta.col].type == 'tel' && (cellValue != null && cellValue != ''))
