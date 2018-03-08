@@ -93,6 +93,16 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
+        case "euro":
+        case "devise":
+        case "argent":
+            str += "    <div class='input-group'>\n";
+            str += "        <div class='input-group-addon'>\n";
+            str += "            <i class='fa fa-euro'></i>\n";
+            str += "        </div>\n";
+            str += "        <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
+            str += "    </div>\n";
+            break;
         case "qrcode":
             str += "	<div class='input-group'>\n";
             str += "		<div class='input-group-addon'>\n";
@@ -127,16 +137,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
             else
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode'  type='" + inputType + "'" + readOnly + "/>\n";
-            str += "	</div>\n";
-            break;
-        case "euro":
-        case "devise":
-        case "argent":
-            str += "	<div class='input-group'>\n";
-            str += "		<div class='input-group-addon'>\n";
-            str += "			<i class='fa fa-euro'></i>\n";
-            str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
