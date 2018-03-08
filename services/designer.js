@@ -971,12 +971,14 @@ exports.createNewHasOne = function(attr, callback) {
 
         var info = {};
         var toSync = true;
+        // For the newmips generator BDD, needed for db_field.createNewForeignKey
+        attr.id_data_entity = IDdataEntitySource;
+
         function structureCreation(attr, callback){
 
             // Vérification si une relation existe déjà de la source VERS la target
             var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
-
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()){
                     if(optionsSourceObject[i].relation == "hasMany"){
@@ -1007,9 +1009,6 @@ exports.createNewHasOne = function(attr, callback) {
                     toSync = false;
                 }
             }
-
-            // For the newmips generator BDD, needed for db_field.createNewForeignKey
-            attr.id_data_entity = IDdataEntitySource;
 
             // Ajout de la foreign key dans la BDD Newmips
             db_field.createNewForeignKey(attr, function(err, created_foreignKey){
@@ -1211,6 +1210,8 @@ exports.createNewHasMany = function (attr, callback) {
         if (err)
             return callback(err, null);
 
+        attr.id_data_entity = IDdataEntitySource;
+
         var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.source.toLowerCase()+'.json');
         var optionsSourceObject = JSON.parse(optionsSourceFile);
 
@@ -1377,10 +1378,16 @@ exports.createNewHasMany = function (attr, callback) {
 // Create a tab with a select of existing object and a list associated to it
 exports.createNewHasManyPreset = function(attr, callback) {
     var exportsContext = this;
-    // Instruction is add fieldset _FOREIGNKEY_ related to _TARGET_ -> We don't know the source entity name
-    db_entity.getDataEntityById(attr.id_data_entity, function (err, source_entity) {
-        if (err && typeof attr.options.source === "undefined")
+
+    // db_entity.getDataEntityById(attr.id_data_entity, function (err, source_entity) {
+    //     if (err && typeof attr.options.source === "undefined")
+    //         return callback(err, null);
+    /* Check if entity source exist before doing anything */
+    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
+        if (err)
             return callback(err, null);
+
+        attr.id_data_entity = IDdataEntitySource;
 
         // With preset instruction with already know the source of the related to
         // "entity (.*) has many preset (.*)"
@@ -1434,6 +1441,7 @@ exports.createNewHasManyPreset = function(attr, callback) {
                     }
                 }
             }
+
             /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
             if(cptExistingHasMany > 1){
                 var err = new Error();
