@@ -292,19 +292,17 @@ $(document).ready(function () {
         showMeridian: false
     });
 
+    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
     /* --------------- Regex on decimal input --------------- */
     $("input[data-custom-type='decimal']").keyup(function(e) {
-        var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
-        while ($(this).val() != "" && !reg.test($(this).val())) {
+        while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
-        }
     });
 
     /* --------------- Max length on input number --------------- */
     $("input[type='number']").keyup(function(e) {
-        if (this.value.length > 10) {
+        if (this.value.length > 10)
             this.value = this.value.slice(0,10);
-        }
     });
 
     /* --------------- Initialisation des DateTimepicker --------------- */
@@ -315,12 +313,8 @@ $(document).ready(function () {
     });
 
     /* Uncomment if you want to apply a mask on tel input */
-    /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
-    $("input[type='tel']").inputmask({mask: "## ## ## ## ##"});
-    $("input[type='tel']").keyup(function(e) {
-        if(isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace" && e.key != "Shift")
-            $(this).val("");
-    });
+    /*$("input[type='tel']").inputmask({mask: "+99 9 99 99 99 99"});*/
+    $("input[type='tel']").inputmask({mask: "99 99 99 99 99"});
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
     $('.simpledate-toconvert').each(function() {
