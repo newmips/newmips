@@ -74,7 +74,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     switch (type) {
         case "string" :
         case "":
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' maxLength='255' " + readOnly + "/>\n";
             break;
         case "color" :
         case "colour":
