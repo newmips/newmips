@@ -24,7 +24,8 @@ exports.setColumnVisibility = function (attr, callback) {
         if(attr.options.value == "f_id")
             attr.options.value = "id";
         if($("*[data-field='" + attr.options.value + "']").length > 0){
-            $("*[data-field='" + attr.options.value + "']")[hide ? 'hide' : 'show']();
+            //$("*[data-field='" + attr.options.value  + "']")[hide ? 'hide' : 'show']();
+            $("*[data-field='" + attr.options.value + "']").attr("data-hidden", hide ? '1' : '0');
             domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
                 var info = {};
                 info.message = hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show";
@@ -37,7 +38,8 @@ exports.setColumnVisibility = function (attr, callback) {
             var fieldCodeName = "r_" + attr.options.value.substring(2);
 
             if($("*[data-field='" + fieldCodeName + "']").length > 0){
-                $("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
+                //$("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
+                $("*[data-field='" + fieldCodeName + "']").attr("data-hidden", hide ? '1' : '0');
                 domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
                     var info = {};
                     info.message = hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show";

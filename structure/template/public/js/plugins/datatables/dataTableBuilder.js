@@ -167,8 +167,13 @@ function init_datatable(tableID) {
     // Fetch columns from html
     var columns = [];
     $(tableID + " .main th").each(function () {
-        if (typeof $(this).data('col') !== 'undefined' && $(this).is(":visible"))
-            columns.push({data: $(this).data('col'), type: $(this).data('type')});
+        if (typeof $(this).data('col') !== 'undefined'){
+            if($(this).data("hidden") == "1"){
+                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true});
+            } else {
+                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: false});
+            }
+        }
     });
 
     function getValue(cellArrayKeyValue, row) {
@@ -190,7 +195,7 @@ function init_datatable(tableID) {
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
     var columnDefs = [];
     for (var i = 0; i < columns.length; i++) {
-        columnDefs.push({
+        var objColumnDefToPush = {
             targets: i,
             render: function (data, type, row, meta) {
                 var cellValue;
@@ -274,7 +279,12 @@ function init_datatable(tableID) {
                 }
                 return cellValue;
             }
-        });
+        };
+        if(columns[i].hidden){
+            objColumnDefToPush.visible = false;
+            objColumnDefToPush.searchable = false;
+        }
+        columnDefs.push(objColumnDefToPush);
     }
 
     var columnCount = columns.length - 1;
@@ -282,7 +292,7 @@ function init_datatable(tableID) {
     // Render SHOW button
     if ($(tableID + "_show").length > 0)
         columnDefs.push({
-            "render": function (data, type, row) {
+            render: function (data, type, row) {
                 var originHref = $(tableID + "_show a").attr('href');
                 var params = originHref.split('?')[1].split('&');
                 var setParams = '';
@@ -300,14 +310,14 @@ function init_datatable(tableID) {
 
                 return $(tableID + "_show").html();
             },
-            "targets": columnCount += 1,
+            targets: columnCount += 1,
             searchable: false
         });
 
     // Render UPDATE button
     if ($(tableID + "_update").length > 0)
         columnDefs.push({
-            "render": function (data, type, row) {
+            render: function (data, type, row) {
                 var originHref = $(tableID + "_update a").attr('href');
                 var params = originHref.split('?')[1].split('&');
                 var setParams = '';
@@ -325,14 +335,14 @@ function init_datatable(tableID) {
 
                 return $(tableID + "_update").html();
             },
-            "targets": columnCount += 1,
+            targets: columnCount += 1,
             searchable: false
         });
 
     // Render DELETE button
     if ($(tableID + "_delete").length > 0)
         columnDefs.push({
-            "render": function (data, type, row) {
+            render: function (data, type, row) {
                 $(tableID + "_delete input").each(function () {
                     if (typeof row[$(this).attr('name')] !== 'undefined') {
                         $(this).val(row[$(this).attr('name')]);
@@ -340,7 +350,7 @@ function init_datatable(tableID) {
                 });
                 return $(tableID + "_delete").html();
             },
-            "targets": columnCount += 1,
+            targets: columnCount += 1,
             searchable: false
         });
 
@@ -463,10 +473,11 @@ function init_datatable(tableID) {
         else
             return filterSave[field];
     }
+
     // Bind search fields
     $(tableID + ' .filters th').each(function (i) {
-        var title = $(tableID + ' thead th').eq(i).text();
-        var mainTh = $(tableID + ' .main th').eq(i);
+        var title = $(this).text();
+        var mainTh = $(this);
         // Custom
         var currentField = mainTh.data('field');
         var val = getFilterSave(tableID.substring(1), currentField);
@@ -478,60 +489,65 @@ function init_datatable(tableID) {
                 // Date
                 if (mainTh.data('type') == 'date') {
                     valueObject.type = 'date';
-                    searchValue = lang_user == 'fr-FR' ? formatDateFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                    searchValue = lang_user == 'fr-FR' ? formatDateFR($(this).find("input").inputmask('unmaskedvalue')) : formatDateEN($(this).find("input").inputmask('unmaskedvalue'));
                 }
                 // Date
                 else if (mainTh.data('type') == 'time') {
                     valueObject.type = 'time';
-                    searchValue = formatTime($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                    searchValue = formatTime($(this).find("input").inputmask('unmaskedvalue'));
                 }
                 // DateTime
                 else if (mainTh.data('type') == 'datetime') {
                     valueObject.type = 'datetime';
-                    searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(tableID + " .filters th").eq(i).find("input").inputmask('unmaskedvalue'));
+                    searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(this).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(this).find("input").inputmask('unmaskedvalue'));
                 }
             }
             valueObject.value = searchValue;
             table.columns(i).search(JSON.stringify(valueObject)).draw();
         }
+        // If it's not an action button
         if (title != '') {
-            $(this).html('');
-            $(search).appendTo(this).keyup(function () {
-                var searchValue = this.value;
-                saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
-                searchInDatalist(searchValue);
-            });
-            // Initialize masks on filters inputs
-            if (typeof mainTh.data('type') !== 'undefined') {
-                if (lang_user == 'fr-FR') {
-                    if (mainTh.data('type') == 'datetime')
-                        $(tableID + " .filters th").eq(i).find("input").inputmask({
-                            mask: "d/m/y h:s:s",
-                            placeholder: "dd/mm/yyyy hh:mm:ss",
-                            alias: "datetime",
-                            timeseparator: ":",
-                            hourFormat: "24"
+            if($(this).data("hidden") != 1){
+                $(this).html('');
+                $(search).appendTo(this).keyup(function () {
+                    var searchValue = this.value;
+                    saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
+                    searchInDatalist(searchValue);
+                });
+                // Initialize masks on filters inputs
+                if (typeof mainTh.data('type') !== 'undefined') {
+                    if (lang_user == 'fr-FR') {
+                        if (mainTh.data('type') == 'datetime')
+                            $(this).find("input").inputmask({
+                                mask: "d/m/y h:s:s",
+                                placeholder: "dd/mm/yyyy hh:mm:ss",
+                                alias: "datetime",
+                                timeseparator: ":",
+                                hourFormat: "24"
+                            });
+                        if (mainTh.data('type') == 'date')
+                            $(this).find("input").inputmask({"alias": "dd/mm/yyyy"});
+                    } else if (lang_user == 'en-EN') {
+                        if (mainTh.data('type') == 'datetime')
+                            $(this).find("input").inputmask({
+                                mask: "y-m-d h:s:s",
+                                placeholder: "yyyy-mm-dd hh:mm:ss",
+                                alias: "datetime",
+                                timeseparator: ":",
+                                hourFormat: "24"
+                            });
+                        if (mainTh.data('type') == 'date')
+                            $(this).find("input").inputmask({"alias": "yyyy-mm-dd"});
+                    }
+                    if (mainTh.data('type') == 'time')
+                        $(this).find("input").inputmask({
+                            mask: "h:s:s",
+                            placeholder: "hh:mm:ss",
+                            separator: "-"
                         });
-                    if (mainTh.data('type') == 'date')
-                        $(tableID + " .filters th").eq(i).find("input").inputmask({"alias": "dd/mm/yyyy"});
-                } else if (lang_user == 'en-EN') {
-                    if (mainTh.data('type') == 'datetime')
-                        $(tableID + " .filters th").eq(i).find("input").inputmask({
-                            mask: "y-m-d h:s:s",
-                            placeholder: "yyyy-mm-dd hh:mm:ss",
-                            alias: "datetime",
-                            timeseparator: ":",
-                            hourFormat: "24"
-                        });
-                    if (mainTh.data('type') == 'date')
-                        $(tableID + " .filters th").eq(i).find("input").inputmask({"alias": "yyyy-mm-dd"});
                 }
-                if (mainTh.data('type') == 'time')
-                    $(tableID + " .filters th").eq(i).find("input").inputmask({
-                        mask: "h:s:s",
-                        placeholder: "hh:mm:ss",
-                        separator: "-"
-                    });
+            } else {
+                $(this).hide();
             }
         }
         if (val != "") {
