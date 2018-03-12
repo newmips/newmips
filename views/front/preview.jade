@@ -479,6 +479,7 @@ block custom_js
 			});
 
 			$("#entitySelect").select2({width:'100%'});
+
 			$("#entitySelect").change(function() {
 				$("#pages").slideUp();
 				if ($(this).val()) {
@@ -662,7 +663,8 @@ block custom_js
 					method: 'POST',
 					data: $(this).serialize(),
 					success: function(data) {
-						if(data.toRestart)
+						console.log(data);
+						if(data.toRedirect)
 							return window.location.href = data.url;
 
 						// Reload iframe
@@ -737,7 +739,7 @@ block custom_js
 							$("ul#sortable.sidebar-menu").append(content);
 							$(".sidebar .treeview").tree();
 							// Reset Editor
-							if(typeof myEditor !== "undefined"){
+							if(typeof myEditor !== "undefined" && !data.isRestart){
 								$("#codemirror-editor li.load-file").each(function(){
 									$(this).remove();
 								});
@@ -759,6 +761,11 @@ block custom_js
 		            }
 		        });
 		        return false;
+			});
+
+			$(document).on("click", "#restart-server", function(e){
+				$("#instruction").val("restart server");
+				$("form#previewForm").submit();
 			});
 
 			/////////
@@ -831,12 +838,6 @@ block custom_js
 		            }
 		        });
 				// }
-			});
-
-			$(document).on("click", "#restart-server", function(e){
-				$("#instruction").val("restart server");
-				//$("#execute_instruction").trigger("click");
-				$("form#previewForm").submit();
 			});
 
 			/////////
