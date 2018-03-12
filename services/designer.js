@@ -41,7 +41,7 @@ exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, 
     var recursiveAttr = bot.parse(instructions[idx]);
     if (recursiveAttr.error) {
         console.log(recursiveAttr.error);
-        return callback(error);
+        return callback(recursiveAttr.error);
     }
 
     // Rework the attr obj
