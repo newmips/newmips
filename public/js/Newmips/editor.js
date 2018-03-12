@@ -48,6 +48,10 @@ $(document).ready(function() {
                     $("#update-file").trigger("click");
                 else
                     toastr.error("Please select a file before saving.")
+            },
+            "Ctrl-Shift": function(cm) {
+                for (var i = cm.firstLine(), e = cm.lastLine(); i <= e; i++)
+                    cm.foldCode(CodeMirror.Pos(i, 0), null, "fold");
             }
         },
         lineNumbers: true,
@@ -57,7 +61,8 @@ $(document).ready(function() {
         autoCloseBrackets: true,
         showTrailingSpace: true,
         autoCloseTags: true,
-        scrollbarStyle: "simple"
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
     });
 
     /* Event change on editor to highlight the unsave work */
