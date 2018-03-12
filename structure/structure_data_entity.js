@@ -378,7 +378,9 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
     domHelper.read(filePath).then(function ($) {
         $("#" + url_name_data_entity + '_menu_item').remove();
         domHelper.write(filePath, $).then(function () {
-            callback();
+            translateHelper.removeLocales(id_application, "entity", name_data_entity, function () {
+                callback();
+            });
         });
     });
 };

@@ -250,6 +250,8 @@ module.exports = {
 
             if(type == "field"){
                 delete dataLocales.entity[value[0]][value[1]];
+            } else if(type == "entity") {
+                delete dataLocales.entity[value];
             }
 
             fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
