@@ -61,6 +61,7 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode){
 					domHelper.read(currentURI).then(function($) {
 						var saveDataField = {};
 
+						// Save current state of fields in the current working page
 						$("div[data-field]").each(function() {
 							saveDataField[$(this).attr("data-field")] = $(this)[0].innerHTML;
 						});
@@ -90,11 +91,25 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode){
 							});
 						}
 
+						// Loop on source entity fields
 						currentHtmlBis("div[data-field]").each(function() {
-							if(typeof saveDataField[currentHtmlBis(this).attr("data-field")] === "undefined")
-								console.log("ERROR: cannot find field "+currentHtmlBis(this).attr("data-field")+" in apply all UI designer function, it won't be restitute correctly !")
-							currentHtmlBis(this).html(saveDataField[currentHtmlBis(this).attr("data-field")]);
+							if(typeof saveDataField[currentHtmlBis(this).attr("data-field")] === "undefined"){
+								currentHtmlBis(this).remove();
+								console.log("ERROR: Cannot find field "+currentHtmlBis(this).attr("data-field")+" in apply all UI designer function, it won't be restitute correctly !")
+							} else
+								currentHtmlBis(this).html(saveDataField[currentHtmlBis(this).attr("data-field")]);
+							saveDataField[currentHtmlBis(this).attr("data-field")] = true;
 						});
+
+						// Missing fields from the source that we'll append in col-xs-12
+						for(var field in saveDataField){
+							if(saveDataField[field] != true){
+								var newDiv = "<div data-field='"+field+"' class='fieldLineHeight col-xs-12 col-sm-12 col-md-12'>";
+								newDiv += saveDataField[field];
+								newDiv += "</div>";
+								currentHtmlBis("div[data-field]:last").after(newDiv);
+							}
+						}
 
 						// Find all rows and group them to be appended to #fields
 						var packedRow = '';
