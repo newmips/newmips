@@ -172,6 +172,7 @@ sequelize.customAfterSync = function() {
                 execQuery(srcQueries, 0);
             });
         }
+
         if (toSyncObject.queries)
             promises.push(recursiveQueries(toSyncObject.queries));
 

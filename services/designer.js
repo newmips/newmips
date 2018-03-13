@@ -1288,6 +1288,7 @@ exports.createNewHasMany = function (attr, callback) {
                         toSync: toSync,
                         type: "hasMany"
                     };
+
                     structure_data_entity.setupAssociation(associationOption, function(){
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupHasManyTab(attr, function(){

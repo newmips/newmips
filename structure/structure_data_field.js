@@ -1126,11 +1126,9 @@ exports.setupHasManyPresetTab = function (attr, callback) {
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
     stream_fileTranslationFR.end();
     stream_fileTranslationFR.on('finish', function () {
-        //console.log('File => Translation FR ------------------ UPDATED');
         stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 4));
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
-            //console.log('File => Translation EN ------------------ UPDATED');
 
             // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
             var usingField = "id";
