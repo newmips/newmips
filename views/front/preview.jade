@@ -432,11 +432,13 @@ block custom_js
 				var chatDisabledMsg = '#{__("preview.help-disabled")}';
 				toastr.info(chatDisabledMsg);
 			});
-	// Editor
+	// Locales
 	script(type='text/javascript').
 		var intro2 = "#{__('editor.intro')}" + "\n";
 		intro2 += "#{__('editor.intro2')}" + "\n";
 		intro2 += "#{__('editor.intro3')}";
+		var savingButtonText = "#{__('button.save')}";
+		var loadingButtonText = "#{__('button.loading')}";
 	script(type='text/javascript').
 		$(document).ready(function(){
 
@@ -522,13 +524,18 @@ block custom_js
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
 				var currentScreenMode = $(".ge-layout-mode button span").text();
+				$(this).text(loadingButtonText);
+				$(this).prop("disabled", true);
 				$.ajax({
 					url: '/ui_editor/setPage/'+entity+'/'+page,
 					method: 'post',
 					data: {html: html, screenMode: currentScreenMode, applyAll: $("#ui_editor_apply_all").prop("checked")},
+					context: this,
 					success: function(msg) {
 						$("#ui_editor_apply_all").prop("checked", false);
 						toastr.success(msg);
+						$(this).text(savingButtonText);
+						$(this).prop("disabled", false);
 					},
 					error: function(err) {
 						console.log(err);
@@ -670,7 +677,6 @@ block custom_js
 					method: 'POST',
 					data: $(this).serialize(),
 					success: function(data) {
-						console.log(data);
 						if(data.toRedirect)
 							return window.location.href = data.url;
 
@@ -745,7 +751,7 @@ block custom_js
 							var content = recursiveEditorFolders(data.workspaceFolder);
 							$("ul#sortable.sidebar-menu").append(content);
 							$(".sidebar .treeview").tree();
-							// Reset Editor
+							// Reset Code Editor
 							if(typeof myEditor !== "undefined" && !data.isRestart){
 								$("#codemirror-editor li.load-file").each(function(){
 									$(this).remove();
@@ -756,6 +762,23 @@ block custom_js
 								myEditor.clearGutter();
 								$(".CodeMirror-code").empty();
 							}
+
+							// Reset UI Editor
+							if(!data.isRestart){
+								$("#pages").slideUp();
+								entity = null;
+								page = null;
+								$("#ui_editor").html("");
+								// Enable gridEditor
+								$("#ui_editor").gridEditor();
+								// Remove mainControls who are not removed by modifying html
+								$(".ge-mainControls").remove();
+								$("#ui_editor_save").hide();
+								$("#ui_editor_tips").hide();
+								$("#ui_editor_apply_all").hide();
+								$("#ui_editor_apply_all_span").hide();
+							}
+
 							// Wait a little for Iframe to refresh
 							setTimeout(function(){
 								$("#loadingIframe").hide();
