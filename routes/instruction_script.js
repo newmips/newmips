@@ -442,10 +442,12 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     for(var entity in toSyncObject){
                         if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
+                            // We have to remove options from toSync.json that will be generate with sequelize sync
+                            // But we have to keep relation toSync on already existing entities
                             if(typeof toSyncObject[entity].options !== "undefined"){
                                 var cleanOptions = [];
                                 for(var i=0; i<toSyncObject[entity].options.length; i++){
-                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1)
+                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
                                         cleanOptions.push(toSyncObject[entity].options[i]);
                                 }
                                 toSyncObject[entity].options = cleanOptions;
@@ -665,10 +667,12 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     for(var entity in toSyncObject){
                         if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
+                            // We have to remove options from toSync.json that will be generate with sequelize sync
+                            // But we have to keep relation toSync on already existing entities
                             if(typeof toSyncObject[entity].options !== "undefined"){
                                 var cleanOptions = [];
                                 for(var i=0; i<toSyncObject[entity].options.length; i++){
-                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1)
+                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
                                         cleanOptions.push(toSyncObject[entity].options[i]);
                                 }
                                 toSyncObject[entity].options = cleanOptions;

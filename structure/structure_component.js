@@ -858,7 +858,8 @@ exports.newStatus = function(attr, callback) {
         $("#"+historyId).remove();
         domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
             var statusAlias = 'r_'+attr.options.value.substring(2);
-
+            var statusAliasHTML = 'f_'+attr.options.value.substring(2);
+            var statusAliasSubstring = statusAlias.substring(2);
             // Customize history tab list
             domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
                 // Remove buttons
@@ -885,16 +886,16 @@ exports.newStatus = function(attr, callback) {
                 var localesFR = JSON.parse(fs.readFileSync(workspacePath+'/locales/fr-FR.json', 'utf8'));
                 localesFR.entity['e_'+attr.history_table]['as_r_history_'+attr.options.urlValue] = "Historique "+attr.options.showValue;
                 localesFR.entity['e_'+attr.history_table]['f_comment'] = "Commentaire";
-                localesFR.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
-                localesFR.entity['e_'+attr.history_table].label_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
-                localesFR.entity['e_'+attr.history_table].name_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
-                localesFR.entity['e_'+attr.history_table].plural_entity = "Historique "+statusAlias.substring(2)+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].label_entity = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].name_entity = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
+                localesFR.entity['e_'+attr.history_table].plural_entity = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
                 fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
                 var localesEN = JSON.parse(fs.readFileSync(workspacePath+'/locales/en-EN.json', 'utf8'));
-                localesEN.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
-                localesEN.entity['e_'+attr.history_table].label_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
-                localesEN.entity['e_'+attr.history_table].name_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
-                localesEN.entity['e_'+attr.history_table].plural_entity = "History "+attr.source.substring(2)+" "+statusAlias.substring(2);
+                localesEN.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
+                localesEN.entity['e_'+attr.history_table].label_entity = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
+                localesEN.entity['e_'+attr.history_table].name_entity = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
+                localesEN.entity['e_'+attr.history_table].plural_entity = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
                 fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 
                 domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
@@ -909,8 +910,8 @@ exports.newStatus = function(attr, callback) {
                         nextStatusHtml += '<a href="/'+attr.source.substring(2)+'/set_status/{'+attr.source.substring(2)+'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
                         nextStatusHtml += '{/'+statusAlias+'.r_children}';
                         nextStatusHtml += '</div>';
-                        $("div[data-field='"+statusAlias+"']").find('input').replaceWith(statusBadgeHtml);
-                        $("div[data-field='"+statusAlias+"']").append(nextStatusHtml);
+                        $("div[data-field='"+statusAliasHTML+"']").find('input').replaceWith(statusBadgeHtml);
+                        $("div[data-field='"+statusAliasHTML+"']").append(nextStatusHtml);
                         // Input used for default ordering
 
                         // Remove create button
