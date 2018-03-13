@@ -62,7 +62,8 @@
         "send": "Send",
         "add": "Add",
         "documentation": "Documentation",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "loading": "Loading..."
     },
     "home": {
         "header": "Welcome to Newmips !",
