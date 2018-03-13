@@ -694,7 +694,7 @@ exports.setupDataField = function (attr, callback) {
             if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
                 defaultValueForOption = 1;
             } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
-                defaultValueForOption = 2;
+                defaultValueForOption = 0;
             }
         }
     }
