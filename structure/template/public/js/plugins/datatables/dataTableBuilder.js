@@ -258,6 +258,10 @@ function init_datatable(tableID) {
                         cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"></i>' : '<i class="fa fa-square-o fa-lg"></i>';
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
+                    else if (columns[meta.col].type == 'status'){
+                        var statusObj = row[columns[meta.col].data.split(".")[0]];
+                        cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>'
+                    }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
                     else if (columns[meta.col].type == 'email' && (cellValue != null && cellValue != ''))

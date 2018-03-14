@@ -921,13 +921,25 @@ exports.newStatus = function(attr, callback) {
 
                             // Remove status field from update_fields and create_fields
                             domHelper.read(workspacePath+'/views/'+attr.source+'/create_fields.dust').then(function($) {
-                                $("div[data-field='f_"+attr.options.value.substring(2)+"']").remove();
+                                $("div[data-field='"+statusAliasHTML+"']").remove();
                                 domHelper.write(workspacePath+'/views/'+attr.source+'/create_fields.dust', $).then(function() {
                                     domHelper.read(workspacePath+'/views/'+attr.source+'/update_fields.dust').then(function($) {
-                                        $("div[data-field='f_"+attr.options.value.substring(2)+"']").remove();
+                                        $("div[data-field='"+statusAliasHTML+"']").remove();
                                         domHelper.write(workspacePath+'/views/'+attr.source+'/update_fields.dust', $).then(function() {
-                                            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
-                                                callback(null);
+
+                                            // Update list field to show status color in datalist
+                                            domHelper.read(workspacePath+'/views/'+attr.source+'/list_fields.dust').then(function($) {
+
+                                                $("th[data-field='"+statusAlias+"']").each(function(){
+                                                    $(this).attr("data-type", "status");
+                                                });
+                                                $("td[data-field='"+statusAlias+"']").attr("data-type", "status");
+
+                                                domHelper.write(workspacePath+'/views/'+attr.source+'/list_fields.dust', $).then(function() {
+                                                    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
+                                                        callback(null);
+                                                    });
+                                                });
                                             });
                                         });
                                     });
