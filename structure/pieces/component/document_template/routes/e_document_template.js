@@ -566,9 +566,9 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             var reworkOptions = {
                                 //entity by entity
                                 /**'e_entity': [
-                                    {item: 'f_date', type: 'datetime', newFormat: 'DD/MM/YYYY HH'}
-                                ]**/
-                                        //next entity
+                                 {item: 'f_date', type: 'datetime', newFormat: 'DD/MM/YYYY HH'}
+                                 ]**/
+                                //next entity
                             };
                             //rework with own options
                             var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user);
@@ -629,6 +629,16 @@ router.get('/readme/:entity', block_access.actionAccessMiddleware("document_temp
         res.render('e_document_template/readme', data);
     }
 });
+
+router.get('/help/:type', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+    var type = req.params.type;
+
+    if (type === "subEntities") {
+        res.json({message: document_template_helper.getSubEntitiesHelp(req.session.lang_user)});
+    } else
+        res.status(404).end();
+});
+
 
 router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     var entity = req.params.entity;

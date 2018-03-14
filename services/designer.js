@@ -2479,7 +2479,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                                                 db_entity.getIdDataEntityByCodeName(module.id, entity_code_name, function (err, id_entity) {
                                                     var p = new Promise(function (resolve, reject) {
                                                         if (err && err.message === "database.entity.notFound.withThisCodeNameAndModule") {
-                                                            //entity Template document not found, we create IT
+                                                            //entity Template document not found, we create it
                                                             attr.options.value = entity_code_name;
                                                             attr.options.showValue = component_show_value;
                                                             db_entity.createNewEntity(attr, function (err, info) {
@@ -2596,8 +2596,6 @@ exports.deleteComponentDocumentTemplate = function (attr, callback) {
                                                                             });
                                                                         }
                                                                     });
-
-
                                                                 });
                                                             }
                                                         } else
