@@ -1,6 +1,7 @@
 var moment = require('moment');
 var globalConfig = require('../config/global');
 var fs = require('fs');
+
 var langMessage = {
     'fr-FR': {
         'fileTypeNotValid': 'Type de document non valide',
@@ -13,7 +14,31 @@ var langMessage = {
         'empty': 'Pour empêcher les nouvelles lignes vides entre les données, placer la variable sur la même ligne que le début de la boucle',
         'whereIsNL': "Les nouvelles lignes sont conservées à l'intérieur des sections, donc le modèle exemple suivant",
         'one': 'Un',
-        'two': 'Deux'
+        'two': 'Deux',
+        readme: {
+            pageTitle: "Modèle de document : variables utilisables",
+            description: '<p style="text-align:justify;"> '
+                    + "Les modèles de document sont utilisables dans l'onglet où est positionné le composant <strong>document template</strong> de chaque entité."
+                    + "Pour ce faire, vous devez inclure dans les documents de type Word (Docx) ou PDF "
+                    + "les variables listées ci-dessous.</p>"
+                    + ' <p style="text-align:justify;">'
+                    + "  Pour un template Docx, les variables doivent être copiées tel quel dans votre texte placées entre accolades."
+                    + "  Elles seront remplacées à la volée par les données de l'entité au moment où vous cliquerez sur le bouton \"Générer\"."
+                    + "</p>"
+                    + "<p>NB: cliquez sur les titres des sections de chaque entité pour découvrir l'usage des variables.</p>",
+            entityInformations: "Informations concernant l'entité",
+            entityTableRow1: "Entité",
+            entityTableRow2: "Variable",
+            entityTableRow3: "Accès variable document format DOCX",
+            entityTableRow4: "Accès variable document format PDF",
+            entityTableRow5: "Description",
+            variables: "Variables globales"
+        },
+        global: {
+            variables: "Variables globales",
+            description: "Ces variables commencent par un <strong> g_ </strong> et sont accessibles dans toutes les entités.",
+            entityTableRow5: "Exemple"
+        }
     },
     'en-EN': {
         'fileTypeNotValid': 'File type not valid',
@@ -26,7 +51,30 @@ var langMessage = {
         'empty': 'To prevent new empty lines between data, place the variable on the same line of loop',
         'whereIsNL': "The new lines are kept inside the sections, so the following example template",
         'one': 'One',
-        'two': 'Two'
+        'two': 'Two',
+        readme: {
+            pageTitle: "Usable variables",
+            description: '<p style="text-align:justify;"> '
+                    + "The document templates can be used in the tab where the component is positioned. "
+                    + "To do this, you must include the variables listed below in Word (Docx) or PDF documents</p>"
+                    + ' <p style="text-align:justify;">'
+                    + "  For a Docx template, variables must be copied in your text enclosed in braces."
+                    + "  They will be replaced by the entity's data when you click on the \"Generate\" button who is on entity show page."
+                    + "</p>"
+                    + "<p>Click on each entity name to discover the use of the variables.</p>",
+            entityInformations: "Entity informations",
+            entityTableRow1: "Entity",
+            entityTableRow2: "Variable",
+            entityTableRow3: "Variable access for DOCX",
+            entityTableRow4: "Variable access for PDF",
+            entityTableRow5: "Description",
+            variables: "Global variables"
+        },
+        global: {
+            variables: "Global variables",
+            description: "These varibales start with <strong>g_</strong> and are accessible in all entities.",
+            entityTableRow5: "Example"
+        }
     }
 };
 var lang = 'fr-FR';
@@ -38,6 +86,12 @@ module.exports = {
         'E_notification', 'E_status', 'E_document_template', 'E_media_notification', 'E_translation',
         '7_e_media_notification_e_group', '7_e_media_notification_e_user', '7_e_notification_e_user', '7_status_children'
     ],
+    globalVariables: [
+        {name: 'g_today', description: 'Current date', type: 'date'},
+        {name: 'g_date', description: 'Current date', type: 'date'},
+        {name: 'g_time', description: 'Current time', type: 'time'},
+        {name: 'g_datetime', description: 'Current datetime', type: 'datetime'}
+    ],
     get_entities: function (models) {
         /**Get all models**/
         var entities = models.sequelize.models;
@@ -46,7 +100,7 @@ module.exports = {
             for (var item in entities) {
                 if (item.startsWith('E_') && this.entities_to_exclude.indexOf(item) < 0) {
                     var entity_to_show = item.replace('E_', '');
-                    entity_to_show = entity_to_show.charAt(0).toUpperCase() + entity_to_show.slice(1);//uc first
+                    entity_to_show = entity_to_show.charAt(0).toUpperCase() + entity_to_show.slice(1); //uc first
                     document_template_entities.push({
                         value: entity_to_show,
                         item: entity_to_show
@@ -56,30 +110,40 @@ module.exports = {
         }
         return document_template_entities;
     },
-    rework: function (object, entity, reworkOptions) {
+    rework: function (object, entityName, reworkOptions, userLang) {
         try {
             var result = {};
             var options = typeof reworkOptions === 'undefined' ? {} : reworkOptions;
+            var relationsOptions = require('../models/options/' + entityName.toLowerCase() + '.json');
+            var attributes = require('../models/attributes/' + entityName.toLowerCase() + '.json');
             for (var item in object.dataValues) {
                 result[item] = object.dataValues[item];
             }
-            var relationsOptions = require('../models/options/' + entity.toLowerCase() + '.json');
-            var attributes = require('../models/attributes/' + entity.toLowerCase() + '.json');
-            this.cleanData(result, options[entity], attributes);
+            var entityModelData = {
+                entityName: entityName,
+                attributes: attributes,
+                options: options[entityName]
+            };
+            this.cleanData(result, entityModelData, userLang);
             //now clean relation
             for (var i = 0; i < relationsOptions.length; i++) {
                 var relation = relationsOptions[i];
                 if (object[relation.as]) {
                     var relationAttributes = require('../models/attributes/' + relation.target + '.json');
+                    var entityModelData = {
+                        entityName: relation.target,
+                        attributes: relationAttributes,
+                        options: options[relation.target]
+                    };
                     if (relation.relation === "belongsTo") {
                         result[relation.as] = object[relation.as].dataValues;
-                        this.cleanData(result[relation.as], options[relation.target], relationAttributes);
+                        this.cleanData(result[relation.as], entityModelData, userLang);
                     } else if (relation.relation === "hasMany") {
                         result[relation.as] = [];
                         //be carefull if we have a lot lot lot lot of data.
                         for (var j = 0; j < object[relation.as].length; j++) {
                             result[relation.as].push(object[relation.as][j].dataValues);
-                            this.cleanData(result[relation.as][j], options[relation.target], relationAttributes);
+                            this.cleanData(result[relation.as][j], entityModelData, userLang);
                         }
                     }
                 }
@@ -89,7 +153,10 @@ module.exports = {
             return {};
         }
     },
-    cleanData: function (object, reworkOptions, attributes) {
+    cleanData: function (object, entityModelData, userLang) {
+        var attributes = entityModelData.attributes;
+        var reworkOptions = entityModelData.options;
+        var entityName = entityModelData.entityName;
         for (var item in object) {
             if (object[item] == 'null' || object[item] == null || typeof object[item] === "undefined")
                 object[item] = '';
@@ -97,17 +164,21 @@ module.exports = {
             for (var attr in attributes) {
                 var attribute = attributes[attr];
                 if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && attr === item) {
-                    var format = attribute.newmipsType === "datetime" ? "DD/MM/YYYY HH:mm:ss" : "DD/MM/YYYY";
+                    var format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
                     object[item] = moment(object[item]).format(format);
                     break;
                 }
+                /*if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
+                 object[item] = "data:image/*;base64," + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
+                 break;
+                 }*/
             }
             if (reworkOptions) {
                 for (var i = 0; i < reworkOptions.length; i++) {
                     var reworkOption = reworkOptions[i];
                     if (item === reworkOption.item) {
-                        if (reworkOption.type === 'date' && object[item] != null && reworkOption.incomingFormat && reworkOption.newFormat)
-                            object[item] = moment(object[item], reworkOption.incomingFormat).format(reworkOption.newFormat);
+                        if ((reworkOption.type === 'date' || reworkOption.type === 'datetime') && object[item] != null && reworkOption.newFormat)
+                            object[item] = moment(object[item], this.getDateFormatUsingLang(userLang, reworkOption.type)).format(reworkOption.newFormat);
                         //add others types as need
                         break;
                     }
@@ -115,7 +186,7 @@ module.exports = {
             }
         }
     },
-    build_help: function (entityRoot,userLang) {
+    build_help: function (entityRoot, userLang) {
         var result = [];
         var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
         var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
@@ -173,12 +244,142 @@ module.exports = {
         }
         return result;
     },
+    buildInclude: function (entity, f_exclude_relations, models) {
+        var result = [];
+        var options = require('../models/options/' + entity.toLowerCase() + '.json');
+        f_exclude_relations = (f_exclude_relations || '').split(',');
+        for (var i = 0; i < options.length; i++) {
+            var found = false;
+            var subEntity = 'E_' + options[i].target.toLowerCase().replace('e_', '');
+            for (var j = 0; j < f_exclude_relations.length; j++) {
+                if (options[i].target === 'e_' + f_exclude_relations[j].toLowerCase())
+                    found = true;
+            }
+            if (!found)
+                result.push({model: models[subEntity], as: options[i].as});
+        }
+        return result;
+    },
+    getRelations: function (entity) {
+        var result = [];
+        var options = require('../models/options/e_' + entity.toLowerCase() + '.json');
+        for (var i = 0; i < options.length; i++) {
+            var option = options[i];
+            if (option.target && this.entities_to_exclude.indexOf(option.target) < 0) {
+                var target = option.target.replace('e_', '');
+                target = target.charAt(0).toUpperCase() + target.slice(1); //uc first
+                result.push(target);
+            }
+        }
+        return result;
+    },
+    getDateFormatUsingLang: function (userLang, type) {
+        var l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
+        switch (type) {
+            case 'datetime':
+                return l === 'fr-FR' ? 'DD/MM/YYYY HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
+            case 'date':
+                return l === 'fr-FR' ? 'DD/MM/YYYY' : 'YYYY-MM-DD';
+            case 'time':
+                return 'HH:mm:ss';
+            default:
+                return l === 'fr-FR' ? 'DD/MM/YYYY' : 'YYYY-MM-DD';
+        }
+    },
+    buildHTMLHelpEntitiesAjax: function (entities, userLang) {
+        var html = '';
+        entities.forEach(function (entity) {
+            html += '<div class="panel box" style="border-top-color:' + entity.color + '">';
+            html += '<div class="box-header with-border">';
+            html += '             <h4 class="box-title">';
+            html += '                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse' + entity.id + '" aria-expanded="false" class="collapsed">';
+            html += '                      ' + langMessage[userLang || lang].readme.entityInformations + ' ' + entity.entity;
+            html += '                 </a>';
+            html += '             </h4>';
+            html += '        </div>';
+            html += '         <div id="collapse' + entity.id + '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">';
+            html += '             <div class="col-xs-12">' + entity.message + '</div>';
+            html += '             <div class="box-body">';
+            html += '                 <table class="table table-striped table-responsive">';
+            html += '                     <thead>';
+            html += '                        <tr>';
+            html += '                            <th style="width: 40px">' + langMessage[userLang || lang].readme.entityTableRow1 + '</th>';
+            html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow2 + '</th>';
+            html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow3 + '</th>';
+            html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow4 + '</th>';
+            html += '                             <th>' + langMessage[userLang || lang].readme.entityTableRow5 + '</th>';
+            html += '                         </tr>';
+            html += '                    </thead>';
+            html += '                    <tbody>';
+            entity.attributes.forEach(function (attribute) {
+                html += '            <tr>';
+                html += '            <td><span class="badge bg-red">' + entity.entity + '</span></td>';
+                html += '            <td><span>' + attribute + '</span></td>';
+                html += '             <td>';
+                if (entity.relation == 'belongsTo') {
+                    html += '&#123;' + entity.as + '.' + attribute + '&#125;';
+                } else {
+                    html += '&#123;' + attribute + '&#125;';
+                }
+                html += '             </td>';
+                html += '             <td>';
+                if (entity.relation == 'belongsTo') {
+                    html += entity.as + '.' + attribute;
+                } else {
+                    html += attribute;
+                }
+                html += '             </td>';
+                html += '             <td></td>';
+                html += '         </tr>';
+            });
+            html += '                   </tbody>';
+            html += '               </table>';
+            html += '           </div>';
+            html += '       </div>';
+            html += '   </div>';
+        });
+        return html;
+    },
+    buildHTMLGlobalVariables: function (userLang) {
+        var html = '';
+        var l = userLang || lang;
+        var formatDate = 'DD/MM/YYYY';
+        var formatDateTime = 'DD/MM/YYYY HH:mm:ss';
+        if (l === 'en-EN') {
+            formatDate = 'YYYY-MM-DD';
+            formatDateTime = 'YYYY-MM-DD HH:mm:ss';
+        }
+        html += '<h2>' + langMessage[l].global.variables + '</h2>';
+        html += '<p>' + langMessage[l].global.description + '</p>';
+        html += '                 <table class="table table-striped table-responsive">';
+        html += '                     <thead>';
+        html += '                        <tr>';
+        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow2 + '</th>';
+        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow3 + '</th>';
+        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow4 + '</th>';
+        html += '                             <th>' + langMessage[userLang || lang].readme.entityTableRow5 + '</th>';
+        html += '                         </tr>';
+        html += '                    </thead>';
+        html += '                    <tbody>';
+        this.globalVariables.forEach(function (g) {
+            html += '<tr>';
+            html += '<td>' + g.name + '</td>';
+            html += '<td>{' + g.name + '}</td>';
+            html += '<td>' + g.name + '</td>';
+            html += '<td>' + g.description + '</td>';
+            html += '</tr>';
+        });
+        return html;
+    },
     getAttributes: function (attributes) {
         var result = [];
         if (attributes)
             for (var item in attributes)
                 result.push(item);
         return result;
+    },
+    getReadmeMessages: function (userLang) {
+        return langMessage[userLang || lang].readme;
     },
     randomColor: function (size) {
         var text = "";

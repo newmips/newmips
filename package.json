@@ -28,7 +28,6 @@
     "jsdom": "^9.5.0",
     "jszip": "2.6.1",
     "math": "0.0.3",
-    "mime-types": "^2.1.17",
     "mocha": "^3.2.0",
     "moment": "~2.14.1",
     "moment-timezone": "^0.5.11",
