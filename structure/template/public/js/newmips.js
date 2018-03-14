@@ -96,10 +96,14 @@ $(document).ready(function () {
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function () {
-        if (sidebarPref == "true" || sidebarPref == null)
-            sidebarPref = false;
-        else
-            sidebarPref = true;
+        if (typeof sidebarPref !== "undefined" && sidebarPref != "null") {
+            if (sidebarPref == "close")
+                sidebarPref = "open";
+            else if (sidebarPref == "open")
+                sidebarPref = "close";
+        } else {
+            sidebarPref = "open";
+        }
 
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
@@ -112,6 +116,23 @@ $(document).ready(function () {
         $(this).css("padding", "0");
         if ($(this).attr("type") == "hidden")
             $(this).remove();
+    });
+
+    $(".print-tab a:not([href=''])").each(function () {
+        if ($(this).find("img").length == 0) {
+            if ($(this).text() == "")
+                if ($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
+                    $(this).replaceWith("Aucun fichier");
+                else
+                    $(this).replaceWith("-");
+            else
+                $(this).replaceWith($(this).text());
+        }
+    });
+
+    $(".print-tab select[multiple]").each(function () {
+        if ($(this).val() == null)
+            $(this).replaceWith("<br>-");
     });
 
     $(".print-tab input[type='color']").each(function () {
@@ -142,7 +163,6 @@ $(document).ready(function () {
         });
         formGroup.html(htmlToWrite);
     });
-
     $(".print-tab input[type='checkbox']").each(function () {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
@@ -272,19 +292,17 @@ $(document).ready(function () {
         showMeridian: false
     });
 
+    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
     /* --------------- Regex on decimal input --------------- */
     $("input[data-custom-type='decimal']").keyup(function (e) {
-        var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
-        while ($(this).val() != "" && !reg.test($(this).val())) {
+        while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
-        }
     });
 
     /* --------------- Max length on input number --------------- */
     $("input[type='number']").keyup(function (e) {
-        if (this.value.length > 10) {
+        if (this.value.length > 10)
             this.value = this.value.slice(0, 10);
-        }
     });
 
     /* --------------- Initialisation des DateTimepicker --------------- */
@@ -295,12 +313,8 @@ $(document).ready(function () {
     });
 
     /* Uncomment if you want to apply a mask on tel input */
-    /*$("input[type='tel']").inputmask({mask: "+## # ## ## ## ##"});*/
-    $("input[type='tel']").inputmask({mask: "## ## ## ## ##"});
-    $("input[type='tel']").keyup(function (e) {
-        if (isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace")
-            $(this).val("");
-    });
+    /*$("input[type='tel']").inputmask({mask: "+99 9 99 99 99 99"});*/
+    $("input[type='tel']").inputmask({mask: "99 99 99 99 99"});
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
     $('.simpledate-toconvert').each(function () {

@@ -148,21 +148,27 @@
 												{#allRoles currentEntity=.}
 													<td>
 														{@isActionChecked action="read" source=currentEntity target=f_label}
-															<input name="{name}.{f_label}.read" type="checkbox" checked> {@__ key="settings.auth_component.action.read"/}
+															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox" checked> {@__ key="settings.auth_component.action.read"/}</label>
 														{:else}
-															<input name="{name}.{f_label}.read" type="checkbox"> {@__ key="settings.auth_component.action.read"/}
+															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox"> {@__ key="settings.auth_component.action.read"/}</label>
 														{/isActionChecked}
 														<br>
-														{@isActionChecked action="write" source=currentEntity target=f_label}
-															<input name="{name}.{f_label}.write" type="checkbox" checked> {@__ key="settings.auth_component.action.write"/}
+														{@isActionChecked action="create" source=currentEntity target=f_label}
+															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox" checked> {@__ key="settings.auth_component.action.create"/}</label>
 														{:else}
-															<input name="{name}.{f_label}.write" type="checkbox"> {@__ key="settings.auth_component.action.write"/}
+															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox"> {@__ key="settings.auth_component.action.create"/}</label>
+														{/isActionChecked}
+														<br>
+														{@isActionChecked action="update" source=currentEntity target=f_label}
+															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox" checked> {@__ key="settings.auth_component.action.update"/}</label>
+														{:else}
+															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox"> {@__ key="settings.auth_component.action.update"/}</label>
 														{/isActionChecked}
 														<br>
 														{@isActionChecked action="delete" source=currentEntity target=f_label}
-															<input name="{name}.{f_label}.delete" type="checkbox" checked> {@__ key="settings.auth_component.action.delete"/}
+															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox" checked> {@__ key="settings.auth_component.action.delete"/}</label>
 														{:else}
-															<input name="{name}.{f_label}.delete" type="checkbox"> {@__ key="settings.auth_component.action.delete"/}
+															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox"> {@__ key="settings.auth_component.action.delete"/}</label>
 														{/isActionChecked}
 													</td>
 												{/allRoles}

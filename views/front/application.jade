@@ -8,7 +8,8 @@ block header
 	.row
 		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
 			h1
-				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
+				a(href="/")
+					img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
 				| #{__("menu.application")}
 				small #{__("menu.module")}
 
@@ -30,7 +31,7 @@ block header
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
 					| #{__("menu.home")}
-				a.btn.btn-default(href='/settings')
+				a.btn.btn-default(href='/account')
 					i.fa.fa-user(style="margin-right:5px;")
 					| #{__("menu.account")}
 				a.btn.btn-default.pull-right(href='/logout')
@@ -44,7 +45,7 @@ block content
 			.box-body
 				br
 				each project in projects
-					.col-lg-offset-3.col-lg-6
+					.col-lg-offset-2.col-lg-8
 						.box.box-solid.box-default
 							.box-header.bg-primary
 								h3.box-title(style="color: #fff")
@@ -59,6 +60,7 @@ block content
 														th #{__("listApplication.id")}
 														th #{__("listApplication.name")}
 														th #{__("listApplication.nbModules")}
+														th URL
 														th(colspan="2", style="text-align:center;") #{__("listApplication.action")}
 												tbody
 													each application, index in project.Applications
@@ -69,6 +71,8 @@ block content
 																| #{application.displayName}
 															td
 																| #{application.Modules.length}
+															td
+																| #{application.dataValues.url}
 															td.text-center
 																a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
 																	i.fa.fa-desktop.fa-md &nbsp;&nbsp;
@@ -152,7 +156,7 @@ block custom_js
 						data: {instruction: $(self).find("input[name='instruction']").val()},
 						success: function() {
 							toastr.success("#{__('listApplication.projectDelete')}");
-							$(self).parents('.col-lg-6').remove();
+							$(self).parents('.col-lg-8').remove();
 							$(document.body).css({cursor: 'default'});
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);

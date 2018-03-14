@@ -12,9 +12,13 @@ Core: General style
 .inline-help:hover {
     cursor: pointer;
 }
-.icon-wrap:nth-child(12n) {
-    margin-bottom: 10px;
+.icon-wrap {
+    margin-bottom: 20px;
 }
+label.no-weight {
+    font-weight: normal !important;
+}
+
 /* required field */
 label.required:after {
     color: #e32;
@@ -98,9 +102,9 @@ div.dataTables_length select {
 }
 .show-textarea{
     border: 1px solid #d2d6de;
-    padding:5px;
-    width:100%;
-    height:200px;
+    padding: 5px;
+    width: 100%;
+    min-height: 200px;
     border-radius: 2px;
 }
 .sub-module-arianne{
@@ -179,4 +183,17 @@ div.dataTables_length select {
 }
 .sidebar a:hover {
     text-decoration: none;
+}
+
+/* Notification tweak */
+.navbar-nav > .messages-menu > .dropdown-menu > div#notification-wrapper > li .menu > li > a{
+    white-space: inherit !important;
+}
+
+.navbar-nav > .messages-menu > .dropdown-menu > div#notification-wrapper > li .menu > li > a > h4{
+    padding-top: 13px !important;
+}
+
+.fieldLineHeight{
+    min-height: 75px;
 }

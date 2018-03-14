@@ -54,7 +54,9 @@
             /* Set sidebar preference */
             var sidebarPref = localStorage.getItem("newmips_mini_sidebar_preference");
             var d = document.body;
-            if (sidebarPref == "true" && d.className.indexOf("layout-top-navigation") == -1 && d.className.indexOf("sidebar-collapse") == -1)
+            if(sidebarPref == "null")
+                sidebarPref = "open";
+            if (sidebarPref == "close" && d.className.indexOf("layout-top-navigation") == -1 && d.className.indexOf("sidebar-collapse") == -1)
                 d.className += " sidebar-collapse";
         </script>
         <div class="wrapper">
@@ -124,7 +126,7 @@
                                 <ul class="dropdown-menu">
                                     {! User image !}
                                     <li class="user-header">
-                                        <img src="/img/avatar.jpg" alt="" class="img-circle">
+                                        <img src="/img/mipsy-avatar.png" alt="" class="img-circle">
                                         <p>
                                             {session.passport.user.f_login} {session.passport.user.f_email}
                                             <small>{session.passport.user.r_role.f_label}</small>

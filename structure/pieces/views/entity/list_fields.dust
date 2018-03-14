@@ -4,9 +4,15 @@
 			<th data-field="id" data-col="id">
 				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
 			</th>
-			<th></th>
-			<th></th>
-			<th></th>
+			{@actionAccess entity="custom_url_data_entity" action="read"}
+				<th></th>
+			{/actionAccess}
+			{@actionAccess entity="custom_url_data_entity" action="update"}
+				<th></th>
+			{/actionAccess}
+			{@actionAccess entity="custom_url_data_entity" action="delete"}
+				<th></th>
+			{/actionAccess}
 		</tr>
     </thead>
     <thead class='filters'>
@@ -14,31 +20,46 @@
     		<th data-field="id" data-col="id">
 				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
 			</th>
-			<th></th>
-			<th></th>
-			<th></th>
+			{@actionAccess entity="custom_url_data_entity" action="read"}
+				<th></th>
+			{/actionAccess}
+			{@actionAccess entity="custom_url_data_entity" action="update"}
+				<th></th>
+			{/actionAccess}
+			{@actionAccess entity="custom_url_data_entity" action="delete"}
+				<th></th>
+			{/actionAccess}
     	</tr>
     </thead>
     <tbody>
 		{#custom_data_entity}
 		<tr id='bodyTR'>
 			<td data-field="id">{id}</td>
-			 <td>
-				{@eq key=for value="fieldset"}
-				<form class='fieldsetform'>
-					<input type='hidden' value='{id}' name='idRemove'>
-					<button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
-				</form>
-				{/eq}
-		    	{@eq key=for value="hasMany"}
+			{@eq key=for value="fieldset"}
+				{@actionAccess entity="custom_url_data_entity" action="update"}
+					<td>
+						<form class='fieldsetform'>
+							<input type='hidden' value='{id}' name='idRemove'>
+							<button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
+						</form>
+					</td>
+				{/actionAccess}
+			{/eq}
+	    	{@eq key=for value="hasMany"}
+				{@actionAccess entity="custom_url_data_entity" action="read"}
+				<td>
 					<!--<a class="btn btn-primary" href="/custom_url_data_entity/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.show" /}</span></a>-->
-				{/eq}
-			</td>
+				</td>
+				{/actionAccess}
+			{/eq}
+			{@actionAccess entity="custom_url_data_entity" action="update"}
 			<td>
 				{@eq key=for value="hasMany"}
 					<a class="btn btn-warning" href="/custom_url_data_entity/update_form?id={id}&associationAlias={associationAlias}&associationForeignKey={associationForeignKey}&associationFlag={associationFlag}&associationSource={associationSource}&associationUrl={associationUrl}"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update" /}</span></a>
 				{/eq}
 			</td>
+			{/actionAccess}
+			{@actionAccess entity="custom_url_data_entity" action="delete"}
 			<td>
 				{@eq key=for value="hasMany"}
 					<form action="/custom_url_data_entity/delete" method="post">
@@ -54,6 +75,7 @@
 			        </form>
 				{/eq}
 			</td>
+			{/actionAccess}
 		</tr>
 		{/custom_data_entity}
     </tbody>

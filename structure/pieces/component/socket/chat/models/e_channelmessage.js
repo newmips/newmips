@@ -14,5 +14,8 @@ module.exports = function (sequelize, DataTypes) {
     };
 
     var Model = sequelize.define('E_channelmessage', attributes, options);
+
+    builder.addHooks(Model, "e_channelmessage", attributes_origin);
+
     return Model;
 };

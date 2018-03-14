@@ -239,8 +239,9 @@ function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
         name: urlComponent,
         groups: [],
         actions: {
+            create: [],
+            update: [],
             read: [],
-            write: [],
             delete: []
         }
     });
@@ -339,6 +340,62 @@ exports.newPrint = function (attr, callback) {
 
         var tabContent = "";
         tabContent += "<div id='" + nameComponentLower + "' class='tab-pane fade'>\n";
+        tabContent += "     <style>";
+        tabContent += "        @page { size: auto;  margin: 0mm; }";
+        tabContent += "        @media print {";
+        tabContent += "            body{";
+        tabContent += "                height: 100%;";
+        tabContent += "            }";
+        tabContent += "            body * {";
+        tabContent += "                visibility: hidden;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            #" + nameComponent + "-content,";
+        tabContent += "            #" + nameComponent + "-content * {";
+        tabContent += "                visibility: visible;";
+        tabContent += "            }";
+        tabContent += "            #" + nameComponent + "-content {";
+        tabContent += "                position: absolute;";
+        tabContent += "                left: 0;";
+        tabContent += "                top: 0;";
+        tabContent += "                margin: 0px;";
+        tabContent += "                padding: 15px;";
+        tabContent += "                border: 0px;";
+        tabContent += "                width: 100%;";
+        tabContent += "                height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "                font-size: 18px !important;";
+        tabContent += "            }";
+        tabContent += "            .form-control {";
+        tabContent += "                font-size: 18px !important;";
+        tabContent += "            }";
+        tabContent += "            ." + nameComponent + " {";
+        tabContent += "                height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            .tab-content{";
+        tabContent += "                height: 100%;";
+        tabContent += "                min-height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            .content-wrapper{";
+        tabContent += "                height: 100%;";
+        tabContent += "                min-height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            .wrapper{";
+        tabContent += "                height: 100%;";
+        tabContent += "                min-height: 100%;";
+        tabContent += "                overflow: visible;";
+        tabContent += "            }";
+        tabContent += "            #" + nameComponent + "-content a:after {";
+        tabContent += "                content: '';";
+        tabContent += "            }";
+        tabContent += "            #" + nameComponent + "-content a[href]:after {";
+        tabContent += "                content: none !important;";
+        tabContent += "            }";
+        tabContent += "        }";
+        tabContent += "     </style>\n";
         tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
         tabContent += "     <div id='" + nameComponent + "-content' class='print-tab'>\n";
         tabContent += "         {>\"" + entityLower + "/print_fields\"/}\n";
@@ -507,7 +564,7 @@ exports.newContactForm = function (attr, callback) {
         li += "    			<i class=\"fa fa-angle-left pull-right\"></i>\n";
         li += "			</a>\n";
         li += "			<ul class=\"treeview-menu\">\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"write\"}-->\n";
+        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/create_form\">\n";
         li += "            			<i class=\"fa fa-paper-plane\"></i>\n";
@@ -523,7 +580,7 @@ exports.newContactForm = function (attr, callback) {
         li += "        			</a>\n";
         li += "    			</li>\n";
         li += "    			<!--{/actionAccess}-->\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlNameSettings + "\" action=\"write\"}-->\n";
+        li += "    			<!--{@actionAccess entity=\"" + urlNameSettings + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/settings\">\n";
         li += "            			<i class=\"fa fa-cog\"></i>\n";
@@ -686,6 +743,40 @@ exports.newAgenda = function (attr, callback) {
     });
 }
 
+exports.deleteAgenda = function (attr, callback) {
+
+    var idApplication = attr.id_application;
+    var urlComponent = attr.options.urlValue.toLowerCase();
+
+    var baseFolder = __dirname + '/../workspace/' + idApplication;
+    var layoutFileName = baseFolder + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
+
+    // Delete views folder
+    helpers.rmdirSyncRecursive(baseFolder + '/views/' + attr.options.value);
+
+    domHelper.read(layoutFileName).then(function ($) {
+
+        $("#" + urlComponent + "_menu_item").remove();
+        // Write back to file
+        domHelper.write(layoutFileName, $).then(function () {
+
+            // Clean empty and useless dust helper created by removing <li>
+            var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+            // Remove empty dust helper
+            layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+
+            var writeStream = fs.createWriteStream(layoutFileName);
+            writeStream.write(layoutContent);
+            writeStream.end();
+            writeStream.on('finish', function () {
+                callback();
+            });
+        });
+    }).catch(function (err) {
+        callback(err, null);
+    });
+}
+
 exports.newCra = function (attr, callback) {
     try {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;
@@ -695,7 +786,7 @@ exports.newCra = function (attr, callback) {
         fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');
         fs.copySync(piecesPath + '/routes/e_cra_team.js', workspacePath + '/routes/e_cra_team.js');
         fs.copySync(piecesPath + '/views/e_cra/', workspacePath + '/views/e_cra/');
-        fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
+        // fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
         fs.copySync(piecesPath + '/js/', workspacePath + '/public/js/Newmips/component/');
 
         // Replace layout to point to current module
@@ -724,51 +815,39 @@ exports.newCra = function (attr, callback) {
         teamAttributesObj.fk_id_admin_user = {type: "INTEGER", newmipsType: "integer"};
         fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
 
-        // Get select of module before copying pieces
-        domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($workS) {
-            var select = $workS("#dynamic_select").html();
-            fs.copySync(piecesPath + '/views/layout_m_cra.dust', workspacePath + '/views/layout_m_cra.dust');
-            domHelper.read(workspacePath + '/views/layout_m_cra.dust').then(function ($newWorkS) {
-                // Insert select of module to copied pieces
-                $newWorkS("#dynamic_select").html(select);
+        // Replace locales
+        // fr-FR
+        var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
+        var frLocales = require(piecesPath + '/locales/fr-FR.json');
+        for (var entity in frLocales)
+            workspaceFrLocales.entity[entity] = frLocales[entity];
+        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
 
-                domHelper.write(workspacePath + '/views/layout_m_cra.dust', $newWorkS).then(function () {
-                    // Replace locales
-                    // fr-FR
-                    var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
-                    var frLocales = require(piecesPath + '/locales/fr-FR.json');
-                    for (var entity in frLocales)
-                        workspaceFrLocales.entity[entity] = frLocales[entity];
-                    fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
+        // en-EN
+        var workspaceEnLocales = require(workspacePath + '/locales/en-EN.json');
+        var enLocales = require(piecesPath + '/locales/en-EN.json');
+        for (var entity in enLocales)
+            workspaceEnLocales.entity[entity] = enLocales[entity];
+        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
 
-                    // en-EN
-                    var workspaceEnLocales = require(workspacePath + '/locales/en-EN.json');
-                    var enLocales = require(piecesPath + '/locales/en-EN.json');
-                    for (var entity in enLocales)
-                        workspaceEnLocales.entity[entity] = enLocales[entity];
-                    fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
+        // Update user translations
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
 
-                    // Update user translations
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
+        // // Update module name
+        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "Gestion de temps");
+        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "Timesheet");
 
-                    // // Update module name
-                    translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "Gestion de temps");
-                    translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "Timesheet");
-
-                    // Remove unwanted tab from user
-                    domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
-                        $("#r_cra-click").parents('li').remove();
-                        $("#r_cra").remove();
-                        domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
-                            // Check activity activate field in create field
-                            domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
-                                $("input[name='f_active']").attr("checked", "checked");
-                                domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
-                                    callback(null, {message: 'Module C.R.A created'});
-                                });
-                            });
-                        });
+        // Remove unwanted tab from user
+        domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
+            $("#r_cra-click").parents('li').remove();
+            $("#r_cra").remove();
+            domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
+                // Check activity activate field in create field
+                domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
+                    $("input[name='f_active']").attr("checked", "checked");
+                    domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
+                        callback(null, {message: 'Module C.R.A created'});
                     });
                 });
             });
@@ -805,7 +884,9 @@ exports.newStatus = function (attr, callback) {
         $("#" + historyId + "-click").parent().remove();
         $("#" + historyId).remove();
         domHelper.write(workspacePath + "/views/e_status/show_fields.dust", $).then(function () {
-
+            var statusAlias = 'r_' + attr.options.value.substring(2);
+            var statusAliasHTML = 'f_' + attr.options.value.substring(2);
+            var statusAliasSubstring = statusAlias.substring(2);
             // Customize history tab list
             domHelper.read(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust').then(function ($) {
                 // Remove buttons
@@ -820,17 +901,35 @@ exports.newStatus = function (attr, callback) {
                 newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
                 newTh += '    {@__ key="defaults.createdAt"/}\n';
                 newTh += '</th>\n';
-                $(".fields").append(newTh);
-                $("#bodyTR").append('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
+                $(".fields").each(function () {
+                    $(this).find("th:eq(2)").after(newTh);
+                });
+                $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
+                // Remove delete button
+                $("#bodyTR td:last").remove();
                 $("table").after('<input name="custom_order" data-index="3" data-order="DESC" type="hidden">');
+
+                // Change history tab locales
+                var localesFR = JSON.parse(fs.readFileSync(workspacePath + '/locales/fr-FR.json', 'utf8'));
+                localesFR.entity['e_' + attr.history_table]['as_r_history_' + attr.options.urlValue] = "Historique " + attr.options.showValue;
+                localesFR.entity['e_' + attr.history_table]['f_comment'] = "Commentaire";
+                localesFR.entity['e_' + attr.history_table]['as_r_' + attr.history_table] = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                localesFR.entity['e_' + attr.history_table].label_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                localesFR.entity['e_' + attr.history_table].name_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                localesFR.entity['e_' + attr.history_table].plural_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
+                var localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
+                localesEN.entity['e_' + attr.history_table]['as_r_' + attr.history_table] = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                localesEN.entity['e_' + attr.history_table].label_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                localesEN.entity['e_' + attr.history_table].name_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                localesEN.entity['e_' + attr.history_table].plural_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 
                 domHelper.write(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust', $).then(function () {
 
                     // Display status as a badge instead of an input
                     // Also add next status buttons after status field
                     domHelper.read(workspacePath + '/views/' + attr.source + '/show_fields.dust').then(function ($) {
-                        var statusAlias = 'r_' + attr.options.value.substring(2);
-
                         var statusBadgeHtml = '<br><span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
                         var nextStatusHtml = '';
                         nextStatusHtml += '<div class="form-group">';
@@ -838,8 +937,8 @@ exports.newStatus = function (attr, callback) {
                         nextStatusHtml += '<a href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
                         nextStatusHtml += '{/' + statusAlias + '.r_children}';
                         nextStatusHtml += '</div>';
-                        $("div[data-field='" + statusAlias + "']").find('input').replaceWith(statusBadgeHtml);
-                        $("div[data-field='" + statusAlias + "']").append(nextStatusHtml);
+                        $("div[data-field='" + statusAliasHTML + "']").find('input').replaceWith(statusBadgeHtml);
+                        $("div[data-field='" + statusAliasHTML + "']").append(nextStatusHtml);
                         // Input used for default ordering
 
                         // Remove create button
@@ -849,13 +948,25 @@ exports.newStatus = function (attr, callback) {
 
                             // Remove status field from update_fields and create_fields
                             domHelper.read(workspacePath + '/views/' + attr.source + '/create_fields.dust').then(function ($) {
-                                $("div[data-field='f_" + attr.options.value.substring(2) + "']").remove();
+                                $("div[data-field='" + statusAliasHTML + "']").remove();
                                 domHelper.write(workspacePath + '/views/' + attr.source + '/create_fields.dust', $).then(function () {
                                     domHelper.read(workspacePath + '/views/' + attr.source + '/update_fields.dust').then(function ($) {
-                                        $("div[data-field='f_" + attr.options.value.substring(2) + "']").remove();
+                                        $("div[data-field='" + statusAliasHTML + "']").remove();
                                         domHelper.write(workspacePath + '/views/' + attr.source + '/update_fields.dust', $).then(function () {
-                                            translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function () {
-                                                callback(null);
+
+                                            // Update list field to show status color in datalist
+                                            domHelper.read(workspacePath + '/views/' + attr.source + '/list_fields.dust').then(function ($) {
+
+                                                $("th[data-field='" + statusAlias + "']").each(function () {
+                                                    $(this).attr("data-type", "status");
+                                                });
+                                                $("td[data-field='" + statusAlias + "']").attr("data-type", "status");
+
+                                                domHelper.write(workspacePath + '/views/' + attr.source + '/list_fields.dust', $).then(function () {
+                                                    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function () {
+                                                        callback(null);
+                                                    });
+                                                });
                                             });
                                         });
                                     });

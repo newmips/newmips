@@ -200,7 +200,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("cra"
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_cra.findOne({where: {id: idEntity}}).then(function (e_cra) {
@@ -270,7 +270,7 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
     });
 });
 
-router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'create'), function(req, res) {
     var id_cra = req.params.id;
 
     models.E_cra.findById(id_cra).then(function(cra) {
@@ -287,7 +287,7 @@ router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccess
     });
 });
 
-router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'update'), function(req, res) {
     var body = req.body;
     var id_cra = parseInt(body.id_cra);
 
@@ -499,7 +499,7 @@ router.get('/getCra', block_access.actionAccessMiddleware("cra", 'read'), functi
     });
 });
 
-router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra", 'create'), function(req, res) {
     var id_cra = parseInt(req.params.id_cra);
 
     models.E_cra.update({f_user_validated: true}, {where: {id: id_cra}}).then(function(cra) {
@@ -512,7 +512,7 @@ router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra
     });
 });
 
-router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'create'), function(req, res) {
     var body = req.body;
     body.year = parseInt(body.year);
     body.month = parseInt(body.month);
@@ -590,7 +590,7 @@ router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'write
     });
 });
 
-router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write'), function(req, res) {
+router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'update'), function(req, res) {
     var body = req.body;
     body.year = parseInt(body.year);
     body.month = parseInt(body.month);
@@ -664,7 +664,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'write
     });
 });
 
-router.get('/getData/:month/:year/:forUserId*?', function(req, res) {
+router.get('/getData/:month/:year/:forUserId*?', block_access.actionAccessMiddleware("cra", 'read'), function(req, res) {
     var data = {};
     var id_user = req.params.forUserId ? req.params.forUserId : req.session.passport.user.id;
     var month = parseInt(req.params.month);
@@ -881,7 +881,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra", "read"), function
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
     var data = {
         menu: "e_cra",
         sub_menu: "create_e_cra",
@@ -909,7 +909,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "write"), 
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("e_cra", createObject, req.body);
@@ -952,7 +952,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra", "write"), func
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("cra", 'update'), function (req, res) {
     id_e_cra = req.query.id;
     var data = {
         menu: "e_cra",
@@ -1014,7 +1014,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", "write"), 
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("cra", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("cra", 'update'), function (req, res) {
     var id_e_cra = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')

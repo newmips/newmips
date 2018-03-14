@@ -12,7 +12,14 @@ module.exports = function(ioParam) {
 		io = ioParam;
 	if (io)
 		io.on('connection', function(socket) {
-			var user = socket.handshake.session.passport.user;
+			var user;
+			try {
+				user = socket.handshake.session.passport.user;
+			} catch (e) {
+				console.error("Bad session for socket");
+				return;
+			}
+
 			// Socket initialization
 			{
 				// On connection, register user to connectedUsers array
@@ -31,6 +38,8 @@ module.exports = function(ioParam) {
 
 	return {
 		sendNotification: function(notification, targetIds) {
+			if (!globalConf.socket.enabled || !globalConf.socket.notification)
+				return console.log('Sockets or notifications disabled. Notification ID '+notification.id+' couldn\'t be sent');
 			for (var i = 0; i < targetIds.length; i++)
 				if (connectedUsers[targetIds[i]])
 					connectedUsers[targetIds[i]].socket.emit('notification', notification);

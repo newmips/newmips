@@ -1,68 +1,144 @@
-<div id="fields" class="row">
-    <div class="col-xs-12" data-field="f_login">
-        <div class="form-group">
-            <label for="f_login">
-                {@__ key="entity.e_user.f_login"/} {@inline_help field="f_login"}&nbsp;<i data-field="f_login" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
-            </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text" readonly="">
-        </div>
-    </div>
-    <div class="col-xs-12" data-field="f_email">
-        <div class="form-group">
-            <label for="f_email">
-                {@__ key="entity.e_user.f_email"/} {@inline_help field="f_email"}&nbsp;<i data-field="f_email" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
-            </label>
-            <div class="input-group">
-                <div class="input-group-addon"> <i class="fa fa-envelope"></i>
-
+<div class="nav-tabs-custom" id="tabs">
+    {^hideTab}
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#home">
+                {@__ key="entity.e_user.label_entity" /}
+            </a>
+        </li>
+        {@entityAccess entity="notification"}
+        {/entityAccess}
+        {@entityAccess entity="notification"}
+        <li>
+            <a id="r_notification-click" data-toggle="tab" data-tabtype="hasMany" href="#r_notification">
+                {@__ key="entity.e_notification.as_r_notification" /}
+            </a>
+        </li>
+        {/entityAccess}
+    </ul>
+    {/hideTab}
+    <div class="tab-content" style="min-height:275px;">
+        <div id="home" class="tab-pane fade in active">
+            <div id="fields" class="row">
+                <div data-field="f_login" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_login">
+                            {@__ key="entity.e_user.f_login"/}
+                            &nbsp;{@inline_help field="f_login"}<i data-field="f_login" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+                        </label>
+                        <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' name="f_login" value="{f_login}" type="text" readonly="">
+                    </div>
                 </div>
-                <input class="form-control input" placeholder='{@__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email" readonly="">
+                <div data-field="f_email" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_email">
+                            {@__ key="entity.e_user.f_email"/}
+                            &nbsp;{@inline_help field="f_email"}<i data-field="f_email" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-envelope"></i>
+                            </div>
+                            <input class="form-control input" placeholder='{@__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email" readonly="">
+                        </div>
+                    </div>
+                </div>
+                <div data-field="f_role" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_role">{@__ key="entity.e_user.r_role" /}</label>
+                        <select multiple="" style="width:100%;" class="form-control" name="r_role" disabled="" readonly="">
+                            {#r_role_global_list}
+                            {@inArray field="id" array=r_role value=id}
+                            <option value="{id|string}" selected="">{f_label|string}</option>
+                            {:else}
+                            <option value="{id|string}">{f_label|string}</option>
+                            {/inArray}
+                            {/r_role_global_list}
+                        </select>
+                    </div>
+                </div>
+                <div data-field="f_group" class="col-xs-12">
+                    <div class="form-group">
+                        <label for="f_group">{@__ key="entity.e_user.r_group" /}</label>
+                        <select multiple="" style="width:100%;" class="form-control" name="r_group" disabled="" readonly="">
+                            {#r_group_global_list}
+                            {@inArray field="id" array=r_group value=id}
+                            <option value="{id|string}" selected="">{f_label|string}</option>
+                            {:else}
+                            <option value="{id|string}">{f_label|string}</option>
+                            {/inArray}
+                            {/r_group_global_list}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="actions">
+                <form action="/user/delete" method="post">
+                    <div class="quicklinks">
+                        <span>
+                            <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="button.return"/}</a>
+                        </span>
+                        {@actionAccess entity="user" action="delete"}
+                        <span>
+                            <button class="btn btn-danger">
+                            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                            <span>{@__ key="button.delete"/}</span>
+                            </button>
+                            <input name="id" type="hidden" value="{e_user.id}" class="form-control">
+                        </span>
+                        {/actionAccess}
+                        {@actionAccess entity="user" action="update"}
+                        <span>
+                            <a href="/user/update_form?id={e_user.id}" class="btn btn-warning">
+                                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                                <span>{@__ key="button.update"/}</span>
+                            </a>
+                        </span>
+                        {/actionAccess}
+                        {^hideButton}
+                        {@actionAccess entity="user" action="create"}
+                        <span>
+                            <a href="/user/create_form" class="btn btn-success">
+                                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                                <span>{@__ key="button.create"/}</span>
+                            </a>
+                        </span>
+                        {/actionAccess}
+                        {@actionAccess entity="user" action="read"}
+                        <span>
+                            <a href="/user/list" type="submit" class="btn btn-primary">
+                                <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                                <span>{@__ key="button.list"/}</span>
+                            </a>
+                        </span>
+                        {/actionAccess}
+                        {/hideButton}
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-    <div class="col-xs-12" data-field="r_role">
-        <div class="form-group">
-            <label for="r_role">
-                {@__ key="entity.e_user.r_role"/} {@inline_help field="r_role"}&nbsp;<i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
-            </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_user.r_role" /}' name="r_role" value="{r_role.f_label}" type="text" readonly="">
-        </div>
-    </div>
-    <div class="col-xs-12" data-field="r_group">
-        <div class="form-group">
-            <label for="r_group">{@__ key="entity.e_user.r_group"/} {@inline_help field="r_group"}&nbsp;<i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_user.r_group" /}' name="r_group" value="{r_group.f_label}" type="text" readonly="">
-        </div>
-    </div>
-</div>
-<div class="actions">
-    <form action="/user/delete" method="post">
-        <div class="quicklinks"> <span>
-                <button class="btn btn-danger">
-                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.delete"/}</span>
-
-            </button>
-            <input name="id" type="hidden" value="{e_user.id}" class="form-control">
-            </span> <span>
-                <a href="/user/update_form?id={e_user.id}" class="btn btn-warning">
-                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.update"/}</span>
-
+        {^hideTab}
+        {@entityAccess entity="notification"}
+        {/entityAccess}
+        {/hideTab}
+        {^hideTab}
+        {@entityAccess entity="notification"}
+        <div id="r_notification" class="tab-pane fade" data-tabtype="hasMany">
+            <div class="sub-tab-table">
+                {#r_notification e_notification=r_notification}
+                {@eq key=id value=e_notification[0].id}
+                {>"e_notification/list_fields" associationAlias="r_notification" associationForeignKey="fk_id_user" associationFlag="{e_user.id}" associationSource="e_user" associationUrl="user" for="hasMany" /}
+                {/eq}
+                {:else}
+                {>"e_notification/list_fields" /}
+                {/r_notification}
+            </div>
+            <br>
+            <a href="/notification/create_form?associationAlias=r_notification&amp;associationForeignKey=fk_id_user&amp;associationFlag={e_user.id}&amp;associationSource=e_user&amp;associationUrl=user" class="btn btn-success">
+                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
             </a>
-            </span> <span>
-                <a href="/user/create_form" class="btn btn-success">
-                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.create"/}</span>
-
-            </a>
-            </span> <span>
-                <a href="/user/list" type="submit" class="btn btn-primary">
-                    <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.list"/}</span>
-
-            </a>
-            </span>
         </div>
-    </form>
+        {/entityAccess}
+        {/hideTab}
+    </div>
 </div>

@@ -61,7 +61,9 @@
         "close": "Fermer",
         "send": "Envoyer",
         "add": "Ajouter",
-        "documentation": "Documentation"
+        "documentation": "Documentation",
+        "cancel": "Annuler",
+        "loading": "Chargement..."
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
@@ -100,9 +102,16 @@
         "intro3": "Et vous pouvez appuyer sur F11 quand vous êtes sur l'éditeur pour passer en plein écran!"
     },
     "ui_editor": {
-        "page_not_found": "Impossible de trouver le fichier",
-        "page_saved": "Votre nouveau design a été sauvergardé",
-        "select_entity": "Sélectionnez une entité à éditer"
+        "page_not_found": "Impossible de trouver le fichier.",
+        "page_saved": "Votre nouvelle mise en page a bien été appliquée.",
+        "page_saved_all": "Votre nouvelle mise en page sur toute l'entité a bien été appliquée.",
+        "select_entity": "Sélectionnez une entité à éditer.",
+        "applyAll": "Appliquer sur toute l'entité.",
+        "tips": "Essayez Ctrl+Click ou encore Shift+Click sur les boutons de modification de taille pour gagner du temps !",
+        "create_page": "Page de création",
+        "update_page": "Page de mise à jour",
+        "show_page": "Page d'affichage",
+        "print_page": "Page d'impression"
     },
     "instructionScript": {
         "legend": "Executer un script Newmips",
@@ -130,12 +139,13 @@
             "lastname": "Nom",
             "firstname": "Prénom",
             "phone": "Téléphone",
-            "email": "Email"
+            "email": "Email",
+            "env": "Environnement"
         },
         "change_password": "Réinitialiser son mot de passe",
         "reset_button": "Réinitialiser",
         "sure_reset": "Êtes-vous sur ? Vous allez être déconnecté, votre mot de passe sera réinitialisé et vous allez recevoir un email pour en configurer un nouveau.",
-        "activate_translation": "Activer la traduction automatique (Connexion internet + Clée API Google valide requises)",
+        "activate_translation": "Activer la traduction automatique (connexion internet + clé API Google valide requises)",
         "english": "Anglais",
         "french": "Français"
     },
@@ -157,7 +167,9 @@
             "text": "Veuillez ajouter votre logo ci-dessous (Taille conseillée 180px x 100px) :",
             "add": "Le nouveau logo a bien été ajouté.",
             "remove": "Le logo a bien été supprimé.",
-            "noLogo": "Désolé mais vous n'avez actuellement pas de logo, vous pouver en ajouter un avec l'instruction:<br> -<b class='click-instruction'> ajouter un logo</b>"
+            "noLogo": "Désolé mais vous n'avez actuellement pas de logo, vous pouver en ajouter un avec l'instruction:<br> -<b class='click-instruction'> ajouter un logo</b>",
+            "notExist": "Désolé mais le fichier demandé n'existe pas, vous pouvez ajouter votre logo avec l'instruction :<br> -<b class='click-instruction'> ajouter un logo</b>"
+
         }
     },
     "project": {
@@ -304,7 +316,8 @@
                 "deleted": "Champ %s supprimé !"
             },
             "notFound": {
-                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s."
+                "withThisID": "Désolé, mais il n'y a pas de champ avec l'ID: %s.",
+                "withThisName": "Désolé, mais il n'y a pas de champ %s dans l'entité %s."
             }
         }
     },
@@ -312,7 +325,7 @@
         "global": {
             "restart": {
                 "success": "Le serveur a bien été redémarré!",
-                "error": "Impossible de démarrer le serveur suite à une erreur critique."
+                "error": "Oups, le serveur de l'application ne répond pas, vous pouvez essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>"
             },
             "gitPush": {
                 "success": "L'application a bien été sauvegardée !"
@@ -325,7 +338,7 @@
             },
             "error": {
                 "alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
-                "notDoGit": "L'option 'doGit' dans config/gitlab.json est désactivée, l'instruction demandée ne fera donc rien."
+                "notDoGit": "L'option 'doGit' dans config/gitlab.js est désactivée, l'instruction demandée ne fera donc rien."
             }
         },
         "module": {
@@ -335,7 +348,8 @@
         },
         "field": {
             "attributes": {
-                "success": "Le champ %s est désormais %s.",
+                "success": "Le champ %s est désormais %s = %s.",
+                "successKnownAttribute": "Le champ %s est désormais %s.",
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
@@ -396,7 +410,12 @@
             },
             "theme": {
                 "list": "Thèmes disponibles:<br>%s<br>",
-                "cannotFind": "Impossible de trouver le thème demandé. Thèmes disponibles :<br>%s<br>"
+                "cannotFind": "Impossible de trouver le thème demandé. Thèmes disponibles :<br>%s<br>",
+                "missingCss": "Il faut au moins 1 fichier .css dans votre thème !",
+                "missingInfo": "Le fichier infos.json est manquant !",
+                "missingScreenshot": "Le fichier screenshot.png est manquant !",
+                "alreadyExist": "Un thème avec ce nom existe déjà, merci de changer le nom du thème dans le infos.json.",
+                "successUpload": "Le thème a bien été ajouté !"
             },
             "layout": {
                 "list": "Layout disponibles:<br>%s<br>",
@@ -424,7 +443,8 @@
     "themes":{
         "download-default": "Télécharger le modèle de thème",
         "generating": "Génération en cours...",
-        "add-theme": "Uploader un thème",
-        "wrongExt": "Seul les .zip sont accepté."
+        "add-theme": "Déposer un thème",
+        "wrongExt": "Seul les .zip sont accepté.",
+        "default": "Thème par défaut"
     }
 }

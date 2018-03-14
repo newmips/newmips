@@ -46,6 +46,7 @@
     "simple-git": "^1.65.0",
     "slack": "^8.3.1",
     "split": "^1.0.0",
+    "through2": "^2.0.3",
     "unzip": "^0.1.11",
     "winston": "^2.3.0"
   },
@@ -57,5 +58,5 @@
     "type": "git",
     "url": "https://github.com/Newmips/newmips.git"
   },
-  "license": "GNU/AGPLv3"
+  "license": "GNU/GPLv3"
 }

@@ -107,7 +107,7 @@ exports.setupModule = function (attr, callback) {
                                     accessObject[url_name_module.toLowerCase()] = {groups: [], entities: []};
                                     fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
                                         callback();
-                                    })
+                                    });
                                 }).catch(function (err) {
                                     callback(err, null);
                                 });
