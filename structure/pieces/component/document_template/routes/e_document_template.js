@@ -168,7 +168,7 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("document_template", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
     var data = {
         menu: "e_document_template",
         sub_menu: "create_e_document_template",
@@ -195,7 +195,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("document_template", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("e_document_template", createObject, req.body);
@@ -257,7 +257,7 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("document_template", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
     var id_e_document_template = req.query.id;
     var data = {
         menu: "e_document_template",
@@ -326,7 +326,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("document_template", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
     var id_e_document_template = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -375,7 +375,7 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
     });
 });
 
-router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "write"), function (req, res) {
+router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
     var historyModel = 'E_history_e_document_template_' + req.params.status;
     var historyAlias = 'r_history_' + req.params.status.substring(2);
     var statusAlias = 'r_' + req.params.status.substring(2);
@@ -492,7 +492,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("document_template", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_document_template.findOne({where: {id: idEntity}}).then(function (e_document_template) {
