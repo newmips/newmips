@@ -26,7 +26,7 @@ exports.isLoggedIn = function(req, res, next) {
     else if (req.isAuthenticated())
         return next();
     else {
-        req.session.rejectedUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+        //req.session.rejectedUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
         res.redirect('/login');
     }
 };
@@ -44,17 +44,32 @@ function getAccess() {
     delete require.cache[require.resolve('../config/access.json')]
     return require('../config/access.json');
 }
+function isInBothArray(stringArray, objectArray) {
+    if (stringArray.length == 0)
+        return false;
+    var allowedCount = 0;
+    for (var j = 0; j < objectArray.length; j++) {
+        var isAllowed = true;
+        for (var i = 0; i < stringArray.length; i++) {
+            if (stringArray[i] == objectArray[j].f_label)
+                isAllowed = false;
+        }
+        if (isAllowed == true)
+            allowedCount++;
+    }
+
+    if (allowedCount > 0)
+        return false
+    return true;
+}
 // Check if user's group have access to module
-function moduleAccess(userGroup, moduleName) {
+function moduleAccess(userGroups, moduleName) {
     try {
         var access = getAccess();
-        for (var module in access) {
-            if (module == moduleName) {
-                if (access[module].groups.indexOf(userGroup) == -1)
+        for (var module in access)
+            if (module == moduleName)
+                if (!isInBothArray(access[module].groups, userGroups))
                     return true;
-                return false;
-            }
-        }
         return false;
     } catch (e) {
         return false;
@@ -65,32 +80,30 @@ exports.moduleAccess = moduleAccess;
 exports.moduleAccessMiddleware = function(moduleName) {
     return function(req, res, next) {
         if (!req.isAuthenticated())
-            res.redirect('/login');
-        var userGroup = req.session.passport.user.r_group.f_label;
-        if (moduleAccess(userGroup, moduleName))
+            return res.redirect('/login');
+        if (moduleAccess(req.session.passport.user.r_group, moduleName))
             return next();
         req.session.toastr.push({
             level: 'error',
-            'message': "Your Group doesn't have access to this module"
+            'message': "Your Group(s) doesn't have access to this module"
         });
     }
 }
 
 // Check if user's group have access to entity
-function entityAccess(userGroup, entityName) {
+function entityAccess(userGroups, entityName) {
     try {
         var access = getAccess();
         for (var module in access) {
             var moduleEntities = access[module].entities;
-            for (var i = 0; i < moduleEntities.length; i++) {
+            for (var i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName) {
                     // Check if group can access entity AND module to which the entity belongs
-                    if (moduleEntities[i].groups.indexOf(userGroup) == -1 &&
-                        access[module].groups.indexOf(userGroup) == -1)
+                    if (!isInBothArray(moduleEntities[i].groups, userGroups)
+                    && !isInBothArray(access[module].groups, userGroups)) {
                         return true;
-                    return false;
+                    }
                 }
-            }
         }
         return false;
     } catch (e) {
@@ -101,30 +114,26 @@ exports.entityAccess = entityAccess;
 
 exports.entityAccessMiddleware = function(entityName) {
     return function(req, res, next) {
-        var userGroup = req.session.passport.user.r_group.f_label;
-        if (entityAccess(userGroup, entityName))
+        var userGroups = req.session.passport.user.r_group;
+        if (entityAccess(userGroups, entityName))
             return next();
         req.session.toastr.push({
             level: 'error',
-            'message': "Your Group doesn't have access to this entity"
+            'message': "Your Group(s) doesn't have access to this entity"
         });
         res.redirect('/default/home');
     }
 }
 
 // Check if user's role can do `action` on entity
-function actionAccess(userRole, entityName, action) {
+function actionAccess(userRoles, entityName, action) {
     try {
         var access = getAccess();
         for (var module in access) {
             var moduleEntities = access[module].entities;
-            for (var i = 0; i < moduleEntities.length; i++) {
-                if (moduleEntities[i].name == entityName) {
-                    if (moduleEntities[i].actions[action].indexOf(userRole) == -1)
-                        return true;
-                    return false;
-                }
-            }
+            for (var i = 0; i < moduleEntities.length; i++)
+                if (moduleEntities[i].name == entityName)
+                    return !isInBothArray(moduleEntities[i].actions[action], userRoles)
         }
         return false;
     } catch (e) {
@@ -135,12 +144,12 @@ exports.actionAccess = actionAccess;
 
 exports.actionAccessMiddleware = function(entityName, action) {
     return function(req, res, next) {
-        var userRole = req.session.passport.user.r_role.f_label;
-        if (actionAccess(userRole, entityName, action))
+        var userRoles = req.session.passport.user.r_role;
+        if (actionAccess(userRoles, entityName, action))
             return next();
         req.session.toastr.push({
             level: 'error',
-            'message': "Your Role doesn't have access to action " + action + ' on entity ' + entityName
+            'message': "Your Role(s) doesn't have access to action " + action + ' on entity ' + entityName
         });
         res.redirect('/default/home');
     }

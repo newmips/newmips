@@ -110,9 +110,8 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
                             value: task.value,
                             buffer: buffer
                         };
-                        if (counter === todo.length) 
+                        if (counter === todo.length)
                             res.send(data).end();
-                        
                     });
                 }(_todo));
             }
@@ -154,7 +153,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
@@ -236,7 +235,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "create_ENTITY_NAME",
@@ -264,7 +263,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     createObject = enums.values("ENTITY_NAME", createObject, req.body);
@@ -306,7 +305,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 'update'), function (req, res) {
     var id_ENTITY_NAME = req.query.id;
     var data = {
         menu: "ENTITY_NAME",
@@ -368,7 +367,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 'update'), function (req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -435,31 +434,6 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
     }).catch(function (err) {
         error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
-
-    // Check in the request come from an has one tab
-    /*if (typeof req.body.associationFlag !== 'undefined'){
-        var optionsSource = require('../models/options/'+req.body.associationSource);
-        var foundUpdateToDo = false;
-        for(var obj in optionsSource){
-            if(optionsSource[obj].target == "ENTITY_NAME" && optionsSource[obj].relation == "belongsTo" && !foundUpdateToDo){
-                var updateObj = {};
-                // Set to null the source obj foreign key to avoid constraint error when we destroy the target
-                updateObj[req.body.associationForeignKey] = null;
-                foundUpdateToDo = true;
-                models[capitalizeFirstLetter(req.body.associationSource)].update(updateObj, {
-                    where: {
-                        id: req.body.associationFlag
-                    }
-                }).then(function(){
-                    doDelete();
-                });
-            }
-        }
-        if(!foundUpdateToDo)
-            doDelete();
-    } else{
-        doDelete();
-    }*/
 });
 
 module.exports = router;

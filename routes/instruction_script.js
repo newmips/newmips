@@ -103,8 +103,12 @@ var mandatoryInstructions = [
     "add field label",
     "set icon users",
     "select entity User",
-    "add field role related to Role using label",
-    "add field group related to Group using label",
+    "add field Role related to many Role using label",
+    "add field Group related to many Group using label",
+    "set field Role required",
+    "set field Group required",
+    "entity Role has many user",
+    "entity Group has many user",
     "add entity API credentials",
     "add field Client Name",
     "add field Client Key",
@@ -112,8 +116,8 @@ var mandatoryInstructions = [
     "add field Token",
     "add field Token timeout TMSP",
     "set icon unlink",
-    "add field role related to Role using label",
-    "add field group related to Group using label",
+    "add field role related to many Role using label",
+    "add field group related to many Group using label",
     "add entity Status",
     "set icon tags",
     "add field Entity",
@@ -131,6 +135,7 @@ var mandatoryInstructions = [
     "set icon envelope",
     "add field Type with type enum and values Mail, Notification, Function",
     "add field Name",
+    "set field Name required",
     "add field Target entity",
     "entity status has many Action called Actions",
     "select entity action",
@@ -154,18 +159,17 @@ var mandatoryInstructions = [
     "add field Color with type color",
     "add field Target Groups related to many group",
     "add field Target Users related to many user",
-    "add entity notification",
-    "add field title",
-    "add field description",
-    "add field url",
-    "add field color with type color",
-    "add field icon",
+    "add entity Notification",
+    "add field Title",
+    "add field Description",
+    "add field URL",
+    "add field Color with type color",
+    "add field Icon",
     "select entity media function",
     "add field Title",
     "add field Function with type text",
-
     "add entity Inline Help",
-    "set icon question",
+    "set icon question-circle-o",
     "add field Entity",
     "add field Field",
     "add field Content with type text",
@@ -179,10 +183,29 @@ function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
         // All instructions executed, mandatory instruction included
         if (scriptData[req.session.passport.user.id].totalInstruction == idx){
-            var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
-            // Api documentation
-            docBuilder.build(idApplication);
-            resolve(idApplication);
+            function done(){
+                var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
+                if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
+                    structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
+                        // Api documentation
+                        docBuilder.build(idApplication);
+                        resolve(idApplication);
+                    });
+                } else {
+                    // Api documentation
+                    docBuilder.build(idApplication);
+                    resolve(idApplication);
+                }
+            }
+            // Set default theme if different than blue-light
+            if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light"){
+                execute(req, "set theme "+req.session.defaultTheme).then(function() {
+                    done();
+                });
+            } else {
+                done();
+            }
+
         } else {
             // If project and application are created and we're at the instruction that
             // follows create application, insert mandatory instructions to instruction array
@@ -193,6 +216,12 @@ function recursiveExecute(req, instructions, idx) {
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
             if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
                 structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
+                    // Write source script in generated workspace
+                    var historyPath = __dirname+'/../workspace/'+scriptData[req.session.passport.user.id].ids.id_application+"/history_script.nps";
+                    var instructionsToWrite = instructions.slice().splice(mandatoryInstructions.length + 2).join("\n");
+                    instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
+                    fs.writeFileSync(historyPath, instructionsToWrite);
+
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));
@@ -413,7 +442,16 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     for(var entity in toSyncObject){
                         if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
-                            delete toSyncObject[entity].options;
+                            // We have to remove options from toSync.json that will be generate with sequelize sync
+                            // But we have to keep relation toSync on already existing entities
+                            if(typeof toSyncObject[entity].options !== "undefined"){
+                                var cleanOptions = [];
+                                for(var i=0; i<toSyncObject[entity].options.length; i++){
+                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
+                                        cleanOptions.push(toSyncObject[entity].options[i]);
+                                }
+                                toSyncObject[entity].options = cleanOptions;
+                            }
                         }
                     }
 
@@ -458,6 +496,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     res.end();
 });
 
+/* Execute when it's not a file upload but a file written in textarea */
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
     // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
     idxAtMandatoryInstructionStart = -1;
@@ -628,7 +667,16 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     for(var entity in toSyncObject){
                         if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
-                            delete toSyncObject[entity].options;
+                            // We have to remove options from toSync.json that will be generate with sequelize sync
+                            // But we have to keep relation toSync on already existing entities
+                            if(typeof toSyncObject[entity].options !== "undefined"){
+                                var cleanOptions = [];
+                                for(var i=0; i<toSyncObject[entity].options.length; i++){
+                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
+                                        cleanOptions.push(toSyncObject[entity].options[i]);
+                                }
+                                toSyncObject[entity].options = cleanOptions;
+                            }
                         }
                     }
 

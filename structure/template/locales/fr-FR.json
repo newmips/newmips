@@ -49,7 +49,8 @@
             "api_doc": "Documentation de l'API",
             "action": {
                 "read": "Afficher",
-                "write": "Créer",
+                "create": "Créer",
+                "update": "Modifier",
                 "delete": "Supprimer"
             }
         },
@@ -102,7 +103,9 @@
         "next": "Suivant",
         "close": "Fermer",
         "generate":"Générer",
-        "help":"Aide"
+        "help":"Aide",
+        "cancel": "Annuler",
+        "return": "Retour"
     },
     "operation": {
         "show": "Afficher",
@@ -126,7 +129,8 @@
             "failure": "Erreur ! L'enregistrement n'a pas été supprimé en base de données. Veuillez contacter votre administrateur.",
             "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
         },
-        "empty": "Aucune donnée à afficher"
+        "empty": "Aucune donnée à afficher",
+        "unique": "Ce champ doit être unique:"
     },
     "entity": {},
     "global_component": {

@@ -129,19 +129,18 @@ exports.deleteDataField = function (attr, callback) {
         return callback(err, null);
     }
 
-    var id_data_entity = attr.id_data_entity;
-    var options = attr.options;
-    var name_data_field = options.value;
+    var idEntity = attr.id_data_entity;
+    var nameField = attr.options.value;
 
     models.DataField.destroy({
         where: {
-            codeName: name_data_field,
-            id_data_entity: id_data_entity
+            codeName: nameField,
+            id_data_entity: idEntity
         }
     }).then(function () {
         var info = {};
         info.message = "database.field.delete.deleted";
-        info.messageParams = [options.showValue];
+        info.messageParams = [attr.options.showValue];
         callback(null, info);
     }).catch(function (err) {
         callback(err, null);
@@ -218,5 +217,26 @@ exports.getCodeNameByNameArray = function(names, id_entity, callback) {
         callback(null, results);
     }).catch(function(err) {
         callback(err);
+    });
+}
+
+exports.getFieldByCodeName = function (attr, callback) {
+
+    models.DataField.findOne({
+        where: {
+            codeName: attr.fieldToDrop,
+            id_data_entity: attr.id_data_entity
+        }
+    }).then(function (field) {
+        if (!field) {
+            var err = new Error();
+            err.message = "database.field.notFound.withThisName";
+            err.messageParams = [attr.options.showValue, attr.show_name_data_entity];
+            return callback(err, null);
+        }
+
+        callback(null, field);
+    }).catch(function (err) {
+        callback(err, null);
     });
 }

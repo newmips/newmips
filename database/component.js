@@ -238,3 +238,27 @@ exports.deleteComponentByCodeNameInModule = function (codeNameComponent, idModul
         callback(err, null);
     });
 }
+
+// Get a component codeName and the has many entity and check if the given ID entity is in
+exports.deleteComponentOnModule = function(codeNameComponent, idModule, callback) {
+
+    models.Component.findOne({
+        where: {
+            codeName: codeNameComponent,
+            id_module: idModule
+        }
+    }).then(function(foundComponent){
+        if(foundComponent){
+            foundComponent.destroy().then(function(){
+                callback(null, true);
+            });
+        } else{
+            var err = new Error();
+            err.message = "database.component.delete.error";
+            return callback(err, null);
+        }
+    }).catch(function(err) {
+        console.log(err);
+        callback(err, null);
+    });
+}

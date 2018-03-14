@@ -129,14 +129,6 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
             return res.render('common/error', data);
         }
 
-        /* Modify ENTITY_NAME value with the translated enum value in show result */
-        /*for (var item in data.enum)
-            for (var field in ENTITY_NAME.dataValues)
-                if (item == field)
-                    for (var value in data.enum[item])
-                        if (data.enum[item][value].value == ENTITY_NAME[field])
-                            ENTITY_NAME[field] = data.enum[item][value].translation;*/
-
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         var associationsFinder = model_builder.associationsFinder(models, options);
@@ -158,7 +150,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "create_ENTITY_NAME",
@@ -185,7 +177,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("ENTITY_NAME", createObject, req.body);
@@ -240,7 +232,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
     var id_ENTITY_NAME = req.query.id;
     var data = {
         menu: "ENTITY_NAME",
@@ -297,7 +289,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -339,28 +331,29 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "w
     });
 });
 
-router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function(req, res) {
+router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
     var historyModel = 'E_history_ENTITY_NAME_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
     var statusAlias = 'r_'+req.params.status.substring(2);
 
     var errorRedirect = '/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME;
-    // Find target entity instance
+
+    var includeTree = entity_helper.status.generateEntityInclude(models, 'ENTITY_NAME');
+
+    // Find target entity instance and include its child to be able to replace variables in media
+    includeTree.push({
+        model: models[historyModel],
+        as: historyAlias,
+        limit: 1,
+        order: 'createdAt DESC',
+        include: [{
+            model: models.E_status,
+            as: statusAlias
+        }]
+    });
     models.MODEL_NAME.findOne({
         where: {id: req.params.id_ENTITY_URL_NAME},
-        include: [{
-            model: models[historyModel],
-            as: historyAlias,
-            limit: 1,
-            order: 'createdAt DESC',
-            include: [{
-                model: models.E_status,
-                as: statusAlias
-            }]
-        }, {
-            // Include all associations that can later be used by media to include variables value
-            all: true, nested: true
-        }]
+        include: includeTree
     }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]){
             logger.debug("Not found - Set status");
@@ -380,7 +373,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
-                        include: [{all: true, nested: true}]
+                        include: {all: true, nested: true}
                     }]
                 }]
             }]
@@ -410,6 +403,19 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             nextStatus.executeActions(ENTITY_NAME).then(function() {
                 // Create history record for this status field
                 // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
+                var createObject = {}
+                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+                models[historyModel].create(createObject).then(function() {
+                    ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+                });
+            }).catch(function(err) {
+                console.error(err);
+                req.session.toastr = [{
+                    level: 'warning',
+                    message: 'component.status.error.action_error'
+                }]
                 var createObject = {}
                 createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
@@ -453,7 +459,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {

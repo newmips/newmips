@@ -22,8 +22,7 @@ if (lang_user == "fr-FR") {
 			"sortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
 		}
 	};
-}
-else {
+} else {
 	str_language = {
 		"processing":     "Processing...",
 		"search":         "Search&nbsp;:",
@@ -100,5 +99,19 @@ $(document).ready(function() {
 	// Init DataTable
 	$(".dataTable").each(function() {
 		tables[$(this).attr('id')] = $(this).DataTable(options);
+	});
+
+	$(".dataTable th").each(function(idx){
+		if($(this).data("hidden") == 1){
+			// Hide hidden column
+			$(this).hide();
+			$("td[data-field='"+$(this).data("field")+"']").hide();
+		} else if($(this).text() == ""){
+			// Remove unused action button th & td
+			if($("td").eq(idx).text() == ""){
+				$(this).hide();
+				$("td").eq(idx).hide();
+			}
+		}
 	});
 });

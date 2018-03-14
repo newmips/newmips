@@ -14,7 +14,8 @@ var models = require('../models/');
 var re = /(?:\.([^.]+))?$/;
 
 // Exclude folder from editor
-var exclude = ["node_modules", "config", "sql", "services", "api", "utils", "upload", ".git"];
+var excludeFolder = ["node_modules", "sql", "services", "utils", "upload", ".git"];
+var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
 // ===========================================
 // Redirection Editor =====================
@@ -25,7 +26,7 @@ router.get('/:id_application', block_access.isLoggedIn, function(req, res) {
     var data = {};
     var id_application = req.params.id_application;
     var workspacePath = __dirname + "/../workspace/" + id_application + "/";
-    var folder = helpers.readdirSyncRecursive(workspacePath, exclude);
+    var folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
     /* Sort folder first, file after */
     folder = helpers.sortEditorFolder(folder);
     data.workspaceFolder = folder;
@@ -39,7 +40,7 @@ router.post('/load_file', block_access.isLoggedIn, function(req, res) {
 	var data = {};
 	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
 	splitPath = splitPath[1].split("/");
-	if(exclude.indexOf(splitPath[0]) != -1){
+	if(excludeFolder.indexOf(splitPath[0]) != -1){
 		res.status(403).send("You won't have the death star plans ! You rebel scum !");
 	} else {
 		data.html = helpers.readFileSyncWithCatch(req.body.path);
@@ -52,7 +53,7 @@ router.post('/load_file', block_access.isLoggedIn, function(req, res) {
 router.post('/update_file', block_access.isLoggedIn, function(req, res) {
 	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
 	splitPath = splitPath[1].split("/");
-	if(exclude.indexOf(splitPath[0]) != -1){
+	if(excludeFolder.indexOf(splitPath[0]) != -1){
 		res.status(403).send("You won't update the death star plans ! You rebel scum !");
 	} else {
 		var writeStream = fs.createWriteStream(req.body.path);

@@ -158,7 +158,7 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("action", "write"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("action", "create"), function (req, res) {
     var data = {
         menu: "e_action",
         sub_menu: "create_e_action",
@@ -199,7 +199,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("action", "write"
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("action", "write"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("action", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
 
@@ -241,7 +241,7 @@ router.post('/create', block_access.actionAccessMiddleware("action", "write"), f
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("action", "write"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("action", 'update'), function (req, res) {
     var id_e_action = req.query.id;
     var data = {
         menu: "e_action",
@@ -298,7 +298,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("action", "write"
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("action", "write"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("action", 'update'), function (req, res) {
     var id_e_action = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -340,7 +340,7 @@ router.post('/update', block_access.actionAccessMiddleware("action", "write"), f
     });
 });
 
-router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionAccessMiddleware("action", "write"), function(req, res) {
+router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionAccessMiddleware("action", "create"), function(req, res) {
     var historyModel = 'E_history_e_action_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
     var statusAlias = 'r_'+req.params.status.substring(2);
@@ -405,10 +405,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
             }
 
             // Execute newStatus actions
-            for (var i = 0; i < nextStatus.r_actions.length; i++) {
-                var action = nextStatus.r_actions[i];
-                action.r_media.execute(e_action);
-            }
+            nextStatus.executeActions(e_media_notification);
 
             // Create history record for this status field
             // Beeing the most recent history for action it will now be its current status
@@ -454,7 +451,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("acti
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("action", "write"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("action", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_action.findOne({where: {id: idEntity}}).then(function (e_action) {

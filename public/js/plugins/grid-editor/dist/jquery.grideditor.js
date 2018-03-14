@@ -7,9 +7,9 @@ $.fn.gridEditor = function( options ) {
 
     var self = this;
     var grideditor = self.data('grideditor');
-    
+
     /** Methods **/
-    
+
     if (arguments[0] == 'getHtml') {
         if (grideditor) {
             grideditor.deinit();
@@ -19,8 +19,8 @@ $.fn.gridEditor = function( options ) {
         } else {
             return self.html();
         }
-    } 
-    
+    }
+
     /** Initialize plugin */
 
     self.each(function(baseIndex, baseElem) {
@@ -63,19 +63,19 @@ $.fn.gridEditor = function( options ) {
         var colClasses = ['col-md-', 'col-sm-', 'col-xs-'];
         var curColClassIndex = 0; // Index of the column class we are manipulating currently
         var MAX_COL_SIZE = 12;
-        
+
         // Copy html to sourceElement if a source textarea is given
         if (settings.source_textarea) {
             var sourceEl = $(settings.source_textarea);
-            
+
             sourceEl.addClass('ge-html-output');
             htmlTextArea = sourceEl;
-                
+
             if (sourceEl.val()) {
                 baseElem.html(sourceEl.val());
             }
         }
-        
+
         // Wrap content if it is non-bootstrap
         if (baseElem.children().length && !baseElem.find('div.row').length) {
             var children = baseElem.children();
@@ -89,7 +89,7 @@ $.fn.gridEditor = function( options ) {
         function setup() {
             /* Setup canvas */
             canvas = baseElem.addClass('ge-canvas');
-            
+
             if (typeof htmlTextArea === 'undefined' || !htmlTextArea.length) {
                 htmlTextArea = $('<textarea class="ge-html-output"/>').insertBefore(canvas);
             }
@@ -99,7 +99,7 @@ $.fn.gridEditor = function( options ) {
             var wrapper = $('<div class="ge-wrapper ge-top" />').appendTo(mainControls);
 
             // Add row
-            addRowGroup = $('<div class="ge-addRowGroup btn-group" />').appendTo(wrapper);
+            /*addRowGroup = $('<div class="ge-addRowGroup btn-group" />').appendTo(wrapper);
             $.each(settings.new_row_layouts, function(j, layout) {
                 var btn = $('<a class="btn btn-xs btn-primary" />')
                     .attr('title', 'Add row ' + layout.join('-'))
@@ -122,7 +122,7 @@ $.fn.gridEditor = function( options ) {
                 });
                 icon += '</div>';
                 btn.append(icon);
-            });
+            });*/
 
             // Buttons on right
             var layoutDropdown = $('<div class="dropdown pull-right ge-layout-mode">' +
@@ -130,7 +130,7 @@ $.fn.gridEditor = function( options ) {
                 '<ul class="dropdown-menu" role="menu">' +
                     '<li><a data-width="auto" title="Desktop"><span>Desktop</span></a></li>' +
                     '<li><a title="Tablet"><span>Tablet</span></li>' +
-                    '<li><a title="Phone"><span>Phone</span></a></li>' +
+                    '<li><a id="custom-grid-editor-print-layout" title="Phone"><span>Phone</span></a></li>' +
                     '</ul>' +
                 '</div>')
                 .on('click', 'a', function() {
@@ -250,7 +250,7 @@ $.fn.gridEditor = function( options ) {
                 if (row.find('> .ge-tools-drawer').length) { return; }
 
                 var drawer = $('<div class="ge-tools-drawer" />').prependTo(row);
-                createTool(drawer, 'Move', 'ge-move', 'glyphicon-move');
+                /*createTool(drawer, 'Move', 'ge-move', 'glyphicon-move');
                 createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
                     details.toggle();
                 });
@@ -263,9 +263,9 @@ $.fn.gridEditor = function( options ) {
                             row.remove();
                         });
                     }
-                });
-                createTool(drawer, 'Add column', 'ge-add-column', 'glyphicon-plus-sign', function() {
-                    row.append(createColumn(3));
+                });*/
+                createTool(drawer, 'Add empty space column', 'ge-add-column', 'glyphicon-plus-sign', function() {
+                    row.append(createColumn(6));
                     init();
                 });
 
@@ -290,6 +290,9 @@ $.fn.gridEditor = function( options ) {
                     if (e.shiftKey) {
                         newSize = colSizes[0];
                     }
+                    if (e.ctrlKey) {
+                        newSize = colSizes[5];
+                    }
                     setColSize(col, curColClass, Math.max(newSize, 1));
                 });
 
@@ -302,13 +305,16 @@ $.fn.gridEditor = function( options ) {
                     if (e.shiftKey) {
                         newSize = colSizes[colSizes.length - 1];
                     }
+                    if (e.ctrlKey) {
+                        newSize = colSizes[5];
+                    }
                     setColSize(col, curColClass, Math.min(newSize, MAX_COL_SIZE));
                 });
 
-                createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
+                /*createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
                     details.toggle();
-                });
-                
+                });*/
+
                 settings.col_tools.forEach(function(t) {
                     createTool(drawer, t.title || '', t.className || '', t.iconClass || 'glyphicon-wrench', t.on);
                 });
@@ -325,12 +331,12 @@ $.fn.gridEditor = function( options ) {
                     }
                 });
 
-                createTool(drawer, 'Add row', 'ge-add-row', 'glyphicon-plus-sign', function() {
+                /*createTool(drawer, 'Add row', 'ge-add-row', 'glyphicon-plus-sign', function() {
                     var row = createRow();
                     col.append(row);
                     row.append(createColumn(6)).append(createColumn(6));
                     init();
-                });
+                });*/
 
                 var details = createDetails(col, settings.col_classes).appendTo(drawer);
             });
@@ -470,12 +476,8 @@ $.fn.gridEditor = function( options ) {
         }
 
         function createColumn(size) {
-            return $('<div/>')
-                .addClass(colClasses.map(function(c) { return c + size; }).join(' '))
-                .append(createDefaultContentWrapper().html(
-                    getRTE(settings.content_types[0]).initialContent)
-                )
-            ;
+            //return $('<div/>').addClass(colClasses.map(function(c) { return c + size; }).join(' ')).append(createDefaultContentWrapper().html(getRTE(settings.content_types[0]).initialContent));
+            return $('<div style="height: 78px;" />').addClass("fieldLineHeight").addClass(colClasses.map(function(c) { return c + size; }).join(' '));
         }
 
         /**
@@ -534,11 +536,11 @@ $.fn.gridEditor = function( options ) {
                 canvas.toggleClass(cssClass, i == colClassIndex);
             });
         }
-        
+
         function getRTE(type) {
             return $.fn.gridEditor.RTEs[type];
         }
-        
+
         function clamp(input, min, max) {
             return Math.min(max, Math.max(min, input));
         }
@@ -573,16 +575,16 @@ $.fn.gridEditor.RTEs = {};
                 var contentArea = $(this);
                 if (!contentArea.hasClass('active')) {
                     if (contentArea.html() == self.initialContent) {
-                        // CKEditor kills this '&nbsp' creating a non usable box :/ 
-                        contentArea.html('&nbsp;'); 
+                        // CKEditor kills this '&nbsp' creating a non usable box :/
+                        contentArea.html('&nbsp;');
                     }
-                    
+
                     // Add the .attr('contenteditable',''true') or CKEditor loads readonly
                     contentArea.addClass('active').attr('contenteditable', 'true');
-                    
+
                     var configuration = $.extend(
                         {},
-                        (settings.ckeditor && settings.ckeditor.config ? settings.ckeditor.config : {}), 
+                        (settings.ckeditor && settings.ckeditor.config ? settings.ckeditor.config : {}),
                         {
                             // Focus editor on creation
                             on: {
@@ -597,7 +599,7 @@ $.fn.gridEditor.RTEs = {};
                                     if (callback) {
                                         callback.call(this, evt);
                                     }
-                                    
+
                                     instance.focus();
                                 }
                             }
@@ -611,7 +613,7 @@ $.fn.gridEditor.RTEs = {};
         deinit: function(settings, contentAreas) {
             contentAreas.filter('.active').each(function() {
                 var contentArea = $(this);
-                
+
                 // Destroy all CKEditor instances
                 $.each(CKEDITOR.instances, function(_, instance) {
                     instance.destroy();
@@ -636,7 +638,7 @@ $.fn.gridEditor.RTEs = {};
     $.fn.gridEditor.RTEs.summernote = {
 
         init: function(settings, contentAreas) {
-            
+
             if (!jQuery().summernote) {
                 console.error('Summernote not available! Make sure you loaded the Summernote js file.');
             }
@@ -659,7 +661,7 @@ $.fn.gridEditor.RTEs = {};
                             // Focus editor on creation
                             callbacks: {
                                 onInit: function() {
-                                    
+
                                     // Call original oninit function, if one was passed in the config
                                     var callback;
                                     try {
@@ -670,7 +672,7 @@ $.fn.gridEditor.RTEs = {};
                                     if (callback) {
                                         callback.call(this);
                                     }
-                                    
+
                                     contentArea.summernote('focus');
                                 }
                             }
@@ -694,7 +696,7 @@ $.fn.gridEditor.RTEs = {};
             });
         },
 
-        initialContent: '<p>Lorem ipsum dolores</p>',
+        initialContent: '',
     };
 })();
 
@@ -723,7 +725,7 @@ $.fn.gridEditor.RTEs = {};
                             oninit: function(editor) {
                                 // Bring focus to text field
                                 $('#' + editor.settings.id).focus();
-                                
+
                                 // Call original oninit function, if one was passed in the config
                                 var callback;
                                 try {
@@ -731,7 +733,7 @@ $.fn.gridEditor.RTEs = {};
                                 } catch (err) {
                                     // No callback passed
                                 }
-                                
+
                                 if (callback) {
                                     callback.call(this);
                                 }
@@ -759,6 +761,6 @@ $.fn.gridEditor.RTEs = {};
             });
         },
 
-        initialContent: '<p>Lorem ipsum dolores</p>',
+        initialContent: '',
     };
 })();

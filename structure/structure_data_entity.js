@@ -39,6 +39,10 @@ exports.setupAssociation = function (associationOption, callback) {
     else
         baseOptions.structureType = "";
 
+    // Save using field in related to and related to many fields
+    if(typeof associationOption.usingField !== "undefined")
+        baseOptions.usingField = associationOption.usingField;
+
     optionsObject.push(baseOptions);
 
     if (toSync) {
@@ -177,7 +181,7 @@ exports.setupDataEntity = function (attr, callback) {
             li += '             <i class="fa fa-angle-left pull-right"></i>\n';
             li += '         </a>\n';
             li += '         <ul class="treeview-menu">\n';
-            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="write"}-->';
+            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
@@ -232,7 +236,6 @@ exports.setupDataEntity = function (attr, callback) {
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }
@@ -301,8 +304,9 @@ exports.setupDataEntity = function (attr, callback) {
                                                                                 groups: [],
                                                                                 actions: {
                                                                                     read: [],
-                                                                                    write: [],
-                                                                                    delete: []
+                                                                                    create: [],
+                                                                                    delete: [],
+                                                                                    update: []
                                                                                 }
                                                                             });
                                                                             fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
@@ -374,7 +378,9 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
     domHelper.read(filePath).then(function ($) {
         $("#" + url_name_data_entity + '_menu_item').remove();
         domHelper.write(filePath, $).then(function () {
-            callback();
+            translateHelper.removeLocales(id_application, "entity", name_data_entity, function () {
+                callback();
+            });
         });
     });
 };

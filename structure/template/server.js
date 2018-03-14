@@ -79,7 +79,7 @@ var sessionInstance = session({
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
 	resave: true,
-	saveUninitialized: true,
+	saveUninitialized: false,
 	maxAge: 360*5,
 	// We concat port for a workspace specific session, instead of generator specific
 	key: 'workspaceCookie'+port
@@ -129,10 +129,15 @@ app.get('/*', function(req, res, next) {
 app.use(function(req, res, next) {
     var lang = languageConfig.lang;
 
-    if (req.session.lang_user)
-        lang = req.session.lang_user;
-    else
-    	req.session.lang_user = lang;
+    if(req.isAuthenticated()){
+	    if (req.session.lang_user)
+	        lang = req.session.lang_user;
+	    else
+	    	req.session.lang_user = lang;
+
+	    if (typeof req.session.toastr === 'undefined')
+			req.session.toastr = [];
+    }
 
     res.locals.lang_user = lang;
     res.locals.config = globalConf;
@@ -144,25 +149,22 @@ app.use(function(req, res, next) {
 
 		// Access control
 		dust.helpers.moduleAccess = function(chunk, context, bodies, params) {
-			var userGroup = req.session.passport.user.r_group.f_label;
+			var userGroups = req.session.passport.user.r_group;
 			var moduleName = params.module;
-			return block_access.moduleAccess(userGroup, moduleName);
+			return block_access.moduleAccess(userGroups, moduleName);
 		};
 		dust.helpers.entityAccess = function(chunk, context, bodies, params) {
-			var userGroup = req.session.passport.user.r_group.f_label;
+			var userGroups = req.session.passport.user.r_group;
 			var entityName = params.entity;
-			return block_access.entityAccess(userGroup, entityName);
+			return block_access.entityAccess(userGroups, entityName);
 		}
 		dust.helpers.actionAccess = function(chunk, context, bodies, params) {
-			var userRole = req.session.passport.user.r_role.f_label;
+			var userRoles = req.session.passport.user.r_role;
 			var entityName = params.entity;
 			var action = params.action;
-			return block_access.actionAccess(userRole, entityName, action);
+			return block_access.actionAccess(userRoles, entityName, action);
 		}
 	}
-
-	if (typeof req.session.toastr === 'undefined')
-		req.session.toastr = [];
 
 	res.locals.clean = function(item){
 		if (item === undefined || item === null)
@@ -337,9 +339,10 @@ if (protocol == 'https') {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                fk_id_role_role: 1,
-                                fk_id_group_group: 1,
                                 f_enabled: 0
+                            }).then(function(user) {
+                            	user.setR_role(1);
+                            	user.setR_group(1);
                             });
                         });
                     });
@@ -377,10 +380,11 @@ else {
                             models.E_user.create({
                                 f_login: 'admin',
                                 f_password: null,
-                                fk_id_role_role: 1,
-                                fk_id_group_group: 1,
                                 f_enabled: 0,
                                 version: 0
+                            }).then(function(user) {
+                            	user.setR_role(1);
+                            	user.setR_group(1);
                             });
                         });
                     });

@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
 
     var Model = sequelize.define('COMPONENT_NAME', attributes, options);
 
-    builder.addHooks(Model);
+    builder.addHooks(Model, 'COMPONENT_NAME_LOWER', attributes_origin);
 
     return Model;
 };

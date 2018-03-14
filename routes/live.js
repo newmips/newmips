@@ -118,15 +118,19 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field label");
     instructions.push("set icon users");
     instructions.push("select entity User");
-    instructions.push("add field role related to Role using label");
-    instructions.push("add field group related to Group using label");
+    instructions.push("add field Role related to many Role using label");
+    instructions.push("add field Group related to many Group using label");
+    instructions.push("set field Role required");
+    instructions.push("set field Group required");
+    instructions.push("entity Role has many user");
+    instructions.push("entity Group has many user");
     instructions.push("add entity API credentials");
     instructions.push("add field Client Name");
     instructions.push("add field Client Key");
     instructions.push("add field Client Secret");
     instructions.push("set icon unlink");
-    instructions.push("add field role related to Role using label");
-    instructions.push("add field group related to Group using label");
+    instructions.push("add field role related to many Role using label");
+    instructions.push("add field group related to many Group using label");
     instructions.push("add field Token");
     instructions.push("add field Token timeout TMSP");
 
@@ -148,6 +152,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("set icon envelope");
     instructions.push("add field Type with type enum and values Mail, Notification, Function");
     instructions.push("add field Name");
+    instructions.push("set field Name required");
     instructions.push("add field Target entity");
     instructions.push("entity Media has one Media Mail");
     instructions.push("entity Media has one Media Notification");
@@ -171,12 +176,12 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Color with type color");
     instructions.push("add field Target Groups related to many Group using label");
     instructions.push("add field Target Users related to many User using login");
-    instructions.push("add entity notification");
-    instructions.push("add field title");
-    instructions.push("add field description");
-    instructions.push("add field url");
-    instructions.push("add field color with type color");
-    instructions.push("add field icon");
+    instructions.push("add entity Notification");
+    instructions.push("add field Title");
+    instructions.push("add field Description");
+    instructions.push("add field URL");
+    instructions.push("add field Color with type color");
+    instructions.push("add field Icon");
     instructions.push("select entity media function");
     instructions.push("add field Title");
     instructions.push("add field Function with type text");
@@ -185,10 +190,14 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
     // Inline help
     instructions.push("add entity Inline Help");
-    instructions.push("set icon question");
+    instructions.push("set icon question-circle-o");
     instructions.push("add field Entity");
     instructions.push("add field Field");
     instructions.push("add field Content with type text");
+
+    // Set default theme if different than blue-light
+    if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
+        instructions.push("set theme "+req.session.defaultTheme);
 
     // Set home module selected
     instructions.push("select module home");

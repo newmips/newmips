@@ -3,7 +3,8 @@ block header
 	.row
 		.col-header.col-xs-12.col-sm-4.col-md-5.col-lg-8
 			h1
-				img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
+				a(href="/")
+					img(src="/img/FAVICON-GRAND-01.png", alt="Newmips Logo", style="width:44px;display:inline;margin-left:15px; margin-right:15px;")
 				| #{__("menu.preview")}
 				small #{__("menu.module")}
 
@@ -25,7 +26,7 @@ block header
 				a.btn.btn-default(href='/default/home')
 					i.fa.fa-home(style="margin-right:5px;")
 					| #{__("menu.home")}
-				a.btn.btn-default(href='/settings')
+				a.btn.btn-default(href='/account')
 					i.fa.fa-user(style="margin-right:5px;")
 					| #{__("menu.account")}
 				a.btn.btn-default.pull-right(href='/logout')
@@ -70,7 +71,7 @@ block custom_css
 	link(href='/js/plugins/grid-editor/dist/grideditor-font-awesome.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/dialog.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/fullscreen.css', rel='stylesheet', type='text/css')
-	link(href='/js/plugins/codemirror/addon/simplescrollbars.css', rel='stylesheet', type='text/css')
+	link(href='/js/plugins/codemirror/addon/foldgutter.css', rel='stylesheet', type='text/css')
 	// Slack chat
 	link(rel="stylesheet", href="/css/slack/slack-chat.css")
 	link(rel="stylesheet", href="/css/slack/skin-chat.css")
@@ -243,18 +244,29 @@ block content
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='create')
 									i.fa.fa-file
-									| create page
+									| #{__("ui_editor.create_page")}
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='update')
 									i.fa.fa-file
-									| update page
+									| #{__("ui_editor.update_page")}
 							li.ui-state-default.treeview(style='display:block;')
 								a(class='ui_editor_page' href='#' data-entity='' data-page='show')
 									i.fa.fa-file
-									| show page
+									| #{__("ui_editor.show_page")}
+							li.ui-state-default.treeview(style='display:block;')
+								a(class='ui_editor_page' href='#' data-entity='' data-page='print')
+									i.fa.fa-file
+									| #{__("ui_editor.print_page")}
 
 					.col-xs-12.col-sm-10
 						#ui_editor
+						i#ui_editor_tips(style="display:none;") #{__("ui_editor.tips")}
+						br
+						br
+						input#ui_editor_apply_all(type="checkbox", style="margin:0;vertical-align: bottom;position: relative;top: -1px;*overflow: hidden;margin-right:5px;display:none;")
+						span#ui_editor_apply_all_span(style="display:none;") #{__("ui_editor.applyAll")}
+						br
+						br
 						button#ui_editor_save.btn.btn-primary(style="display:none;")
 							| #{__("button.save")}
 
@@ -286,6 +298,8 @@ block content
 							| #{__("editor.legend")} :
 						#tabs-editor.nav-tabs-custom(style="margin-bottom:0px;")
 							ul.nav.nav-tabs#editor-navtabs(role="filelist")
+						div(id="loadingEditorIframe", style="position: absolute;top: 0;left: 0;width: 100%;height: 764px;background-color: transparent;display:block;")
+							img.animated.pulse.infinite(src='/img/FAVICON-GRAND-01.png', alt='Loading', style="display:block;margin: auto;margin-top:250px;width:125px;")
 				br
 				.row
 					.col-xs-5.col-sm-offset-2
@@ -354,7 +368,7 @@ block custom_js
 	// UI-Editor
 	//script(src='https://code.jquery.com/ui/1.12.1/jquery-ui.js', type='text/javascript')
 	script(src='/js/UI/jquery-ui-1.12.1.js', type='text/javascript')
-	script(src='/js/plugins/grid-editor/dist/jquery.grideditor.js', type='text/javascript')
+	script(src='/js/Newmips/newmips.grideditor.js', type='text/javascript')
 	// Speech Recognition
 	script(src='/js/Newmips/speechRecognition.js', type='text/javascript')
 	// Slim scroll
@@ -418,11 +432,13 @@ block custom_js
 				var chatDisabledMsg = '#{__("preview.help-disabled")}';
 				toastr.info(chatDisabledMsg);
 			});
-	// Editor
+	// Locales
 	script(type='text/javascript').
 		var intro2 = "#{__('editor.intro')}" + "\n";
 		intro2 += "#{__('editor.intro2')}" + "\n";
 		intro2 += "#{__('editor.intro3')}";
+		var savingButtonText = "#{__('button.save')}";
+		var loadingButtonText = "#{__('button.loading')}";
 	script(type='text/javascript').
 		$(document).ready(function(){
 
@@ -452,11 +468,6 @@ block custom_js
 			////////////
 			// UI Editor
 			////////////
-			function cleanEditor() {
-				// Remove unwanted buttons
-				$(".ge-add-column").remove();
-			}
-
 			$(document).delegate('.ge-add-row', 'click', function() {
 				var newRow = $(this).parent().parent().children(".row .ui-sortable").last();
 				newRow.find('.ui-sortable').remove();
@@ -470,6 +481,7 @@ block custom_js
 			});
 
 			$("#entitySelect").select2({width:'100%'});
+
 			$("#entitySelect").change(function() {
 				$("#pages").slideUp();
 				if ($(this).val()) {
@@ -492,30 +504,42 @@ block custom_js
 
 						// Enable gridEditor
 						$("#ui_editor").gridEditor();
-						cleanEditor();
 						$("#ui_editor_save").show();
+						$("#ui_editor_tips").show();
+						$("#ui_editor_apply_all").show();
+						$("#ui_editor_apply_all_span").show();
 						$(".ui_editor_page").parents('li').removeClass('active');
 						$(self).parents('li').addClass('active');
+
+						if(page == "print")
+							$("a#custom-grid-editor-print-layout").trigger("click");
 					},
 					error: function(err) {
 						console.log(err);
-						toastr.error(err.messageText);
+						toastr.error(err.responseText);
 					}
 				});
 			});
 
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
-				cleanEditor();
+				var currentScreenMode = $(".ge-layout-mode button span").text();
+				$(this).text(loadingButtonText);
+				$(this).prop("disabled", true);
 				$.ajax({
 					url: '/ui_editor/setPage/'+entity+'/'+page,
 					method: 'post',
-					data: {html: html},
+					data: {html: html, screenMode: currentScreenMode, applyAll: $("#ui_editor_apply_all").prop("checked")},
+					context: this,
 					success: function(msg) {
+						$("#ui_editor_apply_all").prop("checked", false);
 						toastr.success(msg);
+						$(this).text(savingButtonText);
+						$(this).prop("disabled", false);
 					},
 					error: function(err) {
-						toastr.error(err.messageText);
+						console.log(err);
+						toastr.error(err.responseText);
 					}
 				});
 			});
@@ -535,6 +559,13 @@ block custom_js
 						"<script src='/js/plugins/codemirror/addon/dialog.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/matchbrackets.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/closebrackets.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/foldcode.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/foldgutter.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/brace-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/xml-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/indent-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/markdown-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/comment-fold.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/trailingspace.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/closetag.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/overlay.js' type='text/javascript' />"+
@@ -548,6 +579,7 @@ block custom_js
 						"<script src='/js/plugins/codemirror/mode/sql/sql.js' type='text/javascript' />"+
 						"<script type='text/javascript' src='/js/Newmips/editor.js'/>");
 						isEditorStarted = true;
+						$("#loadingEditorIframe").remove();
 					}, 500);
 				}
 			});
@@ -572,10 +604,10 @@ block custom_js
 			// Input instruction
 			/////////
 			var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
-			$("#instruction").keyup(function(e) {
+			/*$("#instruction").keyup(function(e) {
 				while (reg.test($(this).val()))
 					$(this).val($(this).val().substring(0, $(this).val().length-1))
-			});
+			});*/
 
 			var idApplication = "#{session.application.id_application}";
 			var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_"+idApplication));
@@ -616,7 +648,7 @@ block custom_js
 				}
 
 				var setLogoInstructions = ["add logo", "add a logo", "set a logo", "set logo", "mettre un logo", "mettre logo", "ajouter logo", "ajouter un logo"];
-				var givenInstruction = $("#instruction").val().toLowerCase();
+				var givenInstruction = $("#instruction").val().toLowerCase().trim();
 				var logoFileName = $("input[name='set_logo']").val();
 				if(setLogoInstructions.indexOf(givenInstruction) != -1 && logoFileName == ""){
 					// Ask to add a logo
@@ -645,7 +677,7 @@ block custom_js
 					method: 'POST',
 					data: $(this).serialize(),
 					success: function(data) {
-						if(data.toRestart)
+						if(data.toRedirect)
 							return window.location.href = data.url;
 
 						// Reload iframe
@@ -719,8 +751,8 @@ block custom_js
 							var content = recursiveEditorFolders(data.workspaceFolder);
 							$("ul#sortable.sidebar-menu").append(content);
 							$(".sidebar .treeview").tree();
-							// Reset Editor
-							if(typeof myEditor !== "undefined"){
+							// Reset Code Editor
+							if(typeof myEditor !== "undefined" && !data.isRestart){
 								$("#codemirror-editor li.load-file").each(function(){
 									$(this).remove();
 								});
@@ -730,6 +762,23 @@ block custom_js
 								myEditor.clearGutter();
 								$(".CodeMirror-code").empty();
 							}
+
+							// Reset UI Editor
+							if(!data.isRestart){
+								$("#pages").slideUp();
+								entity = null;
+								page = null;
+								$("#ui_editor").html("");
+								// Enable gridEditor
+								$("#ui_editor").gridEditor();
+								// Remove mainControls who are not removed by modifying html
+								$(".ge-mainControls").remove();
+								$("#ui_editor_save").hide();
+								$("#ui_editor_tips").hide();
+								$("#ui_editor_apply_all").hide();
+								$("#ui_editor_apply_all_span").hide();
+							}
+
 							// Wait a little for Iframe to refresh
 							setTimeout(function(){
 								$("#loadingIframe").hide();
@@ -742,6 +791,11 @@ block custom_js
 		            }
 		        });
 		        return false;
+			});
+
+			$(document).on("click", "#restart-server", function(e){
+				$("#instruction").val("restart server");
+				$("form#previewForm").submit();
 			});
 
 			/////////
@@ -759,51 +813,61 @@ block custom_js
 			    	return split( term ).pop();
 			    }
 
-				$("#instruction").autocomplete({
-			        source: function( request, response ) {
-			          $.getJSON( '/default/completion', {
-			            "str": newstr
-			          }, response );
-			        },
-			        search: function() {
-						return true;
-			        },
-			        focus: function() {
-			          // prevent value inserted on focus
-			          return false;
-			        },
-			        select: function( event, ui ) {
-			        	var completeVal = ui.item.value;
-			        	// If complete value have already typed string in it, dont concat with current value
-				        if (completeVal.indexOf(this.value) == 0){
-							this.value = completeVal.split("[variable]").join("").trim();
-				        }
-						else {
-							// Remove the last word of already typed instruction because it is also in the completed value
-							var parts = this.value.split(' ');
-							if(parts[parts.length-1] == " ")
-								parts.pop();
-							else{
-								compareNum = 0;
-								l = Math.min(completeVal.length, parts[parts.length-1].length);
-								for( i=0; i<l; i++) {
-								    if( completeVal.charAt(i) == parts[parts.length-1].charAt(i)) compareNum++;
-								}
-								if(compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length-1])
-									parts.pop();
-							}
-							this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
-						}
-						return false;
-			        }
-		    	});
-				// }
-			});
+		        $("#instruction").autocomplete({
+		            autoFocus: true,
+		            delay: 200,
+		            source: function(request, response) {
+		                $.getJSON('/default/completion', {
+		                    "str": newstr
+		                }, response);
+		            },
+		            search: function() {
+		                return true;
+		            },
+		            focus: function() {
+		                // prevent value inserted on focus
+		                return false;
+		            },
+		            select: function(event, ui) {
 
-			$(document).on("click", "#restart-server", function(e){
-				$("#instruction").val("restart server");
-				//$("#execute_instruction").trigger("click");
-				$("form#previewForm").submit();
+		            	var ENTERKEY = 13;
+		            	if (event.keyCode != ENTERKEY) {
+			                var completeVal = ui.item.value;
+			                // If complete value have already typed string in it, dont concat with current value
+			                if (completeVal.indexOf(this.value) == 0) {
+			                    this.value = completeVal.split("[variable]").join("").trim();
+			                } else {
+			                    // Remove the last word of already typed instruction because it is also in the completed value
+			                    var parts = this.value.split(' ');
+			                    if (parts[parts.length - 1] == " ")
+			                        parts.pop();
+			                    else {
+			                        compareNum = 0;
+			                        l = Math.min(completeVal.length, parts[parts.length - 1].length);
+			                        for (i = 0; i < l; i++) {
+			                            if (completeVal.charAt(i) == parts[parts.length - 1].charAt(i)) compareNum++;
+			                        }
+			                        if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
+			                            parts.pop();
+			                    }
+			                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
+			                }
+
+			                var TABKEY = 9;
+				            if (event.keyCode == TABKEY) {
+				                event.preventDefault();
+				                this.value = this.value+" ";
+				                $('#instruction').focus();
+				            }
+			                return false;
+			            } else {
+			            	event.preventDefault();
+			            	$('#execute_instruction').click();
+			            	return false;
+			            }
+		            }
+		        });
+				// }
 			});
 
 			/////////
@@ -818,11 +882,11 @@ block custom_js
 			}
 
 			function fetchStatus() {
-				updateScroll();
 			    $.ajax({
 			        url: '/default/update_logs',
 			        success: function(data) {
 		                $("#logs-content").html(data);
+		                updateScroll();
 		                setTimeout(fetchStatus, 1000);
 			        },
 			        error: function(err) {

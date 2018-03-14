@@ -9,7 +9,7 @@ var language = require('../services/language');
 // Winston logger
 var logger = require('./logger');
 
-module.exports = {
+var funcs = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
@@ -40,6 +40,25 @@ module.exports = {
                     fieldTree.children.push(this.entityFieldTree(entityAssociations[i].target, entityAssociations[i].as));
 
             return fieldTree;
+        },
+        generateEntityInclude: function(models, entity) {
+            var entityTree = this.entityFieldTree(entity);
+
+            function includeBuilder(obj) {
+                var includes = [];
+                for (var i = 0; obj.children && i < obj.children.length; i++) {
+                    var include = {};
+                    var child = obj.children[i];
+                    include.as = child.alias;
+                    include.model = models[funcs.capitalizeFirstLetter(child.entity)];
+                    if (child.children && child.children.length != 0) {
+                        include.include = includeBuilder(child);
+                    }
+                    includes.push(include);
+                }
+                return includes;
+            }
+            return includeBuilder(this.entityFieldTree(entity));
         },
         entityFieldForSelect: function(entity, lang) {
             var mainTree = this.entityFieldTree(entity);
@@ -190,6 +209,11 @@ module.exports = {
     error500: function(err, req, res, redirect) {
         var isKnownError = false;
         try {
+            var lang = "fr-FR";
+            if(typeof req.session.lang_user !== "undefined")
+                lang = req.session.lang_user;
+
+            var __ = language(lang).__;
 
             //Sequelize validation error
             if (err.name == "SequelizeValidationError") {
@@ -199,7 +223,8 @@ module.exports = {
 
             // Unique value constraint error
             if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
-                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                var message = __('message.unique') + " " + err.errors[0].path;
+                req.session.toastr.push({level: 'error', message: message});
                 isKnownError = true;
             }
 
@@ -319,3 +344,5 @@ module.exports = {
         }
     }
 };
+
+module.exports = funcs;

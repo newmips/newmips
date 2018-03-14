@@ -3,8 +3,9 @@ var fs = require('fs-extra');
 
 var attributes_origin = require("./attributes/e_media_notification.json");
 var associations = require("./options/e_media_notification.json");
-var socket = require('../services/socket')();
+var socket;
 var models;
+var moment = require('moment');
 
 module.exports = function (sequelize, DataTypes) {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -33,25 +34,28 @@ module.exports = function (sequelize, DataTypes) {
 
                     var newString = self[property];
                     var regex = new RegExp(/{([^}]*)}/g), matches = null;
-                    while ((matches = regex.exec(self[property])) != null) {
-                        newString = self[property].replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
-                    }
+                    while ((matches = regex.exec(self[property])) != null)
+                        newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 
                     return newString || "";
                 }
 
-                // Find all target users id
+                // Find all target users idY87
                 var targetIds = [];var groupsIds = [];
                 // User list
-                for (var i = 0; i < self.r_target_users.length; i++)
+                for (var i = 0; self.r_target_users && i < self.r_target_users.length; i++)
                     targetIds.push(self.r_target_users[i].id);
                 // Group list
-                for (var i = 0; i < self.r_target_groups.length; i++)
+                for (var i = 0; self.r_target_groups && i < self.r_target_groups.length; i++)
                     groupsIds.push(self.r_target_groups[i].id);
                 // Find all with group
                 models.E_user.findAll({
-                    where: {fk_id_group_group: {$in: groupsIds}},
                     attributes: ['id'],
+                    include: [{
+                        model: models.E_group,
+                        as: 'r_group',
+                        where: {id: {$in: groupsIds}}
+                    }],
                     raw: true
                 }).then(function(groupUsers) {
                     for (var i = 0; i < groupUsers.length; i++)
@@ -71,6 +75,8 @@ module.exports = function (sequelize, DataTypes) {
                     };
                     models.E_notification.create(notificationObj).then(function(notification) {
                         notification.setR_user(targetIds);
+                        if (!socket)
+                             socket = require('../services/socket')();
                         socket.sendNotification(notification, targetIds);
                         resolve();
                     }).catch(reject);

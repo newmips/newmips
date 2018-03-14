@@ -61,7 +61,9 @@
         "close": "Close",
         "send": "Send",
         "add": "Add",
-        "documentation": "Documentation"
+        "documentation": "Documentation",
+        "cancel": "Cancel",
+        "loading": "Loading..."
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -100,9 +102,16 @@
         "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
     },
     "ui_editor": {
-        "page_not_found": "Couldn't find corresponding file",
-        "page_saved": "Your new design have been saved",
-        "select_entity": "Select an entity to edit"
+        "page_not_found": "Couldn't find corresponding file.",
+        "page_saved": "Your new design have been applied.",
+        "page_saved_all": "Your new design have been applied on all the entity.",
+        "select_entity": "Select an entity to edit.",
+        "applyAll": "Apply on all the entity.",
+        "tips": "Try Ctrl+Click and also Shift+Click on the size modification buttons to save time !",
+        "create_page": "Create page",
+        "update_page": "Update page",
+        "show_page": "Show page",
+        "print_page": "Print page"
     },
     "instructionScript": {
         "legend": "Execute a Newmips script",
@@ -130,7 +139,8 @@
             "lastname": "Lastname",
             "firstname": "Firstname",
             "phone": "Phone",
-            "email": "Email"
+            "email": "Email",
+            "env": "Environment"
         },
         "change_password": "Reset your password",
         "reset_button": "Reset",
@@ -157,7 +167,8 @@
             "text": "Please add your logo just below (Recommended size 180px x 100px) :",
             "add": "The new logo has been successfully added.",
             "remove": "The logo has been successfully removed.",
-            "noLogo": "Sorry but you do not currently have a logo, you can add one with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
+            "noLogo": "Sorry but you do not currently have a logo, you can add one with the instruction:<br> -<b class='click-instruction'> add a logo</b>",
+            "notExist": "Sorry but this logo file does not exist, you can add it with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
 
         }
     },
@@ -305,7 +316,8 @@
                 "deleted": "Field %s deleted !"
             },
             "notFound": {
-                "withThisID": "Sorry, but there is no field with this ID : %s."
+                "withThisID": "Sorry, but there is no field with this ID : %s.",
+                "withThisName": "Sorry, but there is no field %s in the entity %s."
             }
         }
     },
@@ -313,7 +325,7 @@
         "global": {
             "restart": {
                 "success": "Server restarded!",
-                "error": "Couldn't start server due to critical error."
+                "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
             },
             "gitPush": {
                 "success": "The application has been saved!"
@@ -326,7 +338,7 @@
             },
             "error": {
                 "alreadyInProcess": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
-                "notDoGit": "You choose to not do git in config/gitlab.json, so this instruction will do nothing."
+                "notDoGit": "You choose to not do git in config/gitlab.js, so this instruction will do nothing."
             }
         },
         "module": {
@@ -336,7 +348,8 @@
         },
         "field": {
             "attributes": {
-                "success": "The field %s is now %s.",
+                "success": "The field %s is now %s = %s.",
+                "successKnownAttribute": "The field %s is now %s.",
                 "notUnderstandGiveAvailable": "Sorry, I do not understand what you want to do. Available attributes:<br>%s<br>",
                 "notUnderstand": "Unable to understand the given attribute.",
                 "fieldNoFound": "No field with name %s found in the current entity.",
@@ -397,7 +410,12 @@
             },
             "theme": {
                 "list": "Available themes:<br>%s<br>",
-                "cannotFind": "Cannot find the asked theme. Available themes:<br> %s <br>"
+                "cannotFind": "Cannot find the asked theme. Available themes:<br> %s <br>",
+                "missingCss": "You need at least 1 .css file in the theme!",
+                "missingInfo": "The file infos.json is missing!",
+                "missingScreenshot": "The file screenshot.png is missing!",
+                "alreadyExist": "This theme name already exist, please rename the theme name in infos.json.",
+                "successUpload": "The theme was successfully uploaded!"
             },
             "layout": {
                 "list": "Available layout:<br>%s<br>",
@@ -426,6 +444,7 @@
         "download-default": "Download the theme model",
         "generating": "Generation in progress...",
         "add-theme": "Upload a theme",
-        "wrongExt": "Only .zip are accepted."
+        "wrongExt": "Only .zip are accepted.",
+        "default": "Default theme"
     }
 }

@@ -4124,7 +4124,7 @@ fieldset[disabled] .btn-vk.active {
 }
 
 .responsive-iframe iframe {
-  position: absolute;
+  /*position: absolute;*/
   top: 0;
   left: 0;
   width: 100%;
@@ -4221,4 +4221,33 @@ fieldset[disabled] .btn-vk.active {
 }
 b.click-instruction{
   cursor: pointer;
+}
+
+/* UI Editor */
+.ge-content input, .ge-content select, .ge-content textarea, .ge-content button , .ge-content a{
+  display: none;
+}
+.ge-content input::-webkit-input-placeholder {
+  color: transparent;
+}
+.ge-content input:-moz-placeholder {
+  color: transparent;
+}
+.ge-content input::-moz-placeholder {
+  color: transparent;
+}
+.ge-content input:-ms-input-placeholder {
+  color: transparent;
+}
+.ge-content textarea::-webkit-input-placeholder {
+  color: transparent;
+}
+.ge-content textarea:-moz-placeholder {
+  color: transparent;
+}
+.ge-content textarea::-moz-placeholder {
+  color: transparent;
+}
+.ge-content textarea:-ms-input-placeholder {
+  color: transparent;
 }
