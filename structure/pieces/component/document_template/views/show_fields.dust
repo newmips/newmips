@@ -16,9 +16,21 @@
             </div>
         </div>
     </div>
-     <div data-field="f_file" class="col-xs-12">
+    <div data-field="f_entity" class="col-xs-12">
         <label for="f_entity"> {@__ key="entity.e_document_template.f_entity"/} </label>
         <input class="form-control input" placeholder='{@__ key="entity.e_document_template.f_entity" /}' name="f_entity" value="{f_entity}" type="text" readonly="">
+    </div>
+    <div data-field="f_exclude_relations" class="col-xs-12">
+        <label for="f_exclude_relations" class="required"> {@__ key="entity.e_document_template.f_exclude_relations"/} </label>&nbsp;&nbsp;  <a href="#" id="info_relations"><i class="fa fa-info-circle"></i></a>
+        <select name="f_exclude_relations" style="width: 100%" class="form-control" id="f_exclude_relations" multiple="" disabled="">
+            {#document_template_relations}
+            {?isSelected}
+            <option value="{.value}" selected="">{.item}</option>
+            {:else}
+            <option value="{.value}" >{.item}</option>
+            {/isSelected}
+            {/document_template_relations}
+        </select>
     </div>
 </div>
 <br>

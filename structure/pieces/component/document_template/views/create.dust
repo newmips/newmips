@@ -61,9 +61,27 @@
                     var onclick = "window.open('/document_template/readme/" + select + "', '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=500')";
                     $('#help').attr('onclick', onclick);
                 }
+                function updateRelations(entity) {
+                    if (entity) {
+                        $.ajax({
+                            url: '/document_template/entities/' + entity + '/relations',
+                            methode: 'GET',
+                            success: function (data) {
+                                if (data.relations) {
+                                    $('#f_exclude_relations').empty();
+                                    data.relations.forEach(function (relation) {
+                                        $('#f_exclude_relations').append('<option value=' + relation + ' selected>' + relation + '</option>');
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
                 setOnClick();
+                updateRelations($('#f_entity').val());
                 $('#f_entity').on('change', function () {
                     setOnClick();
+                    updateRelations($(this).val());
                 });
 
             });

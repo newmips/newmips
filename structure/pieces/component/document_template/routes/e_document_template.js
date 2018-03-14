@@ -151,6 +151,15 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
             // Update some data before show, e.g get picture binary
             e_document_template = entity_helper.getPicturesBuffers(e_document_template, attributes, options, "e_document_template");
             entity_helper.status.translate(e_document_template, attributes, req.session.lang_user);
+            var relations = document_template_helper.getRelations(e_document_template.f_entity);
+            var reworkRelations = [];
+            var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
+            for (var i = 0; i < relations.length; i++) {
+                reworkRelations[i] = {item: relations[i], value: relations[i]};
+                if (f_exclude_relations.indexOf(relations[i]) < 0)
+                    reworkRelations[i].isSelected = true;
+            }
+            data.e_document_template.document_template_relations = reworkRelations;
             res.render('e_document_template/show', data);
         });
 
@@ -190,6 +199,13 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     //createObject = enums.values("e_document_template", createObject, req.body);
+    var relations = document_template_helper.getRelations(req.body.f_entity);
+    var f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
+    var exclude_relations = [];
+    for (var i = 0; i < relations.length; i++)
+        if (f_exclude_relations.indexOf(relations[i]) < 0)
+            exclude_relations.push(relations[i]);
+    createObject.f_exclude_relations = exclude_relations.join(',');
 
     models.E_document_template.create(createObject).then(function (e_document_template) {
         var redirect = '/document_template/show?id=' + e_document_template.id;
@@ -290,6 +306,17 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
 
             req.session.toastr = [];
             data.document_template_entities = document_template_helper.get_entities(models);
+
+            var relations = document_template_helper.getRelations(e_document_template.f_entity);
+            var reworkRelations = [];
+            var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
+            for (var i = 0; i < relations.length; i++) {
+                reworkRelations[i] = {item: relations[i], value: relations[i]};
+                if (f_exclude_relations.indexOf(relations[i]) < 0)
+                    reworkRelations[i].isSelected = true;
+            }
+            data.e_document_template.document_template_relations = reworkRelations;
+
             res.render('e_document_template/update', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
@@ -309,6 +336,13 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
+    var relations = document_template_helper.getRelations(req.body.f_entity);
+    var f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
+    var exclude_relations = [];
+    for (var i = 0; i < relations.length; i++)
+        if (f_exclude_relations.indexOf(relations[i]) < 0)
+            exclude_relations.push(relations[i]);
+    updateObject.f_exclude_relations = exclude_relations.join(',');
     models.E_document_template.findOne({where: {id: id_e_document_template}}).then(function (e_document_template) {
         if (!e_document_template) {
             data.error = 404;
@@ -517,26 +551,32 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
     var entity = req.body.entity;
     var id_document = req.body.f_model_document;
     if (id_entity && id_document && entity) {
-        var entity = entity.charAt(0).toUpperCase() + entity.slice(1);//uc first
-        models[entity].findOne({where: {id: id_entity}, include: [{all: true}]}).then(function (e_entity) {
-            if (e_entity) {
-                models.E_document_template.findOne({where: {id: id_document}}).then(function (e_model_document) {
-                    if (e_model_document && e_model_document.f_file) {
+        models.E_document_template.findOne({where: {id: id_document}}).then(function (e_model_document) {
+            if (e_model_document && e_model_document.f_file) {
+                entity = entity.charAt(0).toUpperCase() + entity.slice(1);//uc first
+                var includes = [{all: true}];
+                if (e_model_document.f_exclude_relations)
+                    includes = document_template_helper.buildInclude(entity, e_model_document.f_exclude_relations, models);
+                models[entity].findOne({where: {id: id_entity}, include: includes}).then(function (e_entity) {
+                    if (e_entity) {
                         var partOfFilepath = e_model_document.f_file.split('-');
                         if (partOfFilepath.length > 1) {
                             var completeFilePath = globalConfig.localstorage + 'e_document_template/' + partOfFilepath[0] + '/' + e_model_document.f_file;
                             var today = moment();
                             var reworkOptions = {
                                 //entity by entity
-                                /** 'e_ENTITY': [
-                                 {item: 'f_field', type: 'date', incomingFormat: 'YYYY-MM-DD HH:mm:ss', newFormat: 'DD/MM/YYYY HH'}
-                                 ]**/
-                                //next entity
+                                /**'e_entity': [
+                                    {item: 'f_date', type: 'datetime', newFormat: 'DD/MM/YYYY HH'}
+                                ]**/
+                                        //next entity
                             };
                             //rework with own options
-                            var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions);
+                            var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user);
                             //now add others variables
-                            data.today = today.format('DD/MM/YYYY');
+                            document_template_helper.globalVariables.forEach(function (g) {
+                                data[g.name] = moment().format(document_template_helper.getDateFormatUsingLang(req.session.lang_user, g.type));
+                            });
+
                             var mimeType = require('mime-types').lookup(completeFilePath);
                             var options = {
                                 file: completeFilePath,
@@ -547,7 +587,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             };
                             document_template_helper.generateDoc(options).then(function (infos) {
                                 var filename = (e_entity.id || '')
-                                        + '_' + today.format('DDMMYYYY_HHMMSS')
+                                        + '_' + today.format('DDMMYYYY_HHmmss')
                                         + '_' + today.unix()
                                         + infos.ext;
                                 res.writeHead(200, {"Content-Type": infos.contentType, "Content-Disposition": "attachment;filename=" + filename});
@@ -583,21 +623,29 @@ router.get('/readme/:entity', block_access.actionAccessMiddleware("document_temp
     if (entity) {
         data.toastr = req.session.toastr;
         req.session.toastr = [];
-        data['entities'] = document_template_helper.build_help(entity,req.session.lang_user);
+        data['entities'] = document_template_helper.build_help(entity, req.session.lang_user);
         data.document_template_entities = document_template_helper.get_entities(models);
+        data.readme = document_template_helper.getReadmeMessages(req.session.lang_user);
         res.render('e_document_template/readme', data);
     }
 });
 
-router.get('/entity/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     var entity = req.params.entity;
+    var type = req.query.t;
     if (entity) {
-        res.json(document_template_helper.build_help(entity,req.session.lang_user));
+        if (type === 'html') {
+            var html = document_template_helper.buildHTMLHelpEntitiesAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
+            res.json({HTMLRelationsList: html});
+        } else
+            res.json({relations: document_template_helper.getRelations(entity)});
     } else
         res.end([]);
 });
 
-
+router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+    res.json({HTMLGlobalVariables: document_template_helper.buildHTMLGlobalVariables(req.session.lang_user)});
+});
 /* Select 2 AJAX LOAD */
 router.post('/search', block_access.isLoggedIn, function (req, res) {
     var entity = req.body.entity;

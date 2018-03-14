@@ -1189,7 +1189,8 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                         "id_entity": "ID",
                         "f_name": "Nom du fichier",
                         "f_file": "Fichier",
-                        "f_entity": "Entité"
+                        "f_entity": "Entité",
+                        "f_exclude_relations": "Sous entités"
                     };
                     var lang_en = {
                         "label_entity": "Document template",
@@ -1198,7 +1199,8 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                         "id_entity": "ID",
                         "f_name": "Filename",
                         "f_file": "File",
-                        "f_entity": "Entity"
+                        "f_entity": "Entity",
+                        "f_exclude_relations": "Sub entities"
                     };
                     //update locales
                     var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));

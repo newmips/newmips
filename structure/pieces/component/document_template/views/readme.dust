@@ -9,18 +9,9 @@
 
         <div class="box box-solid">
             <div class="box-header with-border">
-                <h3 class="box-title">Modèle de document : variables utilisables</h3>
+                <h3 class="box-title">{readme.pageTitle}</h3>
                 <br><br>
-                <p style="text-align:justify;"> 
-                    Les modèles de document sont utilisables dans l'onglet où est positionné le composant <strong>document template</strong> de chaque entité.
-                    Pour ce faire, vous devez inclure dans les documents de type Word (Docx) ou PDF 
-                    les variables listées ci-dessous.</p>
-                <p style="text-align:justify;"> 
-                    Pour un template Docx, les variables doivent être copiées tel quel dans votre texte placées entre accolades.
-                    Elles seront remplacées à la volée par les données de l'entité au moment où vous cliquerez sur le bouton "Générer".
-                </p>
-                <p>NB: cliquez sur les titres des sections de chaque entité pour découvrir l'usage des variables.
-                </p>
+                {readme.description|s}
             </div>
             <div class="box-body">
                 <div class="box-group" id="accordion">
@@ -29,7 +20,7 @@
                         <div class="box-header with-border">
                             <h4 class="box-title">
                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse{id}" aria-expanded="false" class="collapsed">
-                                    Informations concernant l'entité {entity}
+                                    {readme.entityInformations} {entity}
                                 </a>
                             </h4>
                         </div>
@@ -39,11 +30,11 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th style="width: 40px">Entité</th>
-                                            <th>Variables</th>
-                                            <th>Accès variable format Docx</th>
-                                            <th>Accès variable format PDF</th>
-                                            <th>Description</th>
+                                            <th style="width: 40px">{readme.entityTableRow1}</th>
+                                            <th>{readme.entityTableRow2}</th>
+                                            <th>{readme.entityTableRow3}</th>
+                                            <th>{readme.entityTableRow4}</th>
+                                            <th>{readme.entityTableRow5}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -92,73 +83,33 @@
             <script src="/js/plugins/datatables/buttons/buttons.print.min.js" type="text/javascript"></script>
             <script type="text/javascript">
                 $(function () {
-                    function buildHTML(data) {
-                        var html = '';
-                        data.forEach(function (entity) {
-                            html += '<div class="panel box" style="border-top-color:' + entity.color + '">';
-                            html += '<div class="box-header with-border">';
-                            html += '             <h4 class="box-title">';
-                            html += '                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse' + entity.id + '" aria-expanded="false" class="collapsed">';
-                            html += '                     Informations concernant l\'entité ' + entity.entity;
-                            html += '                 </a>';
-                            html += '             </h4>';
-                            html += '        </div>';
-                            html += '         <div id="collapse' + entity.id + '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">';
-                            html += '             <div class="col-xs-12">' + entity.message + '</div>';
-                            html += '             <div class="box-body">';
-                            html += '                 <table class="table table-striped">';
-                            html += '                     <thead>';
-                            html += '                        <tr>';
-                            html += '                            <th style="width: 40px">Entité</th>';
-                            html += '                            <th>Variables</th>';
-                            html += '                            <th>Accès variable format Docx</th>';
-                            html += '                            <th>Accès variable format PDF</th>';
-                            html += '                             <th>Description</th>';
-                            html += '                         </tr>';
-                            html += '                    </thead>';
-                            html += '                    <tbody>';
-                            entity.attributes.forEach(function (attribute) {
-                                html += '            <tr>';
-                                html += '            <td><span class="badge bg-red">' + entity.entity + '</span></td>';
-                                html += '            <td><span>' + attribute + '</span></td>';
-                                html += '             <td>';
-                                if (entity.relation == 'belongsTo') {
-                                    html += '&#123;' + entity.as + '.' + attribute + '&#125;';
-                                } else {
-                                    html += '&#123;' + attribute + '&#125;';
-                                }
-                                html += '             </td>';
-                                html += '             <td>';
-                                if (entity.relation == 'belongsTo') {
-                                    html += entity.as + '.' + attribute;
-                                } else {
-                                    html += attribute;
-                                }
-                                html += '             </td>';
-                                html += '             <td></td>';
-                                html += '         </tr>';
-                            });
-
-
-                            html += '                   </tbody>';
-                            html += '               </table>';
-                            html += '           </div>';
-                            html += '       </div>';
-                            html += '   </div>';
-                        });
-                        return html;
-                    }
                     $(this).find('#f_entity').each(function () {
                         $(this).on('change', function () {
                             $.ajax({
-                                url: '/document_template/entity/' + $(this).val() + '/relations',
+                                url: '/document_template/entities/' + $(this).val() + '/relations?t=html',
                                 methode: 'GET',
                                 success: function (data) {
-                                    $('#accordion').empty();
-                                    $('#accordion').html(buildHTML(data));
+                                    if (data.HTMLRelationsList) {
+                                        $('#accordion').empty();
+                                        $('#accordion').html(data.HTMLRelationsList);
+                                    }
                                 }
                             });
                         });
+                    });
+                    $('#global_variables').on('click', function (e) {
+                        e.preventDefault();
+                        $.ajax({
+                            url: '/document_template/global-variables',
+                            methode: 'GET',
+                            success: function (data) {
+                                if (data.HTMLGlobalVariables) {
+                                    $('#accordion').empty();
+                                    $('#accordion').html(data.HTMLGlobalVariables);
+                                }
+                            }
+                        });
+                        return false;
                     });
                 });
             </script>
