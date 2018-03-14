@@ -38,6 +38,9 @@ var langMessage = {
             variables: "Variables globales",
             description: "Ces variables commencent par un <strong> g_ </strong> et sont accessibles dans toutes les entités.",
             entityTableRow5: "Exemple"
+        },
+        subEntities: {
+            help: " <p>Supprimer les sous entités qui ne figurent pas dans le document pour gagner en temps de réponse lors de la génération.</p>"
         }
     },
     'en-EN': {
@@ -74,6 +77,9 @@ var langMessage = {
             variables: "Global variables",
             description: "These varibales start with <strong>g_</strong> and are accessible in all entities.",
             entityTableRow5: "Example"
+        },
+        subEntities: {
+            help: " <p>Delete sub entities who are not in the document to save response time on document generation.</p>"
         }
     }
 };
@@ -285,6 +291,10 @@ module.exports = {
             default:
                 return l === 'fr-FR' ? 'DD/MM/YYYY' : 'YYYY-MM-DD';
         }
+    },
+    getSubEntitiesHelp: function (userLang) {
+        var l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
+        return langMessage[l].subEntities.help;
     },
     buildHTMLHelpEntitiesAjax: function (entities, userLang) {
         var html = '';
