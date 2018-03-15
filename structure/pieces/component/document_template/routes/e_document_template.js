@@ -574,9 +574,11 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user);
                             //now add others variables
                             document_template_helper.globalVariables.forEach(function (g) {
-                                data[g.name] = moment().format(document_template_helper.getDateFormatUsingLang(req.session.lang_user, g.type));
+                                if (g.type === "date" || g.type === "datetime" || g.type === "time")
+                                    data[g.name] = moment().format(document_template_helper.getDateFormatUsingLang(req.session.lang_user, g.type));
                             });
-
+                            data['g_email'] = req.session.passport.user.f_email;
+                            data['g_login'] = req.session.passport.user.f_login;
                             var mimeType = require('mime-types').lookup(completeFilePath);
                             var options = {
                                 file: completeFilePath,
