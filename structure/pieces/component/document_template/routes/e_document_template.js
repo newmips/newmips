@@ -577,8 +577,8 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                                 if (g.type === "date" || g.type === "datetime" || g.type === "time")
                                     data[g.name] = moment().format(document_template_helper.getDateFormatUsingLang(req.session.lang_user, g.type));
                             });
-                            data['g_email'] = req.session.passport.user.f_email;
-                            data['g_login'] = req.session.passport.user.f_login;
+                            data['g_email'] = req.session.passport.user.f_email != null ? req.session.passport.user.f_email : '';
+                            data['g_login'] = req.session.passport.user.f_login != null ? req.session.passport.user.f_login : '';
                             var mimeType = require('mime-types').lookup(completeFilePath);
                             var options = {
                                 file: completeFilePath,
