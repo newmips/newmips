@@ -1716,14 +1716,14 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
             var toSync = true;
             var relation = "belongsToMany";
 
-            // Vérification si une relation existe déjà de la source VERS la target
+            // Check already exisiting association from source to target entity
             for (var i=0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if(optionsSourceObject[i].relation == "belongsTo"){
-                        var err = new Error();
-                        err.message = "structure.association.error.alreadyRelatedTo";
-                        console.log("WARNING: already related to.");
+                        //var err = new Error();
+                        //err.message = "structure.association.error.alreadyRelatedTo";
                         //return callback(err, null);
+                        console.log("WARNING: Source entity has already a related to association.");
                     } else if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadySameAlias";
@@ -1733,13 +1733,13 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
             }
 
             var info = {};
-            attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target;
+            attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target + "_" + attr.options.as.substring(2);
             // Check if an association already exists from target to source
             var optionsFile = helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+attr.options.target.toLowerCase()+'.json');
             var optionsObject = JSON.parse(optionsFile);
             for (var i=0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
-                    attr.options.through = attr.id_application + "_" + attr.options.target + "_" + attr.options.source;
+                    attr.options.through = attr.id_application + "_" + attr.options.target + "_" + attr.options.source + "_" + attr.options.as.substring(2);
                     //BelongsToMany
                     //doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
@@ -1758,7 +1758,7 @@ exports.createNewFieldRelatedToMultiple = function(attr, callback) {
                     if((attr.options.target.substring(2) == attr.options.as.substring(2))
                      && (optionsObject[i].target.substring(2) == optionsObject[i].as.substring(2))){
                         //&& (optionsObject[i].foreignKey == attr.options.foreignKey)
-                        //If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
+                        // If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
                         attr.options.foreignKey = optionsObject[i].foreignKey;
                         // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
                         toSync = false;
