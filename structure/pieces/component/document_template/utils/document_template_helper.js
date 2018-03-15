@@ -41,6 +41,9 @@ var langMessage = {
         },
         subEntities: {
             help: " <p>Supprimer les sous entités qui ne figurent pas dans le document pour gagner en temps de réponse lors de la génération.</p>"
+        },
+        template:{
+            notFound:'Fichier non trouvé'
         }
     },
     'en-EN': {
@@ -80,6 +83,9 @@ var langMessage = {
         },
         subEntities: {
             help: " <p>Delete sub entities who are not in the document to save response time on document generation.</p>"
+        },
+        template:{
+            notFound:'File not found'
         }
     }
 };
@@ -462,7 +468,7 @@ var generateDocxDoc = function (options) {
                     reject(e);
                 }
             } else
-                reject({message: 'File not found'});
+                reject({message:  langMessage[options.lang || lang].template.notFound});
         });
     });
 };
