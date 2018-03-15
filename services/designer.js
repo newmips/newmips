@@ -27,6 +27,7 @@ var structure_ui = require("../structure/structure_ui");
 var helpers = require("../utils/helpers");
 var attrHelper = require("../utils/attr_helper");
 var gitHelper = require("../utils/git_helper");
+var translateHelper = require("../utils/translate");
 
 var fs = require('fs-extra');
 var sequelize = require('../models/').sequelize;
@@ -1940,7 +1941,7 @@ exports.createNewComponentContactForm = function (attr, callback) {
         attr.options.showValue = "Contact Form";
     }
 
-    // Check if component with this name is already created on this entity
+    // Check if component with this name is already created in this module
     db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function(err, component){
         if(component){
             var err = new Error();
@@ -1997,7 +1998,7 @@ exports.createNewComponentContactForm = function (attr, callback) {
                             if(err)
                                 return callback(err, null);
 
-                            // Get Data Entity Name needed for structure
+                            // Get Module Name needed for structure
                             db_module.getModuleById(attr.id_module, function(err, module){
                                 if(err)
                                     return callback(err, null);
@@ -2013,6 +2014,51 @@ exports.createNewComponentContactForm = function (attr, callback) {
                         });
                     });
                 }
+            });
+        }
+    });
+}
+
+exports.deleteComponentContactForm = function (attr, callback) {
+
+    var exportsContext = this;
+
+    /* If there is no defined name for the module */
+    if(typeof attr.options.value === "undefined"){
+        attr.options.value = "e_contact_form";
+        attr.options.urlValue = "contact_form";
+        attr.options.showValue = "Contact Form";
+    }
+
+    // Check if component with this name is already created in this module
+    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function(err, component){
+        if(err){
+            return callback(err, null);
+        } else {
+            attr.options.valueSettings = attr.options.value + "_settings";
+            attr.options.urlValueSettings = attr.options.urlValue + "_settings";
+            attr.options.showValueSettings = attr.options.showValue + " Settings";
+
+            var instructions = [
+                "delete entity "+attr.options.showValue,
+                "delete entity "+attr.options.showValueSettings
+            ];
+
+            // Create a tmp route file to avoid error during the delete entity, this file was removed at the component generation
+            fs.writeFileSync(__dirname + "/../workspace/"+attr.id_application+"/routes/"+attr.options.valueSettings+".js", "", "utf-8");
+
+            // Start doing necessary instructions for component deletion
+            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function(err){
+                if(err)
+                    return callback(err, null);
+
+                // Remove the component in newmips database
+                db_component.deleteComponentOnModule(attr.options.value, attr.id_module, function(err, info){
+                    if(err)
+                        return callback(err, null);
+
+                    callback(null, { message: "database.component.delete.success" });
+                });
             });
         }
     });
