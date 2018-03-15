@@ -760,7 +760,7 @@ exports.setupDataField = function (attr, callback) {
     // Translation for enum and radio values
     if (type_data_field == "enum") {
         var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
-        var enumData = require(fileEnum);
+        var enumData = JSON.parse(fs.readFileSync(fileEnum));
         var key = name_data_field.toLowerCase();
         var json = {};
         if (enumData[codeName_data_entity.toLowerCase()])
@@ -786,7 +786,7 @@ exports.setupDataField = function (attr, callback) {
     // Translation for radio values
     if (type_data_field == "radio") {
         var fileRadio = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
-        var radioData = require(fileRadio);
+        var radioData = JSON.parse(fs.readFileSync(fileRadio));
         var key = name_data_field.toLowerCase();
         var json = {};
         if (radioData[codeName_data_entity.toLowerCase()])
@@ -1047,8 +1047,8 @@ exports.setupHasManyTab = function (attr, callback) {
     /* Add Alias in Translation file for tabs */
     var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
     var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-    var dataFR = require(fileTranslationFR);
-    var dataEN = require(fileTranslationEN);
+    var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+    var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
     dataFR.entity[target]["as_" + alias] = showAlias;
     dataEN.entity[target]["as_" + alias] = showAlias;
@@ -1114,8 +1114,8 @@ exports.setupHasManyPresetTab = function (attr, callback) {
     /* Add Alias in Translation file for tabs */
     var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
     var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-    var dataFR = require(fileTranslationFR);
-    var dataEN = require(fileTranslationEN);
+    var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+    var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
     dataFR.entity[target]["as_" + alias] = showAlias;
     dataEN.entity[target]["as_" + alias] = showAlias;
@@ -1468,8 +1468,8 @@ exports.setupHasOneTab = function (attr, callback) {
     /* Add Alias in Translation file for tabs */
     var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
     var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-    var dataFR = require(fileTranslationFR);
-    var dataEN = require(fileTranslationEN);
+    var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+    var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
     dataFR.entity[target]["as_" + alias] = showAlias;
     dataEN.entity[target]["as_" + alias] = showAlias;
@@ -1632,7 +1632,7 @@ exports.deleteDataField = function (attr, callback) {
 
             // Remove translation in enum locales
             var enumsPath = __dirname + '/../workspace/' + idApp + '/locales/enum_radio.json';
-            var enumJson = require(enumsPath);
+            var enumJson = JSON.parse(fs.readFileSync(enumsPath));
 
             if (typeof enumJson[name_data_entity] !== "undefined") {
                 if (typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined") {
