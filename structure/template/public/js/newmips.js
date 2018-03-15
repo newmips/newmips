@@ -58,6 +58,7 @@ $(document).ready(function () {
             }
         });
     });
+
     // Prev/next Help en ligne buttons
     $("#nextHelp, #prevHelp").click(function() {
         var count = $("#fields .inline-help").length-1;
@@ -67,13 +68,16 @@ $(document).ready(function () {
         else if ($(this).attr('id') == 'prevHelp' && current > 0)
             $("#fields .inline-help").eq(current-1).click();
     });
+
     // Handle tab and shift+tab modal navigation
     $("#inlineHelp").on('show.bs.modal', function() {
         modalOpen = true;
     });
+
     $("#inlineHelp").on('hide.bs.modal', function() {
         modalOpen = false;
     });
+
     $(document).keypress(function(e) {
         if (modalOpen == false)
             return;
@@ -84,7 +88,6 @@ $(document).ready(function () {
         else if (code == '9')
             $("#nextHelp").click();
     });
-
 
     /* Display color td with fa classes instead of color value */
     $("td[data-type=color]").each(function() {
@@ -163,6 +166,7 @@ $(document).ready(function () {
         });
         formGroup.html(htmlToWrite);
     });
+
     $(".print-tab input[type='checkbox']").each(function() {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
@@ -194,8 +198,6 @@ $(document).ready(function () {
     });
 
     /* --------------- Gestion des Toastr (messages informatifs en bas à gauche) --------------- */
-
-    var maskMoneyPrecision = 2;
     try {
         toastr.options = {
             "closeButton": false,
@@ -301,8 +303,9 @@ $(document).ready(function () {
 
     /* --------------- Max length on input number --------------- */
     $("input[type='number']").keyup(function(e) {
-        if (this.value.length > 10)
-            this.value = this.value.slice(0,10);
+        if(typeof $(this).data("customtype") === "undefined")
+            if (this.value.length > 10)
+                this.value = this.value.slice(0,10);
     });
 
     /* --------------- Initialisation des DateTimepicker --------------- */
@@ -601,7 +604,7 @@ $(document).ready(function () {
             }
         }
     };
-    //input barcode
+
     $(this).find("input[data-type='barcode']").each(function() {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
@@ -614,13 +617,13 @@ $(document).ready(function () {
         }
     });
 
-    //input barcode
     $(this).find("input[data-type='code39'],input[data-type='alpha39']").each(function() {
         $(this).on('keyup', function() {
             $(this).val($(this).val().toUpperCase());
         });
     });
 
+    var maskMoneyPrecision = 2;
     //Mask for data-type currency
     $(this).find("[data-type='currency']").each(function() {
         $(this).maskMoney({
