@@ -720,6 +720,27 @@ exports.createNewComponentContactFormWithName = function (result) {
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
+exports.deleteComponentContactForm = function (result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteComponentContactForm",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentContactFormWithName = function (result) {
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("deleteComponentContactForm", options, value);
+};
+
 /* AGENDA */
 exports.createNewComponentAgenda = function (result) {
 
@@ -2041,7 +2062,6 @@ var training = {
         "ajouter le formulaire de contact nommé (.*)",
         "créer formulaire de contact nommé (.*)",
         "ajouter formulaire de contact nommé (.*)"
-
     ],
     "createNewComponentContactForm": [
         "create component contactform",
@@ -2056,6 +2076,41 @@ var training = {
         "ajouter composant formulaire de contact",
         "créer formulaire de contact",
         "ajouter formulaire de contact"
+    ],
+    "deleteComponentContactFormWithName": [
+        "delete component contactform with name (.*)",
+        "delete component contact form with name (.*)",
+        "remove component contactform with name (.*)",
+        "remove component contact form with name (.*)",
+
+        "delete component contactform called (.*)",
+        "delete component contact form called (.*)",
+        "remove component contactform called (.*)",
+        "remove component contact form called (.*)",
+
+        "supprimer un composant formulaire de contact appelé (.*)",
+        "supprimer composant formulaire de contact appelé (.*)",
+        "supprimer le composant formulaire de contact appelé (.*)",
+        "supprimer un formulaire de contact appelé (.*)",
+        "supprimer le formulaire de contact appelé (.*)",
+        "supprimer formulaire de contact appelé (.*)",
+
+        "supprimer un composant formulaire de contact nommé (.*)",
+        "supprimer composant formulaire de contact nommé (.*)",
+        "supprimer le composant formulaire de contact nommé (.*)",
+        "supprimer un formulaire de contact nommé (.*)",
+        "supprimer le formulaire de contact nommé (.*)",
+        "supprimer formulaire de contact nommé (.*)"
+    ],
+    "deleteComponentContactForm": [
+        "delete component contactform",
+        "delete component contact form",
+        "remove component contactform",
+        "remove component contact form",
+        "supprimer un composant formulaire de contact",
+        "supprimer un formulaire de contact",
+        "supprimer composant formulaire de contact",
+        "supprimer formulaire de contact"
     ],
     "createNewComponentAgenda": [
         "create component agenda",

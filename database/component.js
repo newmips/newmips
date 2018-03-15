@@ -58,7 +58,7 @@ exports.createNewComponentOnModule = function(attr, callback) {
     }
 }
 
-// Get a component with a given name in a module
+// Get a component with a given code name in a module
 exports.getComponentByCodeNameInModule = function(idModule, codeName, displayName, callback) {
 
     models.Component.findOne({
@@ -130,7 +130,6 @@ exports.checkIfComponentCodeNameExistOnEntity = function(codeNameComponent, idMo
     });
 }
 
-// Get a component codeName and the has many entity and check if the given ID entity is in
 exports.deleteComponentOnEntity = function(codeNameComponent, idModule, idEntity, callback) {
 
     models.DataEntity.findOne({
@@ -168,7 +167,6 @@ exports.deleteComponentOnEntity = function(codeNameComponent, idModule, idEntity
     });
 }
 
-// Get a component codeName and the has many entity and check if the given ID entity is in
 exports.deleteComponentOnModule = function(codeNameComponent, idModule, callback) {
 
     models.Component.findOne({
