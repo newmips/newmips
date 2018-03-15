@@ -89,14 +89,15 @@ var lang = 'fr-FR';
 module.exports = {
     entities_to_exclude: [
         'E_action', 'E_api_credentials', 'E_inline_help', 'E_media', 'E_media_function', 'E_media_mail',
-        'E_notification', 'E_status', 'E_document_template', 'E_media_notification', 'E_translation',
-        '7_e_media_notification_e_group', '7_e_media_notification_e_user', '7_e_notification_e_user', '7_status_children'
+        'E_notification', 'E_status', 'E_document_template', 'E_media_notification', 'E_translation'
     ],
     globalVariables: [
         {name: 'g_today', description: 'Current date', type: 'date'},
         {name: 'g_date', description: 'Current date', type: 'date'},
         {name: 'g_time', description: 'Current time', type: 'time'},
-        {name: 'g_datetime', description: 'Current datetime', type: 'datetime'}
+        {name: 'g_datetime', description: 'Current datetime', type: 'datetime'},
+        {name: 'g_login', description: 'Current user login', type: 'string'},
+        {name: 'g_email', description: 'Current user email', type: 'email'}
     ],
     get_entities: function (models) {
         /**Get all models**/
@@ -174,6 +175,9 @@ module.exports = {
                     object[item] = moment(object[item]).format(format);
                     break;
                 }
+                //we doesn't have customType password to detect password type in attributes, so we use field name for the moment
+                if (item === "f_password" || attribute.newmipsType === "password")
+                    object[item] = '';
                 /*if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
                  object[item] = "data:image/*;base64," + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
                  break;
@@ -192,87 +196,14 @@ module.exports = {
             }
         }
     },
-    build_help: function (entityRoot, userLang) {
-        var result = [];
-        var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
-        var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
-        result.push({
-            id: 0,
-            message: '',
-            attributes: this.getAttributes(attributes),
-            entity: entityRoot,
-            relation: 'root',
-            color: "#ffffff"
-        });
-        //now get options entities and there attributes
-        for (var i = 0; i < options.length; i++) {
-            var relation = options[i];
-            var attributes = require('../models/attributes/' + relation.target + '.json');
-            var message = '';
-            if (relation.relation === "belongsTo")
-                message = "";
-            else if (relation.relation === "belongsToMany" || relation.relation === "hasMany")
-                message = langMessage[userLang || lang].useVariable
-                        + "<p> " + langMessage[userLang || lang].example + ":<br>"
-                        + "<pre>{#" + relation.target.replace('e_', 'r_') + "}<br>"
-                        + "    {variable}<br>"
-                        + "{/" + relation.target.replace('e_', 'r_') + "}"
-                        + "</p></pre><hr>"
-                        + "<i class='fa fa-exclamation-circle' style='color:orange'></i> " + langMessage[userLang || lang].whereIsNL + ": <br>"
-                        + " <pre>"
-                        + "{<br>"
-                        + langMessage[userLang || lang].one + ": [{" + langMessage[userLang || lang].name + ": 'New'}]<br>"
-                        + langMessage[userLang || lang].two + ": [{" + langMessage[userLang || lang].name + ": 'Mips'}]<br>"
-                        + "}</pre><br>"
-                        + langMessage[userLang || lang].output + ": "
-                        + " <pre>"
-                        + "NL<br>"
-                        + "  <b>New</b> <br>"
-                        + "NL <br>"
-                        + "NL <br>"
-                        + "  <b>Mips</b> <br>"
-                        + "NL<br>"
-                        + "</pre><br>"
-                        + "<b> " + langMessage[userLang || lang].nl + "</b> <br>"
-                        + langMessage[userLang || lang].empty + ": <br>"
-                        + "{#" + relation.target.replace('e_', 'r_') + "}<b>{variable}</b><br>"
-                        + "{/" + relation.target.replace('e_', 'r_') + "}<br><br>";
-            var entity = relation.target.replace('e_', '');
-            result.push({
-                id: i + 1,
-                message: message,
-                attributes: this.getAttributes(attributes),
-                entity: entity.charAt(0).toUpperCase() + entity.slice(1),
-                as: relation.as,
-                relation: relation.relation,
-                color: "#" + this.randomColor(6)
-            });
-        }
-        return result;
-    },
-    buildInclude: function (entity, f_exclude_relations, models) {
-        var result = [];
-        var options = require('../models/options/' + entity.toLowerCase() + '.json');
-        f_exclude_relations = (f_exclude_relations || '').split(',');
-        for (var i = 0; i < options.length; i++) {
-            var found = false;
-            var subEntity = 'E_' + options[i].target.toLowerCase().replace('e_', '');
-            for (var j = 0; j < f_exclude_relations.length; j++) {
-                if (options[i].target === 'e_' + f_exclude_relations[j].toLowerCase())
-                    found = true;
-            }
-            if (!found)
-                result.push({model: models[subEntity], as: options[i].as});
-        }
-        return result;
-    },
     getRelations: function (entity) {
         var result = [];
         var options = require('../models/options/e_' + entity.toLowerCase() + '.json');
         for (var i = 0; i < options.length; i++) {
             var option = options[i];
-            if (option.target && this.entities_to_exclude.indexOf(option.target) < 0) {
-                var target = option.target.replace('e_', '');
+            var target = option.target.charAt(0).toUpperCase() + option.target.slice(1);
+            if (target && this.entities_to_exclude.indexOf(target) < 0) {
+                target = option.target.replace('e_', '');
                 target = target.charAt(0).toUpperCase() + target.slice(1); //uc first
                 result.push(target);
             }
@@ -295,6 +226,93 @@ module.exports = {
     getSubEntitiesHelp: function (userLang) {
         var l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
         return langMessage[l].subEntities.help;
+    },
+    getAttributes: function (attributes) {
+        var result = [];
+        if (attributes)
+            for (var item in attributes)
+                result.push(item);
+        return result;
+    },
+    getReadmeMessages: function (userLang) {
+        return langMessage[userLang || lang].readme;
+    },
+    build_help: function (entityRoot, userLang) {
+        var result = [];
+        var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
+        var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
+        result.push({
+            id: 0,
+            message: '',
+            attributes: this.getAttributes(attributes),
+            entity: entityRoot,
+            relation: 'root',
+            color: "#ffffff"
+        });
+        //now get options entities and there attributes
+        for (var i = 0; i < options.length; i++) {
+            var relation = options[i];
+            var target = relation.target.charAt(0).toUpperCase() + relation.target.slice(1);
+            if (target && this.entities_to_exclude.indexOf(target) < 0) {
+                var attributes = require('../models/attributes/' + relation.target + '.json');
+                var message = '';
+                if (relation.relation === "belongsTo")
+                    message = "";
+                else if (relation.relation === "belongsToMany" || relation.relation === "hasMany")
+                    message = langMessage[userLang || lang].useVariable
+                            + "<p> " + langMessage[userLang || lang].example + ":<br>"
+                            + "<pre>{#" + relation.target.replace('e_', 'r_') + "}<br>"
+                            + "    {variable}<br>"
+                            + "{/" + relation.target.replace('e_', 'r_') + "}"
+                            + "</p></pre><hr>"
+                            + "<i class='fa fa-exclamation-circle' style='color:orange'></i> " + langMessage[userLang || lang].whereIsNL + ": <br>"
+                            + " <pre>"
+                            + "{<br>"
+                            + langMessage[userLang || lang].one + ": [{" + langMessage[userLang || lang].name + ": 'New'}]<br>"
+                            + langMessage[userLang || lang].two + ": [{" + langMessage[userLang || lang].name + ": 'Mips'}]<br>"
+                            + "}</pre><br>"
+                            + langMessage[userLang || lang].output + ": "
+                            + " <pre>"
+                            + "NL<br>"
+                            + "  <b>New</b> <br>"
+                            + "NL <br>"
+                            + "NL <br>"
+                            + "  <b>Mips</b> <br>"
+                            + "NL<br>"
+                            + "</pre><br>"
+                            + "<b> " + langMessage[userLang || lang].nl + "</b> <br>"
+                            + langMessage[userLang || lang].empty + ": <br>"
+                            + "{#" + relation.target.replace('e_', 'r_') + "}<b>{variable}</b><br>"
+                            + "{/" + relation.target.replace('e_', 'r_') + "}<br><br>";
+                var entity = relation.target.replace('e_', '');
+                result.push({
+                    id: i + 1,
+                    message: message,
+                    attributes: this.getAttributes(attributes),
+                    entity: entity.charAt(0).toUpperCase() + entity.slice(1),
+                    as: relation.as,
+                    relation: relation.relation,
+                    color: "#" + this.randomColor(6)
+                });
+            }
+        }
+        return result;
+    },
+    buildInclude: function (entity, f_exclude_relations, models) {
+        var result = [];
+        var options = require('../models/options/' + entity.toLowerCase() + '.json');
+        f_exclude_relations = (f_exclude_relations || '').split(',');
+        for (var i = 0; i < options.length; i++) {
+            var found = false;
+            var subEntity = 'E_' + options[i].target.toLowerCase().replace('e_', '');
+            for (var j = 0; j < f_exclude_relations.length; j++) {
+                if (options[i].target === 'e_' + f_exclude_relations[j].toLowerCase())
+                    found = true;
+            }
+            if (!found)
+                result.push({model: models[subEntity], as: options[i].as});
+        }
+        return result;
     },
     buildHTMLHelpEntitiesAjax: function (entities, userLang) {
         var html = '';
@@ -380,16 +398,6 @@ module.exports = {
             html += '</tr>';
         });
         return html;
-    },
-    getAttributes: function (attributes) {
-        var result = [];
-        if (attributes)
-            for (var item in attributes)
-                result.push(item);
-        return result;
-    },
-    getReadmeMessages: function (userLang) {
-        return langMessage[userLang || lang].readme;
     },
     randomColor: function (size) {
         var text = "";
