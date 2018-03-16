@@ -17,7 +17,7 @@
 				<div class="form-group">
 					<label>{@__ key="settings.lang"/}</label><br/>
 					<a data-lang="fr-FR" class='chooseLanguage btn {@eq key=lang_user value="fr-FR"}btn-primary{:else}btn-default{/eq}'>
-						Francais
+						Français
 					</a>
 					&nbsp;
 					<a data-lang="en-EN" class='chooseLanguage btn {@eq key=lang_user value="en-EN"}btn-primary{:else}btn-default{/eq}'>

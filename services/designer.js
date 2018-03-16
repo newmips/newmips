@@ -658,6 +658,7 @@ function deleteDataEntity(attr, callback) {
                                         return callback(err);
                                     var url_name_data_entity = attr.options.urlValue;
                                     structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
+                                        infoDB.deletedEntityId = entityId;
                                         callback(null, infoDB);
                                     });
                                 });
