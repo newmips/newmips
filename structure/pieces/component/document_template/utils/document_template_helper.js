@@ -42,8 +42,8 @@ var langMessage = {
         subEntities: {
             help: " <p>Supprimer les sous entités qui ne figurent pas dans le document pour gagner en temps de réponse lors de la génération.</p>"
         },
-        template:{
-            notFound:'Fichier non trouvé'
+        template: {
+            notFound: 'Fichier non trouvé'
         }
     },
     'en-EN': {
@@ -84,8 +84,8 @@ var langMessage = {
         subEntities: {
             help: " <p>Delete sub entities who are not in the document to save response time on document generation.</p>"
         },
-        template:{
-            notFound:'File not found'
+        template: {
+            notFound: 'File not found'
         }
     }
 };
@@ -176,7 +176,7 @@ module.exports = {
             //clean all date
             for (var attr in attributes) {
                 var attribute = attributes[attr];
-                if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && attr === item) {
+                if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && object[item] !== '' && attr === item) {
                     var format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
                     object[item] = moment(object[item]).format(format);
                     break;
@@ -193,7 +193,7 @@ module.exports = {
                 for (var i = 0; i < reworkOptions.length; i++) {
                     var reworkOption = reworkOptions[i];
                     if (item === reworkOption.item) {
-                        if ((reworkOption.type === 'date' || reworkOption.type === 'datetime') && object[item] != null && reworkOption.newFormat)
+                        if ((reworkOption.type === 'date' || reworkOption.type === 'datetime') && object[item] !== '' && reworkOption.newFormat)
                             object[item] = moment(object[item], this.getDateFormatUsingLang(userLang, reworkOption.type)).format(reworkOption.newFormat);
                         //add others types as need
                         break;
@@ -468,7 +468,7 @@ var generateDocxDoc = function (options) {
                     reject(e);
                 }
             } else
-                reject({message:  langMessage[options.lang || lang].template.notFound});
+                reject({message: langMessage[options.lang || lang].template.notFound});
         });
     });
 };
