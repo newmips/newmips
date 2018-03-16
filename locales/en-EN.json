@@ -355,7 +355,8 @@
                 "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique.",
                 "missingValues": "Error, you have to specify the values you want in the field with type enum / radio.",
                 "noSpace": "Error, please seperate each enum / radio value with a comma.",
-                "sameValue": "Error, you can't specify 2 times the same value for an enum / radio field."
+                "sameValue": "Error, you can't specify 2 times the same value for an enum / radio field.",
+                "notUnique4RelatedToMany": "Sorry, but it is not possible to set a related to many field unique."
             }
         },
         "association": {
@@ -372,10 +373,10 @@
                 "success": "New relation has many existing with entity %s created on %s."
             },
             "relatedToMultiple":{
-                "success": "New field %s related to multiple %s created on %s."
+                "success": "New field %s related to multiple %s created on %s.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>"
             },
             "relatedTo": {
-                "success": "New field %s related to %s created.",
+                "success": "New field %s related to %s created.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it unique:<br>- <b class='click-instruction'>set field %s unique</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>",
                 "missingField": "The field %s in the entity %s does not exist or is not usable."
             },
             "error":{
