@@ -940,7 +940,9 @@ exports.setUniqueField = function (attr, callback) {
     var attributesContent = fs.readFileSync(pathToAttributesJson);
     var attributesObj = JSON.parse(attributesContent);
 
-    attributesObj[attr.options.value].unique = set ? true : false;
+    // If the current field is an fk field then we won't find it in attributes.json
+    if(typeof attributesObj[attr.options.value] !== "undefined")
+        attributesObj[attr.options.value].unique = set ? true : false;
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
     callback();

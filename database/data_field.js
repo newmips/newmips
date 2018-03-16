@@ -202,7 +202,7 @@ exports.getNameDataFieldById = function (idField, callback) {
     });
 }
 
-exports.getCodeNameByNameArray = function(names, id_entity, callback) {
+exports.getCodeNameByNameArray = function(names, idEntity, callback) {
     var columns = [];
     for (var i = 0; i < names.length; i++)
         columns.push({name: names[i].toLowerCase()});
@@ -210,7 +210,7 @@ exports.getCodeNameByNameArray = function(names, id_entity, callback) {
         attributes: ['codeName', 'name'],
         where: {
             $or: columns,
-            id_data_entity: id_entity
+            id_data_entity: idEntity
         },
         raw: true
     }).then(function(results) {
@@ -220,18 +220,18 @@ exports.getCodeNameByNameArray = function(names, id_entity, callback) {
     });
 }
 
-exports.getFieldByCodeName = function (attr, callback) {
+exports.getFieldByCodeName = function (params, callback) {
 
     models.DataField.findOne({
         where: {
-            codeName: attr.fieldToDrop,
-            id_data_entity: attr.id_data_entity
+            codeName: params.codeName,
+            id_data_entity: params.idEntity
         }
     }).then(function (field) {
         if (!field) {
             var err = new Error();
             err.message = "database.field.notFound.withThisName";
-            err.messageParams = [attr.options.showValue, attr.show_name_data_entity];
+            err.messageParams = [params.showValue, params.showEntity];
             return callback(err, null);
         }
 
