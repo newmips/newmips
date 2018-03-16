@@ -81,7 +81,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "couleur":
             if(value == "")
                 value = "#000000";
-            str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + "/>\n";
+            str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
             break;
         case "money":
         case "currency":
