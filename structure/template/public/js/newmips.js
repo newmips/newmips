@@ -134,8 +134,17 @@ $(document).ready(function () {
     });
 
     $(".print-tab select[multiple]").each(function() {
-        if ($(this).val() == null)
+        if ($(this).val() == null){
             $(this).replaceWith("<br>-");
+        } else {
+            var selectContent = "<br>";
+            for(var i=0; i<$(this).val().length; i++){
+                if(i > 0)
+                    selectContent += ",&nbsp;";
+                selectContent += $(this).val()[i];
+            }
+            $(this).replaceWith(selectContent);
+        }
     });
 
     $(".print-tab input[type='color']").each(function() {
@@ -145,6 +154,10 @@ $(document).ready(function () {
     $(".print-tab a[data-type='url']").each(function() {
         if ($(this).text() == "")
             $(this).replaceWith("-");
+    });
+
+    $(".print-tab input[data-type='email']").each(function() {
+        $(this).parent().removeClass("input-group");
     });
 
     $(".print-tab .input-group-addon").each(function() {
