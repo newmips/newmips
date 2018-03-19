@@ -431,7 +431,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     str += ' data-type="' + type + '"';
     str += '>\n';
     str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
-    str += '</th>\n';
+    str += '</th>';
     ret.headers = str;
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
     str = '<td data-field="' + dataField + '"';
