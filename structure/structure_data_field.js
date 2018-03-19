@@ -553,6 +553,7 @@ exports.setupDataField = function (attr, callback) {
         case "mot de passe":
         case "secret":
             typeForModel = "STRING";
+            typeForDatalist = "password";
             break;
         case "color":
         case "colour":
