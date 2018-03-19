@@ -99,7 +99,7 @@
         "change_theme": "Switch theme",
         "intro": "Hi Newmips user!",
         "intro2": "You can select a file on the sidebar on your left ;)",
-        "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
+        "intro3": "F11: Fullscreen | Ctrl+S: Save | Ctrl+Maj: Fold code"
     },
     "ui_editor": {
         "page_not_found": "Couldn't find corresponding file.",
