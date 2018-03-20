@@ -93,11 +93,13 @@ $(document).ready(function() {
 			}
 		]
 	}
-	if ($("input[name='custom_order']").length)
-		options.order = [$("input[name='custom_order']").data('index'), $("input[name='custom_order']").data('order')];
 
 	// Init DataTable
 	$(".dataTable").each(function() {
+		if(typeof $(this).data("custom-order") !== "undefined" && typeof $(this).data("custom-order-index") !== "undefined")
+			options.order = [[$(this).data("custom-order-index"), $(this).data("custom-order")]];
+		else
+			options.order = [];
 		tables[$(this).attr('id')] = $(this).DataTable(options);
 	});
 

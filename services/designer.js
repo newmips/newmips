@@ -656,7 +656,8 @@ function deleteDataEntity(attr, callback) {
                                     if (err)
                                         return callback(err);
                                     var url_name_data_entity = attr.options.urlValue;
-                                    structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function () {
+                                    structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function(){
+                                        infoDB.deletedEntityId = entityId;
                                         callback(null, infoDB);
                                     });
                                 });
@@ -801,8 +802,14 @@ function deleteDataField(attr, callback) {
                         dropFunction = 'dropFKMultipleDataField';
                     }
 
+                    var checkFieldParams = {
+                        codeName: attr.fieldToDrop,
+                        showValue: attr.options.showValue,
+                        idEntity: attr.id_data_entity,
+                        showEntity: attr.show_name_data_entity
+                    };
                     // Check if field exist
-                    db_field.getFieldByCodeName(attr, function (err, fieldExist) {
+                    db_field.getFieldByCodeName(checkFieldParams, function(err, fieldExist) {
                         if (err)
                             return callback(err, null);
 
@@ -854,36 +861,43 @@ exports.setFieldKnownAttribute = function (attr, callback) {
         var requiredAttribute = ["mandatory", "required", "obligatoire", "optionnel", "non-obligatoire", "optional"];
         var uniqueAttribute = ["unique", "not-unique", "non-unique"];
 
-        if (requiredAttribute.indexOf(wordParam) != -1) {
-            structure_data_field.setRequiredAttribute(attr, function (err) {
-                if (err)
+        var checkFieldParams = {
+            codeName: attr.options.value,
+            showValue: attr.options.showValue,
+            idEntity: attr.id_data_entity,
+            showEntity: dataEntity.name
+        };
+        db_field.getFieldByCodeName(checkFieldParams, function(err, fieldExist) {
+            if (err){
+                // Not found as a simple field, look for related to field
+                var optionsArray = JSON.parse(helpers.readFileSyncWithCatch('./workspace/'+attr.id_application+'/models/options/'+dataEntity.codeName+'.json'));
+                var founded = false;
+                for(var i=0; i<optionsArray.length; i++){
+                    if(optionsArray[i].showAs == attr.options.showValue){
+                        if(optionsArray[i].structureType == "relatedTo"){
+                            // We need the key in DB to set it unique instead of the client side name of the field
+                            if(uniqueAttribute.indexOf(wordParam) != -1){
+                                attr.options.value = optionsArray[i].foreignKey;
+                            }
+                            founded = true;
+                        } else if(optionsArray[i].structureType == "relatedToMultiple"){
+                            if(uniqueAttribute.indexOf(wordParam) != -1){
+                                var err = new Error();
+                                err.message = "structure.field.attributes.notUnique4RelatedToMany"
+                                return callback(err, null);
+                            } else
+                                founded = true;
+                        }
+                        break;
+                    }
+                }
+                if(!founded)
                     return callback(err, null);
-
-                callback(null, {
-                    message: "structure.field.attributes.successKnownAttribute",
-                    messageParams: [attr.options.showValue, attr.options.word]
-                });
-            });
-        } else if (uniqueAttribute.indexOf(wordParam) != -1) {
-
-            var sourceEntity = attr.id_application + "_" + attr.name_data_entity;
-            var constraintName = attr.id_application + "_" + attr.name_data_entity + "_" + attr.options.value + "_unique";
-
-            var possibilityUnique = ["unique"];
-            var possibilityNotUnique = ["not-unique", "non-unique"];
-
-            var attribute = attr.options.word.toLowerCase();
-            var request = "";
-
-            // Add or remove the unique constraint ?
-            if (possibilityUnique.indexOf(attribute) != -1) {
-                request = "ALTER TABLE `" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + attr.options.value + "`);";
-            } else if (possibilityNotUnique.indexOf(attribute) != -1) {
-                request = "ALTER TABLE `" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
             }
 
-            sequelize.query(request).then(function () {
-                structure_data_field.setUniqueField(attr, function (err) {
+            // Check the attribute asked in the instruction
+            if(requiredAttribute.indexOf(wordParam) != -1){
+                structure_data_field.setRequiredAttribute(attr, function(err) {
                     if (err)
                         return callback(err, null);
 
@@ -892,26 +906,55 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                         messageParams: [attr.options.showValue, attr.options.word]
                     });
                 });
-            }).catch(function (err) {
-                if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
-                    var err = new Error();
-                    err.message = "structure.field.attributes.duplicateUnique";
+            } else if(uniqueAttribute.indexOf(wordParam) != -1){
+
+                var sourceEntity = attr.id_application+"_"+attr.name_data_entity;
+                var constraintName = attr.id_application+"_"+attr.name_data_entity+"_"+attr.options.value+"_unique";
+
+                var possibilityUnique = ["unique"];
+                var possibilityNotUnique = ["not-unique", "non-unique"];
+
+                var attribute = attr.options.word.toLowerCase();
+                var request = "";
+
+                // Add or remove the unique constraint ?
+                if (possibilityUnique.indexOf(attribute) != -1) {
+                    request = "ALTER TABLE `"+sourceEntity+"` ADD CONSTRAINT "+constraintName+" UNIQUE (`" + attr.options.value + "`);";
+                } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+                    request = "ALTER TABLE `"+sourceEntity+"` DROP INDEX `" + constraintName + "`;";
                 }
+
+                sequelize.query(request).then(function(){
+                    structure_data_field.setUniqueField(attr, function(err) {
+                        if (err)
+                            return callback(err, null);
+
+                        callback(null, {
+                            message: "structure.field.attributes.successKnownAttribute",
+                            messageParams: [attr.options.showValue, attr.options.word]
+                        });
+                    });
+                }).catch(function(err){
+                    if(typeof err.parent !== "undefined" && err.parent.errno == 1062){
+                        var err = new Error();
+                        err.message = "structure.field.attributes.duplicateUnique";
+                    }
+                    callback(err, null);
+                });
+            } else {
+                var err = new Error();
+                err.message = "structure.field.attributes.notUnderstandGiveAvailable";
+                var msgParams = "";
+                for(var i=0; i<requiredAttribute.length; i++){
+                    msgParams += "-  " + requiredAttribute[i] + "<br>";
+                }
+                for(var j=0; j<uniqueAttribute.length; j++){
+                    msgParams += "-  " + uniqueAttribute[j] + "<br>";
+                }
+                err.messageParams = [msgParams];
                 callback(err, null);
-            });
-        } else {
-            var err = new Error();
-            err.message = "structure.field.attributes.notUnderstandGiveAvailable";
-            var msgParams = "";
-            for (var i = 0; i < requiredAttribute.length; i++) {
-                msgParams += "-  " + requiredAttribute[i] + "<br>";
             }
-            for (var j = 0; j < uniqueAttribute.length; j++) {
-                msgParams += "-  " + uniqueAttribute[j] + "<br>";
-            }
-            err.messageParams = [msgParams];
-            callback(err, null);
-        }
+        });
     });
 }
 
@@ -1629,7 +1672,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                         var info = {};
                         info.insertId = attr.id_data_entity;
                         info.message = "structure.association.relatedTo.success";
-                        info.messageParams = [attr.options.showAs, attr.options.showTarget];
+                        info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showAs, attr.options.showAs, attr.options.showAs];
                         callback(null, info);
                     });
                 });
@@ -1698,14 +1741,14 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             var toSync = true;
             var relation = "belongsToMany";
 
-            // Vérification si une relation existe déjà de la source VERS la target
-            for (var i = 0; i < optionsSourceObject.length; i++) {
+            // Check already exisiting association from source to target entity
+            for (var i=0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
-                    if (optionsSourceObject[i].relation == "belongsTo") {
-                        var err = new Error();
-                        err.message = "structure.association.error.alreadyRelatedTo";
-                        console.log("WARNING: already related to.");
+                    if(optionsSourceObject[i].relation == "belongsTo"){
+                        //var err = new Error();
+                        //err.message = "structure.association.error.alreadyRelatedTo";
                         //return callback(err, null);
+                        console.log("WARNING: Source entity has already a related to association.");
                     } else if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadySameAlias";
@@ -1715,19 +1758,20 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             }
 
             var info = {};
-            attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target;
+            attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target + "_" + attr.options.as.substring(2);
             // Check if an association already exists from target to source
             var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
-            for (var i = 0; i < optionsObject.length; i++) {
-                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
-                    attr.options.through = attr.id_application + "_" + attr.options.target + "_" + attr.options.source;
+
+            for (var i=0; i < optionsObject.length; i++) {
+                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo"){
+                    attr.options.through = attr.id_application + "_" + attr.options.target + "_" + attr.options.source + "_" + attr.options.as.substring(2);
                     //BelongsToMany
                     //doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
                     // belongsToMany(attr, optionsObject[i], "setupRelatedToMultipleField", exportsContext).then(function(){
                     //     info.message = "structure.association.relatedToMultiple.success";
-                    //     info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
+                    //     info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource, attr.options.showAs, attr.options.showAs];
                     //     callback(null, info);
                     // }).catch(function(err){
                     //     console.log(err);
@@ -1740,7 +1784,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                     if ((attr.options.target.substring(2) == attr.options.as.substring(2))
                             && (optionsObject[i].target.substring(2) == optionsObject[i].as.substring(2))) {
                         //&& (optionsObject[i].foreignKey == attr.options.foreignKey)
-                        //If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
+                        // If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
                         attr.options.foreignKey = optionsObject[i].foreignKey;
                         // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
                         toSync = false;
@@ -1787,7 +1831,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                     structure_data_field.setupRelatedToMultipleField(attr, function () {
                         var info = {};
                         info.message = "structure.association.relatedToMultiple.success";
-                        info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource];
+                        info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource, attr.options.showAs, attr.options.showAs];
                         callback(null, info);
                     });
                 });

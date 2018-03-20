@@ -81,7 +81,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "couleur":
             if(value == "")
                 value = "#000000";
-            str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + "/>\n";
+            str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
             break;
         case "money":
         case "currency":
@@ -136,7 +136,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             if (file == "show")
                 str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
             else
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode'  type='" + inputType + "'" + readOnly + "/>\n";
+                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
@@ -431,7 +431,7 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     str += ' data-type="' + type + '"';
     str += '>\n';
     str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
-    str += '</th>\n';
+    str += '</th>';
     ret.headers = str;
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
     str = '<td data-field="' + dataField + '"';
@@ -553,6 +553,7 @@ exports.setupDataField = function (attr, callback) {
         case "mot de passe":
         case "secret":
             typeForModel = "STRING";
+            typeForDatalist = "password";
             break;
         case "color":
         case "colour":
@@ -940,7 +941,9 @@ exports.setUniqueField = function (attr, callback) {
     var attributesContent = fs.readFileSync(pathToAttributesJson);
     var attributesObj = JSON.parse(attributesContent);
 
-    attributesObj[attr.options.value].unique = set ? true : false;
+    // If the current field is an fk field then we won't find it in attributes.json
+    if(typeof attributesObj[attr.options.value] !== "undefined")
+        attributesObj[attr.options.value].unique = set ? true : false;
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
     callback();
