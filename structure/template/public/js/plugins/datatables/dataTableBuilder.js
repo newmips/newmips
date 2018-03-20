@@ -279,6 +279,8 @@ function init_datatable(tableID) {
                     else if (columns[meta.col].type == 'time' && cellValue != null){
                         if(cellValue.length == 8)
                             cellValue = cellValue.substring(0, cellValue.length - 3);
+                    } else if (columns[meta.col].type == 'password'){
+                        cellValue = '●●●●●●●●●';
                     }
                 }
                 return cellValue;
@@ -287,6 +289,9 @@ function init_datatable(tableID) {
         if(columns[i].hidden){
             objColumnDefToPush.visible = false;
             objColumnDefToPush.searchable = false;
+        } else if(columns[i].type == "password"){
+            objColumnDefToPush.searchable = false;
+            objColumnDefToPush.orderable = false;
         }
         columnDefs.push(objColumnDefToPush);
     }

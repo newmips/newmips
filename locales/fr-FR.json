@@ -99,7 +99,7 @@
         "change_theme": "Changer de thème",
         "intro": "Bonjour utilisateur Newmips!",
         "intro2": "Vous pouvez sélectionner un fichier à éditer sur le menu de gauche ;)",
-        "intro3": "Et vous pouvez appuyer sur F11 quand vous êtes sur l'éditeur pour passer en plein écran!"
+        "intro3": "F11: Plein écran | Ctrl+S: Sauvegarder | Ctrl+Maj: Fermer les scopes"
     },
     "ui_editor": {
         "page_not_found": "Impossible de trouver le fichier.",
@@ -356,7 +356,8 @@
                 "duplicateUnique": "Désolé, le champ contient déjà des valeurs identiques, impossible de le rendre unique.",
                 "missingValues": "Erreur, vous devez spécifier les valeurs que vous souhaitez avoir dans le champ de type enum / radio.",
                 "noSpace": "Erreur, merci de séparer les valeurs dans un champ de type enum / radio par des virgules et non des espaces.",
-                "sameValue": "Erreur, vous ne pouvez pas spécifier 2 fois la même valeur dans un champ de type enum / radio."
+                "sameValue": "Erreur, vous ne pouvez pas spécifier 2 fois la même valeur dans un champ de type enum / radio.",
+                "notUnique4RelatedToMany": "Désolé, mais il n'est pas possible de rendre un champ de type 'Related to many' unique."
             }
         },
         "association": {
@@ -373,10 +374,10 @@
                 "success": "Nouvelle association 'Has Many Existing' avec l'entité %s créée sur %s."
             },
             "relatedToMultiple":{
-                "success": "Nouveau champ %s relié à plusieurs %s créé sur %s."
+                "success": "Nouveau champ %s relié à plusieurs %s créé sur %s.<br>Pour le supprimer, tapez l’instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>"
             },
             "relatedTo": {
-                "success": "Nouveau champ %s relié à %s créé.",
+                "success": "Nouveau champ %s relié à %s créé.<br>Pour le supprimer, tapez l’instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
                 "missingField": "Le champ %s de l'entité %s n'existe pas ou n'est pas utilisable."
             },
             "error":{

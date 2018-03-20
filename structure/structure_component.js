@@ -907,7 +907,8 @@ exports.newStatus = function (attr, callback) {
                 $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
                 // Remove delete button
                 $("#bodyTR td:last").remove();
-                $("table").after('<input name="custom_order" data-index="3" data-order="DESC" type="hidden">');
+                $("table").attr("data-custom-order-index", "3");
+                $("table").attr("data-custom-order", "desc");
 
                 // Change history tab locales
                 var localesFR = JSON.parse(fs.readFileSync(workspacePath + '/locales/fr-FR.json', 'utf8'));
