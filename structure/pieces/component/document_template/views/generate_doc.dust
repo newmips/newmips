@@ -1,0 +1,16 @@
+<div id="r_document_template" class="tab-pane fade">
+    <br> 
+    <form action="/document_template/generate" method="POST">
+        <input type="hidden" value="ENTITY" name="entity">
+        <input type="hidden" value="{ENTITY.id}" name="id_entity">
+        <div class="form-group">
+            <label for="f_model_document"> {@__ key="entity.e_document_template.label_entity"/} </label>
+            <select name="f_model_document" style="width: 100%" class="form-control" id="component_document_template" entity="ENTITY" required="">
+                  <option value="">{@__ key="select.default" /}</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <span>{@__ key="button.generate" /}</span>
+        </button>
+    </form>
+</div>

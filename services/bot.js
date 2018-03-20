@@ -9,8 +9,8 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
         attr.error = "There must be at least one letter in the name."
     }
 
-    if(valueToCheck.length > 30){
-        console.log("Value is too long => "+valueToCheck+"("+valueToCheck.length+")");
+    if (valueToCheck.length > 30) {
+        console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
         attr.error = "error.valueTooLong";
     }
 
@@ -513,7 +513,7 @@ exports.relationshipHasOneWithName = function (result) {
 
 
 // --------- Field in create / update / show ---------
-exports.createFieldRelatedTo = function(result) {
+exports.createFieldRelatedTo = function (result) {
 
     var as = result[1];
     var target = result[2];
@@ -545,7 +545,7 @@ exports.createFieldRelatedToUsing = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
-exports.createFieldRelatedToMultiple = function(result) {
+exports.createFieldRelatedToMultiple = function (result) {
 
     var as = result[1];
     var target = result[2];
@@ -560,7 +560,7 @@ exports.createFieldRelatedToMultiple = function(result) {
     return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
-exports.createFieldRelatedToMultipleUsing = function(result) {
+exports.createFieldRelatedToMultipleUsing = function (result) {
 
     var as = result[1];
     var target = result[2];
@@ -617,9 +617,9 @@ exports.relationshipHasManyPreset = function (result) {
     var as = target;
     var foreignKey = "id_" + source.toLowerCase();
 
-    if(typeof result[3] !== "undefined")
+    if (typeof result[3] !== "undefined")
         as = result[3];
-        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
+    foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
@@ -639,9 +639,9 @@ exports.relationshipHasManyPresetUsing = function (result) {
     var as = target;
     var foreignKey = "id_" + source.toLowerCase();
 
-    if(typeof result[4] !== "undefined")
+    if (typeof result[4] !== "undefined")
         as = result[4];
-        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
+    foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
@@ -656,7 +656,7 @@ exports.relationshipHasManyPresetUsing = function (result) {
 };
 
 // ******* COMPONENT Actions ******* //
-exports.createNewComponentStatus = function(result) {
+exports.createNewComponentStatus = function (result) {
     var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
         function: "createNewComponentStatus",
@@ -664,7 +664,7 @@ exports.createNewComponentStatus = function(result) {
     };
 }
 
-exports.createNewComponentStatusWithName = function(result) {
+exports.createNewComponentStatusWithName = function (result) {
     var value = result[1];
     var options = {
         value: value,
@@ -811,8 +811,8 @@ exports.createNewComponentAddress = function (result) {
  */
 exports.deleteComponentAddress = function (result) {
     return {
-        function :"deleteComponentAddress",
-        options:result
+        function: "deleteComponentAddress",
+        options: result
     };
 };
 
@@ -872,6 +872,26 @@ exports.deleteComponentPrintWithName = function (result) {
     return attr;
 };
 
+/**
+ * create component DocumentTemplate
+ */
+exports.createComponentDocumentTemplate = function (result) {
+    return {
+        function: "createComponentDocumentTemplate",
+        options: result
+    };
+};
+
+/**
+ * Delete component DocumentTemplate
+ */
+exports.deleteComponentDocumentTemplate = function (result) {
+    return {
+        function: "deleteComponentDocumentTemplate",
+        options: result
+    };
+};
+
 /* CHAT */
 exports.createComponentChat = function (result) {
     return {
@@ -920,6 +940,7 @@ exports.listLayout = function (result) {
     };
     return attr;
 };
+
 
 exports.setTheme = function (result) {
 
@@ -2389,7 +2410,7 @@ var training = {
         "mettre le thème (.*)",
         "mettre thème (.*)"
     ],
-    "listIcon" : [
+    "listIcon": [
         "list icon",
         "list icons",
         "lister les icones",
@@ -2491,6 +2512,16 @@ var training = {
         "supprimer tous les widgets de (.*)",
         "supprimer les widgets de l'entité (.*)",
         "supprimer tous les widgets de l'entité (.*)"
+    ],
+    "createComponentDocumentTemplate": [
+        "add component document template",
+        "ajouter un composant document template",
+        "ajouter composant document template"
+    ],
+    "deleteComponentDocumentTemplate": [
+        "delete component document template",
+        "supprimer le composant document template",
+        "supprimer composant document template"
     ]
 };
 // ******* Parse *******
@@ -2530,7 +2561,7 @@ exports.parse = function (instruction) {
 }
 
 // ******* Completion *******
-exports.complete = function(instruction) {
+exports.complete = function (instruction) {
 
     var answers = [];
     var p = 0;
@@ -2649,8 +2680,8 @@ exports.complete = function(instruction) {
 
     // Filter array of results (remove double values)
     var i, j, len = answers.length,
-        out = [],
-        obj = {};
+            out = [],
+            obj = {};
     for (i = 0; i < len; i++)
         obj[answers[i]] = 0;
     for (j in obj)
