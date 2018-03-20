@@ -272,7 +272,8 @@
                 "successOnEntity": "New component %s (%s) created on entity %s."
             },
             "notFound": {
-                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
+                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s.",
+                "notFoundedOnEntity": "Sorry, no component with the name %s exist on the entity with id %s."
             },
             "delete": {
                 "success": "The component has been successfully deleted!",

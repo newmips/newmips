@@ -118,8 +118,8 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
         var fileToReplace = ["show_fields", "create_fields", "update_fields"];
         var urlEvent = valueEvent.toLowerCase().substring(2);
 
-        for(var i=0; i<fileToReplace.length; i++){
-            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/'+fileToReplace[i]+'.dust';
+        for (var i = 0; i < fileToReplace.length; i++) {
+            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
             var eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
             eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
@@ -131,57 +131,57 @@ function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, 
         // Inject custom_js
         var fileToInject = ["create", "update"];
 
-        for(var i=0; i<fileToInject.length; i++){
-            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/'+fileToInject[i]+'.dust';
+        for (var i = 0; i < fileToInject.length; i++) {
+            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
             var eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
-            eventTemplate += "\n\n"+
-            "{<custom_js}\n"+
-            "    <script type='text/javascript'>\n"+
-            "        var format;\n"+
-            "        if (lang_user == 'fr-FR')\n"+
-            "            format = 'DD/MM/YYYY HH:mm';\n"+
-            "        else\n"+
-            "            format = 'YYYY-MM-DD HH:mm';\n"+
-            "        $(document).on('click', 'button[type=\"submit\"]', function(){\n"+
-            "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n"+
-            "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n"+
-            "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n"+
-            "                if(end.diff(start) < 0){\n"+
-            "                    toastr.error(\"Error: Start date is after end date.\");\n"+
-            "                    return false;\n"+
-            "                }\n"+
-            "            }\n"+
-            "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n"+
-            "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n"+
-            "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n"+
-            "                if(end.diff(start) < 0){\n"+
-            "                    toastr.error(\"Error: End date is before start date.\");\n"+
-            "                    return false;\n"+
-            "                }\n"+
-            "            }\n"+
-            "            return true;"+
-            "        });\n"+
-            "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n"+
-            "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n"+
-            "                var start = moment($(this).val(), format);\n"+
-            "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n"+
-            "                if(end.diff(start) < 0){\n"+
-            "                    $(this).val('');\n"+
-            "                }\n"+
-            "            }\n"+
-            "        });\n"+
-            "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n"+
-            "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n"+
-            "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n"+
-            "                var end = moment($(this).val(), format);\n"+
-            "                if(end.diff(start) < 0){\n"+
-            "                    $(this).val('');\n"+
-            "                }\n"+
-            "            }\n"+
-            "        });\n"+
-            "    </script>\n"+
-            "{/custom_js}\n";
+            eventTemplate += "\n\n" +
+                    "{<custom_js}\n" +
+                    "    <script type='text/javascript'>\n" +
+                    "        var format;\n" +
+                    "        if (lang_user == 'fr-FR')\n" +
+                    "            format = 'DD/MM/YYYY HH:mm';\n" +
+                    "        else\n" +
+                    "            format = 'YYYY-MM-DD HH:mm';\n" +
+                    "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
+                    "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                    "                if(end.diff(start) < 0){\n" +
+                    "                    toastr.error(\"Error: Start date is after end date.\");\n" +
+                    "                    return false;\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                    "                if(end.diff(start) < 0){\n" +
+                    "                    toastr.error(\"Error: End date is before start date.\");\n" +
+                    "                    return false;\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "            return true;" +
+                    "        });\n" +
+                    "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
+                    "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+                    "                var start = moment($(this).val(), format);\n" +
+                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                    "                if(end.diff(start) < 0){\n" +
+                    "                    $(this).val('');\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "        });\n" +
+                    "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
+                    "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                    "                var end = moment($(this).val(), format);\n" +
+                    "                if(end.diff(start) < 0){\n" +
+                    "                    $(this).val('');\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "        });\n" +
+                    "    </script>\n" +
+                    "{/custom_js}\n";
 
             fs.writeFileSync(eventFile, eventTemplate, 'utf8');
         }
@@ -224,7 +224,7 @@ function addTab(attr, file, newLi, newTabContent) {
             domHelper.write(file, $).then(function () {
                 resolve();
             });
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.log(err);
             reject(err);
         });
@@ -250,12 +250,36 @@ function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
     });
 }
 
+function deleteAccessManagment(idApplication, urlComponent, urlModule, callback) {
+    // Write new data entity to access.json file, within module's context
+    var accessPath = __dirname + '/../workspace/' + idApplication + '/config/access.json';
+    var accessObject = require(accessPath);
+    if (accessObject[urlModule.toLowerCase()] && accessObject[urlModule.toLowerCase()].entities) {
+        var entities = accessObject[urlModule.toLowerCase()].entities;
+        var dataIndexToRemove = -1;
+        for (var i = 0; i < entities.length; i++) {
+            if (entities[i].name === urlComponent) {
+                dataIndexToRemove = i;
+                break;
+            }
+        }
+        if (dataIndexToRemove !== -1)
+            entities.splice(dataIndexToRemove, 1);
+        fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
+            callback();
+        });
+    } else
+        callback();
+}
+
+
 function replaceValuesInFile(filePath, valueToFind, replaceWith) {
     var fileContent = fs.readFileSync(filePath, 'utf8');
     var reg = new RegExp(valueToFind, "g");
     fileContent = fileContent.replace(reg, replaceWith);
     fs.writeFileSync(filePath, fileContent);
 }
+
 
 exports.newLocalFileStorage = function (attr, callback) {
 
@@ -290,7 +314,7 @@ exports.newLocalFileStorage = function (attr, callback) {
                         var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
                         var file = fileBase + '/show_fields.dust';
 
-                        printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function(){
+                        printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function () {
                             // CREATE THE TAB IN SHOW FIELDS
                             addTab(attr, file, newLi, componentContent).then(callback);
                         });
@@ -301,21 +325,21 @@ exports.newLocalFileStorage = function (attr, callback) {
     });
 }
 
-exports.newPrint = function(attr, callback){
+exports.newPrint = function (attr, callback) {
 
-	var nameComponent = attr.options.value;
-	var nameComponentLower = nameComponent.toLowerCase();
-	var showComponentName = attr.options.showValue;
-	var entityLower = attr.options.source.toLowerCase();
-	var idApp = attr.id_application;
+    var nameComponent = attr.options.value;
+    var nameComponentLower = nameComponent.toLowerCase();
+    var showComponentName = attr.options.showValue;
+    var entityLower = attr.options.source.toLowerCase();
+    var idApp = attr.id_application;
 
-	var showFieldsPath = __dirname+'/../workspace/'+idApp+'/views/'+entityLower+'/show_fields.dust';
+    var showFieldsPath = __dirname + '/../workspace/' + idApp + '/views/' + entityLower + '/show_fields.dust';
 
-	domHelper.read(showFieldsPath).then(function($) {
-		var newLi = '<li><a id="'+nameComponentLower+'-click" data-toggle="tab" href="#'+nameComponentLower+'"><!--{@__ key="component.'+nameComponentLower+'.label_component" /}--></a></li>';
+    domHelper.read(showFieldsPath).then(function ($) {
+        var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{@__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
 
         var tabContent = "";
-        tabContent += "<div id='"+nameComponentLower+"' class='tab-pane fade'>\n";
+        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane fade'>\n";
         tabContent += "     <style>";
         tabContent += "        @page { size: auto;  margin: 0mm; }";
         tabContent += "        @media print {";
@@ -326,11 +350,11 @@ exports.newPrint = function(attr, callback){
         tabContent += "                visibility: hidden;";
         tabContent += "                overflow: visible;";
         tabContent += "            }";
-        tabContent += "            #"+nameComponent+"-content,";
-        tabContent += "            #"+nameComponent+"-content * {";
+        tabContent += "            #" + nameComponent + "-content,";
+        tabContent += "            #" + nameComponent + "-content * {";
         tabContent += "                visibility: visible;";
         tabContent += "            }";
-        tabContent += "            #"+nameComponent+"-content {";
+        tabContent += "            #" + nameComponent + "-content {";
         tabContent += "                position: absolute;";
         tabContent += "                left: 0;";
         tabContent += "                top: 0;";
@@ -345,7 +369,7 @@ exports.newPrint = function(attr, callback){
         tabContent += "            .form-control {";
         tabContent += "                font-size: 18px !important;";
         tabContent += "            }";
-        tabContent += "            ."+nameComponent+" {";
+        tabContent += "            ." + nameComponent + " {";
         tabContent += "                height: 100%;";
         tabContent += "                overflow: visible;";
         tabContent += "            }";
@@ -364,24 +388,24 @@ exports.newPrint = function(attr, callback){
         tabContent += "                min-height: 100%;";
         tabContent += "                overflow: visible;";
         tabContent += "            }";
-        tabContent += "            #"+nameComponent+"-content a:after {";
+        tabContent += "            #" + nameComponent + "-content a:after {";
         tabContent += "                content: '';";
         tabContent += "            }";
-        tabContent += "            #"+nameComponent+"-content a[href]:after {";
+        tabContent += "            #" + nameComponent + "-content a[href]:after {";
         tabContent += "                content: none !important;";
         tabContent += "            }";
         tabContent += "        }";
         tabContent += "     </style>\n";
-        tabContent += "     <button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
-        tabContent += "     <div id='"+nameComponent+"-content' class='print-tab'>\n";
-        tabContent += "         {>\""+entityLower+"/print_fields\"/}\n";
-		tabContent += "     </div>\n";
-		tabContent += "</div>\n";
+        tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
+        tabContent += "     <div id='" + nameComponent + "-content' class='print-tab'>\n";
+        tabContent += "         {>\"" + entityLower + "/print_fields\"/}\n";
+        tabContent += "     </div>\n";
+        tabContent += "</div>\n";
 
-        translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function(){
+        translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function () {
             addTab(attr, showFieldsPath, newLi, tabContent).then(callback);
-		});
-	});
+        });
+    });
 }
 
 exports.deletePrint = function (attr, callback) {
@@ -422,7 +446,7 @@ exports.newContactForm = function (attr, callback) {
     var piecesPath = __dirname + '/../structure/pieces/component/contact_form';
 
     var toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
-    if(typeof toSyncObject.queries !== "object")
+    if (typeof toSyncObject.queries !== "object")
         toSyncObject.queries = [];
     toSyncObject[idApp + "_" + codeNameSettings] = {};
 
@@ -488,53 +512,53 @@ exports.newContactForm = function (attr, callback) {
 
     // Locales FR
     translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_name"], "Nom");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_sender"], "Expediteur");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_recipient"], "Destinataire");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "r_user"], "Utilisateur");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_title"], "Titre");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_content"], "Contenu");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_sender"], "Expediteur");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_recipient"], "Destinataire");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "r_user"], "Utilisateur");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_title"], "Titre");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_content"], "Contenu");
 
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Sent box");
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "settings"], "Settings");
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
+    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
+    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Sent box");
+    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "settings"], "Settings");
+    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
 
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte de réception");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte de réception");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
 
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");
-	translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "plural_entity"], "Settings");
+    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
+    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");
+    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "plural_entity"], "Settings");
 
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "label_entity"], "Paramètres");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "name_entity"], "Paramètres");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "plural_entity"], "Paramètres");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "label_entity"], "Paramètres");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "name_entity"], "Paramètres");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "plural_entity"], "Paramètres");
 
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_transport_host"], "Hôte");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_port"], "Port");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_secure"], "Sécurisé");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_user"], "Utilisateur");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_pass"], "Mot de passe");
-	translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_form_recipient"], "Destinataire du formulaire");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_transport_host"], "Hôte");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_port"], "Port");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_secure"], "Sécurisé");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_user"], "Utilisateur");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_pass"], "Mot de passe");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_form_recipient"], "Destinataire du formulaire");
 
-	// If default name
-	if(codeName == "e_contact_form")
-		translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "label_entity"], "Formulaire de contact");
-		translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "name_entity"], "Formulaire de contact");
-		translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "plural_entity"], "Formulaires de contact");
+    // If default name
+    if (codeName == "e_contact_form")
+        translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "label_entity"], "Formulaire de contact");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "name_entity"], "Formulaire de contact");
+    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "plural_entity"], "Formulaires de contact");
 
-    var layoutFileName = __dirname+'/../workspace/'+idApp+'/views/layout_'+attr.options.moduleName.toLowerCase()+'.dust';
-	domHelper.read(layoutFileName).then(function($) {
+    var layoutFileName = __dirname + '/../workspace/' + idApp + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
+    domHelper.read(layoutFileName).then(function ($) {
 
-		$("#"+urlName+"_menu_item").remove();
-		$("#"+urlNameSettings+"_menu_item").remove();
+        $("#" + urlName + "_menu_item").remove();
+        $("#" + urlNameSettings + "_menu_item").remove();
 
-		var li = '';
-		li += "<!--{@entityAccess entity=\""+urlName+"\"}-->\n";
-    	li += "		<li id=\""+urlName+"_menu_item\" style=\"display:block;\" class=\"treeview\">\n";
-		li += "			<a href=\"#\">\n";
+        var li = '';
+        li += "<!--{@entityAccess entity=\"" + urlName + "\"}-->\n";
+        li += "		<li id=\"" + urlName + "_menu_item\" style=\"display:block;\" class=\"treeview\">\n";
+        li += "			<a href=\"#\">\n";
         li += "    			<i class=\"fa fa-envelope\"></i>\n";
         li += "    			<span><!--{@__ key=\"entity." + codeName + ".label_entity\" /}--></span>\n";
         li += "    			<i class=\"fa fa-angle-left pull-right\"></i>\n";
@@ -768,9 +792,9 @@ exports.newCra = function (attr, callback) {
         // Replace layout to point to current module
         var files = ['admin_declare.dust', 'declare.dust', 'list.dust'];
         for (var i = 0; i < files.length; i++) {
-            var view = fs.readFileSync(piecesPath+'/views/e_cra/'+files[i], 'utf8');
+            var view = fs.readFileSync(piecesPath + '/views/e_cra/' + files[i], 'utf8');
             view = view.replace(/MODULE_NAME/g, attr.module.codeName);
-            fs.writeFileSync(workspacePath+'/views/e_cra/'+files[i], view, 'utf8');
+            fs.writeFileSync(workspacePath + '/views/e_cra/' + files[i], view, 'utf8');
         }
 
         // Create belongsToMany relation between team and activity for default activities
@@ -788,7 +812,7 @@ exports.newCra = function (attr, callback) {
 
         var teamAttributesPath = workspacePath + '/models/attributes/e_cra_team.json';
         var teamAttributesObj = require(teamAttributesPath);
-        teamAttributesObj.fk_id_admin_user = {type:"INTEGER", newmipsType:"integer"};
+        teamAttributesObj.fk_id_admin_user = {type: "INTEGER", newmipsType: "integer"};
         fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
 
         // Replace locales
@@ -833,38 +857,41 @@ exports.newCra = function (attr, callback) {
     }
 };
 
-exports.newStatus = function(attr, callback) {
+exports.newStatus = function (attr, callback) {
     var workspacePath = __dirname + '/../workspace/' + attr.id_application;
     var piecesPath = __dirname + '/../structure/pieces/component/status';
 
     // Add virtual status field to source entity (s_statusName)
-    var attributesObj = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+attr.source+'.json'));
+    var attributesObj = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + attr.source + '.json'));
     attributesObj[attr.options.value] = {
         type: "VIRTUAL"
     };
-    fs.writeFileSync(workspacePath+'/models/attributes/'+attr.source+'.json', JSON.stringify(attributesObj, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + '/models/attributes/' + attr.source + '.json', JSON.stringify(attributesObj, null, 4), 'utf8');
 
     // Remove useless options on e_status
-    var statusModel = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_status.json'));
+    var statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
     for (var i = 0; i < statusModel.length; i++)
-        if (statusModel[i].target == 'e_'+attr.history_table)
-            {statusModel.splice(i, 1); break;}
-    fs.writeFileSync(workspacePath+'/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
+        if (statusModel[i].target == 'e_' + attr.history_table)
+        {
+            statusModel.splice(i, 1);
+            break;
+        }
+    fs.writeFileSync(workspacePath + '/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
     // Remove useless history tab from Status views
-    domHelper.read(workspacePath+"/views/e_status/show_fields.dust").then(function($) {
-        var historyId = 'r_'+attr.history_table;
-        $("#"+historyId+"-click").parent().remove();
-        $("#"+historyId).remove();
-        domHelper.write(workspacePath+"/views/e_status/show_fields.dust", $).then(function(){
-            var statusAlias = 'r_'+attr.options.value.substring(2);
-            var statusAliasHTML = 'f_'+attr.options.value.substring(2);
+    domHelper.read(workspacePath + "/views/e_status/show_fields.dust").then(function ($) {
+        var historyId = 'r_' + attr.history_table;
+        $("#" + historyId + "-click").parent().remove();
+        $("#" + historyId).remove();
+        domHelper.write(workspacePath + "/views/e_status/show_fields.dust", $).then(function () {
+            var statusAlias = 'r_' + attr.options.value.substring(2);
+            var statusAliasHTML = 'f_' + attr.options.value.substring(2);
             var statusAliasSubstring = statusAlias.substring(2);
             // Customize history tab list
-            domHelper.read(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust').then(function($) {
+            domHelper.read(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust').then(function ($) {
                 // Remove buttons
                 $("tbody tr td").slice(4, 7).remove();
-                $("thead").each(function() {
+                $("thead").each(function () {
                     $(this).find("tr th").slice(4, 7).remove();
                 });
                 // Remove id column
@@ -874,7 +901,7 @@ exports.newStatus = function(attr, callback) {
                 newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
                 newTh += '    {@__ key="defaults.createdAt"/}\n';
                 newTh += '</th>\n';
-                $(".fields").each(function() {
+                $(".fields").each(function () {
                     $(this).find("th:eq(2)").after(newTh);
                 });
                 $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
@@ -884,60 +911,60 @@ exports.newStatus = function(attr, callback) {
                 $("table").attr("data-custom-order", "desc");
 
                 // Change history tab locales
-                var localesFR = JSON.parse(fs.readFileSync(workspacePath+'/locales/fr-FR.json', 'utf8'));
-                localesFR.entity['e_'+attr.history_table]['as_r_history_'+attr.options.urlValue] = "Historique "+attr.options.showValue;
-                localesFR.entity['e_'+attr.history_table]['f_comment'] = "Commentaire";
-                localesFR.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
-                localesFR.entity['e_'+attr.history_table].label_entity = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
-                localesFR.entity['e_'+attr.history_table].name_entity = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
-                localesFR.entity['e_'+attr.history_table].plural_entity = "Historique "+statusAliasSubstring+" "+attr.source.substring(2);
-                fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
-                var localesEN = JSON.parse(fs.readFileSync(workspacePath+'/locales/en-EN.json', 'utf8'));
-                localesEN.entity['e_'+attr.history_table]['as_r_'+attr.history_table] = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
-                localesEN.entity['e_'+attr.history_table].label_entity = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
-                localesEN.entity['e_'+attr.history_table].name_entity = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
-                localesEN.entity['e_'+attr.history_table].plural_entity = "History "+attr.source.substring(2)+" "+statusAliasSubstring;
-                fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
+                var localesFR = JSON.parse(fs.readFileSync(workspacePath + '/locales/fr-FR.json', 'utf8'));
+                localesFR.entity['e_' + attr.history_table]['as_r_history_' + attr.options.urlValue] = "Historique " + attr.options.showValue;
+                localesFR.entity['e_' + attr.history_table]['f_comment'] = "Commentaire";
+                localesFR.entity['e_' + attr.history_table]['as_r_' + attr.history_table] = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                localesFR.entity['e_' + attr.history_table].label_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                localesFR.entity['e_' + attr.history_table].name_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                localesFR.entity['e_' + attr.history_table].plural_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
+                var localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
+                localesEN.entity['e_' + attr.history_table]['as_r_' + attr.history_table] = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                localesEN.entity['e_' + attr.history_table].label_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                localesEN.entity['e_' + attr.history_table].name_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                localesEN.entity['e_' + attr.history_table].plural_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 
-                domHelper.write(workspacePath+'/views/e_'+attr.history_table+'/list_fields.dust', $).then(function() {
+                domHelper.write(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust', $).then(function () {
 
                     // Display status as a badge instead of an input
                     // Also add next status buttons after status field
-                    domHelper.read(workspacePath+'/views/'+attr.source+'/show_fields.dust').then(function($) {
-                        var statusBadgeHtml = '<br><span class="badge" style="background: {'+statusAlias+'.f_color};">{'+statusAlias+'.f_name}</span>';
+                    domHelper.read(workspacePath + '/views/' + attr.source + '/show_fields.dust').then(function ($) {
+                        var statusBadgeHtml = '<br><span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
                         var nextStatusHtml = '';
                         nextStatusHtml += '<div class="form-group">';
-                        nextStatusHtml += '{#'+statusAlias+'.r_children '+attr.source.substring(2)+'id=id}';
-                        nextStatusHtml += '<a href="/'+attr.source.substring(2)+'/set_status/{'+attr.source.substring(2)+'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
-                        nextStatusHtml += '{/'+statusAlias+'.r_children}';
+                        nextStatusHtml += '{#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}';
+                        nextStatusHtml += '<a href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
+                        nextStatusHtml += '{/' + statusAlias + '.r_children}';
                         nextStatusHtml += '</div>';
-                        $("div[data-field='"+statusAliasHTML+"']").find('input').replaceWith(statusBadgeHtml);
-                        $("div[data-field='"+statusAliasHTML+"']").append(nextStatusHtml);
+                        $("div[data-field='" + statusAliasHTML + "']").find('input').replaceWith(statusBadgeHtml);
+                        $("div[data-field='" + statusAliasHTML + "']").append(nextStatusHtml);
                         // Input used for default ordering
 
                         // Remove create button
-                        var historyTabId = "#r_history_"+attr.options.urlValue;
+                        var historyTabId = "#r_history_" + attr.options.urlValue;
                         $(historyTabId).find('a.btn-success').remove();
-                        domHelper.write(workspacePath+'/views/'+attr.source+'/show_fields.dust', $).then(function() {
+                        domHelper.write(workspacePath + '/views/' + attr.source + '/show_fields.dust', $).then(function () {
 
                             // Remove status field from update_fields and create_fields
-                            domHelper.read(workspacePath+'/views/'+attr.source+'/create_fields.dust').then(function($) {
-                                $("div[data-field='"+statusAliasHTML+"']").remove();
-                                domHelper.write(workspacePath+'/views/'+attr.source+'/create_fields.dust', $).then(function() {
-                                    domHelper.read(workspacePath+'/views/'+attr.source+'/update_fields.dust').then(function($) {
-                                        $("div[data-field='"+statusAliasHTML+"']").remove();
-                                        domHelper.write(workspacePath+'/views/'+attr.source+'/update_fields.dust', $).then(function() {
+                            domHelper.read(workspacePath + '/views/' + attr.source + '/create_fields.dust').then(function ($) {
+                                $("div[data-field='" + statusAliasHTML + "']").remove();
+                                domHelper.write(workspacePath + '/views/' + attr.source + '/create_fields.dust', $).then(function () {
+                                    domHelper.read(workspacePath + '/views/' + attr.source + '/update_fields.dust').then(function ($) {
+                                        $("div[data-field='" + statusAliasHTML + "']").remove();
+                                        domHelper.write(workspacePath + '/views/' + attr.source + '/update_fields.dust', $).then(function () {
 
                                             // Update list field to show status color in datalist
-                                            domHelper.read(workspacePath+'/views/'+attr.source+'/list_fields.dust').then(function($) {
+                                            domHelper.read(workspacePath + '/views/' + attr.source + '/list_fields.dust').then(function ($) {
 
-                                                $("th[data-field='"+statusAlias+"']").each(function(){
+                                                $("th[data-field='" + statusAlias + "']").each(function () {
                                                     $(this).attr("data-type", "status");
                                                 });
-                                                $("td[data-field='"+statusAlias+"']").attr("data-type", "status");
+                                                $("td[data-field='" + statusAlias + "']").attr("data-type", "status");
 
-                                                domHelper.write(workspacePath+'/views/'+attr.source+'/list_fields.dust', $).then(function() {
-                                                    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function(){
+                                                domHelper.write(workspacePath + '/views/' + attr.source + '/list_fields.dust', $).then(function () {
+                                                    translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function () {
                                                         callback(null);
                                                     });
                                                 });
@@ -954,37 +981,37 @@ exports.newStatus = function(attr, callback) {
     });
 }
 
-exports.setupChat = function(attr, callback) {
+exports.setupChat = function (attr, callback) {
     try {
-        var workspacePath = __dirname + '/../workspace/'+attr.id_application;
+        var workspacePath = __dirname + '/../workspace/' + attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/socket';
 
         // Copy chat files
-        fs.copySync(piecesPath+'/chat/js/chat.js', workspacePath+'/public/js/Newmips/component/chat.js');
-        fs.copySync(piecesPath+'/chat/chat_utils.js', workspacePath+'/utils/chat.js');
-        fs.copySync(piecesPath+'/chat/routes/chat.js', workspacePath+'/routes/chat.js');
+        fs.copySync(piecesPath + '/chat/js/chat.js', workspacePath + '/public/js/Newmips/component/chat.js');
+        fs.copySync(piecesPath + '/chat/chat_utils.js', workspacePath + '/utils/chat.js');
+        fs.copySync(piecesPath + '/chat/routes/chat.js', workspacePath + '/routes/chat.js');
 
         // Copy chat models
         var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
         for (var i = 0; i < chatModels.length; i++) {
-            fs.copySync(piecesPath+'/chat/models/'+chatModels[i]+'.js', workspacePath+'/models/'+chatModels[i]+'.js');
-            var model = fs.readFileSync(workspacePath+'/models/'+chatModels[i]+'.js', 'utf8');
+            fs.copySync(piecesPath + '/chat/models/' + chatModels[i] + '.js', workspacePath + '/models/' + chatModels[i] + '.js');
+            var model = fs.readFileSync(workspacePath + '/models/' + chatModels[i] + '.js', 'utf8');
             model = model.replace(/ID_APPLICATION/g, attr.id_application);
-            fs.writeFileSync(workspacePath+'/models/'+chatModels[i]+'.js', model, 'utf8');
+            fs.writeFileSync(workspacePath + '/models/' + chatModels[i] + '.js', model, 'utf8');
         }
         // Copy attributes
-        fs.copySync(piecesPath+'/chat/models/attributes/', workspacePath+'/models/attributes/');
+        fs.copySync(piecesPath + '/chat/models/attributes/', workspacePath + '/models/attributes/');
         // Copy options
-        fs.copySync(piecesPath+'/chat/models/options/', workspacePath+'/models/options/');
+        fs.copySync(piecesPath + '/chat/models/options/', workspacePath + '/models/options/');
 
         // Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
-        var userOptions = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_user.json'));
+        var userOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
         userOptions.push({
             target: 'e_chat',
             relation: 'belongsToMany',
             foreignKey: 'id_user',
             otherKey: 'id_chat',
-            through: attr.id_application+'_chat_user_chat',
+            through: attr.id_application + '_chat_user_chat',
             as: 'r_chat'
         });
         userOptions.push({
@@ -992,29 +1019,29 @@ exports.setupChat = function(attr, callback) {
             relation: "belongsToMany",
             foreignKey: "id_user",
             otherKey: "id_channel",
-            through: attr.id_application+"_chat_user_channel",
+            through: attr.id_application + "_chat_user_channel",
             as: "r_user_channel"
         });
-        fs.writeFileSync(workspacePath+'/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
+        fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
 
         // Replace ID_APPLICATION in channel.json and chat.json
-        var option = fs.readFileSync(workspacePath+'/models/options/e_channel.json', 'utf8');
+        var option = fs.readFileSync(workspacePath + '/models/options/e_channel.json', 'utf8');
         option = option.replace(/ID_APPLICATION/g, attr.id_application);
-        fs.writeFileSync(workspacePath+'/models/options/e_channel.json', option, 'utf8');
-        var option = fs.readFileSync(workspacePath+'/models/options/e_chat.json', 'utf8');
+        fs.writeFileSync(workspacePath + '/models/options/e_channel.json', option, 'utf8');
+        var option = fs.readFileSync(workspacePath + '/models/options/e_chat.json', 'utf8');
         option = option.replace(/ID_APPLICATION/g, attr.id_application);
-        fs.writeFileSync(workspacePath+'/models/options/e_chat.json', option, 'utf8');
+        fs.writeFileSync(workspacePath + '/models/options/e_chat.json', option, 'utf8');
 
         // Set socket and chat config to enabled/true
-        var appConf = JSON.parse(fs.readFileSync(workspacePath+'/config/application.json'));
+        var appConf = JSON.parse(fs.readFileSync(workspacePath + '/config/application.json'));
         appConf.socket.enabled = true;
         appConf.socket.chat = true;
-        fs.writeFileSync(workspacePath+'/config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
+        fs.writeFileSync(workspacePath + '/config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
 
         // Add custom user_channel/user_chat columns to toSync file
         // Id will not be used but is required by sequelize to be able to query on the junction table
-        var toSync = JSON.parse(fs.readFileSync(workspacePath+'/models/toSync.json'));
-        toSync[attr.id_application+'_chat_user_channel'] = {
+        var toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
+        toSync[attr.id_application + '_chat_user_channel'] = {
             attributes: {
                 id_last_seen_message: {type: 'INTEGER', default: 0},
                 id: {
@@ -1025,7 +1052,7 @@ exports.setupChat = function(attr, callback) {
             },
             force: true
         };
-        toSync[attr.id_application+'_chat_user_chat'] = {
+        toSync[attr.id_application + '_chat_user_chat'] = {
             attributes: {
                 id_last_seen_message: {type: 'INTEGER', default: 0},
                 id: {
@@ -1036,35 +1063,35 @@ exports.setupChat = function(attr, callback) {
             },
             force: true
         };
-        fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
+        fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
         // Add chat locales
         // EN
-        var piecesLocalesEN = require(piecesPath+'/chat/locales/en-EN');
-        var workspaceLocalesEN = require(workspacePath+'/locales/en-EN');
+        var piecesLocalesEN = require(piecesPath + '/chat/locales/en-EN');
+        var workspaceLocalesEN = require(workspacePath + '/locales/en-EN');
         workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
-        fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4), 'utf8');
+        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4), 'utf8');
         // FR
-        var piecesLocalesFR = require(piecesPath+'/chat/locales/fr-FR');
-        var workspaceLocalesFR = require(workspacePath+'/locales/fr-FR');
+        var piecesLocalesFR = require(piecesPath + '/chat/locales/fr-FR');
+        var workspaceLocalesFR = require(workspacePath + '/locales/fr-FR');
         workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
-        fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4), 'utf8');
+        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4), 'utf8');
 
         // Add chat dust template to main_layout
-        domHelper.read(workspacePath+'/views/main_layout.dust').then(function($layout) {
-            domHelper.read(piecesPath+'/chat/views/chat.dust').then(function($chat) {
+        domHelper.read(workspacePath + '/views/main_layout.dust').then(function ($layout) {
+            domHelper.read(piecesPath + '/chat/views/chat.dust').then(function ($chat) {
                 $layout("#chat-placeholder").html($chat("body")[0].innerHTML);
 
-                domHelper.writeMainLayout(workspacePath+'/views/main_layout.dust', $layout).then(function() {
+                domHelper.writeMainLayout(workspacePath + '/views/main_layout.dust', $layout).then(function () {
                     callback(null);
                 });
             });
-        }).catch(function(e) {
+        }).catch(function (e) {
             console.log(e);
             callback(e);
         });
 
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         callback(e);
     }
@@ -1168,7 +1195,7 @@ exports.addNewComponentAddress = function (attr, callback) {
         fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
         fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
         setupComponentModel(attr.id_application, 'address', componentName, 'address', function () {
-            printHelper.addAddressComponent(application_path + 'views/' + source, componentName).then(function(){
+            printHelper.addAddressComponent(application_path + 'views/' + source, componentName).then(function () {
                 callback(null);
             });
         });
@@ -1226,3 +1253,145 @@ exports.deleteComponentAddress = function (attr, callback) {
         return callback(e);
     }
 };
+
+exports.createComponentDocumentTemplate = function (attr, callback) {
+    try {
+        var entity_name = 'document_template';
+        if (attr.is_new_component_entity) {
+            //Add structure files(models,route,views etc.
+            var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+            var entity_path = __dirname + '/pieces/component/document_template/';
+            var module_name = 'administration';
+            var entity_url = 'document_template';
+            var entity_code_name = "e_document_template";
+            var table_name = attr.id_application + '_' + entity_code_name;
+            //models
+            var modelContent = fs.readFileSync(entity_path + 'models/e_document_template.js', 'utf8');
+            modelContent = modelContent.replace(/TABLE_NAME/g, table_name);
+            modelContent = modelContent.replace(/MODEL_CODE_NAME/g, entity_code_name);
+            //Now copy model files
+            fs.copySync(entity_path + 'models/attributes/e_document_template.json', application_path + 'models/attributes/e_document_template.json');
+            fs.copySync(entity_path + 'models/options/e_document_template.json', application_path + 'models/options/e_document_template.json');
+            fs.writeFileSync(application_path + 'models/e_document_template.js', modelContent, 'utf8');
+            //copy views files
+            fs.copySync(entity_path + 'views/create.dust', application_path + 'views/' + entity_code_name + '/create.dust');
+            fs.copySync(entity_path + 'views/create_fields.dust', application_path + 'views/' + entity_code_name + '/create_fields.dust');
+            fs.copySync(entity_path + 'views/list.dust', application_path + 'views/' + entity_code_name + '/list.dust');
+            fs.copySync(entity_path + 'views/list_fields.dust', application_path + 'views/' + entity_code_name + '/list_fields.dust');
+            fs.copySync(entity_path + 'views/show.dust', application_path + 'views/' + entity_code_name + '/show.dust');
+            fs.copySync(entity_path + 'views/show_fields.dust', application_path + 'views/' + entity_code_name + '/show_fields.dust');
+            fs.copySync(entity_path + 'views/update.dust', application_path + 'views/' + entity_code_name + '/update.dust');
+            fs.copySync(entity_path + 'views/update_fields.dust', application_path + 'views/' + entity_code_name + '/update_fields.dust');
+            fs.copySync(entity_path + 'views/readme.dust', application_path + 'views/' + entity_code_name + '/readme.dust');
+            fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
+            //copy helper
+            fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');
+            //copy route file
+            fs.copySync(entity_path + 'routes/e_document_template.js', application_path + 'routes/e_document_template.js');
+
+            //add new entry for access
+            addAccessManagment(attr.id_application, entity_url, module_name, function () {
+                //now add tab for doc generation
+                addNewTabComponentDocumentTemplate(attr, entity_name, function () {
+                    //Set traduction
+                    var lang_fr = {
+                        "label_entity": "Modèle de document",
+                        "name_entity": "Modèle de document",
+                        "plural_entity": "Modèle de documents",
+                        "id_entity": "ID",
+                        "f_name": "Nom du fichier",
+                        "f_file": "Fichier",
+                        "f_entity": "Entité",
+                        "f_exclude_relations": "Sous entités"
+                    };
+                    var lang_en = {
+                        "label_entity": "Document template",
+                        "name_entity": "Document template",
+                        "plural_entity": "Document templates",
+                        "id_entity": "ID",
+                        "f_name": "Filename",
+                        "f_file": "File",
+                        "f_entity": "Entity",
+                        "f_exclude_relations": "Sub entities"
+                    };
+                    //update locales
+                    var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
+                    var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+                    langFR.entity[entity_code_name] = lang_fr;
+                    langEN.entity[entity_code_name] = lang_en;
+                    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+                    //Now new Menu For Entity DocumentTemplate
+                    require('./structure_module').addNewMenuEntry(attr.id_application, entity_code_name, entity_url, 'm_' + module_name, 'file-text', function () {
+                        return callback(null);
+                    });
+                });
+            });
+        } else {
+            addNewTabComponentDocumentTemplate(attr, entity_name, function (e) {
+                return callback(e);
+            });
+        }
+    } catch (e) {
+        return callback(e);
+    }
+};
+
+exports.deleteComponentDocumentTemplateOnEntity = function (attr, callback) {
+    var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+    var componentName = 'document_template';
+    domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
+        $showFieldsView('#r_' + componentName + '-click').parent().remove();//remove li tab
+        $showFieldsView('#r_' + componentName).remove();//remove tab content div
+        domHelper.write(application_path + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function () {
+            return callback(null);
+        }).catch(function (e) {
+            return callback(e);
+        });
+    }).catch(function (e) {
+        return callback(e);
+    });
+}
+
+exports.deleteComponentDocumentTemplate = function (attr, callback) {
+    var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+    var componentName = 'document_template';
+    fs.remove(application_path + 'views/e_' + componentName);
+    fs.remove(application_path + 'views/layout_document_template.dust');
+    fs.remove(application_path + 'routes/e_' + componentName + '.js');
+    fs.remove(application_path + 'models/e_' + componentName + '.js');
+    fs.remove(application_path + 'models/attributes/e_' + componentName + '.json');
+    fs.remove(application_path + 'models/options/e_' + componentName + '.json');
+
+    //update locales
+    var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
+    var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+    delete langFR.entity['e_' + componentName];
+    delete langEN.entity['e_' + componentName];
+    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+    //delete access json
+    deleteAccessManagment(attr.id_application, componentName, "administration", function () {
+        require('./structure_module').removeMenuEntry(attr, "administration", componentName, function (err) {
+            callback(err);
+        });
+    });
+}
+
+
+
+function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
+    var source = attr.options.source;
+    var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+    var entity_path = __dirname + '/pieces/component/document_template/';
+    var relationEntityShowFieldsFile = application_path + 'views' + '/' + source + '/show_fields.dust';
+    //new entry for source relation view
+    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.label_entity" /}</a></li>';
+    var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
+    newTabContent = newTabContent.replace(/ENTITY/g, source);
+    addTab(attr, relationEntityShowFieldsFile, newLi, newTabContent).then(function () {
+        callback(null);
+    }).catch(function (e) {
+        callback(e);
+    });
+}
