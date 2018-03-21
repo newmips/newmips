@@ -230,7 +230,10 @@ function init_datatable(tableID) {
                     cellValue = row[columns[meta.col].data];
 
                 function currencyFormat(num) {
-                    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")
+                    if(num != null)
+                        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+                    else
+                        return "";
                 }
 
                 // Special data types
@@ -500,7 +503,7 @@ function init_datatable(tableID) {
                     valueObject.type = 'date';
                     searchValue = lang_user == 'fr-FR' ? formatDateFR($(this).find("input").inputmask('unmaskedvalue')) : formatDateEN($(this).find("input").inputmask('unmaskedvalue'));
                 }
-                // Date
+                // Time
                 else if (mainTh.data('type') == 'time') {
                     valueObject.type = 'time';
                     searchValue = formatTime($(this).find("input").inputmask('unmaskedvalue'));
@@ -509,6 +512,10 @@ function init_datatable(tableID) {
                 else if (mainTh.data('type') == 'datetime') {
                     valueObject.type = 'datetime';
                     searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(this).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(this).find("input").inputmask('unmaskedvalue'));
+                }
+                // Currency
+                else if (mainTh.data('type') == 'currency') {
+                    valueObject.type = 'currency';
                 }
             }
             valueObject.value = searchValue;
