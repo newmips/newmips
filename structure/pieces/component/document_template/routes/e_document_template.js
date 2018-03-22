@@ -563,6 +563,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                         if (partOfFilepath.length > 1) {
                             var completeFilePath = globalConfig.localstorage + 'e_document_template/' + partOfFilepath[0] + '/' + e_model_document.f_file;
                             var today = moment();
+                            var mimeType = require('mime-types').lookup(completeFilePath);
                             var reworkOptions = {
                                 //entity by entity
                                 /**'e_entity': [
@@ -571,7 +572,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                                 //next entity
                             };
                             //rework with own options
-                            var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user);
+                            var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user,mimeType);
                             //now add others variables
                             document_template_helper.globalVariables.forEach(function (g) {
                                 if (g.type === "date" || g.type === "datetime" || g.type === "time")
@@ -579,7 +580,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             });
                             data['g_email'] = req.session.passport.user.f_email != null ? req.session.passport.user.f_email : '';
                             data['g_login'] = req.session.passport.user.f_login != null ? req.session.passport.user.f_login : '';
-                            var mimeType = require('mime-types').lookup(completeFilePath);
+                            
                             var options = {
                                 file: completeFilePath,
                                 mimeType: mimeType,
