@@ -20,7 +20,6 @@ exports.setupModule = function (attr, callback) {
 
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
-        str += '// ' + name_module + '\n';
         str += 'router.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("' + url_name_module + '"), function(req, res) {\n';
         str += '    var widgetPromises = [];\n'
         str += '    // *** Widget module ' + name_module.toLowerCase() + ' | Do not remove ***\n';
@@ -124,7 +123,15 @@ exports.deleteModule = function (attr, callback) {
     var moduleFilename = 'layout_' + attr.module_name.toLowerCase() + '.dust';
     var layoutsPath = __dirname + '/../workspace/' + attr.id_application + '/views/';
 
+    // Remove layout
     fs.unlinkSync(layoutsPath + moduleFilename);
+    fs.unlinkSync(layoutsPath + "/default/" + attr.module_name.toLowerCase() + ".dust");
+
+    // Clean default.js route GET
+    var defaultRouteContent = fs.readFileSync(__dirname + '/../workspace/' + attr.id_application + '/routes/default.js', "utf8");
+    var regex = new RegExp("router\\.get\\('\\/"+attr.module_name.toLowerCase().substring(2)+"'([\\s\\S]*?)(?=router)");
+    defaultRouteContent = defaultRouteContent.replace(regex, "");
+    fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/routes/default.js', defaultRouteContent);
 
     // Clean up access config
     var access = require(__dirname + '/../workspace/' + attr.id_application + '/config/access.json');
@@ -136,7 +143,9 @@ exports.deleteModule = function (attr, callback) {
 
     function done(cpt, lenght) {
         if (cpt == lenght) {
-            callback();
+            translateHelper.removeLocales(attr.id_application, "module", attr.module_name.toLowerCase(), function () {
+                callback();
+            });
         }
     }
 
@@ -202,6 +211,7 @@ exports.addNewMenuEntry = function (idApplication, nameDataEntity, urlDataEntity
         callback(err, null);
     });
 }
+
 exports.removeMenuEntry = function (attr, moduleName, entityName, callback) {
     var fileName = __dirname + '/../workspace/' + attr.id_application + '/views/layout_m_' + moduleName.toLowerCase() + '.dust';
     // Read file and get jQuery instance

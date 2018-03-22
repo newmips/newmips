@@ -638,7 +638,7 @@ $(document).ready(function () {
 
     var maskMoneyPrecision = 2;
     //Mask for data-type currency
-    $(this).find("[data-type='currency']").each(function () {
+    $(this).find("input[data-type='currency']").each(function () {
         $(this).maskMoney({
             thousands: ' ',
             decimal: '.',

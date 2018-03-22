@@ -48,6 +48,10 @@ module.exports = function(modelName, params, speInclude, speWhere) {
                         updateInclude(column);
                     } else if (descriptor && descriptor.type == 'boolean') {
                         orRow[column.data] = column.search.value;
+                    } else if (descriptor && descriptor.type == 'currency') {
+                        orRow[column.data] = models.Sequelize.where(models.Sequelize.col(column.data), {
+                            like: `${column.search.value}%`
+                        });
                     } else {
                         orRow[column.data] = {
                             $like: '%' + column.search.value + '%'

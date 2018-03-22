@@ -252,6 +252,8 @@ module.exports = {
                 delete dataLocales.entity[value[0]][value[1]];
             } else if(type == "entity") {
                 delete dataLocales.entity[value];
+            } else if(type == "module") {
+                delete dataLocales.module[value];
             }
 
             fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
