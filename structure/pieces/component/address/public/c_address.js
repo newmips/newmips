@@ -4,6 +4,7 @@ $(document).ready(function () {
         try {
             c_address_search_config = JSON.parse(c_address_search_config);
         } catch (e) {
+            c_address_search_config = undefined;
         }
     }
     if (typeof c_address_search_config !== 'undefined') {

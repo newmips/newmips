@@ -1100,31 +1100,33 @@ exports.setupChat = function (attr, callback) {
 exports.addNewComponentAddress = function (attr, callback) {
     try {
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
-        var c_address_views_path = __dirname + '/pieces/component/address/views/';
+        var c_address_path = __dirname + '/pieces/component/address/';
         var address_utils = require(__dirname + '/pieces/component/address/utils/address_utils');
-        var componentName = 'c_address_' + attr.id_data_entity;
-        var source = attr.options.source;
-        var componentUrl = source.replace('e_', '') + '_address';
+        var componentName = attr.componentCodeName;
+        var source = attr.entityCodeName;
+        var componentUrl = 'c_address_' + attr.id_data_entity;
         var moduleName = attr.moduleName.replace('m_', '');
         //models
-        var modelAttributes = JSON.parse(fs.readFileSync(c_address_views_path + '../models/attributes/c_address.json', 'utf8'));
-        var routeContent = fs.readFileSync(__dirname + '/pieces/routes/data_entity.js', 'utf8');
-        routeContent = routeContent.replace(/ENTITY_URL_NAME/g, componentUrl);
-        routeContent = routeContent.replace(/ENTITY_NAME/g, componentName);
-        routeContent = routeContent.replace(/MODEL_NAME/g, 'C_address_' + attr.id_data_entity);
-        fs.writeFileSync(application_path + 'routes/' + componentUrl + '.js', routeContent, 'utf8');
+        var modelAttributes = JSON.parse(fs.readFileSync(c_address_path + 'models/attributes/c_address.json', 'utf8'));
+
+//        var routeContent = fs.readFileSync(__dirname + '/pieces/routes/data_entity.js', 'utf8');
+//        routeContent = routeContent.replace(/ENTITY_URL_NAME/g, componentUrl);
+//        routeContent = routeContent.replace(/ENTITY_NAME/g, componentName);
+//        routeContent = routeContent.replace(/MODEL_NAME/g, 'C_address_' + attr.id_data_entity);
+//        fs.writeFileSync(application_path + 'routes/' + componentUrl + '.js', routeContent, 'utf8');
         //generate views data
-        var fields = address_utils.generateFields();
-        var createFile = fs.readFileSync(c_address_views_path + 'create.dust', 'utf8');
-        var updateFile = fs.readFileSync(c_address_views_path + 'update.dust', 'utf8');
-        var showFile = fs.readFileSync(c_address_views_path + 'show.dust', 'utf8');
-        var listFile = fs.readFileSync(c_address_views_path + 'list.dust', 'utf8');
-        var listFields = fs.readFileSync(c_address_views_path + 'list_fields.dust', 'utf8');
-        createFile = createFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName);
-        updateFile = updateFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName).replace(/RELATION/g, 'r_' + componentName);
-        showFile = showFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
-        listFile = listFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
-        listFields = listFields.replace(/INCLUDE_HEADER/g, fields.headers).replace(/INCLUDE_TD/g, fields.tds).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/RELATION/g, 'r_' + componentName);
+        var fields = address_utils.generateFields(source, componentName);
+//        var createFile = fs.readFileSync(c_address_path + 'create.dust', 'utf8');
+//        var updateFile = fs.readFileSync(c_address_path + 'update.dust', 'utf8');
+//        var showFile = fs.readFileSync(c_address_path + 'show.dust', 'utf8');
+//        var listFile = fs.readFileSync(c_address_path + 'list.dust', 'utf8');
+//        var listFields = fs.readFileSync(c_address_path + 'list_fields.dust', 'utf8');
+//        
+//        createFile = createFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName);
+//        updateFile = updateFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName).replace(/RELATION/g, 'r_' + componentName);
+//        showFile = showFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
+//        listFile = listFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
+//        listFields = listFields.replace(/INCLUDE_HEADER/g, fields.headers).replace(/INCLUDE_TD/g, fields.tds).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/RELATION/g, 'r_' + componentName);
         //Update model attributes
         for (var attribute in fields.db_fields) {
             modelAttributes[attribute] = fields.db_fields[attribute];
@@ -1132,72 +1134,69 @@ exports.addNewComponentAddress = function (attr, callback) {
         //save new model component attributes file
         fs.writeFileSync(application_path + 'models/attributes/' + componentName + '.json', JSON.stringify(modelAttributes, null, 4), 'utf8');
         //set relation and save it
-        var relation = {
-            "target": componentName,
-            "relation": "hasMany",
-            "foreignKey": "fk_id_" + source,
-            "as": 'r_' + componentName
-        };
-        //Update relation file
-        var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
-        relations.push(relation);
-        fs.writeFileSync(application_path + 'models/options/' + source + '.json', JSON.stringify(relations, null, 4), 'utf8');
+        /* var relation = {
+         "target": componentName,
+         "relation": "belongsTo",
+         "foreignKey": "fk_id_c_address",
+         "as": 'r_address',
+         "showAs": "",
+         "structureType": "hasOne"
+         };
+         //Update relation file
+         var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
+         relations.push(relation);
+         fs.writeFileSync(application_path + 'models/options/' + source + '.json', JSON.stringify(relations, null, 4), 'utf8'); */
 
         //add new entry for access
-        var access = JSON.parse(fs.readFileSync(application_path + 'config/access.json', 'utf8'));
-        var newAccess = {
-            "name": componentUrl,
-            "groups": [],
-            "actions": {
-                "read": [],
-                "write": [],
-                "delete": []
-            }
-        };
-        access[moduleName].entities.push(newAccess);
-        fs.writeFileSync(application_path + 'config/access.json', JSON.stringify(access, null, 4), 'utf8');
-        //copy options
-        fs.copySync(c_address_views_path + '../models/options/c_address.json', application_path + 'models/options/' + componentName + '.json');
-        //copy public js address component file
-        fs.copySync(c_address_views_path + '../public/c_address.js', application_path + 'public/js/c_address.js');
-        //create address views files
-        fs.copySync(c_address_views_path, application_path + 'views/' + componentName + '/');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'create.dust', createFile, 'utf8');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'create_fields.dust', fields.createHtml, 'utf8');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'update.dust', updateFile, 'utf8');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'update_fields.dust', fields.updateHtml, 'utf8');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'show.dust', showFile, 'utf8');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'show_fields.dust', fields.showHtml, 'utf8');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'list_fields.dust', listFields, 'utf8');
-        fs.writeFileSync(application_path + 'views/' + componentName + '/' + 'list.dust', listFile, 'utf8');
-        var relationEntityFile = application_path + 'views' + '/' + source + '/show_fields.dust';
-        //new entry for source relation view
-        var newLi = '<li><a id="r_' + componentName + '-click" data-toggle="tab" href="#r_' + componentName + '">{@__ key="component.c_address.label_component" /}</a></li>';
-        var newTabContent = '<div id=r_' + componentName + ' class="tab-pane fade">'
-                + '{#r_' + componentName + ' ' + componentName + '=r_' + componentName + '}'
-                + '{@eq key=id value=' + componentName + '[0].id}'
-                + '{>"' + componentName + '/list_fields" associationAlias="r_' + componentName + '" associationForeignKey="fk_id_' + source.replace('e_', '') + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + source.replace('e_', '') + '" for="hasMany" /}'
-                + '{/eq}'
-                + '{:else}'
-                + '{>"' + componentName + '/list_fields" /}'
-                + '{/r_' + componentName + '}'
-                + '<br>'
-                + '<a href="/' + componentUrl + '/create_form?associationAlias=r_' + componentName + '&amp;associationForeignKey=fk_id_' + source + '&amp;associationFlag={' + source + '.id}&amp;associationSource=' + source + '&amp;associationUrl=' + source.replace('e_', '') + '" class="btn btn-success">'
-                + '    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>'
-                + '</a>'
-                + '</div>';
-        addTab(attr, relationEntityFile, newLi, newTabContent);
-        //update locales
-        var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-        var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-        langFR.component['c_address'] = fields.locales.fr;
-        langEN.component['c_address'] = fields.locales.en;
-        fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-        fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-        setupComponentModel(attr.id_application, 'address', componentName, 'address', function () {
-            printHelper.addAddressComponent(application_path + 'views/' + source, componentName).then(function () {
-                callback(null);
+        addAccessManagment(attr.id_application, componentName, moduleName, function () {
+            //copy options
+            fs.copySync(c_address_path + 'models/options/c_address.json', application_path + 'models/options/' + componentName + '.json');
+            //copy public js address component file
+            fs.copySync(c_address_path + 'public/c_address.js', application_path + 'public/js/c_address.js');
+            //add fields in source entity
+//            fs.copySync(c_address_path, application_path + 'views/' + componentName + '/');
+
+            var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
+            var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
+            var showFieldsFile = application_path + 'views/' + source + '/' + 'show_fields.dust';
+            var listFieldsFile = application_path + 'views/' + source + '/' + 'list_fields.dust';
+
+            var appendTo = '#fields';
+            fs.mkdirpSync(application_path + 'views/' + componentName);
+            fs.writeFileSync(application_path + 'views/' + componentName + '/create_fields.dust', fields.createHtml);
+            fs.writeFileSync(application_path + 'views/' + componentName + '/update_fields.dust', fields.updateHtml);
+            fs.writeFileSync(application_path + 'views/' + componentName + '/show_fields.dust', fields.showHtml);
+
+            domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
+                domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
+                    domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
+                        $createFieldsFile(appendTo).append('<div class="' + componentName + '">{>"' + componentName + '/create_fields"/}</div>');
+                        $updateFieldsFile(appendTo).append('<div class="' + componentName + '">{>"' + componentName + '/update_fields"/}</div>');
+                        $showFieldsFile(appendTo).append('<div class="' + componentName + '">{>"' + componentName + '/show_fields"/}</div>');
+                        domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
+                            domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
+                                domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
+//update locales
+                                    var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
+                                    var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+                                    langFR.component[componentName] = fields.locales.fr;
+                                    langEN.component[componentName] = fields.locales.en;
+
+                                    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                                    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+
+                                    setupComponentModel(attr.id_application, 'address', componentName, 'address', function () {
+//        printHelper.addAddressComponent(application_path + 'views/' + source, componentName).then(function () {
+                                        callback(null);
+//        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
             });
+
         });
     } catch (e) {
         callback(e);
