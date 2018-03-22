@@ -7,6 +7,7 @@
 $(document).ready(function() {
 
     var editorContent = {};
+    var editorScrollContent = {};
     var editorSaveContent = {};
 
     /* -------- Editor Initialisation -------- */
@@ -187,6 +188,7 @@ $(document).ready(function() {
 
                 /* Save the current editor content in the OLD tab */
                 editorContent[$("#update-file").attr("data-path")] = myEditor.getValue();
+                editorScrollContent[$("#update-file").attr("data-path")] = myEditor.getScrollInfo();
 
                 /* Color select file in folders */
                 $(".load-file").each(function() {
@@ -233,6 +235,8 @@ $(document).ready(function() {
                     $("li[data-path='"+data.path+"']").addClass("active");
                     /* Get the old content */
                     myEditor.setValue(editorContent[data.path]);
+                    myEditor.scrollTo(editorScrollContent[data.path].left, editorScrollContent[data.path].top);
+
                     if(isToDisable)
                         myEditor.setOption("readOnly", true);
                     else
