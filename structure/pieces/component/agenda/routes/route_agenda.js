@@ -5,7 +5,16 @@ var block_access = require('../utils/block_access');
 // Sequelize
 var models = require('../models/');
 
+var model_builder = require('../utils/model_builder');
 var moment = require("moment");
+
+var attributes = require('../models/attributes/e_URL_ROUTE_event');
+var options = require('../models/options/e_URL_ROUTE_event');
+var model_builder = require('../utils/model_builder');
+var entity_helper = require('../utils/entity_helper');
+
+// Winston logger
+var logger = require('../utils/logger');
 
 function error500(err, res) {
     console.error(err);
@@ -69,7 +78,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "create"), function(req, res) {
+router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "create"), function(req, res) {
 
     if(req.body.idCategory == "" || req.body.idCategory == 0)
         req.body.idCategory = null;
@@ -96,7 +105,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE", "crea
     });
 });
 
-router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE", "create"), function(req, res) {
+router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "create"), function(req, res) {
 
     var updateObj = {
         f_start_date: req.body.start,
@@ -110,7 +119,39 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE", "c
     });
 });
 
-router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE", 'update'), function(req, res) {
+router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "update"), function (req, res) {
+    var id_e_URL_ROUTE_event = parseInt(req.body.id);
+
+    if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
+        req.body.version = parseInt(req.body.version) + 1;
+    else
+        req.body.version = 0;
+
+    var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+
+    models.CODE_NAME_EVENT_MODEL.findOne({where: {id: id_e_URL_ROUTE_event}}).then(function (e_URL_ROUTE_event) {
+        if (!e_URL_ROUTE_event) {
+            data.error = 404;
+            logger.debug("Not found - Update");
+            return res.render('common/error', data);
+        }
+
+        e_URL_ROUTE_event.update(updateObject).then(function () {
+
+            // We have to find value in req.body that are linked to an hasMany or belongsToMany association
+            // because those values are not updated for now
+            model_builder.setAssocationManyValues(e_URL_ROUTE_event, req.body, updateObject, options).then(function () {
+                res.send(true);
+            });
+        }).catch(function (err) {
+            entity_helper.error500(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
+        });
+    }).catch(function (err) {
+        entity_helper.error500(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
+    });
+});
+
+router.post('/update_event_drop', block_access.actionAccessMiddleware("URL_ROUTE_event", 'update'), function(req, res) {
 
     var updateObj = {
         f_start_date: req.body.start,
@@ -131,6 +172,25 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE", 'u
                 });
             });
         });
+    });
+});
+
+router.post('/delete_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "delete"), function (req, res) {
+    var id_e_URL_ROUTE_event = parseInt(req.body.id);
+
+    models.CODE_NAME_EVENT_MODEL.findOne({where: {id: id_e_URL_ROUTE_event}}).then(function (deleteObject) {
+        models.CODE_NAME_EVENT_MODEL.destroy({
+            where: {
+                id: id_e_URL_ROUTE_event
+            }
+        }).then(function () {
+            res.send(true);
+            entity_helper.remove_files("e_URL_ROUTE_event", deleteObject, attributes);
+        }).catch(function (err) {
+            entity_helper.error500(err, req, res, '/URL_ROUTE_event/list');
+        });
+    }).catch(function (err) {
+        entity_helper.error500(err, req, res, '/URL_ROUTE_event/list');
     });
 });
 
