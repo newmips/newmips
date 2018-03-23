@@ -1,6 +1,7 @@
 var moment = require('moment');
 var globalConfig = require('../config/global');
 var fs = require('fs');
+var enums_radios = require('../locales/enum_radio');
 
 var langMessage = {
     'fr-FR': {
@@ -25,7 +26,10 @@ var langMessage = {
                     + "  Pour un template Docx, les variables doivent être copiées tel quel dans votre texte placées entre accolades."
                     + "  Elles seront remplacées à la volée par les données de l'entité au moment où vous cliquerez sur le bouton \"Générer\"."
                     + "</p>"
-                    + "<p>NB: cliquez sur les titres des sections de chaque entité pour découvrir l'usage des variables.</p>",
+                    + "<p>NB: cliquez sur les titres des sections de chaque entité pour découvrir l'usage des variables.</p>"
+                    + "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Pour utiliser la date de création ou de modification de chaque enregistrement veuillez utiliser:<br><br>"
+                    + "       <strong>{createdAt}</strong> format Docx ou <strong>createdAt</strong> format PDF pour la date de création <br>"
+                    + "       <strong>{updatedAt}</strong> format Docx ou <strong>updatedAt</strong> format PDF pour la date de modification.</h5>",
             entityInformations: "Informations concernant l'entité",
             entityTableRow1: "Entité",
             entityTableRow2: "Variable",
@@ -44,6 +48,12 @@ var langMessage = {
         },
         template: {
             notFound: 'Fichier non trouvé'
+        },
+        fields: {
+            boolean: {
+                'true': 'Vraie',
+                'false': 'Faux'
+            }
         }
     },
     'en-EN': {
@@ -67,7 +77,10 @@ var langMessage = {
                     + "  For a Docx template, variables must be copied in your text enclosed in braces."
                     + "  They will be replaced by the entity's data when you click on the \"Generate\" button who is on entity show page."
                     + "</p>"
-                    + "<p>Click on each entity name to discover the use of the variables.</p>",
+                    + "<p>Click on each entity name to discover the use of the variables.</p>"
+                    + "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; To use createdAt and updatedAt of each entity please add:<br><br>"
+                    + "       <strong>{createdAt}</strong> for Docx file or <strong>createdAt</strong> for PDF file <br>"
+                    + "       <strong>{updatedAt}</strong> for Docx file or <strong>updatedAt</strong> for PDF file</h5>",
             entityInformations: "Entity informations",
             entityTableRow1: "Entity",
             entityTableRow2: "Variable",
@@ -86,6 +99,12 @@ var langMessage = {
         },
         template: {
             notFound: 'File not found'
+        },
+        fields: {
+            boolean: {
+                'true': 'True',
+                'false': 'False'
+            }
         }
     }
 };
@@ -123,7 +142,7 @@ module.exports = {
         }
         return document_template_entities;
     },
-    rework: function (object, entityName, reworkOptions, userLang) {
+    rework: function (object, entityName, reworkOptions, userLang, fileType) {
         try {
             var result = {};
             var options = typeof reworkOptions === 'undefined' ? {} : reworkOptions;
@@ -132,12 +151,15 @@ module.exports = {
             for (var item in object.dataValues) {
                 result[item] = object.dataValues[item];
             }
+            /** Add createdAt and updatedAt who are not in attributes **/
+            setCreatedAtAndUpdatedAtValues(result, object, userLang);
+
             var entityModelData = {
                 entityName: entityName,
                 attributes: attributes,
                 options: options[entityName]
             };
-            this.cleanData(result, entityModelData, userLang);
+            this.cleanData(result, entityModelData, userLang, fileType);
             //now clean relation
             for (var i = 0; i < relationsOptions.length; i++) {
                 var relation = relationsOptions[i];
@@ -150,13 +172,15 @@ module.exports = {
                     };
                     if (relation.relation === "belongsTo") {
                         result[relation.as] = object[relation.as].dataValues;
-                        this.cleanData(result[relation.as], entityModelData, userLang);
-                    } else if (relation.relation === "hasMany") {
+                        this.cleanData(result[relation.as], entityModelData, userLang, fileType);
+                        setCreatedAtAndUpdatedAtValues(result[relation.as], object[relation.as].dataValues, userLang);
+                    } else if (relation.relation === "hasMany" || relation.relation === "belongsToMany") {
                         result[relation.as] = [];
                         //be carefull if we have a lot lot lot lot of data.
                         for (var j = 0; j < object[relation.as].length; j++) {
                             result[relation.as].push(object[relation.as][j].dataValues);
-                            this.cleanData(result[relation.as][j], entityModelData, userLang);
+                            this.cleanData(result[relation.as][j], entityModelData, userLang, fileType);
+                            setCreatedAtAndUpdatedAtValues(result[relation.as][j], object[relation.as][j].dataValues, userLang);
                         }
                     }
                 }
@@ -166,7 +190,7 @@ module.exports = {
             return {};
         }
     },
-    cleanData: function (object, entityModelData, userLang) {
+    cleanData: function (object, entityModelData, userLang, fileType) {
         var attributes = entityModelData.attributes;
         var reworkOptions = entityModelData.options;
         var entityName = entityModelData.entityName;
@@ -176,18 +200,42 @@ module.exports = {
             //clean all date
             for (var attr in attributes) {
                 var attribute = attributes[attr];
-                if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && object[item] !== '' && attr === item) {
-                    var format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
-                    object[item] = moment(object[item]).format(format);
+                if (attr === item) {
+                    //clean all date
+                    if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && object[item] !== '') {
+                        var format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
+                        object[item] = moment(object[item]).format(format);
+                    }
+                    //we doesn't have customType password to detect password type in attributes, so we use field name for the moment
+                    if ((attribute.newmipsType === "password")) {
+                        object[item] = '';
+                    }
+                    //translate boolean values
+                    if (attribute.newmipsType === "boolean") {
+                        if (fileType === "application/pdf") {
+                            object[item] = object[item] == true ? "Yes" : "No";
+                        } else
+                            object[item] = langMessage[userLang || lang].fields.boolean[(object[item] + '').toLowerCase()];
+                    }
+                    //text area field, docxtemplater doesn't support(free) html tag so we replace all
+                    if (attribute.newmipsType === "text") {
+                        object[item] = object[item].replace(/<[^>]+>/g, ' ');//tag
+                        object[item] = object[item].replace(/&[^;]+;/g, ' ');//&nbsp
+                    }
+                    if (attribute.newmipsType === "phone" || attribute.newmipsType === "fax") {
+                        object[item] = format_tel(object[item], ' ');
+                    }
+                    if (attribute.type === "ENUM") {
+                        if (fileType === "application/pdf") {
+                            setEnumValue(object, item, entityName);
+                        }
+                    }
                     break;
+//                if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
+//                    object[item] = "data:image/*;base64," + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
+//                    break;
+//                }
                 }
-                //we doesn't have customType password to detect password type in attributes, so we use field name for the moment
-                if (item === "f_password" || attribute.newmipsType === "password")
-                    object[item] = '';
-                /*if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
-                 object[item] = "data:image/*;base64," + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
-                 break;
-                 }*/
             }
             if (reworkOptions) {
                 for (var i = 0; i < reworkOptions.length; i++) {
@@ -527,4 +575,49 @@ var getValue = function (cellArrayKeyValue, row) {
         key = cellArrayKeyValue[i];
     } while (i < cellArrayKeyValue.length);
     return row;
-}
+};
+
+var format_tel = function (tel, separator) {
+    var formats = {"0": [2, 2, 2, 2, 2, 2], "33": [3, 1, 2, 2, 2, 2], "0033": [4, 1, 2, 2, 2, 2]};
+    var format = [];
+    var newstr = [];
+    var str = tel + '';
+    str = str.split(' ').join('');
+    var _separator = typeof separator === "undefined" ? " " : separator;
+    var i = 0;
+    if ((str.startsWith("0") && !str.startsWith("00")) || str.length === 10)
+        format = formats["0"];
+    if (str.startsWith("+33"))
+        format = formats["33"];
+    if (str.startsWith("00"))
+        format = formats["0033"];
+    if (format.length) {
+        format.forEach(function (jump) {
+            newstr.push(str.substring(i, jump + i));
+            i += jump;
+        });
+        return newstr.join(_separator);
+    } else
+        return str;
+};
+
+var setEnumValue = function (object, enumItem, entityName) {
+    var values = enums_radios[entityName][enumItem];
+    if (typeof values !== "undefined") {
+        for (var i = 0; i < values.length; i++) {
+            var entry = values[i];
+            if (object[enumItem].toLowerCase() === entry.value.toLowerCase()) {
+                object[enumItem] = (i + 1) + '';
+                break;
+            }
+        }
+    }
+};
+
+var setCreatedAtAndUpdatedAtValues = function (resultToReturn, object, userLang) {
+    var defaultDateFormat = userLang === 'fr-FR' ? 'DD/MM/YYYY HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
+    if (object.createdAt)
+        resultToReturn.createdAt = moment(new Date(object.createdAt)).format(defaultDateFormat);
+    if (object.updatedAt)
+        resultToReturn.updatedAt = moment(new Date(object.updatedAt)).format(defaultDateFormat);
+};

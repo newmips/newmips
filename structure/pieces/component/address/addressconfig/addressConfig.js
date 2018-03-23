@@ -14,15 +14,17 @@ var config = {
     attributes: {
         //set attribute in order
         housenumber: {
-            readonly: true, //if true edit it
+            readonly: false, //if true readonly
             required: true, //if true set field required on create or update
             addInForm: true, //if true add it in form
-            type: 'number', //type of field,  must be html type, default input,
+            type: 'number', //type of field,  must be html type, default text,
             maxLength: '',
             label: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name
             defaultValue: '',
             sql: {
-                type: 'INTEGER'
+                type: 'INTEGER',
+                newmipsType: "string",
+                defaultValue: null
             },
             lang: {
                 fr: 'Numéro rue',
@@ -30,7 +32,7 @@ var config = {
             }
         },
         street: {
-            readonly: true,
+            readonly: false,
             required: true,
             addInForm: true,
             type: 'text', //
@@ -38,7 +40,9 @@ var config = {
             label: 'street',
             defaultValue: '',
             sql: {
-                type: 'STRING'
+                type: 'STRING',
+                newmipsType: "string",
+                defaultValue: null
             },
             lang: {
                 fr: 'Nom rue',
@@ -54,7 +58,9 @@ var config = {
             label: 'complement1',
             defaultValue: '',
             sql: {
-                type: 'STRING'
+                type: 'STRING',
+                newmipsType: "string",
+                defaultValue: null
             },
             lang: {
                 fr: 'Complément rue',
@@ -62,16 +68,19 @@ var config = {
             }
         },
         postcode: {
-            readonly: true,
+            readonly: false,
             required: true,
             addInForm: true,
             type: 'number', //
-            maxLength: '5',
-            minLength: '5',
+            maxLength: '',
+            minLength: '',
+            pattern:"[0-9]{5}",
             label: 'postcode',
             defaultValue: '',
             sql: {
-                type: 'INTEGER'
+                type: 'INTEGER',
+                newmipsType: "string",
+                defaultValue: null
             },
             lang: {
                 fr: 'Code postal',
@@ -79,7 +88,7 @@ var config = {
             }
         },
         city: {
-            readonly: true,
+            readonly: false,
             required: true,
             addInForm: true,
             type: 'text', //
@@ -87,7 +96,9 @@ var config = {
             label: 'city',
             defaultValue: '',
             sql: {
-                type: 'STRING'
+                type: 'STRING',
+                newmipsType: "string",
+                defaultValue: null
             },
             lang: {
                 fr: 'Ville',
@@ -95,7 +106,7 @@ var config = {
             }
         },
         country: {
-            readonly: true,
+            readonly: false,
             required: true,
             addInForm: true,
             type: 'text', //
@@ -103,14 +114,16 @@ var config = {
             label: 'country',
             defaultValue: 'FRANCE',
             sql: {
-                type: 'STRING'
+                type: 'STRING',
+                newmipsType: "string",
+                defaultValue: null
             },
             lang: {
                 fr: 'Pays',
                 en: 'Country'
             }
         },
-         //house type
+        //house type
         place: {
             readonly: false,
             required: false,

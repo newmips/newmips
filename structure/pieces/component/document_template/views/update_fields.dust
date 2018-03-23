@@ -8,7 +8,7 @@
     <div data-field="f_file" class="col-xs-12">
         <div class="form-group">
             <label for="f_file" class="required"> {@__ key="entity.e_document_template.f_file"/} </label>
-            <div class="dropzone dropzone-field" id="f_file_dropzone" data-storage="local" data-entity="e_document_template" data-type="docx/pdf"></div>
+            <div class="dropzone dropzone-field" id="f_file_dropzone" data-storage="local" data-entity="e_document_template"></div>
             <input type="hidden" name="f_file" id="f_file_dropzone_hidden" value="{f_file}" required=""></div>
     </div>
     <div data-field="f_entity" class="col-xs-12">

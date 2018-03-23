@@ -18,7 +18,14 @@ Core: General style
 label.no-weight {
     font-weight: normal !important;
 }
-
+/** Component Address**/
+.section_c_address{
+    border:1px solid #dddddd;
+    margin: auto;
+}
+.div_c_address_search{
+    margin-top: -16px;
+}
 /* required field */
 label.required:after {
     color: #e32;
