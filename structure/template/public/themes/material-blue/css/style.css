@@ -1,0 +1,63 @@
+@import 'bootstrap-material-design.css';
+@import 'ripples.css';
+@import 'MaterialAdminLTE.css';
+@import 'skin-blue.css';
+
+.user-footer{
+	padding: 0px !important;
+}
+
+.user-footer a{
+	font-size: 12px;
+	padding: 10px 15px;
+	margin: 10px 5px;
+}
+
+.sidebar-menu .treeview-menu > li {
+	margin: 3px;
+}
+
+.nav > li > a {
+	padding: 15px 20px;
+}
+
+@media (max-width: 768px) {
+	section.content-header{
+		margin-top: 20px;
+	}
+	.navbar .navbar-nav > li > a {
+	    padding-top: 20px;
+	    padding-bottom: 20px;
+	}
+	.main-sidebar, .left-side, .control-sidebar {
+	    padding-top: 140px;
+	}
+	a.logo{
+		background-color: #eeeeee;
+	}
+}
+
+@media (max-width: 400px) {
+	.btn {
+		font-size: 14px;
+		padding: 8px 20px;
+		margin: 10px 0px;
+	}
+	div.dataTables_length label {
+		width: 100%;
+		text-align: center;
+		margin: auto;
+		margin-bottom: 10px;
+		float: none !important;
+	}
+	div.dataTables_length select {
+		width: 100% !important;
+	}
+	div.dataTables_filter label {
+		float: none !important;
+	}
+	div.dt-buttons{
+		margin-left: 0px !important;
+		margin-bottom: 10px;
+	}
+}
