@@ -215,9 +215,7 @@ exports.setTheme = function(attr, callback) {
         // If not found in workspace, look for not imported theme exisiting in structure/template
         var themeTemplatePath = __dirname + '/../structure/template/public/themes';
         var themeListAvailableTemplate = retrieveTheme(themeTemplatePath);
-        console.log(themeListAvailableTemplate)
         if(themeListAvailableTemplate.indexOf(askedTheme) != -1){
-            console.log("ok");
             fs.copySync(themeTemplatePath + "/" + askedTheme + "/", themeWorkspacePath + "/" + askedTheme + "/");
             themeReady();
         } else
@@ -237,12 +235,17 @@ exports.setTheme = function(attr, callback) {
 
     function themeReady(){
         var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
-
+        var themeInformation = JSON.parse(fs.readFileSync(__dirname + "/../workspace/" + idApplication + "/public/themes/"+askedTheme+"/infos.json"));
         domHelper.read(mainLayoutPath).then(function($) {
             var oldTheme = $("link[data-type='theme']").attr("data-theme");
             $("link[data-type='theme']").replaceWith("<link href='/themes/"+askedTheme+"/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='"+askedTheme+"'>");
-            //$("body").removeClass("theme-"+oldTheme);
-            //$("body").addClass("theme-"+askedTheme);
+            // If the theme need js inclusion
+            if(typeof themeInformation.js !== "undefined"){
+                for(var i=0; i<themeInformation.js.length; i++){
+                    $("body script:last").after("<script type='text/javascript'></script>");
+                    $("body script:last").attr('src', "/themes/"+askedTheme+"/js/"+themeInformation.js[i]);
+                }
+            }
             domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
                 var info = {};
                 info.message = "Theme set to " + attr.options.value + " !";
