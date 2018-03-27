@@ -33,9 +33,10 @@ var fs = require('fs-extra');
 var sequelize = require('../models/').sequelize;
 
 /* --------------------------------------------------------------- */
-/* ------------------------- Function ---------------------------- */
+/* -------------------------- General ---------------------------- */
 /* --------------------------------------------------------------- */
-// Execute an array of instructions
+
+// Execute an array of newmips instructions
 exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, callback) {
     var exportsContext = this;
     // Create the attr obj
@@ -67,9 +68,6 @@ exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, 
     });
 }
 
-/* --------------------------------------------------------------- */
-/* --------------------------- Help ------------------------------ */
-/* --------------------------------------------------------------- */
 exports.help = function (attr, callback) {
     session.help(attr, function (err, info) {
         if (err)
@@ -78,9 +76,6 @@ exports.help = function (attr, callback) {
     });
 }
 
-/* --------------------------------------------------------------- */
-/* ------------------------- Session ----------------------------- */
-/* --------------------------------------------------------------- */
 exports.showSession = function (attr, callback) {
     session.showSession(attr, function (err, info) {
         if (err)
@@ -89,9 +84,6 @@ exports.showSession = function (attr, callback) {
     });
 }
 
-/* --------------------------------------------------------------- */
-/* ------------------------- Deploy ------------------------------ */
-/* --------------------------------------------------------------- */
 exports.deploy = function (attr, callback) {
     session.deploy(attr, function (err, info) {
         if (err)
@@ -100,14 +92,20 @@ exports.deploy = function (attr, callback) {
     });
 }
 
-/* --------------------------------------------------------------- */
-/* ------------------------- Restart ----------------------------- */
-/* --------------------------------------------------------------- */
 exports.restart = function (attr, callback) {
     var info = {
         message: "structure.global.restart.success"
     };
     callback(null, info);
+}
+
+exports.installNodePackage = function (attr, callback) {
+    structure_application.installAppModules().then(function(){
+        var info = {
+            message: "structure.global.npmInstall.success"
+        };
+        callback(null, info);
+    });
 }
 
 /* --------------------------------------------------------------- */

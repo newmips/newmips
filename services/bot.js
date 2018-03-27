@@ -45,6 +45,12 @@ exports.restart = function (result) {
     return attr;
 };
 
+exports.installNodePackage = function (result) {
+    var attr = {};
+    attr.function = "installNodePackage";
+    return attr;
+};
+
 exports.gitPush = function (result) {
     var attr = {};
     attr.function = "gitPush";
@@ -1129,6 +1135,11 @@ var training = {
         "redémarrer",
         "redémarrer serveur",
         "redémarrer le serveur"
+    ],
+    "installNodePackage": [
+        "npm install",
+        "installer les modules node",
+        "install node package"
     ],
     "gitPush": [
         "save",

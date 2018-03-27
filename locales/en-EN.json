@@ -327,6 +327,9 @@
                 "success": "Server restarded!",
                 "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
             },
+            "npmInstall": {
+                "success": "All node modules have been successfully installed !"
+            },
             "gitPush": {
                 "success": "The application has been saved!"
             },
