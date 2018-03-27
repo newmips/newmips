@@ -1855,9 +1855,16 @@ exports.createNewComponentStatus = function (attr, callback) {
         attr.source = source_entity.codeName;
         attr.showSource = source_entity.name;
         attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
+
+        if(attr.history_table.length >= 30){
+            var err = new Error();
+            err.message = "error.valueTooLong";
+            return callback(err, null);
+        }
+
         var instructions = [
             "entity " + source_entity.name + ' has many ' + attr.history_table + ' called History ' + attr.options.showValue,
-            "select entity history_" + attr.source + "_" + attr.options.value,
+            "select entity " + attr.history_table,
             "add field " + attr.options.showValue + " related to Status using name, color",
             "add field Comment with type text",
             "entity status has many " + attr.history_table,
