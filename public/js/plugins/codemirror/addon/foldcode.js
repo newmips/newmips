@@ -130,7 +130,7 @@
   var defaultOptions = {
     rangeFinder: CodeMirror.fold.auto,
     widget: "\u2194",
-    minFoldSize: 0,
+    minFoldSize: 1,
     scanUp: false,
     clearOnEnter: true
   };
