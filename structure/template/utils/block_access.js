@@ -164,15 +164,11 @@ exports.apiAuthentication = function(req, res, next) {
         }
     }).then(function(credentialsObj) {
         if (!credentialsObj)
-            return res.status(401).end({
-                error: 'Bad Bearer Token'
-            });
+            return res.status(401).end('Bad Bearer Token');
 
         var currentTmsp = new Date().getTime();
         if (parseInt(credentialsObj.f_token_timeout_tmsp) < currentTmsp)
-            return res.status(403).json({
-                error: 'Bearer Token expired'
-            });
+            return res.status(403).json('Bearer Token expired');
 
         next();
     });
