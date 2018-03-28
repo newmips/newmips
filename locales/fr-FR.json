@@ -99,7 +99,7 @@
         "change_theme": "Changer de thème",
         "intro": "Bonjour utilisateur Newmips!",
         "intro2": "Vous pouvez sélectionner un fichier à éditer sur le menu de gauche ;)",
-        "intro3": "F11: Plein écran | Ctrl+S: Sauvegarder | Ctrl+Maj: Fermer les scopes"
+        "intro3": "F11: Plein écran | Ctrl+S: Sauvegarder | Ctrl+0: Fermer/Ouvrir les scopes | Ctrl+=: Indente le code"
     },
     "ui_editor": {
         "page_not_found": "Impossible de trouver le fichier.",
@@ -324,8 +324,11 @@
     "structure": {
         "global": {
             "restart": {
-                "success": "Le serveur a bien été redémarré!",
+                "success": "Le serveur a bien été redémarré !",
                 "error": "Oups, le serveur de l'application ne répond pas, vous pouvez essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>"
+            },
+            "npmInstall": {
+                "success": "Tous les modules node ont bien été installés !"
             },
             "gitPush": {
                 "success": "L'application a bien été sauvegardée !"
