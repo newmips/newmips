@@ -103,7 +103,7 @@ $(document).ready(function() {
 		tables[$(this).attr('id')] = $(this).DataTable(options);
 	});
 
-	$(".dataTable th").each(function(idx){
+	$(".dataTable thead.main th").each(function(idx){
 		if($(this).data("hidden") == 1){
 			// Hide hidden column
 			$(this).hide();
@@ -111,8 +111,10 @@ $(document).ready(function() {
 		} else if($(this).text() == ""){
 			// Remove unused action button th & td
 			if($("td").eq(idx).text() == ""){
-				$(this).hide();
-				$("td").eq(idx).hide();
+				$(this).remove();
+				$(".dataTable tbody tr").each(function(){
+					$(this).find("td:eq("+idx+")").remove();
+				});
 			}
 		}
 	});

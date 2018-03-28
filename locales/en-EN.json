@@ -99,7 +99,7 @@
         "change_theme": "Switch theme",
         "intro": "Hi Newmips user!",
         "intro2": "You can select a file on the sidebar on your left ;)",
-        "intro3": "F11: Fullscreen | Ctrl+S: Save | Ctrl+Maj: Fold code"
+        "intro3": "F11: Fullscreen | Ctrl+S: Save | Ctrl+0: Fold/Unfold code | Ctrl+=: Code formatting"
     },
     "ui_editor": {
         "page_not_found": "Couldn't find corresponding file.",
@@ -326,6 +326,9 @@
             "restart": {
                 "success": "Server restarded!",
                 "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
+            },
+            "npmInstall": {
+                "success": "All node modules have been successfully installed !"
             },
             "gitPush": {
                 "success": "The application has been saved!"
