@@ -110,11 +110,19 @@
                     atSol = false;
                 }
                 if (!atSol && inner.mode.newlineAfterToken &&
-                    inner.mode.newlineAfterToken(style, cur, stream.string.slice(stream.pos) || text[i + 1] || "", inner.state))
+                    inner.mode.newlineAfterToken(style, cur, stream.string.slice(stream.pos) || text[i + 1] || "", inner.state)){
                     newline();
+                }
             }
-            if (!stream.pos && outer.blankLine) outer.blankLine(state);
-            if (!atSol && i < text.length - 1) newline();
+            if (!stream.pos && outer.blankLine){
+                outer.blankLine(state);
+            }
+            if (!atSol && i < text.length - 1){
+                newline();
+            }
+            if(stream.string == ""){
+                newline();
+            }
         }
 
         cm.operation(function() {
