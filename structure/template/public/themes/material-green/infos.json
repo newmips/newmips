@@ -1,0 +1,10 @@
+{
+	"name": "Material Green",
+	"main_color": "#00a65a",
+	"author": "Newmips",
+	"js": [
+		"material.min.js",
+		"ripples.min.js",
+		"script.js"
+	]
+}
