@@ -1757,6 +1757,13 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 
             var info = {};
             attr.options.through = attr.id_application + "_" + attr.options.source + "_" + attr.options.target + "_" + attr.options.as.substring(2);
+            if(attr.options.through.length > 55){
+                var err = new Error();
+                err.message = "error.valueTooLong";
+                err.messageParams = [attr.options.through];
+                return callback(err, null);
+            }
+
             // Check if an association already exists from target to source
             var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
@@ -1764,6 +1771,12 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             for (var i = 0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
                     attr.options.through = attr.id_application + "_" + attr.options.target + "_" + attr.options.source + "_" + attr.options.as.substring(2);
+                    if(attr.options.through.length > 55){
+                        var err = new Error();
+                        err.message = "error.valueTooLong";
+                        err.messageParams = [attr.options.through];
+                        return callback(err, null);
+                    }
                     //BelongsToMany
                     //doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
@@ -1854,9 +1867,10 @@ exports.createNewComponentStatus = function (attr, callback) {
         attr.showSource = source_entity.name;
         attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
 
-        if(attr.history_table.length >= 30){
+        if(attr.history_table.length >= 52){
             var err = new Error();
             err.message = "error.valueTooLong";
+            err.messageParams = [attr.history_table];
             return callback(err, null);
         }
 
