@@ -39,7 +39,7 @@ var gitHelper = require('../utils/git_helper');
 var models = require('../models/');
 
 // Exclude from Editor
-var excludeFolder = ["node_modules", "sql", "services", "utils", "upload", ".git"];
+var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
 // ====================================================
