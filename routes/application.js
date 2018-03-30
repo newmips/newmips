@@ -314,8 +314,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             else
                 attr.gitlabUser = null;
 
-            if (typeof attr.error !== 'undefined')
-                throw new Error(attr.error);
+            if (typeof attr.error !== 'undefined'){
+                var err = new Error();
+                err.message = attr.error;
+                err.messageParams = attr.errorParams;
+                throw err;
+            }
             if (typeof designer[attr.function] !== 'function')
                 throw new Error("Designer doesn't have function "+attr.function);
 
@@ -457,23 +461,16 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 }
                                 // Check server has started
                                 console.log('Waiting for server to start');
-
                                 checkServer();
                             });
                         });
                     });
                 }
             });
-        } catch(e){
-
-            //data.answers = e.message + "\n\n" + answers;
-            console.log(e.message);
-
-            // Analyze instruction more deeply
-            var answer = "Sorry, your instruction has not been executed properly.<br><br>";
-            answer += "Error: " + e.message + "<br><br>";
-
-            setChat(req, currentAppID, currentUserID, "Mipsy", answer, []);
+        } catch(error){
+            // var answer = "Sorry, your instruction has not been executed properly.<br><br>";
+            // answer += "Error: " + error.message + "<br><br>";
+            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams);
 
             // Load session values
             var attr = {};
@@ -553,8 +550,12 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             else
                 attr.gitlabUser = null;
 
-            if (typeof attr.error !== 'undefined')
-                throw new Error(attr.error);
+            if (typeof attr.error !== 'undefined'){
+                var err = new Error();
+                err.message = attr.error;
+                err.messageParams = attr.errorParams;
+                throw err;
+            }
             if (typeof designer[attr.function] !== 'function')
                 throw new Error("Designer doesn't have function "+attr.function);
 
@@ -712,11 +713,8 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     });
                 }
             });
-        } catch(e){
-
-            console.log(e);
-            setChat(req, currentAppID, currentUserID, "Mipsy", e.message, []);
-
+        } catch(error){
+            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams);
             // Load session values
             var attr = {};
             attr.id_project = req.session.id_project;

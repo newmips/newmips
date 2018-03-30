@@ -12,6 +12,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     if (valueToCheck.length > 30) {
         console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
         attr.error = "error.valueTooLong";
+        attr.errorParams = [valueToCheck];
     }
 
     return attr;

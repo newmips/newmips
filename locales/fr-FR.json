@@ -200,7 +200,7 @@
         "or": "ou",
         "textthree": "simplement revenir en arrière.",
         "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
-        "valueTooLong": "La valeur renseignée dépasse la longueur maximum autorisée(>30).",
+        "valueTooLong": "Désolé, la valeur renseignée dépasse la longueur maximum autorisée (>30) après génération (%s).",
         "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez."
     },
     "back":{
