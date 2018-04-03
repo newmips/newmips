@@ -123,7 +123,7 @@ exports.selectEntity = function (result) {
 
     var value = result[1];
     var options = {
-        value: value
+        value: value.trim()
     };
 
     var attr = {
