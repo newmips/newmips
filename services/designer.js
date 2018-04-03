@@ -1866,7 +1866,7 @@ exports.createNewComponentStatus = function (attr, callback) {
         // It also does a hasMany relation with e_status
         attr.source = source_entity.codeName;
         attr.showSource = source_entity.name;
-        attr.history_table = 'h_' + attr.source + '_' + attr.options.value;
+        attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
 
         if(attr.history_table.length >= 52){
             var err = new Error();
