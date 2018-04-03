@@ -32,6 +32,8 @@ exports.setupAssociation = function (associationOption, callback) {
         baseOptions.through = through;
         baseOptions.foreignKey = "fk_id_" + source;
         baseOptions.otherKey = "fk_id_" + target;
+        if(source == target)
+            baseOptions.otherKey += "_bis";
     }
 
     if (type != null)

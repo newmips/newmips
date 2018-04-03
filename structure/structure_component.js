@@ -1097,7 +1097,7 @@ exports.setupChat = function (attr, callback) {
     }
 };
 
-exports.addNewComponentAddress = function (attr, callback) {
+exports.addNewComponentAddress = function(attr, callback) {
     try {
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
         var c_address_path = __dirname + '/pieces/component/address/';
@@ -1109,24 +1109,23 @@ exports.addNewComponentAddress = function (attr, callback) {
         //models
         var modelAttributes = JSON.parse(fs.readFileSync(c_address_path + 'models/attributes/c_address.json', 'utf8'));
 
-//        var routeContent = fs.readFileSync(__dirname + '/pieces/routes/data_entity.js', 'utf8');
-//        routeContent = routeContent.replace(/ENTITY_URL_NAME/g, componentUrl);
-//        routeContent = routeContent.replace(/ENTITY_NAME/g, componentName);
-//        routeContent = routeContent.replace(/MODEL_NAME/g, 'C_address_' + attr.id_data_entity);
-//        fs.writeFileSync(application_path + 'routes/' + componentUrl + '.js', routeContent, 'utf8');
+        //        var routeContent = fs.readFileSync(__dirname + '/pieces/routes/data_entity.js', 'utf8');
+        //        routeContent = routeContent.replace(/ENTITY_URL_NAME/g, componentUrl);
+        //        routeContent = routeContent.replace(/ENTITY_NAME/g, componentName);
+        //        routeContent = routeContent.replace(/MODEL_NAME/g, 'C_address_' + attr.id_data_entity);
+        //        fs.writeFileSync(application_path + 'routes/' + componentUrl + '.js', routeContent, 'utf8');
         //generate views data
         var fields = address_utils.generateFields(source, componentName);
-//        var createFile = fs.readFileSync(c_address_path + 'create.dust', 'utf8');
-//        var updateFile = fs.readFileSync(c_address_path + 'update.dust', 'utf8');
-//        var showFile = fs.readFileSync(c_address_path + 'show.dust', 'utf8');
-//        var listFile = fs.readFileSync(c_address_path + 'list.dust', 'utf8');
-//        var listFields = fs.readFileSync(c_address_path + 'list_fields.dust', 'utf8');
-//        
-//        createFile = createFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName);
-//        updateFile = updateFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName).replace(/RELATION/g, 'r_' + componentName);
-//        showFile = showFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
-//        listFile = listFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
-//        listFields = listFields.replace(/INCLUDE_HEADER/g, fields.headers).replace(/INCLUDE_TD/g, fields.tds).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/RELATION/g, 'r_' + componentName);
+        //        var createFile = fs.readFileSync(c_address_path + 'create.dust', 'utf8');
+        //        var updateFile = fs.readFileSync(c_address_path + 'update.dust', 'utf8');
+        //        var showFile = fs.readFileSync(c_address_path + 'show.dust', 'utf8');
+        //        var listFile = fs.readFileSync(c_address_path + 'list.dust', 'utf8');
+        //        var listFields = fs.readFileSync(c_address_path + 'list_fields.dust', 'utf8');
+        //        createFile = createFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName);
+        //        updateFile = updateFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/COMPONENT_NAME/g, componentName).replace(/RELATION/g, 'r_' + componentName);
+        //        showFile = showFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
+        //        listFile = listFile.replace(/COMPONENT_VALUE_MODULE/g, moduleName).replace(/COMPONENT_NAME/g, componentName).replace(/URL_COMPONENT_ADDRESS/g, componentUrl);
+        //        listFields = listFields.replace(/INCLUDE_HEADER/g, fields.headers).replace(/INCLUDE_TD/g, fields.tds).replace(/URL_COMPONENT_ADDRESS/g, componentUrl).replace(/RELATION/g, 'r_' + componentName);
         //Update model attributes
         for (var attribute in fields.db_fields) {
             modelAttributes[attribute] = fields.db_fields[attribute];
@@ -1148,13 +1147,13 @@ exports.addNewComponentAddress = function (attr, callback) {
          fs.writeFileSync(application_path + 'models/options/' + source + '.json', JSON.stringify(relations, null, 4), 'utf8'); */
 
         //add new entry for access
-        addAccessManagment(attr.id_application, componentName, moduleName, function () {
+        addAccessManagment(attr.id_application, componentName, moduleName, function() {
             //copy options
             fs.copySync(c_address_path + 'models/options/c_address.json', application_path + 'models/options/' + componentName + '.json');
             //copy public js address component file
             fs.copySync(c_address_path + 'public/c_address.js', application_path + 'public/js/c_address.js');
             //add fields in source entity
-//            fs.copySync(c_address_path, application_path + 'views/' + componentName + '/');
+            //            fs.copySync(c_address_path, application_path + 'views/' + componentName + '/');
 
             var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
             var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
@@ -1167,16 +1166,16 @@ exports.addNewComponentAddress = function (attr, callback) {
             fs.writeFileSync(application_path + 'views/' + componentName + '/update_fields.dust', fields.updateHtml);
             fs.writeFileSync(application_path + 'views/' + componentName + '/show_fields.dust', fields.showHtml);
 
-            domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
-                domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
-                    domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
+            domHelper.read(createFieldsFile).then(function($createFieldsFile) {
+                domHelper.read(updateFieldsFile).then(function($updateFieldsFile) {
+                    domHelper.read(showFieldsFile).then(function($showFieldsFile) {
                         $createFieldsFile(appendTo).append('<div class="' + componentName + '">{>"' + componentName + '/create_fields"/}</div>');
                         $updateFieldsFile(appendTo).append('<div class="' + componentName + '">{>"' + componentName + '/update_fields"/}</div>');
                         $showFieldsFile(appendTo).append('<div class="' + componentName + '">{>"' + componentName + '/show_fields"/}</div>');
-                        domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
-                            domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
-                                domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
-//update locales
+                        domHelper.write(createFieldsFile, $createFieldsFile).then(function() {
+                            domHelper.write(updateFieldsFile, $updateFieldsFile).then(function() {
+                                domHelper.write(showFieldsFile, $showFieldsFile).then(function() {
+                                    //update locales
                                     var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                                     var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
                                     langFR.component[componentName] = fields.locales.fr;
@@ -1185,10 +1184,10 @@ exports.addNewComponentAddress = function (attr, callback) {
                                     fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
                                     fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
 
-                                    setupComponentModel(attr.id_application, 'address', componentName, 'address', function () {
-//        printHelper.addAddressComponent(application_path + 'views/' + source, componentName).then(function () {
+                                    setupComponentModel(attr.id_application, 'address', componentName, 'address', function() {
+                                        //        printHelper.addAddressComponent(application_path + 'views/' + source, componentName).then(function () {
                                         callback(null);
-//        });
+                                        //        });
                                     });
                                 });
                             });
@@ -1203,7 +1202,7 @@ exports.addNewComponentAddress = function (attr, callback) {
     }
 };
 
-exports.deleteComponentAddress = function (attr, callback) {
+exports.deleteComponentAddress = function(attr, callback) {
     try {
         var componentName = 'c_address_' + attr.id_data_entity;
         var componentUrl = attr.entityName.replace('e_', '') + '_address';
@@ -1237,15 +1236,15 @@ exports.deleteComponentAddress = function (attr, callback) {
         }
         fs.writeFileSync(application_path + 'config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
-        domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
-            $showFieldsView('#r_' + componentName + '-click').parent().remove();//remove li tab
-            $showFieldsView('#r_' + componentName).remove();//remove tab content div
-            domHelper.write(application_path + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function () {
+        domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function($showFieldsView) {
+            $showFieldsView('#r_' + componentName + '-click').parent().remove(); //remove li tab
+            $showFieldsView('#r_' + componentName).remove(); //remove tab content div
+            domHelper.write(application_path + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function() {
                 return callback(null);
-            }).catch(function (e) {
+            }).catch(function(e) {
                 return callback(e);
             });
-        }).catch(function (e) {
+        }).catch(function(e) {
             return callback(e);
         });
     } catch (e) {
@@ -1253,7 +1252,7 @@ exports.deleteComponentAddress = function (attr, callback) {
     }
 };
 
-exports.createComponentDocumentTemplate = function (attr, callback) {
+exports.createComponentDocumentTemplate = function(attr, callback) {
     try {
         var entity_name = 'document_template';
         if (attr.is_new_component_entity) {
@@ -1289,9 +1288,9 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'routes/e_document_template.js', application_path + 'routes/e_document_template.js');
 
             //add new entry for access
-            addAccessManagment(attr.id_application, entity_url, module_name, function () {
+            addAccessManagment(attr.id_application, entity_url, module_name, function() {
                 //now add tab for doc generation
-                addNewTabComponentDocumentTemplate(attr, entity_name, function () {
+                addNewTabComponentDocumentTemplate(attr, entity_name, function() {
                     //Set traduction
                     var lang_fr = {
                         "label_entity": "Modèle de document",
@@ -1321,13 +1320,13 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                     fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
                     fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
                     //Now new Menu For Entity DocumentTemplate
-                    require('./structure_module').addNewMenuEntry(attr.id_application, entity_code_name, entity_url, 'm_' + module_name, 'file-text', function () {
+                    require('./structure_module').addNewMenuEntry(attr.id_application, entity_code_name, entity_url, 'm_' + module_name, 'file-text', function() {
                         return callback(null);
                     });
                 });
             });
         } else {
-            addNewTabComponentDocumentTemplate(attr, entity_name, function (e) {
+            addNewTabComponentDocumentTemplate(attr, entity_name, function(e) {
                 return callback(e);
             });
         }
@@ -1336,23 +1335,23 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
     }
 };
 
-exports.deleteComponentDocumentTemplateOnEntity = function (attr, callback) {
+exports.deleteComponentDocumentTemplateOnEntity = function(attr, callback) {
     var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
     var componentName = 'document_template';
-    domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
-        $showFieldsView('#r_' + componentName + '-click').parent().remove();//remove li tab
-        $showFieldsView('#r_' + componentName).remove();//remove tab content div
-        domHelper.write(application_path + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function () {
+    domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function($showFieldsView) {
+        $showFieldsView('#r_' + componentName + '-click').parent().remove(); //remove li tab
+        $showFieldsView('#r_' + componentName).remove(); //remove tab content div
+        domHelper.write(application_path + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function() {
             return callback(null);
-        }).catch(function (e) {
+        }).catch(function(e) {
             return callback(e);
         });
-    }).catch(function (e) {
+    }).catch(function(e) {
         return callback(e);
     });
 }
 
-exports.deleteComponentDocumentTemplate = function (attr, callback) {
+exports.deleteComponentDocumentTemplate = function(attr, callback) {
     var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
     var componentName = 'document_template';
     fs.remove(application_path + 'views/e_' + componentName);
@@ -1370,14 +1369,12 @@ exports.deleteComponentDocumentTemplate = function (attr, callback) {
     fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
     fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
     //delete access json
-    deleteAccessManagment(attr.id_application, componentName, "administration", function () {
-        require('./structure_module').removeMenuEntry(attr, "administration", componentName, function (err) {
+    deleteAccessManagment(attr.id_application, componentName, "administration", function() {
+        require('./structure_module').removeMenuEntry(attr, "administration", componentName, function(err) {
             callback(err);
         });
     });
 }
-
-
 
 function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     var source = attr.options.source;
@@ -1388,9 +1385,9 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.label_entity" /}</a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
     newTabContent = newTabContent.replace(/ENTITY/g, source);
-    addTab(attr, relationEntityShowFieldsFile, newLi, newTabContent).then(function () {
+    addTab(attr, relationEntityShowFieldsFile, newLi, newTabContent).then(function() {
         callback(null);
-    }).catch(function (e) {
+    }).catch(function(e) {
         callback(e);
     });
 }
