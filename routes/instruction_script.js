@@ -118,6 +118,7 @@ var mandatoryInstructions = [
     "set icon unlink",
     "add field role related to many Role using label",
     "add field group related to many Group using label",
+    "add widget stat on entity User",
     "add entity Status",
     "set icon tags",
     "add field Entity",
