@@ -1,3 +1,4 @@
+
 var maskMoneyPrecision = 2;
 var dropzonesFieldArray = [];
 var dropzonesComponentArray = [];
@@ -52,12 +53,14 @@ function initForm(context) {
 
     /* Display color td with fa classes instead of color value */
     $("td[data-type=color]", context).each(function() {
+
+    /* Display color td with fa classes instead of color value */
+    $("td[data-type=color]", context).each(function () {
         if ($(this).find('i').length > 0)
             return;
         var color = $(this).text();
-        $(this).html('<i class="fa fa-lg fa-circle" style="color:'+color+'"></i>');
+        $(this).html('<i class="fa fa-lg fa-circle" style="color:' + color + '"></i>');
     });
-
 
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
     $("input[type='checkbox'], input[type='radio']", context).iCheck({
@@ -79,19 +82,19 @@ function initForm(context) {
         showMeridian: false
     });
 
+    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
     /* --------------- Regex on decimal input --------------- */
     $("input[data-custom-type='decimal']", context).keyup(function(e) {
         var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
-        while ($(this).val() != "" && !reg.test($(this).val())) {
+        while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
-        }
     });
 
     /* --------------- Max length on input number --------------- */
     $("input[type='number']", context).keyup(function(e) {
-        if (this.value.length > 10) {
-            this.value = this.value.slice(0,10);
-        }
+        if(typeof $(this).data("customtype") === "undefined")
+            if (this.value.length > 10)
+                this.value = this.value.slice(0,10);
     });
 
     /* --------------- Initialisation des DateTimepicker --------------- */
@@ -111,7 +114,7 @@ function initForm(context) {
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
     $('.simpledate-toconvert', context).each(function() {
         if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
                 else
@@ -123,7 +126,7 @@ function initForm(context) {
     $('.datepicker-toconvert', context).each(function() {
         var currentVal = $(this).val();
         if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY"));
                 else
@@ -137,7 +140,7 @@ function initForm(context) {
     $('.datetimepicker-toconvert', context).each(function() {
         var currentVal = $(this).attr("value");
         if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if(currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1){
+            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
                     $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY HH:mm")).change();
                 else
@@ -278,7 +281,7 @@ function initForm(context) {
         }
     });
 
-    var displayBarCode = function(element) {
+    var displayBarCode = function (element) {
         var jq_element = $(element);
         var id = jq_element.attr('name');
         var img = '<br><img id="' + id + '" class="img img-responsive"/>';
@@ -300,13 +303,14 @@ function initForm(context) {
             }
         }
     };
+
     //input barcode
     $("input[data-type='barcode']", context).each(function() {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
             if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
-                $(this).on('keyup', function() {
+                $(this).on('keyup', function () {
                     $(this).val($(this).val().toUpperCase());
                 });
             }
@@ -320,6 +324,7 @@ function initForm(context) {
         });
     });
 
+    var maskMoneyPrecision = 2;
     //Mask for data-type currency
     $("[data-type='currency']", context).each(function() {
         $(this).maskMoney({
@@ -367,7 +372,7 @@ function initForm(context) {
                     }
                 });
 
-                this.on("sending", function(file, xhr, formData) {
+                this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataEntity = that.attr("data-entity");
                     var dataType = that.attr("data-type") || '';
@@ -375,16 +380,16 @@ function initForm(context) {
                     formData.append("dataEntity", dataEntity);
                     formData.append("dataType", dataType);
                 });
-                this.on("maxfilesexceeded", function() {
+                this.on("maxfilesexceeded", function () {
                     this.removeFile(this.files[1]);
                     toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                 });
-                this.on("error", function(file, message) {
+                this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
-                this.on('removedfile', function(file) {
+                this.on('removedfile', function (file) {
                     if (file.status != "error") {
                         var dropzone = this;
                         if (!confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?'))
@@ -397,7 +402,7 @@ function initForm(context) {
                                 dataStorage: that.attr("data-storage"),
                                 filename: $("#" + that.attr("id") + "_hidden").val()
                             },
-                            success: function(success) {
+                            success: function (success) {
                                 $("#" + that.attr("id") + "_hidden").val('');
                                 if (dropzone.files.length) {
                                     dropzone.removeAllFiles(true);
@@ -421,7 +426,19 @@ function initForm(context) {
         });
         if (type == 'picture')
             dropzoneInit.options.acceptedFiles = 'image/*';
-
+        else if (type === "docx/pdf")
+            dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        var dropzoneId = $(this).attr('id') + '';
+        if ($('#' + dropzoneId + '_hidden').val() != '') {
+            var mockFile = {
+                name: $('#' + dropzoneId + '_hidden').val(),
+                type: 'mockfile'
+            };
+            dropzoneInit.files.push(mockFile);
+            dropzoneInit.emit('addedfile', mockFile);
+            dropzoneInit.emit('complete', mockFile);
+        }
+        dropzoneInit.done = false;
         dropzonesFieldArray.push(dropzoneInit);
     });
 }
@@ -430,7 +447,6 @@ function initForm(context) {
 function initDropZone(context) {
     if (!context)
         context = document;
-
 
     /* File Storage Component */
     $('.dropzone_local_file_component', context).each(function(index) {
@@ -486,8 +502,8 @@ function initDropZone(context) {
 
 // PRINT
 function initPrint() {
-   /* Clear print tab component */
-    $(".print-tab input").each(function() {
+    /* Clear print tab component */
+    $(".print-tab input").each(function () {
         $(this).prop("disabled", true);
         $(this).attr("placeholder", "-");
         $(this).css("cursor", "default");
@@ -496,7 +512,7 @@ function initPrint() {
             $(this).remove();
     });
 
-    $(".print-tab a:not([href=''])").each(function() {
+    $(".print-tab a:not([href=''])").each(function () {
         if ($(this).find("img").length == 0) {
             if ($(this).text() == "")
                 if ($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
@@ -509,44 +525,58 @@ function initPrint() {
     });
 
     $(".print-tab select[multiple]").each(function() {
-        if ($(this).val() == null)
+        if ($(this).val() == null){
             $(this).replaceWith("<br>-");
+        } else {
+            var selectContent = "<br>";
+            for(var i=0; i<$(this).val().length; i++){
+                if(i > 0)
+                    selectContent += ",&nbsp;";
+                selectContent += $(this).val()[i];
+            }
+            $(this).replaceWith(selectContent);
+        }
     });
 
-    $(".print-tab input[type='color']").each(function() {
+    $(".print-tab input[type='color']").each(function () {
         $(this).css("width", "20%");
     });
 
-    $(".print-tab a[data-type='url']").each(function() {
+    $(".print-tab a[data-type='url']").each(function () {
         if ($(this).text() == "")
             $(this).replaceWith("-");
+    });
+
+    $(".print-tab input[data-type='email']").each(function() {
+        $(this).parent().removeClass("input-group");
     });
 
     $(".print-tab .input-group-addon").each(function() {
         $(this).remove();
     });
 
-    $(".print-tab select").each(function() {
+    $(".print-tab select").each(function () {
         $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
     });
 
-    $(".print-tab input[type='radio']:checked").each(function() {
+    $(".print-tab input[type='radio']:checked").each(function () {
         var formGroup = $(this).parent(".form-group");
         var label = formGroup.find("label");
         var htmlToWrite = label[0].outerHTML + "\n";
-        formGroup.find("input[type='radio']").each(function() {
+        formGroup.find("input[type='radio']").each(function () {
             if ($(this).prop("checked")) {
                 htmlToWrite += "<br><span>" + $(this).val() + "</span>";
             }
         });
         formGroup.html(htmlToWrite);
     });
+
     $(".print-tab input[type='checkbox']").each(function() {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
-        var htmlToWrite = "<b>"+label+"</b>\n";
-        formGroup.find("input[type='checkbox']").each(function(){
-            if($(this).prop("checked")){
+        var htmlToWrite = "<b>" + label + "</b>\n";
+        formGroup.find("input[type='checkbox']").each(function () {
+            if ($(this).prop("checked")) {
                 htmlToWrite += "<br><span><i class='fa fa-check'></i></span>";
             } else {
                 htmlToWrite += "<br><span><i class='fa fa-close'></i></span>";
@@ -555,19 +585,19 @@ function initPrint() {
         formGroup.html(htmlToWrite);
     });
 
-    $(".print-tab textarea").each(function() {
-        $(this).replaceWith("<br><span>"+$(this).val()+"</span>");
+    $(".print-tab textarea").each(function () {
+        $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
     });
 
-    $(".print-tab button, .print-tab .btn").each(function() {
+    $(".print-tab button, .print-tab .btn").each(function () {
         $(this).remove();
     });
 
-    $(".print-tab form").each(function() {
+    $(".print-tab form").each(function () {
         $(this).remove();
     });
 
-    $(".print-tab .print-remove").each(function() {
+    $(".print-tab .print-remove").each(function () {
         $(this).remove();
     });
 }
@@ -579,7 +609,6 @@ function validateForm(form) {
         for (var i = 0; i < dropzonesFieldArray.length; i++)
             if (dropzonesFieldArray[i].files.length == 1)
                 if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
-                    console.log(dropzonesFieldArray[i].files[0]);
                     return true;
                 }
         return false;
@@ -696,6 +725,7 @@ function validateForm(form) {
                         if (customType === "issn" && !val.startsWith('977')) {
                             error = true;
                             message += "Le champ " + $(this).attr("placeholder") + " doit comencer par 977.";
+
                         }
                         break;
 
@@ -720,6 +750,7 @@ function validateForm(form) {
                         }
                         break;
                 }
+
                 if (error) {
                     toastr.error(message);
                     isValid = false;
@@ -734,6 +765,10 @@ function validateForm(form) {
             console.log("MASK INVALID")
             $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
             isValid = false;
+            $(this).find("input[data-type='currency']").each(function () {
+                //replace number of zero par maskMoneyPrecision value, default 2
+                $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
+            });
         }
     });
 
@@ -749,6 +784,20 @@ function validateForm(form) {
 $(document).ready(function () {
 
     initForm();
+
+    /* Save mini sidebar preference */
+    $(document).on("click", ".sidebar-toggle", function () {
+        if (typeof sidebarPref !== "undefined" && sidebarPref != "null") {
+            if (sidebarPref == "close")
+                sidebarPref = "open";
+            else if (sidebarPref == "open")
+                sidebarPref = "close";
+        } else {
+            sidebarPref = "open";
+        }
+
+        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
+    });
 
     $('form').submit(function(e) {
         if (!validateForm($(this)))
@@ -934,8 +983,43 @@ $(document).ready(function () {
         return true;
     });
 
+    /* ---------------------- Composants ---------------------- */
+    /** Do not remove **/
+    /** Do not remove **/
+    $("#component_document_template").each(function () {
+        $(this).select2({
+            ajax: {
+                url: '/document_template/search',
+                dataType: 'json',
+                method: 'POST',
+                delay: 250,
+                contentType: "application/json",
+                context: this,
+                data: function (params) {
+                    var ajaxdata = {
+                        search: params.term,
+                        entity: $(this).attr('entity')
+                    };
+                    return JSON.stringify(ajaxdata);
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 1,
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            templateResult: function (data) {
+                return data.text;
+            }
+        });
+    });
     /* Component print button action */
-    $(document).on("click", ".component-print-button", function(){
+    $(document).on("click", ".component-print-button", function () {
         window.print();
         return true;
     });

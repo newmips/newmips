@@ -646,7 +646,6 @@ $.fn.gridEditor.RTEs = {};
     };
 })();
 (function() {
-
     $.fn.gridEditor.RTEs.summernote = {
 
         init: function(settings, contentAreas) {

@@ -54,7 +54,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
     	worksheet.eachSheet(function(sheet, sheetId) {
 
             var json = configFile;
-            var nbRows = sheet.rowCount - 1;
+            var nbRows = sheet.actualRowCount - 1;
             var count = 0;
 
             //Get all the XLSX columns
@@ -140,7 +140,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
 
                                         var findRequest = "SELECT * FROM `" +foreignTable+ "` WHERE " +foreignField+ " = '" +value+ "';";
 
-                                        (function(valuebis, columnbis, kbis, foreignTablebis, foreignFieldbis){
+                                        (function(valuebis, columnbis, kbis, foreignTablebis, foreignFieldbis, findRequestBis){
                                             /* Looking for the foreign key */
                                             models.sequelize.query(findRequest, {type: models.sequelize.QueryTypes.SELECT}).then(function(result){
                                                 if(result.length > 0){
@@ -164,7 +164,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
                                                         });
                                                     }
                                                     else{
-                                                        valueInRequestArray[kbis] = findRequest;
+                                                        valueInRequestArray[kbis] = findRequestBis;
                                                         cpt++;
                                                         done(cpt);
                                                     }
@@ -175,10 +175,10 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
                                                 console.log(err);
                                                 var error = {};
                                                 error.error = err.message;
-                                                error.request = findRequest;
+                                                error.request = findRequestBis;
                                                 infoObj[idUser].errorArray.push(error);
                                             });
-                                        })(value, column, k, foreignTable, foreignField);
+                                        })(value, column, k, foreignTable, foreignField, findRequest);
                                     }
                                 }
                                 else if(typeof value === "undefined"){

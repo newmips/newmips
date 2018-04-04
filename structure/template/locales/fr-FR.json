@@ -102,6 +102,8 @@
         "previous": "Précédent",
         "next": "Suivant",
         "close": "Fermer",
+        "generate":"Générer",
+        "help":"Aide",
         "cancel": "Annuler",
         "return": "Retour",
         "delete_confirm": "Etes-vous sûr de vouloir supprimer cet enregistrement ?"

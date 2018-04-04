@@ -1,5 +1,6 @@
 var bcrypt = require('bcrypt-nodejs');
 var fs = require('fs-extra');
+var Sequelize = require('sequelize');
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -34,6 +35,8 @@ exports.buildForModel = function objectify(attributes, DataTypes) {
         else
             object[prop] = currentValue;
     }
+    object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+    object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
     return object;
 }
 

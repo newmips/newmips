@@ -1,9 +1,9 @@
 $(document).ready(function(){
 
-	$("#selectCategory .select2-selection").css("background-color", "#CCCCCC");
+	$(".selectCategoryColor").next("span").find(".select2-selection").css("background-color", "#CCCCCC");
 
-	$("#selectCategory select").on("change", function(){
-		$("#selectCategory .select2-selection").css("background-color", $("#selectCategory select option:selected").attr("data-backgroundcolor"));
+	$(".selectCategoryColor").on("change", function(){
+		$(this).next("span").find(".select2-selection").css("background-color", $(this).find("option:selected").attr("data-backgroundcolor"));
 	});
 
 	$(document).on("click", "#add-new-event", function(){
@@ -11,10 +11,10 @@ $(document).ready(function(){
 		var eventTitle = $("#new-event-title").val();
 
 		if(eventTitle != ""){
-			var categoryID = $("#selectCategory select").val();
+			var categoryID = $("#selectCategorySide").val();
 			if(categoryID == "")
 				categoryID = 0;
-			var categoryColor = $("#selectCategory select option:selected").attr("data-backgroundcolor");
+			var categoryColor = $("#selectCategorySide option:selected").attr("data-backgroundcolor");
 
 			var generateID = moment();
 			var eventObj = '{"title": "'+eventTitle+'", "idCategory":'+categoryID+', "stick": "true","backgroundColor": "'+categoryColor+'", "borderColor": "'+categoryColor+'"}';
