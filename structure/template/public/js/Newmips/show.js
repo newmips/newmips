@@ -157,7 +157,7 @@ function bindTabActions(tab, data) {
         });
     });
     // Bind each new form
-    tab.find('form:not(".fieldsetform"):not(".componentFileDownloadForm"):not(".component-form")').each(function(){
+    tab.find('form:not(".fieldsetform"):not(".componentFileDownloadForm")').each(function(){
         ajaxForm($(this));
     });
 }
