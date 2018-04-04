@@ -71,7 +71,7 @@ block custom_css
 	link(href='/js/plugins/grid-editor/dist/grideditor-font-awesome.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/dialog.css', rel='stylesheet', type='text/css')
 	link(href='/js/plugins/codemirror/addon/fullscreen.css', rel='stylesheet', type='text/css')
-	link(href='/js/plugins/codemirror/addon/simplescrollbars.css', rel='stylesheet', type='text/css')
+	link(href='/js/plugins/codemirror/addon/foldgutter.css', rel='stylesheet', type='text/css')
 	// Slack chat
 	link(rel="stylesheet", href="/css/slack/slack-chat.css")
 	link(rel="stylesheet", href="/css/slack/skin-chat.css")
@@ -432,11 +432,13 @@ block custom_js
 				var chatDisabledMsg = '#{__("preview.help-disabled")}';
 				toastr.info(chatDisabledMsg);
 			});
-	// Editor
+	// Locales
 	script(type='text/javascript').
 		var intro2 = "#{__('editor.intro')}" + "\n";
 		intro2 += "#{__('editor.intro2')}" + "\n";
 		intro2 += "#{__('editor.intro3')}";
+		var savingButtonText = "#{__('button.save')}";
+		var loadingButtonText = "#{__('button.loading')}";
 	script(type='text/javascript').
 		$(document).ready(function(){
 
@@ -479,6 +481,7 @@ block custom_js
 			});
 
 			$("#entitySelect").select2({width:'100%'});
+
 			$("#entitySelect").change(function() {
 				$("#pages").slideUp();
 				if ($(this).val()) {
@@ -521,13 +524,18 @@ block custom_js
 			$("#ui_editor_save").click(function() {
 				var html = $("#ui_editor").gridEditor('getHtml');
 				var currentScreenMode = $(".ge-layout-mode button span").text();
+				$(this).text(loadingButtonText);
+				$(this).prop("disabled", true);
 				$.ajax({
 					url: '/ui_editor/setPage/'+entity+'/'+page,
 					method: 'post',
 					data: {html: html, screenMode: currentScreenMode, applyAll: $("#ui_editor_apply_all").prop("checked")},
+					context: this,
 					success: function(msg) {
 						$("#ui_editor_apply_all").prop("checked", false);
 						toastr.success(msg);
+						$(this).text(savingButtonText);
+						$(this).prop("disabled", false);
 					},
 					error: function(err) {
 						console.log(err);
@@ -546,16 +554,25 @@ block custom_js
 					setTimeout(function(){
 						$("body").append("<script src='/js/plugins/codemirror/codemirror.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/multiplex.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/simple.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/search.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/searchcursor.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/dialog.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/matchbrackets.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/closebrackets.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/foldcode.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/foldgutter.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/brace-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/xml-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/indent-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/markdown-fold.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/comment-fold.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/trailingspace.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/closetag.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/overlay.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/fullscreen.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/addon/simplescrollbars.js' type='text/javascript' />"+
+						"<script src='/js/plugins/codemirror/addon/formatting.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/keymap/sublime.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/mode/xml/xml.js' type='text/javascript' />"+
 						"<script src='/js/plugins/codemirror/mode/css/css.js' type='text/javascript' />"+
@@ -662,7 +679,7 @@ block custom_js
 					method: 'POST',
 					data: $(this).serialize(),
 					success: function(data) {
-						if(data.toRestart)
+						if(data.toRedirect)
 							return window.location.href = data.url;
 
 						// Reload iframe
@@ -736,8 +753,8 @@ block custom_js
 							var content = recursiveEditorFolders(data.workspaceFolder);
 							$("ul#sortable.sidebar-menu").append(content);
 							$(".sidebar .treeview").tree();
-							// Reset Editor
-							if(typeof myEditor !== "undefined"){
+							// Reset Code Editor
+							if(typeof myEditor !== "undefined" && !data.isRestart){
 								$("#codemirror-editor li.load-file").each(function(){
 									$(this).remove();
 								});
@@ -747,6 +764,23 @@ block custom_js
 								myEditor.clearGutter();
 								$(".CodeMirror-code").empty();
 							}
+
+							// Reset UI Editor
+							if(!data.isRestart){
+								$("#pages").slideUp();
+								entity = null;
+								page = null;
+								$("#ui_editor").html("");
+								// Enable gridEditor
+								$("#ui_editor").gridEditor();
+								// Remove mainControls who are not removed by modifying html
+								$(".ge-mainControls").remove();
+								$("#ui_editor_save").hide();
+								$("#ui_editor_tips").hide();
+								$("#ui_editor_apply_all").hide();
+								$("#ui_editor_apply_all_span").hide();
+							}
+
 							// Wait a little for Iframe to refresh
 							setTimeout(function(){
 								$("#loadingIframe").hide();
@@ -759,6 +793,11 @@ block custom_js
 		            }
 		        });
 		        return false;
+			});
+
+			$(document).on("click", "#restart-server", function(e){
+				$("#instruction").val("restart server");
+				$("form#previewForm").submit();
 			});
 
 			/////////
@@ -778,7 +817,7 @@ block custom_js
 
 		        $("#instruction").autocomplete({
 		            autoFocus: true,
-		            delay: 0,
+		            delay: 200,
 		            source: function(request, response) {
 		                $.getJSON('/default/completion', {
 		                    "str": newstr
@@ -831,12 +870,6 @@ block custom_js
 		            }
 		        });
 				// }
-			});
-
-			$(document).on("click", "#restart-server", function(e){
-				$("#instruction").val("restart server");
-				//$("#execute_instruction").trigger("click");
-				$("form#previewForm").submit();
 			});
 
 			/////////

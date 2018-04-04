@@ -77,10 +77,11 @@ block content
 																a.btn.btn-info(href='/application/preview?id_application=#{application.id}')
 																	i.fa.fa-desktop.fa-md &nbsp;&nbsp;
 																	span #{__("button.preview")}
-															td.text-center
-																a.btn.btn-warning(href='/editor/#{application.id}')
-																	i.fa.fa-pencil-square-o.fa-md &nbsp;&nbsp;
-																	span #{__("button.update")}
+															//
+																td.text-center
+																	a.btn.btn-warning(href='/editor/#{application.id}')
+																		i.fa.fa-pencil-square-o.fa-md &nbsp;&nbsp;
+																		span #{__("button.update")}
 															td.text-center
 																form.deleteAppForm
 																	button.btn.btn-danger

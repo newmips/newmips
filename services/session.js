@@ -290,6 +290,11 @@ exports.setSession = function(attrFunction, req, info, data) {
             var iframeUrl = data.iframe_url.split("/default/");
             data.iframe_url = iframeUrl[0]+"/default/home";
             break;
+        case "deleteDataEntity":
+            // If we were on the deleted entity we has to reset the entity session
+            if(data.session.id_data_entity == info.deletedEntityId)
+                req.session.id_data_entity = null;
+            break;
     }
 }
 

@@ -111,6 +111,9 @@ if (process.argv[2] == 'autologin') {
 // to keep track of it, and redirect after server restart
 if (startedFromGenerator) {
 	app.get('/*', function(req, res, next){
+		// Do not remove this comment
+		if(req.originalUrl.indexOf("/inline_help/") != -1)
+			return next();
 		console.log("IFRAME_URL::"+req.originalUrl);
 		next();
 	});

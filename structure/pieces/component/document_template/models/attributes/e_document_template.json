@@ -1,0 +1,30 @@
+{
+    "id": {
+        "type": "INTEGER",
+        "autoIncrement": true,
+        "primaryKey": true
+    },
+    "version": {
+        "type": "INTEGER"
+    },
+    "f_name": {
+        "type": "STRING",
+        "newmipsType": "string",
+        "defaultValue": null
+    },
+    "f_file": {
+        "type": "STRING",
+        "newmipsType": "string",
+        "defaultValue": null
+    },
+    "f_entity": {
+        "type": "STRING",
+        "newmipsType": "string",
+        "defaultValue": null
+    },
+    "f_exclude_relations": {
+        "type": "TEXT",
+        "newmipsType": "TEXT",
+        "defaultValue": null
+    }
+}

@@ -62,7 +62,9 @@
         "send": "Send",
         "add": "Add",
         "documentation": "Documentation",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "loading": "Loading...",
+        "help": "Help"
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -98,7 +100,7 @@
         "change_theme": "Switch theme",
         "intro": "Hi Newmips user!",
         "intro2": "You can select a file on the sidebar on your left ;)",
-        "intro3": "You can press F11 in the editor to enter the fullscreen mode!"
+        "intro3": "F11: Fullscreen | Ctrl+S: Save | Ctrl+0: Fold/Unfold code | Ctrl+=: Code formatting"
     },
     "ui_editor": {
         "page_not_found": "Couldn't find corresponding file.",
@@ -199,7 +201,7 @@
         "or": "or",
         "textthree": "simply go back.",
         "404": "The link you followed may be broken, or the page may have been removed.",
-        "valueTooLong": "The given value is too long (>30).",
+        "valueTooLong": "Sorry, but the given value (%s) is too long (>30).",
         "cannotFindInstruction": "Sorry, I do not understand what you're asking of me."
     },
     "back":{
@@ -271,7 +273,8 @@
                 "successOnEntity": "New component %s (%s) created on entity %s."
             },
             "notFound": {
-                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s."
+                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s.",
+                "notFoundedOnEntity": "Sorry, no component with the name %s exist on the entity with id %s."
             },
             "delete": {
                 "success": "The component has been successfully deleted!",
@@ -325,6 +328,9 @@
                 "success": "Server restarded!",
                 "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
             },
+            "npmInstall": {
+                "success": "All node modules have been successfully installed !"
+            },
             "gitPush": {
                 "success": "The application has been saved!"
             },
@@ -354,7 +360,8 @@
                 "duplicateUnique": "Sorry, the field has already duplicate value so it can't be unique.",
                 "missingValues": "Error, you have to specify the values you want in the field with type enum / radio.",
                 "noSpace": "Error, please seperate each enum / radio value with a comma.",
-                "sameValue": "Error, you can't specify 2 times the same value for an enum / radio field."
+                "sameValue": "Error, you can't specify 2 times the same value for an enum / radio field.",
+                "notUnique4RelatedToMany": "Sorry, but it is not possible to set a related to many field unique."
             }
         },
         "association": {
@@ -371,10 +378,10 @@
                 "success": "New relation has many existing with entity %s created on %s."
             },
             "relatedToMultiple":{
-                "success": "New field %s related to multiple %s created on %s."
+                "success": "New field %s related to multiple %s created on %s.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>"
             },
             "relatedTo": {
-                "success": "New field %s related to %s created.",
+                "success": "New field %s related to %s created.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it unique:<br>- <b class='click-instruction'>set field %s unique</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>",
                 "missingField": "The field %s in the entity %s does not exist or is not usable."
             },
             "error":{

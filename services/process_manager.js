@@ -36,6 +36,7 @@ exports.launchChildProcess = function(id_application, env) {
     });
 
     process_server.stderr.on('data', function(data) {
+        allLogStream.write('<span style="color: red;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
         console.log('\x1b[31m%s\x1b[0m', 'App Err: ' + data);
     });
 

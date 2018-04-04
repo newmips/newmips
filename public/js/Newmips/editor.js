@@ -7,6 +7,7 @@
 $(document).ready(function() {
 
     var editorContent = {};
+    var editorScrollContent = {};
     var editorSaveContent = {};
 
     /* -------- Editor Initialisation -------- */
@@ -32,6 +33,36 @@ $(document).ready(function() {
         $('head').append("<link href='/css/codemirror/themes/" + chosenTheme + ".css' rel='stylesheet' type='text/css'>");
     }
 
+    function foldAll(cm) {
+        for (var i = cm.firstLine(), e = cm.lastLine(); i <= e; i++)
+            cm.foldCode(CodeMirror.Pos(i, 0), null, "fold");
+    };
+
+    function unfoldAll(cm) {
+        for (var i = cm.firstLine(), e = cm.lastLine(); i <= e; i++)
+            cm.foldCode(CodeMirror.Pos(i, 0), null, "unfold");
+    };
+
+    function getSelectedRange() {
+        return {
+            from: myEditor.getCursor(true),
+            to: myEditor.getCursor(false)
+        };
+    }
+
+    function autoFormatSelection(cm) {
+        var range = getSelectedRange();
+        var from = range.from;
+        var to = range.to;
+        if(range.from.line == range.to.line){
+            from = CodeMirror.Pos(cm.firstLine(), 0);
+            to = CodeMirror.Pos(cm.lastLine()+1, 0);
+        }
+        myEditor.autoFormatRange(from, to);
+    }
+
+    var isAlreadyFolded = false;
+
     myEditor = CodeMirror(document.getElementById("codemirror-editor"), {
         value: "\n\n" + intro1 + intro2,
         theme: chosenTheme,
@@ -48,6 +79,18 @@ $(document).ready(function() {
                     $("#update-file").trigger("click");
                 else
                     toastr.error("Please select a file before saving.")
+            },
+            "Ctrl-0": function(cm) {
+                if(isAlreadyFolded) {
+                    isAlreadyFolded = false;
+                    unfoldAll(cm);
+                } else {
+                    isAlreadyFolded = true;
+                    foldAll(cm);
+                }
+            },
+            "Ctrl-=": function(cm) {
+                autoFormatSelection(cm);
             }
         },
         lineNumbers: true,
@@ -57,7 +100,9 @@ $(document).ready(function() {
         autoCloseBrackets: true,
         showTrailingSpace: true,
         autoCloseTags: true,
-        scrollbarStyle: "simple"
+        foldGutter: true,
+        highlightDifferences: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
     });
 
     /* Event change on editor to highlight the unsave work */
@@ -81,42 +126,121 @@ $(document).ready(function() {
     });
 
     /* -------- Set mode depending of file extension -------- */
-    CodeMirror.defineMode("dust", function(config, parserConfig) {
-        var dustOverlay = {
-            token: function(stream, state) {
-                var ch;
-                if (stream.match("{<")) {
-                    while ((ch = stream.next()) != null)
-                        if (ch == "}") {
-                            //stream.eat("}");
-                            return "dust";
-                        }
-                }
-                if (stream.match("{/")) {
-                    while ((ch = stream.next()) != null)
-                        if (ch == "}") {
-                            //stream.eat("}");
-                            return "dust";
-                        }
-                }
-                if (stream.match("{>")) {
-                    while ((ch = stream.next()) != null)
-                        if (ch == "}") {
-                            //stream.eat("}");
-                            return "dust";
-                        }
-                }
-                while (stream.next() != null && !stream.match("{<", false)) {}
-                return null;
-            }
-        };
-        var mode = {
-            name: "xml",
-            htmlMode: true,
-            matchClosing: false
-        };
-        return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || mode), dustOverlay);
+    // CodeMirror.defineMode("dust", function(config, parserConfig) {
+    //     var dustOverlay = {
+    //         token: function(stream, state) {
+    //             var ch;
+    //             if (stream.match("{<")) {
+    //                 while ((ch = stream.next()) != null)
+    //                     if (ch == "}") {
+    //                         //stream.eat("}");
+    //                         return "dust";
+    //                     }
+    //             }
+    //             if (stream.match("{/")) {
+    //                 while ((ch = stream.next()) != null)
+    //                     if (ch == "}") {
+    //                         //stream.eat("}");
+    //                         return "dust";
+    //                     }
+    //             }
+    //             if (stream.match("{>")) {
+    //                 while ((ch = stream.next()) != null)
+    //                     if (ch == "}") {
+    //                         //stream.eat("}");
+    //                         return "dust";
+    //                     }
+    //             }
+    //             while (stream.next() != null && !stream.match("{<", false)) {}
+    //             return null;
+    //         }
+    //     };
+    //     var mode = {
+    //         name: "xml",
+    //         htmlMode: true,
+    //         matchClosing: false
+    //     };
+    //     return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || mode), dustOverlay);
+    // });
+
+    CodeMirror.defineSimpleMode("dust-tags", {
+        start: [{
+            regex: /\{!/,
+            push: "comment",
+            token: "comment"
+        }, {
+            regex: /\{/,
+            push: "dust",
+            token: "tag"
+        }],
+        dust: [{
+            regex: /\}/,
+            pop: true,
+            token: "tag"
+        }, {
+            regex: /"(?:[^\\"]|\\.)*"?/,
+            token: "string"
+        }, {
+            regex: /'(?:[^\\']|\\.)*'?/,
+            token: "string"
+        }, {
+            regex: /[#\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /[<\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /[>\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /[+\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /[?\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /[@\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /[:\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /[\^\/]([A-Za-z_]\w*)/,
+            token: "keyword"
+        }, {
+            regex: /\d+/i,
+            token: "number"
+        }, {
+            regex: /=|~|@|true|false|>|<|:|\||\//,
+            token: "atom"
+        }, {
+            regex: /(?:\.\.\/)*(?:[A-Za-z_][\w\.]*)+/,
+            token: "variable-2"
+        }],
+        comment: [{
+            regex: /\}/,
+            pop: true,
+            token: "comment"
+        }, {
+            regex: /./,
+            token: "comment"
+        }]
     });
+
+    CodeMirror.defineMode("dust", function(config, parserConfig) {
+        var dust = CodeMirror.getMode(config, "dust-tags");
+        if (!parserConfig || !parserConfig.base) return dust;
+        return CodeMirror.multiplexingMode(
+            CodeMirror.getMode(config, parserConfig.base), {
+                open: "{",
+                close: "}",
+                mode: dust,
+                parseDelimiters: true
+            }
+        );
+    });
+
+    CodeMirror.defineMIME("text/x-dust-template", "dust");
 
     function setMode(extension) {
         switch (extension) {
@@ -127,7 +251,7 @@ $(document).ready(function() {
                 myEditor.setOption("mode", "htmlmixed");
                 break;
             case "dust":
-                myEditor.setOption("mode", "dust");
+                myEditor.setOption("mode", {name: 'dust', base: 'htmlmixed'});
                 break;
             case "js":
                 myEditor.setOption("mode", "javascript");
@@ -176,12 +300,12 @@ $(document).ready(function() {
             contentType: "application/json",
             context: this,
             success: function(data) {
-
                 // Is read only file ?
                 var isToDisable = toDisable($(this).attr("data-path"));
 
                 /* Save the current editor content in the OLD tab */
                 editorContent[$("#update-file").attr("data-path")] = myEditor.getValue();
+                editorScrollContent[$("#update-file").attr("data-path")] = myEditor.getScrollInfo();
 
                 /* Color select file in folders */
                 $(".load-file").each(function() {
@@ -228,11 +352,15 @@ $(document).ready(function() {
                     $("li[data-path='"+data.path+"']").addClass("active");
                     /* Get the old content */
                     myEditor.setValue(editorContent[data.path]);
+                    myEditor.scrollTo(editorScrollContent[data.path].left, editorScrollContent[data.path].top);
+
                     if(isToDisable)
                         myEditor.setOption("readOnly", true);
                     else
                         myEditor.setOption("readOnly", false);
                 }
+
+                myEditor.clearHistory();
             },
             error: function(error) {
                 console.log(error);

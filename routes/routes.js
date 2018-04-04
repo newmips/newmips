@@ -62,7 +62,8 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
         models.User.findOne({
             where: {
                 login: login_user,
-                $or: [{password: ""}, {password: null}]
+                $or: [{password: ""}, {password: null}],
+                enabled: 0
             }
         }).then(function(user){
             if(user){
@@ -82,7 +83,8 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                         } else{
                             models.User.update({
                                 password: password,
-                                email: email_user
+                                email: email_user,
+                                enabled: 1
                             }, {
                                 where: {
                                     id: user.id

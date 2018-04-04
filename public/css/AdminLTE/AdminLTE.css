@@ -4223,7 +4223,8 @@ b.click-instruction{
   cursor: pointer;
 }
 
-.ge-content input, .ge-content select, .ge-content textarea{
+/* UI Editor */
+.ge-content input, .ge-content select, .ge-content textarea, .ge-content button , .ge-content a{
   display: none;
 }
 .ge-content input::-webkit-input-placeholder {

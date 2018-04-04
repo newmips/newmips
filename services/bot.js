@@ -9,9 +9,10 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
         attr.error = "There must be at least one letter in the name."
     }
 
-    if(valueToCheck.length > 30){
-        console.log("Value is too long => "+valueToCheck+"("+valueToCheck.length+")");
+    if (valueToCheck.length > 30) {
+        console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
         attr.error = "error.valueTooLong";
+        attr.errorParams = [valueToCheck];
     }
 
     return attr;
@@ -42,6 +43,12 @@ exports.deploy = function (result) {
 exports.restart = function (result) {
     var attr = {};
     attr.function = "restart";
+    return attr;
+};
+
+exports.installNodePackage = function (result) {
+    var attr = {};
+    attr.function = "installNodePackage";
     return attr;
 };
 
@@ -116,7 +123,7 @@ exports.selectEntity = function (result) {
 
     var value = result[1];
     var options = {
-        value: value
+        value: value.trim()
     };
 
     var attr = {
@@ -513,7 +520,7 @@ exports.relationshipHasOneWithName = function (result) {
 
 
 // --------- Field in create / update / show ---------
-exports.createFieldRelatedTo = function(result) {
+exports.createFieldRelatedTo = function (result) {
 
     var as = result[1];
     var target = result[2];
@@ -545,7 +552,7 @@ exports.createFieldRelatedToUsing = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
-exports.createFieldRelatedToMultiple = function(result) {
+exports.createFieldRelatedToMultiple = function (result) {
 
     var as = result[1];
     var target = result[2];
@@ -560,7 +567,7 @@ exports.createFieldRelatedToMultiple = function(result) {
     return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
-exports.createFieldRelatedToMultipleUsing = function(result) {
+exports.createFieldRelatedToMultipleUsing = function (result) {
 
     var as = result[1];
     var target = result[2];
@@ -617,9 +624,9 @@ exports.relationshipHasManyPreset = function (result) {
     var as = target;
     var foreignKey = "id_" + source.toLowerCase();
 
-    if(typeof result[3] !== "undefined")
+    if (typeof result[3] !== "undefined")
         as = result[3];
-        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
+    foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
@@ -639,9 +646,9 @@ exports.relationshipHasManyPresetUsing = function (result) {
     var as = target;
     var foreignKey = "id_" + source.toLowerCase();
 
-    if(typeof result[4] !== "undefined")
+    if (typeof result[4] !== "undefined")
         as = result[4];
-        foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
+    foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
     var options = {
         target: target,
@@ -656,7 +663,7 @@ exports.relationshipHasManyPresetUsing = function (result) {
 };
 
 // ******* COMPONENT Actions ******* //
-exports.createNewComponentStatus = function(result) {
+exports.createNewComponentStatus = function (result) {
     var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
         function: "createNewComponentStatus",
@@ -664,7 +671,7 @@ exports.createNewComponentStatus = function(result) {
     };
 }
 
-exports.createNewComponentStatusWithName = function(result) {
+exports.createNewComponentStatusWithName = function (result) {
     var value = result[1];
     var options = {
         value: value,
@@ -718,6 +725,27 @@ exports.createNewComponentContactFormWithName = function (result) {
     };
 
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
+};
+
+exports.deleteComponentContactForm = function (result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteComponentContactForm",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentContactFormWithName = function (result) {
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("deleteComponentContactForm", options, value);
 };
 
 /* AGENDA */
@@ -790,8 +818,8 @@ exports.createNewComponentAddress = function (result) {
  */
 exports.deleteComponentAddress = function (result) {
     return {
-        function :"deleteComponentAddress",
-        options:result
+        function: "deleteComponentAddress",
+        options: result
     };
 };
 
@@ -851,6 +879,26 @@ exports.deleteComponentPrintWithName = function (result) {
     return attr;
 };
 
+/**
+ * create component DocumentTemplate
+ */
+exports.createComponentDocumentTemplate = function (result) {
+    return {
+        function: "createComponentDocumentTemplate",
+        options: result
+    };
+};
+
+/**
+ * Delete component DocumentTemplate
+ */
+exports.deleteComponentDocumentTemplate = function (result) {
+    return {
+        function: "deleteComponentDocumentTemplate",
+        options: result
+    };
+};
+
 /* CHAT */
 exports.createComponentChat = function (result) {
     return {
@@ -899,6 +947,7 @@ exports.listLayout = function (result) {
     };
     return attr;
 };
+
 
 exports.setTheme = function (result) {
 
@@ -1087,6 +1136,11 @@ var training = {
         "redémarrer",
         "redémarrer serveur",
         "redémarrer le serveur"
+    ],
+    "installNodePackage": [
+        "npm install",
+        "installer les modules node",
+        "install node package"
     ],
     "gitPush": [
         "save",
@@ -1477,16 +1531,40 @@ var training = {
     "relationshipHasManyWithName": [
         "entity (.*) has many (.*) called (.*)",
         "entity (.*) has many (.*) with name (.*)",
-        "entité (.*) possède plusieurs (.*) appelés (.*)",
-        "entité (.*) a plusieurs (.*) appelés (.*)",
-        "entité (.*) possède plusieurs (.*) appelées (.*)",
-        "entité (.*) a plusieurs (.*) appelées (.*)",
         "entité (.*) possède plusieurs (.*) appelé (.*)",
-        "entité (.*) a plusieurs (.*) appelé (.*)"
+        "entité (.*) possède plusieurs (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) nommé (.*)",
+        "entité (.*) possède plusieurs (.*) nommés (.*)",
+        "entité (.*) possède plusieurs (.*) nommées (.*)",
+        "entité (.*) a plusieurs (.*) appelé (.*)",
+        "entité (.*) a plusieurs (.*) appelés (.*)",
+        "entité (.*) a plusieurs (.*) appelées (.*)",
+        "entité (.*) a plusieurs (.*) nommé (.*)",
+        "entité (.*) a plusieurs (.*) nommés (.*)",
+        "entité (.*) a plusieurs (.*) nommées (.*)",
+        "l'entité (.*) possède plusieurs (.*) appelé (.*)",
+        "l'entité (.*) possède plusieurs (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) nommé (.*)",
+        "l'entité (.*) possède plusieurs (.*) nommés (.*)",
+        "l'entité (.*) possède plusieurs (.*) nommées (.*)",
+        "l'entité (.*) a plusieurs (.*) appelé (.*)",
+        "l'entité (.*) a plusieurs (.*) appelés (.*)",
+        "l'entité (.*) a plusieurs (.*) appelées (.*)",
+        "l'entité (.*) a plusieurs (.*) nommé (.*)",
+        "l'entité (.*) a plusieurs (.*) nommés (.*)",
+        "l'entité (.*) a plusieurs (.*) nommées (.*)",
     ],
     "relationshipHasManyPreset": [
         "entity (.*) has many preset (.*)",
         "entity (.*) has many existing (.*)",
+
+        "entity (.*) has many preset (.*) called (.*)",
+        "entity (.*) has many existing (.*) called (.*)",
+        "entity (.*) has many preset (.*) with name (.*)",
+        "entity (.*) has many existing (.*) with name (.*)",
+
         "l'entité (.*) a plusieurs (.*) prédéfini",
         "l'entité (.*) a plusieurs (.*) prédéfinis",
         "l'entité (.*) a plusieurs (.*) prédéfinie",
@@ -1503,6 +1581,7 @@ var training = {
         "l'entité (.*) a plusieurs (.*) déjà existants",
         "l'entité (.*) a plusieurs (.*) déjà existante",
         "l'entité (.*) a plusieurs (.*) déjà existantes",
+
         "entité (.*) a plusieurs (.*) prédéfini",
         "entité (.*) a plusieurs (.*) prédéfinis",
         "entité (.*) a plusieurs (.*) prédéfinie",
@@ -1520,11 +1599,6 @@ var training = {
         "entité (.*) a plusieurs (.*) déjà existante",
         "entité (.*) a plusieurs (.*) déjà existantes",
 
-        "entity (.*) has many preset (.*) called (.*)",
-        "entity (.*) has many existing (.*) called (.*)",
-        "entity (.*) has many preset (.*) with name (.*)",
-        "entity (.*) has many existing (.*) with name (.*)",
-
         "l'entité (.*) a plusieurs (.*) prédéfini appelé (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfinis appelés (.*)",
         "l'entité (.*) a plusieurs (.*) prédéfinie appelée (.*)",
@@ -1541,6 +1615,7 @@ var training = {
         "l'entité (.*) a plusieurs (.*) déjà existants appelés (.*)",
         "l'entité (.*) a plusieurs (.*) déjà existante appelée (.*)",
         "l'entité (.*) a plusieurs (.*) déjà existantes appelées (.*)",
+
         "entité (.*) a plusieurs (.*) prédéfini appelé (.*)",
         "entité (.*) a plusieurs (.*) prédéfinis appelés (.*)",
         "entité (.*) a plusieurs (.*) prédéfinie appelée (.*)",
@@ -1556,7 +1631,143 @@ var training = {
         "entité (.*) a plusieurs (.*) déjà existant appelé (.*)",
         "entité (.*) a plusieurs (.*) déjà existants appelés (.*)",
         "entité (.*) a plusieurs (.*) déjà existante appelée (.*)",
-        "entité (.*) a plusieurs (.*) déjà existantes appelées (.*)"
+        "entité (.*) a plusieurs (.*) déjà existantes appelées (.*)",
+
+        "l'entité (.*) a plusieurs (.*) prédéfini nommé (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinis nommés (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinie nommée (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfinies nommées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfini nommé (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinis nommés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinie nommée (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà prédéfinies nommées (.*)",
+        "l'entité (.*) a plusieurs (.*) existant nommé (.*)",
+        "l'entité (.*) a plusieurs (.*) existants nommés (.*)",
+        "l'entité (.*) a plusieurs (.*) existante nommée (.*)",
+        "l'entité (.*) a plusieurs (.*) existantes nommées (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existant nommé (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existants nommés (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existante nommée (.*)",
+        "l'entité (.*) a plusieurs (.*) déjà existantes nommées (.*)",
+
+        "entité (.*) a plusieurs (.*) prédéfini nommé (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinis nommés (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinie nommée (.*)",
+        "entité (.*) a plusieurs (.*) prédéfinies nommées (.*)",
+        "entité (.*) a plusieurs (.*) existant nommé (.*)",
+        "entité (.*) a plusieurs (.*) existants nommés (.*)",
+        "entité (.*) a plusieurs (.*) existante nommée (.*)",
+        "entité (.*) a plusieurs (.*) existantes nommées (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfini nommé (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinis nommés (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinie nommée (.*)",
+        "entité (.*) a plusieurs (.*) déjà prédéfinies nommées (.*)",
+        "entité (.*) a plusieurs (.*) déjà existant nommé (.*)",
+        "entité (.*) a plusieurs (.*) déjà existants nommés (.*)",
+        "entité (.*) a plusieurs (.*) déjà existante nommée (.*)",
+        "entité (.*) a plusieurs (.*) déjà existantes nommées (.*)",
+
+        "l'entité (.*) possède plusieurs (.*) prédéfini",
+        "l'entité (.*) possède plusieurs (.*) prédéfinis",
+        "l'entité (.*) possède plusieurs (.*) prédéfinie",
+        "l'entité (.*) possède plusieurs (.*) prédéfinies",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfini",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinis",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinie",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinies",
+        "l'entité (.*) possède plusieurs (.*) existant",
+        "l'entité (.*) possède plusieurs (.*) existants",
+        "l'entité (.*) possède plusieurs (.*) existante",
+        "l'entité (.*) possède plusieurs (.*) existantes",
+        "l'entité (.*) possède plusieurs (.*) déjà existant",
+        "l'entité (.*) possède plusieurs (.*) déjà existants",
+        "l'entité (.*) possède plusieurs (.*) déjà existante",
+        "l'entité (.*) possède plusieurs (.*) déjà existantes",
+
+        "entité (.*) possède plusieurs (.*) prédéfini",
+        "entité (.*) possède plusieurs (.*) prédéfinis",
+        "entité (.*) possède plusieurs (.*) prédéfinie",
+        "entité (.*) possède plusieurs (.*) prédéfinies",
+        "entité (.*) possède plusieurs (.*) existant",
+        "entité (.*) possède plusieurs (.*) existants",
+        "entité (.*) possède plusieurs (.*) existante",
+        "entité (.*) possède plusieurs (.*) existantes",
+        "entité (.*) possède plusieurs (.*) déjà prédéfini",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinis",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinie",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinies",
+        "entité (.*) possède plusieurs (.*) déjà existant",
+        "entité (.*) possède plusieurs (.*) déjà existants",
+        "entité (.*) possède plusieurs (.*) déjà existante",
+        "entité (.*) possède plusieurs (.*) déjà existantes",
+
+        "l'entité (.*) possède plusieurs (.*) prédéfini appelé (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfinis appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfinie appelée (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfinies appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfini appelé (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinis appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinie appelée (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinies appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant appelé (.*)",
+        "l'entité (.*) possède plusieurs (.*) existants appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) existante appelée (.*)",
+        "l'entité (.*) possède plusieurs (.*) existantes appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existant appelé (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existants appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existante appelée (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existantes appelées (.*)",
+
+        "entité (.*) possède plusieurs (.*) prédéfini appelé (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfinis appelés (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfinie appelée (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfinies appelées (.*)",
+        "entité (.*) possède plusieurs (.*) existant appelé (.*)",
+        "entité (.*) possède plusieurs (.*) existants appelés (.*)",
+        "entité (.*) possède plusieurs (.*) existante appelée (.*)",
+        "entité (.*) possède plusieurs (.*) existantes appelées (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfini appelé (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinis appelés (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinie appelée (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinies appelées (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existant appelé (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existants appelés (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existante appelée (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existantes appelées (.*)",
+
+        "l'entité (.*) possède plusieurs (.*) prédéfini nommé (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfinis nommés (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfinie nommée (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfinies nommées (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfini nommé (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinis nommés (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinie nommée (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà prédéfinies nommées (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant nommé (.*)",
+        "l'entité (.*) possède plusieurs (.*) existants nommés (.*)",
+        "l'entité (.*) possède plusieurs (.*) existante nommée (.*)",
+        "l'entité (.*) possède plusieurs (.*) existantes nommées (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existant nommé (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existants nommés (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existante nommée (.*)",
+        "l'entité (.*) possède plusieurs (.*) déjà existantes nommées (.*)",
+
+        "entité (.*) possède plusieurs (.*) prédéfini nommé (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfinis nommés (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfinie nommée (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfinies nommées (.*)",
+        "entité (.*) possède plusieurs (.*) existant nommé (.*)",
+        "entité (.*) possède plusieurs (.*) existants nommés (.*)",
+        "entité (.*) possède plusieurs (.*) existante nommée (.*)",
+        "entité (.*) possède plusieurs (.*) existantes nommées (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfini nommé (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinis nommés (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinie nommée (.*)",
+        "entité (.*) possède plusieurs (.*) déjà prédéfinies nommées (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existant nommé (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existants nommés (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existante nommée (.*)",
+        "entité (.*) possède plusieurs (.*) déjà existantes nommées (.*)"
     ],
     "relationshipHasManyPresetUsing": [
         "entity (.*) has many preset (.*) using (.*)",
@@ -1571,22 +1782,6 @@ var training = {
         "entity (.*) has many existing (.*) using the field (.*)",
         "entity (.*) has many preset (.*) through the field (.*)",
         "entity (.*) has many existing (.*) through the field (.*)",
-        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*)",
-        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*)",
-        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*)",
-        "l'entité (.*) a plusieurs (.*) existant en affichant (.*)",
-        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*)",
-        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
-        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
-        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
-        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*)",
-        "entité (.*) a plusieurs (.*) existant en utilisant (.*)",
-        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*)",
-        "entité (.*) a plusieurs (.*) existant en affichant (.*)",
-        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*)",
-        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
-        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
-        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
 
         "entity (.*) has many preset (.*) using (.*) called (.*)",
         "entity (.*) has many existing (.*) using (.*) called (.*)",
@@ -1613,6 +1808,24 @@ var training = {
         "entity (.*) has many existing (.*) using the field (.*) with name (.*)",
         "entity (.*) has many preset (.*) through the field (.*) with name (.*)",
         "entity (.*) has many existing (.*) through the field (.*) with name (.*)",
+
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
+        "l'entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
+        "l'entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
+
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*)",
+        "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*)",
+        "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*)",
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*)",
 
         "l'entité (.*) a plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
         "l'entité (.*) a plusieurs (.*) existant en utilisant (.*) appelés (.*)",
@@ -1646,7 +1859,59 @@ var training = {
         "entité (.*) a plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
         "entité (.*) a plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
         "entité (.*) a plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
-        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)"
+        "entité (.*) a plusieurs (.*) existant en affichant le champ (.*) appelées (.*)",
+
+        "l'entité (.*) possède plusieurs (.*) prédéfini en utilisant (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en utilisant (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en affichant (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en affichant (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en utilisant le champ (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en utilisant le champ (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en affichant le champ (.*)",
+
+        "entité (.*) possède plusieurs (.*) prédéfini en utilisant (.*)",
+        "entité (.*) possède plusieurs (.*) existant en utilisant (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en affichant (.*)",
+        "entité (.*) possède plusieurs (.*) existant en affichant (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en utilisant le champ (.*)",
+        "entité (.*) possède plusieurs (.*) existant en utilisant le champ (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*)",
+        "entité (.*) possède plusieurs (.*) existant en affichant le champ (.*)",
+
+        "l'entité (.*) possède plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en utilisant (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en affichant (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en affichant (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en utilisant le champ (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en affichant le champ (.*) appelés (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en utilisant (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en utilisant (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en affichant (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en affichant (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
+        "l'entité (.*) possède plusieurs (.*) existant en affichant le champ (.*) appelées (.*)",
+
+        "entité (.*) possède plusieurs (.*) prédéfini en utilisant (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) existant en utilisant (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en affichant (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) existant en affichant (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en utilisant le champ (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) existant en utilisant le champ (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) existant en affichant le champ (.*) appelés (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en utilisant (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) existant en utilisant (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en affichant (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) existant en affichant (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en utilisant le champ (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
+        "entité (.*) possède plusieurs (.*) existant en affichant le champ (.*) appelées (.*)"
     ],
     "createFieldRelatedToMultiple": [
         "create field (.*) related to multiple (.*)",
@@ -1830,7 +2095,6 @@ var training = {
         "ajouter le formulaire de contact nommé (.*)",
         "créer formulaire de contact nommé (.*)",
         "ajouter formulaire de contact nommé (.*)"
-
     ],
     "createNewComponentContactForm": [
         "create component contactform",
@@ -1845,6 +2109,41 @@ var training = {
         "ajouter composant formulaire de contact",
         "créer formulaire de contact",
         "ajouter formulaire de contact"
+    ],
+    "deleteComponentContactFormWithName": [
+        "delete component contactform with name (.*)",
+        "delete component contact form with name (.*)",
+        "remove component contactform with name (.*)",
+        "remove component contact form with name (.*)",
+
+        "delete component contactform called (.*)",
+        "delete component contact form called (.*)",
+        "remove component contactform called (.*)",
+        "remove component contact form called (.*)",
+
+        "supprimer un composant formulaire de contact appelé (.*)",
+        "supprimer composant formulaire de contact appelé (.*)",
+        "supprimer le composant formulaire de contact appelé (.*)",
+        "supprimer un formulaire de contact appelé (.*)",
+        "supprimer le formulaire de contact appelé (.*)",
+        "supprimer formulaire de contact appelé (.*)",
+
+        "supprimer un composant formulaire de contact nommé (.*)",
+        "supprimer composant formulaire de contact nommé (.*)",
+        "supprimer le composant formulaire de contact nommé (.*)",
+        "supprimer un formulaire de contact nommé (.*)",
+        "supprimer le formulaire de contact nommé (.*)",
+        "supprimer formulaire de contact nommé (.*)"
+    ],
+    "deleteComponentContactForm": [
+        "delete component contactform",
+        "delete component contact form",
+        "remove component contactform",
+        "remove component contact form",
+        "supprimer un composant formulaire de contact",
+        "supprimer un formulaire de contact",
+        "supprimer composant formulaire de contact",
+        "supprimer formulaire de contact"
     ],
     "createNewComponentAgenda": [
         "create component agenda",
@@ -2123,7 +2422,7 @@ var training = {
         "mettre le thème (.*)",
         "mettre thème (.*)"
     ],
-    "listIcon" : [
+    "listIcon": [
         "list icon",
         "list icons",
         "lister les icones",
@@ -2200,6 +2499,8 @@ var training = {
     "createWidget": [
         "add widget (.*)",
         "create widget (.*)",
+        "ajouter widget (.*)",
+        "créer widget (.*)",
         "ajouter une (.*)",
         "ajouter un widget (.*)",
         "créer une (.*)",
@@ -2223,6 +2524,16 @@ var training = {
         "supprimer tous les widgets de (.*)",
         "supprimer les widgets de l'entité (.*)",
         "supprimer tous les widgets de l'entité (.*)"
+    ],
+    "createComponentDocumentTemplate": [
+        "add component document template",
+        "ajouter un composant document template",
+        "ajouter composant document template"
+    ],
+    "deleteComponentDocumentTemplate": [
+        "delete component document template",
+        "supprimer le composant document template",
+        "supprimer composant document template"
     ]
 };
 // ******* Parse *******
@@ -2262,7 +2573,7 @@ exports.parse = function (instruction) {
 }
 
 // ******* Completion *******
-exports.complete = function(instruction) {
+exports.complete = function (instruction) {
 
     var answers = [];
     var p = 0;
@@ -2381,8 +2692,8 @@ exports.complete = function(instruction) {
 
     // Filter array of results (remove double values)
     var i, j, len = answers.length,
-        out = [],
-        obj = {};
+            out = [],
+            obj = {};
     for (i = 0; i < len; i++)
         obj[answers[i]] = 0;
     for (j in obj)
