@@ -100,7 +100,7 @@ exports.restart = function (attr, callback) {
 }
 
 exports.installNodePackage = function (attr, callback) {
-    structure_application.installAppModules().then(function(){
+    structure_application.installAppModules().then(function () {
         var info = {
             message: "structure.global.npmInstall.success"
         };
@@ -1854,7 +1854,7 @@ exports.createNewComponentStatus = function (attr, callback) {
         attr.showSource = source_entity.name;
         attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
 
-        if(attr.history_table.length >= 30){
+        if (attr.history_table.length >= 30) {
             var err = new Error();
             err.message = "error.valueTooLong";
             return callback(err, null);
@@ -2443,44 +2443,39 @@ exports.createNewComponentAddress = function (attr, callback) {
         db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function (err, alreadyExist) {
             if (!err) {
                 if (!alreadyExist) {
-                    db_module.getModuleById(attr.id_module, function (err, module) {
+                    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
                         if (!err) {
-                            db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                                if (!err) {
-                                    attr.id_module = module.id;
-                                    attr.componentCodeName = componentCodeName;
-                                    attr.options.name = attr.options.componentName;
-                                    attr.entityCodeName = entity.codeName;
-                                    attr.componentCodeName = componentCodeName;
-                                    attr.componentName = attr.options.componentName;
-                                    attr.moduleName = module.codeName;
-
-                                    var associationOption = {
-                                        idApp: attr.id_application,
-                                        source: entity.codeName,
-                                        target: componentCodeName,
-                                        foreignKey: 'fk_id_c_address',
-                                        as: 'r_address',
-                                        showAs: "",
-                                        structureType: "hasOne",
-                                        relation: "belongsTo",
-                                        toSync: true
-                                    };
-                                    // Créer le lien belongsTo en la source et la target
-                                    structure_data_entity.setupAssociation(associationOption, function () {
-                                        db_component.createNewComponentOnEntity(attr, function (err, info) {
-                                            if (!err) {
-                                                structure_component.addNewComponentAddress(attr, function (err) {
-                                                    if (err)
-                                                        return callback(err);
-                                                    callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
-                                                });
-                                            } else
+                            attr.componentCodeName = componentCodeName;
+                            attr.options.name = attr.options.componentName;
+                            attr.entityCodeName = entity.codeName;
+                            attr.componentName = attr.options.componentName;
+                            attr.moduleName = module.codeName;
+                            attr.options.showValue = attr.options.componentName;
+                            attr.options.value = componentCodeName;
+                            var associationOption = {
+                                idApp: attr.id_application,
+                                source: entity.codeName,
+                                target: componentCodeName,
+                                foreignKey: 'fk_id_c_address',
+                                as: 'c_address',
+                                showAs: "",
+                                structureType: "hasOne",
+                                relation: "belongsTo",
+                                targetType: "component",
+                                toSync: true
+                            };
+                            // Créer le lien belongsTo en la source et la target
+                            structure_data_entity.setupAssociation(associationOption, function () {
+                                db_component.createNewComponentOnEntity(attr, function (err, info) {
+                                    if (!err) {
+                                        structure_component.addNewComponentAddress(attr, function (err) {
+                                            if (err)
                                                 return callback(err);
+                                            callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
                                         });
-                                    });
-                                } else
-                                    return callback(err);
+                                    } else
+                                        return callback(err);
+                                });
                             });
                         } else
                             return callback(err);
@@ -2508,20 +2503,20 @@ exports.deleteComponentAddress = function (attr, callback) {
                 db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
                     if (!err) {
                         database.dropDataEntity(attr.id_application, componentName, function (err) {
-                            db_module.getModuleById(attr.id_module, function (err, module) {
+                            db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
                                 if (!err) {
-                                    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                                        if (!err) {
-                                            attr.entityName = entity.codeName;
-                                            attr.moduleName = module.codeName;
-                                            structure_component.deleteComponentAddress(attr, function (err) {
-                                                if (err)
-                                                    return callback(err);
-                                                else
-                                                    callback(null, {message: 'database.component.delete.success'});
-                                            });
-                                        } else
+                                    attr.entityName = entity.codeName;
+                                    attr.moduleName = module.codeName;
+                                    structure_component.deleteComponentAddress(attr, function (err) {
+                                        if (err)
                                             return callback(err);
+                                        else {
+                                            attr.name_data_entity = attr.entityName;
+                                            attr.fieldToDrop = 'fk_id_c_address';
+                                            database.dropFKDataField(attr, function (err) {
+                                                callback(err, {message: 'database.component.delete.success'});
+                                            });
+                                        }
                                     });
                                 } else
                                     return callback(err);
@@ -2540,7 +2535,6 @@ exports.deleteComponentAddress = function (attr, callback) {
 
     });
 }
-
 /************************Create Component Template document***********************/
 /**
  * 

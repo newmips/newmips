@@ -19,11 +19,11 @@ var config = {
             addInForm: true, //if true add it in form
             type: 'number', //type of field,  must be html type, default text,
             maxLength: '',
-            label: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name
+            apiField: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name
             defaultValue: '',
             sql: {
                 type: 'INTEGER',
-                newmipsType: "string",
+                newmipsType: "number",
                 defaultValue: null
             },
             lang: {
@@ -37,7 +37,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             maxLength: '',
-            label: 'street',
+            apiField: 'street',
             defaultValue: '',
             sql: {
                 type: 'STRING',
@@ -55,7 +55,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             max: '',
-            label: 'complement1',
+            apiField: 'complement1',
             defaultValue: '',
             sql: {
                 type: 'STRING',
@@ -75,11 +75,11 @@ var config = {
             maxLength: '',
             minLength: '',
             pattern:"[0-9]{5}",
-            label: 'postcode',
+            apiField: 'postcode',
             defaultValue: '',
             sql: {
                 type: 'INTEGER',
-                newmipsType: "string",
+                newmipsType: "number",
                 defaultValue: null
             },
             lang: {
@@ -93,7 +93,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             max: '',
-            label: 'city',
+            apiField: 'city',
             defaultValue: '',
             sql: {
                 type: 'STRING',
@@ -111,7 +111,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             max: '',
-            label: 'country',
+            apiField: 'country',
             defaultValue: 'FRANCE',
             sql: {
                 type: 'STRING',
@@ -130,7 +130,7 @@ var config = {
             addInForm: false,
             type: 'text', //
             max: '',
-            label: 'place',
+            apiField: 'place',
             defaultValue: '',
             sql: {
                 type: 'STRING'
