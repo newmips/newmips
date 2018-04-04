@@ -49,7 +49,8 @@ if (lang_user == "fr-FR") {
 
 // tables needs to be global
 var tables = [];
-$(document).ready(function() {
+
+function simpleTable(table) {
 	var options = {
 		"responsive": true,
 		"language": str_language,
@@ -94,28 +95,31 @@ $(document).ready(function() {
 		]
 	}
 
+	if(typeof table.data("custom-order") !== "undefined" && typeof table.data("custom-order-index") !== "undefined")
+		options.order = [[table.data("custom-order-index"), table.data("custom-order")]];
+	else
+		options.order = [];
+	tables[table.attr('id')] = table.DataTable(options);
+}
+
+$(document).ready(function() {
 	// Init DataTable
 	$(".dataTable").each(function() {
-		if(typeof $(this).data("custom-order") !== "undefined" && typeof $(this).data("custom-order-index") !== "undefined")
-			options.order = [[$(this).data("custom-order-index"), $(this).data("custom-order")]];
-		else
-			options.order = [];
-		tables[$(this).attr('id')] = $(this).DataTable(options);
-	});
-
-	$(".dataTable thead.main th").each(function(idx){
-		if($(this).data("hidden") == 1){
-			// Hide hidden column
-			$(this).hide();
-			$("td[data-field='"+$(this).data("field")+"']").hide();
-		} else if($(this).text() == ""){
-			// Remove unused action button th & td
-			if($("td").eq(idx).text() == ""){
-				$(this).remove();
-				$(".dataTable tbody tr").each(function(){
-					$(this).find("td:eq("+idx+")").remove();
-				});
+		simpleTable($(this));
+		$(this).find("thead.main th").each(function(idx){
+			if($(this).data("hidden") == 1){
+				// Hide hidden column
+				$(this).hide();
+				$("td[data-field='"+$(this).data("field")+"']").hide();
+			} else if($(this).text() == ""){
+				// Remove unused action button th & td
+				if($("td").eq(idx).text() == ""){
+					$(this).remove();
+					$(".dataTable tbody tr").each(function(){
+						$(this).find("td:eq("+idx+")").remove();
+					});
+				}
 			}
-		}
+		});
 	});
 });
