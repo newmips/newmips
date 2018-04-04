@@ -52,9 +52,6 @@ function initForm(context) {
     $("select:not(.ajax)", context).select2();
 
     /* Display color td with fa classes instead of color value */
-    $("td[data-type=color]", context).each(function() {
-
-    /* Display color td with fa classes instead of color value */
     $("td[data-type=color]", context).each(function () {
         if ($(this).find('i').length > 0)
             return;
