@@ -74,6 +74,8 @@
         $(document).ready(function(){
             /* Make the table horizontaly scrollable with mouse drag on it */
             var x,y,top,left = 0,down;
+            /* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
+            var scrolling = false;
 
             $("tbody").css("cursor", "pointer");
 
@@ -86,16 +88,20 @@
 
             $("tbody").mousemove(function(e){
                 if(down){
+                    scrolling = true;
                     var newX=e.pageX;
                     $(".table-responsive").scrollLeft(left-newX+x);
                 }
             });
 
-            $("tbody").mouseup(function(e){down=false;});
-            $("tbody").mouseleave(function(e){down=false;});
+            $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+            $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
 
-            $('tbody').on('click', 'tr', function () {
-                window.location = $(this).find('td > a.btn-show:first').attr('href');
+            $('tbody').on('click', 'tr', function (e) {
+                if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger"))
+                    return;
+                if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
+                    window.location = $(this).find('td > a.btn-show:first').attr('href');
             });
         });
     </script>
