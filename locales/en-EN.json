@@ -63,7 +63,8 @@
         "add": "Add",
         "documentation": "Documentation",
         "cancel": "Cancel",
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "help": "Help"
     },
     "home": {
         "header": "Welcome to Newmips !",
