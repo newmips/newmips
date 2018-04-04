@@ -216,6 +216,12 @@ function recursiveExecute(req, instructions, idx) {
             // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
             if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
                 structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
+                    // Write source script in generated workspace
+                    var historyPath = __dirname+'/../workspace/'+scriptData[req.session.passport.user.id].ids.id_application+"/history_script.nps";
+                    var instructionsToWrite = instructions.slice().splice(mandatoryInstructions.length + 2).join("\n");
+                    instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
+                    fs.writeFileSync(historyPath, instructionsToWrite);
+
                     execute(req, instructions[idx]).then(function() {
                         scriptData[req.session.passport.user.id].doneInstruction++;
                         resolve(recursiveExecute(req, instructions, idx + 1));
@@ -436,7 +442,16 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     for(var entity in toSyncObject){
                         if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
-                            delete toSyncObject[entity].options;
+                            // We have to remove options from toSync.json that will be generate with sequelize sync
+                            // But we have to keep relation toSync on already existing entities
+                            if(typeof toSyncObject[entity].options !== "undefined"){
+                                var cleanOptions = [];
+                                for(var i=0; i<toSyncObject[entity].options.length; i++){
+                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
+                                        cleanOptions.push(toSyncObject[entity].options[i]);
+                                }
+                                toSyncObject[entity].options = cleanOptions;
+                            }
                         }
                     }
 
@@ -652,7 +667,16 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     for(var entity in toSyncObject){
                         if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
-                            delete toSyncObject[entity].options;
+                            // We have to remove options from toSync.json that will be generate with sequelize sync
+                            // But we have to keep relation toSync on already existing entities
+                            if(typeof toSyncObject[entity].options !== "undefined"){
+                                var cleanOptions = [];
+                                for(var i=0; i<toSyncObject[entity].options.length; i++){
+                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
+                                        cleanOptions.push(toSyncObject[entity].options[i]);
+                                }
+                                toSyncObject[entity].options = cleanOptions;
+                            }
                         }
                     }
 

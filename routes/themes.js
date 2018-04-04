@@ -9,6 +9,7 @@ var through = require('through2');
 var multer = require('multer');
 var moment = require("moment");
 var attrHelper = require('../utils/attr_helper');
+var helper = require('../utils/helpers');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
@@ -94,11 +95,17 @@ router.post('/upload_theme', multer({
 }).single('themefile'), function(req, res) {
     if(req.file.size < 15000000){
         if(req.file.mimetype == "application/zip" || req.file.mimetype == "application/x-zip-compressed"){
+            var checkTheme = {
+                css: false,
+                info: false,
+                screenshot: false
+            };
             // Looking for infos.json
             fs.createReadStream('./' + req.file.path)
                 .pipe(unzip.Parse())
                 .on('entry', function(entry) {
                     if (entry.path.indexOf('infos.json') != -1) {
+                        checkTheme.info = true;
                         entry.pipe(through.obj(function(contents) {
                             var infoData = JSON.parse(contents);
                             // Create new theme folder
@@ -131,6 +138,7 @@ router.post('/upload_theme', multer({
                                             if(filePath.indexOf("/css/") != -1){
                                                 if(fileExt == "css"){
                                                     writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css/"+fileName);
+                                                    checkTheme.css = true;
                                                     entry.pipe(writeStream);
                                                 } else {
                                                     notHandlingFile(filePath);
@@ -152,6 +160,7 @@ router.post('/upload_theme', multer({
                                             } else if(filePath.indexOf("infos.json") != -1){
                                                 if(fileExt == "json"){
                                                     writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
+                                                    checkTheme.info = true;
                                                     entry.pipe(writeStream);
                                                 } else {
                                                     notHandlingFile(filePath);
@@ -159,6 +168,7 @@ router.post('/upload_theme', multer({
                                             } else if(filePath.indexOf("screenshot.png") != -1){
                                                 if(fileExt == "png"){
                                                     writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
+                                                    checkTheme.screenshot = true;
                                                     entry.pipe(writeStream);
                                                 } else {
                                                     notHandlingFile(filePath);
@@ -172,16 +182,35 @@ router.post('/upload_theme', multer({
                                         req.session.toastr = [{level: 'error', message: "Sorry, an internal error occured."}];
                                         res.redirect("/themes");
                                     }).on('close', function(){
-                                        req.session.toastr = [{level: 'success', message: "Theme successfully imported !"}];
-                                        res.redirect("/themes");
+                                        if(checkTheme.css && checkTheme.info && checkTheme.screenshot){
+                                            req.session.toastr = [{level: 'success', message: "structure.ui.theme.successUpload"}];
+                                            res.redirect("/themes");
+                                        } else {
+                                            helper.rmdirSyncRecursive(__dirname + "/../structure/template/public/themes/"+themeCodeName);
+                                            var message = "";
+                                            if(!checkTheme.css)
+                                                message = "structure.ui.theme.missingCss"
+                                            if(!checkTheme.info)
+                                                message = "structure.ui.theme.missingInfo"
+                                            if(!checkTheme.screenshot)
+                                                message = "structure.ui.theme.missingScreenshot"
+                                            req.session.toastr = [{level: 'error', message: message}];
+                                            res.redirect("/themes");
+                                        }
                                     });
                             } else {
-                                req.session.toastr = [{level: 'error', message: "Error, this theme name already exist, please rename the theme folder and the .zip."}];
+                                req.session.toastr = [{level: 'error', message: "structure.ui.theme.alreadyExist"}];
                                 res.redirect("/themes");
                             }
                         }))
                     } else {
                         entry.autodrain();
+                    }
+                }).on('close', function(){
+                    if(!checkTheme.info){
+                        var message = "structure.ui.theme.missingInfo"
+                        req.session.toastr = [{level: 'error', message: message}];
+                        res.redirect("/themes");
                     }
                 });
         } else {

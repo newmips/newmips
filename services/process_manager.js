@@ -8,6 +8,7 @@ var path = require('path');
 
 var AnsiToHTML = require('ansi-to-html');
 var ansiToHtml = new AnsiToHTML();
+var moment = require('moment');
 
 var child_url = '';
 
@@ -29,12 +30,13 @@ exports.launchChildProcess = function(id_application, env) {
             if ((data + '').indexOf("/status") == -1)
                 child_url = (data + '').split('::')[1];
         } else{
-            allLogStream.write('<span style="color:#00ffff;">App Log:</span>  ' + ansiToHtml.toHtml(data.toString()) + "\n");
+            allLogStream.write('<span style="color:#00ffff;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
             console.log('\x1b[36m%s\x1b[0m', 'App Log: ' + data);
         }
     });
 
     process_server.stderr.on('data', function(data) {
+        allLogStream.write('<span style="color: red;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
         console.log('\x1b[31m%s\x1b[0m', 'App Err: ' + data);
     });
 

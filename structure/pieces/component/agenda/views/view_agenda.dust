@@ -44,18 +44,16 @@
                     </div>
                 </div>
                 <div class="box-body">
-                	<div id="selectCategory">
-	                	<select style="width: 100%;" class="form-control">
-	                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
-							{#categories}
-								<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
-							{/categories}
-						</select>
-						<div style="margin-top: 10px;" class="input-group">
-							<input id="new-event-title" type="text" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
-							<div class="input-group-btn">
-								<button id="add-new-event" type="button" class="btn btn-success btn-flat">{@__ key="button.add"/}</button>
-							</div>
+                	<select style="width: 100%;" class="form-control selectCategoryColor" id="selectCategorySide">
+                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
+						{#categories}
+							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
+						{/categories}
+					</select>
+					<div style="margin-top: 10px;" class="input-group">
+						<input id="new-event-title" type="text" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
+						<div class="input-group-btn">
+							<button id="add-new-event" type="button" class="btn btn-success btn-flat">{@__ key="button.add"/}</button>
 						</div>
 					</div>
                 </div>
@@ -89,6 +87,76 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="eventCreateModal" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">Créer un évenement</h4>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="modalCreateStartDate" />
+					<select style="width: 100%;" class="form-control selectCategoryColor" id="modalCreateCategory">
+						<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
+						{#categories}
+							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
+						{/categories}
+					</select>
+					<div style="margin-top: 10px;width: 100%;" class="input-group">
+						<input type="text" id="modalCreateTitle" placeholder='{@__ key="entity.e_agenda_event.f_title"/}' class="form-control" autofocus/>
+					</div>
+					<div style="margin-top: 10px" class='bootstrap-timepicker'>
+                		<div class='input-group'>
+                			<div class='input-group-addon'>
+                				<i class='fa fa-clock-o'></i>
+                			</div>
+                			<input class='form-control input timepicker' id="modalCreateStartTime" type='text' />
+                		</div>
+                	</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="createEvent" >Sauvegarder</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="eventUpdateModal" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">Modifier un évenement</h4>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="modalUpdateEventID" />
+					<input type="hidden" id="modalUpdateID" />
+                	<select style="width: 100%;" class="form-control selectCategoryColor" id="modalUpdateCategory">
+                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
+						{#categories}
+							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
+						{/categories}
+					</select>
+					<div style="margin-top: 10px;width: 100%;" class="input-group">
+						<input type="text" id="modalUpdateTitle" placeholder='{@__ key="entity.e_agenda_event.f_title"/}' class="form-control" autofocus/>
+					</div>
+					<div style="margin-top: 10px" class='bootstrap-timepicker'>
+                		<div class='input-group'>
+                			<div class='input-group-addon'>
+                				<i class='fa fa-clock-o'></i>
+                			</div>
+                			<input class='form-control input timepicker' id="modalUpdateStartTime" type='text' />
+                		</div>
+                	</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="updateEvent" >Sauvegarder</button>
+					<button type="button" class="btn btn-danger" id="deleteEvent" data-dismiss="modal">Supprimer</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+				</div>
+			</div>
+		</div>
+	</div>
 {/content}
 
 {<custom_js}
@@ -103,7 +171,7 @@
 		{#.ressourceIds}
 			<script>resourceIdsArray.push({.})</script>
 		{/.ressourceIds}
-		<script>calendarEvents.push({eventId:{eventId}, title: "{title}", start: moment("{start}").format("YYYY-MM-DD HH:mm:ss"), end: moment("{end}").format("YYYY-MM-DD HH:mm:ss"), allDay:"{allDay}", url:"{url}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", resourceIds: resourceIdsArray});</script>
+		<script>calendarEvents.push({eventId:{eventId}, title: "{title}", start: moment.utc("{start}").format("YYYY-MM-DD HH:mm:ss"), end: moment.utc("{end}").format("YYYY-MM-DD HH:mm:ss"), allDay:"{allDay}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", resourceIds: resourceIdsArray});</script>
 	{/events}
 	<script>var usersRessources = [];</script>
 	{#users}
@@ -114,6 +182,10 @@
 
 			$("*").tooltip({
 				disabled: true
+			});
+
+			$('.modal').on('shown.bs.modal', function() {
+				$(this).find('[autofocus]').focus();
 			});
 
 			if(lang_user == "fr-FR"){
@@ -139,6 +211,7 @@
 		            customTimelineWeek: "Timeline/Week"
 		        };
 			}
+
 			/* Full calendat init */
 			$('#calendar').fullCalendar({
 				schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
@@ -170,18 +243,15 @@
 				droppable: true,
 				resourceAreaWidth:"15%",
 				defaultTimedEventDuration: "04:00:00",
+        		timezone: 'UTC',
 		        eventReceive: function(event){
 
 		        	/*event.end is null, so set it to start + the number of hours you want*/
-		        	event.end = moment(event.start).add(4, "h");
+		        	event.end = moment.utc(event.start).add(4, "h");
 
 		        	/* Convert into good SQL format */
-		        	var startDate = moment(event.start).format("YYYY-MM-DD HH:mm:ss");
-        			var endDate = moment(event.end).format("YYYY-MM-DD HH:mm:ss");
-
-        			/* Convert the result in UTC, new newmips standard */
-        			startDate = moment.utc(new Date(startDate));
-        			endDate = moment.utc(new Date(endDate));
+		        	var startDate = moment.utc(event.start).format("YYYY-MM-DD HH:mm:ss");
+        			var endDate = moment.utc(event.end).format("YYYY-MM-DD HH:mm:ss");
 
 		        	var ajaxData = {
 		        		title: event.title,
@@ -200,7 +270,7 @@
 						contentType: "application/json",
 						context: this,
 						success: function (data) {
-							event.url = "/URL_EVENT/show?id="+data.idEvent;
+							/*event.url = "/URL_EVENT/show?id="+data.idEvent;*/
 							event.eventId = data.idEvent;
 							$('#calendar').fullCalendar('updateEvent', event);
 						},
@@ -215,10 +285,6 @@
 		        	var startDate = moment(event.start).format("YYYY-MM-DD HH:mm:ss");
         			var endDate = moment(event.end).format("YYYY-MM-DD HH:mm:ss");
 
-        			/* Convert the result in UTC, new newmips standard */
-        			startDate = moment.utc(new Date(startDate));
-        			endDate = moment.utc(new Date(endDate));
-
 		        	var ajaxData = {
 		        		eventId: event.eventId,
 		        		start: startDate,
@@ -232,8 +298,6 @@
 						dataType : 'json',
 						contentType: "application/json",
 						context: this,
-						success: function (data) {
-						},
 						error: function (error) {
 							console.log(error);
 						}
@@ -242,12 +306,10 @@
 		        eventDrop: function(event){
 
 		        	/* Convert into good SQL format */
-		        	var startDate = moment(event.start).format("YYYY-MM-DD HH:mm:ss");
-        			var endDate = moment(event.end).format("YYYY-MM-DD HH:mm:ss");
-
-        			/* Convert the result in UTC, new newmips standard */
-        			startDate = moment.utc(new Date(startDate));
-        			endDate = moment.utc(new Date(endDate));
+		        	var startDate = moment.utc(event.start).format("YYYY-MM-DD HH:mm:ss");
+        			if(event.end == null)
+		        		event.end = moment.utc(event.start).add(4, "h");
+        			var endDate = moment.utc(event.end).format("YYYY-MM-DD HH:mm:ss");
 
 		        	var ajaxData = {
 		        		eventId: event.eventId,
@@ -258,25 +320,130 @@
 		        	};
 
 		        	$.ajax({
-						url : '/URL_ROUTE/update_event',
+						url : '/URL_ROUTE/update_event_drop',
 						type : 'POST',
 						data : JSON.stringify(ajaxData),
 						dataType : 'json',
 						contentType: "application/json",
 						context: this,
-						success: function (data) {
-							/*event.url = "/agenda_event/show?id="+data.idEvent;
-							event.eventId = data.idEvent;
-							$('#calendar').fullCalendar('updateEvent', event);*/
-						},
 						error: function (error) {
 							console.log(error);
 						}
 					});
 		        },
+		        eventClick: function(calEvent, jsEvent, view) {
+					$("#modalUpdateEventID").val(calEvent.eventId);
+					$("#modalUpdateID").val(calEvent._id);
+					$("#modalUpdateTitle").val(calEvent.title);
+					$("#modalUpdateStartTime").val(moment(calEvent.start).format("HH:mm"));
+					if(calEvent.categoryId != 0)
+						$("#modalUpdateCategory").val(calEvent.categoryId).trigger("change");
+					$('#eventUpdateModal').modal('show');
+				},
+				dayClick: function(date, jsEvent, view) {
+					$("#modalCreateStartDate").val(date._d);
+					$("#modalCreateStartTime").val(moment.utc(date._d).format("HH:mm"));
+					$("#modalCreateTitle").val("");
+					$("#modalCreateCategory").val("").trigger("change");
+					$('#eventCreateModal').modal('show');
+				},
 		        resourceLabelText: ressourceName,
 				resources: usersRessources,
 				events: calendarEvents
+			});
+
+			$(document).on("click", "#deleteEvent", function(){
+				var idEventToDelete = $("#modalUpdateEventID").val();
+				var idEventCalendarToDelete = $("#modalUpdateID").val();
+				$.ajax({
+					url : '/URL_ROUTE/delete_event',
+					type : 'POST',
+					data : JSON.stringify({id: idEventToDelete}),
+					dataType : 'json',
+					contentType: "application/json",
+					context: this,
+					success: function (data) {
+						$("#calendar").fullCalendar('removeEvents', idEventCalendarToDelete);
+						$('#eventUpdateModal').modal('hide');
+					},
+					error: function (error) {
+						console.log(error);
+					}
+				});
+			});
+
+			$(document).on("click", "#updateEvent", function(){
+				var idEventToDelete = $("#modalUpdateEventID").val();
+				var idEventCalendarToDelete = $("#modalUpdateID").val();
+
+				var newTitle = $("#modalUpdateTitle").val();
+				var newCategory = $("#modalUpdateCategory").val();
+				var newCategoryColor = $("#modalUpdateCategory").find("option:selected").data("backgroundcolor");
+
+				var eventObj = $("#calendar").fullCalendar('clientEvents', idEventCalendarToDelete);
+
+				var startDate = eventObj[0].start.format("YYYY-MM-DD HH:mm:ss").split(" ");
+				var chosenTime = moment($("#modalUpdateStartTime").val(), "HH:mm").format("HH:mm");
+				var newStartDate = startDate[0]+ " " + chosenTime + ":00";
+
+				$.ajax({
+					url : '/URL_ROUTE/update_event',
+					type : 'POST',
+					data : JSON.stringify({id: idEventToDelete, f_title: newTitle, f_start_date:newStartDate, r_category: newCategory}),
+					dataType : 'json',
+					contentType: "application/json",
+					context: this,
+					success: function (data) {
+						eventObj[0].start = moment.utc(newStartDate);
+						eventObj[0].title = newTitle;
+						eventObj[0].categoryId = newCategory;
+						eventObj[0].backgroundColor = newCategoryColor;
+						eventObj[0].borderColor = newCategoryColor;
+						$('#calendar').fullCalendar('updateEvent', eventObj[0]);
+						$('#calendar').fullCalendar("refetchEvents");
+						$('#eventUpdateModal').modal('hide');
+					},
+					error: function (error) {
+						console.log(error);
+					}
+				});
+			});
+
+			$(document).on("click", "#createEvent", function(){
+
+				var newTitle = $("#modalCreateTitle").val();
+				var newCategory = $("#modalCreateCategory").val();
+				var newCategoryColor = $("#modalCreateCategory").find("option:selected").data("backgroundcolor");
+
+				var startDate = moment($("#modalCreateStartDate").val()).format("YYYY-MM-DD HH:mm:ss").split(" ");
+				var chosenTime = moment($("#modalCreateStartTime").val(), "HH:mm").format("HH:mm");
+				var newStartDate = startDate[0]+ " " + chosenTime + ":00";
+
+				var ajaxData = {
+					title: newTitle,
+					start: newStartDate,
+					end: newStartDate,
+					allday: 0,
+					idCategory: newCategory || null
+				};
+
+				$.ajax({
+					url : '/URL_ROUTE/add_event',
+					type : 'POST',
+					data : JSON.stringify(ajaxData),
+					dataType : 'json',
+					contentType: "application/json",
+					context: this,
+					success: function (data) {
+
+						var newEvent = {eventId: data.idEvent, title: newTitle, start: newStartDate, allday: false, backgroundColor: newCategoryColor, borderColor: newCategoryColor, idCategory: ajaxData.idCategory};
+						$('#calendar').fullCalendar( 'renderEvent', newEvent, true);
+						$('#eventCreateModal').modal('hide');
+					},
+					error: function (error) {
+						console.log(error);
+					}
+				});
 			});
 
 			/* Sidebar menu highlighting */

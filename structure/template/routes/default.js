@@ -225,4 +225,53 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
     }
 });
 
+/* Select 2 AJAX LOAD */
+router.post('/select2_search', block_access.isLoggedIn, function (req, res) {
+    var or = [];
+    for (var i = 0; i < req.body.searchFields.length; i++) {
+        var obj = {};
+        obj[req.body.searchFields[i]] = {
+            $like: "%" + req.body.search + "%"
+        }
+        or.push(obj);
+    }
+    var attributes = ["id"];
+
+    for (var k = 0; k < req.body.searchFields.length; k++) {
+        attributes.push(req.body.searchFields[k]);
+    }
+
+    var where = {
+        where: {
+            $or: or
+        },
+        attributes: attributes
+    };
+    models[req.body.entity].findAll(where).then(function (results) {
+        var data = [];
+
+        /* Format data for select2 */
+        for (var j = 0; j < results.length; j++) {
+            var text = "";
+            for (var k = 0; k < req.body.searchFields.length; k++) {
+                if (results[j][req.body.searchFields[k]] != null && results[j][req.body.searchFields[k]] != "") {
+                    text += results[j][req.body.searchFields[k]] + " - ";
+                }
+            }
+
+            //Remove last -
+            text = text.substring(0, text.length - 3);
+
+            /* TODO - color in results the search part, but the difficulty is to keep lower en upper case in result */
+            /*text = text.replace(new RegExp(req.body.search, 'ig'), "<span style='color:red;'>$1</span>");*/
+
+            data.push({
+                id: results[j].id,
+                text: text
+            });
+        }
+        res.send(data);
+    });
+});
+
 module.exports = router;
