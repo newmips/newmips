@@ -1,6 +1,6 @@
 {
-	"name": "Material Blue",
-	"main_color": "#0073b7",
+	"name": "Material Green",
+	"main_color": "#00a65a",
 	"author": "Newmips",
 	"js": [
 		"material.min.js",

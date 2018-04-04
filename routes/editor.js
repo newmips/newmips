@@ -14,7 +14,7 @@ var models = require('../models/');
 var re = /(?:\.([^.]+))?$/;
 
 // Exclude folder from editor
-var excludeFolder = ["node_modules", "sql", "services", "utils", "upload", ".git"];
+var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
 // ===========================================

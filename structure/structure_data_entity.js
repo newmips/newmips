@@ -32,6 +32,8 @@ exports.setupAssociation = function (associationOption, callback) {
         baseOptions.through = through;
         baseOptions.foreignKey = "fk_id_" + source;
         baseOptions.otherKey = "fk_id_" + target;
+        if(source == target)
+            baseOptions.otherKey += "_bis";
     }
 
     if (type != null)
@@ -121,7 +123,17 @@ exports.setupDataEntity = function (attr, callback) {
     function createModelAttributesFile(idApplication, nameDataEntity, callback) {
         // CREATE MODEL ATTRIBUTES FILE
         var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/models/attributes/' + nameDataEntity.toLowerCase() + '.json');
-        var baseAttributes = {"id": {"type": "INTEGER", "autoIncrement": true, "primaryKey": true}, "version": {"type": "INTEGER"}};
+        var baseAttributes = {
+            "id": {
+                "type": "INTEGER",
+                "autoIncrement": true,
+                "primaryKey": true
+            },
+            "version": {
+                "type": "INTEGER",
+                "defaultValue": 1
+            }
+        };
         writeStream.write(JSON.stringify(baseAttributes, null, 4));
         writeStream.end();
         writeStream.on('finish', function () {

@@ -15,10 +15,14 @@ module.exports = function(modelName, params, speInclude, speWhere) {
         start = parseInt(start);
         length = parseInt(length);
 
-        // Building where values -> {$or: [{id: 'id'}, {name: {$like: '%jero%'}}]};
-        var search = {
-            $or: []
-        };
+        var searchType = "$or";
+        if(params.search.value == "")
+            searchType = "$and";
+
+        // Building where values -> {$and: [{id: 'id'}, {name: {$like: '%jero%'}}]};
+        var search = {};
+        search[searchType] = [];
+
         for (var i = 0; i < params.columns.length; i++) {
             var column = params.columns[i];
             var descriptor;
@@ -58,7 +62,7 @@ module.exports = function(modelName, params, speInclude, speWhere) {
                         };
                     }
                     if (Object.keys(orRow).length)
-                        search.$or.push(orRow);
+                        search[searchType].push(orRow);
                 }
                 // Global search
                 if (params.search.value != '') {
@@ -68,7 +72,7 @@ module.exports = function(modelName, params, speInclude, speWhere) {
                         orRow[column.data] = {
                             $like: '%' + params.search.value + '%'
                         };
-                        search.$or.push(orRow);
+                        search[searchType].push(orRow);
                     } else
                         updateInclude(column);
                 }
@@ -146,7 +150,7 @@ module.exports = function(modelName, params, speInclude, speWhere) {
 
         // Building final query object
         var where = speWhere;
-        if (search.$or.length == 0)
+        if (search[searchType].length == 0)
             where = {
                 order: order,
                 limit: length,
