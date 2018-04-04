@@ -50,9 +50,15 @@ $(document).ready(function() {
         };
     }
 
-    function autoFormatSelection() {
+    function autoFormatSelection(cm) {
         var range = getSelectedRange();
-        myEditor.autoFormatRange(range.from, range.to);
+        var from = range.from;
+        var to = range.to;
+        if(range.from.line == range.to.line){
+            from = CodeMirror.Pos(cm.firstLine(), 0);
+            to = CodeMirror.Pos(cm.lastLine()+1, 0);
+        }
+        myEditor.autoFormatRange(from, to);
     }
 
     var isAlreadyFolded = false;
@@ -84,7 +90,7 @@ $(document).ready(function() {
                 }
             },
             "Ctrl-=": function(cm) {
-                autoFormatSelection();
+                autoFormatSelection(cm);
             }
         },
         lineNumbers: true,

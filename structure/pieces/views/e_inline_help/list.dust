@@ -94,13 +94,13 @@
                 }
             });
 
-            $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 700);});
-            $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 700);});
+            $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+            $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
 
-            $('tbody').on('click', 'tr', function () {
-                if ($(this).find('.dataTables_empty').length > 0)
+            $('tbody').on('click', 'tr', function (e) {
+                if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger"))
                     return;
-                if(!scrolling)
+                if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
                     window.location = $(this).find('td > a.btn-show:first').attr('href');
             });
         });

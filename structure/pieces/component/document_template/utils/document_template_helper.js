@@ -170,7 +170,7 @@ module.exports = {
                         attributes: relationAttributes,
                         options: options[relation.target]
                     };
-                    if (relation.relation === "belongsTo") {
+                    if (relation.relation === "belongsTo" || relation.relation === "hasOne") {
                         result[relation.as] = object[relation.as].dataValues;
                         this.cleanData(result[relation.as], entityModelData, userLang, fileType);
                         setCreatedAtAndUpdatedAtValues(result[relation.as], object[relation.as].dataValues, userLang);
@@ -206,7 +206,6 @@ module.exports = {
                         var format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
                         object[item] = moment(object[item]).format(format);
                     }
-                    //we doesn't have customType password to detect password type in attributes, so we use field name for the moment
                     if ((attribute.newmipsType === "password")) {
                         object[item] = '';
                     }
@@ -217,7 +216,7 @@ module.exports = {
                         } else
                             object[item] = langMessage[userLang || lang].fields.boolean[(object[item] + '').toLowerCase()];
                     }
-                    //text area field, docxtemplater doesn't support(free) html tag so we replace all
+                    //text area field, docxtemplater(free) doesn't support html tag so we replace all
                     if (attribute.newmipsType === "text") {
                         object[item] = object[item].replace(/<[^>]+>/g, ' ');//tag
                         object[item] = object[item].replace(/&[^;]+;/g, ' ');//&nbsp
@@ -336,8 +335,8 @@ module.exports = {
                             + "</pre><br>"
                             + "<b> " + langMessage[userLang || lang].nl + "</b> <br>"
                             + langMessage[userLang || lang].empty + ": <br>"
-                            + "{#" + relation.target.replace('e_', 'r_') + "}<b>{variable}</b><br>"
-                            + "{/" + relation.target.replace('e_', 'r_') + "}<br><br>";
+                            + "<pre>{#" + relation.target.replace('e_', 'r_') + "}<b>{variable}</b><br>"
+                            + "{/" + relation.target.replace('e_', 'r_') + "}</pre><br><br>";
                 var entity = relation.target.replace('e_', '');
                 result.push({
                     id: i + 1,
