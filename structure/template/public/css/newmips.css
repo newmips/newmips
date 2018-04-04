@@ -21,7 +21,7 @@ label.no-weight {
 /** Component Address**/
 .section_c_address{
     border:1px solid #dddddd;
-    margin: auto;
+    margin: 5px;
 }
 .div_c_address_search{
     margin-top: -16px;

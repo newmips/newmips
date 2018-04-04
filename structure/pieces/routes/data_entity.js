@@ -11,6 +11,7 @@ var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var component_helper = require('../utils/component_helper');
 var globalConfig = require('../config/global');
 
 // Enum and radio managment
@@ -42,7 +43,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
             for (var i = 0; i < data.data.length; i++)
                 statusPromises.push(entity_helper.status.currentStatus(models, "ENTITY_NAME", data.data[i], attributes, req.session.lang_user));
 
-        Promise.all(statusPromises).then(function() {
+        Promise.all(statusPromises).then(function () {
             // Replace data enum value by translated value for datalist
             var enumsTranslation = enums_radios.translated("ENTITY_NAME", req.session.lang_user, options);
             var todo = [];
@@ -80,7 +81,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
             }
             //check if we have to get some picture buffer before send data
             if (todo.length) {
-                var counter=0;
+                var counter = 0;
                 for (var i = 0; i < todo.length; i++) {
                     (function (task) {
                         file_helper.getFileBuffer64(task.file, function (success, buffer) {
@@ -143,7 +144,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
             ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
             entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
             res.render('ENTITY_NAME/show', data);
-       });
+        });
 
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
@@ -182,17 +183,17 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
 
     models.MODEL_NAME.create(createObject).then(function (ENTITY_NAME) {
-        var redirect = '/ENTITY_URL_NAME/show?id='+ENTITY_NAME.id;
+        var redirect = '/ENTITY_URL_NAME/show?id=' + ENTITY_NAME.id;
         req.session.toastr = [{
-            message: 'message.create.success',
-            level: "success"
-        }];
+                message: 'message.create.success',
+                level: "success"
+            }];
 
         var promises = [];
 
         if (typeof req.body.associationFlag !== 'undefined') {
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            promises.push(new Promise(function(resolve, reject) {
+            promises.push(new Promise(function (resolve, reject) {
                 models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
                     if (!association) {
                         ENTITY_NAME.destroy();
@@ -202,14 +203,14 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
                     }
 
                     var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
-                    if (typeof association['add' + modelName] !== 'undefined'){
-                        association['add' + modelName](ENTITY_NAME.id).then(resolve).catch(function(err){
+                    if (typeof association['add' + modelName] !== 'undefined') {
+                        association['add' + modelName](ENTITY_NAME.id).then(resolve).catch(function (err) {
                             reject(err);
                         });
                     } else {
                         var obj = {};
                         obj[req.body.associationForeignKey] = ENTITY_NAME.id;
-                        association.update(obj).then(resolve).catch(function(err){
+                        association.update(obj).then(resolve).catch(function (err) {
                             reject(err);
                         });
                     }
@@ -219,10 +220,12 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
         // because those values are not updated for now
-        model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function(){
-            Promise.all(promises).then(function() {
-                res.redirect(redirect);
-            }).catch(function(err){
+        model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function () {
+            Promise.all(promises).then(function () {
+                component_helper.setAddressIfComponentExist(ENTITY_NAME, options, req.body).then(function () {
+                    res.redirect(redirect);
+                });
+            }).catch(function (err) {
                 entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/create_form');
             });
         });
@@ -304,7 +307,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-
+        component_helper.updateAddressIfComponentExist(ENTITY_NAME,options, req.body);
         ENTITY_NAME.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
@@ -316,9 +319,9 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
                 req.session.toastr = [{
-                    message: 'message.update.success',
-                    level: "success"
-                }];
+                        message: 'message.update.success',
+                        level: "success"
+                    }];
 
                 res.redirect(redirect);
             });
@@ -330,12 +333,12 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
     });
 });
 
-router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
-    var historyModel = 'E_history_ENTITY_NAME_'+req.params.status;
-    var historyAlias = 'r_history_'+req.params.status.substring(2);
-    var statusAlias = 'r_'+req.params.status.substring(2);
+router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
+    var historyModel = 'E_history_ENTITY_NAME_' + req.params.status;
+    var historyAlias = 'r_history_' + req.params.status.substring(2);
+    var statusAlias = 'r_' + req.params.status.substring(2);
 
-    var errorRedirect = '/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME;
+    var errorRedirect = '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME;
 
     var includeTree = entity_helper.status.generateEntityInclude(models, 'ENTITY_NAME');
 
@@ -346,15 +349,15 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
         limit: 1,
         order: 'createdAt DESC',
         include: [{
-            model: models.E_status,
-            as: statusAlias
-        }]
+                model: models.E_status,
+                as: statusAlias
+            }]
     });
     models.MODEL_NAME.findOne({
         where: {id: req.params.id_ENTITY_URL_NAME},
         include: includeTree
-    }).then(function(ENTITY_NAME) {
-        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]){
+    }).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]) {
             logger.debug("Not found - Set status");
             return res.render('common/error', {error: 404});
         }
@@ -363,21 +366,21 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
         models.E_status.findOne({
             where: {id: ENTITY_NAME[historyAlias][0][statusAlias].id},
             include: [{
-                model: models.E_status,
-                as: 'r_children',
+                    model: models.E_status,
+                    as: 'r_children',
                     include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: 'f_position ASC',
-                    include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: {all: true, nested: true}
-                    }]
+                            model: models.E_action,
+                            as: 'r_actions',
+                            order: 'f_position ASC',
+                            include: [{
+                                    model: models.E_media,
+                                    as: 'r_media',
+                                    include: {all: true, nested: true}
+                                }]
+                        }]
                 }]
-            }]
-        }).then(function(current_status) {
-            if (!current_status || !current_status.r_children){
+        }).then(function (current_status) {
+            if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
                 return res.render('common/error', {error: 404});
             }
@@ -387,44 +390,47 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             var nextStatus = false;
             for (var i = 0; i < children.length; i++) {
                 if (children[i].id == req.params.id_new_status)
-                    {nextStatus = children[i]; break;}
+                {
+                    nextStatus = children[i];
+                    break;
+                }
             }
             // Unautorized
-            if (nextStatus === false){
+            if (nextStatus === false) {
                 req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
+                        level: 'error',
+                        message: 'component.status.error.illegal_status'
+                    }]
                 return res.redirect(errorRedirect);
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(ENTITY_NAME).then(function() {
+            nextStatus.executeActions(ENTITY_NAME).then(function () {
                 // Create history record for this status field
                 // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
                 var createObject = {}
-                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
-                    ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+                models[historyModel].create(createObject).then(function () {
+                    ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.error(err);
                 req.session.toastr = [{
-                    level: 'warning',
-                    message: 'component.status.error.action_error'
-                }]
+                        level: 'warning',
+                        message: 'component.status.error.action_error'
+                    }]
                 var createObject = {}
-                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
-                    ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+                models[historyModel].create(createObject).then(function () {
+                    ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
             });
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error500(err, req, res, errorRedirect);
     });
 });
@@ -495,9 +501,9 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             }
         }).then(function () {
             req.session.toastr = [{
-                message: 'message.delete.success',
-                level: "success"
-            }];
+                    message: 'message.delete.success',
+                    level: "success"
+                }];
 
             var redirect = '/ENTITY_URL_NAME/list';
             if (typeof req.body.associationFlag !== 'undefined')

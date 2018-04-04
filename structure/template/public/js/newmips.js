@@ -74,11 +74,11 @@ $(document).ready(function () {
         modalOpen = true;
     });
 
-    $("#inlineHelp").on('hide.bs.modal', function() {
+    $("#inlineHelp").on('hide.bs.modal', function () {
         modalOpen = false;
     });
 
-    $(document).keypress(function(e) {
+    $(document).keypress(function (e) {
         if (modalOpen == false)
             return;
         var code = e.keyCode || e.which;
@@ -133,13 +133,13 @@ $(document).ready(function () {
         }
     });
 
-    $(".print-tab select[multiple]").each(function() {
-        if ($(this).val() == null){
+    $(".print-tab select[multiple]").each(function () {
+        if ($(this).val() == null) {
             $(this).replaceWith("<br>-");
         } else {
             var selectContent = "<br>";
-            for(var i=0; i<$(this).val().length; i++){
-                if(i > 0)
+            for (var i = 0; i < $(this).val().length; i++) {
+                if (i > 0)
                     selectContent += ",&nbsp;";
                 selectContent += $(this).val()[i];
             }
@@ -156,11 +156,11 @@ $(document).ready(function () {
             $(this).replaceWith("-");
     });
 
-    $(".print-tab input[data-type='email']").each(function() {
+    $(".print-tab input[data-type='email']").each(function () {
         $(this).parent().removeClass("input-group");
     });
 
-    $(".print-tab .input-group-addon").each(function() {
+    $(".print-tab .input-group-addon").each(function () {
         $(this).remove();
     });
 
@@ -180,7 +180,7 @@ $(document).ready(function () {
         formGroup.html(htmlToWrite);
     });
 
-    $(".print-tab input[type='checkbox']").each(function() {
+    $(".print-tab input[type='checkbox']").each(function () {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
         var htmlToWrite = "<b>" + label + "</b>\n";
@@ -315,10 +315,10 @@ $(document).ready(function () {
     });
 
     /* --------------- Max length on input number --------------- */
-    $("input[type='number']").keyup(function(e) {
-        if(typeof $(this).data("customtype") === "undefined")
+    $("input[type='number']").keyup(function (e) {
+        if (typeof $(this).data("customtype") === "undefined")
             if (this.value.length > 10)
-                this.value = this.value.slice(0,10);
+                this.value = this.value.slice(0, 10);
     });
 
     /* --------------- Initialisation des DateTimepicker --------------- */
@@ -618,7 +618,7 @@ $(document).ready(function () {
         }
     };
 
-    $(this).find("input[data-type='barcode']").each(function() {
+    $(this).find("input[data-type='barcode']").each(function () {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
@@ -630,8 +630,8 @@ $(document).ready(function () {
         }
     });
 
-    $(this).find("input[data-type='code39'],input[data-type='alpha39']").each(function() {
-        $(this).on('keyup', function() {
+    $(this).find("input[data-type='code39'],input[data-type='alpha39']").each(function () {
+        $(this).on('keyup', function () {
             $(this).val($(this).val().toUpperCase());
         });
     });
@@ -992,6 +992,71 @@ $(document).ready(function () {
             }
         });
     });
+
+    //Component address
+    (function () {
+        var c_address_config = $('#c_address_config').val();
+        if (!!c_address_config) {
+            try {
+                c_address_config = JSON.parse(c_address_config);
+            } catch (e) {
+                c_address_config = undefined;
+            }
+        }
+        if (typeof c_address_config !== 'undefined') {
+            if (c_address_config.enable) {
+                $('.c_address_field').on('keyup', function () {
+                    $(this).val($(this).val().toUpperCase());
+                });
+                $('#c_address_search').each(function () {
+                    var result;
+                    var fieldsToShow = c_address_config.autocomplete_field.split(',');
+                    $(this).autocomplete({
+                        minLength: 1,
+                        source: function (req, res) {
+                            var val = $('#c_address_search').val();
+                            var data = {limit: 10};
+                            data[c_address_config.query_parm] = val;
+                            $.ajax({
+                                url: c_address_config.url,
+                                type: c_address_config.type,
+                                data: data,
+                                dataType: 'json',
+                                success: function (data) {
+                                    result = c_address_config.arraydata !== '.' ? data[c_address_config.arraydata] : data;
+                                    res($.map(result, function (_address) {
+                                        var objet = c_address_config.whereisdata !== '.' ? _address[c_address_config.whereisdata] : _address;
+                                        var toReturn = '';
+                                        fieldsToShow.forEach(function (field) {
+                                            toReturn += objet[field] + ' ';
+                                        });
+                                        return toReturn;
+                                    }));
+                                }
+                            });
+                        },
+                        select: function (e, ui) {
+                            result.forEach(function (_address) {
+                                var toReturn = '';
+                                _address = c_address_config.whereisdata !== '.' ? _address[c_address_config.whereisdata] : _address;
+                                var toReturn = '';
+                                fieldsToShow.forEach(function (field) {
+                                    toReturn += _address[field] + ' ';
+                                });
+                                if (ui.item.value == toReturn) {
+                                    for (var key in _address) {
+                                        if (_address[key] != '') //to prevent to replace default value
+                                            $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+        }
+    }());
+
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
         window.print();

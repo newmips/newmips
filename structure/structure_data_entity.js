@@ -17,6 +17,7 @@ exports.setupAssociation = function (associationOption, callback) {
     var through = associationOption.through;
     var toSync = associationOption.toSync;
     var type = associationOption.type;
+    var targetType = associationOption.targetType;
 
     // SETUP MODEL OPTIONS FILE
     var optionsFileName = './workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
@@ -33,14 +34,15 @@ exports.setupAssociation = function (associationOption, callback) {
         baseOptions.foreignKey = "fk_id_" + source;
         baseOptions.otherKey = "fk_id_" + target;
     }
-
+    if (typeof targetType !== "undefined")
+        baseOptions.targetType = targetType;
     if (type != null)
         baseOptions.structureType = type;
     else
         baseOptions.structureType = "";
 
     // Save using field in related to and related to many fields
-    if(typeof associationOption.usingField !== "undefined")
+    if (typeof associationOption.usingField !== "undefined")
         baseOptions.usingField = associationOption.usingField;
 
     optionsObject.push(baseOptions);
