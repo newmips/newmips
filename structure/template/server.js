@@ -119,15 +119,6 @@ if (startedFromGenerator) {
 	});
 }
 
-app.get('/*', function(req, res, next) {
-    delete require.cache[require.resolve('./config/application.json')]
-    var appConf = require('./config/application.json');
-    if (appConf.maintenance == false)
-    	return next();
-
-	res.status(503).render('common/maintenance');
-});
-
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
     var lang = languageConfig.lang;
@@ -259,8 +250,18 @@ app.use(function(req, res, next) {
     next();
 });
 
-// Overload res.render to always get and reset toastr
 app.use(function(req, res, next) {
+	var redirect = res.redirect;
+	res.redirect = function(view) {
+		// If request comes from ajax call, no need to render show/list/etc.. pages, 200 status is enough
+		if (req.query.ajax) {
+			req.session.toastr = [];
+			return res.sendStatus(200);
+		}
+		redirect.call(res, view);
+	}
+
+	// Overload res.render to always get and reset toastr, load notifications and inline-help helper
     var render = res.render;
     res.render = function(view, locals, cb) {
     	if(typeof locals === "undefined")
@@ -292,9 +293,14 @@ app.use(function(req, res, next) {
         	locals.notifications = notifications.rows;
 
 	        // Load inline-help when rendering create or update page
-	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1) {
+	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
 	    		var entityName = view.split('/')[0];
-	    		models.E_inline_help.findAll({where: {f_entity: entityName}}).then(function(helps) {
+	    		var options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
+	    		var entityList = [entityName];
+	    		for (var i = 0; i < options.length; i++)
+	    			entityList.push(options[i].target);
+
+	    		models.E_inline_help.findAll({where: {f_entity: {$in: entityList}}}).then(function(helps) {
 	    			dust.helpers.inline_help = function(ch, con, bod, params){
 	    				for (var i = 0; i < helps.length; i++) {
 	    					if (params.field == helps[i].f_field)
@@ -327,7 +333,7 @@ app.use(function(req, res, next) {
 
 // Handle 404
 app.use(function(req, res) {
-	res.status(400);
+	res.status(404);
 	res.render('common/404');
 });
 

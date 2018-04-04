@@ -12,6 +12,8 @@ var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
 var globalConfig = require('../config/global');
+var fs = require('fs-extra');
+var dust = require('dustjs-linkedin');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -119,10 +121,15 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
 
-    /* Looking for two level of include to get all associated data in show tab list */
-    var include = model_builder.getTwoLevelIncludeAll(models, options);
+    var relatedToList = [];
+    for (var i = 0; i < options.length; i++)
+        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple')
+            relatedToList.push({
+                model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
+                as: options[i].as
+            });
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: include}).then(function (ENTITY_NAME) {
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: relatedToList}).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -131,20 +138,13 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.ENTITY_NAME[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            // Update some data before show, e.g get picture binary
-            ENTITY_NAME = entity_helper.getPicturesBuffers(ENTITY_NAME, attributes, options, "ENTITY_NAME");
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
             entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
             res.render('ENTITY_NAME/show', data);
-       });
-
+        }).catch(function (err) {
+            entity_helper.error500(err, req, res, "/");
+        });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
     });
@@ -165,16 +165,8 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-
-        res.render('ENTITY_NAME/create', data);
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
+    var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
+    res.render(view, data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
@@ -247,39 +239,21 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
+    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: [{all: true}]}).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: [{all: true}]}).then(function (ENTITY_NAME) {
-            if (!ENTITY_NAME) {
-                data.error = 404;
-                return res.render('common/error', data);
+        data.ENTITY_NAME = ENTITY_NAME;
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
+            if (req.query.ajax) {
+                ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
+                res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
             }
-
-            data.ENTITY_NAME = ENTITY_NAME;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can find adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.ENTITY_NAME[name_global_list] = rows;
-
-                // Set associated property to item that are related to be able to make them selected client side
-                if (rows.length > 1)
-                    for (var j = 0; j < data[model].length; j++)
-                        if (ENTITY_NAME[model] != null)
-                            for (var k = 0; k < ENTITY_NAME[model].length; k++)
-                                if (data[model][j].id == ENTITY_NAME[model][k].id)
-                                    data[model][j].dataValues.associated = true;
-            }
-
-            req.session.toastr = [];
-            res.render('ENTITY_NAME/update', data);
+            else
+                res.render('ENTITY_NAME/update', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
         });
@@ -327,6 +301,103 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
         });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+    });
+});
+
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function(req, res) {
+    var alias = req.params.alias;
+    var id = req.params.id;
+
+    // Find tab option
+    var option;
+    for (var i = 0; i < options.length; i++)
+        if (options[i].as == req.params.alias)
+            {option = options[i]; break;}
+    if (!option)
+        return res.status(404).end();
+
+    // Check access rights to subentity
+    if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
+        return res.status(403).end();
+
+    // Fetch tab data
+    models.MODEL_NAME.findOne({
+        where: {id: id},
+        include: [{
+            model: models[entity_helper.capitalizeFirstLetter(option.target)],
+            as: option.as,
+            include: {all: true}
+        }]
+    }).then(function(ENTITY_URL_NAME) {
+        if (!ENTITY_URL_NAME)
+            return res.status(404).end();
+
+        var dustData = ENTITY_URL_NAME[option.as];
+        var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
+        var dustFile, idSubentity, promisesData = [];
+
+        // Build tab specific variables
+        switch (option.structureType) {
+            case 'hasOne':
+                if (!empty) {
+                    idSubentity = ENTITY_URL_NAME[option.as].id;
+                    ENTITY_URL_NAME[option.as].hideTab = true;
+                    dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
+                    promisesData.push(entity_helper.getPicturesBuffers(ENTITY_URL_NAME[option.as], option.target));
+                }
+                dustFile = option.target+'/show_fields';
+            break;
+
+            case 'hasMany':
+            case 'hasManyPreset':
+                dustFile = option.target+'/list_fields';
+                var obj = {};
+                obj[option.target] = dustData;
+                dustData = obj;
+                dustData.for = option.structureType == 'hasMany' ? 'hasMany' : 'fieldset';
+                for (var i = 0; i < dustData[option.target].length; i++)
+                    promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
+                if (typeof req.query.associationFlag !== 'undefined')
+                    {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
+            break;
+
+            case 'localfilestorage':
+                dustFile = option.target+'/list_fields';
+                var obj = {};
+                obj[option.target] = dustData;
+                dustData = obj;
+                dustData.sourceId = id;
+            break;
+
+            default:
+                return res.status(500).end();
+        }
+
+        // Image buffer promise
+        Promise.all(promisesData).then(function() {
+            // Open and render dust file
+            var file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
+            dust.renderSource(file, dustData || {}, function(err, rendered) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end();
+                }
+
+                // Send response to ajax request
+                res.json({
+                    content: rendered,
+                    data: idSubentity || {},
+                    empty: empty,
+                    option: option
+                });
+            });
+        }).catch(function(err) {
+            console.error(err);
+            res.status(500).send(err);
+        });
+    }).catch(function(err) {
+        console.error(err);
+        res.status(500).send(err);
     });
 });
 
@@ -429,6 +500,23 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     });
 });
 
+router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME','read'), function(req, res) {
+    var search = '%'+(req.body.search||'')+'%';
+    req.body.searchField.push('id');
+
+    var where = {raw:true, attributes: req.body.searchField};
+    if (search != '%%')
+        where.where[req.body.searchField] = {$like: search};
+
+    models.MODEL_NAME.findAll(where).then(function(results) {
+        res.json(results);
+    }).catch(function(e) {
+        console.error(e);
+        res.status(500).json(e);
+    });
+
+});
+
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
@@ -451,6 +539,8 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
             // Set back associations without removed entity
             ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
+            }).catch(function(err) {
+                entity_helper.error500(err, req, res, "/");
             });
         });
     }).catch(function (err) {
@@ -479,6 +569,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
 
         ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
+        }).catch(function(err) {
+            entity_helper.error500(err, req, res, "/");
         });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");

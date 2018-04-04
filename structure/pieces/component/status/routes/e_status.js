@@ -145,40 +145,44 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
             }
 
             // Update some data before show, e.g get picture binary
-            e_status = entity_helper.getPicturesBuffers(e_status, attributes, options, "e_status");
+            entity_helper.getPicturesBuffers(e_status, "e_status").then(function() {
+                var childrenIds = [];
+                for (var i = 0; i < e_status.r_children.length; i++) {
+                    var child = e_status.r_children[i];
+                    child.translate(req.session.lang_user);
+                    child.dataValues.selected = true;
+                    childrenIds.push(child.id);
+                }
 
-            var childrenIds = [];
-            for (var i = 0; i < e_status.r_children.length; i++) {
-                var child = e_status.r_children[i];
-                child.translate(req.session.lang_user);
-                child.dataValues.selected = true;
-                childrenIds.push(child.id);
-            }
+                var where = {
+                    f_field: e_status.f_field,
+                    f_entity: e_status.f_entity
+                };
+                if (childrenIds.length)
+                    where.id = {$notIn: childrenIds};
+                models.E_status.findAll({
+                    where: where,
+                    include: [{
+                        model: models.E_translation,
+                        as: 'r_translations'
+                    }]
+                }).then(function(allStatus) {
+                    for (var i = 0; i < allStatus.length; i++)
+                        allStatus[i].translate(req.session.lang_user)
+                    e_status.dataValues.all_children = allStatus.concat(e_status.r_children);
 
-            var where = {
-                f_field: e_status.f_field,
-                f_entity: e_status.f_entity
-            };
-            if (childrenIds.length)
-                where.id = {$notIn: childrenIds};
-            models.E_status.findAll({
-                where: where,
-                include: [{
-                    model: models.E_translation,
-                    as: 'r_translations'
-                }]
-            }).then(function(allStatus) {
-                for (var i = 0; i < allStatus.length; i++)
-                    allStatus[i].translate(req.session.lang_user)
-                e_status.dataValues.all_children = allStatus.concat(e_status.r_children);
+                    var entityTradKey = 'entity.'+e_status.f_entity+'.label_entity';
+                    e_status.f_field = 'entity.'+e_status.f_entity+'.'+e_status.f_field;
+                    e_status.f_entity = entityTradKey;
 
-                var entityTradKey = 'entity.'+e_status.f_entity+'.label_entity';
-                e_status.f_field = 'entity.'+e_status.f_entity+'.'+e_status.f_field;
-                e_status.f_entity = entityTradKey;
-
-                data.e_status = e_status;
-                res.render('e_status/show', data);
+                    data.e_status = e_status;
+                    res.render('e_status/show', data);
+                });
+            }).catch(function (err) {
+                entity_helper.error500(err, req, res, "/");
             });
+        }).catch(function (err) {
+            entity_helper.error500(err, req, res, "/");
         });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");

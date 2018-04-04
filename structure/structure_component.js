@@ -308,16 +308,19 @@ exports.newLocalFileStorage = function (attr, callback) {
                         var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, componentNameLower);
                         componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
                         componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
+                        fs.mkdirSync(__dirname + '/../workspace/' + attr.id_application + '/views/'+componentName, 0766);
+                        fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/views/'+componentName+'/list_fields.dust', componentContent, 'utf8');
 
                         var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{@__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
 
                         var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
                         var file = fileBase + '/show_fields.dust';
 
-                        printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function () {
+                        // printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function(){
                             // CREATE THE TAB IN SHOW FIELDS
-                            addTab(attr, file, newLi, componentContent).then(callback);
-                        });
+                            var newTab = '<div id="'+componentNameLower+'" class="ajax-tab tab-pane fade" data-tabtype="localfilestorage" data-asso-flag="{'+sourceLower+'.id}" data-asso-alias="'+componentNameLower+'"><div class="ajax-content"></div></div>';
+                            addTab(attr, file, newLi, newTab).then(callback);
+                        // });
                     });
                 });
             });
@@ -339,7 +342,7 @@ exports.newPrint = function (attr, callback) {
         var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{@__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
 
         var tabContent = "";
-        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane fade'>\n";
+        tabContent += "<div id='"+nameComponentLower+"' class='tab-pane fade' data-tabtype='print'>\n";
         tabContent += "     <style>";
         tabContent += "        @page { size: auto;  margin: 0mm; }";
         tabContent += "        @media print {";
@@ -396,11 +399,10 @@ exports.newPrint = function (attr, callback) {
         tabContent += "            }";
         tabContent += "        }";
         tabContent += "     </style>\n";
-        tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
-        tabContent += "     <div id='" + nameComponent + "-content' class='print-tab'>\n";
-        tabContent += "         {>\"" + entityLower + "/print_fields\"/}\n";
-        tabContent += "     </div>\n";
-        tabContent += "</div>\n";
+        tabContent += "     <button data-component='"+nameComponentLower+"' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
+        tabContent += "     <div id='"+nameComponent+"-content' class='ajax-content print-tab'>\n";
+		tabContent += "     </div>\n";
+		tabContent += "</div>\n";
 
         translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function () {
             addTab(attr, showFieldsPath, newLi, tabContent).then(callback);

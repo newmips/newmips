@@ -148,11 +148,13 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
             }
 
             // Update some data before show, e.g get picture binary
-            e_action = entity_helper.getPicturesBuffers(e_action, attributes, options, "e_action");
-            entity_helper.status.translate(e_action, attributes, req.session.lang_user);
-            res.render('e_action/show', data);
+            entity_helper.getPicturesBuffers(e_action, "e_action").then(function() {
+                entity_helper.status.translate(e_action, attributes, req.session.lang_user);
+                res.render('e_action/show', data);
+            }).catch(function (err) {
+                entity_helper.error500(err, req, res, "/");
+            });
        });
-
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
     });

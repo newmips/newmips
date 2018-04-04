@@ -15,11 +15,14 @@ var upload = multer().single('file');
 
 var config = require('../config/global');
 
-function error500(err, res) {
+function error500(err, req, res) {
     console.error(err);
     var data = {};
     data.error = 500;
-    res.render('common/error', data);
+    if (req.query.ajax)
+        res.status(500).send(data.error);
+    else
+        res.render('common/error', data);
 }
 
 function capitalizeFirstLetter(word) {
@@ -74,7 +77,7 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 
         res.redirect(redirect);
     }).catch(function(err){
-        error500(err, res);
+        error500(err, req, res);
     });
 });
 
@@ -83,47 +86,40 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
 
     // FONCTION UPLOAD DE FICHIER DE MULTER ( FICHIER DANS req.file )
     upload(req, res, function(err) {
-        if (!err) {
-            if(req.body.storageType == "local"){
-                /* ---------------------------------------------------------- */
-                /* ------------- Local Storage in upload folder ------------- */
-                /* ---------------------------------------------------------- */
-                fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
-                var uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
-                var byte;
-                var outStream = fs.createWriteStream(uploadPath);
-                outStream.write(req.file.buffer);
-                outStream.end();
-                outStream.on('finish', function(err){
-                    res.json({
-                        success: true
-                    });
-                });
-            }
-        } else {
+        if (err) {
             res.status(415);
-            console.log(err);
-            res.json({
+            return res.json({
                 success: false,
-                error: "Une erreur s'est produite."
+                error: "An error occured."
             });
         }
+        /* ---------------------------------------------------------- */
+        /* ------------- Local Storage in upload folder ------------- */
+        /* ---------------------------------------------------------- */
+        fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
+        var uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
+        var byte;
+        var outStream = fs.createWriteStream(uploadPath);
+        outStream.write(req.file.buffer);
+        outStream.end();
+        outStream.on('finish', function(err){
+            res.json({
+                success: true
+            });
+        });
     });
 });
 
 /* COMPONENT ajax download file */
 router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
+    /* ---------------------------------------------------------- */
+    /* ----------------- Download a local file ----------------- */
+    /* ---------------------------------------------------------- */
+    var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
+    var fileName = req.body.originalname;
 
-    if(req.body.storageType == "local"){
-        /* ---------------------------------------------------------- */
-        /* ----------------- Download a local file ----------------- */
-        /* ---------------------------------------------------------- */
-        var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
-        var fileName = req.body.originalname;
-
-        res.download(downloadPath, fileName, function(err) {
-        });
-    }
+    res.download(downloadPath, fileName, function(err) {
+    });
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
@@ -136,7 +132,11 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
     }).then(function(toRemoveComponent){
         if(toRemoveComponent){
 
-            fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
+            try {
+                fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
+            } catch(e) {
+                return error500(e, req, res);
+            }
             models.COMPONENT_NAME.destroy({
                 where: {
                     id: req.body.idRemove
@@ -148,7 +148,7 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
                 }];
                 res.redirect('/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.idEntity+'#COMPONENT_NAME_LOWER');
             }).catch(function(err){
-                error500(err, res);
+                error500(err, req, res);
             });
         }else{
             req.session.toastr = [{
