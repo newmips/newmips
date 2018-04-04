@@ -1,16 +1,16 @@
 {
-	"app": {
-		"name": "Application"
-	},
-	"notification": {
-		"deleteAll": "Delete all notifications",
-		"icon": {
-			"choose": "Choose icon"
-		}
-	},
-	"login": {
-		"log_in": "Log in",
-		"reset_password": {
+    "app": {
+        "name": "Application"
+    },
+    "notification": {
+        "deleteAll": "Delete all notifications",
+        "icon": {
+            "choose": "Choose icon"
+        }
+    },
+    "login": {
+        "log_in": "Log in",
+        "reset_password": {
             "title": "Forgotten password",
             "success": "Your password has been reset..",
             "successMail": "An email allowing you to reset your password has been sent to you.",
@@ -24,146 +24,149 @@
             "alreadyHavePassword": "Operation is not possible, this user already has a password.",
             "passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 4 characters."
         },
-		"authentication": "Connection",
-		"login": "Login",
-		"password": "Password",
-		"minimalLength": "(4 characters minimum)",
-		"confirm_password": "Confirm password",
-		"mail": "Email",
-		"remember_me": "Remember me",
-		"submit": "Submit"
-	},
-	"settings":{
-		"title": "Settings",
-		"auth_component": {
-			"access_managment": "Access managment per group",
-			"action_managment": "Action managment per role",
-			"moduleList": "Modules",
-			"entityList": "Entities",
-			"grouplist": "Groups:",
-			"rolelist": "Roles:",
-			"entitylist": "Entities:",
-			"group": "Group",
-			"role": "Role",
+        "authentication": "Connection",
+        "login": "Login",
+        "password": "Password",
+        "minimalLength": "(4 characters minimum)",
+        "confirm_password": "Confirm password",
+        "mail": "Email",
+        "remember_me": "Remember me",
+        "submit": "Submit"
+    },
+    "settings": {
+        "title": "Settings",
+        "auth_component": {
+            "access_managment": "Access managment per group",
+            "action_managment": "Action managment per role",
+            "moduleList": "Modules",
+            "entityList": "Entities",
+            "grouplist": "Groups:",
+            "rolelist": "Roles:",
+            "entitylist": "Entities:",
+            "group": "Group",
+            "role": "Role",
             "api_status": "API Status",
             "api_doc": "API Documentation",
-			"action":{
-				"read": "Show",
-				"create": "Create",
-				"update": "Update",
-				"delete": "Delete"
-			}
-		},
-		"legend": "Change your user settings",
-		"lang": "Language",
-		"login": "Login",
-		"email": "Email",
-		"firstname": "Firstname",
-		"lastname": "Lastname",
-		"phone": "Phone"
-	},
-	"navbar": {
-		"about": "About",
-		"help": "Help",
-		"support": "Support"
-	},
-	"select": {
-		"default": "-- Choose --"
-	},
-	"module": {
-		"home": "Home",
-		"module": "Module",
-    	"administration": "Administration",
-		"workspace": "My workspace"
-	},
-	"role": {
-		"administrator": "Administrator",
-		"developer": "Developer"
-	},
-	"button": {
-		"profile": "Profile",
-		"disconnect": "Disconnect",
-		"show": "Show",
-		"update": "Modify",
-		"delete": "Delete",
-		"create": "Create",
-		"list": "List",
-		"add": "Add",
-		"remove": "Remove",
-		"save": "Save",
-		"preview": "Preview",
-		"record": "Record",
-		"execute": "Execute",
-    	"settings": "Settings",
-    	"download": "Download",
-    	"search": "Search",
-    	"send": "Send",
-    	"validation": "Validate",
-    	"previous": "Previous",
-    	"next": "Next",
-    	"close": "Close",
-    	"cancel": "Cancel",
-    	"return": "Return"
-	},
-	"operation": {
-		"show": "Show",
-		"update": "Modify",
-		"create": "Create",
-		"delete": "Delete",
-		"list": "List",
-    	"add": "Add"
-	},
-	"message": {
-		"create": {
-			"success": "Success ! Data registered with success.",
-			"failure": "Error ! No data registered. May ask to your administrator."
-		},
-		"update": {
-			"success": "Success ! Data modified with success.",
-			"failure": "Error ! No data modified. May ask to your administrator."
-		},
-		"delete": {
-			"success": "Success ! Data deleted with success.",
-			"failure": "Error ! No data deleted. May ask to your administrator.",
-			"question": "Are you sure you want to delete this entity ?"
-		},
-		"empty": "No data to display"
-	},
-	"entity": {},
-	"global_component": {
-		"local_file_storage": {
-			"filename": "Filename"
-		},
-		"contact_form": {
-			"firstname": "Firstname",
-			"lastname": "Lastname",
-			"email": "Email",
-			"title": "Title",
-			"content": "Content"
-		},
-		"agenda": {
-			"menu" : "Agenda",
-			"add_event" : "Add new event",
-			"no_category": "No category",
-			"pending_event": "Pending event(s)"
-		},
+            "action": {
+                "read": "Show",
+                "create": "Create",
+                "update": "Update",
+                "delete": "Delete"
+            }
+        },
+        "legend": "Change your user settings",
+        "lang": "Language",
+        "login": "Login",
+        "email": "Email",
+        "firstname": "Firstname",
+        "lastname": "Lastname",
+        "phone": "Phone"
+    },
+    "navbar": {
+        "about": "About",
+        "help": "Help",
+        "support": "Support"
+    },
+    "select": {
+        "default": "-- Choose --"
+    },
+    "module": {
+        "home": "Home",
+        "module": "Module",
+        "administration": "Administration",
+        "workspace": "My workspace"
+    },
+    "role": {
+        "administrator": "Administrator",
+        "developer": "Developer"
+    },
+    "button": {
+        "profile": "Profile",
+        "disconnect": "Disconnect",
+        "show": "Show",
+        "update": "Modify",
+        "delete": "Delete",
+        "create": "Create",
+        "list": "List",
+        "add": "Add",
+        "remove": "Remove",
+        "save": "Save",
+        "preview": "Preview",
+        "record": "Record",
+        "execute": "Execute",
+        "settings": "Settings",
+        "download": "Download",
+        "search": "Search",
+        "send": "Send",
+        "validation": "Validate",
+        "previous": "Previous",
+        "next": "Next",
+        "close": "Close",
+        "generate": "Generate",
+        "help": "Help",
+        "cancel": "Cancel",
+        "return": "Return"
+    },
+    "operation": {
+        "show": "Show",
+        "update": "Modify",
+        "create": "Create",
+        "delete": "Delete",
+        "list": "List",
+        "add": "Add"
+    },
+    "message": {
+        "create": {
+            "success": "Success ! Data registered with success.",
+            "failure": "Error ! No data registered. May ask to your administrator."
+        },
+        "update": {
+            "success": "Success ! Data modified with success.",
+            "failure": "Error ! No data modified. May ask to your administrator."
+        },
+        "delete": {
+            "success": "Success ! Data deleted with success.",
+            "failure": "Error ! No data deleted. May ask to your administrator.",
+            "question": "Are you sure you want to delete this entity ?"
+        },
+        "empty": "No data to display",
+        "unique": "This field must be unique:"
+    },
+    "entity": {},
+    "global_component": {
+        "local_file_storage": {
+            "filename": "Filename"
+        },
+        "contact_form": {
+            "firstname": "Firstname",
+            "lastname": "Lastname",
+            "email": "Email",
+            "title": "Title",
+            "content": "Content"
+        },
+        "agenda": {
+            "menu": "Agenda",
+            "add_event": "Add new event",
+            "no_category": "No category",
+            "pending_event": "Pending event(s)"
+        },
         "print": {
             "action": "Print"
         }
-	},
-	"component": {},
-	"defaults": {
-		"widgets": {
-			"lastrecords": {
-				"label": "last records"
-			},
-			"stats": {
-				"more_info": "More info"
-			}
-		},
-		"createdAt": "Creation date"
-	},
-	"error": {
+    },
+    "component": {},
+    "defaults": {
+        "widgets": {
+            "lastrecords": {
+                "label": "last records"
+            },
+            "stats": {
+                "more_info": "More info"
+            }
+        },
+        "createdAt": "Creation date"
+    },
+    "error": {
         "404": {
             "title": "We could not find what you were looking for.",
             "title2": "Page not found.",

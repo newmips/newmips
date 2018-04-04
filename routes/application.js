@@ -39,7 +39,7 @@ var gitHelper = require('../utils/git_helper');
 var models = require('../models/');
 
 // Exclude from Editor
-var excludeFolder = ["node_modules", "sql", "services", "api", "utils", "upload", ".git"];
+var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
 // ====================================================
@@ -314,8 +314,12 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
             else
                 attr.gitlabUser = null;
 
-            if (typeof attr.error !== 'undefined')
-                throw new Error(attr.error);
+            if (typeof attr.error !== 'undefined'){
+                var err = new Error();
+                err.message = attr.error;
+                err.messageParams = attr.errorParams;
+                throw err;
+            }
             if (typeof designer[attr.function] !== 'function')
                 throw new Error("Designer doesn't have function "+attr.function);
 
@@ -442,8 +446,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
 
                                         if(toRedirectRestart){
                                             return res.redirect("/application/preview?id_application="+newAttr.id_application);
-                                        }
-                                        else{
+                                        } else {
                                             // Let's do git init or commit depending the env (only on cloud env for now)
                                             gitHelper.doGit(attr, function(err){
                                                 if(err)
@@ -458,23 +461,16 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                                 }
                                 // Check server has started
                                 console.log('Waiting for server to start');
-
                                 checkServer();
                             });
                         });
                     });
                 }
             });
-        } catch(e){
-
-            //data.answers = e.message + "\n\n" + answers;
-            console.log(e.message);
-
-            // Analyze instruction more deeply
-            var answer = "Sorry, your instruction has not been executed properly.<br><br>";
-            answer += "Error: " + e.message + "<br><br>";
-
-            setChat(req, currentAppID, currentUserID, "Mipsy", answer, []);
+        } catch(error){
+            // var answer = "Sorry, your instruction has not been executed properly.<br><br>";
+            // answer += "Error: " + error.message + "<br><br>";
+            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams);
 
             // Load session values
             var attr = {};
@@ -538,7 +534,6 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             var attr = parser.parse(instruction);
             /* Rework the attr to get value for the code / url / show */
             attr = attrHelper.reworkAttr(attr);
-
             data.iframe_url = process_manager.childUrl(req, attr.function);
             // We simply add session values in attributes array
             attr.instruction = instruction;
@@ -555,8 +550,12 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             else
                 attr.gitlabUser = null;
 
-            if (typeof attr.error !== 'undefined')
-                throw new Error(attr.error);
+            if (typeof attr.error !== 'undefined'){
+                var err = new Error();
+                err.message = attr.error;
+                err.messageParams = attr.errorParams;
+                throw err;
+            }
             if (typeof designer[attr.function] !== 'function')
                 throw new Error("Designer doesn't have function "+attr.function);
 
@@ -565,7 +564,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             designer[attr.function](attr, function(err, info) {
                 var answer;
                 /* If restart server then redirect to /application/preview?id_application=? */
-                var toRedirectRestart = false;
+                var toRestart = false;
                 if (err) {
                     // Error handling code goes here
                     console.log(err);
@@ -578,7 +577,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams);
 
                     /* Save ERROR an instruction history in the history script in workspace folder */
-                    if(instruction != "restart server"){
+                    if(attr.function != 'restart'){
                         var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
                         var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
                         historyScript += "\n//ERROR: "+instruction+" ("+answer+")";
@@ -597,7 +596,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                 } else {
 
                     /* Save an instruction history in the history script in workspace folder */
-                    if(instruction != "restart server"){
+                    if(attr.function != 'restart'){
                         var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
                         var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
                         historyScript += "\n"+instruction;
@@ -609,17 +608,15 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 
                     if (attr.function == "deleteApplication"){
                         return res.send({
-                            toRestart: true,
+                            toRedirect: true,
                             url: "/default/home"
                         });
+                    } else if (attr.function == 'restart'){
+                        toRestart = true;
                     }
 
-                    if (attr.function == 'restart')
-                        toRedirectRestart = true;
-                    else {
-                        // Generator answer
-                        setChat(req, currentAppID, currentUserID, "Mipsy", info.message, info.messageParams);
-                    }
+                    // Generator answer
+                    setChat(req, currentAppID, currentUserID, "Mipsy", info.message, info.messageParams);
 
                     var sessionID = req.sessionID;
                     var timer = 50;
@@ -632,7 +629,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     // If we stop the server manually we loose some stored data, so we just need to redirect.
                     if(typeof process_server_per_app[req.session.id_application] === "undefined"){
                         return res.send({
-                            toRestart: true,
+                            toRedirect: true,
                             url: "/application/preview?id_application="+req.session.id_application
                         });
                     }
@@ -661,6 +658,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                 var initialTimestamp = new Date().getTime();
                                 function checkServer() {
                                     if (new Date().getTime() - initialTimestamp > timeoutServer) {
+                                        // Timeout
                                         data.iframe_url = -1;
                                         setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error");
                                         data.chat = chats[currentAppID][currentUserID];
@@ -672,30 +670,30 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                         iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/default/status';
                                     else
                                         iframe_status_url += host + ":" + port + "/default/status";
+
                                     request({
                                         "rejectUnauthorized": false,
                                         "url": iframe_status_url,
                                         "method": "GET"
                                     }, function(error, response, body) {
-                                        //Check for error
+                                        // Check for error
                                         if (error)
                                             return setTimeout(checkServer, 100);
 
-                                        //Check for right status code
+                                        // Check for right status code
                                         if (response.statusCode !== 200) {
                                             console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
                                             return setTimeout(checkServer, 100);
                                         }
 
-                                        //All is good. Print the body
+                                        // Everything's ok
                                         console.log("Server status is OK");
 
-                                        if(toRedirectRestart){
-                                            return res.send({
-                                                toRestart: true,
-                                                url: "/application/preview?id_application="+newAttr.id_application
-                                            });
-                                        } else{
+                                        if(toRestart) {
+                                            data.chat = chats[currentAppID][currentUserID];
+                                            data.isRestart = true;
+                                            return res.send(data);
+                                        } else {
                                             // Let's do git init or commit depending the env (only on cloud env for now)
                                             gitHelper.doGit(attr, function(err){
                                                 if(err)
@@ -707,20 +705,16 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                         }
                                     });
                                 }
-                                // Check server has started
+                                // Check if the server has started
                                 console.log('Waiting for server to start');
-
                                 checkServer();
                             });
                         });
                     });
                 }
             });
-        } catch(e){
-
-            console.log(e);
-            setChat(req, currentAppID, currentUserID, "Mipsy", e.message, []);
-
+        } catch(error){
+            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams);
             // Load session values
             var attr = {};
             attr.id_project = req.session.id_project;

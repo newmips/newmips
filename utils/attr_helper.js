@@ -118,6 +118,7 @@ function addPrefix(string, instructionFunction){
         case 'createNewHasManyPreset':
         case 'createNewFieldRelatedTo':
         case 'createNewComponentContactForm':
+        case 'deleteComponentContactForm':
             return "e_"+string;
             break;
         case 'createNewDataField':
@@ -194,13 +195,12 @@ module.exports = {
     addPrefix: addPrefix,
     removePrefix: removePrefix,
     reworkAttr: function(attr){
-        //console.log("FUNCTION   ------>   "+attr.function);
         if(typeof attr.options !== "undefined"){
             /* If the instruction create something there is inevitably a value. We have to clean this value for the code */
             if(typeof attr.options.value !== "undefined" && attr.options.processValue){
 
                 /* Keep the value for the trad file */
-                attr.options.showValue = attr.options.value;
+                attr.options.showValue = attr.options.value.trim();
                 /* Clean the name of the value */
                 attr.options.value = clearString(attr.options.value);
 
@@ -228,56 +228,37 @@ module.exports = {
                 attr.options.value = addPrefix(attr.options.value, attr.function);
                 /* Always lower the code value */
                 attr.options.value = attr.options.value.toLowerCase();
-
-                //console.log("SHOW VALUE   ------>   "+attr.options.showValue);
-                //console.log("CODE VALUE   ------>   "+attr.options.value);
-                //console.log("URL VALUE   ------>   "+attr.options.urlValue);
             }
             /* In case of instruction about Association / Relation there is a target instead of a value */
             else if(typeof attr.options.target !== "undefined" && attr.options.processValue){
 
-                attr.options.showTarget = attr.options.target;
+                attr.options.showTarget = attr.options.target.trim();
                 attr.options.target = clearString(attr.options.target);
                 attr.options.urlTarget = attr.options.target.toLowerCase();
                 attr.options.target = addPrefix(attr.options.target, attr.function);
                 attr.options.target = attr.options.target.toLowerCase();
 
-                //console.log("SHOW TARGET   ------>   "+attr.options.showTarget);
-                //console.log("CODE TARGET   ------>   "+attr.options.target);
-                //console.log("URL TARGET   ------>   "+attr.options.urlTarget);
-
                 if(typeof attr.options.source !== "undefined"){
-                    attr.options.showSource = attr.options.source;
+                    attr.options.showSource = attr.options.source.trim();
                     attr.options.source = clearString(attr.options.source);
                     attr.options.urlSource = attr.options.source.toLowerCase();
                     attr.options.source = addPrefix(attr.options.source, attr.function);
                     attr.options.source = attr.options.source.toLowerCase();
-
-                    //console.log("SHOW SOURCE   ------>   "+attr.options.showSource);
-                    //console.log("CODE SOURCE   ------>   "+attr.options.source);
-                    //console.log("URL SOURCE   ------>   "+attr.options.urlSource);
                 }
 
                 if(typeof attr.options.foreignKey !== "undefined"){
-                    attr.options.showForeignKey = attr.options.foreignKey;
+                    attr.options.showForeignKey = attr.options.foreignKey.trim();
                     attr.options.foreignKey = clearString(attr.options.foreignKey);
                     attr.options.foreignKey = addPrefix(attr.options.foreignKey, "foreignKey");
                     attr.options.foreignKey = attr.options.foreignKey.toLowerCase();
-
-                    //console.log("SHOW FOREIGNKEY   ------>   "+attr.options.showForeignKey);
-                    //console.log("CODE FOREIGNKEY   ------>   "+attr.options.foreignKey);
                 }
 
                 if(typeof attr.options.as !== "undefined"){
-                    attr.options.showAs = attr.options.as;
+                    attr.options.showAs = attr.options.as.trim();
                     attr.options.as = clearString(attr.options.as);
                     attr.options.urlAs = attr.options.as.toLowerCase();
                     attr.options.as = addPrefix(attr.options.as, "alias");
                     attr.options.as = attr.options.as.toLowerCase();
-
-                    //console.log("SHOW AS   ------>   "+attr.options.showAs);
-                    //console.log("CODE AS   ------>   "+attr.options.as);
-                    //console.log("URL AS   ------>   "+attr.options.urlAs);
                 }
 
                 if(typeof attr.options.usingField !== "undefined"){

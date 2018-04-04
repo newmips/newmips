@@ -99,7 +99,7 @@ $.fn.gridEditor = function( options ) {
             var wrapper = $('<div class="ge-wrapper ge-top" />').appendTo(mainControls);
 
             // Add row
-            addRowGroup = $('<div class="ge-addRowGroup btn-group" />').appendTo(wrapper);
+            /*addRowGroup = $('<div class="ge-addRowGroup btn-group" />').appendTo(wrapper);
             $.each(settings.new_row_layouts, function(j, layout) {
                 var btn = $('<a class="btn btn-xs btn-primary" />')
                     .attr('title', 'Add row ' + layout.join('-'))
@@ -122,7 +122,7 @@ $.fn.gridEditor = function( options ) {
                 });
                 icon += '</div>';
                 btn.append(icon);
-            });
+            });*/
 
             // Buttons on right
             var layoutDropdown = $('<div class="dropdown pull-right ge-layout-mode">' +
@@ -250,7 +250,7 @@ $.fn.gridEditor = function( options ) {
                 if (row.find('> .ge-tools-drawer').length) { return; }
 
                 var drawer = $('<div class="ge-tools-drawer" />').prependTo(row);
-                createTool(drawer, 'Move', 'ge-move', 'glyphicon-move');
+                /*createTool(drawer, 'Move', 'ge-move', 'glyphicon-move');
                 createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
                     details.toggle();
                 });
@@ -263,9 +263,9 @@ $.fn.gridEditor = function( options ) {
                             row.remove();
                         });
                     }
-                });
-                createTool(drawer, 'Add column', 'ge-add-column', 'glyphicon-plus-sign', function() {
-                    row.append(createColumn(3));
+                });*/
+                createTool(drawer, 'Add empty space column', 'ge-add-column', 'glyphicon-plus-sign', function() {
+                    row.append(createColumn(6));
                     init();
                 });
 
@@ -290,6 +290,9 @@ $.fn.gridEditor = function( options ) {
                     if (e.shiftKey) {
                         newSize = colSizes[0];
                     }
+                    if (e.ctrlKey) {
+                        newSize = colSizes[5];
+                    }
                     setColSize(col, curColClass, Math.max(newSize, 1));
                 });
 
@@ -302,12 +305,15 @@ $.fn.gridEditor = function( options ) {
                     if (e.shiftKey) {
                         newSize = colSizes[colSizes.length - 1];
                     }
+                    if (e.ctrlKey) {
+                        newSize = colSizes[5];
+                    }
                     setColSize(col, curColClass, Math.min(newSize, MAX_COL_SIZE));
                 });
 
-                createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
+                /*createTool(drawer, 'Settings', '', 'glyphicon-cog', function() {
                     details.toggle();
-                });
+                });*/
 
                 settings.col_tools.forEach(function(t) {
                     createTool(drawer, t.title || '', t.className || '', t.iconClass || 'glyphicon-wrench', t.on);
@@ -325,12 +331,12 @@ $.fn.gridEditor = function( options ) {
                     }
                 });
 
-                createTool(drawer, 'Add row', 'ge-add-row', 'glyphicon-plus-sign', function() {
+                /*createTool(drawer, 'Add row', 'ge-add-row', 'glyphicon-plus-sign', function() {
                     var row = createRow();
                     col.append(row);
                     row.append(createColumn(6)).append(createColumn(6));
                     init();
-                });
+                });*/
 
                 var details = createDetails(col, settings.col_classes).appendTo(drawer);
             });
@@ -470,12 +476,8 @@ $.fn.gridEditor = function( options ) {
         }
 
         function createColumn(size) {
-            return $('<div/>')
-                .addClass(colClasses.map(function(c) { return c + size; }).join(' '))
-                .append(createDefaultContentWrapper().html(
-                    getRTE(settings.content_types[0]).initialContent)
-                )
-            ;
+            //return $('<div/>').addClass(colClasses.map(function(c) { return c + size; }).join(' ')).append(createDefaultContentWrapper().html(getRTE(settings.content_types[0]).initialContent));
+            return $('<div style="height: 78px;" />').addClass("fieldLineHeight").addClass(colClasses.map(function(c) { return c + size; }).join(' '));
         }
 
         /**
@@ -694,7 +696,7 @@ $.fn.gridEditor.RTEs = {};
             });
         },
 
-        initialContent: '<p>Lorem ipsum dolores</p>',
+        initialContent: '',
     };
 })();
 
@@ -759,6 +761,6 @@ $.fn.gridEditor.RTEs = {};
             });
         },
 
-        initialContent: '<p>Lorem ipsum dolores</p>',
+        initialContent: '',
     };
 })();

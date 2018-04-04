@@ -22,8 +22,7 @@ if (lang_user == "fr-FR") {
 			"sortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
 		}
 	};
-}
-else {
+} else {
 	str_language = {
 		"processing":     "Processing...",
 		"search":         "Search&nbsp;:",
@@ -94,11 +93,29 @@ $(document).ready(function() {
 			}
 		]
 	}
-	if ($("input[name='custom_order']").length)
-		options.order = [$("input[name='custom_order']").data('index'), $("input[name='custom_order']").data('order')];
 
 	// Init DataTable
 	$(".dataTable").each(function() {
+		if(typeof $(this).data("custom-order") !== "undefined" && typeof $(this).data("custom-order-index") !== "undefined")
+			options.order = [[$(this).data("custom-order-index"), $(this).data("custom-order")]];
+		else
+			options.order = [];
 		tables[$(this).attr('id')] = $(this).DataTable(options);
+	});
+
+	$(".dataTable thead.main th").each(function(idx){
+		if($(this).data("hidden") == 1){
+			// Hide hidden column
+			$(this).hide();
+			$("td[data-field='"+$(this).data("field")+"']").hide();
+		} else if($(this).text() == ""){
+			// Remove unused action button th & td
+			if($("td").eq(idx).text() == ""){
+				$(this).remove();
+				$(".dataTable tbody tr").each(function(){
+					$(this).find("td:eq("+idx+")").remove();
+				});
+			}
+		}
 	});
 });

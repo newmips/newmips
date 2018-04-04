@@ -30,7 +30,7 @@ var models = require('../models/');
 
 var exec = require('child_process').exec;
 
-function node_modules_copy() {
+function installAppModules() {
     return new Promise(function(resolve, reject) {
         var dir = __dirname;
 
@@ -39,13 +39,12 @@ function node_modules_copy() {
             fs.mkdirSync(dir + '/../workspace');
 
         if (fs.existsSync(dir + '/../workspace/node_modules')) {
-            console.log("Everything's ok about the node modules.");
+            console.log("Everything's ok about workspaces node modules.");
             resolve();
         } else {
-
             if (fs.existsSync(dir + '/../structure/template/node_modules')) {
                 // Node modules are already in structure/template, need to move them to workspace
-                console.log("Move node modules...");
+                console.log("Moving workspaces node modules...");
 
                 exec("mv structure/template/node_modules workspace/", {
                     cwd: dir + '/../'
@@ -53,13 +52,13 @@ function node_modules_copy() {
                     if (error) {
                         reject(error);
                     }
-                    console.log('Node modules successfully initialized.');
+                    console.log('Workspaces node modules successfully initialized.');
                     resolve();
                 });
 
             } else {
                 // We need to reinstall node modules properly
-                console.log("Node modules initialization...");
+                console.log("Workspaces node modules initialization...");
                 var cmd = 'cp ' + dir + '/../structure/template/package.json ' + dir + '/../workspace/';
 
                 exec(cmd, {
@@ -76,7 +75,7 @@ function node_modules_copy() {
                         if (error) {
                             reject(error);
                         }
-                        console.log('Node modules successfuly initialized.');
+                        console.log('Workspaces node modules successfuly initialized.');
                         resolve();
                     });
                 });
@@ -84,6 +83,7 @@ function node_modules_copy() {
         }
     });
 };
+exports.installAppModules = installAppModules;
 
 // Application
 exports.setupApplication = function(attr, callback) {
@@ -95,7 +95,7 @@ exports.setupApplication = function(attr, callback) {
     var name_application = options.value;
     var show_name_application = options.showValue;
 
-    node_modules_copy().then(function() {
+    installAppModules().then(function() {
         // *** Copy template folder to new workspace ***
         fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {
             if (err) {
@@ -103,12 +103,6 @@ exports.setupApplication = function(attr, callback) {
                 err.message = "An error occurred while copying template folder.";
                 return callback(err, null);
             }
-
-            /* Save an instruction history in the history script in workspace folder */
-            var historyScriptPath = __dirname + '/../workspace/' + id_application + '/history_script.nps';
-            var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-            historyScript += "create application " + show_name_application + "\n";
-            fs.writeFileSync(historyScriptPath, historyScript);
 
             /* --------------- New translation --------------- */
             translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function() {

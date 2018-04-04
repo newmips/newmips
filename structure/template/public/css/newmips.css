@@ -18,7 +18,14 @@ Core: General style
 label.no-weight {
     font-weight: normal !important;
 }
-
+/** Component Address**/
+.section_c_address{
+    border:1px solid #dddddd;
+    margin: auto;
+}
+.div_c_address_search{
+    margin-top: -16px;
+}
 /* required field */
 label.required:after {
     color: #e32;
@@ -192,4 +199,8 @@ div.dataTables_length select {
 
 .navbar-nav > .messages-menu > .dropdown-menu > div#notification-wrapper > li .menu > li > a > h4{
     padding-top: 13px !important;
+}
+
+.fieldLineHeight{
+    min-height: 75px;
 }
