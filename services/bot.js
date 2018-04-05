@@ -12,6 +12,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     if (valueToCheck.length > 30) {
         console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
         attr.error = "error.valueTooLong";
+        attr.errorParams = [valueToCheck];
     }
 
     return attr;
@@ -122,7 +123,7 @@ exports.selectEntity = function (result) {
 
     var value = result[1];
     var options = {
-        value: value
+        value: value.trim()
     };
 
     var attr = {
@@ -888,6 +889,13 @@ exports.createComponentDocumentTemplate = function (result) {
     };
 };
 
+exports.createComponentDocumentTemplateWithName = function (result) {
+    var options={
+        instruction:result[0],
+        componentName:result[1]
+    };
+    return checkAndCreateAttr("createComponentDocumentTemplate",options,result[1]);
+};
 /**
  * Delete component DocumentTemplate
  */
@@ -2527,12 +2535,26 @@ var training = {
     "createComponentDocumentTemplate": [
         "add component document template",
         "ajouter un composant document template",
-        "ajouter composant document template"
+        "ajouter le composant document template",
+        "ajouter composant document template",
+        "ajouter composant modèle de document",
+        "ajouter un composant modèle de document",
+        "ajouter le composant modèle de document"
     ],
     "deleteComponentDocumentTemplate": [
         "delete component document template",
         "supprimer le composant document template",
-        "supprimer composant document template"
+        "supprimer composant document template",
+        "supprimer composant modèle de document",
+        "supprimer un composant modèle de document"
+    ],
+    "createComponentDocumentTemplateWithName": [
+        "add component document template with name (.*)",
+        "ajouter un composant modèle de document appelé (.*)",
+        "ajouter un composant modèle de document nommé (.*)",
+        "ajouter composant modèle de document appelé (.*)",
+        "ajouter composant modèle de document nommé (.*)",
+        "ajouter le composant modèle de document appelé (.*)"
     ]
 };
 // ******* Parse *******

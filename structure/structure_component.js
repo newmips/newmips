@@ -308,16 +308,19 @@ exports.newLocalFileStorage = function (attr, callback) {
                         var componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, componentNameLower);
                         componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
                         componentContent = componentContent.replace(/SOURCE_LOWER/g, sourceLower);
+                        fs.mkdirSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName, 0766);
+                        fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName + '/list_fields.dust', componentContent, 'utf8');
 
                         var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{@__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
 
                         var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
                         var file = fileBase + '/show_fields.dust';
 
-                        printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function () {
-                            // CREATE THE TAB IN SHOW FIELDS
-                            addTab(attr, file, newLi, componentContent).then(callback);
-                        });
+                        // printHelper.addLocalFileStorage(fileBase, componentNameLower).then(function(){
+                        // CREATE THE TAB IN SHOW FIELDS
+                        var newTab = '<div id="' + componentNameLower + '" class="ajax-tab tab-pane fade" data-tabtype="localfilestorage" data-asso-flag="{' + sourceLower + '.id}" data-asso-alias="' + componentNameLower + '"><div class="ajax-content"></div></div>';
+                        addTab(attr, file, newLi, newTab).then(callback);
+                        // });
                     });
                 });
             });
@@ -339,7 +342,7 @@ exports.newPrint = function (attr, callback) {
         var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{@__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
 
         var tabContent = "";
-        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane fade'>\n";
+        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane fade' data-tabtype='print'>\n";
         tabContent += "     <style>";
         tabContent += "        @page { size: auto;  margin: 0mm; }";
         tabContent += "        @media print {";
@@ -397,8 +400,7 @@ exports.newPrint = function (attr, callback) {
         tabContent += "        }";
         tabContent += "     </style>\n";
         tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
-        tabContent += "     <div id='" + nameComponent + "-content' class='print-tab'>\n";
-        tabContent += "         {>\"" + entityLower + "/print_fields\"/}\n";
+        tabContent += "     <div id='" + nameComponent + "-content' class='ajax-content print-tab'>\n";
         tabContent += "     </div>\n";
         tabContent += "</div>\n";
 
@@ -1111,7 +1113,6 @@ exports.addNewComponentAddress = function (attr, callback) {
 
         //generate views data
         var fields = address_utils.generateFields(componentName, componentCodeName);
-//        
         //Update model attributes
         for (var attribute in fields.db_fields) {
             modelAttributes[attribute] = fields.db_fields[attribute];
@@ -1171,7 +1172,7 @@ exports.deleteComponentAddress = function (attr, callback) {
     try {
         var componentName = 'c_address_' + attr.id_data_entity;
         var componentUrl = attr.entityName.replace('e_', '') + '_address';
-        var source=attr.entityName;
+        var source = attr.entityName;
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
         fs.remove(application_path + 'views/' + componentName);
         fs.remove(application_path + 'models/' + componentName + '.js');
@@ -1224,13 +1225,13 @@ exports.deleteComponentAddress = function (attr, callback) {
 exports.createComponentDocumentTemplate = function (attr, callback) {
     try {
         var entity_name = 'document_template';
+        var entity_code_name = "e_document_template";
+        var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
         if (attr.is_new_component_entity) {
             //Add structure files(models,route,views etc.
-            var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
             var entity_path = __dirname + '/pieces/component/document_template/';
             var module_name = 'administration';
             var entity_url = 'document_template';
-            var entity_code_name = "e_document_template";
             var table_name = attr.id_application + '_' + entity_code_name;
             //models
             var modelContent = fs.readFileSync(entity_path + 'models/e_document_template.js', 'utf8');
@@ -1271,6 +1272,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                         "f_entity": "Entité",
                         "f_exclude_relations": "Sous entités"
                     };
+                    lang_fr[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Modèle de document";
                     var lang_en = {
                         "label_entity": "Document template",
                         "name_entity": "Document template",
@@ -1281,6 +1283,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                         "f_entity": "Entity",
                         "f_exclude_relations": "Sub entities"
                     };
+                    lang_en[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
                     //update locales
                     var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                     var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
@@ -1295,6 +1298,13 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                 });
             });
         } else {
+            //Update locales
+            var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
+            var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+            langFR.entity[entity_code_name][ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Modèle de document";
+            langEN.entity[entity_code_name][ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
+            fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+            fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
             addNewTabComponentDocumentTemplate(attr, entity_name, function (e) {
                 return callback(e);
             });
@@ -1308,8 +1318,8 @@ exports.deleteComponentDocumentTemplateOnEntity = function (attr, callback) {
     var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
     var componentName = 'document_template';
     domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
-        $showFieldsView('#r_' + componentName + '-click').parent().remove();//remove li tab
-        $showFieldsView('#r_' + componentName).remove();//remove tab content div
+        $showFieldsView('#r_' + componentName + '-click').parent().remove(); //remove li tab
+        $showFieldsView('#r_' + componentName).remove(); //remove tab content div
         domHelper.write(application_path + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function () {
             return callback(null);
         }).catch(function (e) {
@@ -1345,15 +1355,13 @@ exports.deleteComponentDocumentTemplate = function (attr, callback) {
     });
 }
 
-
-
 function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     var source = attr.options.source;
     var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
     var entity_path = __dirname + '/pieces/component/document_template/';
     var relationEntityShowFieldsFile = application_path + 'views' + '/' + source + '/show_fields.dust';
     //new entry for source relation view
-    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.label_entity" /}</a></li>';
+    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
     newTabContent = newTabContent.replace(/ENTITY/g, source);
     addTab(attr, relationEntityShowFieldsFile, newLi, newTabContent).then(function () {
