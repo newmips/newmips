@@ -124,7 +124,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 
     var relatedToList = [];
     for (var i = 0; i < options.length; i++)
-        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple')
+        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'hasOne')
             relatedToList.push({
                 model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
                 as: options[i].as
@@ -140,7 +140,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function () {
             entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
             res.render('ENTITY_NAME/show', data);
         }).catch(function (err) {
@@ -250,12 +250,11 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function () {
             if (req.query.ajax) {
                 ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
                 res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
-            }
-            else
+            } else
                 res.render('ENTITY_NAME/update', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
@@ -281,7 +280,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(ENTITY_NAME,options, req.body);
+        component_helper.updateAddressIfComponentExist(ENTITY_NAME, options, req.body);
         ENTITY_NAME.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
@@ -307,7 +306,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
     });
 });
 
-router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function(req, res) {
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function (req, res) {
     var alias = req.params.alias;
     var id = req.params.id;
 
@@ -315,7 +314,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     var option;
     for (var i = 0; i < options.length; i++)
         if (options[i].as == req.params.alias)
-            {option = options[i]; break;}
+        {
+            option = options[i];
+            break;
+        }
     if (!option)
         return res.status(404).end();
 
@@ -327,11 +329,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     models.MODEL_NAME.findOne({
         where: {id: id},
         include: [{
-            model: models[entity_helper.capitalizeFirstLetter(option.target)],
-            as: option.as,
-            include: {all: true}
-        }]
-    }).then(function(ENTITY_URL_NAME) {
+                model: models[entity_helper.capitalizeFirstLetter(option.target)],
+                as: option.as,
+                include: {all: true}
+            }]
+    }).then(function (ENTITY_URL_NAME) {
         if (!ENTITY_URL_NAME)
             return res.status(404).end();
 
@@ -348,12 +350,12 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                     promisesData.push(entity_helper.getPicturesBuffers(ENTITY_URL_NAME[option.as], option.target));
                 }
-                dustFile = option.target+'/show_fields';
-            break;
+                dustFile = option.target + '/show_fields';
+                break;
 
             case 'hasMany':
             case 'hasManyPreset':
-                dustFile = option.target+'/list_fields';
+                dustFile = option.target + '/list_fields';
                 var obj = {};
                 obj[option.target] = dustData;
                 dustData = obj;
@@ -361,26 +363,32 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 for (var i = 0; i < dustData[option.target].length; i++)
                     promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
                 if (typeof req.query.associationFlag !== 'undefined')
-                    {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
-            break;
+                {
+                    dustData.associationFlag = req.query.associationFlag;
+                    dustData.associationSource = req.query.associationSource;
+                    dustData.associationForeignKey = req.query.associationForeignKey;
+                    dustData.associationAlias = req.query.associationAlias;
+                    dustData.associationUrl = req.query.associationUrl;
+                }
+                break;
 
             case 'localfilestorage':
-                dustFile = option.target+'/list_fields';
+                dustFile = option.target + '/list_fields';
                 var obj = {};
                 obj[option.target] = dustData;
                 dustData = obj;
                 dustData.sourceId = id;
-            break;
+                break;
 
             default:
                 return res.status(500).end();
         }
 
         // Image buffer promise
-        Promise.all(promisesData).then(function() {
+        Promise.all(promisesData).then(function () {
             // Open and render dust file
-            var file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
-            dust.renderSource(file, dustData || {}, function(err, rendered) {
+            var file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+            dust.renderSource(file, dustData || {}, function (err, rendered) {
                 if (err) {
                     console.error(err);
                     return res.status(500).end();
@@ -394,22 +402,22 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     option: option
                 });
             });
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.error(err);
             res.status(500).send(err);
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         console.error(err);
         res.status(500).send(err);
     });
 });
 
-router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
-    var historyModel = 'E_history_ENTITY_NAME_'+req.params.status;
-    var historyAlias = 'r_history_'+req.params.status.substring(2);
-    var statusAlias = 'r_'+req.params.status.substring(2);
+router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
+    var historyModel = 'E_history_ENTITY_NAME_' + req.params.status;
+    var historyAlias = 'r_history_' + req.params.status.substring(2);
+    var statusAlias = 'r_' + req.params.status.substring(2);
 
-    var errorRedirect = '/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME;
+    var errorRedirect = '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME;
 
     var includeTree = entity_helper.status.generateEntityInclude(models, 'ENTITY_NAME');
 
@@ -420,15 +428,15 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
         limit: 1,
         order: 'createdAt DESC',
         include: [{
-            model: models.E_status,
-            as: statusAlias
-        }]
+                model: models.E_status,
+                as: statusAlias
+            }]
     });
     models.MODEL_NAME.findOne({
         where: {id: req.params.id_ENTITY_URL_NAME},
         include: includeTree
-    }).then(function(ENTITY_NAME) {
-        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]){
+    }).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]) {
             logger.debug("Not found - Set status");
             return res.render('common/error', {error: 404});
         }
@@ -437,21 +445,21 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
         models.E_status.findOne({
             where: {id: ENTITY_NAME[historyAlias][0][statusAlias].id},
             include: [{
-                model: models.E_status,
-                as: 'r_children',
+                    model: models.E_status,
+                    as: 'r_children',
                     include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: 'f_position ASC',
-                    include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: {all: true, nested: true}
-                    }]
+                            model: models.E_action,
+                            as: 'r_actions',
+                            order: 'f_position ASC',
+                            include: [{
+                                    model: models.E_media,
+                                    as: 'r_media',
+                                    include: {all: true, nested: true}
+                                }]
+                        }]
                 }]
-            }]
-        }).then(function(current_status) {
-            if (!current_status || !current_status.r_children){
+        }).then(function (current_status) {
+            if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
                 return res.render('common/error', {error: 404});
             }
@@ -461,59 +469,62 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             var nextStatus = false;
             for (var i = 0; i < children.length; i++) {
                 if (children[i].id == req.params.id_new_status)
-                    {nextStatus = children[i]; break;}
+                {
+                    nextStatus = children[i];
+                    break;
+                }
             }
             // Unautorized
-            if (nextStatus === false){
+            if (nextStatus === false) {
                 req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
+                        level: 'error',
+                        message: 'component.status.error.illegal_status'
+                    }]
                 return res.redirect(errorRedirect);
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(ENTITY_NAME).then(function() {
+            nextStatus.executeActions(ENTITY_NAME).then(function () {
                 // Create history record for this status field
                 // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
                 var createObject = {}
-                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
-                    ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+                models[historyModel].create(createObject).then(function () {
+                    ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.error(err);
                 req.session.toastr = [{
-                    level: 'warning',
-                    message: 'component.status.error.action_error'
-                }]
+                        level: 'warning',
+                        message: 'component.status.error.action_error'
+                    }]
                 var createObject = {}
-                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_ENTITY_URL_NAME_history_"+req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
-                    ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/ENTITY_URL_NAME/show?id='+req.params.id_ENTITY_URL_NAME)
+                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
+                models[historyModel].create(createObject).then(function () {
+                    ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
             });
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error500(err, req, res, errorRedirect);
     });
 });
 
-router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME','read'), function(req, res) {
-    var search = '%'+(req.body.search||'')+'%';
+router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function (req, res) {
+    var search = '%' + (req.body.search || '') + '%';
     req.body.searchField.push('id');
 
-    var where = {raw:true, attributes: req.body.searchField};
+    var where = {raw: true, attributes: req.body.searchField};
     if (search != '%%')
         where.where[req.body.searchField] = {$like: search};
 
-    models.MODEL_NAME.findAll(where).then(function(results) {
+    models.MODEL_NAME.findAll(where).then(function (results) {
         res.json(results);
-    }).catch(function(e) {
+    }).catch(function (e) {
         console.error(e);
         res.status(500).json(e);
     });
@@ -542,7 +553,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
             // Set back associations without removed entity
             ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
-            }).catch(function(err) {
+            }).catch(function (err) {
                 entity_helper.error500(err, req, res, "/");
             });
         });
@@ -572,7 +583,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
 
         ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
-        }).catch(function(err) {
+        }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
         });
     }).catch(function (err) {

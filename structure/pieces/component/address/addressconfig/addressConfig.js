@@ -46,7 +46,7 @@ var config = {
             },
             lang: {
                 fr: 'Nom rue',
-                en: ''
+                en: 'Street name'
             }
         },
         complement1: {
@@ -64,7 +64,7 @@ var config = {
             },
             lang: {
                 fr: 'Complément rue',
-                en: 'complement1'
+                en: 'Street complement'
             }
         },
         postcode: {
