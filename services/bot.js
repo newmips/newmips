@@ -2554,7 +2554,7 @@ var training = {
         "ajouter un composant modèle de document nommé (.*)",
         "ajouter composant modèle de document appelé (.*)",
         "ajouter composant modèle de document nommé (.*)",
-        "ajouter le composant modèle de document appelé (.*)",
+        "ajouter le composant modèle de document appelé (.*)"
     ]
 };
 // ******* Parse *******
