@@ -100,7 +100,7 @@ exports.restart = function (attr, callback) {
 }
 
 exports.installNodePackage = function (attr, callback) {
-    structure_application.installAppModules().then(function(){
+    structure_application.installAppModules().then(function () {
         var info = {
             message: "structure.global.npmInstall.success"
         };
@@ -1749,7 +1749,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                         err.message = "structure.association.error.alreadySameAlias";
                         return callback(err, null);
                     }
-                } else if(optionsSourceObject[i].relation == "belongsToMany" && (attr.options.as == optionsSourceObject[i].as)){
+                } else if (optionsSourceObject[i].relation == "belongsToMany" && (attr.options.as == optionsSourceObject[i].as)) {
                     var err = new Error();
                     err.message = "structure.association.error.alreadySameAlias";
                     return callback(err, null);
@@ -1758,7 +1758,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 
             var info = {};
             attr.options.through = attr.id_application + "_" + source_entity.id + "_" + entityTarget.id + "_" + attr.options.as.substring(2);
-            if(attr.options.through.length > 55){
+            if (attr.options.through.length > 55) {
                 var err = new Error();
                 err.message = "error.valueTooLong";
                 err.messageParams = [attr.options.through];
@@ -1772,7 +1772,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             for (var i = 0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
                     attr.options.through = attr.id_application + "_" + entityTarget.id + "_" + source_entity.id + "_" + attr.options.as.substring(2);
-                    if(attr.options.through.length > 55){
+                    if (attr.options.through.length > 55) {
                         var err = new Error();
                         err.message = "error.valueTooLong";
                         err.messageParams = [attr.options.through];
@@ -1868,7 +1868,7 @@ exports.createNewComponentStatus = function (attr, callback) {
         attr.showSource = source_entity.name;
         attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
 
-        if(attr.history_table.length >= 52){
+        if (attr.history_table.length >= 52) {
             var err = new Error();
             err.message = "error.valueTooLong";
             err.messageParams = [attr.history_table];
@@ -2638,7 +2638,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                                                                 return callback(err);
                                                             else
                                                                 return callback(null, {message: 'database.component.create.success',
-                                                                    messageParams: ["document template", ""]});
+                                                                    messageParams: ["document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : ""]});
                                                         });
                                                     }).catch(function (e) {
                                                         return callback(e);
