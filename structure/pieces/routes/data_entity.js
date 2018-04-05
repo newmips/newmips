@@ -522,7 +522,6 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME','re
         console.error(e);
         res.status(500).json(e);
     });
-
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
