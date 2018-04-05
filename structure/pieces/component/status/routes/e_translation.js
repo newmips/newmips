@@ -140,9 +140,6 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
                 data[found[i].model] = found[i].rows;
             }
 
-            // Update some data before show, e.g get picture binary
-            e_translation = entity_helper.getPicturesBuffers(e_translation, attributes, options, "e_translation");
-
             // Check if entity has Status component defined and get the possible next status
             entity_helper.status.nextStatus(models, "e_translation", e_translation.id, attributes).then(function(nextStatus) {
                 if (nextStatus)

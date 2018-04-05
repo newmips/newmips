@@ -6,7 +6,9 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
-            content += "<div id='"+targetAlias+"_print' class='dontbreakitplz row'>\n";
+            content += '<div class="dontbreakitplz">\n';
+            content += '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n';
+            content += "<div id='"+targetAlias+"_print' class='row'>\n";
             content += "    <div class=\"col-xs-12\">\n";
             content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
             content += "        <hr>\n";
@@ -15,6 +17,8 @@ module.exports = {
             content += '        {#'+targetAlias+'}{>"' + target + '/print_fields" /}{/'+targetAlias+'}\n';
             content += "    </div>\n";
             content += "</div>\n";
+            content += '{/entityAccess}\n';
+            content += '</div>\n';
             domHelper.read(sourceTemplatePath).then(function ($) {
                 $(".dontbreakitplz:last-child").after(content);
                 domHelper.write(sourceTemplatePath, $).then(resolve);
@@ -25,7 +29,9 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
-            content += "<div id='"+targetAlias+"_print' class=\"dontbreakitplz row\">\n";
+            content += '<div class="dontbreakitplz">\n';
+            content += '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n';
+            content += "<div id='"+targetAlias+"_print' class=\"row\">\n";
             content += "    <div class=\"col-xs-12\">\n";
             content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
             content += "        <hr>\n";
@@ -41,6 +47,8 @@ module.exports = {
             content += '    </div>\n';
             content += '<br>\n';
             content += '</div>\n';
+            content += '<!--{/entityAccess}-->\n';
+            content += '</div>\n';
             domHelper.read(sourceTemplatePath).then(function ($) {
                 $(".dontbreakitplz:last-child").after(content);
                 domHelper.write(sourceTemplatePath, $).then(resolve);
@@ -51,7 +59,9 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = ""+
-            "<div id='"+componentName+"_print' class='dontbreakitplz row'>\n"+
+            "<div class='dontbreakitplz'>\n"+
+            '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n'+
+            "<div id='"+componentName+"_print' class='row'>\n"+
             "    <div class=\"col-xs-12\">\n"+
             "        <h3><!--{@__ key=\"component."+componentName+".label_component\" /}--></h3>\n"+
             "        <hr>\n"+
@@ -74,7 +84,9 @@ module.exports = {
             "           </tbody>\n"+
             "       </table>\n"+
             "   </div>\n"+
-            "</div>\n";
+            "</div>\n"+
+            "<!--{/entityAccess}-->\n"+
+            "</div>";
             domHelper.read(sourceTemplatePath).then(function ($) {
                 $(".dontbreakitplz:last-child").after(content);
                 domHelper.write(sourceTemplatePath, $).then(resolve);
@@ -85,7 +97,9 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = ""+
-            "<div id='"+componentName+"_print' class='dontbreakitplz row'>\n"+
+            "<div class='dontbreakitplz'>\n"+
+            "<!--{@entityAccess entity=\""+componentName+"\"}-->\n"+
+            "<div id='"+componentName+"_print' class='row'>\n"+
             "    <div class=\"col-xs-12\">\n"+
             "        <h3><!--{@__ key=\"component.c_address.label_component\" /}--></h3>\n"+
             "        <hr>\n"+
@@ -100,6 +114,8 @@ module.exports = {
             "       {/r_" + componentName + "}\n"+
             "   </div>\n"+
             "</div>\n";
+            "<!--{/entityAcess}-->\n";
+            "</div>\n"
             domHelper.read(sourceTemplatePath).then(function ($) {
                 $(".dontbreakitplz:last-child").after(content);
                 domHelper.write(sourceTemplatePath, $).then(resolve);

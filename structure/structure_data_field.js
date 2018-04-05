@@ -120,12 +120,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "code39":
         case "alpha39":
         case "code128":
-        //case "codecip":
-        //case "cip":
-        //case "isbn":
-        //case "issn":
-        //case "hr":
-        //case "codehr":
             var inputType = 'number';
             if (type === "code39" || type === "alpha39" || type === "code128")
                 inputType = 'text';
@@ -401,7 +395,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "photo":
             if (file != 'show') {
                 str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{"+value2+".buffer}\"/>\n";
             }
             else {
                 str += "	<div class='input-group'>\n";
@@ -433,13 +427,18 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
     str += '</th>';
     ret.headers = str;
+
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
     str = '<td data-field="' + dataField + '"';
-    str += ' data-type="' + type + '"';
+    str += ' data-type="' + type + '">';
     if (type == "text")
-        str += ' >{' + dataField + '|s}</td>';
+        str += '{' + dataField + '|s}';
+    else if (type == 'picture')
+        str += '<img src="data:image/;base64,{'+dataField+'.buffer}" class="img img-responsive" data-type="picture" name="'+dataField+'" readonly="">';
     else
-        str += ' >{' + dataField + '}</td>';
+        str += '{' + dataField + '}';
+    str += '</td>';
+
     ret.body = str;
     return ret;
 }
@@ -1073,27 +1072,10 @@ exports.setupHasManyTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasmany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '';
-            newTab += '	<div id="' + alias + '" class="tab-pane fade" data-tabType="hasMany">\n';
-            newTab += '     <div class="sub-tab-table">\n';
-            newTab += '		   <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTab += '			  <!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTab += '				 {>"' + target + '/list_fields" associationAlias="' + alias + '" associationForeignKey="' + foreignKey + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + urlSource + '" for="hasMany" /}\n';
-            newTab += '			  <!--{/eq}-->\n';
-            newTab += '		   <!--{:else}-->\n';
-            newTab += '				 {>"' + target + '/list_fields" /}\n';
-            newTab += '		   <!--{/' + alias + '}-->\n';
-            newTab += '     </div>\n';
-            newTab += '		<br>\n';
-
-            // Create button to directly associate created object to relation
-            newTab += '		<a href="/' + urlTarget + '/create_form?associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-success">\n';
-            newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
-            newTab += '		</a>\n';
-            newTab += '</div>\n';
+            var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTab, target).then(callback);
@@ -1146,38 +1128,9 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
 
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasmanypreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
-            var newTabContent = '';
-            // Create select to add elements
-            newTabContent += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasManyPreset">\n';
-            newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
-            newTabContent += '      <select style="width:200px;" class="form-control" name="ids" required multiple>\n';
-            newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
-            newTabContent += '              {@existInContextById ofContext=' + alias + ' key=id}\n';
-            newTabContent += '              {:else}\n';
-            newTabContent += '                  <!--{#' + usingField + '}-->\n';
-            newTabContent += '                      <option value="{id}">{' + usingField + '}</option>\n';
-            newTabContent += '                  <!--{:else}-->\n';
-            newTabContent += '                      <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-            newTabContent += '                  <!--{/' + usingField + '}-->\n';
-            newTabContent += '              {/existInContextById}\n';
-            newTabContent += '          <!--{/' + alias + '_global_list}-->\n';
-            newTabContent += '      </select>\n';
-            newTabContent += '      <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
-            newTabContent += '      <input type="hidden" value="{' + source + '.id}" name="idEntity">\n';
-            newTabContent += '  </form>\n';
-            // Include association's fields
-            newTabContent += '  <div class="sub-tab-table">\n';
-            newTabContent += '      <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTabContent += '              <!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTabContent += '          {>"' + target + '/list_fields" for="fieldset" /}\n';
-            newTabContent += '              <!--{/eq}-->\n';
-            newTabContent += '      <!--{:else}-->\n';
-            newTabContent += '              {>"' + target + '/list_fields" /}\n';
-            newTabContent += '      <!--{/' + alias + '}-->\n';
-            newTabContent += '  </div>\n';
-            newTabContent += '</div>\n';
+            var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTabContent, target).then(callback);
@@ -1213,7 +1166,7 @@ exports.setupRelatedToField = function (attr, callback) {
     var showAlias = attr.options.showAs;
     var urlAs = attr.options.urlAs.toLowerCase();
 
-    // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
+    // Check if field is used in select, default to id
     var usingField = [{value:"id", type:"string"}];
     var showUsingField = ["ID"];
 
@@ -1222,20 +1175,19 @@ exports.setupRelatedToField = function (attr, callback) {
     if (typeof attr.options.showUsingField !== "undefined")
         showUsingField = attr.options.showUsingField;
 
+    var usingList = [], usingOption = [];
+    for(var i=0; i<usingField.length; i++) {
+        usingList.push(usingField[i].value);
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+    }
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-    select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
-    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+    select += '     <select style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+    select += "         <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}">';
-    for(var i=0; i<usingField.length; i++){
-        select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-        if(i != usingField.length - 1)
-            select += " - ";
-    }
-    select += '</option>\n';
+    select += '             <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1244,34 +1196,6 @@ exports.setupRelatedToField = function (attr, callback) {
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
     updateFile(fileBase, file, select, function () {
-
-        // Setup association field for update_fields
-        select = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-        select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += "     <option value=''>{@__ key=\"select.default\" /}</option>\n";
-        select += '     <!--{#' + alias + '_global_list}-->\n';
-        select += '         <!--{@eq key=' + alias + '.id value=id}-->\n';
-        select += '             <option value="{id}" selected>';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{:else}-->\n';
-        select += '             <option value="{id}">';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{/eq}-->\n';
-        select += '     <!--{/' + alias + '_global_list}-->\n';
-        select += '</select>\n';
-        select += '</div>\n</div>\n';
-
         file = 'update_fields';
         // Update update_fields file
         updateFile(fileBase, file, select, function () {
@@ -1366,19 +1290,19 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     if (typeof attr.options.showUsingField !== "undefined")
         showUsingField = attr.options.showUsingField;
 
+    var usingList = [], usingOption = [];
+    for(var i=0; i<usingField.length; i++) {
+        usingList.push(usingField[i].value);
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+    }
     // Setup association field for create_fields
     var select = '';
-    select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-    select += '     <select multiple style="width:100%;" class="form-control" name="' + alias + '">\n';
+    select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
+    select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+    select += '     <select multiple style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
     select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}">';
-    for(var i=0; i<usingField.length; i++){
-        select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-        if(i != usingField.length - 1)
-            select += " - ";
-    }
-    select += '</option>\n';
+    select += '            <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1387,56 +1311,23 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
     updateFile(fileBase, file, select, function () {
-
-        select = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-        select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += '     <!--{#' + alias + '_global_list}-->\n';
-        select += '         <!--{@inArray field="id" array=' + alias + ' value=id}-->\n';
-        select += '             <option value="{id}" selected>';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{:else}-->\n';
-        select += '             <option value="{id}">';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{/inArray}-->\n';
-        select += '     <!--{/' + alias + '_global_list}-->\n';
-        select += '</select>\n';
-        select += '</div>\n</div>\n';
-
         file = 'update_fields';
         // Update update_fields file
         updateFile(fileBase, file, select, function () {
 
+            select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
+            select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+            select += '     <select multiple disabled readOnly style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+            select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+            select += '         <!--{#' + alias + '}-->\n';
+            select += '            <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
+            select += '         <!--{/' + alias + '}-->\n';
+            select += '     </select>\n';
+            select += '</div>\n</div>\n';
+
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
-
-                var usingFieldContent = "";
-                for(var i=0; i<usingField.length; i++){
-                    usingFieldContent += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-                    if(i != usingField.length - 1)
-                        usingFieldContent += " - ";
-                }
-
-                // Add read only field in show file. No tab required
-                select = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-                select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-                select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '" disabled readonly>\n';
-                select += '     <!--{#' + alias + '}-->\n';
-                select += '         <option value="'+usingFieldContent+'" selected>'+usingFieldContent+'</option>\n';
-                select += '     <!--{/' + alias + '}-->\n';
-                select += '</select>\n';
-                select += '</div>\n</div>\n';
                 $("#fields").append(select);
 
                 domHelper.write(file, $).then(function () {
@@ -1497,39 +1388,8 @@ exports.setupHasOneTab = function (attr, callback) {
             var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '';
-            newTab += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasOne">\n';
+            var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
 
-            // Include association's fields
-            newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '     {>"' + target + '/show_fields" hideTab="true"/}\n';
-            newTab += '<!--{:else}-->\n';
-            newTab += '     {@__ key="message.empty" /}<br><br>\n';
-            newTab += '<!--{/' + alias + '}-->\n';
-
-            newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '		<form action="/' + urlTarget + '/delete" method="post">\n';
-            newTab += '			<a style="margin-right:8px;" href="/' + urlTarget + '/update_form?id={id}&associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-warning">\n';
-            newTab += '				<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>\n';
-            newTab += '			</a>\n';
-            newTab += '			<button onclick="return confirm(\'Êtes-vous sûr de vouloir supprimer cet enregistrement ?\');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
-            newTab += '				<span>{@__ key="button.delete" /}</span>\n';
-            newTab += '				<input name="id" value="{id}" type="hidden"/>\n';
-            newTab += '				<input name="associationAlias" value="' + alias + '" type="hidden"/>\n';
-            newTab += '				<input name="associationForeignKey" value="' + foreignKey + '" type="hidden"/>\n';
-            newTab += '				<input name="associationFlag" value="{' + source + '.id}" type="hidden"/>\n';
-            newTab += '				<input name="associationSource" value="' + source + '" type="hidden"/>\n';
-            newTab += '				<input name="associationUrl" value="' + urlSource + '" type="hidden"/>\n';
-            newTab += '			</button>\n';
-            newTab += '		</form>\n';
-            newTab += '<!--{:else}-->\n';
-            // Create button to directly associate created object to relation
-            newTab += '		<a href="/' + urlTarget + '/create_form?associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-success">\n';
-            newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
-            newTab += '		</a>\n';
-            newTab += '<!--{/' + alias + '}-->\n';
-
-            newTab += '</div>\n';
             printHelper.addHasOne(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTab, target).then(callback);
             });
@@ -1713,5 +1573,17 @@ exports.deleteTab = function (attr, callback) {
         }).catch(function (err) {
             callback(err, null);
         });
+    });
+}
+
+exports.selectEntity = function(id_application, moduleCodeName, entityName, callback) {
+    var layout_path = __dirname+'/../workspace/'+id_application+'/views/layout_'+moduleCodeName+'.dust';
+    domHelper.read(layout_path).then(function($) {
+        if ($('#'+entityName+'_menu_item')[0].style.display === 'block')
+            return callback(null, true);
+        callback(null, false);
+    }).catch(function(err) {
+        console.log(err);
+        callback(err);
     });
 }

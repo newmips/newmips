@@ -435,12 +435,20 @@ exports.deleteModule = function (attr, callback) {
 /* --------------------------------------------------------------- */
 /* --------------------------- Entity ---------------------------- */
 /* --------------------------------------------------------------- */
-exports.selectEntity = function (attr, callback) {
-    db_entity.selectEntity(attr, function (err, info) {
-        if (err)
-            callback(err, null);
-        else
-            callback(null, info);
+exports.selectEntity = function(attr, callback) {
+    db_entity.selectEntity(attr, function(err, info) {
+        if(err)
+            return callback(err, null);
+        db_module.getModuleById(info.moduleId, function(err, module) {
+            if (err)
+                return callback(err, null);
+            structure_data_field.selectEntity(attr.id_application, module.codeName, info.urlEntity, function(err, doRedirect) {
+                if (err)
+                    return callback(err, null);
+                info.doRedirect = doRedirect;
+                callback(null, info);
+            });
+        });
     });
 }
 
@@ -1211,12 +1219,13 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     id_data_entity: attr.id_data_entity
                                 };
 
-                                if (attr.targetType == "hasmany") {
-                                    structure_data_field.setupHasManyTab(reversedAttr, function () {
+                                if(attr.targetType == "hasMany"){
+                                    structure_data_field.setupHasManyTab(reversedAttr, function(){
                                         resolve();
                                     });
-                                } else if (attr.targetType == "hasmanypreset") {
-                                    structure_data_field.setupHasManyPresetTab(reversedAttr, function () {
+                                }
+                                else if(attr.targetType == "hasManyPreset"){
+                                    structure_data_field.setupHasManyPresetTab(reversedAttr, function(){
                                         resolve();
                                     });
                                 } else if (attr.targetType == "relatedToMultiple") {
@@ -1532,10 +1541,6 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         return callback(err, null);
                     }
 
-                    // Right now we have id_TARGET_as and we want id_SOURCE_as
-                    //var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
-                    //newForeignKey = newForeignKey.toLowerCase();
-
                     var associationOption = {
                         idApp: attr.id_application,
                         source: attr.options.source,
@@ -1546,6 +1551,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         relation: "hasMany",
                         through: null,
                         toSync: toSync,
+                        usingField: attr.options.usingField || undefined,
                         type: "hasManyPreset"
                     };
                     // Créer le lien belongsTo en la source et la target
@@ -1949,7 +1955,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                                 relation: "hasMany",
                                 through: null,
                                 toSync: false,
-                                type: null
+                                type: 'localfilestorage'
                             };
                             structure_data_entity.setupAssociation(associationOption, function () {
                                 // Get module info needed for structure
@@ -2426,7 +2432,7 @@ exports.deleteComponentPrint = function (attr, callback) {
              structure_component.newPrint(attr, function(err){
              if(err)
              return callback(err, null);
-             
+
              callback(null, info);
              });
              });
@@ -2558,7 +2564,7 @@ exports.deleteComponentAddress = function (attr, callback) {
 
 /************************Create Component Template document***********************/
 /**
- * 
+ *
  * @param {type} attr
  * @param {type} callback
  * @returns {callback}
@@ -2572,7 +2578,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
         if (!err) {
             if (module) {
                 attr.id_module = module.id;
-                //check if entity is selected 
+                //check if entity is selected
                 if (attr.id_data_entity) {
                     //get entity on which we will add component
                     db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
@@ -2677,8 +2683,8 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
 };
 
 /**
- * 
- * @param {type} attr 
+ *
+ * @param {type} attr
  * @param {type} callback
  */
 exports.deleteComponentDocumentTemplate = function (attr, callback) {
@@ -2696,7 +2702,7 @@ exports.deleteComponentDocumentTemplate = function (attr, callback) {
                                     //Delete juste association
                                     db_component.deleteComponentAndEntityAssociation(componentName, module.id, attr.id_data_entity, function (err, info) {
                                         if (!err) {
-                                            //Delete tab on entity 
+                                            //Delete tab on entity
                                             structure_component.deleteComponentDocumentTemplateOnEntity(attr, function (err) {
                                                 if (err)
                                                     return callback(err);
@@ -2817,24 +2823,6 @@ exports.listTheme = function (attr, callback) {
         callback(null, infoStructure);
     });
 }
-
-/*exports.setSkin = function(attr, callback) {
- structure_ui.setSkin(attr, function(err, infoStructure){
- if(err)
- return callback(err, null);
- 
- callback(null, infoStructure);
- });
- }
- 
- exports.listSkin = function(attr, callback) {
- structure_ui.listSkin(attr, function(err, infoStructure){
- if(err)
- return callback(err, null);
- 
- callback(null, infoStructure);
- });
- }*/
 
 exports.listIcon = function (attr, callback) {
     callback(null, {
