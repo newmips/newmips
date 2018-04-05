@@ -315,107 +315,94 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                     domHelper.read(workspacePath + '/views/e_user/update_fields.dust').then(function($) {
                                         $("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
                                         domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $).then(function() {
+                                            // Copy inline-help route and views
+                                            fs.copySync(piecesPath + '/routes/e_inline_help.js', workspacePath + '/routes/e_inline_help.js');
+                                            fs.copySync(piecesPath + '/views/e_inline_help/', workspacePath + '/views/e_inline_help/');
 
-                                            domHelper.read(workspacePath+'/views/e_role/show_fields.dust').then(function($) {
-                                                $("#r_user").html($("#r_user .sub-tab-table")[0].outerHTML);
+                                            // Copy api entities views
+                                            fs.copy(piecesPath + '/api/views/e_api_credentials', workspacePath + '/views/e_api_credentials', function(err) {
+                                                if (err)
+                                                    console.log(err);
+                                                // Copy js file for access settings
+                                                fs.copy(piecesPath + '/administration/js/', workspacePath + '/public/js/Newmips/', function(err) {
+                                                    if (err)
+                                                        console.log(err);
+                                                    // Copy authentication user entity route
+                                                    fs.copy(piecesPath + '/administration/routes/e_user.js', workspacePath + '/routes/e_user.js', function(err) {
+                                                        if (err)
+                                                            console.log(err);
 
-                                                domHelper.write(workspacePath+'/views/e_role/show_fields.dust', $).then(function() {
-                                                    domHelper.read(workspacePath+'/views/e_group/show_fields.dust').then(function($) {
-                                                        $("#r_user").html($("#r_user .sub-tab-table")[0].outerHTML);
+                                                        // Make fields unique
+                                                        function uniqueField(entity, field) {
+                                                            var model = require(workspacePath + '/models/attributes/' + entity + '.json');
+                                                            model[field].unique = true;
+                                                            fs.writeFileSync(workspacePath + '/models/attributes/' + entity + '.json', JSON.stringify(model, null, 4), 'utf8');
+                                                        }
+                                                        uniqueField('e_user', 'f_login');
+                                                        uniqueField('e_role', 'f_label');
+                                                        uniqueField('e_group', 'f_label');
 
-                                                        domHelper.write(workspacePath+'/views/e_group/show_fields.dust', $).then(function() {
-                                                            // Copy inline-help route and views
-                                                            fs.copySync(piecesPath + '/routes/e_inline_help.js', workspacePath + '/routes/e_inline_help.js');
-                                                            fs.copySync(piecesPath + '/views/e_inline_help/', workspacePath + '/views/e_inline_help/');
+                                                        // Manualy add settings to access file because it's not a real entity
+                                                        var access = require(workspacePath + '/config/access.json');
+                                                        access.administration.entities.push({
+                                                            name: 'access_settings',
+                                                            groups: [],
+                                                            actions: {
+                                                                read: [],
+                                                                create: [],
+                                                                update: [],
+                                                                delete: []
+                                                            }
+                                                        });
+                                                        fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
-                                                            // Copy api entities views
-                                                            fs.copy(piecesPath + '/api/views/e_api_credentials', workspacePath + '/views/e_api_credentials', function(err) {
-                                                                if (err)
-                                                                    console.log(err);
-                                                                // Copy js file for access settings
-                                                                fs.copy(piecesPath + '/administration/js/', workspacePath + '/public/js/Newmips/', function(err) {
+                                                        domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
+                                                            var li = '';
+                                                            li += '{@entityAccess entity="access_settings"}\n';
+                                                            li += '     {@actionAccess entity="access_settings" action="read"}\n';
+                                                            li += '         <li>\n';
+                                                            li += '             <a href="/access_settings/show">\n';
+                                                            li += '                 <i class="fa fa-cog"></i>\n';
+                                                            li += '                 <span>{@__ key="settings.title" /}</span>\n';
+                                                            li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+                                                            li += '             </a>\n';
+                                                            li += '         </li>\n';
+                                                            li += '     {/actionAccess}\n';
+                                                            li += '{/entityAccess}\n';
+
+                                                            $("#sortable").append(li);
+
+                                                            // Add settings entry into authentication module layout
+                                                            domHelper.write(workspacePath + '/views/layout_m_administration.dust', $).then(function() {
+
+                                                                // Copy routes settings pieces
+                                                                fs.copy(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js', function(err) {
                                                                     if (err)
                                                                         console.log(err);
-                                                                    // Copy authentication user entity route
-                                                                    fs.copy(piecesPath + '/administration/routes/e_user.js', workspacePath + '/routes/e_user.js', function(err) {
+
+                                                                    // Copy view settings pieces
+                                                                    fs.copy(piecesPath + '/administration/views/e_access_settings/show.dust', workspacePath + '/views/e_access_settings/show.dust', function(err) {
                                                                         if (err)
                                                                             console.log(err);
 
-                                                                        // Make fields unique
-                                                                        function uniqueField(entity, field) {
-                                                                            var model = require(workspacePath + '/models/attributes/' + entity + '.json');
-                                                                            model[field].unique = true;
-                                                                            fs.writeFileSync(workspacePath + '/models/attributes/' + entity + '.json', JSON.stringify(model, null, 4), 'utf8');
-                                                                        }
-                                                                        uniqueField('e_user', 'f_login');
-                                                                        uniqueField('e_role', 'f_label');
-                                                                        uniqueField('e_group', 'f_label');
+                                                                        // Copy route e_api_credentials piece
+                                                                        fs.copy(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js', function(err) {
+                                                                            if (err)
+                                                                                console.log(err);
 
-                                                                        // Manualy add settings to access file because it's not a real entity
-                                                                        var access = require(workspacePath + '/config/access.json');
-                                                                        access.administration.entities.push({
-                                                                            name: 'access_settings',
-                                                                            groups: [],
-                                                                            actions: {
-                                                                                read: [],
-                                                                                create: [],
-                                                                                update: [],
-                                                                                delete: []
-                                                                            }
-                                                                        });
-                                                                        fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+                                                                            // Copy api e_user piece
+                                                                            fs.copy(piecesPath + '/api/routes/e_user.js', workspacePath + '/api/e_user.js', function(err) {
+                                                                                if (err)
+                                                                                    console.log(err);
 
-                                                                        domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
-                                                                            var li = '';
-                                                                            li += '{@entityAccess entity="access_settings"}\n';
-                                                                            li += '     {@actionAccess entity="access_settings" action="read"}\n';
-                                                                            li += '         <li>\n';
-                                                                            li += '             <a href="/access_settings/show">\n';
-                                                                            li += '                 <i class="fa fa-cog"></i>\n';
-                                                                            li += '                 <span>{@__ key="settings.title" /}</span>\n';
-                                                                            li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
-                                                                            li += '             </a>\n';
-                                                                            li += '         </li>\n';
-                                                                            li += '     {/actionAccess}\n';
-                                                                            li += '{/entityAccess}\n';
+                                                                                // API credentials must not be available to API calls, delete the file
+                                                                                fs.unlink(workspacePath + '/api/e_api_credentials.js', function() {
+                                                                                    // Set french translation about API credentials
+                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
+                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
+                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
-                                                                            $("#sortable").append(li);
-
-                                                                            // Add settings entry into authentication module layout
-                                                                            domHelper.write(workspacePath + '/views/layout_m_administration.dust', $).then(function() {
-
-                                                                                // Copy routes settings pieces
-                                                                                fs.copy(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js', function(err) {
-                                                                                    if (err)
-                                                                                        console.log(err);
-
-                                                                                    // Copy view settings pieces
-                                                                                    fs.copy(piecesPath + '/administration/views/e_access_settings/show.dust', workspacePath + '/views/e_access_settings/show.dust', function(err) {
-                                                                                        if (err)
-                                                                                            console.log(err);
-
-                                                                                        // Copy route e_api_credentials piece
-                                                                                        fs.copy(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js', function(err) {
-                                                                                            if (err)
-                                                                                                console.log(err);
-
-                                                                                            // Copy api e_user piece
-                                                                                            fs.copy(piecesPath + '/api/routes/e_user.js', workspacePath + '/api/e_user.js', function(err) {
-                                                                                                if (err)
-                                                                                                    console.log(err);
-
-                                                                                                // API credentials must not be available to API calls, delete the file
-                                                                                                fs.unlink(workspacePath + '/api/e_api_credentials.js', function() {
-                                                                                                    // Set french translation about API credentials
-                                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
-                                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
-                                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
-
-                                                                                                    initializeWorkflow(id_application, name_application).then(resolve).catch(reject);
-                                                                                                });
-                                                                                            });
-                                                                                        });
-                                                                                    });
+                                                                                    initializeWorkflow(id_application, name_application).then(resolve).catch(reject);
                                                                                 });
                                                                             });
                                                                         });

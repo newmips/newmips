@@ -6,7 +6,7 @@ function capitalizeFirstLetter(word) {
 }
 
 // DataEntity
-exports.selectEntity = function (attr, callback) {
+exports.selectEntity = function(attr, callback) {
 
     var options = attr.options;
     var optionType;
@@ -27,14 +27,14 @@ exports.selectEntity = function (attr, callback) {
                     id: options.value
                 },
                 include: [{
-                        model: models.Module,
-                        include: [{
-                                model: models.Application,
-                                where: {
-                                    id: attr.id_application
-                                }
-                            }]
+                    model: models.Module,
+                    include: [{
+                        model: models.Application,
+                        where: {
+                            id: attr.id_application
+                        }
                     }]
+                }]
             };
             optionType = "ID";
         } else {
@@ -43,19 +43,19 @@ exports.selectEntity = function (attr, callback) {
                     name: options.value
                 },
                 include: [{
-                        model: models.Module,
-                        include: [{
-                                model: models.Application,
-                                where: {
-                                    id: attr.id_application
-                                }
-                            }]
+                    model: models.Module,
+                    include: [{
+                        model: models.Application,
+                        where: {
+                            id: attr.id_application
+                        }
                     }]
+                }]
             };
             optionType = "Name";
         }
 
-        models.DataEntity.findOne(where).then(function (entity) {
+        models.DataEntity.findOne(where).then(function(entity) {
             if (!entity) {
                 var err = new Error();
                 err.message = "database.entity.notFound.withThis" + optionType;
@@ -72,7 +72,7 @@ exports.selectEntity = function (attr, callback) {
             };
 
             callback(null, info);
-        }).catch(function (err) {
+        }).catch(function(err) {
             callback(err, null);
         });
     } else {
@@ -111,7 +111,7 @@ exports.selectEntityTarget = function (attr, callback) {
     });
 }
 
-exports.createNewEntity = function (attr, callback) {
+exports.createNewEntity = function(attr, callback) {
 
     // Set id_information_system of future data_entity according to session value transmitted in attributes
     var id_module = attr.id_module;
@@ -126,18 +126,22 @@ exports.createNewEntity = function (attr, callback) {
 
     models.DataEntity.findOne({
         where: {
-            $or: [{name: show_name_entity}, {codeName: name_entity}]
+            $or: [{
+                name: show_name_entity
+            }, {
+                codeName: name_entity
+            }]
         },
         include: [{
-                model: models.Module,
-                include: [{
-                        model: models.Application,
-                        where: {
-                            id: attr.id_application
-                        }
-                    }]
+            model: models.Module,
+            include: [{
+                model: models.Application,
+                where: {
+                    id: attr.id_application
+                }
             }]
-    }).then(function (dataEntity) {
+        }]
+    }).then(function(dataEntity) {
         if (dataEntity) {
             var err = new Error();
             err.message = "database.entity.create.alreadyExist";
@@ -149,8 +153,8 @@ exports.createNewEntity = function (attr, callback) {
             codeName: name_entity,
             id_module: id_module,
             version: 1
-        }).then(function (newEntity) {
-            models.Module.findById(id_module).then(function (module) {
+        }).then(function(newEntity) {
+            models.Module.findById(id_module).then(function(module) {
                 var info = {
                     insertId: newEntity.id,
                     urlEntity: newEntity.codeName.substring(2),
@@ -160,7 +164,7 @@ exports.createNewEntity = function (attr, callback) {
                 callback(null, info);
             });
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }

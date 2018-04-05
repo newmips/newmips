@@ -1,116 +1,489 @@
 
-function select2_ajaxsearch(elementID, entity, searchFields) {
-    $(elementID).select2({
+
+var maskMoneyPrecision = 2;
+var dropzonesFieldArray = [];
+var dropzonesComponentArray = [];
+Dropzone.autoDiscover = false;
+
+function select2_ajaxsearch(select) {
+    var searchField = select.data('using').split(',');
+    select.select2({
         ajax: {
-            url: '/default/select2_search',
+            url: '/' + select.data('source') + '/search',
             dataType: 'json',
             method: 'POST',
             delay: 250,
             contentType: "application/json",
-            context: this,
             data: function (params) {
                 var ajaxdata = {
-                    entity: entity,
                     search: params.term,
-                    searchFields: searchFields
+                    searchField: searchField
                 };
                 return JSON.stringify(ajaxdata);
             },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
+            processResults: function (dataResults, params) {
+                if (!dataResults)
+                    return {results: []};
+                var results = [];
+                for (var i = 0; i < dataResults.length; i++)
+                    results.push({id: dataResults[i].id, text: dataResults[i][searchField[0].toLowerCase()]});
+                return {results: results};
             },
             cache: true
         },
-        minimumInputLength: 1,
+        minimumInputLength: 0,
         escapeMarkup: function (markup) {
             return markup;
         },
         templateResult: function (data) {
             return data.text;
-        }
+        },
+        placeholder: SELECT_DEFAULT_TEXT
     });
 }
 
-$(document).ready(function () {
+// INIT FORM
+function initForm(context) {
+    if (!context)
+        context = document;
 
-    // Inline help
-    var currentHelp, modalOpen = false;
-    $(".inline-help").click(function () {
-        currentHelp = this;
-        var parts = window.location.href.split('/');
-        parts = parts[parts.length - 2];
-        var field = $(this).data('field');
-        $.ajax({
-            url: "/inline_help/help/" + parts + "/" + field,
-            success: function (content) {
-                $("#prevHelp, #nextHelp").hide();
-                var totalHelp = $(".inline-help").length - 1;
-                var currentIdx = $(".inline-help").index(currentHelp);
-                if (totalHelp - currentIdx > 0)
-                    $("#nextHelp").show();
-                if (currentIdx > 0)
-                    $("#prevHelp").show();
-                $(".modal-title").html($(currentHelp).parents('label').text());
-                $(".modal-body").html(content);
-                $("#inlineHelp").modal('show');
-            }
-        });
+    $("select.ajax", context).each(function () {
+        select2_ajaxsearch($(this));
     });
-
-    // Prev/next Help en ligne buttons
-    $("#nextHelp, #prevHelp").click(function () {
-        var count = $("#fields .inline-help").length - 1;
-        var current = $("#fields .inline-help").index(currentHelp);
-        if ($(this).attr('id') == 'nextHelp' && count > current)
-            $("#fields .inline-help").eq(current + 1).click();
-        else if ($(this).attr('id') == 'prevHelp' && current > 0)
-            $("#fields .inline-help").eq(current - 1).click();
-    });
-
-    // Handle tab and shift+tab modal navigation
-    $("#inlineHelp").on('show.bs.modal', function () {
-        modalOpen = true;
-    });
-
-    $("#inlineHelp").on('hide.bs.modal', function () {
-        modalOpen = false;
-    });
-
-    $(document).keypress(function (e) {
-        if (modalOpen == false)
-            return;
-        var code = e.keyCode || e.which;
-        // Tabulation
-        if (e.shiftKey && code == '9')
-            $("#prevHelp").click();
-        else if (code == '9')
-            $("#nextHelp").click();
-    });
+    $("select:not(.ajax)", context).select2();
 
     /* Display color td with fa classes instead of color value */
-    $("td[data-type=color]").each(function () {
+    $("td[data-type=color]", context).each(function () {
         if ($(this).find('i').length > 0)
             return;
         var color = $(this).text();
         $(this).html('<i class="fa fa-lg fa-circle" style="color:' + color + '"></i>');
     });
 
-    /* Save mini sidebar preference */
-    $(document).on("click", ".sidebar-toggle", function () {
-        if (typeof sidebarPref !== "undefined" && sidebarPref != "null") {
-            if (sidebarPref == "close")
-                sidebarPref = "open";
-            else if (sidebarPref == "open")
-                sidebarPref = "close";
-        } else {
-            sidebarPref = "open";
-        }
-
-        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
+    /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
+    $("input[type='checkbox'], input[type='radio']", context).iCheck({
+        checkboxClass: 'icheckbox_flat-blue',
+        radioClass: 'iradio_flat-blue',
+        disabledClass: ''
     });
 
+    /* --------------- Initialisation des Textarea --------------- */
+    $("textarea:not(.regular-textarea)", context).each(function () {
+        $(this).summernote({
+            height: 200
+        });
+    });
+
+    /* --------------- Initialisation des timepicker --------------- */
+    $(".timepicker", context).timepicker({
+        showInputs: false,
+        showMeridian: false
+    });
+
+    /* --------------- Regex on decimal input --------------- */
+    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
+    $("input[data-custom-type='decimal']", context).keyup(function (e) {
+        while ($(this).val() != "" && !reg.test($(this).val()))
+            $(this).val($(this).val().substring(0, $(this).val().length - 1))
+    });
+
+    /* --------------- Max length on input number --------------- */
+    $("input[type='number']", context).keyup(function (e) {
+        if (typeof $(this).data("customtype") === "undefined")
+            if (this.value.length > 10)
+                this.value = this.value.slice(0, 10);
+    });
+
+    /* --------------- Initialisation des DatetimePicker --------------- */
+    /* --------------- Initialisation des datePicker --------------- */
+    /* --------------- Initialisation des Input Maks --------------- */
+    $("input[data-type='email']", context).inputmask({
+        alias: "email"
+    });
+
+    /* Uncomment if you want to apply a mask on tel input */
+    $("input[type='tel']", context).inputmask({mask: "99 99 99 99 99"});
+
+    /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
+    $('.simpledate-toconvert', context).each(function () {
+        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+            }
+        }
+    });
+
+    $('.datepicker-toconvert', context).each(function () {
+        var currentVal = $(this).val();
+        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
+            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
+                if (lang_user == "fr-FR")
+                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY"));
+                else
+                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD"));
+            }
+        } else {
+            $(this).val("");
+        }
+    });
+
+    $('.datetimepicker-toconvert', context).each(function () {
+        var currentVal = $(this).attr("value");
+        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
+            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
+                if (lang_user == "fr-FR")
+                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY HH:mm")).change();
+                else
+                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD HH:mm")).change();
+            }
+        } else {
+            $(this).val("");
+        }
+    });
+
+    $("td[data-type='date']", context).each(function () {
+        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+            }
+        } else {
+            $(this).html("");
+        }
+    });
+
+    $("td[data-type='datetime']", context).each(function () {
+        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+            }
+        } else {
+            $(this).html("");
+        }
+    });
+
+    $('img[data-type="picture"]', context).each(function () {
+        var src = $(this).attr('src');
+        //remove all pictures with null src value
+        if (typeof src !== 'undefined' && src.split(',')[1] == '') {
+            var msg = 'No image selected';
+            if (lang_user == 'fr-FR')
+                msg = 'Aucune image choisie';
+            $(this).parent().replaceWith('<span>' + msg + '</span>');
+        }
+    });
+
+    /* Show boolean with a square in datalist */
+    $('td[data-type="boolean"]', context).each(function () {
+        var val = $(this).html();
+        if (val == 'true' || val == '1')
+            $(this).html('<i class="fa fa-check-square-o fa-lg"></i>');
+        else
+            $(this).html('<i class="fa fa-square-o fa-lg"></i>');
+    });
+
+    /* After good format -> Date / Datetime instanciation */
+    if (lang_user == "fr-FR") {
+        $('.datepicker', context).datepicker({
+            format: "dd/mm/yyyy",
+            language: lang_user,
+            autoclose: true,
+            clearBtn: true
+        });
+
+        $(".datepicker", context).inputmask({
+            "alias": "dd/mm/yyyy"
+        });
+
+        $('.datetimepicker', context).datetimepicker({
+            format: "DD/MM/YYYY HH:mm",
+            sideBySide: true
+        });
+
+        $(".datetimepicker", context).inputmask({
+            mask: "1/2/y h:s",
+            placeholder: "dd/mm/yyyy hh:mm",
+            alias: "datetime",
+            timeseparator: ":",
+            hourFormat: "24"
+        });
+    } else {
+        $('.datepicker', context).datepicker({
+            format: "yyyy-mm-dd",
+            language: lang_user,
+            autoclose: true,
+            clearBtn: true
+        });
+
+        $(".datepicker", context).inputmask({
+            "alias": "yyyy-mm-dd"
+        });
+
+        $('.datetimepicker', context).datetimepicker({
+            format: "YYYY-MM-DD HH:mm",
+            sideBySide: true
+        });
+
+        $(".datetimepicker", context).inputmask({
+            mask: "y-1-2 h:s",
+            placeholder: "yyyy-mm-dd hh:mm",
+            separator: "-",
+            alias: "yyyy/mm/dd"
+        });
+    }
+
+    /* Set default date if needed */
+    $('.datepicker', context).each(function () {
+        if ($(this).attr("data-today") == 1)
+            $(this).datepicker("setDate", "0");
+    });
+
+    $('.datetimepicker', context).each(function () {
+        if ($(this).attr("data-today") == 1)
+            $(this).data("DateTimePicker").defaultDate(moment());
+    });
+
+    /* ----------------data-type qrcode generation -------------------------*/
+    // Counter to avoid same id generation
+    var ctpQrCode = 0;
+    $("input[data-type='qrcode']", context).each(function () {
+        if ($(this).val() != '') {
+            //Update View, set attr parent id, Qrcode only work with component Id
+            $(this).parent().parent().attr("id", $(this).attr('name') + ctpQrCode);
+            //$(this).attr('name') = this parent id
+            var qrcode = new QRCode($(this).attr('name') + ctpQrCode, {
+                text: $(this).val(),
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            $(this).parent().replaceWith(qrcode);
+            ctpQrCode++;
+        }
+    });
+
+    var displayBarCode = function (element) {
+        var jq_element = $(element);
+        var id = jq_element.attr('name');
+        var img = '<br><img id="' + id + '" class="img img-responsive"/>';
+        var barcodeType = jq_element.attr('data-customtype');
+        if (typeof barcodeType != 'undefined') {
+            jq_element.parent().after(img);
+            try {
+                JsBarcode('#' + id, jq_element.val(), {
+                    format: barcodeType,
+                    lineColor: "#000",
+                    width: 2,
+                    height: 40,
+                    displayValue: true
+                });
+                jq_element.parent().remove();
+            } catch (e) {
+                jq_element.parent().parent().find('br').remove();
+                jq_element.parent().parent().find('#' + id).remove();
+            }
+        }
+    };
+
+    //input barcode
+    $("input[data-type='barcode']", context).each(function () {
+        if ($(this).attr('show') == 'true' && $(this).val() != '') {
+            displayBarCode(this);
+        } else {
+            if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
+                $(this).on('keyup', function () {
+                    $(this).val($(this).val().toUpperCase());
+                });
+            }
+        }
+    });
+
+    //input barcode
+    $("input[data-type='code39'],input[data-type='alpha39']", context).each(function () {
+        $(this).on('keyup', function () {
+            $(this).val($(this).val().toUpperCase());
+        });
+    });
+
+    //Mask for data-type currency
+    $("input[data-type='currency']", context).each(function () {
+        $(this).maskMoney({
+            thousands: ' ',
+            decimal: '.',
+            allowZero: true,
+            suffix: '',
+            precision: maskMoneyPrecision
+        }).maskMoney('mask');
+    });
+
+    /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
+    $('.dropzone-field', context).each(function (index) {
+        var that = $(this);
+        var type = that.attr('data-type');
+        var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
+            url: "/default/file_upload",
+            autoProcessQueue: true,
+            maxFilesize: 10,
+            addRemoveLinks: true,
+            uploadMultiple: false,
+            dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
+            dictRemoveFile: "Supprimer",
+            dictCancelUpload: "Annuler",
+            autoDiscover: false,
+            thumbnailWidth: 500,
+            thumbnailHeight: 500,
+            init: function () {
+                this.on("addedfile", function () {
+                    if (this.files[1] != null) {
+                        this.removeFile(this.files[1]);
+                        toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
+                    } else if (!this.files[0].default) {
+                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
+                        $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
+                    }
+                });
+
+                this.on("sending", function (file, xhr, formData) {
+                    var storageType = that.attr("data-storage");
+                    var dataEntity = that.attr("data-entity");
+                    var dataType = that.attr("data-type") || '';
+                    formData.append("storageType", storageType);
+                    formData.append("dataEntity", dataEntity);
+                    formData.append("dataType", dataType);
+                });
+                this.on("maxfilesexceeded", function () {
+                    this.removeFile(this.files[1]);
+                    toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
+                });
+                this.on("error", function (file, message) {
+                    this.removeFile(this.files[0]);
+                    toastr.error(message);
+                    $("#" + that.attr("id") + "_hidden").removeAttr('value');
+                });
+                this.on('removedfile', function (file) {
+                    if (file.status != "error") {
+                        var dropzone = this;
+                        if (!confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?'))
+                            return false;
+                        $.ajax({
+                            url: '/default/delete_file',
+                            type: 'post',
+                            data: {
+                                dataEntity: that.attr("data-entity"),
+                                dataStorage: that.attr("data-storage"),
+                                filename: $("#" + that.attr("id") + "_hidden").val()
+                            },
+                            success: function (success) {
+                                $("#" + that.attr("id") + "_hidden").val('');
+                                if (dropzone.files.length) {
+                                    dropzone.removeAllFiles(true);
+                                }
+                            }
+                        });
+                    }
+                });
+            },
+            renameFilename: function (filename) {
+                if (filename.indexOf('dfltImg_') != -1)
+                    return filename;
+                if ($("#" + that.attr("id") + "_hidden").val() != '') {
+                    var timeFile = moment().format("YYYYMMDD-HHmmss");
+                    $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
+                    return timeFile + '_' + filename;
+                }
+
+            }
+        });
+        if (type == 'picture')
+            dropzoneInit.options.acceptedFiles = 'image/*';
+        else if (type === "docx/pdf")
+            dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        var dropzoneId = $(this).attr('id') + '';
+        if ($('#' + dropzoneId + '_hidden').val() != '') {
+            var mockFile = {
+                name: $('#' + dropzoneId + '_hidden').val(),
+                type: 'mockfile',
+                default: true
+            };
+            dropzoneInit.files.push(mockFile);
+            dropzoneInit.emit('addedfile', mockFile);
+            dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
+            dropzoneInit.emit('complete', mockFile);
+        }
+        dropzoneInit.done = false;
+        dropzonesFieldArray.push(dropzoneInit);
+    });
+}
+
+// DROPZONE
+function initDropZone(context) {
+    if (!context)
+        context = document;
+
+    /* File Storage Component */
+    $('.dropzone_local_file_component', context).each(function (index) {
+        var that = $(this);
+        var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
+            url: "/" + that.attr("data-component") + "/file_upload",
+            autoProcessQueue: true,
+            maxFilesize: 10,
+            addRemoveLinks: true,
+            uploadMultiple: false,
+            dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
+            dictRemoveFile: "Supprimer",
+            dictCancelUpload: "Annuler",
+            init: function () {
+                this.on("addedfile", function () {
+                    if (this.files[1] != null) {
+                        this.removeFile(this.files[1]);
+                        toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
+                    } else {
+                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
+                        $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
+                    }
+                });
+                this.on("sending", function (file, xhr, formData) {
+                    var dataComponent = that.attr("data-component");
+                    var dataSource = that.attr("data-source");
+                    var dataSourceID = that.attr("data-sourceId");
+                    formData.append("dataComponent", dataComponent);
+                    formData.append("dataSource", dataSource);
+                    formData.append("dataSourceID", dataSourceID);
+                });
+                this.on("maxfilesexceeded", function () {
+                    this.removeFile(this.files[1]);
+                    toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
+                });
+                this.on("error", function (file, message) {
+                    this.removeFile(this.files[0]);
+                    toastr.error(message);
+                    $("#" + that.attr("id") + "_hidden").removeAttr('value');
+                });
+            },
+            renameFilename: function (filename) {
+                var timeFile = moment().format("YYYYMMDD-HHmmss");
+                $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
+                return timeFile + '_' + filename;
+            }
+        });
+
+        dropzonesComponentArray[$(this).attr("data-component")] = [];
+        dropzonesComponentArray[$(this).attr("data-component")].push(dropzoneInit);
+    });
+}
+
+// PRINT
+function initPrint() {
     /* Clear print tab component */
     $(".print-tab input").each(function () {
         $(this).prop("disabled", true);
@@ -209,8 +582,267 @@ $(document).ready(function () {
     $(".print-tab .print-remove").each(function () {
         $(this).remove();
     });
+}
 
-    /* --------------- Gestion des Toastr (messages informatifs en bas à gauche) --------------- */
+function validateForm(form) {
+    var isValid = true;
+
+    function isFileProcessing() {
+        for (var i = 0; i < dropzonesFieldArray.length; i++)
+            if (dropzonesFieldArray[i].files.length == 1)
+                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
+                    return true;
+                }
+        return false;
+    }
+    // If there are files to upload, block submition until files are uploaded
+    if (isFileProcessing()) {
+        toastr.warning(WAIT_UPLOAD_TEXT);
+        return false;
+    }
+
+    /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
+    if (lang_user == "fr-FR") {
+        /* Datepicker FR convert*/
+        form.find('.datepicker').each(function () {
+            if ($(this).val().length > 0) {
+                // Sécurité
+                $(this).prop("readOnly", true);
+
+                var date = $(this).val().split("/");
+                var newDate = date[2] + "-" + date[1] + "-" + date[0];
+
+                // Remove mask to enable to transform the date
+                $(this).inputmask('remove');
+
+                $(this).val(newDate);
+            }
+        });
+
+        /* Datetimepicer FR convert */
+        form.find('.datetimepicker').each(function () {
+            if ($(this).val().length > 0) {
+                // Sécurité
+                $(this).prop("readOnly", true);
+
+                var date = $(this).val().split("/");
+                var yearDate = date[2].split(" ");
+                var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
+
+                // Remove mask to enable to transform the date
+                $(this).inputmask('remove');
+
+                $(this).val(newDate);
+            }
+        });
+    }
+
+    /* Convert all times in UTC */
+    form.find('.datetimepicker').each(function () {
+        if ($(this).val().length > 0) {
+            // Sécurité
+            $(this).prop("readOnly", true);
+            $(this).val(moment.utc(new Date($(this).val())));
+        }
+    });
+
+    /* If a select multiple is empty we want to have an empty value in the req.body */
+    form.find("select[multiple]").each(function () {
+        if ($(this).val() == null) {
+            var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
+            form.append($(input));
+        }
+    });
+
+    /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
+    form.find("input[type='checkbox']").each(function () {
+        if ($(this).prop("checked")) {
+            $(this).val(true);
+        } else {
+            /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
+            $(this).prop("checked", true);
+            $(this).val(false);
+        }
+    });
+
+    /* Vérification que les input mask EMAIL sont bien complétés jusqu'au bout */
+    form.find("input[data-type='email']").each(function () {
+        if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
+            $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
+            isValid = false;
+        }
+    });
+
+    /* Vérification que les input mask URL sont bien complétés jusqu'au bout */
+    form.find("input[data-type='url']").each(function () {
+        if ($(this).val() != '' && !$(this).inputmask("isComplete")) {
+            toastr.error(" Le champ " + $(this).attr("placeholder") + " est invalide");
+            isValid = false;
+        }
+    });
+
+    /* Vérification des types barcode */
+    form.find("input[data-type='barcode']").each(function () {
+        var val = $(this).val();
+        if (val != '') {
+            var customType = $(this).attr('data-customtype');
+            if (typeof customType != 'undefined') {
+                var error = false;
+                var len;
+                var message = "";
+                switch (customType) {
+                    case 'ean8':
+                        var len = 8;
+                        error = val.length === len ? false : true;
+                        if (error)
+                            message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
+                        break;
+                    case 'isbn':
+                    case 'issn':
+                    case 'ean13':
+                        len = 13;
+                        error = val.length === len ? false : true;
+                        if (error)
+                            message += "Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".<br>";
+                        if (customType === "issn" && !val.startsWith('977')) {
+                            error = true;
+                            message += "Le champ " + $(this).attr("placeholder") + " doit comencer par 977.";
+
+                        }
+                        break;
+
+                    case 'upca':
+                        len = 12;
+                        error = val.length === len ? false : true;
+                        if (error)
+                            message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
+                        break;
+                    case 'code39':
+                    case 'alpha39':
+                        //                             var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
+                        if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
+                            message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
+                            error = true;
+                        }
+                        break;
+                    case 'code128':
+                        if (!(/^[\x00-\x7F]*$/).test(val)) {
+                            message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code128.";
+                            error = true;
+                        }
+                        break;
+                }
+
+                if (error) {
+                    toastr.error(message);
+                    isValid = false;
+                }
+            }
+        }
+    });
+
+    /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
+    form.find("input[type='tel']").each(function () {
+        if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
+            console.log("MASK INVALID")
+            $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
+            isValid = false;
+            $(this).find("input[data-type='currency']").each(function () {
+                //replace number of zero par maskMoneyPrecision value, default 2
+                $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
+            });
+        }
+    });
+
+    form.find("input[data-type='currency']").each(function () {
+        //replace number of zero par maskMoneyPrecision value, default 2
+        $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
+    });
+
+    return isValid;
+}
+
+// DOM READY LOADING
+$(document).ready(function () {
+
+    initForm();
+
+    /* Save mini sidebar preference */
+    $(document).on("click", ".sidebar-toggle", function () {
+        if (typeof sidebarPref !== "undefined" && sidebarPref != "null") {
+            if (sidebarPref == "close")
+                sidebarPref = "open";
+            else if (sidebarPref == "open")
+                sidebarPref = "close";
+        } else {
+            sidebarPref = "open";
+        }
+
+        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
+    });
+
+    $('form').submit(function (e) {
+        if (!validateForm($(this)))
+            return false;
+        return true;
+    });
+
+    /* --------------- Inline Help --------------- */
+    var currentHelp, modalOpen = false;
+    $(document).delegate(".inline-help", 'click', function () {
+        currentHelp = this;
+        var entity;
+        if ($(this).parents('.tab-pane').length && $(this).parents('.tab-pane').attr('id') != 'home')
+            entity = $(this).parents('.tab-pane').attr('id').substring(2);
+        else {
+            var parts = window.location.href.split('/');
+            entity = parts[parts.length - 2];
+        }
+        var field = $(this).data('field');
+        $.ajax({
+            url: "/inline_help/help/" + entity + "/" + field,
+            success: function (content) {
+                $("#prevHelp, #nextHelp").hide();
+                var totalHelp = $(".inline-help").length - 1;
+                var currentIdx = $(".inline-help").index(currentHelp);
+                if (totalHelp - currentIdx > 0)
+                    $("#nextHelp").show();
+                if (currentIdx > 0)
+                    $("#prevHelp").show();
+                $(".modal-title").html($(currentHelp).parents('label').text());
+                $(".modal-body").html(content);
+                $("#inlineHelp").modal('show');
+            }
+        });
+    });
+    // Prev/next Help en ligne buttons
+    $("#nextHelp, #prevHelp").click(function () {
+        var count = $("#fields .inline-help").length - 1;
+        var current = $("#fields .inline-help").index(currentHelp);
+        if ($(this).attr('id') == 'nextHelp' && count > current)
+            $("#fields .inline-help").eq(current + 1).click();
+        else if ($(this).attr('id') == 'prevHelp' && current > 0)
+            $("#fields .inline-help").eq(current - 1).click();
+    });
+    // Handle tab and shift+tab modal navigation
+    $("#inlineHelp").on('show.bs.modal', function () {
+        modalOpen = true;
+    });
+    $("#inlineHelp").on('hide.bs.modal', function () {
+        modalOpen = false;
+    });
+    $(document).keypress(function (e) {
+        if (modalOpen == false)
+            return;
+        var code = e.keyCode || e.which;
+        // Tabulation
+        if (e.shiftKey && code == '9')
+            $("#prevHelp").click();
+        else if (code == '9')
+            $("#nextHelp").click();
+    });
+
+    /* --------------- Toastr messages --------------- */
     try {
         toastr.options = {
             "closeButton": false,
@@ -265,7 +897,7 @@ $(document).ready(function () {
         };
     }
 
-    /* --------------- Gestion des menus / sidebar --------------- */
+    /* --------------- Breadcrumbs / sidebar --------------- */
     var url = window.location.href;
     var current_url = url.split("/");
 
@@ -287,264 +919,9 @@ $(document).ready(function () {
         $("a[href='/" + mainMenu + "/" + subMenu + "']").css("color", "#3c8dbc");
     }
 
-    /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
-    $("input[type='checkbox'], input[type='radio']").iCheck({
-        checkboxClass: 'icheckbox_flat-blue',
-        radioClass: 'iradio_flat-blue',
-        disabledClass: ''
-    });
-
-    /* --------------- Initialisation des Textarea --------------- */
-    $("textarea:not(.regular-textarea)").each(function () {
-        $(this).summernote({
-            height: 200
-        });
-    });
-
-    /* --------------- Initialisation des timepicker --------------- */
-    $(".timepicker").timepicker({
-        showInputs: false,
-        showMeridian: false
-    });
-
-    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
-    /* --------------- Regex on decimal input --------------- */
-    $("input[data-custom-type='decimal']").keyup(function (e) {
-        while ($(this).val() != "" && !reg.test($(this).val()))
-            $(this).val($(this).val().substring(0, $(this).val().length - 1))
-    });
-
-    /* --------------- Max length on input number --------------- */
-    $("input[type='number']").keyup(function (e) {
-        if (typeof $(this).data("customtype") === "undefined")
-            if (this.value.length > 10)
-                this.value = this.value.slice(0, 10);
-    });
-
-    /* --------------- Initialisation des DateTimepicker --------------- */
-    /* --------------- Initialisation des datepicker --------------- */
-    /* --------------- Initialisation des Input Maks --------------- */
-    $("input[data-type='email']").inputmask({
-        alias: "email"
-    });
-
-    /* Uncomment if you want to apply a mask on tel input */
-    /*$("input[type='tel']").inputmask({mask: "+99 9 99 99 99 99"});*/
-    $("input[type='tel']").inputmask({mask: "99 99 99 99 99"});
-
-    /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
-    $('.simpledate-toconvert').each(function () {
-        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-                else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
-            }
-        }
-    });
-
-    $('.datepicker-toconvert').each(function () {
-        var currentVal = $(this).val();
-        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY"));
-                else
-                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD"));
-            }
-        } else {
-            $(this).val("");
-        }
-    });
-
-    $('.datetimepicker-toconvert').each(function () {
-        var currentVal = $(this).attr("value");
-        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY HH:mm")).change();
-                else
-                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD HH:mm")).change();
-            }
-        } else {
-            $(this).val("");
-        }
-    });
-
-    $("td[data-type='date']").each(function () {
-        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-                else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
-            }
-        } else {
-            $(this).html("");
-        }
-    });
-
-    $("td[data-type='datetime']").each(function () {
-        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
-                else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
-            }
-        } else {
-            $(this).html("");
-        }
-    });
-
-    $(this).find('img[data-type="picture"]').each(function () {
-        var src = $(this).attr('src');
-        //remove all pictures with null src value
-        if (typeof src != 'undefined' && src.split(',')[1] == '') {
-            var msg = 'No image selected';
-            if (lang_user == 'fr-FR')
-                msg = 'Aucune image choisie';
-            $(this).parent().replaceWith('<span>' + msg + '</span>');
-        }
-    });
-
-    /* Show boolean with a square in datalist */
-
-    $('td[data-type="boolean"]').each(function () {
-        var val = $(this).html();
-        if (val == 'true' || val == '1')
-            $(this).html('<i class="fa fa-check-square-o fa-lg"></i>');
-        else
-            $(this).html('<i class="fa fa-square-o fa-lg"></i>');
-    });
-
-    /* After good format -> Date / Datetime instanciation */
-
-    if (lang_user == "fr-FR") {
-        $('.datepicker').datepicker({
-            format: "dd/mm/yyyy",
-            language: lang_user,
-            autoclose: true,
-            clearBtn: true
-        });
-
-        $(".datepicker").inputmask({
-            "alias": "dd/mm/yyyy"
-        });
-
-        $('.datetimepicker').datetimepicker({
-            format: "DD/MM/YYYY HH:mm",
-            sideBySide: true
-        });
-
-        $(".datetimepicker").inputmask({
-            mask: "1/2/y h:s",
-            placeholder: "dd/mm/yyyy hh:mm",
-            alias: "datetime",
-            timeseparator: ":",
-            hourFormat: "24"
-        });
-    } else {
-        $('.datepicker').datepicker({
-            format: "yyyy-mm-dd",
-            language: lang_user,
-            autoclose: true,
-            clearBtn: true
-        });
-
-        $(".datepicker").inputmask({
-            "alias": "yyyy-mm-dd"
-        });
-
-        $('.datetimepicker').datetimepicker({
-            format: "YYYY-MM-DD HH:mm",
-            sideBySide: true
-        });
-
-        $(".datetimepicker").inputmask({
-            mask: "y-1-2 h:s",
-            placeholder: "yyyy-mm-dd hh:mm",
-            separator: "-",
-            alias: "yyyy/mm/dd"
-        });
-    }
-
-    /* Set default date if needed */
-    $('.datepicker').each(function () {
-        if ($(this).attr("data-today") == 1)
-            $(this).datepicker("setDate", "0");
-    });
-
-    $('.datetimepicker').each(function () {
-        if ($(this).attr("data-today") == 1)
-            $(this).data("DateTimePicker").defaultDate(moment());
-    });
-
-    /* Avoid .dropzone to be automaticaly initialized */
-    Dropzone.autoDiscover = false;
-
-    /* --------------- Initialisation de DROPZONE JS - COMPONENT --------------- */
-
-    var dropzonesComponentArray = [];
-
-    /* File Storage Component */
-    $('.dropzone_local_file_component').each(function (index) {
-        var that = $(this);
-        var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
-            url: "/" + that.attr("data-component") + "/file_upload",
-            autoProcessQueue: false,
-            maxFilesize: 10,
-            addRemoveLinks: true,
-            uploadMultiple: false,
-            dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
-            dictRemoveFile: "Supprimer",
-            dictCancelUpload: "Annuler",
-            init: function () {
-                this.on("addedfile", function () {
-                    if (this.files[1] != null) {
-                        this.removeFile(this.files[1]);
-                        toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } else {
-                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
-                        $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
-                    }
-                });
-                this.on("sending", function (file, xhr, formData) {
-                    var storageType = that.attr("data-storage");
-                    var dataComponent = that.attr("data-component");
-                    var dataSource = that.attr("data-source");
-                    var dataSourceID = that.attr("data-sourceId");
-                    formData.append("storageType", storageType);
-                    formData.append("dataComponent", dataComponent);
-                    formData.append("dataSource", dataSource);
-                    formData.append("dataSourceID", dataSourceID);
-                });
-                this.on("maxfilesexceeded", function () {
-                    this.removeFile(this.files[1]);
-                    toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                });
-                this.on("error", function (file, message) {
-                    this.removeFile(this.files[0]);
-                    toastr.error(message);
-                    $("#" + that.attr("id") + "_hidden").removeAttr('value');
-                });
-            },
-            renameFilename: function (filename) {
-                var timeFile = moment().format("YYYYMMDD-HHmmss");
-                $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
-                return timeFile + '_' + filename;
-            }
-        });
-
-        dropzonesComponentArray[$(this).attr("data-component")] = [];
-        dropzonesComponentArray[$(this).attr("data-component")].push(dropzoneInit);
-    });
-
+    // DROPZONE SUBMIT
     /* Dropzone files managment already done ? */
     var filesComponentProceeded = false;
-
-    /* Proceed dropzone before submit the component form */
     $(document).on("submit", ".component-form", function (e) {
         if (!filesComponentProceeded && dropzonesComponentArray[$(this).attr("data-component")].length > 0) {
             /* If there are files to write, stop submit and do this before */
@@ -573,389 +950,6 @@ $(document).ready(function () {
 
         return true;
     });
-    /* ----------------data-type qrcode generation -------------------------*/
-
-    // Counter to avoid same id generation
-    var ctpQrCode = 0;
-    $(this).find("input[data-type='qrcode']").each(function () {
-        if ($(this).val() != '') {
-            //Update View, set attr parent id, Qrcode only work with component Id
-            $(this).parent().parent().attr("id", $(this).attr('name') + ctpQrCode);
-            //$(this).attr('name') = this parent id
-            var qrcode = new QRCode($(this).attr('name') + ctpQrCode, {
-                text: $(this).val(),
-                width: 128,
-                height: 128,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            $(this).parent().replaceWith(qrcode);
-            ctpQrCode++;
-        }
-    });
-
-    var displayBarCode = function (element) {
-        var jq_element = $(element);
-        var id = jq_element.attr('name');
-        var img = '<br><img id="' + id + '" class="img img-responsive"/>';
-        var barcodeType = jq_element.attr('data-customtype');
-        if (typeof barcodeType != 'undefined') {
-            jq_element.parent().after(img);
-            try {
-                JsBarcode('#' + id, jq_element.val(), {
-                    format: barcodeType,
-                    lineColor: "#000",
-                    width: 2,
-                    height: 40,
-                    displayValue: true
-                });
-                jq_element.parent().remove();
-            } catch (e) {
-                jq_element.parent().parent().find('br').remove();
-                jq_element.parent().parent().find('#' + id).remove();
-            }
-        }
-    };
-
-    $(this).find("input[data-type='barcode']").each(function () {
-        if ($(this).attr('show') == 'true' && $(this).val() != '') {
-            displayBarCode(this);
-        } else {
-            if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
-                $(this).on('keyup', function () {
-                    $(this).val($(this).val().toUpperCase());
-                });
-            }
-        }
-    });
-
-    $(this).find("input[data-type='code39'],input[data-type='alpha39']").each(function () {
-        $(this).on('keyup', function () {
-            $(this).val($(this).val().toUpperCase());
-        });
-    });
-
-    var maskMoneyPrecision = 2;
-    //Mask for data-type currency
-    $(this).find("input[data-type='currency']").each(function () {
-        $(this).maskMoney({
-            thousands: ' ',
-            decimal: '.',
-            allowZero: true,
-            suffix: '',
-            precision: maskMoneyPrecision
-        }).maskMoney('mask');
-    });
-    /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
-    var dropzonesFieldArray = [];
-
-    $('.dropzone-field').each(function (index) {
-        var that = $(this);
-        var type = that.attr('data-type');
-        var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
-            url: "/default/file_upload",
-            autoProcessQueue: false,
-            maxFilesize: 10,
-            addRemoveLinks: true,
-            uploadMultiple: false,
-            dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
-            dictRemoveFile: "Supprimer",
-            dictCancelUpload: "Annuler",
-            autoDiscover: false,
-            init: function () {
-                this.on("addedfile", function () {
-                    if (this.files[1] != null) {
-                        this.removeFile(this.files[1]);
-                        toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } else {
-                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
-                        $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
-                    }
-                });
-
-                this.on("sending", function (file, xhr, formData) {
-                    var storageType = that.attr("data-storage");
-                    var dataEntity = that.attr("data-entity");
-                    var dataType = that.attr("data-type") || '';
-                    formData.append("storageType", storageType);
-                    formData.append("dataEntity", dataEntity);
-                    formData.append("dataType", dataType);
-                });
-                this.on("maxfilesexceeded", function () {
-                    this.removeFile(this.files[1]);
-                    toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                });
-                this.on("error", function (file, message) {
-                    this.removeFile(this.files[0]);
-                    toastr.error(message);
-                    $("#" + that.attr("id") + "_hidden").removeAttr('value');
-                });
-                this.on('removedfile', function (file) {
-                    if (file.status != "error") {
-                        var dropzone = this;
-                        x = confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?');
-                        if (!x)
-                            return false;
-                        $.ajax({
-                            url: '/default/delete_file',
-                            type: 'post',
-                            data: {
-                                dataEntity: that.attr("data-entity"),
-                                dataStorage: that.attr("data-storage"),
-                                filename: $("#" + that.attr("id") + "_hidden").val()
-                            },
-                            success: function (success) {
-                                $("#" + that.attr("id") + "_hidden").val('');
-                                if (dropzone.files.length) {
-                                    dropzone.removeAllFiles(true);
-                                }
-                            }
-                        });
-                    }
-
-                });
-            },
-            renameFilename: function (filename) {
-                if ($("#" + that.attr("id") + "_hidden").val() != '') {
-                    var timeFile = moment().format("YYYYMMDD-HHmmss");
-                    $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
-                    return timeFile + '_' + filename;
-                }
-
-            }
-        });
-        if (type == 'picture')
-            dropzoneInit.options.acceptedFiles = 'image/*';
-        else if (type === "docx/pdf")
-            dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        var dropzoneId = $(this).attr('id') + '';
-        if ($('#' + dropzoneId + '_hidden').val() != '') {
-            var mockFile = {
-                name: $('#' + dropzoneId + '_hidden').val(),
-                type: 'mockfile'
-            };
-            dropzoneInit.files.push(mockFile);
-            dropzoneInit.emit('addedfile', mockFile);
-            dropzoneInit.emit('complete', mockFile);
-        }
-        dropzoneInit.done = false;
-        dropzonesFieldArray.push(dropzoneInit);
-    });
-
-    /* Dropzone files managment already done ? */
-    var filesProceeded = false;
-    var fileInProcess = false;
-
-    function isFileProcessing() {
-        for (var i = 0; i < dropzonesFieldArray.length; i++) {
-            if (!dropzonesFieldArray[i].done) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    $(document).on("submit", "form", function (e) {
-
-        var thatForm = $(this);
-        var fileInProcess = isFileProcessing();
-
-        if (!filesProceeded && dropzonesFieldArray.length > 0) {
-            /* If there are files to write, stop submit and do this before */
-            e.preventDefault();
-            filesProceeded = true;
-            /* Send dropzone file */
-            for (var i = 0; i < dropzonesFieldArray.length; i++) {
-                // Prevent sent file if mockfile
-                if (dropzonesFieldArray[i].files.length > 0 && dropzonesFieldArray[i].files[0].type != 'mockfile') {
-                    var dropzone = dropzonesFieldArray[i];
-                    fileInProcess = true;
-                    dropzone.processQueue();
-                    (function (ibis, myform) {
-                        dropzone.on("complete", function (file, response) {
-                            dropzonesFieldArray[ibis].done = true;
-                            fileInProcess = isFileProcessing();
-                            if (ibis == dropzonesFieldArray.length - 1 || !fileInProcess) {
-                                myform.submit();
-                            }
-                        });
-                    })(i, $(this))
-                } else {
-                    dropzonesFieldArray[i].done = true;
-                    fileInProcess = isFileProcessing();
-                    if (i == dropzonesFieldArray.length - 1 || !fileInProcess) {
-                        $(this).submit();
-                    }
-                }
-            }
-        } else if (fileInProcess) {
-            e.preventDefault();
-        }
-
-        // If we are done with files upload
-        if (!fileInProcess && filesProceeded || dropzonesFieldArray.length == 0) {
-            /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
-            if (lang_user == "fr-FR") {
-                /* Datepicker FR convert*/
-                $(this).find('.datepicker').each(function () {
-                    if ($(this).val().length > 0) {
-                        // Sécurité
-                        $(this).prop("readOnly", true);
-
-                        var date = $(this).val().split("/");
-                        var newDate = date[2] + "-" + date[1] + "-" + date[0];
-
-                        // Remove mask to enable to transform the date
-                        $(this).inputmask('remove');
-
-                        $(this).val(newDate);
-                    }
-                });
-
-                /* Datetimepicer FR convert */
-                $(this).find('.datetimepicker').each(function () {
-                    if ($(this).val().length > 0) {
-                        // Sécurité
-                        $(this).prop("readOnly", true);
-
-                        var date = $(this).val().split("/");
-                        var yearDate = date[2].split(" ");
-                        var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
-
-                        // Remove mask to enable to transform the date
-                        $(this).inputmask('remove');
-
-                        $(this).val(newDate);
-                    }
-                });
-            }
-
-            /* Convert all times in UTC */
-            $(this).find('.datetimepicker').each(function () {
-                if ($(this).val().length > 0) {
-                    // Sécurité
-                    $(this).prop("readOnly", true);
-                    $(this).val(moment.utc(new Date($(this).val())));
-                }
-            });
-
-            /* If a select multiple is empty we want to have an empty value in the req.body */
-            $(this).find("select[multiple]").each(function () {
-                if ($(this).val() == null) {
-                    var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
-                    thatForm.append($(input));
-                }
-            });
-
-            /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
-            $(this).find("input[type='checkbox']").each(function () {
-                if ($(this).prop("checked")) {
-                    $(this).val(true);
-                } else {
-                    /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
-                    $(this).prop("checked", true);
-                    $(this).val(false);
-                }
-            });
-
-            /* Vérification que les input mask EMAIL sont bien complétés jusqu'au bout */
-            $(this).find("input[data-type='email']").each(function () {
-                if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
-                    $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
-                    e.preventDefault();
-                    return false;
-                }
-            });
-
-            /* Vérification que les input mask URL sont bien complétés jusqu'au bout */
-            $(this).find("input[data-type='url']").each(function () {
-                if ($(this).val() != '' && !$(this).inputmask("isComplete")) {
-                    toastr.error(" Le champ " + $(this).attr("placeholder") + " est invalide");
-                    e.preventDefault();
-                    return false;
-                }
-            });
-
-            /* Vérification des types barcode */
-            $(this).find("input[data-type='barcode']").each(function () {
-                var val = $(this).val();
-                if (val != '') {
-                    var customType = $(this).attr('data-customtype');
-                    if (typeof customType != 'undefined') {
-                        var error = false;
-                        var len;
-                        var message = "";
-                        switch (customType) {
-                            case 'ean8':
-                                var len = 8;
-                                error = val.length === len ? false : true;
-                                if (error)
-                                    message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
-                                break;
-                            case 'isbn':
-                            case 'issn':
-                            case 'ean13':
-                                len = 13;
-                                error = val.length === len ? false : true;
-                                if (error)
-                                    message += "Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".<br>";
-                                if (customType === "issn" && !val.startsWith('977')) {
-                                    error = true;
-                                    message += "Le champ " + $(this).attr("placeholder") + " doit comencer par 977.";
-                                }
-                                break;
-
-                            case 'upca':
-                                len = 12;
-                                error = val.length === len ? false : true;
-                                if (error)
-                                    message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
-                                break;
-                            case 'code39':
-                            case 'alpha39':
-                                //                             var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
-                                if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
-                                    message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
-                                    error = true;
-                                }
-                                break;
-                            case 'code128':
-                                if (!(/^[\x00-\x7F]*$/).test(val)) {
-                                    message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code128.";
-                                    error = true;
-                                }
-                                break;
-                        }
-                        if (error) {
-                            toastr.error(message);
-                            e.preventDefault();
-                            return false;
-                        }
-                    }
-                }
-            });
-
-            /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
-            $(this).find("input[type='tel']").each(function () {
-                if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
-                    $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
-                    e.preventDefault();
-                    return false;
-                }
-            });
-
-            $(this).find("input[data-type='currency']").each(function () {
-                //replace number of zero par maskMoneyPrecision value, default 2
-                $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
-            });
-        }
-
-        return true;
-    });
-
-    /* --------------- Initialisation des select --------------- */
-    $("select:not(.regular-select)").select2();
 
     /* ---------------------- Composants ---------------------- */
     /** Do not remove **/

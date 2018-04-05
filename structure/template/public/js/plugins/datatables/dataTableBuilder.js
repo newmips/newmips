@@ -263,7 +263,10 @@ function init_datatable(tableID) {
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'status'){
                         var statusObj = row[columns[meta.col].data.split(".")[0]];
-                        cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>'
+                        if(statusObj != null)
+                            cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
+                        else
+                            cellValue = "-";
                     }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
