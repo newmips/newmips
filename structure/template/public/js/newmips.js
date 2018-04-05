@@ -79,10 +79,9 @@ function initForm(context) {
         showMeridian: false
     });
 
-    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
     /* --------------- Regex on decimal input --------------- */
-    $("input[data-custom-type='decimal']", context).keyup(function(e) {
-        var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
+    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
+    $("input[data-custom-type='decimal']", context).keyup(function (e) {
         while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
     });
@@ -94,19 +93,15 @@ function initForm(context) {
                 this.value = this.value.slice(0,10);
     });
 
-    /* --------------- Initialisation des DateTimepicker --------------- */
-    /* --------------- Initialisation des datepicker --------------- */
+    /* --------------- Initialisation des DatetimePicker --------------- */
+    /* --------------- Initialisation des datePicker --------------- */
     /* --------------- Initialisation des Input Maks --------------- */
     $("input[data-type='email']", context).inputmask({
         alias: "email"
     });
 
     /* Uncomment if you want to apply a mask on tel input */
-    $("input[type='tel']", context).inputmask({mask: "## ## ## ## ##"});
-    $("input[type='tel']", context).keyup(function(e) {
-        if(isNaN(e.key) && e.key != " " && e.key != "_" && e.key != "Backspace" && e.key != "Shift")
-            $(this).val("");
-    });
+    $("input[type='tel']", context).inputmask({mask: "99 99 99 99 99"});
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
     $('.simpledate-toconvert', context).each(function() {
@@ -186,7 +181,6 @@ function initForm(context) {
     });
 
     /* Show boolean with a square in datalist */
-
     $('td[data-type="boolean"]', context).each(function() {
         var val = $(this).html();
         if (val == 'true' || val == '1')
@@ -194,7 +188,6 @@ function initForm(context) {
         else
             $(this).html('<i class="fa fa-square-o fa-lg"></i>');
     });
-
 
     /* After good format -> Date / Datetime instanciation */
     if (lang_user == "fr-FR") {
@@ -321,9 +314,8 @@ function initForm(context) {
         });
     });
 
-    var maskMoneyPrecision = 2;
     //Mask for data-type currency
-    $("[data-type='currency']", context).each(function() {
+    $("input[data-type='currency']", context).each(function() {
         $(this).maskMoney({
             thousands: ' ',
             decimal: '.',
@@ -332,6 +324,7 @@ function initForm(context) {
             precision: maskMoneyPrecision
         }).maskMoney('mask');
     });
+
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
     $('.dropzone-field', context).each(function(index) {
         var that = $(this);
@@ -346,19 +339,9 @@ function initForm(context) {
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
             autoDiscover: false,
+            thumbnailWidth: 500,
+            thumbnailHeight: 500,
             init: function() {
-                var dropzoneId = that.attr('id');
-                if ($('#' + dropzoneId + '_hidden').val() != '') {
-                    var mockFile = {
-                        name: 'dfltImg_'+$('#' + dropzoneId + '_hidden').val(),
-                        type: 'mockfile',
-                        default: true
-                    };
-                    this.files.push(mockFile);
-                    this.emit('addedfile', mockFile);
-                    this.emit('thumbnail', mockFile, "data:image/;base64,"+$('#' + dropzoneId + '_hidden').data('buffer'));
-                }
-
                 this.on("addedfile", function() {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
@@ -407,7 +390,6 @@ function initForm(context) {
                             }
                         });
                     }
-
                 });
             },
             renameFilename: function(filename) {
@@ -429,10 +411,12 @@ function initForm(context) {
         if ($('#' + dropzoneId + '_hidden').val() != '') {
             var mockFile = {
                 name: $('#' + dropzoneId + '_hidden').val(),
-                type: 'mockfile'
+                type: 'mockfile',
+                default: true
             };
             dropzoneInit.files.push(mockFile);
             dropzoneInit.emit('addedfile', mockFile);
+            dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64,"+$('#' + dropzoneId + '_hidden').data('buffer'));
             dropzoneInit.emit('complete', mockFile);
         }
         dropzoneInit.done = false;
@@ -802,7 +786,7 @@ $(document).ready(function () {
         return true;
     });
 
-    // INLINE HELP
+    /* --------------- Inline Help --------------- */
     var currentHelp, modalOpen = false;
     $(document).delegate(".inline-help",'click', function() {
         currentHelp = this;
@@ -855,20 +839,6 @@ $(document).ready(function () {
             $("#prevHelp").click();
         else if (code == '9')
             $("#nextHelp").click();
-    });
-
-    /* Save mini sidebar preference */
-    $(document).on("click", ".sidebar-toggle", function(){
-        if (typeof sidebarPref !== "undefined" && sidebarPref != "null"){
-            if (sidebarPref == "close")
-                sidebarPref = "open";
-            else if (sidebarPref == "open")
-                sidebarPref = "close";
-        } else{
-            sidebarPref = "open";
-        }
-
-        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
 
     /* --------------- Toastr messages --------------- */
