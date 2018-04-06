@@ -130,7 +130,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
                 as: options[i].as
             });
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: relatedToList}).then(function (ENTITY_NAME) {
+    optimizedFindOne(id_ENTITY_NAME, relatedToList).then(function(ENTITY_NAME){
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -242,7 +242,15 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}, include: [{all: true}]}).then(function (ENTITY_NAME) {
+    var relatedToList = [];
+    for (var i = 0; i < options.length; i++)
+        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple')
+            relatedToList.push({
+                model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
+                as: options[i].as
+            });
+
+    optimizedFindOne(id_ENTITY_NAME, relatedToList).then(function(ENTITY_NAME){
         if (!ENTITY_NAME) {
             data.error = 404;
             return res.render('common/error', data);
@@ -528,7 +536,6 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
         console.error(e);
         res.status(500).json(e);
     });
-
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
@@ -617,5 +624,39 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
         entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
 });
+
+// Split SQL request if too much inclusion
+function optimizedFindOne(idObj, include){
+    return new Promise(function(resolve, reject){
+        if(include.length >= 6){
+            var firstLength = Math.floor(include.length / 2);
+            var secondLength = include.length - firstLength;
+
+            var firstInclude = include.slice(0, firstLength);
+            var secondInclude = include.slice(firstLength, include.length);
+
+            models.MODEL_NAME.findOne({where: {id: idObj}, include: firstInclude}).then(function (ENTITY_NAME) {
+                models.MODEL_NAME.findOne({where: {id: idObj}, include: secondInclude}).then(function (ENTITY_NAME_2) {
+                    for(var item in ENTITY_NAME_2){
+                        if(item.substring(0, 2) == "r_" || item.substring(0, 2) == "c_"){
+                            ENTITY_NAME[item] = ENTITY_NAME_2[item];
+                        }
+                    }
+                    resolve(ENTITY_NAME);
+                }).catch(function (err) {
+                    reject(err);
+                });
+            }).catch(function (err) {
+                reject(err);
+            });
+        } else {
+            models.MODEL_NAME.findOne({where: {id: idObj}, include: include}).then(function (ENTITY_NAME) {
+                resolve(ENTITY_NAME);
+            }).catch(function (err) {
+                reject(err);
+            });
+        }
+    });
+}
 
 module.exports = router;

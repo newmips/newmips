@@ -163,51 +163,48 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
             var toAdd = true;
             for(var propObj in buildForRouteObj){
                 if(propBody == "id" || propBody == propObj)
-                    toAdd=false;
+                    toAdd = false;
             }
             if(toAdd)
                 unusedValueFromReqBody.push(propBody);
         }
 
         var cpt = 0;
+        if(unusedValueFromReqBody.length == 0)
+            return resolve();
 
+        var promises = [];
         // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
         for (var i=0; i<options.length; i++) {
-            if(unusedValueFromReqBody.length == 0)
-                done();
             // Loop on the unused (for now) values in body
             for (var j=0; j<unusedValueFromReqBody.length; j++) {
-                // if the alias match between the option and the body
-                if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
-                    // BelongsTo association have been already done before
-                    if(options[i].relation != "belongsTo"){
-                        var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
-                        var value = [];
+                promises.push(new Promise(function(resolveBis, rejectBis){
+                    // if the alias match between the option and the body
+                    if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
+                        // BelongsTo association have been already done before
+                        if(options[i].relation != "belongsTo"){
+                            var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+                            var value = [];
 
-                        if(body[unusedValueFromReqBody[j]].length > 0)
-                            value = body[unusedValueFromReqBody[j]];
+                            if(body[unusedValueFromReqBody[j]].length > 0)
+                                value = body[unusedValueFromReqBody[j]];
 
-                        model['set' + target](value).then(function(){
-                            done();
-                        });
-                    } else {
-                        done();
+                            model['set' + target](value).then(function(){
+                                resolveBis();
+                            });
+                        } else {
+                            resolveBis();
+                        }
+                    } else {
+                        resolveBis();
                     }
-                } else {
-                    done();
-                }
+                }));
             }
         }
 
-        done();
-
-        function done(){
-            if(cpt == options.length){
-                resolve();
-            } else {
-                cpt++;
-            }
-        }
+        Promise.all(promises).then(function(){
+            resolve();
+        });
     });
 }
 

@@ -66,10 +66,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
-    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    str += "\t<label for='" + dataField + "'>\n\t\t\t\t{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}\n";
-    str += '\t\t\t\t&nbsp;{@inline_help field="'+dataField+'"}<i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}\n'
-    str += "\t\t\t</label>\n"
+    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n";
+    str += "    <div class='form-group'>\n";
+    str += "        <label for='" + dataField + "'>\n";
+    str += "                <!--{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}-->&nbsp;\n";
+    str += '                <!--{@inline_help field="'+dataField+'"}-->\n';
+    str += '                    <i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    str += '                <!--{/inline_help}-->\n'
+    str += "            </label>\n"
     // Check type of field
     switch (type) {
         case "string" :
@@ -1297,12 +1301,12 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     }
     // Setup association field for create_fields
     var select = '';
-    select += "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+    select += '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
     select += '     <select multiple style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
-    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+    select += '         <option value="">{@__ key="select.default" /}</option>\n';
     select += '         <!--{#' + alias + '}-->\n';
-    select += '            <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
+    select += '             <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1315,12 +1319,11 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         // Update update_fields file
         updateFile(fileBase, file, select, function () {
 
-            select = "<div data-field='f_" + urlAs + "' class='col-xs-12'>\n<div class='form-group'>\n";
-            select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-            select += '     <select multiple disabled readOnly style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
-            select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+            select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+            select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+            select += '     <select multiple disabled readonly style="width:100%;" class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
             select += '         <!--{#' + alias + '}-->\n';
-            select += '            <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
+            select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
             select += '         <!--{/' + alias + '}-->\n';
             select += '     </select>\n';
             select += '</div>\n</div>\n';
@@ -1329,11 +1332,20 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
                 $("#fields").append(select);
-
                 domHelper.write(file, $).then(function () {
                     // Add the related to many field in the entity print template
                     file = fileBase + '/print_fields.dust';
                     domHelper.read(file).then(function ($) {
+
+                        select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+                        select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+                        select += '     <select multiple disabled readonly style="width:100%;" class="regular-select form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+                        select += '         <!--{#' + alias + '}-->\n';
+                        select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
+                        select += '         <!--{/' + alias + '}-->\n';
+                        select += '     </select>\n';
+                        select += '</div>\n</div>\n';
+
                         $("#fields").append(select);
                         domHelper.write(file, $).then(function () {
                             translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
