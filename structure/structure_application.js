@@ -225,7 +225,7 @@ function initializeWorkflow(id_application, name_application) {
                 break;
             }
 
-            // Create Status belongsToMany with itself as target
+        // Create Status belongsToMany with itself as target
         statusModel.push({
             relation: 'belongsToMany',
             target: 'e_status',
@@ -269,7 +269,7 @@ function initializeWorkflow(id_application, name_application) {
                 modelMedia = fs.readFileSync(piecesPath + '/models/e_media_mail.js', 'utf8');
                 modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
                 fs.writeFileSync(workspacePath + '/models/e_media_mail.js', modelMedia, 'utf8');
-                // Media mail
+                // Media notification
                 modelMedia = fs.readFileSync(piecesPath + '/models/e_media_notification.js', 'utf8');
                 modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
                 fs.writeFileSync(workspacePath + '/models/e_media_notification.js', modelMedia, 'utf8');
@@ -334,7 +334,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
                                                         // Make fields unique
                                                         function uniqueField(entity, field) {
-                                                            var model = require(workspacePath + '/models/attributes/' + entity + '.json');
+                                                            var model = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + entity + '.json', 'utf8'));
                                                             model[field].unique = true;
                                                             fs.writeFileSync(workspacePath + '/models/attributes/' + entity + '.json', JSON.stringify(model, null, 4), 'utf8');
                                                         }
@@ -413,15 +413,15 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                     });
                                                 });
                                             });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
+                                        }).catch(reject);
+                                    }).catch(reject);
+                                }).catch(reject);
+                            }).catch(reject);
+                        }).catch(reject);
+                    }).catch(reject);
+                }).catch(reject);
             }).catch(reject);
-        });
+        }).catch(reject);
     });
 }
 
