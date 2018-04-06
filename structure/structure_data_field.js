@@ -66,10 +66,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
-    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    str += "\t<label for='" + dataField + "'>\n\t\t\t\t{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}\n";
-    str += '\t\t\t\t&nbsp;{@inline_help field="'+dataField+'"}<i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}\n'
-    str += "\t\t\t</label>\n"
+    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n";
+    str += "    <div class='form-group'>\n";
+    str += "        <label for='" + dataField + "'>\n";
+    str += "                <!--{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}-->&nbsp;\n";
+    str += '                <!--{@inline_help field="'+dataField+'"}-->\n';
+    str += '                    <i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    str += '                <!--{/inline_help}-->\n'
+    str += "            </label>\n"
     // Check type of field
     switch (type) {
         case "string" :
