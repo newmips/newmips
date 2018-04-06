@@ -5,6 +5,7 @@ var file_helper = require('./file_helper');
 var logger = require('./logger');
 var fs = require('fs-extra');
 var language = require('../services/language');
+var models = require('../models/');
 
 // Winston logger
 var logger = require('./logger');
@@ -205,6 +206,33 @@ var funcs = {
                 });
             });
         }
+    },
+    optimizedFindOne: function(modelName, idObj, include) {
+        // Split SQL request if too many inclusion
+        return new Promise(function(resolve, reject){
+            if(include.length >= 6) {
+                var firstLength = Math.floor(include.length / 2);
+                var secondLength = include.length - firstLength;
+
+                var firstInclude = include.slice(0, firstLength);
+                var secondInclude = include.slice(firstLength, include.length);
+
+                models[modelName].findOne({where: {id: idObj}, include: firstInclude}).then(function (entity1) {
+                    models[modelName].findOne({where: {id: idObj}, include: secondInclude}).then(function (entity2) {
+                        for(var item in entity2)
+                            if(item.substring(0, 2) == "r_" || item.substring(0, 2) == "c_")
+                                entity1[item] = entity2[item];
+                        resolve(entity1);
+                    }).catch(function (err) {
+                        reject(err);
+                    });
+                }).catch(reject);
+            }
+            else
+                models[modelName].findOne({where: {id: idObj}, include: include}).then(function (entity1) {
+                    resolve(entity1);
+                }).catch(reject);
+        });
     },
     error500: function(err, req, res, redirect) {
         var isKnownError = false;

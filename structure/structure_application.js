@@ -421,7 +421,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                     }).catch(reject);
                 }).catch(reject);
             }).catch(reject);
-        }).catch(reject);
+        });
     });
 }
 
