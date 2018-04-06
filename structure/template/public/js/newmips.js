@@ -49,7 +49,7 @@ function initForm(context) {
     $("select.ajax", context).each(function() {
         select2_ajaxsearch($(this));
     });
-    $("select:not(.ajax)", context).select2();
+    $("select:not(.ajax):not(.regular-select)", context).select2();
 
     /* Display color td with fa classes instead of color value */
     $("td[data-type=color]", context).each(function () {
