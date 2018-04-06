@@ -264,7 +264,7 @@ $(function() {
             : '/'+source+'/loadtab/'+id+'/'+subentityAlias+buildAssociationHref(tab);
 
         // Loading icon until ajax callback
-        tab.find('.ajax-content').html('<i class="fa fa-spin fa-spinner fa-3x" style="margin-left: 150px; margin-top: 50px;"></i>');
+        tab.find('.ajax-content').html('<div style="width:100%;text-align:center;"><i class="fa fa-circle-o-notch fa-spin fa-3x" style="color:#ABABAB;margin-top: 100px;margin-bottom: 100px;"></i></div>');
         $.ajax({
             url: url,
             success: function(data) {
