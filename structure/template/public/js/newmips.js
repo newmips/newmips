@@ -51,14 +51,6 @@ function initForm(context) {
     });
     $("select:not(.ajax):not(.regular-select)", context).select2();
 
-    /* Display color td with fa classes instead of color value */
-    $("td[data-type=color]", context).each(function () {
-        if ($(this).find('i').length > 0)
-            return;
-        var color = $(this).text();
-        $(this).html('<i class="fa fa-lg fa-circle" style="color:' + color + '"></i>');
-    });
-
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
     $("input[type='checkbox'], input[type='radio']", context).iCheck({
         checkboxClass: 'icheckbox_flat-blue',
@@ -143,32 +135,6 @@ function initForm(context) {
         }
     });
 
-    $("td[data-type='date']", context).each(function() {
-        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
-                if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-                else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
-            }
-        } else {
-            $(this).html("");
-        }
-    });
-
-    $("td[data-type='datetime']", context).each(function() {
-        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
-                if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
-                else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
-            }
-        } else {
-            $(this).html("");
-        }
-    });
-
     $('img[data-type="picture"]', context).each(function() {
         var src = $(this).attr('src');
         //remove all pictures with null src value
@@ -178,15 +144,6 @@ function initForm(context) {
                 msg = 'Aucune image choisie';
             $(this).parent().replaceWith('<span>' + msg + '</span>');
         }
-    });
-
-    /* Show boolean with a square in datalist */
-    $('td[data-type="boolean"]', context).each(function() {
-        var val = $(this).html();
-        if (val == 'true' || val == '1')
-            $(this).html('<i class="fa fa-check-square-o fa-lg"></i>');
-        else
-            $(this).html('<i class="fa fa-square-o fa-lg"></i>');
     });
 
     /* After good format -> Date / Datetime instanciation */

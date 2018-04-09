@@ -272,14 +272,12 @@ function deleteAccessManagment(idApplication, urlComponent, urlModule, callback)
         callback();
 }
 
-
 function replaceValuesInFile(filePath, valueToFind, replaceWith) {
     var fileContent = fs.readFileSync(filePath, 'utf8');
     var reg = new RegExp(valueToFind, "g");
     fileContent = fileContent.replace(reg, replaceWith);
     fs.writeFileSync(filePath, fileContent);
 }
-
 
 exports.newLocalFileStorage = function (attr, callback) {
 
@@ -964,6 +962,7 @@ exports.newStatus = function (attr, callback) {
                                                     $(this).attr("data-type", "status");
                                                 });
                                                 $("td[data-field='" + statusAlias + "']").attr("data-type", "status");
+                                                $("td[data-field='" + statusAlias + "']").attr("data-color", "{" + statusAlias + ".f_color}");
 
                                                 domHelper.write(workspacePath + '/views/' + attr.source + '/list_fields.dust', $).then(function () {
                                                     translateHelper.writeLocales(attr.id_application, 'field', attr.source, [attr.options.value, attr.options.showValue], false, function () {

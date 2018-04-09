@@ -20,4 +20,4 @@ INSERT INTO `role` (`id`, `name`, `version`) VALUES
 --
 
 INSERT INTO `user` (`id`, `email`, `enabled`, `first_name`, `last_name`, `login`, `password`, `phone`, `id_role`, `version`) VALUES
-(1, 'admin@newmips.com', 1, 'admin', 'NEWMIPS', 'admin', '$2a$10$TclfBauyT/N0CDjCjKOG/.YSHiO0RLqWO2dOMfNKTNH3D5EaDIpr.', '0982593032', 1, 1);
+(1, null, 0, 'admin', 'NEWMIPS', 'admin', null, null, 1, 1);
