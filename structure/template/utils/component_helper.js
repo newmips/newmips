@@ -28,7 +28,7 @@ module.exports = {
 
     },
     updateAddressIfComponentExist: function (entityObject, options, data/*req.body*/) {
-        if (entityObject.c_address) {
+        if (entityObject.fk_id_c_address) {
             return new Promise(function (resolve, reject) {
                 var option = entity_helper.find_include(options, 'as', "c_address");
                 if (option && option.targetType === "component" && data.c_address_id) {
