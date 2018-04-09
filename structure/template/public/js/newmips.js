@@ -989,67 +989,70 @@ $(document).ready(function () {
 
     //Component address
     (function () {
-        var c_address_config = $('#c_address_config').val();
-        if (!!c_address_config) {
-            try {
-                c_address_config = JSON.parse(c_address_config);
-            } catch (e) {
-                c_address_config = undefined;
-            }
-        }
-        if (typeof c_address_config !== 'undefined') {
-            if (c_address_config.enable) {
-                $('.c_address_field').on('keyup', function () {
-                    $(this).val($(this).val().toUpperCase());
-                });
-                $('#c_address_search').each(function () {
-                    var result;
-                    var fieldsToShow = c_address_config.autocomplete_field.split(',');
-                    $(this).autocomplete({
-                        minLength: 1,
-                        source: function (req, res) {
-                            var val = $('#c_address_search').val();
-                            var data = {limit: 10};
-                            data[c_address_config.query_parm] = val;
-                            $.ajax({
-                                url: c_address_config.url,
-                                type: c_address_config.type,
-                                data: data,
-                                dataType: 'json',
-                                success: function (data) {
-                                    result = c_address_config.arraydata !== '.' ? data[c_address_config.arraydata] : data;
-                                    res($.map(result, function (_address) {
-                                        var objet = c_address_config.whereisdata !== '.' ? _address[c_address_config.whereisdata] : _address;
-                                        var toReturn = '';
-                                        fieldsToShow.forEach(function (field) {
-                                            toReturn += objet[field] + ' ';
-                                        });
-                                        return toReturn;
-                                    }));
-                                }
+        var componentAddressConf = {
+            url: "https://api-adresse.data.gouv.fr/search/",
+            query_parm: 'q',
+            type: 'get', //HTTP request type
+            addresses: 'features', //objet which contain list of address, if equal '.' whe take response as list, 
+            address_fields: 'properties', //objet name which contain attributes or '.' , 
+            autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
+            enable: true//If  enable, do query and get data, else data should be to set manually by user
+        };
+        if (componentAddressConf.enable) {
+            $('.c_address_field').on('keyup', function () {
+                $(this).val($(this).val().toUpperCase());
+            });
+            $('#c_address_search_area').each(function () {
+                var result;
+                var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
+                $(this).autocomplete({
+                    minLength: 1,
+                    source: function (req, res) {
+                        var val = $('#c_address_search_area').val();
+                        var data = {limit: 10};
+                        data[componentAddressConf.query_parm] = val;
+                        $.ajax({
+                            url: componentAddressConf.url,
+                            type: componentAddressConf.type,
+                            data: data,
+                            dataType: 'json',
+                            success: function (data) {
+                                result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
+                                res($.map(result, function (_address) {
+                                    var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
+                                    var toReturn = '';
+                                    fieldsToShow.forEach(function (field) {
+                                        toReturn += objet[field] + ' ';
+                                    });
+                                    return toReturn;
+                                }));
+                            }
+                        });
+                    },
+                    select: function (e, ui) {
+                        result.forEach(function (_) {
+                            var toReturn = '';
+                            var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
+                            var toReturn = '';
+                            fieldsToShow.forEach(function (field) {
+                                toReturn += _address[field] + ' ';
                             });
-                        },
-                        select: function (e, ui) {
-                            result.forEach(function (_address) {
-                                var toReturn = '';
-                                _address = c_address_config.whereisdata !== '.' ? _address[c_address_config.whereisdata] : _address;
-                                var toReturn = '';
-                                fieldsToShow.forEach(function (field) {
-                                    toReturn += _address[field] + ' ';
-                                });
-                                if (ui.item.value == toReturn) {
-                                    for (var key in _address) {
-                                        if (_address[key] != '') //to prevent to replace default value
-                                            $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
-                                    }
+                            if (ui.item.value == toReturn) {
+                                for (var key in _address) {
+                                    if (_address[key] != '') //to prevent to replace default value
+                                        $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
                                 }
-                            });
-                        }
-                    });
+                                /** Set Lat and Long value **/
+                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[0]);
+                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[1]);
+                            }
+                        });
+                    }
                 });
-            }
+            });
         }
     }());
+
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
