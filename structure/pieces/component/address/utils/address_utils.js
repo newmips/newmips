@@ -11,36 +11,42 @@ exports.generateFields = function (componentName, componentCodeName) {
     };
 //    var instanceId = component.id + 1;//counter component address 
     var showHtml = "<div class='col-xs-12'>\n"
-            + '        <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>\n'
-            + "<section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
+            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>\n'
+            + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
     var createHtml = "<div class='col-xs-12'>\n"
-            + '        <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br><br>\n'
-            + "<section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address '>\n";
+            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br><br>\n'
+            + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address '>\n";
     var updateHtml = "<div class='col-xs-12'>\n"
-            + '        <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br>'
-            + "<br>\n<section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
+            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br>'
+            + "<br>\n    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
     var headers = '';
     var tds = '';
     //for default
     if (addressConf.endpoint.enable) {
-        createHtml += "\t<div data-field='c_address_search' class='col-xs-12 div_c_address_search'>\n\t<div class='form-group'>";
-        createHtml += "<div class='input-group'>\n";
-        createHtml += "<div class='input-group-addon'>\n";
-        createHtml += "<i class='fa fa-map-marker' aria-hidden='true'></i>\n";
-        createHtml += "</div>\n\t\t<input class='input form-control' id='c_address_search'  type='text' name='' placeholder='{@__ key=\"component." + componentCodeName + ".search\"/}' >\n";
-        createHtml += "</div>\n";
-        createHtml += "\t\t<input class='input form-control' id='c_address_config'  type='hidden'  name=''  value='" + JSON.stringify(addressConf.endpoint) + "'>";
-        createHtml += "\n\t</div>\n\t<hr>\n</div>";
+        createHtml += "        <div data-field='c_address_search_area' class='col-xs-12 div_c_address_search_area'>\n";
+        createHtml += "            <div class='form-group'>\n";
+        createHtml += "                <div class='input-group'>\n";
+        createHtml += "                    <div class='input-group-addon'>\n";
+        createHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
+        createHtml += "                    </div>\n";
+        createHtml += "                    <input class='input form-control' id='c_address_search_area'  type='text' name='f_c_address_search_area' placeholder='{@__ key=\"component." + componentCodeName + ".search\"/}' >\n";
+        createHtml += "                </div>\n";
+        createHtml += "            </div>\n";
+        createHtml += "            <hr>\n";
+        createHtml += "        </div>\n";
 
-        updateHtml += "\t<div data-field='c_address_search' class='col-xs-12 div_c_address_search'>\n\t<div class='form-group'>\n";
-        updateHtml += "<div class='input-group'>\n";
-        updateHtml += "<div class='input-group-addon'>\n";
-        updateHtml += "<i class='fa fa-map-marker' aria-hidden='true'></i>\n";
-        updateHtml += "</div>\n\t\t<input class='input form-control' id='c_address_search'  type='text' name='' placeholder='{@__ key=\"component." + componentCodeName + ".search\"/}' >\n";
-        updateHtml += "</div>\n";
-        updateHtml += "\t\t<input class='input form-control'  type='hidden'  name='c_address_id' value='{c_address.id}' >";
-        updateHtml += "\t\t<input class='input form-control' id='c_address_config'  type='hidden'  name='' value='" + JSON.stringify(addressConf.endpoint) + "'>";
-        updateHtml += "\n\t</div>\n\t<hr>\n</div>";
+        updateHtml += "        <div data-field='c_address_search_area' class='col-xs-12 div_c_address_search_area'>\n";
+        updateHtml += "            <div class='form-group'>\n";
+        updateHtml += "                <div class='input-group'>\n";
+        updateHtml += "                    <div class='input-group-addon'>\n";
+        updateHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
+        updateHtml += "                    </div>\n";
+        updateHtml += "                    <input class='input form-control' id='c_address_search_area'  type='text' name='f_c_address_search_area' placeholder='{@__ key=\"component." + componentCodeName + ".search\"/}' >\n";
+        updateHtml += "                </div>\n";
+        updateHtml += "                <input class='input form-control'  type='hidden'  name='c_address_id' value='{c_address.id}' >\n";
+        updateHtml += "            </div>\n";
+        updateHtml += "            <hr>\n";
+        updateHtml += "        </div>\n";
     }
     var locales = {
         fr: {
@@ -82,32 +88,41 @@ exports.generateFields = function (componentName, componentCodeName) {
             var pattern = (typeof attribute.pattern !== 'undefined' && attribute.pattern !== '') ? 'pattern=' + attribute.pattern : '';
             var defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
             var type = typeof attribute.type !== 'undefined' ? attribute.type : 'text';
+            var display = 'block';
+            if (type === "hidden")
+                display = "none";
 
-            createHtml += "\t<div data-field='" + dbcolumn + "' class='col-xs-12'>\n\t<div class='form-group'>\n";
-            createHtml += "\t\t<label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
-            createHtml += "\t\t<input class='input form-control c_address_field' " + min + " " + max + " field='" + apiField + "' " + pattern + " " + defaultValue + "  type='" + type + "' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + " >";
-            createHtml += "\n\t</div>\n\t</div>\n";
+            createHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n"
+            createHtml += "            <div class='form-group'>\n";
+            createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            createHtml += "                <input class='input form-control c_address_field' " + min + " " + max + " field='" + apiField + "' " + pattern + " " + defaultValue + "  type='" + type + "' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + " >\n";
+            createHtml += "            </div>\n";
+            createHtml += "        </div>\n";
             //Update
-            updateHtml += "\t<div data-field='" + dbcolumn + "' class='col-xs-12'>\n\t<div class='form-group'>\n";
-            updateHtml += "\t\t<label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
-            updateHtml += "\t\t<input class='input form-control c_address_field' " + min + " " + max + " field='" + apiField + "' " + pattern + "  type='" + type + "' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + ">";
-            updateHtml += "\n\t</div>\n\t</div>\n";
+            updateHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n"
+            updateHtml += "            <div class='form-group'>\n";
+            updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            updateHtml += "                <input class='input form-control c_address_field' " + min + " " + max + " field='" + apiField + "' " + pattern + "  type='" + type + "' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + ">\n";
+            updateHtml += "            </div>\n";
+            updateHtml += "        </div>\n";
             //Show
-            showHtml += "\t<div data-field='" + dbcolumn + "' class='col-xs-12'>\n\t<div class='form-group'>\n";
-            showHtml += "\t\t<label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
-            showHtml += "\t\t<input class='input form-control' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>";
-            showHtml += "\n\t</div>\n\t</div>\n";
+            showHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n";
+            showHtml += "            <div class='form-group'>\n";
+            showHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            showHtml += "                <input class='input form-control' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
+            showHtml += "            </div>\n";
+            showHtml += "        </div>\n";
             //headers
-            headers += '\t\t<th data-field="' + dbcolumn + '" data-col="' + dbcolumn + '">';
-            headers += '{@__ key="component.' + componentCodeName + '.' + dbcolumn + '"/}';
+            headers += '<th data-field="c_address.' + dbcolumn + '" data-col="c_address.' + dbcolumn + '">\n';
+            headers += '    {@__ key="component.' + componentCodeName + '.' + dbcolumn + '"/}\n';
             headers += '</th>\n';
             //tds
-            tds += '\t\t<td data-field="' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
+            tds += '\t\t<td data-field="c_address.' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
         }
     }
-    createHtml += "</section>\n</div>";
-    updateHtml += "</section>\n</div>";
-    showHtml += "</section>\n</div>";
+    createHtml += "    </section>\n</div>";
+    updateHtml += "    </section>\n</div>";
+    showHtml += "    </section>\n</div>";
     result.createHtml = createHtml;
     result.updateHtml = updateHtml;
     result.showHtml = showHtml;

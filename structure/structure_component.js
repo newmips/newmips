@@ -1134,7 +1134,7 @@ exports.addNewComponentAddress = function (attr, callback) {
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/create_fields.dust', fields.createHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/update_fields.dust', fields.updateHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/show_fields.dust', fields.showHtml);
-
+        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/list_fields.dust', fields.headers);
         domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
             domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
                 domHelper.read(showFieldsFile).then(function ($showFieldsFile) {

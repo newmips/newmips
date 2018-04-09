@@ -84,7 +84,7 @@ var config = {
             },
             lang: {
                 fr: 'Code postal',
-                en: 'zipcode'
+                en: 'Zipcode'
             }
         },
         city: {
@@ -127,7 +127,7 @@ var config = {
             readonly: false,
             required: true,
             addInForm: true,
-            type: 'text', //
+            type: 'hidden', //
             max: '',
             apiField: '',
             defaultValue: '',
