@@ -66,9 +66,12 @@ function select2_fieldset(select, data) {
             delay: 250,
             contentType: "application/json",
             data: function (params) {
+                var customWhere = {};
+                customWhere[data.option.foreignKey] = null;
                 var ajaxdata = {
                     search: params.term,
-                    searchField: searchField
+                    searchField: searchField,
+                    customWhere: customWhere
                 };
                 return JSON.stringify(ajaxdata);
             },
@@ -76,8 +79,20 @@ function select2_fieldset(select, data) {
                 if (!dataResults)
                     return {results: []};
                 var results = [];
-                for (var i = 0; i < dataResults.length; i++)
-                    results.push({id: dataResults[i].id, text: dataResults[i][searchField[0].toLowerCase()]});
+                for (var i = 0; i < dataResults.length; i++){
+                    var text = "";
+                    for (var field in dataResults[i]){
+                        if(searchField.indexOf(field) != -1){
+                            if(dataResults[i][field] != null)
+                                text += dataResults[i][field] + " - ";
+                        }
+                    }
+                    text = text.substring(0, text.length - 3);
+                    if(text == "" || text == null)
+                        text = dataResults[i].id;
+
+                    results.push({id: dataResults[i].id, text: text});
+                }
                 return {results: results};
             },
             cache: true
@@ -162,6 +177,13 @@ function bindTabActions(tab, data) {
     });
 }
 
+function currencyFormat(num) {
+    if(num != null)
+        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+    else
+        return "";
+}
+
 //
 // TABS INIT
 //
@@ -202,10 +224,110 @@ function initHasMany(tab, data) {
     tab.find('.ajax-content').html(data.content);
     var newButton = $(CREATE_BUTTON);
     newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
-    tab.find('.ajax-content').append(newButton);
+    tab.find('.ajax-content').append("<br>").append(newButton);
     tab.find('table').find('.filters').remove();
 
-    simpleTable(tab.find('table'));
+    var table = tab.find('table');
+    simpleTable(table);
+
+    table.find("thead.main th").each(function(idx){
+        if($(this).data("hidden") == 1){
+            // Hide hidden column
+            $(this).hide();
+            $("td[data-field='"+$(this).data("field")+"']").hide();
+        } else if($(this).text() == ""){
+            // Remove unused action button th & td
+            if($("td").eq(idx).text() == ""){
+                $(this).remove();
+                $(".dataTable tbody tr").each(function(){
+                    $(this).find("td:eq("+idx+")").remove();
+                });
+            }
+        }
+    });
+
+    // Value formatting
+
+    /* Display color td with fa classes instead of color value */
+    table.find("td[data-type=color]").each(function () {
+        if ($(this).find('i').length > 0)
+            return;
+        var color = $(this).text();
+        $(this).html('<i class="fa fa-lg fa-circle" style="color:' + color + '"></i>');
+    });
+
+    table.find("td[data-type='date']").each(function() {
+        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
+            }
+        } else {
+            $(this).html("");
+        }
+    });
+
+    table.find("td[data-type='datetime']").each(function() {
+        if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
+            if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
+                if (lang_user == "fr-FR")
+                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
+                else
+                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+            }
+        } else {
+            $(this).html("");
+        }
+    });
+
+    /* Show boolean with a square in datalist */
+    table.find('td[data-type="boolean"]').each(function() {
+        var val = $(this).html();
+        if (val == 'true' || val == '1')
+            $(this).html('<i class="fa fa-check-square-o fa-lg"></i>');
+        else
+            $(this).html('<i class="fa fa-square-o fa-lg"></i>');
+    });
+
+    table.find('td[data-type="status"]').each(function() {
+        var statusName = $(this).text();
+        var statusColor = $(this).data("color");
+        $(this).html('<span class="badge" style="background: '+statusColor+';">'+statusName+'</span>');
+    });
+
+    table.find('td[data-type="currency"]').each(function() {
+        $(this).html('<span data-type="currency">' + currencyFormat(parseFloat($(this).text())) + '</span>');
+    });
+
+    table.find('td[data-type="email"]').each(function() {
+        var email = $(this).text();
+        if(email != null && email != '')
+            $(this).html('<a href="mailto:' + email + '">' + email + '</a>');
+    });
+
+    table.find('td[data-type="tel"]').each(function() {
+        var tel = $(this).text();
+        if(tel != null && tel != '')
+            $(this).html('<a href="tel:' + tel + '">' + tel + '</a>');
+    });
+
+    table.find('td[data-type="url"]').each(function() {
+        var urlVal = $(this).text();
+        if(urlVal != null && urlVal != '')
+            $(this).html('<a target="_blank" href="'+urlVal+'">'+urlVal+'</a>');
+    });
+
+    table.find('td[data-type="time"]').each(function() {
+        var time = $(this).text();
+        if(time != null && time != '')
+            $(this).html(time.substring(0, time.length - 3));
+    });
+
+    table.find('td[data-type="password"]').each(function() {
+        $(this).html('●●●●●●●●●');
+    });
 }
 
 // HAS MANY PRESET
