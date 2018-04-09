@@ -279,7 +279,7 @@ var funcs = {
             var attributes;
             try {
                 attributes = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+modelName+'.json'));
-            } catch(e) {reject(e);}
+            } catch(e) {resolve();}
 
             var bufferPromises = [];
             for (var key in entity.dataValues)

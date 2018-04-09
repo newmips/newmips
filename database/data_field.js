@@ -9,8 +9,6 @@ exports.createNewDataField = function (attr, callback) {
         err.message = "database.field.error.selectOrCreateBefore";
         return callback(err, null);
     }
-
-    var type_field = "string";
     var version = 1;
 
     if (typeof attr !== 'undefined' && typeof attr.options !== "undefined") {
@@ -23,8 +21,7 @@ exports.createNewDataField = function (attr, callback) {
         var name_field = options.value;
         var showNameField = options.showValue;
 
-        if (typeof options.type !== "undefined")
-            type_field = options.type
+        var type_field = (typeof options.type !== "undefined") ? options.type : "string";
 
         if (typeof options !== 'undefined' && name_field != "" && id_data_entity != "") {
 
