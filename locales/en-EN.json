@@ -201,7 +201,7 @@
         "or": "or",
         "textthree": "simply go back.",
         "404": "The link you followed may be broken, or the page may have been removed.",
-        "valueTooLong": "Sorry, but the given value (%s) is too long (>30).",
+        "valueTooLong": "Sorry, but the given value (%s) is too long (<30).",
         "cannotFindInstruction": "Sorry, I do not understand what you're asking of me."
     },
     "back":{
