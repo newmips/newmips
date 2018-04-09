@@ -66,9 +66,12 @@ function select2_fieldset(select, data) {
             delay: 250,
             contentType: "application/json",
             data: function (params) {
+                var customWhere = {};
+                customWhere[data.option.foreignKey] = null;
                 var ajaxdata = {
                     search: params.term,
-                    searchField: searchField
+                    searchField: searchField,
+                    customWhere: customWhere
                 };
                 return JSON.stringify(ajaxdata);
             },
@@ -76,8 +79,20 @@ function select2_fieldset(select, data) {
                 if (!dataResults)
                     return {results: []};
                 var results = [];
-                for (var i = 0; i < dataResults.length; i++)
-                    results.push({id: dataResults[i].id, text: dataResults[i][searchField[0].toLowerCase()]});
+                for (var i = 0; i < dataResults.length; i++){
+                    var text = "";
+                    for (var field in dataResults[i]){
+                        if(searchField.indexOf(field) != -1){
+                            if(dataResults[i][field] != null)
+                                text += dataResults[i][field] + " - ";
+                        }
+                    }
+                    text = text.substring(0, text.length - 3);
+                    if(text == "" || text == null)
+                        text = dataResults[i].id;
+
+                    results.push({id: dataResults[i].id, text: text});
+                }
                 return {results: results};
             },
             cache: true
