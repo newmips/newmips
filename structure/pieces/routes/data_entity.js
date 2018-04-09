@@ -341,11 +341,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
             as: option.as,
             include: {all: true}
         }]
-    }).then(function(ENTITY_URL_NAME) {
-        if (!ENTITY_URL_NAME)
+    }).then(function(ENTITY_NAME) {
+        if (!ENTITY_NAME)
             return res.status(404).end();
 
-        var dustData = ENTITY_URL_NAME[option.as];
+        var dustData = ENTITY_NAME[option.as];
         var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
         var dustFile, idSubentity, promisesData = [];
 
@@ -353,10 +353,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         switch (option.structureType) {
             case 'hasOne':
                 if (!empty) {
-                    idSubentity = ENTITY_URL_NAME[option.as].id;
-                    ENTITY_URL_NAME[option.as].hideTab = true;
+                    idSubentity = ENTITY_NAME[option.as].id;
+                    ENTITY_NAME[option.as].hideTab = true;
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
-                    promisesData.push(entity_helper.getPicturesBuffers(ENTITY_URL_NAME[option.as], option.target));
+                    promisesData.push(entity_helper.getPicturesBuffers(ENTITY_NAME[option.as], option.target));
                 }
                 dustFile = option.target+'/show_fields';
             break;
@@ -364,6 +364,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
             case 'hasMany':
             case 'hasManyPreset':
                 dustFile = option.target+'/list_fields';
+                // Status history specific behavior. Replace history_model by history_table to open view
+                if (option.target.indexOf('e_history_e_') == 0)
+                    for (var attr in attributes)
+                        if (attributes[attr].history_table && attributes[attr].history_model == option.target)
+                            dustFile = attributes[attr].history_table+'/list_fields';
                 var obj = {};
                 obj[option.target] = dustData;
                 dustData = obj;

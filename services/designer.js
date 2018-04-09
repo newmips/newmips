@@ -1868,37 +1868,42 @@ exports.createNewComponentStatus = function (attr, callback) {
         if (err)
             return callback(err, null);
 
-        // These instructions create a has many with a new entity history_status
-        // It also does a hasMany relation with e_status
-        attr.source = source_entity.codeName;
-        attr.showSource = source_entity.name;
-        attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
-
-        if (attr.history_table.length >= 52) {
-            var err = new Error();
-            err.message = "error.valueTooLong";
-            err.messageParams = [attr.history_table];
-            return callback(err, null);
-        }
-
-        var instructions = [
-            "entity " + source_entity.name + ' has many ' + attr.history_table + ' called History ' + attr.options.showValue,
-            "select entity " + attr.history_table,
-            "add field " + attr.options.showValue + " related to Status using name, color",
-            "add field Comment with type text",
-            "entity status has many " + attr.history_table,
-            "select entity " + source_entity.name,
-            "add field " + attr.options.showValue + " related to Status using name"
-        ];
-
-        self.recursiveInstructionExecute(attr, instructions, 0, function (err) {
+        db_field.createNewDataField({
+            id_data_entity: attr.id_data_entity,
+            options: {
+                value: attr.options.value,
+                showValue: attr.options.value.substring(2)
+            }
+        }, function(err, info) {
             if (err)
                 return callback(err, null);
 
-            structure_component.newStatus(attr, function (err) {
+            attr.source = source_entity.codeName;
+            attr.showSource = source_entity.name;
+            attr.history_table_db_name = 'history_'+source_entity.id+'_'+info.insertId;
+            attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
+
+            // These instructions create a has many with a new entity history_status
+            // It also does a hasMany relation with e_status
+            var instructions = [
+                "entity " + source_entity.name + ' has many ' + attr.history_table_db_name + ' called History ' + attr.options.showValue,
+                "select entity " + attr.history_table_db_name,
+                "add field " + attr.options.showValue + " related to Status using name, color",
+                "add field Comment with type text",
+                "entity status has many " + attr.history_table_db_name,
+                "select entity " + source_entity.name,
+                "add field " + attr.options.showValue + " related to Status using name"
+            ];
+
+            self.recursiveInstructionExecute(attr, instructions, 0, function (err) {
                 if (err)
                     return callback(err, null);
-                callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.showSource]});
+
+                structure_component.newStatus(attr, function (err) {
+                    if (err)
+                        return callback(err, null);
+                    callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.showSource]});
+                });
             });
         });
     });
