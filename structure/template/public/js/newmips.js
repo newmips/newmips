@@ -737,13 +737,13 @@ $(document).ready(function () {
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function () {
-        if (typeof sidebarPref !== "undefined" && sidebarPref != "null") {
+        if (typeof sidebarPref !== "undefined" && sidebarPref != "null" && sidebarPref != null) {
             if (sidebarPref == "close")
                 sidebarPref = "open";
             else if (sidebarPref == "open")
                 sidebarPref = "close";
         } else {
-            sidebarPref = "open";
+            sidebarPref = "close";
         }
 
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
