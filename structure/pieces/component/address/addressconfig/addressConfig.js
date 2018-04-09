@@ -123,12 +123,48 @@ var config = {
                 en: 'Country'
             }
         },
+        lat: {
+            readonly: false,
+            required: true,
+            addInForm: true,
+            type: 'text', //
+            max: '',
+            apiField: '',
+            defaultValue: '',
+            sql: {
+                type: 'STRING',
+                newmipsType: "double",
+                defaultValue: null
+            },
+            lang: {
+                fr: 'Latitude',
+                en: 'Latitude'
+            }
+        },
+        lon: {
+            readonly: false,
+            required: true,
+            addInForm: true,
+            type: 'hidden', //
+            max: '',
+            apiField: '',
+            defaultValue: '',
+            sql: {
+                type: 'STRING',
+                newmipsType: "double",
+                defaultValue: null
+            },
+            lang: {
+                fr: 'Longitude',
+                en: 'Longitude'
+            }
+        },
         //house type
         place: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'text', //
+            type: 'hidden', //
             max: '',
             apiField: 'place',
             defaultValue: '',
@@ -181,21 +217,8 @@ var config = {
             addInForm: false,
             type: 'textarea', //
             max: ''
-        },
-        lat: {
-            readonly: false,
-            required: false,
-            addInForm: false,
-            type: 'text', //
-            max: ''
-        },
-        long: {
-            readonly: false,
-            required: false,
-            addInForm: false,
-            type: 'text', //
-            max: ''
         }
+        
 
     }
 

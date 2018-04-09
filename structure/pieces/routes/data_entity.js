@@ -244,7 +244,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 
     var relatedToList = [];
     for (var i = 0; i < options.length; i++)
-        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple')
+        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple'|| options[i].structureType == 'hasOne')
             relatedToList.push({
                 model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
                 as: options[i].as

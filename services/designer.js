@@ -2479,7 +2479,7 @@ exports.createNewComponentAddress = function (attr, callback) {
                                 foreignKey: 'fk_id_c_address',
                                 as: 'c_address',
                                 showAs: "",
-                                structureType: "hasOne",
+                                type: "hasOne",
                                 relation: "belongsTo",
                                 targetType: "component",
                                 toSync: true
