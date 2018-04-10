@@ -19,7 +19,8 @@
             "f_field": "Champ",
             "f_name": "Nom",
             "f_color": "Couleur",
-            "f_default": "Défaut"
+            "f_default": "Défaut",
+            "apply_default": "Appliquer ce statut aux entités sans statut"
 		},
 		"e_translation": {
 			"label_entity": "Traduction",

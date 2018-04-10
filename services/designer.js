@@ -1864,6 +1864,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 exports.createNewComponentStatus = function (attr, callback) {
     var self = this;
 
+
     db_entity.getDataEntityById(attr.id_data_entity, function (err, source_entity) {
         if (err)
             return callback(err, null);
@@ -1896,12 +1897,18 @@ exports.createNewComponentStatus = function (attr, callback) {
             ];
 
             self.recursiveInstructionExecute(attr, instructions, 0, function (err) {
-                if (err)
-                    return callback(err, null);
+                if (err) {
+                    return db_field.deleteDataFieldById(info.insertId, function() {
+                        return callback(err, null);
+                    });
+                }
 
                 structure_component.newStatus(attr, function (err) {
-                    if (err)
-                        return callback(err, null);
+                    if (err) {
+                        return db_field.deleteDataFieldById(info.insertId, function() {
+                            return callback(err, null);
+                        });
+                    }
                     callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.showSource]});
                 });
             });

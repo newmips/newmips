@@ -19,6 +19,65 @@ var enums_radios = require('../utils/enum_radio.js');
 // Winston logger
 var logger = require('../utils/logger');
 
+
+router.post('/set_children', block_access.actionAccessMiddleware("status", "read"), function(req, res) {
+    var statuses = req.body.next_status || [];
+    var id_status = req.body.id_status;
+
+    for (var i = 0; i < statuses.length; i++)
+        statuses[i] = parseInt(statuses[i]);
+    models.E_status.findOne({where: {id: id_status}}).then(function(status) {
+        if (status)
+            status.setR_children(statuses);
+        res.redirect('/status/show?id='+id_status+'#r_children');
+    });
+});
+
+router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
+    var id_status = req.params.id;
+
+    models.E_status.findOne({where: {id: id_status}}).then(function(status) {
+        if (!status) {
+            logger.debug("No data entity found.");
+            return res.render('common/error', {error: 404});
+        }
+
+        // Find all entities without status
+        var entityModel = entity_helper.capitalizeFirstLetter(status.f_entity);
+        var where = {
+            where: {},
+            attributes: ['id'],
+            raw: true
+        };
+        where.where['fk_id_status_'+status.f_field.substring(2)] = null;
+        models[entityModel].findAll(where).then(function(no_statuses) {
+            // Build ID array of entities that need to be updated
+            // Build history creation array
+            var historyModel = 'E_history_'+status.f_entity+'_'+status.f_field;
+            var historyCreateObj = [], toUpdateIds = [];
+            for (var i = 0; i < no_statuses.length; i++) {
+                toUpdateIds.push(no_statuses[i].id);
+                var createObj = {};
+                createObj['fk_id_status_'+status.f_field.substring(2)] = status.id;
+                createObj['fk_id_'+status.f_entity.substring(2)+'_history_'+status.f_field.substring(2)] = no_statuses[i].id;
+                historyCreateObj.push(createObj);
+            }
+
+            // Update entities to add status
+            var updateObj = {};
+            updateObj['fk_id_status_'+status.f_field.substring(2)] = status.id;
+            models[entityModel].update(updateObj, {
+                where: {id: {$in: toUpdateIds}}
+            }).then(function() {
+                // Bulk create history for updated entities
+                models[historyModel].bulkCreate(historyCreateObj).then(function() {
+                    res.redirect('/status/show?id='+status.id);
+                }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
+            }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
+        }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
+    }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
+});
+
 router.get('/list', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
     var data = {
         "menu": "e_status",
@@ -186,19 +245,6 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
         });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
-    });
-});
-
-router.post('/set_children', block_access.actionAccessMiddleware("status", "read"), function(req, res) {
-    var statuses = req.body.next_status || [];
-    var id_status = req.body.id_status;
-
-    for (var i = 0; i < statuses.length; i++)
-        statuses[i] = parseInt(statuses[i]);
-    models.E_status.findOne({where: {id: id_status}}).then(function(status) {
-        if (status)
-            status.setR_children(statuses);
-        res.redirect('/status/show?id='+id_status+'#r_children');
     });
 });
 
