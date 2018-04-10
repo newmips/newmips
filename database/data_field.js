@@ -144,6 +144,18 @@ exports.deleteDataField = function (attr, callback) {
     });
 }
 
+exports.deleteDataFieldById = function (id, callback) {
+    models.DataField.destroy({
+        where: {
+            id: id
+        }
+    }).then(function () {
+        callback(null, true);
+    }).catch(function (err) {
+        callback(err, null);
+    });
+}
+
 // List
 exports.listDataField = function (attr, callback) {
 

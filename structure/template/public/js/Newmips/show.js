@@ -200,9 +200,11 @@ function initHasOne(tab, data) {
 // HAS MANY
 function initHasMany(tab, data) {
     tab.find('.ajax-content').html(data.content);
-    var newButton = $(CREATE_BUTTON);
-    newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
-    tab.find('.ajax-content').append(newButton);
+    if (!data.option.noCreateBtn) {
+        var newButton = $(CREATE_BUTTON);
+        newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
+        tab.find('.ajax-content').append(newButton);
+    }
     tab.find('table').find('.filters').remove();
 
     simpleTable(tab.find('table'));
@@ -253,7 +255,12 @@ $(function() {
     $(".nav-tabs > li > a").click(function() {
         if ($(this).attr('href') == '#home')
             return location.hash = 'home';
+
         var tab = $($(this).attr('href'));
+
+        // Set tab hash to URL
+        location.hash = tab.attr('id');
+
         var id = $("input[name=sourceId]").val();
         var source = $("input[name=sourceName]").val().substring(2);
         var subentityAlias = tab.prop('id');
@@ -270,9 +277,6 @@ $(function() {
             success: function(data) {
                 data.sourceId = id;
                 data.sourceName = source;
-
-                // Set tab hash to URL
-                location.hash = tab.attr('id');
 
                 // Clear tab content
                 tab.find('.ajax-content').html('');

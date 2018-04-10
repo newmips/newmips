@@ -879,6 +879,7 @@ exports.newStatus = function (attr, callback) {
     };
     fs.writeFileSync(workspacePath + '/models/attributes/' + attr.source + '.json', JSON.stringify(attributesObj, null, 4), 'utf8');
 
+    // Replace history table name with history model name in access file
     var access = JSON.parse(fs.readFileSync(workspacePath+'/config/access.json', 'utf8'));
     for (var module in access)
         for (var i = 0; i < access[module].entities.length; i++)
@@ -919,6 +920,7 @@ exports.newStatus = function (attr, callback) {
         $("#" + historyId + "-click").parent().remove();
         $("#" + historyId).remove();
         domHelper.write(workspacePath + "/views/e_status/show_fields.dust", $).then(function () {
+            // Replace traduction keys in show_fields
             var show_fieldsFILE = fs.readFileSync(workspacePath + "/views/"+attr.source+"/show_fields.dust", 'utf8');
             var reg = new RegExp(attr.history_table_db_name, 'g');
             show_fieldsFILE = show_fieldsFILE.replace(reg, attr.history_table);
@@ -957,19 +959,23 @@ exports.newStatus = function (attr, callback) {
                 localesFR.entity['e_' + attr.history_table_db_name].label_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
                 localesFR.entity['e_' + attr.history_table_db_name].name_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
                 localesFR.entity['e_' + attr.history_table_db_name].plural_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                // Rename traduction key to use history MODEL value, delete old traduction key
                 localesFR.entity['e_'+ attr.history_table] = localesFR.entity['e_' + attr.history_table_db_name];
                 localesFR.entity['e_' + attr.history_table_db_name] = undefined;
                 fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
+
                 var localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
                 localesEN.entity['e_' + attr.history_table_db_name]['as_r_' + attr.history_table] = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
                 localesEN.entity['e_' + attr.history_table_db_name].label_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
                 localesEN.entity['e_' + attr.history_table_db_name].name_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
                 localesEN.entity['e_' + attr.history_table_db_name].plural_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                // Rename traduction key to use history MODEL value, delete old traduction key
                 localesEN.entity['e_'+ attr.history_table] = localesEN.entity['e_' + attr.history_table_db_name];
                 localesEN.entity['e_' + attr.history_table_db_name] = undefined;
                 fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 
                 domHelper.write(workspacePath + '/views/e_' + attr.history_table_db_name + '/list_fields.dust', $).then(function () {
+                    // Replace history traductions with history_table key
                     var listFields = fs.readFileSync(workspacePath + '/views/e_' + attr.history_table_db_name + '/list_fields.dust', 'utf8');
                     var reg = new RegExp(attr.history_table_db_name, 'g');
                     listFields = listFields.replace(reg, attr.history_table);
