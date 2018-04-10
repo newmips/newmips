@@ -522,11 +522,31 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
 
 router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME','read'), function(req, res) {
     var search = '%'+(req.body.search||'')+'%';
-    req.body.searchField.push('id');
 
-    var where = {raw:true, attributes: req.body.searchField};
-    if (search != '%%')
-        where.where[req.body.searchField] = {$like: search};
+    // ID is always needed
+    if(req.body.searchField.indexOf("id") == -1)
+        req.body.searchField.push('id');
+
+    var where = {raw: true, attributes: req.body.searchField, where: {}};
+    if (search != '%%'){
+        if(req.body.searchField.length == 1){
+            where.where[req.body.searchField[0]] = {$like: search};
+        } else {
+            where.where.$or = [];
+            for(var i=0; i<req.body.searchField.length; i++){
+                if(req.body.searchField[i] != "id"){
+                    var currentOrObj = {};
+                    currentOrObj[req.body.searchField[i]] = {$like: search}
+                    where.where.$or.push(currentOrObj);
+                }
+            }
+        }
+    }
+
+    // Possibility to add custom where in select2 ajax instanciation
+    if(typeof req.body.customWhere !== "undefined")
+        for(var param in req.body.customWhere)
+            where.where[param] = req.body.customWhere[param];
 
     models.MODEL_NAME.findAll(where).then(function(results) {
         res.json(results);
