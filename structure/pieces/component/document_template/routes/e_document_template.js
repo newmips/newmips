@@ -580,7 +580,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             });
                             data['g_email'] = req.session.passport.user.f_email != null ? req.session.passport.user.f_email : '';
                             data['g_login'] = req.session.passport.user.f_login != null ? req.session.passport.user.f_login : '';
-                            
+
                             var options = {
                                 file: completeFilePath,
                                 mimeType: mimeType,
