@@ -36,7 +36,19 @@ router.post('/set_children', block_access.actionAccessMiddleware("status", "read
 router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
     var id_status = req.params.id;
 
-    models.E_status.findOne({where: {id: id_status}}).then(function(status) {
+    models.E_status.findOne({
+        where: {id: id_status},
+        include: [{
+            model: models.E_action,
+            as: 'r_actions',
+            order: 'f_position ASC',
+            include: [{
+                model: models.E_media,
+                as: 'r_media',
+                include: {all: true, nested: true}
+            }]
+        }]
+    }).then(function(status) {
         if (!status) {
             logger.debug("No data entity found.");
             return res.render('common/error', {error: 404});
@@ -61,6 +73,12 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
                 createObj['fk_id_status_'+status.f_field.substring(2)] = status.id;
                 createObj['fk_id_'+status.f_entity.substring(2)+'_history_'+status.f_field.substring(2)] = no_statuses[i].id;
                 historyCreateObj.push(createObj);
+
+                // Execute actions for each entity instance
+                status.executeActions(no_statuses[i]).catch(function(err) {
+                    console.error("Status action error on /set_default :");
+                    console.error(err);
+                });
             }
 
             // Update entities to add status

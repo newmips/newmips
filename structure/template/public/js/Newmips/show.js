@@ -134,11 +134,14 @@ function bindTabActions(tab, data) {
         e.stopPropagation();
         // Don't change URL hash
         e.preventDefault();
-        var href = $(this).data('href');
-        var id = $(this).data('id');
+        var element = $(this);
+        var href = element.data('href') || element.attr('href');
+        var id = element.data('id');
         $.ajax({
             url: href,
             success: function(formContent) {
+                if (element.attr('href').indexOf('/set_status/') != -1)
+                    return reloadTab(tab);
                 var isCreate = href.indexOf('update_form') != -1 ? false : true;
                 var action, idInput = '', button = '';
                 var cancel = '<button class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
@@ -203,6 +206,10 @@ function initHasOne(tab, data) {
     }
     // NOT EMPTY: Set content, add update/delete button
     else {
+        tab.find('a').each(function() {
+            if ($(this).attr('href').indexOf('/set_status/') != -1)
+                $(this).addClass('ajax');
+        });
         var updBtn = $(UPDATE_BUTTON);
         updBtn.attr('data-href', href+'/update_form'+associationHref+'&id='+data.data);
         updBtn.attr('data-id', data.data);
