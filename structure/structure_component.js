@@ -778,6 +778,7 @@ exports.deleteAgenda = function (attr, callback) {
 }
 
 exports.newCra = function (attr, callback) {
+console.log(attr.module);
     try {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/cra';
@@ -786,7 +787,6 @@ exports.newCra = function (attr, callback) {
         fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');
         fs.copySync(piecesPath + '/routes/e_cra_team.js', workspacePath + '/routes/e_cra_team.js');
         fs.copySync(piecesPath + '/views/e_cra/', workspacePath + '/views/e_cra/');
-        // fs.copySync(piecesPath + '/views/e_cra_team/', workspacePath + '/views/e_cra_team/');
         fs.copySync(piecesPath + '/js/', workspacePath + '/public/js/Newmips/component/');
 
         // Replace layout to point to current module
@@ -815,43 +815,43 @@ exports.newCra = function (attr, callback) {
         teamAttributesObj.fk_id_admin_user = {type: "INTEGER", newmipsType: "integer"};
         fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
 
-        // Replace locales
-        // fr-FR
-        var workspaceFrLocales = require(workspacePath + '/locales/fr-FR.json');
-        var frLocales = require(piecesPath + '/locales/fr-FR.json');
-        for (var entity in frLocales)
-            workspaceFrLocales.entity[entity] = frLocales[entity];
-        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceFrLocales, null, 4));
-
-        // en-EN
-        var workspaceEnLocales = require(workspacePath + '/locales/en-EN.json');
-        var enLocales = require(piecesPath + '/locales/en-EN.json');
-        for (var entity in enLocales)
-            workspaceEnLocales.entity[entity] = enLocales[entity];
-        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceEnLocales, null, 4));
-
         // Update user translations
         translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
         translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
 
-        // // Update module name
-        translateHelper.updateLocales(attr.id_application, "fr-FR", ["module", "m_cra"], "Gestion de temps");
-        translateHelper.updateLocales(attr.id_application, "en-EN", ["module", "m_cra"], "Timesheet");
+        // Add all cra locales EN/FR
+        translateHelper.writeTree(attr.id_application, require(piecesPath+'/locales/en-EN'), 'en-EN');
+        translateHelper.writeTree(attr.id_application, require(piecesPath+'/locales/fr-FR'), 'fr-FR');
 
-        // Remove unwanted tab from user
-        domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
-            $("#r_cra-click").parents('li').remove();
-            $("#r_cra").remove();
-            domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
-                // Check activity activate field in create field
-                domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
-                    $("input[name='f_active']").attr("checked", "checked");
-                    domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
-                        callback(null, {message: 'Module C.R.A created'});
-                    });
-                });
-            });
-        });
+        // Change CRA sidebar entry in current layout
+        domHelper.read(workspacePath+'/views/layout_'+attr.module.codeName+'.dust').then(function($) {
+            var newLayoutLI = '';
+            newLayoutLI += '<li>';
+            newLayoutLI += '    <a href="/cra/declare">';
+            newLayoutLI += '        <i class="fa fa-angle-double-right"></i>';
+            newLayoutLI += '        {@__ key="entity.e_cra.custom_button_declare" /}';
+            newLayoutLI += '    </a>';
+            newLayoutLI += '</li>';
+            $("#cra_menu_item").find('li:first').replaceWith(newLayoutLI);
+            domHelper.write(workspacePath+'/views/layout_'+attr.module.codeName+'.dust', $).then(function() {
+
+                // Remove unwanted tab from user
+                domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
+                    $("#r_cra-click").parents('li').remove();
+                    $("#r_cra").remove();
+                    domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
+
+                        // Check activity activate field in create field
+                        domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
+                            $("input[name='f_active']").attr("checked", "checked");
+                            domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
+                                callback(null, {message: 'Module C.R.A created'});
+                            }).catch(callback);
+                        }).catch(callback);
+                    }).catch(callback);
+                }).catch(callback);
+            }).catch(callback);
+        }).catch(callback);
     } catch (err) {
         callback(err);
     }
