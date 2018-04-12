@@ -142,7 +142,7 @@ var mandatoryInstructions = [
     "select entity action",
     "add field Media related to Media using name",
     "add field Order with type number",
-    "add field Execution with type enum and values Immédiate, Différée and with default value Immédiate",
+    "add field Execution with type enum and values Immédiate, Différée with default value Immédiate",
     "entity Media has one Media Mail",
     "entity Media has one Media Notification",
     "entity Media has one Media Function",

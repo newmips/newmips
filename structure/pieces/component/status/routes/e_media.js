@@ -470,6 +470,42 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
     });
 });
 
+router.post('/search', block_access.actionAccessMiddleware('media','read'), function(req, res) {
+    var search = '%'+(req.body.search||'')+'%';
+
+    // ID is always needed
+    if(req.body.searchField.indexOf("id") == -1)
+        req.body.searchField.push('id');
+
+    var where = {raw: true, attributes: req.body.searchField, where: {}};
+    if (search != '%%'){
+        if(req.body.searchField.length == 1){
+            where.where[req.body.searchField[0]] = {$like: search};
+        } else {
+            where.where.$or = [];
+            for(var i=0; i<req.body.searchField.length; i++){
+                if(req.body.searchField[i] != "id"){
+                    var currentOrObj = {};
+                    currentOrObj[req.body.searchField[i]] = {$like: search}
+                    where.where.$or.push(currentOrObj);
+                }
+            }
+        }
+    }
+
+    // Possibility to add custom where in select2 ajax instanciation
+    if(typeof req.body.customWhere !== "undefined")
+        for(var param in req.body.customWhere)
+            where.where[param] = req.body.customWhere[param];
+
+    models.E_media.findAll(where).then(function(results) {
+        res.json(results);
+    }).catch(function(e) {
+        console.error(e);
+        res.status(500).json(e);
+    });
+});
+
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;

@@ -389,6 +389,9 @@ $(function() {
 
         // Set tab hash to URL
         location.hash = tab.attr('id');
+        // Not ajax tab, don't bind anything
+        if (!tab.hasClass('ajax-tab'))
+            return;
 
         var id = $("input[name=sourceId]").val();
         var source = $("input[name=sourceName]").val().substring(2);

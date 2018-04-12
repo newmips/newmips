@@ -6,21 +6,23 @@
                 {@__ key="entity.e_status.label_entity" /}
             </a>
         </li>
+        {@entityAccess entity="status"}
         <li>
             <a id="r_children-click" data-toggle="tab" data-tabtype="hasMany" href="#r_children">
                 {@__ key="entity.e_status.as_r_children" /}
             </a>
         </li>
+        {/entityAccess}
+        {@entityAccess entity="translation"}
         <li>
             <a id="r_translations-click" data-toggle="tab" data-tabtype="hasMany" href="#r_translations">
                 {@__ key="entity.e_translation.as_r_translations" /}
             </a>
         </li>
-        <li>
-            <a id="r_actions-click" data-toggle="tab" data-tabtype="hasMany" href="#r_actions">
-                {@__ key="entity.e_action.as_r_actions" /}
-            </a>
-        </li>
+        {/entityAccess}
+        {@entityAccess entity="action"}
+        <li><a id="r_actions-click" data-toggle="tab" data-tabtype="hasMany" href="#r_actions">{@__ key="entity.e_action.as_r_actions" /}</a></li>
+        {/entityAccess}
     </ul>
     {/hideTab}
     <div class="tab-content" style="min-height:275px;">
@@ -77,31 +79,43 @@
                 <form action="/status/delete" method="post">
                     <div class="quicklinks">
                         <span>
+                <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="button.return"/}</a>
+            </span>
+                        {@actionAccess entity="status" action="delete"}
+                        <span>
                 <button class="btn btn-danger">
                     <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                     <span>{@__ key="button.delete"/}</span>
                         </button>
                         <input name="id" type="hidden" value="{e_status.id}" class="form-control">
                         </span>
+                        {/actionAccess}
+
+                        {@actionAccess entity="status" action="update"}
                         <span>
                 <a href="/status/update_form?id={e_status.id}" class="btn btn-warning">
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
                     <span>{@__ key="button.update"/}</span>
                         </a>
                         </span>
+                        {/actionAccess}
                         {^hideButton}
+                        {@actionAccess entity="status" action="create"}
                         <span>
                     <a href="/status/create_form" class="btn btn-success">
                         <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
                         <span>{@__ key="button.create"/}</span>
                         </a>
                         </span>
+                        {/actionAccess}
+                        {@actionAccess entity="status" action="read"}
                         <span>
                     <a href="/status/list" type="submit" class="btn btn-primary">
                         <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
                         <span>{@__ key="button.list"/}</span>
                         </a>
                         </span>
+                        {/actionAccess}
                         {/hideButton}
                     </div>
                 </form>
@@ -130,34 +144,18 @@
         </div>
         {/hideTab}
         {^hideTab}
-        <div id="r_translations" class="tab-pane fade">
-            {#r_translations e_translation=r_translations}
-            {@eq key=id value=e_translation[0].id}
-            {>"e_translation/list_fields" associationAlias="r_translations" associationForeignKey="fk_id_status_translations" associationFlag="{e_status.id}" associationSource="e_status" associationUrl="status" for="hasMany" /}
-            {/eq}
-            {:else}
-            {>"e_translation/list_fields" /}
-            {/r_translations}
-            <br>
-            <a href="/translation/create_form?associationAlias=r_translations&amp;associationForeignKey=fk_id_status_translations&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
-			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
-		</a>
+        {@entityAccess entity="translation"}
+        <div id="r_translations" class="ajax-tab tab-pane fade" data-tabtype="hasMany" data-asso-alias="r_translations" data-asso-foreignkey="fk_id_status_translations" data-asso-flag="{id}" data-asso-source="e_status" data-asso-url="status">
+            <div class="ajax-content sub-tab-table"></div>
         </div>
+        {/entityAccess}
         {/hideTab}
         {^hideTab}
-        <div id="r_actions" class="tab-pane fade">
-            {#r_actions e_action=r_actions}
-            {@eq key=id value=e_action[0].id}
-            {>"e_action/list_fields" associationAlias="r_actions" associationForeignKey="fk_id_status_actions" associationFlag="{e_status.id}" associationSource="e_status" associationUrl="status" for="hasMany" /}
-            {/eq}
-            {:else}
-            {>"e_action/list_fields" /}
-            {/r_actions}
-            <br>
-            <a href="/action/create_form?associationAlias=r_actions&amp;associationForeignKey=fk_id_status_actions&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
-			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
-		</a>
+        {@entityAccess entity="action"}
+        <div id="r_actions" class="ajax-tab tab-pane fade" data-tabtype="hasMany" data-asso-alias="r_actions" data-asso-foreignkey="fk_id_status_actions" data-asso-flag="{id}" data-asso-source="e_status" data-asso-url="status">
+            <div class="ajax-content sub-tab-table"></div>
         </div>
+        {/entityAccess}
         {/hideTab}
     </div>
 </div>
