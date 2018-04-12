@@ -89,8 +89,8 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
     if(req.isAdmin){
         // Get cra waiting to be validated for first list of page
         var idTeamUsers = [];
-        for (var i = 0; i < req.team.r_users.length; i++)
-            idTeamUsers.push(req.team.r_users[i].id);
+        for (var i = 0; i < req.team.r_user.length; i++)
+            idTeamUsers.push(req.team.r_user[i].id);
 
         models.E_cra.findAll({
             where: {
@@ -100,7 +100,7 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
             }
         }).then(function(cra) {
             data.cra = cra;
-            data.users = req.team.r_users;
+            data.users = req.team.r_user;
 
             res.render('e_cra/list', data);
         });
@@ -133,8 +133,8 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
     var where = {};
     if(req.isAdmin){
         var idTeamUsers = [];
-        for (var i = 0; i < req.team.r_users.length; i++)
-            idTeamUsers.push(req.team.r_users[i].id);
+        for (var i = 0; i < req.team.r_user.length; i++)
+            idTeamUsers.push(req.team.r_user[i].id);
 
         where = {
             fk_id_user: {$in: idTeamUsers}
