@@ -11,7 +11,9 @@ var options = require('../models/options/e_action');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
-var global = require('../config/global');
+var globalConfig = require('../config/global');
+var fs = require('fs-extra');
+var dust = require('dustjs-linkedin');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -66,7 +68,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("action", "read"), 
                         if (partOfFile.length > 1) {
                             //if field value have valide picture name, add new task in todo list
                             //we will use todo list to get all pictures binary
-                            var thumbnailFolder = global.thumbnail.folder;
+                            var thumbnailFolder = globalConfig.thumbnail.folder;
                             var filePath = thumbnailFolder + 'e_action/' + partOfFile[0] + '/' + value;
                             todo.push({
                                 value: value,
@@ -119,42 +121,22 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
     if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
 
-    /* Looking for two level of include to get all associated data in show tab list */
-    var include = model_builder.getTwoLevelIncludeAll(models, options);
-
-    models.E_action.findOne({where: {id: id_e_action}, include: include}).then(function (e_action) {
+    entity_helper.optimizedFindOne('E_action', id_e_action, options).then(function(e_action){
         if (!e_action) {
             data.error = 404;
             logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
-        /* Modify e_action value with the translated enum value in show result */
-        for (var item in data.enum)
-            for (var field in e_action.dataValues)
-                if (item == field)
-                    for (var value in data.enum[item])
-                        if (data.enum[item][value].value == e_action[field])
-                            e_action[field] = data.enum[item][value].translation;
-
         /* Update local e_action data before show */
         data.e_action = e_action;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.e_action[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            // Update some data before show, e.g get picture binary
-            entity_helper.getPicturesBuffers(e_action, "e_action").then(function() {
-                entity_helper.status.translate(e_action, attributes, req.session.lang_user);
-                res.render('e_action/show', data);
-            }).catch(function (err) {
-                entity_helper.error500(err, req, res, "/");
-            });
-       });
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(e_action, "e_action").then(function() {
+            entity_helper.status.translate(e_action, attributes, req.session.lang_user);
+            res.render('e_action/show', data);
+        }).catch(function (err) {
+            entity_helper.error500(err, req, res, "/");
+        });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
     });
@@ -175,30 +157,22 @@ router.get('/create_form', block_access.actionAccessMiddleware("action", "create
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-
-        if (req.query.associationSource == 'e_status')
-            models.E_status.findOne({where: {id: data.associationFlag}}).then(function(status) {
-                models.E_action.findAll({
-                    where: {
-                        fk_id_status_actions: status.id
-                    },
-                    order: 'f_order DESC',
-                    limit: 1
-                }).then(function(actionMax) {
-                    data.max = (actionMax && actionMax[0] && actionMax[0].f_order) ? actionMax[0].f_order+1 : 1;
-                    res.render('e_action/create', data);
-                });
+    var view = req.query.ajax ? 'e_action/create_fields' : 'e_action/create';
+    if (req.query.associationSource == 'e_status')
+        models.E_status.findOne({where: {id: data.associationFlag}}).then(function(status) {
+            models.E_action.findAll({
+                where: {
+                    fk_id_status_actions: status.id
+                },
+                order: 'f_order DESC',
+                limit: 1
+            }).then(function(actionMax) {
+                data.max = (actionMax && actionMax[0] && actionMax[0].f_order) ? actionMax[0].f_order+1 : 1;
+                res.render(view, data);
             });
-        else
-            res.render('e_action/create', data);
-    }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
-    });
+        });
+    else
+        res.render(view, data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("action", "create"), function (req, res) {
@@ -208,42 +182,54 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
     models.E_action.create(createObject).then(function (e_action) {
         var redirect = '/action/show?id='+e_action.id;
         req.session.toastr = [{
-                message: 'message.create.success',
-                level: "success"
-            }];
+            message: 'message.create.success',
+            level: "success"
+        }];
+
+        var promises = [];
 
         if (typeof req.body.associationFlag !== 'undefined') {
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
-                if (!association) {
-                    e_action.destroy();
-                    var err = new Error();
-                    err.message = "Association not found."
-                    return entity_helper.error500(err, req, res, "/");
-                }
+            promises.push(new Promise(function(resolve, reject) {
+                models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+                    if (!association) {
+                        e_action.destroy();
+                        var err = new Error();
+                        err.message = "Association not found.";
+                        reject(err);
+                    }
 
-                var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
-                if (typeof association['add' + modelName] !== 'undefined')
-                    association['add' + modelName](e_action.id);
-                else {
-                    var obj = {};
-                    obj[req.body.associationForeignKey] = e_action.id;
-                    association.update(obj);
-                }
-            });
+                    var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+                    if (typeof association['add' + modelName] !== 'undefined'){
+                        association['add' + modelName](e_action.id).then(resolve).catch(function(err){
+                            reject(err);
+                        });
+                    } else {
+                        var obj = {};
+                        obj[req.body.associationForeignKey] = e_action.id;
+                        association.update(obj).then(resolve).catch(function(err){
+                            reject(err);
+                        });
+                    }
+                });
+            }));
         }
 
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
         // because those values are not updated for now
-        model_builder.setAssocationManyValues(e_action, req.body, createObject, options);
-
-        res.redirect(redirect);
+        model_builder.setAssocationManyValues(e_action, req.body, createObject, options).then(function(){
+            Promise.all(promises).then(function() {
+                res.redirect(redirect);
+            }).catch(function(err){
+                entity_helper.error500(err, req, res, '/action/create_form');
+            });
+        });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, '/action/create_form');
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("action", 'update'), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("action", "update"), function (req, res) {
     var id_e_action = req.query.id;
     var data = {
         menu: "e_action",
@@ -259,39 +245,21 @@ router.get('/update_form', block_access.actionAccessMiddleware("action", 'update
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
+    entity_helper.optimizedFindOne('E_action', id_e_action, options).then(function(e_action){
+        if (!e_action) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.E_action.findOne({where: {id: id_e_action}, include: [{all: true}]}).then(function (e_action) {
-            if (!e_action) {
-                data.error = 404;
-                return res.render('common/error', data);
+        data.e_action = e_action;
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(e_action, "e_action", true).then(function() {
+            if (req.query.ajax) {
+                e_action.dataValues.enum_radio = data.enum_radio;
+                res.render('e_action/update_fields', e_action.get({plain: true}));
             }
-
-            data.e_action = e_action;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can find adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.e_action[name_global_list] = rows;
-
-                // Set associated property to item that are related to be able to make them selected client side
-                if (rows.length > 1)
-                    for (var j = 0; j < data[model].length; j++)
-                        if (e_action[model] != null)
-                            for (var k = 0; k < e_action[model].length; k++)
-                                if (data[model][j].id == e_action[model][k].id)
-                                    data[model][j].dataValues.associated = true;
-            }
-
-            req.session.toastr = [];
-            res.render('e_action/update', data);
+            else
+                res.render('e_action/update', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
         });
@@ -300,7 +268,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("action", 'update
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("action", 'update'), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("action", "update"), function (req, res) {
     var id_e_action = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -309,7 +277,6 @@ router.post('/update', block_access.actionAccessMiddleware("action", 'update'), 
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    //updateObject = enums.values("e_action", updateObject, req.body);
 
     models.E_action.findOne({where: {id: id_e_action}}).then(function (e_action) {
         if (!e_action) {
@@ -322,18 +289,19 @@ router.post('/update', block_access.actionAccessMiddleware("action", 'update'), 
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
-            model_builder.setAssocationManyValues(e_action, req.body, updateObject, options);
+            model_builder.setAssocationManyValues(e_action, req.body, updateObject, options).then(function () {
 
-            var redirect = '/action/show?id=' + id_e_action;
-            if (typeof req.body.associationFlag !== 'undefined')
-                redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
+                var redirect = '/action/show?id=' + id_e_action;
+                if (typeof req.body.associationFlag !== 'undefined')
+                    redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
-            req.session.toastr = [{
+                req.session.toastr = [{
                     message: 'message.update.success',
                     level: "success"
                 }];
 
-            res.redirect(redirect);
+                res.redirect(redirect);
+            });
         }).catch(function (err) {
             entity_helper.error500(err, req, res, '/action/update_form?id=' + id_e_action);
         });
@@ -342,25 +310,146 @@ router.post('/update', block_access.actionAccessMiddleware("action", 'update'), 
     });
 });
 
-router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionAccessMiddleware("action", "create"), function(req, res) {
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 'read'), function(req, res) {
+    var alias = req.params.alias;
+    var id = req.params.id;
+
+    // Find tab option
+    var option;
+    for (var i = 0; i < options.length; i++)
+        if (options[i].as == req.params.alias)
+            {option = options[i]; break;}
+    if (!option)
+        return res.status(404).end();
+
+    // Check access rights to subentity
+    if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
+        return res.status(403).end();
+
+    // Fetch tab data
+    models.E_action.findOne({
+        where: {id: id},
+        include: [{
+            model: models[entity_helper.capitalizeFirstLetter(option.target)],
+            as: option.as,
+            include: {all: true}
+        }]
+    }).then(function(e_action) {
+        if (!e_action)
+            return res.status(404).end();
+
+        var dustData = e_action[option.as];
+        var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
+        var dustFile, idSubentity, promisesData = [];
+
+        // Build tab specific variables
+        switch (option.structureType) {
+            case 'hasOne':
+                if (!empty) {
+                    idSubentity = dustData.id;
+                    dustData.hideTab = true;
+                    dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
+                    promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
+                    // Fetch status children to be able to switch status
+                    // Apply getR_children() on each current status
+                    var statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);;
+                    for (var i = 0; i < subentityOptions.length; i++)
+                        if (subentityOptions[i].target.indexOf('e_status') == 0)
+                            (function(alias) {
+                                promisesData.push(new Promise(function(resolve, reject) {
+                                    dustData[alias].getR_children().then(function(children) {
+                                        dustData[alias].r_children = children;
+                                        resolve();
+                                    });
+                                }))
+                            })(subentityOptions[i].as);
+                }
+                dustFile = option.target+'/show_fields';
+            break;
+
+            case 'hasMany':
+            case 'hasManyPreset':
+                dustFile = option.target+'/list_fields';
+                // Status history specific behavior. Replace history_model by history_table to open view
+                if (option.target.indexOf('e_history_e_') == 0) {
+                    option.noCreateBtn = true;
+                    for (var attr in attributes)
+                        if (attributes[attr].history_table && attributes[attr].history_model == option.target)
+                            dustFile = attributes[attr].history_table+'/list_fields';
+                }
+                var obj = {};
+                obj[option.target] = dustData;
+                dustData = obj;
+                dustData.for = option.structureType == 'hasMany' ? 'hasMany' : 'fieldset';
+                for (var i = 0; i < dustData[option.target].length; i++)
+                    promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
+                if (typeof req.query.associationFlag !== 'undefined')
+                    {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
+            break;
+
+            case 'localfilestorage':
+                dustFile = option.target+'/list_fields';
+                var obj = {};
+                obj[option.target] = dustData;
+                dustData = obj;
+                dustData.sourceId = id;
+            break;
+
+            default:
+                return res.status(500).end();
+        }
+
+        // Image buffer promise
+        Promise.all(promisesData).then(function() {
+            // Open and render dust file
+            var file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
+            dust.renderSource(file, dustData || {}, function(err, rendered) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end();
+                }
+
+                // Send response to ajax request
+                res.json({
+                    content: rendered,
+                    data: idSubentity || {},
+                    empty: empty,
+                    option: option
+                });
+            });
+        }).catch(function(err) {
+            console.error(err);
+            res.status(500).send(err);
+        });
+    }).catch(function(err) {
+        console.error(err);
+        res.status(500).send(err);
+    });
+});
+
+router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionAccessMiddleware("action", "update"), function(req, res) {
     var historyModel = 'E_history_e_action_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
     var statusAlias = 'r_'+req.params.status.substring(2);
 
     var errorRedirect = '/action/show?id='+req.params.id_action;
-    // Find target entity instance
+
+    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_action');
+
+    // Find target entity instance and include its child to be able to replace variables in media
+    includeTree.push({
+        model: models[historyModel],
+        as: historyAlias,
+        limit: 1,
+        order: 'createdAt DESC',
+        include: [{
+            model: models.E_status,
+            as: statusAlias
+        }]
+    });
     models.E_action.findOne({
         where: {id: req.params.id_action},
-        include: [{
-            model: models[historyModel],
-            as: historyAlias,
-            limit: 1,
-            order: 'createdAt DESC',
-            include: [{
-                model: models.E_status,
-                as: statusAlias
-            }]
-        }]
+        include: includeTree
     }).then(function(e_action) {
         if (!e_action || !e_action[historyAlias] || !e_action[historyAlias][0][statusAlias]){
             logger.debug("Not found - Set status");
@@ -380,7 +469,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
-                        include: [{all: true}]
+                        include: {all: true, nested: true}
                     }]
                 }]
             }]
@@ -407,20 +496,69 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(e_media_notification);
-
-            // Create history record for this status field
-            // Beeing the most recent history for action it will now be its current status
-            var createObject = {}
-            createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-            createObject["fk_id_action_history_"+req.params.status.substring(2)] = req.params.id_action;
-            models[historyModel].create(createObject).then(function() {
-                e_action['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                res.redirect('/action/show?id='+req.params.id_action)
+            nextStatus.executeActions(e_action).then(function() {
+                // Create history record for this status field
+                // Beeing the most recent history for action it will now be its current status
+                var createObject = {}
+                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_action_history_"+req.params.status.substring(2)] = req.params.id_action;
+                models[historyModel].create(createObject).then(function() {
+                    e_action['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/action/show?id='+req.params.id_action)
+                });
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, errorRedirect);
+                console.error(err);
+                req.session.toastr = [{
+                    level: 'warning',
+                    message: 'component.status.error.action_error'
+                }]
+                var createObject = {}
+                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_action_history_"+req.params.status.substring(2)] = req.params.id_action;
+                models[historyModel].create(createObject).then(function() {
+                    e_action['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/action/show?id='+req.params.id_action)
+                });
             });
         });
+    }).catch(function(err) {
+        entity_helper.error500(err, req, res, errorRedirect);
+    });
+});
+
+router.post('/search', block_access.actionAccessMiddleware('action','read'), function(req, res) {
+    var search = '%'+(req.body.search||'')+'%';
+
+    // ID is always needed
+    if(req.body.searchField.indexOf("id") == -1)
+        req.body.searchField.push('id');
+
+    var where = {raw: true, attributes: req.body.searchField, where: {}};
+    if (search != '%%'){
+        if(req.body.searchField.length == 1){
+            where.where[req.body.searchField[0]] = {$like: search};
+        } else {
+            where.where.$or = [];
+            for(var i=0; i<req.body.searchField.length; i++){
+                if(req.body.searchField[i] != "id"){
+                    var currentOrObj = {};
+                    currentOrObj[req.body.searchField[i]] = {$like: search}
+                    where.where.$or.push(currentOrObj);
+                }
+            }
+        }
+    }
+
+    // Possibility to add custom where in select2 ajax instanciation
+    if(typeof req.body.customWhere !== "undefined")
+        for(var param in req.body.customWhere)
+            where.where[param] = req.body.customWhere[param];
+
+    models.E_action.findAll(where).then(function(results) {
+        res.json(results);
+    }).catch(function(e) {
+        console.error(e);
+        res.status(500).json(e);
     });
 });
 
@@ -446,6 +584,8 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("acti
             // Set back associations without removed entity
             e_action['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
+            }).catch(function(err) {
+                entity_helper.error500(err, req, res, "/");
             });
         });
     }).catch(function (err) {
@@ -474,6 +614,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("action"
 
         e_action['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/action/show?id=' + idEntity + "#" + alias);
+        }).catch(function(err) {
+            entity_helper.error500(err, req, res, "/");
         });
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");

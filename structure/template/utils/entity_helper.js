@@ -207,7 +207,7 @@ var funcs = {
             });
         }
     },
-    optimizedFindOne: function(modelName, idObj, options) {
+    optimizedFindOne: function(modelName, idObj, options, forceOptions) {
         // Split SQL request if too many inclusion
         return new Promise(function(resolve, reject){
             var include = [];
@@ -222,6 +222,9 @@ var funcs = {
                         opt.include = {model: models.E_status, as: 'r_children'};
                     include.push(opt);
                 }
+
+            if (forceOptions && forceOptions.length)
+                include = include.concat(forceOptions);
 
             if(include.length >= 6) {
                 var firstLength = Math.floor(include.length / 2);
