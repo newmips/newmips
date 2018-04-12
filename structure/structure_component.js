@@ -778,7 +778,6 @@ exports.deleteAgenda = function (attr, callback) {
 }
 
 exports.newCra = function (attr, callback) {
-console.log(attr.module);
     try {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;
         var piecesPath = __dirname + '/../structure/pieces/component/cra';
@@ -826,12 +825,12 @@ console.log(attr.module);
         // Change CRA sidebar entry in current layout
         domHelper.read(workspacePath+'/views/layout_'+attr.module.codeName+'.dust').then(function($) {
             var newLayoutLI = '';
-            newLayoutLI += '<li>';
-            newLayoutLI += '    <a href="/cra/declare">';
-            newLayoutLI += '        <i class="fa fa-angle-double-right"></i>';
-            newLayoutLI += '        {@__ key="entity.e_cra.custom_button_declare" /}';
-            newLayoutLI += '    </a>';
-            newLayoutLI += '</li>';
+            newLayoutLI += '<li>\n';
+            newLayoutLI += '    <a href="/cra/declare">\n';
+            newLayoutLI += '        <i class="fa fa-angle-double-right"></i>\n';
+            newLayoutLI += '        {@__ key="entity.e_cra.custom_button_declare" /}\n';
+            newLayoutLI += '    </a>\n';
+            newLayoutLI += '</li>\n';
             $("#cra_menu_item").find('li:first').replaceWith(newLayoutLI);
             domHelper.write(workspacePath+'/views/layout_'+attr.module.codeName+'.dust', $).then(function() {
 
@@ -840,14 +839,7 @@ console.log(attr.module);
                     $("#r_cra-click").parents('li').remove();
                     $("#r_cra").remove();
                     domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
-
-                        // Check activity activate field in create field
-                        domHelper.read(workspacePath + '/views/e_cra_activity/create_fields.dust').then(function ($) {
-                            $("input[name='f_active']").attr("checked", "checked");
-                            domHelper.write(workspacePath + '/views/e_cra_activity/create_fields.dust', $).then(function () {
-                                callback(null, {message: 'Module C.R.A created'});
-                            }).catch(callback);
-                        }).catch(callback);
+                        callback(null, {message: 'Module C.R.A created'});
                     }).catch(callback);
                 }).catch(callback);
             }).catch(callback);

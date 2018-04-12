@@ -140,7 +140,7 @@ function bindTabActions(tab, data) {
         $.ajax({
             url: href,
             success: function(formContent) {
-                if (element.attr('href').indexOf('/set_status/') != -1)
+                if (href.indexOf('/set_status/') != -1)
                     return reloadTab(tab);
                 var isCreate = href.indexOf('update_form') != -1 ? false : true;
                 var action, idInput = '', button = '';

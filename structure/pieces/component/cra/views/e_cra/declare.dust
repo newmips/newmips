@@ -25,10 +25,10 @@ thead{
 </style>
 {/custom_css_2}
 {<header}
-    <h1>{@__ key="module.m_cra"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{@__ key="module.MODULE_NAME"/}<small>{@__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.m_cra"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.MODULE_NAME"/}</a></li>
+        <li class="active">{@__ key="module.MODULE_NAME"/}</li>
     </ol>
     {/header}
     {<content}
