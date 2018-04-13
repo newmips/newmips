@@ -1184,9 +1184,9 @@ exports.addNewComponentAddress = function (attr, callback) {
         domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
             domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
                 domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
-                    $createFieldsFile(appendTo).append('<div class="' + componentCodeName + '">{>"' + componentCodeName + '/create_fields"/}</div>');
-                    $updateFieldsFile(appendTo).append('<div class="' + componentCodeName + '">{>"' + componentCodeName + '/update_fields"/}</div>');
-                    $showFieldsFile(appendTo).append('<div class="' + componentCodeName + '">{>"' + componentCodeName + '/show"/}</div>');
+                    $createFieldsFile(appendTo).append('<div data-field="'+componentCodeName+'" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/create_fields"/}</div>');
+                    $updateFieldsFile(appendTo).append('<div data-field="'+componentCodeName+'" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/update_fields"/}</div>');
+                    $showFieldsFile(appendTo).append('<div data-field="'+componentCodeName+'" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
                     domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
                         domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
                             domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
@@ -1223,7 +1223,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                 };
                                                 langEN.component[c_address_settings] = {
                                                     "label_component": "Addresses settings",
-                                                    "position": "Map position",
+                                                    "position": "Maps position",
                                                     "top": "Top",
                                                     "right": "Right",
                                                     "bottom": "Bottom",
@@ -1271,7 +1271,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                             },
                                             "estimateDistance": false,
                                             "zoomBar": false,
-                                            "navigation": false,
+                                            "navigation": true,
                                             "mousePosition": false
                                         };
                                         //set locales
