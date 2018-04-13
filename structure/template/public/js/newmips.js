@@ -8,7 +8,7 @@ function select2_ajaxsearch(select) {
     var searchField = select.data('using').split(',');
     select.select2({
         ajax: {
-            url: '/'+select.data('source')+'/search',
+            url: '/' + select.data('source') + '/search',
             dataType: 'json',
             method: 'POST',
             delay: 250,
@@ -24,16 +24,16 @@ function select2_ajaxsearch(select) {
                 if (!dataResults)
                     return {results: []};
                 var results = [];
-                for (var i = 0; i < dataResults.length; i++){
+                for (var i = 0; i < dataResults.length; i++) {
                     var text = "";
-                    for (var field in dataResults[i]){
-                        if(searchField.indexOf(field) != -1){
-                            if(dataResults[i][field] != null)
+                    for (var field in dataResults[i]) {
+                        if (searchField.indexOf(field) != -1) {
+                            if (dataResults[i][field] != null)
                                 text += dataResults[i][field] + " - ";
                         }
                     }
                     text = text.substring(0, text.length - 3);
-                    if(text == "" || text == null)
+                    if (text == "" || text == null)
                         text = dataResults[i].id;
 
                     results.push({id: dataResults[i].id, text: text});
@@ -58,7 +58,7 @@ function initForm(context) {
     if (!context)
         context = document;
 
-    $("select.ajax", context).each(function() {
+    $("select.ajax", context).each(function () {
         select2_ajaxsearch($(this));
     });
     $("select:not(.ajax):not(.regular-select)", context).select2();
@@ -71,7 +71,7 @@ function initForm(context) {
     });
 
     /* --------------- Initialisation des Textarea --------------- */
-    $("textarea:not(.regular-textarea)", context).each(function() {
+    $("textarea:not(.regular-textarea)", context).each(function () {
         $(this).summernote({
             height: 200
         });
@@ -91,10 +91,10 @@ function initForm(context) {
     });
 
     /* --------------- Max length on input number --------------- */
-    $("input[type='number']", context).keyup(function(e) {
-        if(typeof $(this).data("customtype") === "undefined")
+    $("input[type='number']", context).keyup(function (e) {
+        if (typeof $(this).data("customtype") === "undefined")
             if (this.value.length > 10)
-                this.value = this.value.slice(0,10);
+                this.value = this.value.slice(0, 10);
     });
 
     /* --------------- Initialisation des DatetimePicker --------------- */
@@ -108,7 +108,7 @@ function initForm(context) {
     $("input[type='tel']", context).inputmask({mask: "99 99 99 99 99"});
 
     /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
-    $('.simpledate-toconvert', context).each(function() {
+    $('.simpledate-toconvert', context).each(function () {
         if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
             if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
                 if (lang_user == "fr-FR")
@@ -119,7 +119,7 @@ function initForm(context) {
         }
     });
 
-    $('.datepicker-toconvert', context).each(function() {
+    $('.datepicker-toconvert', context).each(function () {
         var currentVal = $(this).val();
         if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
             if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
@@ -133,7 +133,7 @@ function initForm(context) {
         }
     });
 
-    $('.datetimepicker-toconvert', context).each(function() {
+    $('.datetimepicker-toconvert', context).each(function () {
         var currentVal = $(this).attr("value");
         if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
             if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
@@ -147,7 +147,7 @@ function initForm(context) {
         }
     });
 
-    $('img[data-type="picture"]', context).each(function() {
+    $('img[data-type="picture"]', context).each(function () {
         var src = $(this).attr('src');
         //remove all pictures with null src value
         if (typeof src !== 'undefined' && src.split(',')[1] == '') {
@@ -209,25 +209,25 @@ function initForm(context) {
     }
 
     /* Set default date if needed */
-    $('.datepicker', context).each(function(){
-        if($(this).attr("data-today") == 1)
+    $('.datepicker', context).each(function () {
+        if ($(this).attr("data-today") == 1)
             $(this).datepicker("setDate", "0");
     });
 
-    $('.datetimepicker', context).each(function(){
-        if($(this).attr("data-today") == 1)
+    $('.datetimepicker', context).each(function () {
+        if ($(this).attr("data-today") == 1)
             $(this).data("DateTimePicker").defaultDate(moment());
     });
 
     /* ----------------data-type qrcode generation -------------------------*/
     // Counter to avoid same id generation
     var ctpQrCode = 0;
-    $("input[data-type='qrcode']", context).each(function() {
+    $("input[data-type='qrcode']", context).each(function () {
         if ($(this).val() != '') {
             //Update View, set attr parent id, Qrcode only work with component Id
-            $(this).parent().parent().attr("id", $(this).attr('name')+ctpQrCode);
+            $(this).parent().parent().attr("id", $(this).attr('name') + ctpQrCode);
             //$(this).attr('name') = this parent id
-            var qrcode = new QRCode($(this).attr('name')+ctpQrCode, {
+            var qrcode = new QRCode($(this).attr('name') + ctpQrCode, {
                 text: $(this).val(),
                 width: 128,
                 height: 128,
@@ -264,7 +264,7 @@ function initForm(context) {
     };
 
     //input barcode
-    $("input[data-type='barcode']", context).each(function() {
+    $("input[data-type='barcode']", context).each(function () {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
@@ -277,14 +277,14 @@ function initForm(context) {
     });
 
     //input barcode
-    $("input[data-type='code39'],input[data-type='alpha39']", context).each(function() {
-        $(this).on('keyup', function() {
+    $("input[data-type='code39'],input[data-type='alpha39']", context).each(function () {
+        $(this).on('keyup', function () {
             $(this).val($(this).val().toUpperCase());
         });
     });
 
     //Mask for data-type currency
-    $("input[data-type='currency']", context).each(function() {
+    $("input[data-type='currency']", context).each(function () {
         $(this).maskMoney({
             thousands: ' ',
             decimal: '.',
@@ -295,7 +295,7 @@ function initForm(context) {
     });
 
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
-    $('.dropzone-field', context).each(function(index) {
+    $('.dropzone-field', context).each(function (index) {
         var that = $(this);
         var type = that.attr('data-type');
         var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
@@ -310,8 +310,8 @@ function initForm(context) {
             autoDiscover: false,
             thumbnailWidth: 500,
             thumbnailHeight: 500,
-            init: function() {
-                this.on("addedfile", function() {
+            init: function () {
+                this.on("addedfile", function () {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
@@ -361,7 +361,7 @@ function initForm(context) {
                     }
                 });
             },
-            renameFilename: function(filename) {
+            renameFilename: function (filename) {
                 if (filename.indexOf('dfltImg_') != -1)
                     return filename;
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
@@ -385,7 +385,7 @@ function initForm(context) {
             };
             dropzoneInit.files.push(mockFile);
             dropzoneInit.emit('addedfile', mockFile);
-            dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64,"+$('#' + dropzoneId + '_hidden').data('buffer'));
+            dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
             dropzoneInit.emit('complete', mockFile);
         }
         dropzoneInit.done = false;
@@ -399,7 +399,7 @@ function initDropZone(context) {
         context = document;
 
     /* File Storage Component */
-    $('.dropzone_local_file_component', context).each(function(index) {
+    $('.dropzone_local_file_component', context).each(function (index) {
         var that = $(this);
         var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
             url: "/" + that.attr("data-component") + "/file_upload",
@@ -410,8 +410,8 @@ function initDropZone(context) {
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
-            init: function() {
-                this.on("addedfile", function() {
+            init: function () {
+                this.on("addedfile", function () {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
@@ -420,7 +420,7 @@ function initDropZone(context) {
                         $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
                     }
                 });
-                this.on("sending", function(file, xhr, formData) {
+                this.on("sending", function (file, xhr, formData) {
                     var dataComponent = that.attr("data-component");
                     var dataSource = that.attr("data-source");
                     var dataSourceID = that.attr("data-sourceId");
@@ -428,17 +428,17 @@ function initDropZone(context) {
                     formData.append("dataSource", dataSource);
                     formData.append("dataSourceID", dataSourceID);
                 });
-                this.on("maxfilesexceeded", function() {
+                this.on("maxfilesexceeded", function () {
                     this.removeFile(this.files[1]);
                     toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                 });
-                this.on("error", function(file, message) {
+                this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
             },
-            renameFilename: function(filename) {
+            renameFilename: function (filename) {
                 var timeFile = moment().format("YYYYMMDD-HHmmss");
                 $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
                 return timeFile + '_' + filename;
@@ -474,13 +474,13 @@ function initPrint() {
         }
     });
 
-    $(".print-tab select[multiple]").each(function() {
-        if ($(this).val() == null){
+    $(".print-tab select[multiple]").each(function () {
+        if ($(this).val() == null) {
             $(this).replaceWith("<br>-");
         } else {
             var selectContent = "<br>";
-            for(var i=0; i<$(this).val().length; i++){
-                if(i > 0)
+            for (var i = 0; i < $(this).val().length; i++) {
+                if (i > 0)
                     selectContent += ",&nbsp;";
                 selectContent += $(this).val()[i];
             }
@@ -497,11 +497,11 @@ function initPrint() {
             $(this).replaceWith("-");
     });
 
-    $(".print-tab input[data-type='email']").each(function() {
+    $(".print-tab input[data-type='email']").each(function () {
         $(this).parent().removeClass("input-group");
     });
 
-    $(".print-tab .input-group-addon").each(function() {
+    $(".print-tab .input-group-addon").each(function () {
         $(this).remove();
     });
 
@@ -521,7 +521,7 @@ function initPrint() {
         formGroup.html(htmlToWrite);
     });
 
-    $(".print-tab input[type='checkbox']").each(function() {
+    $(".print-tab input[type='checkbox']").each(function () {
         var formGroup = $(this).parents(".form-group");
         var label = formGroup.find("label").html();
         var htmlToWrite = "<b>" + label + "</b>\n";
@@ -555,7 +555,7 @@ function initPrint() {
 function validateForm(form) {
     var isValid = true;
 
-    function isFileProcessing(){
+    function isFileProcessing() {
         for (var i = 0; i < dropzonesFieldArray.length; i++)
             if (dropzonesFieldArray[i].files.length == 1)
                 if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
@@ -572,7 +572,7 @@ function validateForm(form) {
     /* On converti les dates francaises en date yyyy-mm-dd pour la BDD */
     if (lang_user == "fr-FR") {
         /* Datepicker FR convert*/
-        form.find('.datepicker').each(function() {
+        form.find('.datepicker').each(function () {
             if ($(this).val().length > 0) {
                 // Sécurité
                 $(this).prop("readOnly", true);
@@ -588,7 +588,7 @@ function validateForm(form) {
         });
 
         /* Datetimepicer FR convert */
-        form.find('.datetimepicker').each(function() {
+        form.find('.datetimepicker').each(function () {
             if ($(this).val().length > 0) {
                 // Sécurité
                 $(this).prop("readOnly", true);
@@ -606,7 +606,7 @@ function validateForm(form) {
     }
 
     /* Convert all times in UTC */
-    form.find('.datetimepicker').each(function() {
+    form.find('.datetimepicker').each(function () {
         if ($(this).val().length > 0) {
             // Sécurité
             $(this).prop("readOnly", true);
@@ -615,7 +615,7 @@ function validateForm(form) {
     });
 
     /* If a select multiple is empty we want to have an empty value in the req.body */
-    form.find("select[multiple]").each(function() {
+    form.find("select[multiple]").each(function () {
         if ($(this).val() == null) {
             var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
             form.append($(input));
@@ -623,7 +623,7 @@ function validateForm(form) {
     });
 
     /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
-    form.find("input[type='checkbox']").each(function() {
+    form.find("input[type='checkbox']").each(function () {
         if ($(this).prop("checked")) {
             $(this).val(true);
         } else {
@@ -634,7 +634,7 @@ function validateForm(form) {
     });
 
     /* Vérification que les input mask EMAIL sont bien complétés jusqu'au bout */
-    form.find("input[data-type='email']").each(function() {
+    form.find("input[data-type='email']").each(function () {
         if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
             $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
             isValid = false;
@@ -642,7 +642,7 @@ function validateForm(form) {
     });
 
     /* Vérification que les input mask URL sont bien complétés jusqu'au bout */
-    form.find("input[data-type='url']").each(function() {
+    form.find("input[data-type='url']").each(function () {
         if ($(this).val() != '' && !$(this).inputmask("isComplete")) {
             toastr.error(" Le champ " + $(this).attr("placeholder") + " est invalide");
             isValid = false;
@@ -650,7 +650,7 @@ function validateForm(form) {
     });
 
     /* Vérification des types barcode */
-    form.find("input[data-type='barcode']").each(function() {
+    form.find("input[data-type='barcode']").each(function () {
         var val = $(this).val();
         if (val != '') {
             var customType = $(this).attr('data-customtype');
@@ -710,7 +710,7 @@ function validateForm(form) {
     });
 
     /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
-    form.find("input[type='tel']").each(function() {
+    form.find("input[type='tel']").each(function () {
         if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
             console.log("MASK INVALID")
             $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
@@ -722,7 +722,7 @@ function validateForm(form) {
         }
     });
 
-    form.find("input[data-type='currency']").each(function() {
+    form.find("input[data-type='currency']").each(function () {
         //replace number of zero par maskMoneyPrecision value, default 2
         $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
     });
@@ -749,7 +749,7 @@ $(document).ready(function () {
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
 
-    $('form').submit(function(e) {
+    $('form').submit(function (e) {
         if (!validateForm($(this)))
             return false;
         return true;
@@ -757,21 +757,21 @@ $(document).ready(function () {
 
     /* --------------- Inline Help --------------- */
     var currentHelp, modalOpen = false;
-    $(document).delegate(".inline-help",'click', function() {
+    $(document).delegate(".inline-help", 'click', function () {
         currentHelp = this;
         var entity;
         if ($(this).parents('.tab-pane').length && $(this).parents('.tab-pane').attr('id') != 'home')
             entity = $(this).parents('.tab-pane').attr('id').substring(2);
         else {
             var parts = window.location.href.split('/');
-            entity = parts[parts.length-2];
+            entity = parts[parts.length - 2];
         }
         var field = $(this).data('field');
         $.ajax({
-            url: "/inline_help/help/"+entity+"/"+field,
-            success: function(content) {
+            url: "/inline_help/help/" + entity + "/" + field,
+            success: function (content) {
                 $("#prevHelp, #nextHelp").hide();
-                var totalHelp = $(".inline-help").length-1;
+                var totalHelp = $(".inline-help").length - 1;
                 var currentIdx = $(".inline-help").index(currentHelp);
                 if (totalHelp - currentIdx > 0)
                     $("#nextHelp").show();
@@ -784,22 +784,22 @@ $(document).ready(function () {
         });
     });
     // Prev/next Help en ligne buttons
-    $("#nextHelp, #prevHelp").click(function() {
-        var count = $("#fields .inline-help").length-1;
+    $("#nextHelp, #prevHelp").click(function () {
+        var count = $("#fields .inline-help").length - 1;
         var current = $("#fields .inline-help").index(currentHelp);
         if ($(this).attr('id') == 'nextHelp' && count > current)
-            $("#fields .inline-help").eq(current+1).click();
+            $("#fields .inline-help").eq(current + 1).click();
         else if ($(this).attr('id') == 'prevHelp' && current > 0)
-            $("#fields .inline-help").eq(current-1).click();
+            $("#fields .inline-help").eq(current - 1).click();
     });
     // Handle tab and shift+tab modal navigation
-    $("#inlineHelp").on('show.bs.modal', function() {
+    $("#inlineHelp").on('show.bs.modal', function () {
         modalOpen = true;
     });
-    $("#inlineHelp").on('hide.bs.modal', function() {
+    $("#inlineHelp").on('hide.bs.modal', function () {
         modalOpen = false;
     });
-    $(document).keypress(function(e) {
+    $(document).keypress(function (e) {
         if (modalOpen == false)
             return;
         var code = e.keyCode || e.which;
@@ -830,7 +830,7 @@ $(document).ready(function () {
             "hideMethod": "fadeOut"
         };
         for (var i = 0; i < toastrArray.length; i++) {
-            setTimeout(function(toast) {
+            setTimeout(function (toast) {
                 switch (toast.level) {
                     case "info":
                         toastr.info(toast.message);
@@ -850,16 +850,16 @@ $(document).ready(function () {
     } catch (e) {
         console.log(e);
         toastr = {
-            success: function() {
+            success: function () {
                 return true;
             },
-            info: function() {
+            info: function () {
                 return true;
             },
-            error: function() {
+            error: function () {
                 return true;
             },
-            warning: function() {
+            warning: function () {
                 return true;
             }
         };
@@ -890,7 +890,7 @@ $(document).ready(function () {
     // DROPZONE SUBMIT
     /* Dropzone files managment already done ? */
     var filesComponentProceeded = false;
-    $(document).on("submit", ".component-form", function(e) {
+    $(document).on("submit", ".component-form", function (e) {
         if (!filesComponentProceeded && dropzonesComponentArray[$(this).attr("data-component")].length > 0) {
             /* If there are files to write, stop submit and do this before */
             e.preventDefault();
@@ -899,8 +899,8 @@ $(document).ready(function () {
             for (var i = 0; i < dropzonesComponentArray[$(this).attr("data-component")].length; i++) {
                 if (dropzonesComponentArray[$(this).attr("data-component")][i].files.length > 0) {
                     dropzonesComponentArray[$(this).attr("data-component")][i].processQueue();
-                    (function(ibis, myform) {
-                        dropzonesComponentArray[myform.attr("data-component")][i].on("complete", function(file) {
+                    (function (ibis, myform) {
+                        dropzonesComponentArray[myform.attr("data-component")][i].on("complete", function (file) {
                             if (ibis == dropzonesComponentArray[myform.attr("data-component")].length - 1) {
                                 filesComponentProceeded = true;
                                 myform.submit();
@@ -954,6 +954,108 @@ $(document).ready(function () {
             }
         });
     });
+
+    //Component address
+    (function () {
+        var componentAddressConf = {
+            url: "https://api-adresse.data.gouv.fr/search/",
+            query_parm: 'q',
+            type: 'get', //HTTP request type
+            addresses: 'features', //objet which contain list of address, if equal '.' whe take response as list, 
+            address_fields: 'properties', //objet name which contain attributes or '.' , 
+            autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
+            enable: true//If  enable, do query and get data, else data should be to set manually by user
+        };
+        if (componentAddressConf.enable) {
+            $('.c_address_field').on('keyup', function () {
+                $(this).val($(this).val().toUpperCase());
+            });
+            $('#c_address_search_area').each(function () {
+                var result;
+                var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
+                $(this).autocomplete({
+                    minLength: 1,
+                    source: function (req, res) {
+                        var val = $('#c_address_search_area').val();
+                        var data = {limit: 10};
+                        data[componentAddressConf.query_parm] = val;
+                        $.ajax({
+                            url: componentAddressConf.url,
+                            type: componentAddressConf.type,
+                            data: data,
+                            dataType: 'json',
+                            success: function (data) {
+                                result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
+                                res($.map(result, function (_address) {
+                                    var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
+                                    var toReturn = '';
+                                    fieldsToShow.forEach(function (field) {
+                                        toReturn += objet[field] + ' ';
+                                    });
+                                    return toReturn;
+                                }));
+                            }
+                        });
+                    },
+                    select: function (e, ui) {
+                        result.forEach(function (_) {
+                            var toReturn = '';
+                            var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
+                            var toReturn = '';
+                            fieldsToShow.forEach(function (field) {
+                                toReturn += _address[field] + ' ';
+                            });
+                            if (ui.item.value == toReturn) {
+                                for (var key in _address) {
+                                    if (_address[key] != '') //to prevent to replace default value
+                                        $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
+                                }
+                                /** Set Lat and Long value **/
+                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[0]);
+                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[1]);
+                            }
+                        });
+                    }
+                });
+            });
+        }
+    }());
+    function initComponentAddressMaps(lat, lon) {
+        $('#c_address_maps').empty();
+        var options = {
+            controls: [
+            ]
+        };
+        if ($('#f_c_address_navigation').val() === 'true')
+            options.controls.push(new OpenLayers.Control.Navigation());
+        if ($('#f_c_address_zoomBar').val() === 'true')
+            options.controls.push(new OpenLayers.Control.PanZoomBar());
+        if ($('#f_c_address_mousePosition').val() === 'true')
+            options.controls.push(new OpenLayers.Control.MousePosition());
+        map = new OpenLayers.Map("c_address_maps", options);
+        var mapnik = new OpenLayers.Layer.OSM();
+        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+        var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
+        var zoom = 15;
+        var markers = new OpenLayers.Layer.Markers("Markers");
+        map.addLayer(markers);
+        markers.addMarker(new OpenLayers.Marker(position));
+        map.addLayer(mapnik);
+        map.setCenter(position, zoom);
+    }
+    var f_c_address_lat = $('#f_c_address_lat').val();
+    var f_c_address_lon = $('#f_c_address_lon').val();
+    var f_c_address_enableMaps = $('#f_c_address_enableMaps').val();
+    if (f_c_address_lat && f_c_address_lon && f_c_address_enableMaps) {
+        initComponentAddressMaps(f_c_address_lat, f_c_address_lon);
+    } else if ((!f_c_address_lat || !f_c_address_lon) && f_c_address_enableMaps) {
+        var info = '<div class="alert bg-gray alert-dismissible hidden-xs" >'
+                + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
+                + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_c_address_notValid').val() + '</h4>'
+                + '</div>';
+        $('#c_address_maps').append(info);
+    }
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
         window.print();
