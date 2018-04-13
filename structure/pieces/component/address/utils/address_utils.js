@@ -13,11 +13,9 @@ exports.generateFields = function (componentName, componentCodeName) {
 //    var showHtml = "<div class='col-xs-12'>\n"
 //            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>\n'
 //            + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
-    var createHtml = "<div class='col-xs-12'>\n"
-            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br><br>\n'
+    var createHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br><br>\n'
             + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address '>\n";
-    var updateHtml = "<div class='col-xs-12'>\n"
-            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br>'
+    var updateHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br>'
             + "<br>\n    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
     var showFieldsHtml = '';
     var headers = '';
@@ -121,8 +119,8 @@ exports.generateFields = function (componentName, componentCodeName) {
             tds += '\t\t<td data-field="c_address.' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
         }
     }
-    createHtml += "    </section>\n</div>";
-    updateHtml += "    </section>\n</div>";
+    createHtml += "    </section>\n";
+    updateHtml += "    </section>\n";
 //    showHtml += "    </section>\n</div>";
     result.createHtml = createHtml;
     result.updateHtml = updateHtml;

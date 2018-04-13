@@ -2491,12 +2491,11 @@ exports.createNewComponentAddress = function (attr, callback) {
                                 foreignKey: 'fk_id_c_address',
                                 as: 'c_address',
                                 showAs: "",
-                                type: "hasOne",
+                                type: "relatedTo",
                                 relation: "belongsTo",
                                 targetType: "component",
                                 toSync: true
                             };
-                            // Créer le lien belongsTo en la source et la target
                             structure_data_entity.setupAssociation(associationOption, function () {
                                 db_component.createNewComponentOnEntity(attr, function (err, info) {
                                     if (!err) {
