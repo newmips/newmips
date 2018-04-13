@@ -58,7 +58,7 @@ function teamAdminMiddleware(req, res, next) {
         where: {fk_id_admin_user: req.session.passport.user.id},
         include: [{
             model: models.E_user,
-            as: 'r_users'
+            as: 'r_user'
         }]
     }).then(function(team) {
         req.isAdmin = true;
@@ -89,8 +89,8 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
     if(req.isAdmin){
         // Get cra waiting to be validated for first list of page
         var idTeamUsers = [];
-        for (var i = 0; i < req.team.r_users.length; i++)
-            idTeamUsers.push(req.team.r_users[i].id);
+        for (var i = 0; i < req.team.r_user.length; i++)
+            idTeamUsers.push(req.team.r_user[i].id);
 
         models.E_cra.findAll({
             where: {
@@ -100,7 +100,7 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
             }
         }).then(function(cra) {
             data.cra = cra;
-            data.users = req.team.r_users;
+            data.users = req.team.r_user;
 
             res.render('e_cra/list', data);
         });
@@ -133,8 +133,8 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
     var where = {};
     if(req.isAdmin){
         var idTeamUsers = [];
-        for (var i = 0; i < req.team.r_users.length; i++)
-            idTeamUsers.push(req.team.r_users[i].id);
+        for (var i = 0; i < req.team.r_user.length; i++)
+            idTeamUsers.push(req.team.r_user[i].id);
 
         where = {
             fk_id_user: {$in: idTeamUsers}
@@ -248,7 +248,7 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
             models.E_cra_team.findOne({
                 include: [{
                     model: models.E_user,
-                    as: 'r_users',
+                    as: 'r_user',
                     where: {id: user.id}
                 }, {
                     model: models.E_cra_activity,
@@ -388,7 +388,7 @@ router.get('/admin/getCra', block_access.actionAccessMiddleware("cra", 'read'), 
             models.E_cra_team.findOne({
                 include: [{
                     model: models.E_user,
-                    as: 'r_users',
+                    as: 'r_user',
                     where: {id: cra.fk_id_user}
                 }, {
                     model: models.E_cra_calendar_settings,
@@ -428,7 +428,7 @@ router.get('/declare', block_access.actionAccessMiddleware("cra", 'read'), funct
         models.E_cra_team.findOne({
             include: [{
                 model: models.E_user,
-                as: 'r_users',
+                as: 'r_user',
                 where: {id: userId}
             }, {
                 model: models.E_cra_activity,
@@ -473,7 +473,7 @@ router.get('/getCra', block_access.actionAccessMiddleware("cra", 'read'), functi
             models.E_cra_team.findOne({
                 include: [{
                     model: models.E_user,
-                    as: 'r_users',
+                    as: 'r_user',
                     where: {id: user.id}
                 }, {
                     model: models.E_cra_activity,
@@ -547,7 +547,7 @@ router.post('/declare/create', block_access.actionAccessMiddleware("cra", 'creat
             models.E_cra_team.findOne({
                 include: [{
                     model: models.E_user,
-                    as: 'r_users',
+                    as: 'r_user',
                     where: {id: id_user}
                 }, {
                     model: models.E_cra_calendar_settings,
@@ -698,7 +698,7 @@ router.get('/getData/:month/:year/:forUserId*?', block_access.actionAccessMiddle
             models.E_cra_team.findOne({
                 include: [{
                     model: models.E_user,
-                    as: 'r_users',
+                    as: 'r_user',
                     where: {id: id_user}
                 }, {
                     model: models.E_cra_calendar_settings,
@@ -788,7 +788,7 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
         models.E_cra_team.findOne({
             include: [{
                 model: models.E_user,
-                as: 'r_users',
+                as: 'r_user',
                 where: {id: user.id}
             }]
         }).then(function(team) {

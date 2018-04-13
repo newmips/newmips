@@ -343,7 +343,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                         uniqueField('e_group', 'f_label');
 
                                                         // Manualy add settings to access file because it's not a real entity
-                                                        var access = require(workspacePath + '/config/access.json');
+                                                        var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
                                                         access.administration.entities.push({
                                                             name: 'access_settings',
                                                             groups: [],

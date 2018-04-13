@@ -312,7 +312,7 @@ exports.setupDataEntity = function (attr, callback) {
 
                                                                             // Write new data entity to access.json file, within module's context
                                                                             var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
-                                                                            var accessObject = require(accessPath);
+                                                                            var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
                                                                             accessObject[name_module.substring(2).toLowerCase()].entities.push({
                                                                                 name: url_name_data_entity,
                                                                                 groups: [],
@@ -380,7 +380,7 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
     name_module = name_module.toLowerCase();
 
     // Clean up access config
-    var access = require(baseFolder + '/config/access.json');
+    var access = JSON.parse(fs.readFileSync(baseFolder + '/config/access.json', 'utf8'));
     for (var i = 0; i < access[name_module.substring(2)].entities.length; i++) {
         if (access[name_module.substring(2)].entities[i].name == url_name_data_entity)
             access[name_module.substring(2)].entities.splice(i, 1);

@@ -292,10 +292,17 @@ app.use(function(req, res, next) {
         	locals.notificationsCount = notifications.count;
         	locals.notifications = notifications.rows;
 
-	        // Load inline-help when rendering create or update page
+	        // Load inline-help when rendering create, update or show page
 	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
 	    		var entityName = view.split('/')[0];
-	    		var options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
+	    		var options;
+	    		try {
+	    			options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
+	    		} catch(e) {
+	    			// No options file, always return false
+	    			dust.helpers.inline_help = function(){return false;}
+	    			return render.call(res, view, locals, cb);
+	    		}
 	    		var entityList = [entityName];
 	    		for (var i = 0; i < options.length; i++)
 	    			entityList.push(options[i].target);
