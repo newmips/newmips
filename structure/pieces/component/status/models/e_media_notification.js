@@ -66,13 +66,20 @@ module.exports = function (sequelize, DataTypes) {
                         return targetIds.indexOf(item) == pos;
                     });
 
-                    var notificationObj = {
-                        f_color: self.f_color,
-                        f_icon: insertVariablesValue('f_icon'),
-                        f_title: insertVariablesValue('f_title'),
-                        f_description: insertVariablesValue('f_description'),
-                        f_url: '/'+dataInstance.$modelOptions.name.singular.substring(2)+'/show?id='+dataInstance.id
-                    };
+                    try {
+                        var entityUrl = dataInstance.$modelOptions.tableName;
+                        entityUrl = entityUrl.substring(entityUrl.indexOf('e_')+2, entityUrl.length);
+                        var notificationObj = {
+                            f_color: self.f_color,
+                            f_icon: insertVariablesValue('f_icon'),
+                            f_title: insertVariablesValue('f_title'),
+                            f_description: insertVariablesValue('f_description'),
+                            f_url: '/'+entityUrl+'/show?id='+dataInstance.id
+                        };
+                    } catch(e) {
+                        return reject(e);
+                    }
+
                     models.E_notification.create(notificationObj).then(function(notification) {
                         notification.setR_user(targetIds);
                         if (!socket)
