@@ -122,20 +122,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
 
-    var relatedToList = [];
-    for (var i = 0; i < options.length; i++) {
-        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'hasOne')
-            var opt = {
-                model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
-                as: options[i].as
-            };
-        // Include status children
-        if (options[i].target == 'e_status')
-            opt.include = {model: models.E_status, as: 'r_children'};
-        relatedToList.push(opt);
-    }
-
-    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, relatedToList).then(function (ENTITY_NAME) {
+    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("No data entity found.");
