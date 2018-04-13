@@ -19,11 +19,11 @@ var config = {
             addInForm: true, //if true add it in form
             type: 'number', //type of field,  must be html type, default text,
             maxLength: '',
-            label: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name
+            apiField: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name
             defaultValue: '',
             sql: {
                 type: 'INTEGER',
-                newmipsType: "string",
+                newmipsType: "number",
                 defaultValue: null
             },
             lang: {
@@ -37,7 +37,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             maxLength: '',
-            label: 'street',
+            apiField: 'street',
             defaultValue: '',
             sql: {
                 type: 'STRING',
@@ -46,7 +46,7 @@ var config = {
             },
             lang: {
                 fr: 'Nom rue',
-                en: ''
+                en: 'Street name'
             }
         },
         complement1: {
@@ -55,7 +55,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             max: '',
-            label: 'complement1',
+            apiField: 'complement1',
             defaultValue: '',
             sql: {
                 type: 'STRING',
@@ -64,27 +64,27 @@ var config = {
             },
             lang: {
                 fr: 'Complément rue',
-                en: 'complement1'
+                en: 'Street complement'
             }
         },
         postcode: {
             readonly: false,
             required: true,
             addInForm: true,
-            type: 'number', //
-            maxLength: '',
+            type: 'text', //
+            maxLength: '5',
             minLength: '',
             pattern:"[0-9]{5}",
-            label: 'postcode',
+            apiField: 'postcode',
             defaultValue: '',
             sql: {
                 type: 'INTEGER',
-                newmipsType: "string",
+                newmipsType: "number",
                 defaultValue: null
             },
             lang: {
                 fr: 'Code postal',
-                en: 'zipcode'
+                en: 'Zipcode'
             }
         },
         city: {
@@ -93,7 +93,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             max: '',
-            label: 'city',
+            apiField: 'city',
             defaultValue: '',
             sql: {
                 type: 'STRING',
@@ -111,7 +111,7 @@ var config = {
             addInForm: true,
             type: 'text', //
             max: '',
-            label: 'country',
+            apiField: 'country',
             defaultValue: 'FRANCE',
             sql: {
                 type: 'STRING',
@@ -123,14 +123,50 @@ var config = {
                 en: 'Country'
             }
         },
+        lat: {
+            readonly: false,
+            required: true,
+            addInForm: true,
+            type: 'hidden', //
+            max: '',
+            apiField: '',
+            defaultValue: '',
+            sql: {
+                type: 'STRING',
+                newmipsType: "double",
+                defaultValue: null
+            },
+            lang: {
+                fr: 'Latitude',
+                en: 'Latitude'
+            }
+        },
+        lon: {
+            readonly: false,
+            required: true,
+            addInForm: true,
+            type: 'hidden', //
+            max: '',
+            apiField: '',
+            defaultValue: '',
+            sql: {
+                type: 'STRING',
+                newmipsType: "double",
+                defaultValue: null
+            },
+            lang: {
+                fr: 'Longitude',
+                en: 'Longitude'
+            }
+        },
         //house type
         place: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'text', //
+            type: 'hidden', //
             max: '',
-            label: 'place',
+            apiField: 'place',
             defaultValue: '',
             sql: {
                 type: 'STRING'
@@ -181,21 +217,8 @@ var config = {
             addInForm: false,
             type: 'textarea', //
             max: ''
-        },
-        lat: {
-            readonly: false,
-            required: false,
-            addInForm: false,
-            type: 'text', //
-            max: ''
-        },
-        long: {
-            readonly: false,
-            required: false,
-            addInForm: false,
-            type: 'text', //
-            max: ''
         }
+        
 
     }
 
