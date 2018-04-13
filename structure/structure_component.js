@@ -1223,7 +1223,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                 };
                                                 langEN.component[c_address_settings] = {
                                                     "label_component": "Addresses settings",
-                                                    "position": "Map position",
+                                                    "position": "Maps position",
                                                     "top": "Top",
                                                     "right": "Right",
                                                     "bottom": "Bottom",
