@@ -50,7 +50,12 @@
             "plural_entity": "Média",
             "id_entity": "ID",
             "as_r_media": "Média",
-            "f_target_entity": "Entité ciblé"
+            "f_target_entity": "Entité ciblé",
+            "f_name": "Nom",
+            "f_title": "Titre",
+            "f_description": "Déscription",
+            "f_icon": "Icône",
+            "f_color": "Couleur"
 		},
 		"e_media_mail": {
 			"f_to": "Destinataire",
