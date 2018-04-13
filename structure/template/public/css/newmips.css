@@ -26,6 +26,11 @@ label.no-weight {
 .div_c_address_search_area{
     margin-top: -16px;
 }
+.c_address_maps{
+    margin-top: 25px;
+    height: 405px;
+    background-color: #efefef;
+}
 /* required field */
 label.required:after {
     color: #e32;

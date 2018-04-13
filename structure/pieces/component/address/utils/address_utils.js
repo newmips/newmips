@@ -10,15 +10,16 @@ exports.generateFields = function (componentName, componentCodeName) {
         db_fields: {}
     };
 //    var instanceId = component.id + 1;//counter component address 
-    var showHtml = "<div class='col-xs-12'>\n"
-            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>\n'
-            + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
+//    var showHtml = "<div class='col-xs-12'>\n"
+//            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>\n'
+//            + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
     var createHtml = "<div class='col-xs-12'>\n"
             + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br><br>\n'
             + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address '>\n";
     var updateHtml = "<div class='col-xs-12'>\n"
             + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br>'
             + "<br>\n    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
+    var showFieldsHtml = '';
     var headers = '';
     var tds = '';
     //for default
@@ -106,12 +107,12 @@ exports.generateFields = function (componentName, componentCodeName) {
             updateHtml += "            </div>\n";
             updateHtml += "        </div>\n";
             //Show
-            showHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n";
-            showHtml += "            <div class='form-group'>\n";
-            showHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
-            showHtml += "                <input class='input form-control' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
-            showHtml += "            </div>\n";
-            showHtml += "        </div>\n";
+            showFieldsHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n";
+            showFieldsHtml += "            <div class='form-group'>\n";
+            showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            showFieldsHtml += "                <input class='input form-control' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
+            showFieldsHtml += "            </div>\n";
+            showFieldsHtml += "        </div>\n";
             //headers
             headers += '<th data-field="c_address.' + dbcolumn + '" data-col="c_address.' + dbcolumn + '">\n';
             headers += '    {@__ key="component.' + componentCodeName + '.' + dbcolumn + '"/}\n';
@@ -122,10 +123,11 @@ exports.generateFields = function (componentName, componentCodeName) {
     }
     createHtml += "    </section>\n</div>";
     updateHtml += "    </section>\n</div>";
-    showHtml += "    </section>\n</div>";
+//    showHtml += "    </section>\n</div>";
     result.createHtml = createHtml;
     result.updateHtml = updateHtml;
-    result.showHtml = showHtml;
+//    result.showHtml = showHtml;
+    result.showFieldsHtml = showFieldsHtml;
     result.headers = headers;
     result.tds = tds;
     result.locales = locales;

@@ -71,8 +71,8 @@ var config = {
             readonly: false,
             required: true,
             addInForm: true,
-            type: 'number', //
-            maxLength: '',
+            type: 'text', //
+            maxLength: '5',
             minLength: '',
             pattern:"[0-9]{5}",
             apiField: 'postcode',
