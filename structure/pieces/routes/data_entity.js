@@ -351,7 +351,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         if (!ENTITY_URL_NAME)
             return res.status(404).end();
 
-        var dustData = ENTITY_URL_NAME[option.as];
+        var dustData = ENTITY_NAME[option.as];
         var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
         var dustFile, idSubentity, promisesData = [];
 
@@ -359,10 +359,24 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         switch (option.structureType) {
             case 'hasOne':
                 if (!empty) {
-                    idSubentity = ENTITY_URL_NAME[option.as].id;
-                    ENTITY_URL_NAME[option.as].hideTab = true;
+                    idSubentity = dustData.id;
+                    dustData.hideTab = true;
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
-                    promisesData.push(entity_helper.getPicturesBuffers(ENTITY_URL_NAME[option.as], option.target));
+                    promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
+                    // Fetch status children to be able to switch status
+                    // Apply getR_children() on each current status
+                    var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
+                    ;
+                    for (var i = 0; i < subentityOptions.length; i++)
+                        if (subentityOptions[i].target.indexOf('e_status') == 0)
+                            (function (alias) {
+                                promisesData.push(new Promise(function (resolve, reject) {
+                                    dustData[alias].getR_children().then(function (children) {
+                                        dustData[alias].r_children = children;
+                                        resolve();
+                                    });
+                                }))
+                            })(subentityOptions[i].as);
                 }
                 dustFile = option.target + '/show_fields';
                 break;
@@ -370,6 +384,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
             case 'hasMany':
             case 'hasManyPreset':
                 dustFile = option.target + '/list_fields';
+                // Status history specific behavior. Replace history_model by history_table to open view
+                if (option.target.indexOf('e_history_e_') == 0) {
+                    option.noCreateBtn = true;
+                    for (var attr in attributes)
+                        if (attributes[attr].history_table && attributes[attr].history_model == option.target)
+                            dustFile = attributes[attr].history_table + '/list_fields';
+                }
                 var obj = {};
                 obj[option.target] = dustData;
                 dustData = obj;
@@ -528,21 +549,21 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     });
 });
 
-router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME','read'), function(req, res) {
-    var search = '%'+(req.body.search||'')+'%';
+router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function (req, res) {
+    var search = '%' + (req.body.search || '') + '%';
 
     // ID is always needed
-    if(req.body.searchField.indexOf("id") == -1)
+    if (req.body.searchField.indexOf("id") == -1)
         req.body.searchField.push('id');
 
     var where = {raw: true, attributes: req.body.searchField, where: {}};
-    if (search != '%%'){
-        if(req.body.searchField.length == 1){
+    if (search != '%%') {
+        if (req.body.searchField.length == 1) {
             where.where[req.body.searchField[0]] = {$like: search};
         } else {
             where.where.$or = [];
-            for(var i=0; i<req.body.searchField.length; i++){
-                if(req.body.searchField[i] != "id"){
+            for (var i = 0; i < req.body.searchField.length; i++) {
+                if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
                     currentOrObj[req.body.searchField[i]] = {$like: search}
                     where.where.$or.push(currentOrObj);
@@ -552,13 +573,13 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME','re
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if(typeof req.body.customWhere !== "undefined")
-        for(var param in req.body.customWhere)
+    if (typeof req.body.customWhere !== "undefined")
+        for (var param in req.body.customWhere)
             where.where[param] = req.body.customWhere[param];
 
-    models.MODEL_NAME.findAll(where).then(function(results) {
+    models.MODEL_NAME.findAll(where).then(function (results) {
         res.json(results);
-    }).catch(function(e) {
+    }).catch(function (e) {
         console.error(e);
         res.status(500).json(e);
     });

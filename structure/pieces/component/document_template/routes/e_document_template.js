@@ -121,47 +121,25 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
         data.hideButton = req.query.hideButton;
 
     /* Looking for two level of include to get all associated data in show tab list */
-    var include = model_builder.getTwoLevelIncludeAll(models, options);
 
-    models.E_document_template.findOne({where: {id: id_e_document_template}, include: include}).then(function (e_document_template) {
+    models.E_document_template.findOne({where: {id: id_e_document_template}}).then(function (e_document_template) {
         if (!e_document_template) {
             data.error = 404;
             logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
-        /* Modify e_document_template value with the translated enum value in show result */
-        /*for (var item in data.enum)
-         for (var field in e_document_template.dataValues)
-         if (item == field)
-         for (var value in data.enum[item])
-         if (data.enum[item][value].value == e_document_template[field])
-         e_document_template[field] = data.enum[item][value].translation;*/
-
-        /* Update local e_document_template data before show */
         data.e_document_template = e_document_template;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.e_document_template[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            // Update some data before show, e.g get picture binary
-            e_document_template = entity_helper.getPicturesBuffers(e_document_template, attributes, options, "e_document_template");
-            entity_helper.status.translate(e_document_template, attributes, req.session.lang_user);
-            var relations = document_template_helper.getRelations(e_document_template.f_entity);
-            var reworkRelations = [];
-            var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
-            for (var i = 0; i < relations.length; i++) {
-                reworkRelations[i] = {item: relations[i], value: relations[i]};
-                if (f_exclude_relations.indexOf(relations[i]) < 0)
-                    reworkRelations[i].isSelected = true;
-            }
-            data.e_document_template.document_template_relations = reworkRelations;
-            res.render('e_document_template/show', data);
-        });
+        var relations = document_template_helper.getRelations(e_document_template.f_entity);
+        var reworkRelations = [];
+        var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
+        for (var i = 0; i < relations.length; i++) {
+            reworkRelations[i] = {item: relations[i], value: relations[i]};
+            if (f_exclude_relations.indexOf(relations[i]) < 0)
+                reworkRelations[i].isSelected = true;
+        }
+        data.e_document_template.document_template_relations = reworkRelations;
+        res.render('e_document_template/show', data);
 
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
@@ -198,7 +176,6 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
 router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    //createObject = enums.values("e_document_template", createObject, req.body);
     var relations = document_template_helper.getRelations(req.body.f_entity);
     var f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
     var exclude_relations = [];
@@ -206,52 +183,13 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
         if (f_exclude_relations.indexOf(relations[i]) < 0)
             exclude_relations.push(relations[i]);
     createObject.f_exclude_relations = exclude_relations.join(',');
-
     models.E_document_template.create(createObject).then(function (e_document_template) {
         var redirect = '/document_template/show?id=' + e_document_template.id;
         req.session.toastr = [{
                 message: 'message.create.success',
                 level: "success"
             }];
-
-        var promises = [];
-
-        if (typeof req.body.associationFlag !== 'undefined') {
-            redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            promises.push(new Promise(function (resolve, reject) {
-                models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
-                    if (!association) {
-                        e_document_template.destroy();
-                        var err = new Error();
-                        err.message = "Association not found.";
-                        reject(err);
-                    }
-
-                    var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
-                    if (typeof association['add' + modelName] !== 'undefined') {
-                        association['add' + modelName](e_document_template.id).then(resolve).catch(function (err) {
-                            reject(err);
-                        });
-                    } else {
-                        var obj = {};
-                        obj[req.body.associationForeignKey] = e_document_template.id;
-                        association.update(obj).then(resolve).catch(function (err) {
-                            reject(err);
-                        });
-                    }
-                });
-            }));
-        }
-
-        // We have to find value in req.body that are linked to an hasMany or belongsToMany association
-        // because those values are not updated for now
-        model_builder.setAssocationManyValues(e_document_template, req.body, createObject, options).then(function () {
-            Promise.all(promises).then(function () {
-                res.redirect(redirect);
-            }).catch(function (err) {
-                entity_helper.error500(err, req, res, '/document_template/create_form');
-            });
-        });
+        res.redirect(redirect);
     }).catch(function (err) {
         entity_helper.error500(err, req, res, '/document_template/create_form');
     });
@@ -572,7 +510,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                                 //next entity
                             };
                             //rework with own options
-                            var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user,mimeType);
+                            var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user, mimeType);
                             //now add others variables
                             document_template_helper.globalVariables.forEach(function (g) {
                                 if (g.type === "date" || g.type === "datetime" || g.type === "time")
@@ -580,7 +518,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             });
                             data['g_email'] = req.session.passport.user.f_email != null ? req.session.passport.user.f_email : '';
                             data['g_login'] = req.session.passport.user.f_login != null ? req.session.passport.user.f_login : '';
-                            
+
                             var options = {
                                 file: completeFilePath,
                                 mimeType: mimeType,

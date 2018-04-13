@@ -1,13 +1,13 @@
 <div id="fields" class="row">
-    <div data-field="f_media" class="col-xs-12">
+    <div data-field="f_media" class="fieldLineHeight col-xs-12">
         <div class="form-group">
-            <label for="f_media">{@__ key="entity.e_action.r_media" /} {@inline_help field="f_media"}&nbsp;<i data-field="f_media" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
-            <select style="width:100%;" class="form-control" name="r_media">
-        <option value="">{@__ key="select.default" /}</option>
-         {#r_media}
-             <option value="{id}">{f_name|string}</option>
-         {/r_media}
-     </select>
+            <label for="r_media">{@__ key="entity.e_action.r_media" /}</label>
+            <select style="width:100%;" class="ajax form-control" name="r_media" data-source="media" data-using="f_name">
+                <option value="">{@__ key="select.default" /}</option>
+                {#r_media}
+                <option value="{id}" selected="">{f_name|string}</option>
+                {/r_media}
+            </select>
         </div>
     </div>
     <div data-field="f_order" class="col-xs-12">
@@ -20,15 +20,15 @@
         <div class="form-group">
             <label for="f_execution"> {@__ key="entity.e_action.f_execution"/} {@inline_help field="f_execution"}&nbsp;<i data-field="f_execution" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
             <select style="width:100%;" class="form-control select" name="f_execution">
-        <option value="">{@__ key="select.default" /}</option>
-        {#enum_radio.e_action.f_execution}
-            {@eq key="Immediate" value="{.value}" }
+                <option value="">{@__ key="select.default" /}</option>
+                {#enum_radio.e_action.f_execution}
+                {@eq key="Immediate" value="{.value}" }
                 <option value="{.value}" selected=""> {.translation} </option>
-            {:else}
+                {:else}
                 <option value="{.value}"> {.translation} </option>
-            {/eq}
-        {/enum_radio.e_action.f_execution}
-    </select>
+                {/eq}
+                {/enum_radio.e_action.f_execution}
+            </select>
         </div>
     </div>
 </div>

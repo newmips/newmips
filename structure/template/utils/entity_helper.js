@@ -207,9 +207,25 @@ var funcs = {
             });
         }
     },
-    optimizedFindOne: function(modelName, idObj, include) {
+    optimizedFindOne: function(modelName, idObj, options, forceOptions) {
         // Split SQL request if too many inclusion
         return new Promise(function(resolve, reject){
+            var include = [];
+            for (var i = 0; i < options.length; i++)
+                if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
+                    var opt = {
+                        model: models[funcs.capitalizeFirstLetter(options[i].target)],
+                        as: options[i].as
+                    };
+                    // Include status children
+                    if (options[i].target == 'e_status')
+                        opt.include = {model: models.E_status, as: 'r_children'};
+                    include.push(opt);
+                }
+
+            if (forceOptions && forceOptions.length)
+                include = include.concat(forceOptions);
+
             if(include.length >= 6) {
                 var firstLength = Math.floor(include.length / 2);
                 var secondLength = include.length - firstLength;
@@ -279,7 +295,7 @@ var funcs = {
             var attributes;
             try {
                 attributes = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+modelName+'.json'));
-            } catch(e) {reject(e);}
+            } catch(e) {resolve();}
 
             var bufferPromises = [];
             for (var key in entity.dataValues)
