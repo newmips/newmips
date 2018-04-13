@@ -147,6 +147,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function () {
             entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
+            data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
             res.render('ENTITY_NAME/show', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");

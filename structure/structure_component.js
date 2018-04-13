@@ -1107,6 +1107,7 @@ exports.addNewComponentAddress = function (attr, callback) {
         var componentName = attr.componentName;
         var source = attr.entityCodeName;
         var componentUrl = 'c_address_' + attr.id_data_entity;
+        var c_address_settings = "c_address_settings";
         //models
         var modelAttributes = JSON.parse(fs.readFileSync(c_address_path + 'models/attributes/c_address.json', 'utf8'));
 
@@ -1120,26 +1121,29 @@ exports.addNewComponentAddress = function (attr, callback) {
         fs.writeFileSync(application_path + 'models/attributes/' + componentCodeName + '.json', JSON.stringify(modelAttributes, null, 4), 'utf8');
         fs.copySync(c_address_path + 'models/options/c_address.json', application_path + 'models/options/' + componentCodeName + '.json');
 
-        //add new entry for access
-//        addAccessManagment(attr.id_application, componentCodeName, moduleName, function () {
-        //copy options
         var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
         var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
         var showFieldsFile = application_path + 'views/' + source + '/' + 'show_fields.dust';
         var listFieldsFile = application_path + 'views/' + source + '/' + 'list_fields.dust';
 
+        var showHtml = fs.readFileSync(c_address_path + 'views/show.dust', 'utf8');
+        showHtml = showHtml.replace(/COMPONENT_NAME/g, componentCodeName);
+
         var appendTo = '#fields';
         fs.mkdirpSync(application_path + 'views/' + componentCodeName);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/create_fields.dust', fields.createHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/update_fields.dust', fields.updateHtml);
-        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/show_fields.dust', fields.showHtml);
+        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/fields.dust', fields.showFieldsHtml);
+        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/show.dust', showHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/list_fields.dust', fields.headers);
+        fs.copySync(c_address_path + 'views/maps.dust', application_path + 'views/' + componentCodeName + '/maps.dust');
+
         domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
             domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
                 domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
                     $createFieldsFile(appendTo).append('<div class="' + componentCodeName + '">{>"' + componentCodeName + '/create_fields"/}</div>');
                     $updateFieldsFile(appendTo).append('<div class="' + componentCodeName + '">{>"' + componentCodeName + '/update_fields"/}</div>');
-                    $showFieldsFile(appendTo).append('<div class="' + componentCodeName + '">{>"' + componentCodeName + '/show_fields"/}</div>');
+                    $showFieldsFile(appendTo).append('<div class="' + componentCodeName + '">{>"' + componentCodeName + '/show"/}</div>');
                     domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
                         domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
                             domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
@@ -1149,11 +1153,93 @@ exports.addNewComponentAddress = function (attr, callback) {
                                 langFR.component[componentCodeName] = fields.locales.fr;
                                 langEN.component[componentCodeName] = fields.locales.en;
 
-                                fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                                fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-
                                 setupComponentModel(attr.id_application, 'address', componentCodeName, 'address', function () {
-                                    callback(null);
+                                    //Check if component config exist, if not we create it
+                                    var address_settings_config;
+                                    var p = new Promise(function (resolve, reject) {
+                                        fs.readFile(application_path + 'config/' + c_address_settings + '.json', function (err, config) {
+                                            if (err) {
+                                                //file doesn't exist
+                                                address_settings_config = {entities: {}};
+                                                //add settings locales
+                                                langFR.component[c_address_settings] = {
+                                                    "label_component": "Config composant adresse",
+                                                    "position": "Position du maps",
+                                                    "top": "Au dessus",
+                                                    "right": "A droite",
+                                                    "bottom": "En dessous",
+                                                    "left": "A gauche",
+                                                    "distance": "Afficher la distance",
+                                                    "settings": "Configurer",
+                                                    "enableMaps": "Activer le maps",
+                                                    "entity": "Entité",
+                                                    "zoomBar": "Afficher panneau de zoom",
+                                                    "navigation": "Activer la navigation",
+                                                    "mousePosition": "Afficher les coordonnées de la souris",
+                                                    "addressNotValid": "Adresse non valide"
+                                                };
+                                                langEN.component[c_address_settings] = {
+                                                    "label_component": "Addresses settings",
+                                                    "position": "Map position",
+                                                    "top": "Top",
+                                                    "right": "Right",
+                                                    "bottom": "Bottom",
+                                                    "left": "Left",
+                                                    "distance": "Display distance",
+                                                    "settings": "Settings",
+                                                    "enableMaps": "Enable Maps",
+                                                    "entity": "Entity",
+                                                    "zoomBar": "Display zoom bar",
+                                                    "navigation": "Enable navigation",
+                                                    "mousePosition": "Display mouse coordinate",
+                                                    "addressNotValid": "Not valid address"
+                                                };
+                                                //add component address files
+                                                fs.mkdirpSync(application_path + 'views/' + c_address_settings);
+                                                fs.copySync(c_address_path + 'views/config.dust', application_path + 'views/' + c_address_settings + '/config.dust');
+                                                fs.copySync(c_address_path + 'views/config_fields.dust', application_path + 'views/' + c_address_settings + '/config_fields.dust');
+                                                fs.copySync(c_address_path + 'route/' + c_address_settings + '.js', application_path + 'routes/' + c_address_settings + '.js');
+                                                addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
+                                                    if (!err) {
+                                                        //add new menu in administration for address settings
+                                                        addMenuComponentAddressSettings(attr, c_address_settings, function (err) {
+                                                            if (!err)
+                                                                resolve();
+                                                            else
+                                                                reject(err);
+                                                        });
+                                                    } else
+                                                        reject(err);
+                                                });
+                                            } else {
+                                                address_settings_config = JSON.parse(config);
+                                                resolve();
+                                            }
+                                        });
+                                    });
+                                    p.then(function () {
+                                        address_settings_config.entities[attr.entityCodeName] = {
+                                            "enableMaps": false,
+                                            "mapsPosition": {
+                                                "top": false,
+                                                "right": true,
+                                                "bottom": false,
+                                                "left": false
+                                            },
+                                            "estimateDistance": false,
+                                            "zoomBar": false,
+                                            "navigation": false,
+                                            "mousePosition": false
+                                        };
+                                        //set locales
+                                        fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                                        fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+                                        //update or create address settings
+                                        fs.writeFileSync(application_path + 'config/' + c_address_settings + '.json', JSON.stringify(address_settings_config, null, 4));
+                                        callback(null);
+                                    }).catch(function (e) {
+                                        return callback(e);
+                                    });
                                 });
                             });
                         });
@@ -1161,7 +1247,6 @@ exports.addNewComponentAddress = function (attr, callback) {
                 });
             });
         });
-//        });
     } catch (e) {
         callback(e);
     }
@@ -1177,6 +1262,7 @@ exports.deleteComponentAddress = function (attr, callback) {
         fs.remove(application_path + 'models/' + componentName + '.js');
         fs.remove(application_path + 'models/attributes/' + componentName + '.json');
         fs.remove(application_path + 'models/options/' + componentName + '.json');
+        var c_address_settings = "c_address_settings";
         //remove association
         var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
         for (var i = 0; i < relations.length; i++) {
@@ -1206,10 +1292,40 @@ exports.deleteComponentAddress = function (attr, callback) {
                                 var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
                                 delete langFR.component[componentName];
                                 delete langEN.component[componentName];
+                                //update address settings file
+                                var address_settings = JSON.parse(fs.readFileSync(application_path + 'config/c_address_settings.json'));
+                                for (var item in address_settings.entities) {
+                                    if (item === attr.entityName)
+                                        delete address_settings.entities[item];
+                                }
+                                var p = new Promise(function (resolve, reject) {
+                                    if (Object.keys(address_settings.entities).length === 0) {
+                                        fs.remove(application_path + 'views/' + c_address_settings);
+                                        fs.remove(application_path + 'routes/' + c_address_settings + '.js');
+                                        fs.remove(application_path + 'config/' + c_address_settings + '.json');
+                                        delete langFR.component[c_address_settings];
+                                        delete langEN.component[c_address_settings];
+                                        deleteAccessManagment(attr.id_application, "address_settings", "administration", function () {
+                                            require('./structure_module').removeMenuEntry(attr, "administration", c_address_settings, function (err) {
+                                                if (err)
+                                                    reject(err);
+                                                else
+                                                    resolve();
+                                            });
+                                        });
+                                    } else {
+                                        fs.writeFileSync(application_path + 'config/c_address_settings.json', JSON.stringify(address_settings, null, 4), 'utf8');
+                                        resolve();
+                                    }
+                                });
+                                p.then(function () {
+                                    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                                    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+                                    callback(null);
+                                }).catch(function (e) {
+                                    callback(e);
+                                });
 
-                                fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                                fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-                                callback(null);
                             });
                         });
                     });
@@ -1367,5 +1483,40 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
         callback(null);
     }).catch(function (e) {
         callback(e);
+    });
+}
+
+function addMenuComponentAddressSettings(attr, urlDataEntity, callback) {
+    var fileName = __dirname + '/../workspace/' + attr.id_application + '/views/layout_m_administration.dust';
+    // Read file and get jQuery instance
+    domHelper.read(fileName).then(function ($) {
+        var li = '';
+        // Create new html
+        li += '<!--{@entityAccess entity="address_settings"}-->\n';
+        li += "     <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;' class='treeview'>\n";
+        li += '         <a href="#">\n';
+        li += '             <i class="fa fa-map-marker"></i>\n';
+        li += '             <span><!--{@__ key="component.' + urlDataEntity.toLowerCase() + '.label_component" /}--></span>\n';
+        li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+        li += '         </a>\n';
+        li += '         <ul class="treeview-menu">\n';
+        li += '             <!--{@actionAccess entity="address_settings" action="create"}-->';
+        li += '                 <li>\n';
+        li += "                     <a href='/address_settings/config'>\n";
+        li += '                         <i class="fa fa-angle-double-right"></i>\n';
+        li += '                         {@__ key="component.' + urlDataEntity + '.settings" /}\n';
+        li += '                     </a>\n';
+        li += '                 </li>';
+        li += '             <!--{/actionAccess}-->';
+        li += '         </ul>\n';
+        li += '     </li>\n';
+        li += '<!--{/entityAccess}-->\n';
+
+        // Add new html to document
+        $('#sortable').append(li);
+        // Write back to file
+        domHelper.write(fileName, $).then(function () {
+            callback(null);
+        });
     });
 }

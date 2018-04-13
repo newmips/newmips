@@ -2497,6 +2497,7 @@ exports.createNewComponentAddress = function (attr, callback) {
                                         return callback(err);
                                 });
                             });
+
                         } else
                             return callback(err);
                     });
@@ -2517,43 +2518,50 @@ exports.createNewComponentAddress = function (attr, callback) {
 
 exports.deleteComponentAddress = function (attr, callback) {
     var componentName = 'c_address_' + attr.id_data_entity;
-    db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
-        if (!err) {
-            if (componentExist) {
-                db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
-                    if (!err) {
-                        database.dropDataEntity(attr.id_application, componentName, function (err) {
-                            db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                                if (!err) {
-                                    attr.entityName = entity.codeName;
-                                    attr.moduleName = module.codeName;
-                                    structure_component.deleteComponentAddress(attr, function (err) {
-                                        if (err)
-                                            return callback(err);
-                                        else {
-                                            attr.name_data_entity = attr.entityName;
-                                            attr.fieldToDrop = 'fk_id_c_address';
-                                            database.dropFKDataField(attr, function (err) {
-                                                callback(err, {message: 'database.component.delete.success'});
-                                            });
-                                        }
-                                    });
-                                } else
-                                    return callback(err);
+    if (attr.id_data_entity) {
+        db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
+            if (!err) {
+                if (componentExist) {
+                    db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
+                        if (!err) {
+                            database.dropDataEntity(attr.id_application, componentName, function (err) {
+                                db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+                                    if (!err) {
+                                        attr.entityName = entity.codeName;
+                                        attr.moduleName = module.codeName;
+                                        structure_component.deleteComponentAddress(attr, function (err) {
+                                            if (err)
+                                                return callback(err);
+                                            else {
+                                                attr.name_data_entity = attr.entityName;
+                                                attr.fieldToDrop = 'fk_id_c_address';
+                                                database.dropFKDataField(attr, function (err) {
+                                                    callback(err, {message: 'database.component.delete.success'});
+                                                });
+                                            }
+                                        });
+                                    } else
+                                        return callback(err);
+                                });
                             });
-                        });
-                    } else
-                        return callback(err);
-                });
-            } else {
-                var err = new Error();
-                err.message = "database.component.notFound.notFoundedInModule";
-                return callback(err, null);
-            }
-        } else
-            return callback(err);
+                        } else
+                            return callback(err);
+                    });
+                } else {
+                    var err = new Error();
+                    err.message = "database.component.notFound.notFoundedInModule";
+                    return callback(err, null);
+                }
+            } else
+                return callback(err);
 
-    });
+        });
+    } else {
+        var err = new Error();
+        err.message = "database.field.error.selectOrCreateBefore";
+        return callback(err, null);
+    }
+
 }
 /************************Create Component Template document***********************/
 /**
@@ -2986,5 +2994,4 @@ function deleteEntityWidgets(attr, callback) {
     });
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;
-
 return designer;

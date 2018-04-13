@@ -1,7 +1,7 @@
 var models = require('../models/');
 var entity_helper = require('../utils/entity_helper');
 var model_builder = require('../utils/model_builder');
-
+var fs = require('fs-extra');
 
 module.exports = {
     setAddressIfComponentExist: function (entityObject, options, data/*req.body*/) {
@@ -46,6 +46,41 @@ module.exports = {
             });
         } else
             return this.setAddressIfComponentExist(entityObject, options, data);
-
+    },
+    buildComponentAddressConfig: function () {
+        var result = [];
+        try {
+            var config = JSON.parse(fs.readFileSync(__dirname + '/../config/c_address_settings.json'));
+            if (config && config.entities) {
+                for (var item in config.entities) {
+                    var entity = item.replace('e_', '');
+                    entity = entity.charAt(0).toUpperCase() + entity.slice(1);
+                    config.entities[item].entity = entity;
+                    result.push(config.entities[item]);
+                }
+                return result;
+            } else
+                return result;
+        } catch (e) {
+            return result;
+        }
+    },
+    getMapsConfigIfComponentAddressExist: function (entity) {
+        var result = {enableMaps: false};
+        try {
+            var config = JSON.parse(fs.readFileSync(__dirname + '/../config/c_address_settings.json'));
+            if (config && config.entities && config.entities[entity]) {
+                result = config.entities[entity];
+                for (var item in config.entities[entity].mapsPosition)
+                    if (config.entities[entity].mapsPosition[item] === true) {
+                        result.mapsPosition = item;
+                        break;
+                    }
+                return result;
+            } else
+                return result;
+        } catch (e) {
+            return result;
+        }
     }
 };

@@ -1020,7 +1020,42 @@ $(document).ready(function () {
             });
         }
     }());
-
+    function initComponentAddressMaps(lat, lon) {
+        $('#c_address_maps').empty();
+        var options = {
+            controls: [
+            ]
+        };
+        if ($('#f_c_address_navigation').val() === 'true')
+            options.controls.push(new OpenLayers.Control.Navigation());
+        if ($('#f_c_address_zoomBar').val() === 'true')
+            options.controls.push(new OpenLayers.Control.PanZoomBar());
+        if ($('#f_c_address_mousePosition').val() === 'true')
+            options.controls.push(new OpenLayers.Control.MousePosition());
+        map = new OpenLayers.Map("c_address_maps", options);
+        var mapnik = new OpenLayers.Layer.OSM();
+        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+        var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
+        var zoom = 15;
+        var markers = new OpenLayers.Layer.Markers("Markers");
+        map.addLayer(markers);
+        markers.addMarker(new OpenLayers.Marker(position));
+        map.addLayer(mapnik);
+        map.setCenter(position, zoom);
+    }
+    var f_c_address_lat = $('#f_c_address_lat').val();
+    var f_c_address_lon = $('#f_c_address_lon').val();
+    var f_c_address_enableMaps = $('#f_c_address_enableMaps').val();
+    if (f_c_address_lat && f_c_address_lon && f_c_address_enableMaps) {
+        initComponentAddressMaps(f_c_address_lat, f_c_address_lon);
+    } else if ((!f_c_address_lat || !f_c_address_lon) && f_c_address_enableMaps) {
+        var info = '<div class="alert bg-gray alert-dismissible hidden-xs" >'
+                + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
+                + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_c_address_notValid').val() + '</h4>'
+                + '</div>';
+        $('#c_address_maps').append(info);
+    }
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
         window.print();
