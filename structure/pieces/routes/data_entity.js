@@ -235,15 +235,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var relatedToList = [];
-    for (var i = 0; i < options.length; i++)
-        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'hasOne')
-            relatedToList.push({
-                model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
-                as: options[i].as
-            });
-
-    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, relatedToList).then(function (ENTITY_NAME) {
+    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             return res.render('common/error', data);
