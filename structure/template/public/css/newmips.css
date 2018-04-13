@@ -21,10 +21,15 @@ label.no-weight {
 /** Component Address**/
 .section_c_address{
     border:1px solid #dddddd;
-    margin: auto;
+    margin: 5px;
 }
-.div_c_address_search{
+.div_c_address_search_area{
     margin-top: -16px;
+}
+.c_address_maps{
+    margin-top: 25px;
+    height: 405px;
+    background-color: #efefef;
 }
 /* required field */
 label.required:after {
