@@ -57,11 +57,7 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
 
         // Find all entities without status
         var entityModel = entity_helper.capitalizeFirstLetter(status.f_entity);
-        var where = {
-            where: {},
-            attributes: ['id'],
-            raw: true
-        };
+        var where = {where: {}};
         where.where['fk_id_status_'+status.f_field.substring(2)] = null;
         models[entityModel].findAll(where).then(function(no_statuses) {
             // Build ID array of entities that need to be updated
