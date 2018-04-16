@@ -110,11 +110,14 @@ if (process.argv[2] == 'autologin') {
 // When application process is a child of generator process, log each routes for the generator
 // to keep track of it, and redirect after server restart
 if (startedFromGenerator) {
-	app.get('/*', function(req, res, next){
+	app.get('/*', function(req, res, next) {
+		var url = req.originalUrl;
 		// Do not remove this comment
-		if(req.originalUrl.indexOf("/inline_help/") != -1 || req.originalUrl.indexOf('/loadtab/') != -1 || req.query.ajax)
+		if(url.indexOf("/inline_help/") != -1 || url.indexOf('/loadtab/') != -1 || req.query.ajax)
 			return next();
-		console.log("IFRAME_URL::"+req.originalUrl);
+		if (url.indexOf('/show') == -1 && url.indexOf('/list') == -1 && url.indexOf('/update') == -1)
+			return next();
+		console.log("IFRAME_URL::"+url);
 		next();
 	});
 }
