@@ -35,5 +35,5 @@
             <textarea class="form-control textarea" placeholder='{@__ key="entity.e_media_mail.f_content" /}' name="f_content" id="f_content_textareaid" type="text">{f_content|s}</textarea>
         </div>
     </div>
-    <input name="id_media_mail" type="hidden" value="{id}">
+    <input name="id_media_mail" type="hidden" class="media-field" value="{id}">
 </div>
