@@ -70,30 +70,36 @@ function select2_fieldset(select, data) {
                 customWhere[data.option.foreignKey] = null;
                 var ajaxdata = {
                     search: params.term,
+                    page: params.page || 1,
                     searchField: searchField,
                     customWhere: customWhere
                 };
                 return JSON.stringify(ajaxdata);
             },
-            processResults: function (dataResults, params) {
+            processResults: function (answer, params) {
+                var dataResults = answer.rows;
                 if (!dataResults)
                     return {results: []};
                 var results = [];
-                for (var i = 0; i < dataResults.length; i++){
-                    var text = "";
-                    for (var field in dataResults[i]){
-                        if(searchField.indexOf(field) != -1){
-                            if(dataResults[i][field] != null)
-                                text += dataResults[i][field] + " - ";
+                for (var i = 0; i < dataResults.length; i++) {
+                    var text = [];
+                    for (var field in dataResults[i]) {
+                        if (searchField.indexOf(field) != -1) {
+                            if (dataResults[i][field] != null)
+                                text.push(dataResults[i][field]);
                         }
                     }
-                    text = text.substring(0, text.length - 3);
-                    if(text == "" || text == null)
+                    text = text.join(' - ');
+                    if (text == "" || text == null)
                         text = dataResults[i].id;
 
                     results.push({id: dataResults[i].id, text: text});
                 }
-                return {results: results};
+
+                return {
+                    results: results,
+                    pagination: {more: answer.more}
+                };
             },
             cache: true
         },

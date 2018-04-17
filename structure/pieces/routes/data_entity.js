@@ -528,8 +528,11 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     });
 });
 
+var SELECT_PAGE_SIZE = 10
 router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function (req, res) {
     var search = '%' + (req.body.search || '') + '%';
+    var limit = SELECT_PAGE_SIZE;
+    var offset = (req.body.page-1)*limit;
 
     // ID is always needed
     if (req.body.searchField.indexOf("id") == -1)
@@ -556,7 +559,11 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
         for (var param in req.body.customWhere)
             where.where[param] = req.body.customWhere[param];
 
-    models.MODEL_NAME.findAll(where).then(function (results) {
+    where.offset = offset;
+    where.limit = limit;
+
+    models.MODEL_NAME.findAndCountAll(where).then(function (results) {
+        results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         res.json(results);
     }).catch(function (e) {
         console.error(e);
