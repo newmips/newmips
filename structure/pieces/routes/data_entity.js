@@ -326,8 +326,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 as: option.as,
                 include: {all: true}
             }]
-    }).then(function (ENTITY_URL_NAME) {
-        if (!ENTITY_URL_NAME)
+    }).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME)
             return res.status(404).end();
 
         var dustData = ENTITY_NAME[option.as];
