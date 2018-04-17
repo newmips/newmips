@@ -16,29 +16,35 @@ function select2_ajaxsearch(select) {
             data: function (params) {
                 var ajaxdata = {
                     search: params.term,
+                    page: params.page || 1,
                     searchField: searchField
                 };
                 return JSON.stringify(ajaxdata);
             },
-            processResults: function (dataResults, params) {
+            processResults: function (answer, params) {
+                var dataResults = answer.rows;
                 if (!dataResults)
                     return {results: []};
                 var results = [];
                 for (var i = 0; i < dataResults.length; i++) {
-                    var text = "";
+                    var text = [];
                     for (var field in dataResults[i]) {
                         if (searchField.indexOf(field) != -1) {
                             if (dataResults[i][field] != null)
-                                text += dataResults[i][field] + " - ";
+                                text.push(dataResults[i][field]);
                         }
                     }
-                    text = text.substring(0, text.length - 3);
+                    text = text.join(' - ');
                     if (text == "" || text == null)
                         text = dataResults[i].id;
 
                     results.push({id: dataResults[i].id, text: text});
                 }
-                return {results: results};
+
+                return {
+                    results: results,
+                    pagination: {more: answer.more}
+                };
             },
             cache: true
         },
