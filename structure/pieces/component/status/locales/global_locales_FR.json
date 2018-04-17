@@ -64,6 +64,15 @@
 			"f_content": "Contenu"
 		},
 		"e_media_notification": {
+            "label_entity": "Média Notification",
+            "name_entity": "Média Notification",
+            "plural_entity": "Média Notification",
+            "id_entity": "ID",
+            "as_r_media_notification": "Média Notification",
+            "f_title": "Titre",
+            "f_description": "Déscription",
+            "f_icon": "Icône",
+            "f_color": "Couleur",
 			"r_target_groups": "Groupes ciblés",
 			"r_target_users": "Utilisateurs ciblés"
 		},
