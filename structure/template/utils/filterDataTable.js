@@ -151,18 +151,17 @@ module.exports = function(modelName, params, speInclude, speWhere) {
         // Building final query object
         var where = speWhere;
         if (search[searchType].length == 0)
-            where = {
-                order: order,
-                limit: length,
-                offset: start
-            };
+            where = {order: order};
         else
             where = {
                 where: search,
-                order: order,
-                limit: length,
-                offset: start
+                order: order
             };
+        if (length != -1) {
+            where.limit = length
+            where.offset = start
+        }
+
         if (speInclude)
             where.include = speInclude;
         if (speWhere) {
