@@ -32,6 +32,9 @@
 			"f_value": "Valeur",
 			"f_language": "Langage"
 		},
+		"e_api_credentials": {
+			"f_client_name": "Nom client"
+		},
         "e_notification": {
             "f_title": "Titre",
             "f_description": "Description",
