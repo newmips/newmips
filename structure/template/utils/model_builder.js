@@ -208,17 +208,30 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
     });
 }
 
-exports.getDatalistInclude = function getDatalistInclude(models, options) {
+exports.getDatalistInclude = function getDatalistInclude(models, options, columns) {
     var structureDatalist = [];
 
     /* Then get attributes from other entity associated to main entity */
     for (var i = 0; i < options.length; i++) {
         if (options[i].relation.toLowerCase() == "hasone" || options[i].relation.toLowerCase() == "belongsto") {
             var target = capitalizeFirstLetter(options[i].target.toLowerCase());
-            structureDatalist.push({
+
+            var include = {
                 model: models[target],
                 as: options[i].as
-            });
+            };
+            // Add include's attributes for performance
+            var attributes = [];
+            for (var j = 0; j < columns.length; j++) {
+                if (columns[j].data.indexOf('.') == -1)
+                    continue;
+                var parts = columns[j].data.split('.');
+                if (parts[0] == options[i].as)
+                    attributes.push(parts[1]);
+            }
+            if (attributes.length)
+                include.attributes = attributes;
+            structureDatalist.push(include);
         }
     }
     return structureDatalist;

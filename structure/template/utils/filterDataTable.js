@@ -22,6 +22,7 @@ module.exports = function(modelName, params, speInclude, speWhere) {
         // Building where values -> {$and: [{id: 'id'}, {name: {$like: '%jero%'}}]};
         var search = {};
         search[searchType] = [];
+        var attributes = [];
 
         for (var i = 0; i < params.columns.length; i++) {
             var column = params.columns[i];
@@ -32,6 +33,9 @@ module.exports = function(modelName, params, speInclude, speWhere) {
             }
             var orRow = {};
             if (column.searchable == 'true') {
+                // Build attributes array to query only necessary ones
+                if (column.data.indexOf('.') == -1)
+                    attributes.push(column.data);
                 // Column search
                 if (column.search.value != '') {
                     if (descriptor && descriptor.type == 'datetime') {
@@ -149,37 +153,46 @@ module.exports = function(modelName, params, speInclude, speWhere) {
         }
 
         // Building final query object
-        var where = speWhere;
+        var queryObject = speWhere;
         if (search[searchType].length == 0)
-            where = {order: order};
+            queryObject = {order: order};
         else
-            where = {
+            queryObject = {
                 where: search,
                 order: order
             };
         if (length != -1) {
-            where.limit = length
-            where.offset = start
+            queryObject.limit = length
+            queryObject.offset = start
         }
 
         if (speInclude)
-            where.include = speInclude;
+            queryObject.include = speInclude;
         if (speWhere) {
-            if (!where.where)
-                where.where = speWhere;
+            if (!queryObject.where)
+                queryObject.where = speWhere;
             else
                 for (var prop in speWhere)
-                    where.where[prop] = speWhere[prop];
+                    queryObject.where[prop] = speWhere[prop];
         }
         if (speInclude)
-            where.distinct = true;
+            queryObject.distinct = true;
 
+        queryObject.attributes = attributes;
         // Execute query with filters and get total count
-        models[modelName].findAndCountAll(where).then(function(result) {
+        models[modelName].findAndCountAll(queryObject).then(function(result) {
             var data = {};
             data.recordsTotal = result.count;
             data.recordsFiltered = result.count;
-            data.data = result.rows;
+            lightRows = [];
+            for (var i = 0; i < result.rows.length; i++) {
+                var row = result.rows[i].get();
+                for (var prop in row)
+                    if (prop.indexOf('r_') == 0 && row[prop])
+                        row[prop] = row[prop].get();
+                lightRows.push(row);
+            }
+            data.data = lightRows;
             return resolve(data);
         }).catch(function(err) {
             console.log(err);

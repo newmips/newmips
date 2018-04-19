@@ -37,7 +37,7 @@ router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("MODEL_NAME", req.body, include).then(function (data) {
 
         var statusPromises = [];
@@ -457,33 +457,39 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
 
         // Find the children of the current status
         models.E_status.findOne({
-            where: {id: ENTITY_NAME[historyAlias][0][statusAlias].id},
+            where: {
+                id: ENTITY_NAME[historyAlias][0][statusAlias].id
+            },
             include: [{
-                    model: models.E_status,
-                    as: 'r_children',
+                model: models.E_status,
+                as: 'r_children',
+                include: [{
+                    model: models.E_action,
+                    as: 'r_actions',
+                    order: 'f_position ASC',
                     include: [{
-                            model: models.E_action,
-                            as: 'r_actions',
-                            order: 'f_position ASC',
-                            include: [{
-                                    model: models.E_media,
-                                    as: 'r_media',
-                                    include: {all: true, nested: true}
-                                }]
-                        }]
+                        model: models.E_media,
+                        as: 'r_media',
+                        include: {
+                            all: true,
+                            nested: true
+                        }
+                    }]
                 }]
-        }).then(function (current_status) {
+            }]
+        }).then(function(current_status) {
             if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
-                return res.render('common/error', {error: 404});
+                return res.render('common/error', {
+                    error: 404
+                });
             }
 
             // Check if new status is actualy the current status's children
             var children = current_status.r_children;
             var nextStatus = false;
             for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status)
-                {
+                if (children[i].id == req.params.id_new_status) {
                     nextStatus = children[i];
                     break;
                 }
@@ -491,33 +497,33 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             // Unautorized
             if (nextStatus === false) {
                 req.session.toastr = [{
-                        level: 'error',
-                        message: 'component.status.error.illegal_status'
-                    }]
+                    level: 'error',
+                    message: 'component.status.error.illegal_status'
+                }]
                 return res.redirect(errorRedirect);
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(ENTITY_NAME).then(function () {
+            nextStatus.executeActions(ENTITY_NAME).then(function() {
                 // Create history record for this status field
                 // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
                 var createObject = {}
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function () {
+                models[historyModel].create(createObject).then(function() {
                     ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
-            }).catch(function (err) {
+            }).catch(function(err) {
                 console.error(err);
                 req.session.toastr = [{
-                        level: 'warning',
-                        message: 'component.status.error.action_error'
-                    }]
+                    level: 'warning',
+                    message: 'component.status.error.action_error'
+                }]
                 var createObject = {}
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function () {
+                models[historyModel].create(createObject).then(function() {
                     ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });

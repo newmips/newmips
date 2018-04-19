@@ -470,21 +470,24 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
     });
 });
 
-router.post('/search', block_access.actionAccessMiddleware('media','read'), function(req, res) {
-    var search = '%'+(req.body.search||'')+'%';
+var SELECT_PAGE_SIZE = 10
+router.post('/search', block_access.actionAccessMiddleware('media', 'read'), function (req, res) {
+    var search = '%' + (req.body.search || '') + '%';
+    var limit = SELECT_PAGE_SIZE;
+    var offset = (req.body.page-1)*limit;
 
     // ID is always needed
-    if(req.body.searchField.indexOf("id") == -1)
+    if (req.body.searchField.indexOf("id") == -1)
         req.body.searchField.push('id');
 
     var where = {raw: true, attributes: req.body.searchField, where: {}};
-    if (search != '%%'){
-        if(req.body.searchField.length == 1){
+    if (search != '%%') {
+        if (req.body.searchField.length == 1) {
             where.where[req.body.searchField[0]] = {$like: search};
         } else {
             where.where.$or = [];
-            for(var i=0; i<req.body.searchField.length; i++){
-                if(req.body.searchField[i] != "id"){
+            for (var i = 0; i < req.body.searchField.length; i++) {
+                if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
                     currentOrObj[req.body.searchField[i]] = {$like: search}
                     where.where.$or.push(currentOrObj);
@@ -494,17 +497,22 @@ router.post('/search', block_access.actionAccessMiddleware('media','read'), func
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if(typeof req.body.customWhere !== "undefined")
-        for(var param in req.body.customWhere)
+    if (typeof req.body.customWhere !== "undefined")
+        for (var param in req.body.customWhere)
             where.where[param] = req.body.customWhere[param];
 
-    models.E_media.findAll(where).then(function(results) {
+    where.offset = offset;
+    where.limit = limit;
+
+    models.E_media.findAndCountAll(where).then(function (results) {
+        results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         res.json(results);
-    }).catch(function(e) {
+    }).catch(function (e) {
         console.error(e);
         res.status(500).json(e);
     });
 });
+
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
     var alias = req.params.alias;
