@@ -1874,13 +1874,13 @@ exports.createNewComponentStatus = function (attr, callback) {
                 value: attr.options.value,
                 showValue: attr.options.value.substring(2)
             }
-        }, function(err, info) {
+        }, function (err, info) {
             if (err)
                 return callback(err, null);
 
             attr.source = source_entity.codeName;
             attr.showSource = source_entity.name;
-            attr.history_table_db_name = 'history_'+source_entity.id+'_'+info.insertId;
+            attr.history_table_db_name = 'history_' + source_entity.id + '_' + info.insertId;
             attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
 
             // These instructions create a has many with a new entity history_status
@@ -1897,14 +1897,14 @@ exports.createNewComponentStatus = function (attr, callback) {
 
             self.recursiveInstructionExecute(attr, instructions, 0, function (err) {
                 if (err) {
-                    return db_field.deleteDataFieldById(info.insertId, function() {
+                    return db_field.deleteDataFieldById(info.insertId, function () {
                         return callback(err, null);
                     });
                 }
 
                 structure_component.newStatus(attr, function (err) {
                     if (err) {
-                        return db_field.deleteDataFieldById(info.insertId, function() {
+                        return db_field.deleteDataFieldById(info.insertId, function () {
                             return callback(err, null);
                         });
                     }
@@ -2497,18 +2497,19 @@ exports.createNewComponentAddress = function (attr, callback) {
                                 toSync: true
                             };
                             structure_data_entity.setupAssociation(associationOption, function () {
-                                db_component.createNewComponentOnEntity(attr, function (err, info) {
-                                    if (!err) {
-                                        structure_component.addNewComponentAddress(attr, function (err) {
-                                            if (err)
-                                                return callback(err);
-                                            callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
-                                        });
-                                    } else
-                                        return callback(err);
-                                });
+//                                database.addConstraint(attr, function () {
+                                    db_component.createNewComponentOnEntity(attr, function (err, info) {
+                                        if (!err) {
+                                            structure_component.addNewComponentAddress(attr, function (err) {
+                                                if (err)
+                                                    return callback(err);
+                                                callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
+                                            });
+                                        } else
+                                            return callback(err);
+                                    });
+//                                });
                             });
-
                         } else
                             return callback(err);
                     });

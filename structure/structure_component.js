@@ -1202,7 +1202,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                     var p = new Promise(function (resolve, reject) {
                                         fs.readFile(application_path + 'config/' + c_address_settings + '.json', function (err, config) {
                                             if (err) {
-                                                //file doesn't exist
+                                                //files doesn't exist
                                                 address_settings_config = {entities: {}};
                                                 //add settings locales
                                                 langFR.component[c_address_settings] = {
