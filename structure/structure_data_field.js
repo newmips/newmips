@@ -1309,7 +1309,12 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     // Setup association field for create_fields
     var select = '';
     select += '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+    select += '     <label for="f_' + urlAs + '">\n';
+    select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
+    select += '         <!--{@inline_help field="'+alias+'"}-->\n';
+    select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    select += '         <!--{/inline_help}-->\n';
+    select += '     </label>\n';
     select += '     <select multiple style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
     select += '         <option value="">{@__ key="select.default" /}</option>\n';
     select += '         <!--{#' + alias + '}-->\n';
@@ -1327,7 +1332,12 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         updateFile(fileBase, file, select, function () {
 
             select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-            select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+            select += '     <label for="f_' + urlAs + '">\n';
+            select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
+            select += '         <!--{@inline_help field="'+alias+'"}-->\n';
+            select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+            select += '         <!--{/inline_help}-->\n';
+            select += '     </label>\n';
             select += '     <select multiple disabled readonly style="width:100%;" class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
             select += '         <!--{#' + alias + '}-->\n';
             select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
