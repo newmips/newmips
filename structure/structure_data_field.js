@@ -1187,11 +1187,18 @@ exports.setupRelatedToField = function (attr, callback) {
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+    select += '     <label for="' + alias + '">\n';
+    select += '         {@__ key="entity.' + source + '.' + alias + '" /}&nbsp;\n'
+    select += '         <!--{@inline_help field="'+alias+'"}-->\n';
+    select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    select += '         <!--{/inline_help}-->\n';
+    select += '     </label>\n';
     select += '     <select style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
-    select += "         <option value=''>{@__ key=\"select.default\" /}</option>\n";
+    select += '         <option value="">\n';
+    select += '             {@__ key="select.default" /}\n';
+    select += '         </option>\n';
     select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
+    select += '         <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';

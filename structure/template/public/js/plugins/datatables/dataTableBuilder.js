@@ -430,7 +430,7 @@ function init_datatable(tableID) {
         "language": str_language,
         "bLengthChange": true,
         "iDisplayLength": 50,
-        "aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
+        "aLengthMenu": [[50, 200, 500], [50, 200, 500]],
         "bAutoWidth": false,
         "dom": 'lBfrtip',
         "order": [ 0, 'desc' ],
@@ -489,6 +489,14 @@ function init_datatable(tableID) {
             return filterSave[field];
     }
 
+    var delay = (function() {
+        var timer = 0;
+        return function(callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
     // Bind search fields
     $(tableID + ' .filters th').each(function (i) {
         var title = $(this).text();
@@ -496,7 +504,7 @@ function init_datatable(tableID) {
         // Custom
         var currentField = mainTh.data('field');
         var val = getFilterSave(tableID.substring(1), currentField);
-        var search = '<input type="text" value="' + val + '" placeholder="' + title + '" />';
+        var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
         function searchInDatalist(searchValue) {
             var valueObject = {type: '', value: ''};
             // Special data types re-formating for search
@@ -531,7 +539,9 @@ function init_datatable(tableID) {
                 $(search).appendTo(this).keyup(function () {
                     var searchValue = this.value;
                     saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
-                    searchInDatalist(searchValue);
+                    delay(function(){
+                        searchInDatalist(searchValue);
+                    }, 500);
                 });
                 // Initialize masks on filters inputs
                 if (typeof mainTh.data('type') !== 'undefined') {
