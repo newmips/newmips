@@ -466,6 +466,12 @@ function init_datatable(tableID) {
                 exportOptions: {
                     columns: ':visible'
                 }
+            }, {
+                text: '<i class="fa fa-arrow-right"></i>',
+                titleAttr: 'Scroll right',
+                action: function ( e, dt, node, config ) {
+                    $(tableID).parents(".table-responsive").animate({scrollLeft: $(tableID).parents(".table-responsive").width()}, 800);
+                }
             }
         ]
     });

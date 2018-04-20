@@ -127,7 +127,7 @@
         "action": "Importer maintenant!",
         "downloadsqlfile": "Télécharger le fichier SQL valide.",
         "confFile": "Fichier de configuration",
-        "fileType": "Fichier XLSX ou CSV"
+        "fileType": "Fichier XLSX"
     },
     "settings": {
         "legend": "Paramètres",
