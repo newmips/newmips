@@ -95,7 +95,7 @@ function simpleTable(table) {
                 text: '<i class="fa fa-arrow-right"></i>',
                 titleAttr: 'Scroll right',
                 action: function ( e, dt, node, config ) {
-                   table.parents(".dataTables_wrapper").animate({scrollLeft: table.parents(".dataTables_wrapper").width()}, 800);
+                   table.parents(".dataTables_wrapper").animate({scrollLeft: table.width()}, 800);
                 }
             }
 		]
@@ -210,7 +210,11 @@ function simpleTable(table) {
 $(document).ready(function() {
 	// Init DataTable
 	$(".dataTable").each(function() {
-		simpleTable($(this));
+		try{
+			simpleTable($(this));
+		} catch(e){
+			console.log(e)
+		}
 		$(this).find("thead.main th").each(function(idx){
 			if($(this).data("hidden") == 1){
 				// Hide hidden column
