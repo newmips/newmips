@@ -314,9 +314,9 @@ module.exports = {
                 else if (relation.relation === "belongsToMany" || relation.relation === "hasMany")
                     message = langMessage[userLang || lang].useVariable
                             + "<p> " + langMessage[userLang || lang].example + ":<br>"
-                            + "<pre>{#" + relation.target.replace('e_', 'r_') + "}<br>"
+                            + "<pre>{#" + relation.as + "}<br>"
                             + "    {variable}<br>"
-                            + "{/" + relation.target.replace('e_', 'r_') + "}"
+                            + "{/" + relation.as + "}"
                             + "</p></pre><hr>"
                             + "<i class='fa fa-exclamation-circle' style='color:orange'></i> " + langMessage[userLang || lang].whereIsNL + ": <br>"
                             + " <pre>"
@@ -335,8 +335,8 @@ module.exports = {
                             + "</pre><br>"
                             + "<b> " + langMessage[userLang || lang].nl + "</b> <br>"
                             + langMessage[userLang || lang].empty + ": <br>"
-                            + "<pre>{#" + relation.target.replace('e_', 'r_') + "}<b>{variable}</b><br>"
-                            + "{/" + relation.target.replace('e_', 'r_') + "}</pre><br><br>";
+                            + "<pre>{#" + relation.as + "}<b>{variable}</b><br>"
+                            + "{/" + relation.as + "}</pre><br><br>";
                 var entity = relation.target.replace('e_', '');
                 result.push({
                     id: i + 1,
