@@ -91,7 +91,13 @@ function simpleTable(table) {
 				exportOptions: {
 					columns: ':visible'
 				}
-			}
+			}, {
+                text: '<i class="fa fa-arrow-right"></i>',
+                titleAttr: 'Scroll right',
+                action: function ( e, dt, node, config ) {
+                   table.parents(".dataTables_wrapper").animate({scrollLeft: table.parents(".dataTables_wrapper").width()}, 800);
+                }
+            }
 		]
 	}
 
