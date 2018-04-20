@@ -901,8 +901,8 @@ block custom_js
 				fetchStatus();
 				updateScroll();
 
-				$("#logs-content").on('click', function(){
-					scrolled=scrolled?false:true;
+				$("#logs-content").on('scroll', function(){
+					scrolled=true;
 				});
 			});
 		});
