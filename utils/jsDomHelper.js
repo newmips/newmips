@@ -1,8 +1,6 @@
 var fs = require("fs-extra");
 var jsdom = require('jsdom');
 var html = require('html');
-var beautify_html = require('js-beautify').html;
-var beautify_js = require('js-beautify').js;
 var jquery = fs.readFileSync(__dirname + "/../public/js/jQuery/jquery.min.js", "utf-8");
 var helpers = require("./helpers");
 var prettyGirl = require('pretty');
