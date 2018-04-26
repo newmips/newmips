@@ -34,7 +34,7 @@ router.get('/list', block_access.actionAccessMiddleware("user", "read"), functio
 router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), function (req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("E_user", req.body, include).then(function (data) {
 
         var statusPromises = [];

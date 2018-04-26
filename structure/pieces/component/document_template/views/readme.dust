@@ -75,7 +75,7 @@
             <!-- DATA TABES SCRIPT-->
             <script src="/js/plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
             <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
-            <script src="/js/plugins/datatables/dataTableBuilder.js" type="text/javascript"></script>
+            <script src="/js/Newmips/dataTableBuilder.js" type="text/javascript"></script>
             <!-- DATATABLE EXPORT-->
             <script src="/js/plugins/datatables/buttons/datatableButton.min.js" type="text/javascript"></script>
             <script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>

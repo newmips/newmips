@@ -6,6 +6,11 @@
 Core: General style
 ----------------------------
 */
+/* DataTables buttons*/
+.dt-buttons: {
+    margin-left: 20px;
+}
+
 .hover:hover {
     cursor: pointer;
 }

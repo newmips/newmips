@@ -6,6 +6,8 @@ var logger = require('./logger');
 var fs = require('fs-extra');
 var language = require('../services/language');
 var models = require('../models/');
+var enums_radios = require('../utils/enum_radio.js');
+var globalConfig = require('../config/global');
 
 // Winston logger
 var logger = require('./logger');
@@ -13,6 +15,73 @@ var logger = require('./logger');
 var funcs = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+    },
+    prepareDatalistResult: function(entityName, data, lang_user) {
+        return new Promise(function(resolve, reject) {
+            var attributes = require('../models/attributes/'+entityName);
+            var options = require('../models/options/'+entityName);
+            var statusPromises = [];
+            if (funcs.status.statusFieldList(attributes).length > 0)
+                for (var i = 0; i < data.data.length; i++)
+                    statusPromises.push(funcs.status.currentStatus(models, entityName, data.data[i], attributes, lang_user));
+
+            Promise.all(statusPromises).then(function () {
+                // Replace data enum value by translated value for datalist
+                var enumsTranslation = enums_radios.translated(entityName, lang_user, options);
+                var todo = [];
+                for (var i = 0; i < data.data.length; i++) {
+                    for (var field in data.data[i]) {
+                        // Look for enum translation
+                        for (var enumEntity in enumsTranslation)
+                            for (var enumField in enumsTranslation[enumEntity])
+                                if (enumField == field)
+                                    for (var j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
+                                        if (enumsTranslation[enumEntity][enumField][j].value == data.data[i][field]) {
+                                            data.data[i][field] = enumsTranslation[enumEntity][enumField][j].translation;
+                                            break;
+                                        }
+
+                        //get attribute value
+                        var value = data.data[i][field];
+                        //for type picture, get thumbnail picture
+                        if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
+                            var partOfFile = value.split('-');
+                            if (partOfFile.length > 1) {
+                                //if field value have valide picture name, add new task in todo list
+                                //we will use todo list to get all pictures binary
+                                var thumbnailFolder = globalConfig.thumbnail.folder;
+                                var filePath = thumbnailFolder + entityName+'/' + partOfFile[0] + '/' + value;
+                                todo.push({
+                                    value: value,
+                                    file: filePath,
+                                    field: field,
+                                    dataIndex: i
+                                });
+                            }
+                        }
+                    }
+                }
+                //check if we have to get some picture buffer before send data
+                if (todo.length) {
+                    var counter = 0;
+                    for (var i = 0; i < todo.length; i++) {
+                        (function (task) {
+                            file_helper.getFileBuffer64(task.file, function (success, buffer) {
+                                counter++;
+                                data.data[task.dataIndex][task.field] = {
+                                    value: task.value,
+                                    buffer: buffer
+                                };
+                                if (counter === todo.length)
+                                    resolve(data)
+
+                            });
+                        }(todo[i]));
+                    }
+                } else
+                    resolve(data)
+            }).catch(reject);
+        });
     },
     status: {
         entityFieldTree: function (entity, alias) {

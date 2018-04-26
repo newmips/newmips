@@ -340,7 +340,7 @@ exports.newPrint = function (attr, callback) {
         var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{@__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
 
         var tabContent = "";
-        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane fade' data-tabtype='print'>\n";
+        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane ajax-tab fade' data-tabtype='print'>\n";
         tabContent += "     <style>";
         tabContent += "        @page { size: auto;  margin: 0mm; }";
         tabContent += "        @media print {";
