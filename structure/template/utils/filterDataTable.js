@@ -185,13 +185,8 @@ module.exports = function(modelName, params, speInclude, speWhere) {
             data.recordsTotal = result.count;
             data.recordsFiltered = result.count;
             lightRows = [];
-            for (var i = 0; i < result.rows.length; i++) {
-                var row = result.rows[i].get();
-                for (var prop in row)
-                    if (prop.indexOf('r_') == 0 && row[prop])
-                        row[prop] = row[prop].get();
-                lightRows.push(row);
-            }
+            for (var i = 0; i < result.rows.length; i++)
+                lightRows.push(result.rows[i].get({plain:true}));
             data.data = lightRows;
             return resolve(data);
         }).catch(function(err) {

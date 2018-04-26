@@ -29,29 +29,6 @@ function buildAssociationHref(tab) {
     return href+'ajax=true';
 }
 
-function bindFieldsetForm(tab, data) {
-    tab.find('.fieldsetform').each(function() {
-        $(this).submit(function() {
-            var alias = $(this).parents('.tab-pane').attr('id');
-            var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
-            var reqData = $(this).serialize();
-            reqData += '&idEntity='+data.sourceId;
-            var form = this;
-            $.ajax({
-                url: url,
-                method: 'post',
-                data: reqData,
-                success:function() {
-                    /* tables is a global var comming from simpleTable.js */
-                    tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
-                },
-                error: handleError
-            });
-            return false;
-        });
-    });
-}
-
 function reloadTab(tab) {
     $('#'+tab.attr('id')+'-click').click();
 }
@@ -113,76 +90,46 @@ function select2_fieldset(select, data) {
     });
 }
 
-function bindTabActions(tab, data) {
-    // Handle form submition and tab reload
-    function ajaxForm(form) {
-        form.on('submit', function(e) {
-            if (!validateForm(form))
-                return false;
+// Handle form submition and tab reload
+function ajaxForm(form, tab) {
+    form.on('submit', function(e) {
+        if (!validateForm(form))
+            return false;
+        $.ajax({
+            url: $(this).attr('action')+'?ajax=true',
+            method: 'post',
+            data: $(this).serialize()+'&'+buildAssociationHref(tab).substring(1),
+            success: function(htmlForm) {
+                tab.find('.ajax-form').remove();
+                tab.find('.ajax-content').show();
+                reloadTab(tab);
+            },
+            error: handleError
+        });
+        return false;
+    });
+}
+
+function bindFieldsetForm(tab, data) {
+    tab.find('.fieldsetform').each(function() {
+        $(this).submit(function() {
+            var alias = $(this).parents('.tab-pane').attr('id');
+            var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
+            var reqData = $(this).serialize();
+            reqData += '&idEntity='+data.sourceId;
+            var form = this;
             $.ajax({
-                url: $(this).attr('action')+'?ajax=true',
+                url: url,
                 method: 'post',
-                data: $(this).serialize()+'&'+buildAssociationHref(tab).substring(1),
-                success: function(htmlForm) {
-                    tab.find('.ajax-form').remove();
-                    tab.find('.ajax-content').show();
-                    reloadTab(tab);
+                data: reqData,
+                success:function() {
+                    /* tables is a global var comming from simpleTable.js */
+                    tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
                 },
                 error: handleError
             });
             return false;
         });
-    }
-
-    // Load a create or update form. Bind buttons (create/update)
-    tab.find('a.ajax').click(function(e) {
-        // Don't reload page
-        e.stopPropagation();
-        // Don't change URL hash
-        e.preventDefault();
-        var element = $(this);
-        var href = element.data('href') || element.attr('href');
-        var id = element.data('id');
-        $.ajax({
-            url: href,
-            success: function(formContent) {
-                if (href.indexOf('/set_status/') != -1)
-                    return reloadTab(tab);
-                var isCreate = href.indexOf('update_form') != -1 ? false : true;
-                var action, idInput = '', button = '';
-                var cancel = '<button class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
-                if (isCreate) {
-                    action = '/'+data.option.target.substring(2)+'/create';
-                    button = '<button type="submit" class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>'+CREATE_TEXT+'</button>';
-                }
-                else if (!isCreate) {
-                    idInput = '<input type="hidden" name="id" value="'+id+'">';
-                    action = '/'+data.option.target.substring(2)+'/update';
-                    button = '<button type="submit" class="btn btn-primary"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
-                }
-                else
-                    return reloadTab(tab);
-
-                // Add form to tab. Put content after .ajax-content to be able to
-                // get back to tab original view after cancel button click
-                var formWrapper = $('<div class="ajax-form" style="display:none;"><form action="'+action+'" method="post">'+formContent+'</form></div>');
-                formWrapper.find('form').append(idInput+cancel+button);
-                formWrapper.find('.cancel').click(function() {
-                    tab.find('.ajax-form').slideUp().remove();
-                    tab.find('.ajax-content').slideDown();
-                });
-                tab.find('.ajax-content').slideUp()
-                tab.find('.ajax-content').after(formWrapper);
-                tab.find('.ajax-form').slideDown();
-                initForm(tab);
-                ajaxForm(formWrapper.find('form'));
-            },
-            error: handleError
-        });
-    });
-    // Bind each new form
-    tab.find('form:not(".fieldsetform"):not(".componentFileDownloadForm")').each(function(){
-        ajaxForm($(this));
     });
 }
 
@@ -240,10 +187,41 @@ function initHasMany(tab, data) {
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
         tab.find('.ajax-content').append("<br>").append(newButton);
     }
-    tab.find('table').find('.filters').remove();
 
+    var sourceUrl = tab.data('asso-source').substring(2);
+    var targetUrl = data.option.target.substring(2);
     var table = tab.find('table');
-    simpleTable(table);
+    table.find('.filters').remove();
+
+    // Set subdatalist url and subentity to table
+    var tableUrl = '/'+sourceUrl+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
+    table.data('url', tableUrl);
+
+    // Define button to be used by DataList plugin
+    DATALIST_BUTTONS = [{
+        render: function(data2, type, row) {
+            var aTag = '\
+            <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
+                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
+                <span>'+UPDATE_TEXT+'</span>\
+            </a>';
+            return aTag;
+        }
+    }, {
+        render: function(data2, type, row) {
+            var form = '\
+            <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                <button onclick="return confirm(\''+DEL_CONFIRM_TEXT+'\'");" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                    <span>'+DELETE_TEXT+'</span>\
+                    <input name="id" value="'+row['id']+'" type="hidden"/>\
+                </button>\
+            </form>';
+            return form;
+        }
+    }];
+
+    // DataTable
+    init_datatable('#'+table.attr('id'), true);
 }
 
 // HAS MANY PRESET
@@ -258,10 +236,15 @@ function initHasManyPreset(tab, data) {
 
     // Display list
     tab.find('.ajax-content').append(data.content);
-    tab.find('table').find('.filters').remove();
 
-    // Apply simpleTable on list
-    simpleTable(tab.find('table'));
+    var table = tab.find('table');
+    table.find('.filters').remove();
+
+    // Set subdatalist url and subentity to table
+    var tableUrl = '/'+tab.data('asso-source').substring(2)+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
+    table.data('url', tableUrl);
+
+    simpleTable(table);
 
     bindFieldsetForm(tab, data);
 }
@@ -279,9 +262,9 @@ function initPrintTab(tab, data) {
     tab.find('.ajax-content').html(data.content);
     tab.find('.filters').remove();
     tab.find('table').each(function(){
+        $(this).attr('id', $(this).attr('id')+'_print');
         simpleTable($(this));
     });
-    initForm(tab);
     initPrint();
 }
 
@@ -319,6 +302,8 @@ $(function() {
 
                 // Clear tab content
                 tab.find('.ajax-content').html('');
+                // Set data-target to tab so document.delegate on a.ajax/form.ajax can use it
+                tab.data('target', data.option.target);
 
                 // Build tab content
                 if (data.option.structureType == 'hasOne')
@@ -336,8 +321,6 @@ $(function() {
 
                 // Init form and td
                 initForm(tab);
-                // Bind tab actions
-                bindTabActions(tab, data);
             },
             error: function(pa1, pa2, pa3) {
                 if (pa1.status == 404)
@@ -346,6 +329,94 @@ $(function() {
                 tab.find('.ajax-content').html('<i class="fa fa-exclamation-triangle fa-3x" style="color:red;margin-left: 150px; margin-top: 50px;"></i>');
             }
         });
+    });
+
+    // Load a create or update form. Bind buttons (create/update)
+    $(document).delegate('a.ajax','click', function(e) {
+        // Don't reload page
+        e.stopPropagation();
+        // Don't change URL hash
+        e.preventDefault();
+        var element = $(this);
+        var href = element.data('href') || element.attr('href');
+        var id = element.data('id');
+        var tab = element.parents('.ajax-tab');
+        var target = tab.data('target').substring(2);
+        $.ajax({
+            url: href,
+            success: function(formContent) {
+                if (href.indexOf('/set_status/') != -1)
+                    return reloadTab(tab);
+                var isCreate = href.indexOf('update_form') != -1 ? false : true;
+                var action, idInput = '', button = '';
+                var cancel = '<button class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
+                if (isCreate) {
+                    action = '/'+target+'/create';
+                    button = '<button type="submit" class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>'+CREATE_TEXT+'</button>';
+                }
+                else if (!isCreate) {
+                    idInput = '<input type="hidden" name="id" value="'+id+'">';
+                    action = '/'+target+'/update';
+                    button = '<button type="submit" class="btn btn-primary"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
+                }
+                else
+                    return reloadTab(tab);
+
+                // Add form to tab. Put content after .ajax-content to be able to
+                // get back to tab original view after cancel button click
+                var formWrapper = $('<div class="ajax-form" style="display:none;"><form action="'+action+'" method="post">'+formContent+'</form></div>');
+                formWrapper.find('form').append(idInput+cancel+button);
+                formWrapper.find('.cancel').click(function() {
+                    tab.find('.ajax-form').slideUp().remove();
+                    tab.find('.ajax-content').slideDown();
+                });
+                tab.find('.ajax-content').slideUp()
+                tab.find('.ajax-content').after(formWrapper);
+                tab.find('.ajax-form').slideDown();
+                initForm(tab);
+                ajaxForm(formWrapper.find('form'), tab);
+            },
+            error: handleError
+        });
+    });
+
+    // Bind ajax form validation and tab reload after submit (ex: delete form)
+    $(document).delegate('form.ajax', 'submit', function(e) {
+        if (!validateForm($(this)))
+            return false;
+
+        var tab = $(this).parents('.ajax-tab');
+        $.ajax({
+            url: $(this).attr('action')+'?ajax=true',
+            method: 'post',
+            data: $(this).serialize()+'&'+buildAssociationHref(tab).substring(1),
+            success: function(htmlForm) {
+                tab.find('.ajax-form').remove();
+                tab.find('.ajax-content').show();
+                reloadTab(tab);
+            },
+            error: handleError
+        });
+        return false;
+    });
+
+    $(document).delegate('.fieldsetform', 'submit', function() {
+        var alias = $(this).parents('.tab-pane').attr('id');
+        var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
+        var reqData = $(this).serialize();
+        reqData += '&idEntity='+data.sourceId;
+        var form = this;
+        $.ajax({
+            url: url,
+            method: 'post',
+            data: reqData,
+            success:function() {
+                /* tables is a global var comming from simpleTable.js */
+                tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
+            },
+            error: handleError
+        });
+        return false;
     });
 
     /* Check url to go on tabs */
