@@ -456,23 +456,19 @@ exports.createNewEntity = function (attr, callback) {
 
     // Get active application module name
     db_module.getModuleById(attr.id_module, function (err, module) {
-        if (err) {
-            callback(err, null);
-        } else {
+        if (err)
+            return callback(err, null);
 
-            attr.show_name_module = module.name;
-            attr.name_module = module.codeName;
-            // Generator database
-            db_entity.createNewEntity(attr, function (err, infoDB) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    structure_data_entity.setupDataEntity(attr, function (err, data) {
-                        callback(null, infoDB);
-                    });
-                }
+        attr.show_name_module = module.name;
+        attr.name_module = module.codeName;
+        // Generator database
+        db_entity.createNewEntity(attr, function (err, infoDB) {
+            if (err)
+                return callback(err, null);
+            structure_data_entity.setupDataEntity(attr, function (err, data) {
+                callback(null, infoDB);
             });
-        }
+        });
     });
 }
 
@@ -683,38 +679,32 @@ exports.deleteDataEntity = deleteDataEntity;
 exports.createNewDataField = function (attr, callback) {
     // Get active data entity name
     db_entity.getDataEntityById(attr.id_data_entity, function (err, data_entity) {
-        if (err) {
-            callback(err, null);
-        } else {
+        if (err)
+            return callback(err, null);
 
-            // Get active application module name
-            db_module.getNameModuleById(attr.id_module, function (err, name_module) {
-                if (err) {
-                    callback(err, null);
-                } else {
+        // Get active application module name
+        db_module.getNameModuleById(attr.id_module, function (err, name_module) {
+            if (err)
+                return callback(err, null);
 
-                    attr.name_module = name_module;
-                    db_field.createNewDataField(attr, function (err, info) {
-                        if (err) {
+            attr.name_module = name_module;
+            db_field.createNewDataField(attr, function (err, info) {
+                if (err)
+                    return callback(err, null);
+
+                attr.name_data_entity = data_entity.name;
+                attr.codeName_data_entity = data_entity.codeName;
+                structure_data_field.setupDataField(attr, function (err, data) {
+                    if (err) {
+                        db_field.deleteDataField(attr, function (error, info) {
                             callback(err, null);
-                        } else {
-
-                            attr.name_data_entity = data_entity.name;
-                            attr.codeName_data_entity = data_entity.codeName;
-                            structure_data_field.setupDataField(attr, function (err, data) {
-                                if (err) {
-                                    db_field.deleteDataField(attr, function (error, info) {
-                                        callback(err, null);
-                                    });
-                                } else {
-                                    callback(null, info);
-                                }
-                            });
-                        }
-                    });
-                }
+                        });
+                    } else {
+                        callback(null, info);
+                    }
+                });
             });
-        }
+        });
     });
 }
 
