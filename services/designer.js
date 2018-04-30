@@ -695,13 +695,12 @@ exports.createNewDataField = function (attr, callback) {
                 attr.name_data_entity = data_entity.name;
                 attr.codeName_data_entity = data_entity.codeName;
                 structure_data_field.setupDataField(attr, function (err, data) {
-                    if (err) {
+                    if (err)
                         db_field.deleteDataField(attr, function (error, info) {
                             callback(err, null);
                         });
-                    } else {
+                    else
                         callback(null, info);
-                    }
                 });
             });
         });

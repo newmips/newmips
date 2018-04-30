@@ -404,7 +404,7 @@ router.post('/preview', block_access.isLoggedIn, function(req, res) {
                         session_manager.getSession(newAttr, req, function(err, info) {
 
                             docBuilder.build(req.session.id_application).catch(function(err){
-                                console.log(err);
+                                console.error(err);
                             });
                             data.session = info;
 
