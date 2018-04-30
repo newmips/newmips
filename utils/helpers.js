@@ -128,8 +128,7 @@ module.exports = {
         var dec = decipher.update(text, 'hex', 'utf8');
         dec += decipher.final('utf8');
         return dec;
-    }
-    ,
+    },
     generate_key: function () {
         var sha = crypto.createHash('sha256');
         sha.update(Math.random().toString());
@@ -150,7 +149,7 @@ module.exports = {
         try {
             return fs.readFileSync(path, 'utf8');
         } catch (err) {
-            console.log(err);
+            console.error(err);
             error = new Error();
             error.message = "Sorry, file not found";
         }
