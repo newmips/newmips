@@ -42,26 +42,11 @@ sequelize.customAfterSync = function() {
                         case "STRING":
                             type = "VARCHAR(255)";
                             break;
-                        case "TEXT":
-                            type = "TEXT";
-                            break;
                         case "INTEGER":
                             type = "INT";
                             break;
-                        case "BOOLEAN":
-                            type = "BOOLEAN";
-                            break;
-                        case "TIME":
-                            type = "TIME";
-                            break;
                         case "DATE":
                             type = "DATETIME";
-                            break;
-                        case "FLOAT":
-                            type = "FLOAT";
-                            break;
-                        case "DOUBLE":
-                            type = "DOUBLE";
                             break;
                         case "DECIMAL":
                             type = "DECIMAL(10,3)";
@@ -74,6 +59,14 @@ sequelize.customAfterSync = function() {
                                     type += ",";
                             }
                             type += ")";
+                            break;
+                        case "TEXT":
+                        case "BOOLEAN":
+                        case "TIME":
+                        case "FLOAT":
+                        case "DOUBLE":
+                            // Same type as the switch parameter
+                            type = toSyncObject[entity].attributes[attribute].type;
                             break;
                         default:
                             type = "VARCHAR(255)";

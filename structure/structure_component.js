@@ -1110,16 +1110,10 @@ exports.setupChat = function (attr, callback) {
         fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
         // Add chat locales
-        // EN
-        var piecesLocalesEN = require(piecesPath + '/chat/locales/en-EN');
-        var workspaceLocalesEN = require(workspacePath + '/locales/en-EN');
-        workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
-        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4), 'utf8');
-        // FR
-        var piecesLocalesFR = require(piecesPath + '/chat/locales/fr-FR');
-        var workspaceLocalesFR = require(workspacePath + '/locales/fr-FR');
-        workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
-        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4), 'utf8');
+        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/en-EN.json'));
+        translateHelper.writeTree(attr.id_application, newLocalesEN, 'en-EN');
+        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/fr-FR.json'));
+        translateHelper.writeTree(attr.id_application, newLocalesFR, 'fr-FR');
 
         // Add chat dust template to main_layout
         domHelper.read(workspacePath + '/views/main_layout.dust').then(function ($layout) {
