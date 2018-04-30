@@ -337,7 +337,6 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
-                    ;
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function (alias) {
@@ -355,12 +354,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
             case 'hasMany':
                 dustFile = option.target + '/list_fields';
                 // Status history specific behavior. Replace history_model by history_table to open view
-                if (option.target.indexOf('e_history_e_') == 0) {
+                if (option.target.indexOf('e_history_e_') == 0)
                     option.noCreateBtn = true;
-                    for (var attr in attributes)
-                        if (attributes[attr].history_table && attributes[attr].history_model == option.target)
-                            dustFile = attributes[attr].history_table + '/list_fields';
-                }
                 dustData.for = 'hasMany';
                 if (typeof req.query.associationFlag !== 'undefined')
                     {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
