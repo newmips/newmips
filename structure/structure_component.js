@@ -1210,15 +1210,15 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                 address_settings_config = {entities: {}};
                                                 //add settings locales
                                                 langFR.component[c_address_settings] = {
-                                                    "label_component": "Config composant adresse",
-                                                    "position": "Position du maps",
+                                                    "label_component": "Configuration composant adresse",
+                                                    "position": "Position de la carte",
                                                     "top": "Au dessus",
                                                     "right": "A droite",
                                                     "bottom": "En dessous",
                                                     "left": "A gauche",
                                                     "distance": "Afficher la distance",
                                                     "settings": "Configurer",
-                                                    "enableMaps": "Activer le maps",
+                                                    "enableMaps": "Activer la carte",
                                                     "entity": "Entité",
                                                     "zoomBar": "Afficher panneau de zoom",
                                                     "navigation": "Activer la navigation",

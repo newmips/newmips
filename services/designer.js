@@ -2646,7 +2646,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                                                                 return callback(err);
                                                             else
                                                                 return callback(null, {message: 'database.component.create.success',
-                                                                    messageParams: ["document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : ""]});
+                                                                    messageParams: ["Document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template"]});
                                                         });
                                                     }).catch(function (e) {
                                                         return callback(e);
