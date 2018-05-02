@@ -199,18 +199,22 @@ function build(id_application) {
 			var documentation = fs.readFileSync(__dirname+'/../structure/pieces/api/api_doc_template.js');
 			// Generate documentation of each entity
 			for (var i = 0; i < entities.length; i++) {
-				var attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].codeName+'.json', 'utf8'));
-				var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].codeName+'.json', 'utf8'));
-				documentation += entityDocumentation(entities[i], attributes, options);
+				try {
+					var attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].codeName+'.json', 'utf8'));
+					var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].codeName+'.json', 'utf8'));
+					documentation += entityDocumentation(entities[i], attributes, options);
+				} catch (e) {
+					console.log('WARNING - API documentation builder: Couldn\'t load '+entities[i].codeName+' attributes and options');
+				}
 			}
 
 			// Write file to workspace's api folder
 			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
-			var isWin = /^win/.test(process.platform);
+			var isWin = /^win/.test(process.platform), cmd;
 			if(isWin || process.platform == "win32")
-				var cmd = "node "+__dirname+'\\..\\node_modules\\apidoc\\bin\\apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
+				cmd = "node "+__dirname+'\\..\\node_modules\\apidoc\\bin\\apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
 			else
-				var cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
+				cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
 			exec(cmd, function(error, stdout, stderr) {
 				if (error)
 					console.log(error);

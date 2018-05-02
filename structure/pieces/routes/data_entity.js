@@ -73,7 +73,8 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
             model: models[subentityModel],
             as: subentityAlias,
             offset: start,
-            limit: length
+            limit: length,
+            include: {all: true}
         }
     }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME['count'+entity_helper.capitalizeFirstLetter(subentityAlias)]) {
@@ -310,19 +311,21 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
         return res.status(403).end();
 
+    var queryOpts = {where: {id: id}};
+    // If hasMany, no need to include anything since it will be fetched using /subdatalist
+    if (option.structureType != 'hasMany')
+        queryOpts.include = {
+            model: models[entity_helper.capitalizeFirstLetter(option.target)],
+            as: option.as,
+            include: {all:true}
+        }
+
     // Fetch tab data
-    models.MODEL_NAME.findOne({
-        where: {id: id},
-        include: [{
-                model: models[entity_helper.capitalizeFirstLetter(option.target)],
-                as: option.as,
-                include: {all: true}
-            }]
-    }).then(function (ENTITY_NAME) {
+    models.MODEL_NAME.findOne(queryOpts).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME)
             return res.status(404).end();
 
-        var dustData = ENTITY_NAME[option.as];
+        var dustData = ENTITY_NAME[option.as] || null;
         var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
         var dustFile, idSubentity, promisesData = [];
 
@@ -334,9 +337,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     dustData.hideTab = true;
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                     promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
+                    var subentityOptions = require('../models/options/' + option.target);
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
-                    var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function (alias) {
@@ -345,7 +348,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                                         dustData[alias].r_children = children;
                                         resolve();
                                     });
-                                }))
+                                }));
                             })(subentityOptions[i].as);
                 }
                 dustFile = option.target + '/show_fields';
@@ -356,7 +359,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 // Status history specific behavior. Replace history_model by history_table to open view
                 if (option.target.indexOf('e_history_e_') == 0)
                     option.noCreateBtn = true;
-                dustData.for = 'hasMany';
+                dustData = {for: 'hasMany'};
                 if (typeof req.query.associationFlag !== 'undefined')
                     {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
                 break;
