@@ -1,11 +1,11 @@
 var models = require('../models/');
 var entity_helper = require('./entity_helper');
 
-module.exports = function(modelName, params, speInclude, speWhere) {
-    return new Promise(function(resolve, reject) {
+module.exports = function (modelName, params, speInclude, speWhere) {
+    return new Promise(function (resolve, reject) {
         var start = 1,
-            length = 10,
-            count = 0;
+                length = 10,
+                count = 0;
 
         if (typeof params.start !== 'undefined')
             start = params.start;
@@ -16,7 +16,7 @@ module.exports = function(modelName, params, speInclude, speWhere) {
         length = parseInt(length);
 
         var searchType = "$or";
-        if(params.search.value == "")
+        if (params.search.value == "")
             searchType = "$and";
 
         // Building where values -> {$and: [{id: 'id'}, {name: {$like: '%jero%'}}]};
@@ -101,7 +101,8 @@ module.exports = function(modelName, params, speInclude, speWhere) {
             var field = partOfColumn[partOfColumn.length - 1];
             //set required for innerJoin
             include.required = true;
-            include.where = {};
+            if (!include.where)
+                include.where = {};
             include.where[field] = {
                 $like: '%' + column.search.value + '%'
             };
@@ -180,16 +181,16 @@ module.exports = function(modelName, params, speInclude, speWhere) {
 
         queryObject.attributes = attributes;
         // Execute query with filters and get total count
-        models[modelName].findAndCountAll(queryObject).then(function(result) {
+        models[modelName].findAndCountAll(queryObject).then(function (result) {
             var data = {};
             data.recordsTotal = result.count;
             data.recordsFiltered = result.count;
             lightRows = [];
             for (var i = 0; i < result.rows.length; i++)
-                lightRows.push(result.rows[i].get({plain:true}));
+                lightRows.push(result.rows[i].get({plain: true}));
             data.data = lightRows;
             return resolve(data);
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.log(err);
             reject(err);
         });

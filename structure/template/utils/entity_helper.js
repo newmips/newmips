@@ -305,8 +305,10 @@ var funcs = {
                 models[modelName].findOne({where: {id: idObj}, include: firstInclude}).then(function (entity1) {
                     models[modelName].findOne({where: {id: idObj}, include: secondInclude}).then(function (entity2) {
                         for(var item in entity2)
-                            if(item.substring(0, 2) == "r_" || item.substring(0, 2) == "c_")
+                            if(item.substring(0, 2) == "r_" || item.substring(0, 2) == "c_"){
                                 entity1[item] = entity2[item];
+                                entity1.dataValues[item] = entity2.dataValues[item];
+                            }
                         resolve(entity1);
                     }).catch(function (err) {
                         reject(err);
@@ -344,8 +346,10 @@ var funcs = {
             }
 
         } finally {
-            if (ajax)
-                return res.status(500).send(req.session.toastr)
+            if (ajax){
+                console.log(err);
+                return res.status(500).send(req.session.toastr);
+            }
             if (isKnownError)
                 return res.redirect(redirect || '/');
             else

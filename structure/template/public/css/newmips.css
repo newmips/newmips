@@ -24,9 +24,11 @@ label.no-weight {
     font-weight: normal !important;
 }
 /** Component Address**/
-.section_c_address{
+.section_c_address_fields{
     border:1px solid #dddddd;
-    margin: 5px;
+    /*margin: 5px;*/
+    margin-bottom: 5px;
+    padding-bottom: 5px;
 }
 .div_c_address_search_area{
     margin-top: -16px;
