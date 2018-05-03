@@ -175,8 +175,9 @@ function initHasOne(tab, data) {
         newButton = $('<div class="quicklinks"></div>');
         newButton.append(delForm);
     }
-
+    
     tab.find('.ajax-content').append(newButton);
+    
 }
 
 // HAS MANY

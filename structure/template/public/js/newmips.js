@@ -397,6 +397,77 @@ function initForm(context) {
         dropzoneInit.done = false;
         dropzonesFieldArray.push(dropzoneInit);
     });
+    //Component address
+    (function () {
+        var componentAddressConf = {
+            url: "https://api-adresse.data.gouv.fr/search/",
+            query_parm: 'q',
+            type: 'get', //HTTP request type
+            addresses: 'features', //objet which contain list of address, if equal '.' whe take response as list, 
+            address_fields: 'properties', //objet name which contain attributes or '.' , 
+            autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
+            enable: true//If  enable, do query and get data, else data should be to set manually by user
+        };
+        if (componentAddressConf.enable) {
+            $('.c_address_field').on('keyup', function () {
+                $(this).val($(this).val().toUpperCase());
+            });
+            $("#c_address_search_area", context).each(function () {
+                var result;
+                var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
+                $(this).autocomplete({
+                    minLength: 1,
+                    source: function (req, res) {
+                        var val = $('#c_address_search_area').val();
+                        var data = {limit: 10};
+                        data[componentAddressConf.query_parm] = val;
+                        $.ajax({
+                            url: componentAddressConf.url,
+                            type: componentAddressConf.type,
+                            data: data,
+                            dataType: 'json',
+                            success: function (data) {
+                                result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
+                                res($.map(result, function (_address) {
+                                    var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
+                                    var toReturn = '';
+                                    fieldsToShow.forEach(function (field) {
+                                        toReturn += objet[field] + ' ';
+                                    });
+                                    return toReturn;
+                                }));
+                            }
+                        });
+                    },
+                    select: function (e, ui) {
+                        result.forEach(function (_) {
+                            var toReturn = '';
+                            var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
+                            var toReturn = '';
+                            fieldsToShow.forEach(function (field) {
+                                toReturn += _address[field] + ' ';
+                            });
+                            if (ui.item.value == toReturn) {
+                                for (var key in _address) {
+                                    if (_address[key] != '') //to prevent to replace default value
+                                        $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
+                                }
+                                /** Set Lat and Long value **/
+                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[0]);
+                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[1]);
+                                if ((!_address.street || typeof _address.street === "undefined") && _address.name)
+                                    $("#f_c_address_street").val(_address.name);
+
+                            }
+                        });
+                    }
+                });
+            });
+        }
+    }());
+    setTimeout(function () {
+        initMapsIfComponentAddressExists(context);
+    }, 500);
 }
 
 // DROPZONE
@@ -961,110 +1032,65 @@ $(document).ready(function () {
         });
     });
 
-    //Component address
-    (function () {
-        var componentAddressConf = {
-            url: "https://api-adresse.data.gouv.fr/search/",
-            query_parm: 'q',
-            type: 'get', //HTTP request type
-            addresses: 'features', //objet which contain list of address, if equal '.' whe take response as list, 
-            address_fields: 'properties', //objet name which contain attributes or '.' , 
-            autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
-            enable: true//If  enable, do query and get data, else data should be to set manually by user
-        };
-        if (componentAddressConf.enable) {
-            $('.c_address_field').on('keyup', function () {
-                $(this).val($(this).val().toUpperCase());
-            });
-            $('#c_address_search_area').each(function () {
-                var result;
-                var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
-                $(this).autocomplete({
-                    minLength: 1,
-                    source: function (req, res) {
-                        var val = $('#c_address_search_area').val();
-                        var data = {limit: 10};
-                        data[componentAddressConf.query_parm] = val;
-                        $.ajax({
-                            url: componentAddressConf.url,
-                            type: componentAddressConf.type,
-                            data: data,
-                            dataType: 'json',
-                            success: function (data) {
-                                result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
-                                res($.map(result, function (_address) {
-                                    var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
-                                    var toReturn = '';
-                                    fieldsToShow.forEach(function (field) {
-                                        toReturn += objet[field] + ' ';
-                                    });
-                                    return toReturn;
-                                }));
-                            }
-                        });
-                    },
-                    select: function (e, ui) {
-                        result.forEach(function (_) {
-                            var toReturn = '';
-                            var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
-                            var toReturn = '';
-                            fieldsToShow.forEach(function (field) {
-                                toReturn += _address[field] + ' ';
-                            });
-                            if (ui.item.value == toReturn) {
-                                for (var key in _address) {
-                                    if (_address[key] != '') //to prevent to replace default value
-                                        $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
-                                }
-                                /** Set Lat and Long value **/
-                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[0]);
-                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[1]);
-                            }
-                        });
-                    }
-                });
-            });
-        }
-    }());
-    function initComponentAddressMaps(lat, lon) {
-        $('#c_address_maps').empty();
-        var options = {
-            controls: [
-            ]
-        };
-        if ($('#f_c_address_navigation').val() === 'true')
-            options.controls.push(new OpenLayers.Control.Navigation());
-        if ($('#f_c_address_zoomBar').val() === 'true')
-            options.controls.push(new OpenLayers.Control.PanZoomBar());
-        if ($('#f_c_address_mousePosition').val() === 'true')
-            options.controls.push(new OpenLayers.Control.MousePosition());
-        map = new OpenLayers.Map("c_address_maps", options);
-        var mapnik = new OpenLayers.Layer.OSM();
-        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
-        var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-        var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
-        var zoom = 15;
-        var markers = new OpenLayers.Layer.Markers("Markers");
-        map.addLayer(markers);
-        markers.addMarker(new OpenLayers.Marker(position));
-        map.addLayer(mapnik);
-        map.setCenter(position, zoom);
-    }
-    var f_c_address_lat = $('#f_c_address_lat').val();
-    var f_c_address_lon = $('#f_c_address_lon').val();
-    var f_c_address_enableMaps = $('#f_c_address_enableMaps').val();
-    if (f_c_address_lat && f_c_address_lon && f_c_address_enableMaps) {
-        initComponentAddressMaps(f_c_address_lat, f_c_address_lon);
-    } else if ((!f_c_address_lat || !f_c_address_lon) && f_c_address_enableMaps) {
-        var info = '<div class="alert bg-gray alert-dismissible hidden-xs" >'
-                + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
-                + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_c_address_notValid').val() + '</h4>'
-                + '</div>';
-        $('#c_address_maps').append(info);
-    }
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
         window.print();
         return true;
     });
 });
+
+function initMapsIfComponentAddressExists(context) {
+    if (!context)
+        context = document;
+    $('.section_c_address_fields', context).each(function () {
+        var address_context = this;
+
+        var f_c_address_lat = $(address_context).find('.f_c_address_lat').val();
+        var f_c_address_lon = $(address_context).find('.f_c_address_lon').val();
+        var f_c_address_enableMaps = $(address_context).find('.f_c_address_enableMaps').val();
+        if (f_c_address_lat && f_c_address_lon && f_c_address_enableMaps) {
+            initComponentAddressMaps(f_c_address_lat, f_c_address_lon, address_context);
+        } else if ((!f_c_address_lat || !f_c_address_lon) && f_c_address_enableMaps) {
+            var info = '<div class="alert bg-gray alert-dismissible " >'
+                    + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true" id="btnDismissInfoInvalidAddress">×</button>'
+                    + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_c_address_notValid').val() + '</h4>'
+                    + '</div>';
+            $('.c_address_maps', address_context).append(info);
+            $('#btnDismissInfoInvalidAddress', address_context).on('click', function () {
+                $('.c_address_maps', address_context).parent().remove();
+                $('.c_address_fields', address_context).removeClass('col-md-6').addClass('col-md-12');
+            });
+        }
+    });
+    function initComponentAddressMaps(lat, lon, mapsContext) {
+        try {
+            $(mapsContext).find('.c_address_maps').each(function () {
+                $(this).empty();
+                var options = {
+                    controls: [
+                    ]
+                };
+                if ($('.f_c_address_navigation', mapsContext).val() === 'true')
+                    options.controls.push(new OpenLayers.Control.Navigation());
+                if ($('.f_c_address_zoomBar', mapsContext).val() === 'true')
+                    options.controls.push(new OpenLayers.Control.PanZoomBar());
+                if ($('.f_c_address_mousePosition', mapsContext).val() === 'true')
+                    options.controls.push(new OpenLayers.Control.MousePosition());
+
+                var map = new OpenLayers.Map($(this).attr('mapsid'), options);
+                var mapnik = new OpenLayers.Layer.OSM();
+                var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+                var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+                var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
+                var zoom = 15;
+                var markers = new OpenLayers.Layer.Markers("Markers");
+
+                map.addLayer(markers);
+                markers.addMarker(new OpenLayers.Marker(position));
+                map.addLayer(mapnik);
+                map.setCenter(position, zoom);
+            });
+        } catch (e) {
+        }
+    }
+}

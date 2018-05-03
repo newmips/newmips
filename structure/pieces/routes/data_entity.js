@@ -337,7 +337,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
-                    ;
+                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist( option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function (alias) {

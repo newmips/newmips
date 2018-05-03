@@ -15,7 +15,7 @@ var config = {
         //set attribute in order
         housenumber: {
             readonly: false, //if true readonly
-            required: true, //if true set field required on create or update
+            required: false, //if true set field required on create or update
             addInForm: true, //if true add it in form
             type: 'number', //type of field,  must be html type, default text,
             maxLength: '',
