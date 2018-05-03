@@ -24,11 +24,13 @@ exports.dropDataEntity = function (id_application, name_data_entity, callback) {
     callback();
 }
 
-exports.addConstraint = function (attr, callback) {
-
-    var query = " ALTER TABLE " + attr.id_application + "_" + attr.sourceEntity + " ADD CONSTRAINT " + attr.foreignKey
+exports.addConstraintDeleteUpdate = function (attr, callback) {
+    var query = '';
+    if (attr.dropForeignKey)
+        query += "ALTER TABLE " + attr.id_application + "_" + attr.sourceEntity + " DROP FOREIGN KEY " + attr.foreignKey + "; ";
+    query += " ALTER TABLE " + attr.id_application + "_" + attr.sourceEntity + " ADD CONSTRAINT " + attr.foreignKey
             + " FOREIGN KEY (" + attr.foreignKey + ") REFERENCES " + attr.id_application + "_" + attr.targetEntity
-            + "(" + attr.targetKey + ") ON " + attr.constraintType + " " + attr.constraint + " ;";
+            + "(" + attr.targetKey + ") ON DELETE " + attr.constraintDelete + " ON UDPATE " + attr.constraintUpdate + " ;";
     if (!pushToSyncQuery(attr.id_application, query))
         return callback("ERROR: Can't set constraint");
     callback();
