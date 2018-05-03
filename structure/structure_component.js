@@ -1228,7 +1228,8 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                     "zoomBar": "Afficher panneau de zoom",
                                                     "navigation": "Activer la navigation",
                                                     "mousePosition": "Afficher les coordonnées de la souris",
-                                                    "addressNotValid": "Adresse non valide"
+                                                    "addressNotValid": "Adresse non valide",
+                                                    "info_c_address_maps":"Pour avoir une maps valide, veuillez utiliser le champ en dessous pour saisir l'adresse"
                                                 };
                                                 langEN.component[c_address_settings] = {
                                                     "label_component": "Addresses settings",
@@ -1244,7 +1245,8 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                     "zoomBar": "Display zoom bar",
                                                     "navigation": "Enable navigation",
                                                     "mousePosition": "Display mouse coordinate",
-                                                    "addressNotValid": "Not valid address"
+                                                    "addressNotValid": "Not valid address",
+                                                    "info_c_address_maps":"To have a valid maps, please use the field below to enter the address"
                                                 };
                                                 //add component address files
                                                 fs.mkdirpSync(application_path + 'views/' + c_address_settings);

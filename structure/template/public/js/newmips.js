@@ -465,6 +465,34 @@ function initForm(context) {
             });
         }
     }());
+    $('#info_c_address_maps').on('click', function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/address_settings/info_c_address_maps_ajax',
+            methode: 'GET',
+            success: function (data) {
+                if (data && data.message) {
+                    var html = '<div class="modal fade" tabindex="-1" role="dialog">';
+                    html += '<div class="modal-dialog" role="document">';
+                    html += '<div class="modal-content">';
+                    html += '<div class="modal-header" style="background:#3c8dbc;color:#ffffff">';
+                    html += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+                    html += '<h4 class="modal-title">Information</h4>';
+                    html += '</div>';
+                    html += '<div class="modal-body">';
+                    html += data.message;
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    $(html).modal('show');
+                }
+            },
+            error: function (e) {
+            }
+        });
+        return false;
+    });
     setTimeout(function () {
         initMapsIfComponentAddressExists(context);
     }, 500);

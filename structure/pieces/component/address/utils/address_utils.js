@@ -13,9 +13,9 @@ exports.generateFields = function (componentName, componentCodeName) {
 //    var showHtml = "<div class='col-xs-12'>\n"
 //            + '    <label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>\n'
 //            + "    <section id='" + componentCodeName + "_fields' class='col-xs-12 section_c_address'>\n";
-    var createHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br><br>\n'
+    var createHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br><br>\n'
             + "    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields '>\n";
-    var updateHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label><br>'
+    var updateHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br>'
             + "<br>\n    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields'>\n";
     var showFieldsHtml = '';
     var headers = '';
