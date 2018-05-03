@@ -40,7 +40,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("MODEL_NAME", req.body, include).then(function (rawData) {
-        entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(function(preparedData) {
+        entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
             console.log(err);
@@ -54,7 +54,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
     });
 });
 
-router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
+router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
     var start = parseInt(req.body.start || 0);
     var length = parseInt(req.body.length || 10);
 
@@ -76,13 +76,13 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
             limit: length,
             include: {all: true}
         }
-    }).then(function(ENTITY_NAME) {
-        if (!ENTITY_NAME['count'+entity_helper.capitalizeFirstLetter(subentityAlias)]) {
-            console.error('/subdatalist: count'+entity_helper.capitalizeFirstLetter(subentityAlias)+' is undefined');
+    }).then(function (ENTITY_NAME) {
+        if (!ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
+            console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
             return res.status(500).end();
         }
 
-        ENTITY_NAME['count'+entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function (count) {
             var rawData = {
                 recordsTotal: count,
                 recordsFiltered: count,
@@ -91,7 +91,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
             for (var i = 0; i < ENTITY_NAME[subentityAlias].length; i++)
                 rawData.data.push(ENTITY_NAME[subentityAlias][i].get({plain: true}));
 
-            entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
+            entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function (preparedData) {
                 res.send(preparedData).end();
             }).catch(function (err) {
                 console.log(err);
@@ -317,7 +317,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         queryOpts.include = {
             model: models[entity_helper.capitalizeFirstLetter(option.target)],
             as: option.as,
-            include: {all:true}
+            include: {all: true}
         }
 
     // Fetch tab data
@@ -340,6 +340,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     var subentityOptions = require('../models/options/' + option.target);
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
+                    var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
+                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function (alias) {
@@ -359,9 +361,15 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 // Status history specific behavior. Replace history_model by history_table to open view
                 if (option.target.indexOf('e_history_e_') == 0)
                     option.noCreateBtn = true;
-                dustData = {for: 'hasMany'};
+                dustData = {for : 'hasMany'};
                 if (typeof req.query.associationFlag !== 'undefined')
-                    {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
+                {
+                    dustData.associationFlag = req.query.associationFlag;
+                    dustData.associationSource = req.query.associationSource;
+                    dustData.associationForeignKey = req.query.associationForeignKey;
+                    dustData.associationAlias = req.query.associationAlias;
+                    dustData.associationUrl = req.query.associationUrl;
+                }
                 break;
 
             case 'hasManyPreset':
@@ -370,7 +378,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 obj[option.target] = dustData;
                 dustData = obj;
                 if (typeof req.query.associationFlag !== 'undefined')
-                    {dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
+                {
+                    dustData.associationFlag = req.query.associationFlag;
+                    dustData.associationSource = req.query.associationSource;
+                    dustData.associationForeignKey = req.query.associationForeignKey;
+                    dustData.associationAlias = req.query.associationAlias;
+                    dustData.associationUrl = req.query.associationUrl;
+                }
                 dustData.for = 'fieldset';
                 for (var i = 0; i < dustData[option.target].length; i++)
                     promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
@@ -452,23 +466,23 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                 id: ENTITY_NAME[historyAlias][0][statusAlias].id
             },
             include: [{
-                model: models.E_status,
-                as: 'r_children',
-                include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: 'f_position ASC',
+                    model: models.E_status,
+                    as: 'r_children',
                     include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: {
-                            all: true,
-                            nested: true
-                        }
-                    }]
+                            model: models.E_action,
+                            as: 'r_actions',
+                            order: 'f_position ASC',
+                            include: [{
+                                    model: models.E_media,
+                                    as: 'r_media',
+                                    include: {
+                                        all: true,
+                                        nested: true
+                                    }
+                                }]
+                        }]
                 }]
-            }]
-        }).then(function(current_status) {
+        }).then(function (current_status) {
             if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
                 return res.render('common/error', {
@@ -488,33 +502,33 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             // Unautorized
             if (nextStatus === false) {
                 req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
+                        level: 'error',
+                        message: 'component.status.error.illegal_status'
+                    }]
                 return res.redirect(errorRedirect);
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(ENTITY_NAME).then(function() {
+            nextStatus.executeActions(ENTITY_NAME).then(function () {
                 // Create history record for this status field
                 // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
                 var createObject = {}
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
+                models[historyModel].create(createObject).then(function () {
                     ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.error(err);
                 req.session.toastr = [{
-                    level: 'warning',
-                    message: 'component.status.error.action_error'
-                }]
+                        level: 'warning',
+                        message: 'component.status.error.action_error'
+                    }]
                 var createObject = {}
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
+                models[historyModel].create(createObject).then(function () {
                     ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
@@ -528,7 +542,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
 router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function (req, res) {
     var search = '%' + (req.body.search || '') + '%';
     var limit = SELECT_PAGE_SIZE;
-    var offset = (req.body.page-1)*limit;
+    var offset = (req.body.page - 1) * limit;
 
     // ID is always needed
     if (req.body.searchField.indexOf("id") == -1)
