@@ -819,11 +819,11 @@ exports.newCra = function (attr, callback) {
         translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
 
         // Add all cra locales EN/FR
-        translateHelper.writeTree(attr.id_application, require(piecesPath+'/locales/en-EN'), 'en-EN');
-        translateHelper.writeTree(attr.id_application, require(piecesPath+'/locales/fr-FR'), 'fr-FR');
+        translateHelper.writeTree(attr.id_application, require(piecesPath + '/locales/en-EN'), 'en-EN');
+        translateHelper.writeTree(attr.id_application, require(piecesPath + '/locales/fr-FR'), 'fr-FR');
 
         // Change CRA sidebar entry in current layout
-        domHelper.read(workspacePath+'/views/layout_'+attr.module.codeName+'.dust').then(function($) {
+        domHelper.read(workspacePath + '/views/layout_' + attr.module.codeName + '.dust').then(function ($) {
             var newLayoutLI = '';
             newLayoutLI += '<li>\n';
             newLayoutLI += '    <a href="/cra/declare">\n';
@@ -832,7 +832,7 @@ exports.newCra = function (attr, callback) {
             newLayoutLI += '    </a>\n';
             newLayoutLI += '</li>\n';
             $("#cra_menu_item").find('li:first').replaceWith(newLayoutLI);
-            domHelper.write(workspacePath+'/views/layout_'+attr.module.codeName+'.dust', $).then(function() {
+            domHelper.write(workspacePath + '/views/layout_' + attr.module.codeName + '.dust', $).then(function () {
 
                 // Remove unwanted tab from user
                 domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
@@ -854,35 +854,38 @@ exports.newStatus = function (attr, callback) {
     var piecesPath = __dirname + '/../structure/pieces/component/status';
 
     // Change model name of history table
-    var historyModel = fs.readFileSync(workspacePath+'/models/e_'+attr.history_table_db_name+'.js', 'utf8');
-    historyModel = historyModel.replace(/(buildAssociation\(')([^']+)'/, '$1E_'+attr.history_table+'\'');
-    historyModel = historyModel.replace(/(sequelize.define\(')([^']+)'/, '$1E_'+attr.history_table+'\'');
-    historyModel = historyModel.replace(/(addHooks\(Model, ')([^']+)'/, '$1'+attr.history_table+'\'');
-    fs.writeFileSync(workspacePath+'/models/e_'+attr.history_table_db_name+'.js', historyModel, 'utf8');
+    var historyModel = fs.readFileSync(workspacePath + '/models/e_' + attr.history_table_db_name + '.js', 'utf8');
+    historyModel = historyModel.replace(/(buildAssociation\(')([^']+)'/, '$1E_' + attr.history_table + '\'');
+    historyModel = historyModel.replace(/(sequelize.define\(')([^']+)'/, '$1E_' + attr.history_table + '\'');
+    historyModel = historyModel.replace(/(addHooks\(Model, ')([^']+)'/, '$1' + attr.history_table + '\'');
+    fs.writeFileSync(workspacePath + '/models/e_' + attr.history_table_db_name + '.js', historyModel, 'utf8');
 
     // Add virtual status field to source entity (s_statusName)
     var attributesObj = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + attr.source + '.json'));
     attributesObj[attr.options.value] = {
         type: "VIRTUAL",
-        history_table: 'e_'+attr.history_table_db_name,
-        history_model: 'e_'+attr.history_table
+        history_table: 'e_' + attr.history_table_db_name,
+        history_model: 'e_' + attr.history_table
     };
     fs.writeFileSync(workspacePath + '/models/attributes/' + attr.source + '.json', JSON.stringify(attributesObj, null, 4), 'utf8');
 
     // Replace history table name with history model name in access file
-    var access = JSON.parse(fs.readFileSync(workspacePath+'/config/access.json', 'utf8'));
+    var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
     for (var module in access)
         for (var i = 0; i < access[module].entities.length; i++)
             if (access[module].entities[i].name == attr.history_table_db_name) {
                 access[module].entities[i].name = attr.history_table;
             }
-    fs.writeFileSync(workspacePath+'/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
     // Change target of source entity to match history MODEL name (instead of TABLE name)
     var optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + attr.source + '.json'));
     for (var opt in optionsObj)
-        if (optionsObj[opt].target == 'e_'+attr.history_table_db_name)
-            {optionsObj[opt].target = 'e_'+attr.history_table;break;}
+        if (optionsObj[opt].target == 'e_' + attr.history_table_db_name)
+        {
+            optionsObj[opt].target = 'e_' + attr.history_table;
+            break;
+        }
     fs.writeFileSync(workspacePath + '/models/options/' + attr.source + '.json', JSON.stringify(optionsObj, null, 4), 'utf8');
 
     // Remove useless options on e_status
@@ -895,14 +898,14 @@ exports.newStatus = function (attr, callback) {
     fs.writeFileSync(workspacePath + '/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
     // Remove useless options in toSync
-    var toSync = JSON.parse(fs.readFileSync(workspacePath+'/models/toSync.json', 'utf8'));
+    var toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
     for (var prop in toSync) {
         if (prop.indexOf('_e_status') > 0)
             toSync[prop] = undefined;
         if (prop.indexOf('_e_history_') > 0)
             toSync[prop].options = undefined;
     }
-    fs.writeFileSync(workspacePath+'/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
     // Remove useless history tab from Status views
     domHelper.read(workspacePath + "/views/e_status/show_fields.dust").then(function ($) {
@@ -911,10 +914,10 @@ exports.newStatus = function (attr, callback) {
         $("#" + historyId).remove();
         domHelper.write(workspacePath + "/views/e_status/show_fields.dust", $).then(function () {
             // Replace traduction keys in show_fields
-            var show_fieldsFILE = fs.readFileSync(workspacePath + "/views/"+attr.source+"/show_fields.dust", 'utf8');
+            var show_fieldsFILE = fs.readFileSync(workspacePath + "/views/" + attr.source + "/show_fields.dust", 'utf8');
             var reg = new RegExp(attr.history_table_db_name, 'g');
             show_fieldsFILE = show_fieldsFILE.replace(reg, attr.history_table);
-            fs.writeFileSync(workspacePath + "/views/"+attr.source+"/show_fields.dust", show_fieldsFILE, 'utf8');
+            fs.writeFileSync(workspacePath + "/views/" + attr.source + "/show_fields.dust", show_fieldsFILE, 'utf8');
             var statusAlias = 'r_' + attr.options.value.substring(2);
             var statusAliasHTML = 'f_' + attr.options.value.substring(2);
             var statusAliasSubstring = statusAlias.substring(2);
@@ -950,7 +953,7 @@ exports.newStatus = function (attr, callback) {
                 localesFR.entity['e_' + attr.history_table_db_name].name_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
                 localesFR.entity['e_' + attr.history_table_db_name].plural_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
                 // Rename traduction key to use history MODEL value, delete old traduction key
-                localesFR.entity['e_'+ attr.history_table] = localesFR.entity['e_' + attr.history_table_db_name];
+                localesFR.entity['e_' + attr.history_table] = localesFR.entity['e_' + attr.history_table_db_name];
                 localesFR.entity['e_' + attr.history_table_db_name] = undefined;
                 fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
 
@@ -960,7 +963,7 @@ exports.newStatus = function (attr, callback) {
                 localesEN.entity['e_' + attr.history_table_db_name].name_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
                 localesEN.entity['e_' + attr.history_table_db_name].plural_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
                 // Rename traduction key to use history MODEL value, delete old traduction key
-                localesEN.entity['e_'+ attr.history_table] = localesEN.entity['e_' + attr.history_table_db_name];
+                localesEN.entity['e_' + attr.history_table] = localesEN.entity['e_' + attr.history_table_db_name];
                 localesEN.entity['e_' + attr.history_table_db_name] = undefined;
                 fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 
@@ -1173,20 +1176,22 @@ exports.addNewComponentAddress = function (attr, callback) {
         showHtml = showHtml.replace(/COMPONENT_NAME/g, componentCodeName);
 
         var appendTo = '#fields';
+        var mapsHtml = '<div id="' + componentCodeName + '" class="c_address_maps ' + componentCodeName + '" mapsid="' + componentCodeName + '" style="margin-top: 25px !important"></div>';
         fs.mkdirpSync(application_path + 'views/' + componentCodeName);
+        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/maps.dust', mapsHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/create_fields.dust', fields.createHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/update_fields.dust', fields.updateHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/fields.dust', fields.showFieldsHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/show.dust', showHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/list_fields.dust', fields.headers);
-        fs.copySync(c_address_path + 'views/maps.dust', application_path + 'views/' + componentCodeName + '/maps.dust');
+//        fs.copySync(c_address_path + 'views/maps.dust', application_path + 'views/' + componentCodeName + '/maps.dust');
 
         domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
             domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
                 domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
-                    $createFieldsFile(appendTo).append('<div data-field="'+componentCodeName+'" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/create_fields"/}</div>');
-                    $updateFieldsFile(appendTo).append('<div data-field="'+componentCodeName+'" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/update_fields"/}</div>');
-                    $showFieldsFile(appendTo).append('<div data-field="'+componentCodeName+'" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
+                    $createFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/create_fields"/}</div>');
+                    $updateFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/update_fields"/}</div>');
+                    $showFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
                     domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
                         domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
                             domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
@@ -1206,7 +1211,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                 address_settings_config = {entities: {}};
                                                 //add settings locales
                                                 langFR.component[c_address_settings] = {
-                                                    "label_component": "Config composant adresse",
+                                                    "label_component": "Configuration adresse",
                                                     "position": "Position du maps",
                                                     "top": "Au dessus",
                                                     "right": "A droite",
@@ -1214,7 +1219,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                     "left": "A gauche",
                                                     "distance": "Afficher la distance",
                                                     "settings": "Configurer",
-                                                    "enableMaps": "Activer le maps",
+                                                    "enableMaps": "Activer la maps",
                                                     "entity": "Entité",
                                                     "zoomBar": "Afficher panneau de zoom",
                                                     "navigation": "Activer la navigation",
