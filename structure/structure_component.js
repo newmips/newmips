@@ -327,7 +327,6 @@ exports.newLocalFileStorage = function (attr, callback) {
 }
 
 exports.newPrint = function (attr, callback) {
-
     var nameComponent = attr.options.value;
     var nameComponentLower = nameComponent.toLowerCase();
     var showComponentName = attr.options.showValue;
@@ -409,7 +408,6 @@ exports.newPrint = function (attr, callback) {
 }
 
 exports.deletePrint = function (attr, callback) {
-
     var entityLower = attr.options.source.toLowerCase();
     var idApp = attr.id_application;
     var componentNameLower = attr.options.value.toLowerCase();
@@ -429,7 +427,6 @@ exports.deletePrint = function (attr, callback) {
 }
 
 exports.newContactForm = function (attr, callback) {
-
     var idApp = attr.id_application;
 
     // Contact Form entity
@@ -883,16 +880,15 @@ exports.newStatus = function (attr, callback) {
     var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
     for (var module in access)
         for (var i = 0; i < access[module].entities.length; i++)
-            if (access[module].entities[i].name == attr.history_table_db_name) {
+            if (access[module].entities[i].name == attr.history_table_db_name)
                 access[module].entities[i].name = attr.history_table;
-            }
+
     fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
     // Change target of source entity to match history MODEL name (instead of TABLE name)
     var optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + attr.source + '.json'));
     for (var opt in optionsObj)
-        if (optionsObj[opt].target == 'e_' + attr.history_table_db_name)
-        {
+        if (optionsObj[opt].target == 'e_' + attr.history_table_db_name) {
             optionsObj[opt].target = 'e_' + attr.history_table;
             break;
         }
