@@ -99,5 +99,5 @@
         </table>
 
     </div>
-    <button class="btn btn-info">{@__ key="button.validation"/}</button>
+    <button class="btn btn-info">{@__ key="button.save"/}</button>
 </form>

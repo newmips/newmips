@@ -38,6 +38,19 @@ router.post('/save', block_access.actionAccessMiddleware("address_settings", "cr
         i++;
     }
     fs.writeFileSync(__dirname + '/../config/c_address_settings.json', JSON.stringify(config, null, 4));
+    req.session.toastr = [{
+            message: 'message.update.success',
+            level: "success"
+        }];
     res.redirect('/address_settings/config');
+});
+
+router.get('/info_c_address_maps_ajax', block_access.actionAccessMiddleware("address_settings", "read"), function (req, res) {
+    try {
+        var translate = require('../services/language');
+        res.status(200).json({message: translate(req.session.lang_user).__("component.c_address_settings.info_c_address_maps")});
+    } catch (e) {
+        res.status(500).end();
+    }
 });
 module.exports = router;
