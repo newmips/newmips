@@ -506,9 +506,8 @@ exports.setupDataField = function (attr, callback) {
         var values = options.allValues;
         if (values.indexOf(",") != -1) {
             values_data_field = values.split(",");
-            for (var j = 0; j < values_data_field.length; j++) {
+            for (var j = 0; j < values_data_field.length; j++)
                 values_data_field[j] = values_data_field[j].trim();
-            }
         } else {
             var err = new Error();
             err.message = "structure.field.attributes.noSpace";
@@ -517,11 +516,9 @@ exports.setupDataField = function (attr, callback) {
 
         var sameResults_sorted = values_data_field.slice().sort();
         var sameResults = [];
-        for (var i = 0; i < values_data_field.length - 1; i++) {
-            if (sameResults_sorted[i + 1] == sameResults_sorted[i]) {
+        for (var i = 0; i < values_data_field.length - 1; i++)
+            if (sameResults_sorted[i + 1] == sameResults_sorted[i])
                 sameResults.push(sameResults_sorted[i]);
-            }
-        }
 
         if(sameResults.length > 0){
             var err = new Error();
@@ -687,16 +684,15 @@ exports.setupDataField = function (attr, callback) {
 
     // Default value managment
     if (typeof options.defaultValue !== "undefined" && options.defaultValue != null){
-        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM"){
+        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM")
             defaultValueForOption = options.defaultValue;
-        } else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue)){
+        else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue))
             defaultValueForOption = options.defaultValue;
-        } else if(typeForModel == "BOOLEAN"){
-            if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+        else if(typeForModel == "BOOLEAN"){
+            if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
                 defaultValueForOption = 1;
-            } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+            else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
                 defaultValueForOption = 0;
-            }
         }
     }
 
@@ -708,9 +704,9 @@ exports.setupDataField = function (attr, callback) {
             err.message = "structure.field.attributes.missingValues";
             return callback(err, null);
         }
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
-        }
+
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues,
@@ -729,9 +725,8 @@ exports.setupDataField = function (attr, callback) {
             err.message = "structure.field.attributes.missingValues";
             return callback(err,null);
         }
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
-        }
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues,
@@ -793,7 +788,7 @@ exports.setupDataField = function (attr, callback) {
         if (radioData[codeName_data_entity.toLowerCase()])
             json = radioData[codeName_data_entity.toLowerCase()];
         json[key] = [];
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             json[key].push({
                 value: cleanRadioValues[i],
                 translations: {
@@ -801,7 +796,6 @@ exports.setupDataField = function (attr, callback) {
                     "en-EN": values_data_field[i]
                 }
             });
-        }
         radioData[codeName_data_entity.toLowerCase()] = json;
 
         // Write Enum file
@@ -849,11 +843,11 @@ exports.setRequiredAttribute = function (attr, callback) {
     var attribute = attr.options.word.toLowerCase();
     var set = null;
 
-    if (possibilityRequired.indexOf(attribute) != -1) {
+    if (possibilityRequired.indexOf(attribute) != -1)
         set = true;
-    } else if (possibilityOptionnal.indexOf(attribute) != -1) {
+    else if (possibilityOptionnal.indexOf(attribute) != -1)
         set = false;
-    } else {
+    else {
         var err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
@@ -926,11 +920,11 @@ exports.setUniqueField = function (attr, callback) {
     var idApplication = attr.id_application;
     var codeName_data_entity = attr.name_data_entity.toLowerCase();
 
-    if (possibilityUnique.indexOf(attribute) != -1) {
+    if (possibilityUnique.indexOf(attribute) != -1)
         set = true;
-    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+    else if (possibilityNotUnique.indexOf(attribute) != -1)
         set = false;
-    } else {
+    else {
         var err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
@@ -1016,9 +1010,9 @@ function addTab(attr, file, newLi, newTabContent, target) {
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
-            } else {
-                context = $("#tabs");
             }
+            else
+                context = $("#tabs");
 
             // Append created elements to `context` to handle presence of tab or not
             newLi = '<!--{@entityAccess entity="'+target.substring(2)+'"}-->\n'+newLi+'\n<!--{/entityAccess}-->';
@@ -1148,9 +1142,8 @@ exports.saveHasManyData = function (attr, data, foreignKey, callback){
     var firstKey = "fk_id_"+attr.options.source;
     var secondKey = "fk_id_"+attr.options.target;
     /* Insert value in toSync queries array to add values of the old has many in the belongs to many */
-    for(var i=0; i<data.length; i++){
+    for(var i=0; i<data.length; i++)
         toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
-    }
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
     callback();
 }

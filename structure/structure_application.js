@@ -141,9 +141,8 @@ exports.setupApplication = function(attr, callback) {
                                     gitlab.projects.members.add(result.id, 1, 40, function(answer) {
                                         callback();
                                     });
-                                } else {
+                                } else
                                     callback();
-                                }
                             });
                         } catch (err) {
                             console.log("Error connection Gitlab repository: " + err);
@@ -158,12 +157,12 @@ exports.setupApplication = function(attr, callback) {
                     } else {
                         gitlab.users.all(function(gitlabUsers) {
                             var exist = false;
-                            for (var i = 0; i < gitlabUsers.length; i++) {
+                            for (var i = 0; i < gitlabUsers.length; i++)
                                 if (gitlabUsers[i].email == attr.currentUser.email) {
                                     exist = true;
                                     idUserGitlab = gitlabUsers[i].id;
                                 }
-                            }
+
                             if (exist)
                                 createGitlabProject();
                             else {
@@ -269,7 +268,6 @@ function initializeWorkflow(id_application, name_application) {
                 modelMedia = fs.readFileSync(piecesPath + '/models/e_media_notification.js', 'utf8');
                 modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
                 fs.writeFileSync(workspacePath + '/models/e_media_notification.js', modelMedia, 'utf8');
-
                 // Write new locales trees
                 var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
@@ -316,96 +314,70 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                             fs.copySync(piecesPath + '/views/e_inline_help/', workspacePath + '/views/e_inline_help/');
 
                                             // Copy api entities views
-                                            fs.copy(piecesPath + '/api/views/e_api_credentials', workspacePath + '/views/e_api_credentials', function(err) {
-                                                if (err)
-                                                    console.log(err);
-                                                // Copy js file for access settings
-                                                fs.copy(piecesPath + '/administration/js/', workspacePath + '/public/js/Newmips/', function(err) {
-                                                    if (err)
-                                                        console.log(err);
-                                                    // Copy authentication user entity route
-                                                    fs.copy(piecesPath + '/administration/routes/e_user.js', workspacePath + '/routes/e_user.js', function(err) {
-                                                        if (err)
-                                                            console.log(err);
+                                            fs.copySync(piecesPath + '/api/views/e_api_credentials', workspacePath + '/views/e_api_credentials');
+                                            // Copy js file for access settings
+                                            fs.copySync(piecesPath + '/administration/js/', workspacePath + '/public/js/Newmips/');
+                                            // Copy authentication user entity route
+                                            fs.copySync(piecesPath + '/administration/routes/e_user.js', workspacePath + '/routes/e_user.js');
 
-                                                        // Make fields unique
-                                                        function uniqueField(entity, field) {
-                                                            var model = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + entity + '.json', 'utf8'));
-                                                            model[field].unique = true;
-                                                            fs.writeFileSync(workspacePath + '/models/attributes/' + entity + '.json', JSON.stringify(model, null, 4), 'utf8');
-                                                        }
-                                                        uniqueField('e_user', 'f_login');
-                                                        uniqueField('e_role', 'f_label');
-                                                        uniqueField('e_group', 'f_label');
+                                            // Make fields unique
+                                            function uniqueField(entity, field) {
+                                                var model = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + entity + '.json', 'utf8'));
+                                                model[field].unique = true;
+                                                fs.writeFileSync(workspacePath + '/models/attributes/' + entity + '.json', JSON.stringify(model, null, 4), 'utf8');
+                                            }
+                                            uniqueField('e_user', 'f_login');
+                                            uniqueField('e_role', 'f_label');
+                                            uniqueField('e_group', 'f_label');
 
-                                                        // Manualy add settings to access file because it's not a real entity
-                                                        var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
-                                                        access.administration.entities.push({
-                                                            name: 'access_settings',
-                                                            groups: [],
-                                                            actions: {
-                                                                read: [],
-                                                                create: [],
-                                                                update: [],
-                                                                delete: []
-                                                            }
-                                                        });
-                                                        fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+                                            // Manualy add settings to access file because it's not a real entity
+                                            var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
+                                            access.administration.entities.push({
+                                                name: 'access_settings',
+                                                groups: [],
+                                                actions: {
+                                                    read: [],
+                                                    create: [],
+                                                    update: [],
+                                                    delete: []
+                                                }
+                                            });
+                                            fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
-                                                        domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
-                                                            var li = '';
-                                                            li += '{@entityAccess entity="access_settings"}\n';
-                                                            li += '     {@actionAccess entity="access_settings" action="read"}\n';
-                                                            li += '         <li>\n';
-                                                            li += '             <a href="/access_settings/show">\n';
-                                                            li += '                 <i class="fa fa-cog"></i>\n';
-                                                            li += '                 <span>{@__ key="settings.title" /}</span>\n';
-                                                            li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
-                                                            li += '             </a>\n';
-                                                            li += '         </li>\n';
-                                                            li += '     {/actionAccess}\n';
-                                                            li += '{/entityAccess}\n';
+                                            domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
+                                                var li = '';
+                                                li += '{@entityAccess entity="access_settings"}\n';
+                                                li += '     {@actionAccess entity="access_settings" action="read"}\n';
+                                                li += '         <li>\n';
+                                                li += '             <a href="/access_settings/show">\n';
+                                                li += '                 <i class="fa fa-cog"></i>\n';
+                                                li += '                 <span>{@__ key="settings.title" /}</span>\n';
+                                                li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+                                                li += '             </a>\n';
+                                                li += '         </li>\n';
+                                                li += '     {/actionAccess}\n';
+                                                li += '{/entityAccess}\n';
 
-                                                            $("#sortable").append(li);
+                                                $("#sortable").append(li);
 
-                                                            // Add settings entry into authentication module layout
-                                                            domHelper.write(workspacePath + '/views/layout_m_administration.dust', $).then(function() {
+                                                // Add settings entry into authentication module layout
+                                                domHelper.write(workspacePath + '/views/layout_m_administration.dust', $).then(function() {
+                                                    // Copy routes settings pieces
+                                                    fs.copySync(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js');
+                                                    // Copy view settings pieces
+                                                    fs.copySync(piecesPath + '/administration/views/e_access_settings/show.dust', workspacePath + '/views/e_access_settings/show.dust');
+                                                    // Copy route e_api_credentials piece
+                                                    fs.copySync(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js');
+                                                    // Copy api e_user piece
+                                                    fs.copySync(piecesPath + '/api/routes/e_user.js', workspacePath + '/api/e_user.js');
+                                                    // API credentials must not be available to API calls, delete the file
+                                                    fs.unlink(workspacePath + '/api/e_api_credentials.js', function() {
+                                                        // Set french translation about API credentials
+                                                        translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
+                                                        translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
+                                                        translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
-                                                                // Copy routes settings pieces
-                                                                fs.copy(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js', function(err) {
-                                                                    if (err)
-                                                                        console.log(err);
-
-                                                                    // Copy view settings pieces
-                                                                    fs.copy(piecesPath + '/administration/views/e_access_settings/show.dust', workspacePath + '/views/e_access_settings/show.dust', function(err) {
-                                                                        if (err)
-                                                                            console.log(err);
-
-                                                                        // Copy route e_api_credentials piece
-                                                                        fs.copy(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js', function(err) {
-                                                                            if (err)
-                                                                                console.log(err);
-
-                                                                            // Copy api e_user piece
-                                                                            fs.copy(piecesPath + '/api/routes/e_user.js', workspacePath + '/api/e_user.js', function(err) {
-                                                                                if (err)
-                                                                                    console.log(err);
-
-                                                                                // API credentials must not be available to API calls, delete the file
-                                                                                fs.unlink(workspacePath + '/api/e_api_credentials.js', function() {
-                                                                                    // Set french translation about API credentials
-                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
-                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
-                                                                                    translateHelper.updateLocales(id_application, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
-
-                                                                                    initializeWorkflow(id_application, name_application).then(resolve).catch(reject);
-                                                                                });
-                                                                            });
-                                                                        });
-                                                                    });
-                                                                });
-                                                            });
-                                                        });
+                                                        initializeWorkflow(id_application, name_application).then(resolve).catch(reject);
                                                     });
                                                 });
                                             });
@@ -439,11 +411,9 @@ exports.deleteApplication = function(id_application, callback) {
 
                     var idRepoToDelete = null;
 
-                    for (var i = 0; i < projects.length; i++) {
-                        if (nameRepo == projects[i].name) {
+                    for (var i = 0; i < projects.length; i++)
+                        if (nameRepo == projects[i].name)
                             idRepoToDelete = projects[i].id;
-                        }
-                    }
 
                     if (idRepoToDelete != null) {
                         gitlab.projects["remove"](idRepoToDelete, function(result) {

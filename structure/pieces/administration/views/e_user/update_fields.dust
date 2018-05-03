@@ -22,6 +22,7 @@
             </div>
         </div>
     </div>
+    {^settings}
     <div data-field="f_role" class="col-xs-12">
         <div class="form-group">
             <label for="f_role">{@__ key="entity.e_user.r_role" /}</label>
@@ -50,4 +51,5 @@
             </select>
         </div>
     </div>
+    {/settings}
 </div>

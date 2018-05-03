@@ -368,8 +368,8 @@ function initForm(context) {
                 });
             },
             renameFilename: function (filename) {
-                if (filename.indexOf('dfltImg_') != -1)
-                    return filename;
+                if (filename.indexOf("dfltImg_") != -1)
+                    return filename.replace("dfltImg_", "");
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
                     var timeFile = moment().format("YYYYMMDD-HHmmss");
                     $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
@@ -385,7 +385,7 @@ function initForm(context) {
         var dropzoneId = $(this).attr('id') + '';
         if ($('#' + dropzoneId + '_hidden').val() != '') {
             var mockFile = {
-                name: $('#' + dropzoneId + '_hidden').val(),
+                name: "dfltImg_" + $('#' + dropzoneId + '_hidden').val(),
                 type: 'mockfile',
                 default: true
             };

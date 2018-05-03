@@ -10,11 +10,11 @@ exports.setColumnVisibility = function (attr, callback) {
     var attributes = attr.options.word.toLowerCase();
     var hide;
 
-    if (possibilityHide.indexOf(attributes) != -1) {
+    if (possibilityHide.indexOf(attributes) != -1)
         hide = true;
-    } else if (possibilityShow.indexOf(attributes) != -1) {
+    else if (possibilityShow.indexOf(attributes) != -1)
         hide = false;
-    } else {
+    else {
         var err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
@@ -32,7 +32,8 @@ exports.setColumnVisibility = function (attr, callback) {
                 info.messageParams = [attr.options.showValue];
                 callback(null, info);
             });
-        } else {
+        }
+        else {
 
             // Check if it's a related to field
             var fieldCodeName = "r_" + attr.options.value.substring(2);
@@ -46,7 +47,8 @@ exports.setColumnVisibility = function (attr, callback) {
                     info.messageParams = [attr.options.showValue];
                     callback(null, info);
                 });
-            } else {
+            }
+            else {
                 // No column found
                 var err = new Error();
                 err.message = "structure.ui.columnVisibility.noColumn";
@@ -71,9 +73,8 @@ exports.setLogo = function(attr, callback) {
     }
 
     domHelper.read(mainLayoutPath).then(function($) {
-        if($(".main-sidebar .sidebar .user-panel .image img").length > 0){
+        if($(".main-sidebar .sidebar .user-panel .image img").length > 0)
             $(".main-sidebar .sidebar .user-panel .image img").remove();
-        }
         $("body link[rel='icon']").remove();
         $("head link[rel='icon']").remove();
         $(".main-sidebar .sidebar .user-panel .image").prepend("<img src='/img/logo/"+attr.options.value+"' alt='Logo' >");
@@ -100,9 +101,9 @@ exports.removeLogo = function(attr, callback) {
             $("head link[rel='icon']").remove();
             $("head").append("<link href=\"/FAVICON-COULEUR-01.png\" rel=\"icon\" type=\"image/png\"> ");
             info.message = "preview.logo.remove";
-        } else {
-            info.message = "preview.logo.noLogo";
         }
+        else
+            info.message = "preview.logo.noLogo";
         domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
             callback(null, info);
         });
@@ -128,7 +129,7 @@ exports.setLayout = function(attr, callback) {
         layoutListAvailable.push(layout);
     });
 
-    if(layoutListAvailable.indexOf(askedLayout) != -1){
+    if(layoutListAvailable.indexOf(askedLayout) != -1) {
 
         //var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
         var moduleLayout = __dirname + '/../workspace/' + idApplication + '/views/layout_'+attr.currentModule.codeName+'.dust';
@@ -148,13 +149,12 @@ exports.setLayout = function(attr, callback) {
             callback(err, null);
         });
     }
-    else{
+    else {
         var err = new Error();
         err.message = "structure.ui.layout.cannotFind";
         var msgParams = "";
-        for(var i=0; i<layoutListAvailable.length; i++){
+        for(var i=0; i<layoutListAvailable.length; i++)
             msgParams += "-  " + layoutListAvailable[i] + "<br>";
-        }
         err.messageParams = [msgParams];
         callback(err, null);
     }
@@ -179,9 +179,8 @@ exports.listLayout = function(attr, callback) {
     var info = {};
     info.message = "structure.ui.layout.list";
     var msgParams = "";
-    for(var i=0; i<layoutListAvailable.length; i++){
+    for(var i=0; i<layoutListAvailable.length; i++)
         msgParams += "-  " + layoutListAvailable[i] + "<br>";
-    }
     info.messageParams = [msgParams];
     callback(false, info);
 }
@@ -209,16 +208,17 @@ exports.setTheme = function(attr, callback) {
     var themeWorkspacePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
     var themeListAvailableWorkspace = retrieveTheme(themeWorkspacePath);
 
-    if(themeListAvailableWorkspace.indexOf(askedTheme) != -1){
+    if(themeListAvailableWorkspace.indexOf(askedTheme) != -1)
         themeReady();
-    } else{
+    else {
         // If not found in workspace, look for not imported theme exisiting in structure/template
         var themeTemplatePath = __dirname + '/../structure/template/public/themes';
         var themeListAvailableTemplate = retrieveTheme(themeTemplatePath);
         if(themeListAvailableTemplate.indexOf(askedTheme) != -1){
             fs.copySync(themeTemplatePath + "/" + askedTheme + "/", themeWorkspacePath + "/" + askedTheme + "/");
             themeReady();
-        } else
+        }
+        else
             notFound();
     }
 
@@ -226,9 +226,8 @@ exports.setTheme = function(attr, callback) {
         var err = new Error();
         err.message = "structure.ui.theme.cannotFind";
         var msgParams = "";
-        for(var i=0; i<themeListAvailableWorkspace.length; i++){
+        for(var i=0; i<themeListAvailableWorkspace.length; i++)
             msgParams += "-  " + themeListAvailableWorkspace[i] + "<br>";
-        }
         err.messageParams = [msgParams];
         callback(err, null);
     }
@@ -240,12 +239,11 @@ exports.setTheme = function(attr, callback) {
             var oldTheme = $("link[data-type='theme']").attr("data-theme");
             $("link[data-type='theme']").replaceWith("<link href='/themes/"+askedTheme+"/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='"+askedTheme+"'>");
             // If the theme need js inclusion
-            if(typeof themeInformation.js !== "undefined"){
+            if(typeof themeInformation.js !== "undefined")
                 for(var i=0; i<themeInformation.js.length; i++){
                     $("body script:last").after("<script type='text/javascript'></script>");
                     $("body script:last").attr('src', "/themes/"+askedTheme+"/js/"+themeInformation.js[i]);
                 }
-            }
             domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
                 var info = {};
                 info.message = "Theme set to " + attr.options.value + " !";
@@ -275,9 +273,8 @@ exports.listTheme = function(attr, callback) {
     var info = {};
     info.message = "structure.ui.theme.list";
     var msgParams = "";
-    for(var i=0; i<themeListAvailable.length; i++){
+    for(var i=0; i<themeListAvailable.length; i++)
         msgParams += "-  " + themeListAvailable[i] + "<br>";
-    }
     info.messageParams = [msgParams];
     callback(null, info);
 }
