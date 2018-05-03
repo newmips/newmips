@@ -73,7 +73,7 @@
         DATALIST_BUTTONS.push({
             render: function (data, type, row) {
                 var aTag = '\
-                <a href="/toi/update_form?id='+row['id']+'">\
+                <a href="/custom_url_data_entity/update_form?id='+row['id']+'">\
                     <button class="btn btn-warning">\
                         <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
                         <span>{@__ key="button.update" /}</span>\

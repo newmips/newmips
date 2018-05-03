@@ -187,6 +187,29 @@ function initHasMany(tab, data) {
         var newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
         tab.find('.ajax-content').append("<br>").append(newButton);
+
+        // Define update/delete button to be used by DataList plugin
+        DATALIST_BUTTONS = [{
+            render: function(data2, type, row) {
+                var aTag = '\
+                <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
+                    <span>'+UPDATE_TEXT+'</span>\
+                </a>';
+                return aTag;
+            }
+        }, {
+            render: function(data2, type, row) {
+                var form = '\
+                <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                    <button onclick="return confirm(\''+DEL_CONFIRM_TEXT+'\'");" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                        <span>'+DELETE_TEXT+'</span>\
+                        <input name="id" value="'+row['id']+'" type="hidden"/>\
+                    </button>\
+                </form>';
+                return form;
+            }
+        }];
     }
 
     var sourceUrl = tab.data('asso-source').substring(2);
@@ -197,29 +220,6 @@ function initHasMany(tab, data) {
     // Set subdatalist url and subentity to table
     var tableUrl = '/'+sourceUrl+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
     table.data('url', tableUrl);
-
-    // Define button to be used by DataList plugin
-    DATALIST_BUTTONS = [{
-        render: function(data2, type, row) {
-            var aTag = '\
-            <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
-                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
-                <span>'+UPDATE_TEXT+'</span>\
-            </a>';
-            return aTag;
-        }
-    }, {
-        render: function(data2, type, row) {
-            var form = '\
-            <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                <button onclick="return confirm(\''+DEL_CONFIRM_TEXT+'\'");" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                    <span>'+DELETE_TEXT+'</span>\
-                    <input name="id" value="'+row['id']+'" type="hidden"/>\
-                </button>\
-            </form>';
-            return form;
-        }
-    }];
 
     // DataTable
     init_datatable('#'+table.attr('id'), true);

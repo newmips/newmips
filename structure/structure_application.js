@@ -119,63 +119,59 @@ exports.setupApplication = function(attr, callback) {
 
                     var nameAppWithoutPrefix = name_application.substring(2);
                     // Create the application repository in gitlab
-                    if (gitlabConf.doGit) {
+                    if (!gitlabConf.doGit)
+                        return callback();
 
-                        var idUserGitlab;
+                    var idUserGitlab;
+                    function createGitlabProject() {
+                        var newGitlabProject = {
+                            user_id: idUserGitlab,
+                            name: globalConf.host + "-" + nameAppWithoutPrefix,
+                            description: "A generated Newmips workspace.",
+                            issues_enabled: false,
+                            merge_requests_enabled: false,
+                            wiki_enabled: false,
+                            snippets_enabled: false,
+                            public: false
+                        };
 
-                        function createGitlabProject() {
-                            var newGitlabProject = {
-                                user_id: idUserGitlab,
-                                name: globalConf.host + "-" + nameAppWithoutPrefix,
-                                description: "A generated Newmips workspace.",
-                                issues_enabled: false,
-                                merge_requests_enabled: false,
-                                wiki_enabled: false,
-                                snippets_enabled: false,
-                                public: false
-                            };
-
-                            try {
-                                gitlab.projects.create_for_user(newGitlabProject, function(result) {
-                                    if (typeof result === "object") {
-                                        gitlab.projects.members.add(result.id, 1, 40, function(answer) {
-                                            callback();
-                                        });
-                                    } else {
+                        try {
+                            gitlab.projects.create_for_user(newGitlabProject, function(result) {
+                                if (typeof result === "object") {
+                                    gitlab.projects.members.add(result.id, 1, 40, function(answer) {
                                         callback();
-                                    }
-                                });
-                            } catch (err) {
-                                console.log("Error connection Gitlab repository: " + err);
-                                console.log("Please set doGit in config/gitlab.js to false");
-                                callback(err);
-                            }
-                        }
-
-                        if (attr.gitlabUser != null) {
-                            idUserGitlab = attr.gitlabUser.id;
-                            createGitlabProject();
-                        } else {
-                            gitlab.users.all(function(gitlabUsers) {
-                                var exist = false;
-                                for (var i = 0; i < gitlabUsers.length; i++) {
-                                    if (gitlabUsers[i].email == attr.currentUser.email) {
-                                        exist = true;
-                                        idUserGitlab = gitlabUsers[i].id;
-                                    }
-                                }
-                                if (exist)
-                                    createGitlabProject();
-                                else {
-                                    var err = new Error();
-                                    err.message = "Cannot find your Gitlab account to create the project!";
-                                    return callback(err, null);
+                                    });
+                                } else {
+                                    callback();
                                 }
                             });
+                        } catch (err) {
+                            console.log("Error connection Gitlab repository: " + err);
+                            console.log("Please set doGit in config/gitlab.js to false");
+                            callback(err);
                         }
+                    }
+
+                    if (attr.gitlabUser != null) {
+                        idUserGitlab = attr.gitlabUser.id;
+                        createGitlabProject();
                     } else {
-                        // Direct callback as application has been installed in template folder
-                        callback();
+                        gitlab.users.all(function(gitlabUsers) {
+                            var exist = false;
+                            for (var i = 0; i < gitlabUsers.length; i++) {
+                                if (gitlabUsers[i].email == attr.currentUser.email) {
+                                    exist = true;
+                                    idUserGitlab = gitlabUsers[i].id;
+                                }
+                            }
+                            if (exist)
+                                createGitlabProject();
+                            else {
+                                var err = new Error();
+                                err.message = "Cannot find your Gitlab account to create the project!";
+                                return callback(err, null);
+                            }
+                        });
                     }
                 });
             });
