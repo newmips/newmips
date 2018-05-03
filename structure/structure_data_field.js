@@ -46,13 +46,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             case "boolean" :
             case "checkbox" :
             case "case à cocher" :
-                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
                     value = true;
-                } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
                     value = false;
-                } else {
+                else
                     console.log("ERROR: Invalid default value " + defaultValue + " for boolean input.")
-                }
                 break;
             case "enum" :
                 value = attrHelper.clearString(defaultValue);
@@ -362,20 +361,18 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "text" :
         case "texte" :
             value = "{" + dataField + "|s}";
-            if (file == 'show') {
+            if (file == 'show')
                 str += "    <div class='show-textarea'>"+value+"</div>\n";
-            } else{
+            else
                 str += "    <textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
-            }
             break;
         case "regular text" :
         case "texte standard" :
             value = "{" + dataField + "|s}";
-            if (file == 'show') {
+            if (file == 'show')
                 str += "    <div class='show-textarea'>"+value+"</div>\n";
-            } else{
+            else
                 str += "    <textarea class='form-control textarea regular-textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
-            }
             break;
         case "localfile" :
         case "fichier":
@@ -389,7 +386,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-download'></i>\n";
                 str += "		</div>\n";
-                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + " " + readOnly + ">" + value + "</a>\n";
+                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">" + value + "</a>\n";
                 str += "	</div>\n";
             }
             break;

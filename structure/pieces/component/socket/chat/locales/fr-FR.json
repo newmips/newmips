@@ -1,19 +1,21 @@
 {
-	"chat": {
-		"user_invited": "L'utilisateur a été invité",
-		"chat_created": "Chat crée",
-		"channel_created": "Groupe de discussion crée",
-		"channel_joined": "Vous avez rejoins un groupe de discussion",
-		"invite_users": "Inviter des utilisateurs",
-		"invite": "Inviter",
-		"channel_create": "Créer un groupe de discussion",
-		"private": "Privée",
-		"public": "Publique",
-		"channel_join": "Rejoindre un groupe de discussion",
-		"join": "Rejoindre",
-        "channel_members": "Membres du groupe de discussion",
-        "channel_leave": "Quitter le groupe de discussion",
-        "channel_left": "Vous avez quitté le groupe de discussion",
-        "chat_create": "Discuter avec un utilisateur"
+	"component": {
+		"chat": {
+			"user_invited": "L'utilisateur a été invité",
+			"chat_created": "Chat crée",
+			"channel_created": "Groupe de discussion crée",
+			"channel_joined": "Vous avez rejoins un groupe de discussion",
+			"invite_users": "Inviter des utilisateurs",
+			"invite": "Inviter",
+			"channel_create": "Créer un groupe de discussion",
+			"private": "Privée",
+			"public": "Publique",
+			"channel_join": "Rejoindre un groupe de discussion",
+			"join": "Rejoindre",
+	        "channel_members": "Membres du groupe de discussion",
+	        "channel_leave": "Quitter le groupe de discussion",
+	        "channel_left": "Vous avez quitté le groupe de discussion",
+	        "chat_create": "Discuter avec un utilisateur"
+		}
 	}
 }

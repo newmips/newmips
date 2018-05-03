@@ -853,12 +853,22 @@ exports.newStatus = function (attr, callback) {
     var workspacePath = __dirname + '/../workspace/' + attr.id_application;
     var piecesPath = __dirname + '/../structure/pieces/component/status';
 
+    // Rename history model, options, attributes files and view folder
+    fs.renameSync(workspacePath + '/models/e_' + attr.history_table_db_name + '.js', workspacePath + '/models/e_' + attr.history_table + '.js');
+    fs.renameSync(workspacePath + '/models/attributes/e_' + attr.history_table_db_name + '.json', workspacePath + '/models/attributes/e_' + attr.history_table + '.json');
+    fs.renameSync(workspacePath + '/models/options/e_' + attr.history_table_db_name + '.json', workspacePath + '/models/options/e_' + attr.history_table + '.json');
+    fs.renameSync(workspacePath + '/views/e_' + attr.history_table_db_name, workspacePath + '/views/e_' + attr.history_table);
+    // Delete useless route and api history controllers
+    fs.unlinkSync(workspacePath + '/routes/e_' + attr.history_table_db_name + '.js');
+    fs.unlinkSync(workspacePath + '/api/e_' + attr.history_table_db_name + '.js');
+
     // Change model name of history table
-    var historyModel = fs.readFileSync(workspacePath + '/models/e_' + attr.history_table_db_name + '.js', 'utf8');
+    var historyModel = fs.readFileSync(workspacePath + '/models/e_' + attr.history_table + '.js', 'utf8');
+    historyModel = historyModel.replace(/([^_]e_)history_[^.]+.json/g, '$1' + attr.history_table + '.json');
     historyModel = historyModel.replace(/(buildAssociation\(')([^']+)'/, '$1E_' + attr.history_table + '\'');
     historyModel = historyModel.replace(/(sequelize.define\(')([^']+)'/, '$1E_' + attr.history_table + '\'');
     historyModel = historyModel.replace(/(addHooks\(Model, ')([^']+)'/, '$1' + attr.history_table + '\'');
-    fs.writeFileSync(workspacePath + '/models/e_' + attr.history_table_db_name + '.js', historyModel, 'utf8');
+    fs.writeFileSync(workspacePath + '/models/e_' + attr.history_table + '.js', historyModel, 'utf8');
 
     // Add virtual status field to source entity (s_statusName)
     var attributesObj = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + attr.source + '.json'));
@@ -922,7 +932,7 @@ exports.newStatus = function (attr, callback) {
             var statusAliasHTML = 'f_' + attr.options.value.substring(2);
             var statusAliasSubstring = statusAlias.substring(2);
             // Customize history tab list
-            domHelper.read(workspacePath + '/views/e_' + attr.history_table_db_name + '/list_fields.dust').then(function ($) {
+            domHelper.read(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust').then(function ($) {
                 // Remove buttons
                 $("tbody tr td").slice(4, 7).remove();
                 $("thead").each(function () {
@@ -967,12 +977,12 @@ exports.newStatus = function (attr, callback) {
                 localesEN.entity['e_' + attr.history_table_db_name] = undefined;
                 fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 
-                domHelper.write(workspacePath + '/views/e_' + attr.history_table_db_name + '/list_fields.dust', $).then(function () {
+                domHelper.write(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust', $).then(function () {
                     // Replace history traductions with history_table key
-                    var listFields = fs.readFileSync(workspacePath + '/views/e_' + attr.history_table_db_name + '/list_fields.dust', 'utf8');
+                    var listFields = fs.readFileSync(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust', 'utf8');
                     var reg = new RegExp(attr.history_table_db_name, 'g');
                     listFields = listFields.replace(reg, attr.history_table);
-                    fs.writeFileSync(workspacePath + '/views/e_' + attr.history_table_db_name + '/list_fields.dust', listFields, 'utf8');
+                    fs.writeFileSync(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust', listFields, 'utf8');
 
                     // Display status as a badge instead of an input
                     // Also add next status buttons after status field
@@ -1113,16 +1123,10 @@ exports.setupChat = function (attr, callback) {
         fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
         // Add chat locales
-        // EN
-        var piecesLocalesEN = require(piecesPath + '/chat/locales/en-EN');
-        var workspaceLocalesEN = require(workspacePath + '/locales/en-EN');
-        workspaceLocalesEN.component.chat = piecesLocalesEN.chat;
-        fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(workspaceLocalesEN, null, 4), 'utf8');
-        // FR
-        var piecesLocalesFR = require(piecesPath + '/chat/locales/fr-FR');
-        var workspaceLocalesFR = require(workspacePath + '/locales/fr-FR');
-        workspaceLocalesFR.component.chat = piecesLocalesFR.chat;
-        fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(workspaceLocalesFR, null, 4), 'utf8');
+        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/en-EN.json'));
+        translateHelper.writeTree(attr.id_application, newLocalesEN, 'en-EN');
+        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/fr-FR.json'));
+        translateHelper.writeTree(attr.id_application, newLocalesFR, 'fr-FR');
 
         // Add chat dust template to main_layout
         domHelper.read(workspacePath + '/views/main_layout.dust').then(function ($layout) {
@@ -1212,7 +1216,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                 //add settings locales
                                                 langFR.component[c_address_settings] = {
                                                     "label_component": "Configuration adresse",
-                                                    "position": "Position du maps",
+                                                    "position": "Position de la carte",
                                                     "top": "Au dessus",
                                                     "right": "A droite",
                                                     "bottom": "En dessous",

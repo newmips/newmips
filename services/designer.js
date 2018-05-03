@@ -695,13 +695,12 @@ exports.createNewDataField = function (attr, callback) {
                 attr.name_data_entity = data_entity.name;
                 attr.codeName_data_entity = data_entity.codeName;
                 structure_data_field.setupDataField(attr, function (err, data) {
-                    if (err) {
+                    if (err)
                         db_field.deleteDataField(attr, function (error, info) {
                             callback(err, null);
                         });
-                    } else {
+                    else
                         callback(null, info);
-                    }
                 });
             });
         });
@@ -2647,7 +2646,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                                                                 return callback(err);
                                                             else
                                                                 return callback(null, {message: 'database.component.create.success',
-                                                                    messageParams: ["document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : ""]});
+                                                                    messageParams: ["Document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template"]});
                                                         });
                                                     }).catch(function (e) {
                                                         return callback(e);
