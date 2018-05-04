@@ -1574,6 +1574,7 @@ exports.deleteTab = function (attr, callback) {
             // Remove tab content
             $("#r_" + tabNameWithoutPrefix).remove();
 
+            // If last tab have been deleted, remove tab structure from view
             if ($(".tab-content .tab-pane").length == 1)
                 $("#tabs").replaceWith($("#home").html());
 
