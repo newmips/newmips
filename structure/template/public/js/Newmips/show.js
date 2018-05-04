@@ -175,9 +175,7 @@ function initHasOne(tab, data) {
         newButton = $('<div class="quicklinks"></div>');
         newButton.append(delForm);
     }
-    
     tab.find('.ajax-content').append(newButton);
-    
 }
 
 // HAS MANY
@@ -327,7 +325,7 @@ $(function() {
                 if (pa1.status == 404)
                     return toastr.error('Unable to find '+subentityAlias);
                 console.error(pa1, pa2, pa3);
-                tab.find('.ajax-content').html('<i class="fa fa-exclamation-triangle fa-3x" style="color:red;margin-left: 150px; margin-top: 50px;"></i>');
+                tab.find('.ajax-content').html('<div style="width:100%;text-align:center;"><i class="fa fa-exclamation-circle fa-3x" style="color:#ff3333;margin-top: 100px;margin-bottom: 100px;"></i></div>');
             }
         });
     });
