@@ -1574,6 +1574,9 @@ exports.deleteTab = function (attr, callback) {
             // Remove tab content
             $("#r_" + tabNameWithoutPrefix).remove();
 
+            if ($(".tab-content .tab-pane").length == 1)
+                $("#tabs").replaceWith($("#home").html());
+
             domHelper.write(showFile, $).then(function () {
                 var printFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/print_fields.dust';
                 domHelper.read(printFile).then(function ($) {
