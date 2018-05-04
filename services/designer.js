@@ -2486,17 +2486,27 @@ exports.createNewComponentAddress = function (attr, callback) {
                                 toSync: true
                             };
                             structure_data_entity.setupAssociation(associationOption, function () {
-//                                database.addConstraint(attr, function () {
-                                    db_component.createNewComponentOnEntity(attr, function (err, info) {
-                                        if (!err) {
-                                            structure_component.addNewComponentAddress(attr, function (err) {
-                                                if (err)
-                                                    return callback(err);
-                                                callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
-                                            });
-                                        } else
-                                            return callback(err);
-                                    });
+                                attr.sourceEntity = entity.codeName;
+                                attr.foreignKey = associationOption.foreignKey;
+                                attr.targetEntity = componentCodeName;
+                                attr.targetKey = 'id';
+                                attr.constraintDelete = 'CASCADE';
+                                attr.constraintUpdate = 'CASCADE';
+                                attr.dropForeignKey = true;
+//                                database.addConstraintDeleteUpdate(attr, function (err) {
+//                                    if (!err) {
+                                db_component.createNewComponentOnEntity(attr, function (err, info) {
+                                    if (!err) {
+                                        structure_component.addNewComponentAddress(attr, function (err) {
+                                            if (err)
+                                                return callback(err);
+                                            callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
+                                        });
+                                    } else
+                                        return callback(err);
+                                });
+//                                    } else
+//                                        return callback(err);
 //                                });
                             });
                         } else
