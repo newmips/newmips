@@ -397,16 +397,16 @@ function initForm(context) {
         dropzoneInit.done = false;
         dropzonesFieldArray.push(dropzoneInit);
     });
-    //Component address
+    // Component address
     (function () {
         var componentAddressConf = {
             url: "https://api-adresse.data.gouv.fr/search/",
             query_parm: 'q',
-            type: 'get', //HTTP request type
-            addresses: 'features', //objet which contain list of address, if equal '.' whe take response as list, 
-            address_fields: 'properties', //objet name which contain attributes or '.' , 
-            autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
-            enable: true//If  enable, do query and get data, else data should be to set manually by user
+            type: 'get', // HTTP request type
+            addresses: 'features', // objet which contain list of address, if equal '.' whe take response as list,
+            address_fields: 'properties', // objet name which contain attributes or '.' ,
+            autocomplete_field: 'label', // field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
+            enable: true // If  enable, do query and get data, else data should be to set manually by user
         };
         if (componentAddressConf.enable) {
             $('.c_address_field').on('keyup', function () {
@@ -496,6 +496,11 @@ function initForm(context) {
     setTimeout(function () {
         initMapsIfComponentAddressExists(context);
     }, 500);
+
+    // Input group addons click
+    $(document).on("click", ".input-group-addon", function(){
+        $(this).next("input").focus();
+    });
 }
 
 // DROPZONE
