@@ -286,7 +286,7 @@
                 "valid": "Merci d'indiquer un nom ou ID valide."
             },
             "create": {
-                "success": "Vous venez de créer la nouvelle entité %s (%s) au sein du module %s. Pour la supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’entité %s</b>.",
+                "success": "Vous venez de créer la nouvelle entité %s (%s) au sein du module %s. Pour la supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l'entité %s</b>.",
                 "alreadyExist": "Entité avec un nom (%s) identique ou similaire existe déjà.",
                 "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité trouvée avec le nom de code %s."
             },
@@ -309,7 +309,7 @@
                 "alreadyExist": "Désolé, un champ avec un nom (%s) identique ou similaire existe déjà."
             },
             "create": {
-                "created": "Vous venez d’ajouter un nouveau champ %s (%s) à l’entité %s.<br>Pour le supprimer, tapez l’instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
+                "created": "Vous venez d'ajouter un nouveau champ %s (%s) à l'entité %s.<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
                 "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
             },
             "delete": {
@@ -366,21 +366,21 @@
         "association": {
             "deleteTab": "L'onglet %s a bien été supprimé.",
             "hasOne": {
-                "successEntity": "Un onglet «%s» vient d'être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
-                "successSubEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Attention cet onglet référence une sous-entité, elle ne s'affiche donc pas dans le menu.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
+                "successEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l'onglet %s</b>",
+                "successSubEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Attention cet onglet référence une sous-entité, elle ne s'affiche donc pas dans le menu.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l'onglet %s</b>"
             },
             "hasMany": {
-                "successEntity": "Un onglet «%s» vient d'être ajouté à l’entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>",
-                "successSubEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Attention cet onglet référence une sous-entité, elle ne s'affiche donc pas dans le menu.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l’onglet %s</b>"
+                "successEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l'onglet %s</b>",
+                "successSubEntity": "Un onglet «%s» vient d'être ajouté à l'entité %s.<br>Attention cet onglet référence une sous-entité, elle ne s'affiche donc pas dans le menu.<br>Vous accèderez à cet onglet en affichant un %s.<br>Pour supprimer cet onglet, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l'onglet %s</b>"
             },
             "hasManyExisting": {
                 "success": "Nouvelle association 'Has Many Existing' avec l'entité %s créée sur %s."
             },
             "relatedToMultiple":{
-                "success": "Nouveau champ %s relié à plusieurs %s créé sur %s.<br>Pour le supprimer, tapez l’instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>"
+                "success": "Nouveau champ %s relié à plusieurs %s créé sur %s.<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>"
             },
             "relatedTo": {
-                "success": "Nouveau champ %s relié à %s créé.<br>Pour le supprimer, tapez l’instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
+                "success": "Nouveau champ %s relié à %s créé.<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
                 "missingField": "Le champ %s de l'entité %s n'existe pas ou n'est pas utilisable."
             },
             "error":{
