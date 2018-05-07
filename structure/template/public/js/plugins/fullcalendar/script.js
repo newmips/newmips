@@ -19,7 +19,7 @@ $(document).ready(function(){
 			var generateID = moment();
 			var eventObj = '{"title": "'+eventTitle+'", "idCategory":'+categoryID+', "stick": "true","backgroundColor": "'+categoryColor+'", "borderColor": "'+categoryColor+'"}';
 
-			var htmlToAppend = "<div data-event='"+eventObj+"' class='draggable pendingEvent external-event' id='"+generateID+"' style='z-index: 99999;background-color: "+categoryColor+";'>"+eventTitle+"<i style='margin-top: 3px;' class='fa fa-times pull-right'></i></div>";
+			var htmlToAppend = "<div data-event='"+eventObj+"' class='draggable pendingEvent external-event' id='"+generateID+"' style='z-index: 100;background-color: "+categoryColor+";'>"+eventTitle+"<i style='margin-top: 3px;' class='fa fa-times pull-right'></i></div>";
 
 			$("#pengingEventList").append(htmlToAppend);
 			$("#new-event-title").val("");
