@@ -447,8 +447,9 @@ exports.newContactForm = function (attr, callback) {
         toSyncObject.queries = [];
     toSyncObject[idApp + "_" + codeNameSettings] = {};
 
-    var mailConfigPath = workspacePath + "/config/mail";
-    var mailConfig = JSON.parse(fs.readFileSync(mailConfigPath, 'utf8'));
+    var mailConfigPath = workspacePath + "/config/mail.js";
+    delete require.cache[require.resolve(mailConfigPath)];
+    var mailConfig = require(mailConfigPath);
 
     var insertSettings = "INSERT INTO `" + idApp + "_" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
             " VALUES(1,'" + mailConfig.transport.host + "'," +
@@ -473,34 +474,37 @@ exports.newContactForm = function (attr, callback) {
     fs.unlinkSync(workspacePath + '/routes/' + codeName + '.js');
     fs.copySync(piecesPath + '/routes/route_contact_form.js', workspacePath + '/routes/' + codeName + '.js');
 
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "URL_VALUE_SETTINGS", urlNameSettings);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "CODE_VALUE_SETTINGS", codeNameSettings);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "MODEL_VALUE_CONTACT", codeName.charAt(0).toUpperCase() + codeName.toLowerCase().slice(1));
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "MODEL_VALUE_SETTINGS", codeNameSettings.charAt(0).toUpperCase() + codeNameSettings.toLowerCase().slice(1));
+    var workspaceRoutePath = workspacePath + '/routes/' + codeName + '.js';
+    var workspaceViewPath = workspacePath + '/views/' + codeName;
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceRoutePath, "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceRoutePath, "URL_VALUE_SETTINGS", urlNameSettings);
+    replaceValuesInFile(workspaceRoutePath, "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceRoutePath, "CODE_VALUE_SETTINGS", codeNameSettings);
+    replaceValuesInFile(workspaceRoutePath, "MODEL_VALUE_CONTACT", codeName.charAt(0).toUpperCase() + codeName.toLowerCase().slice(1));
+    replaceValuesInFile(workspaceRoutePath, "MODEL_VALUE_SETTINGS", codeNameSettings.charAt(0).toUpperCase() + codeNameSettings.toLowerCase().slice(1));
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/create.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/create.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/create.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/show_fields.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/show_fields.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/create_fields.dust', "CODE_VALUE_CONTACT", codeName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceViewPath + '/show_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/show_fields.dust', "URL_VALUE_CONTACT", urlName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list_fields.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list_fields.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/list.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/list.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/list.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceViewPath + '/list_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/list_fields.dust', "URL_VALUE_CONTACT", urlName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings_fields.dust', "CODE_VALUE_SETTINGS", codeNameSettings);
+    replaceValuesInFile(workspaceViewPath + '/settings.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/settings.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/settings.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+
+    replaceValuesInFile(workspaceViewPath + '/settings_fields.dust', "CODE_VALUE_SETTINGS", codeNameSettings);
 
     // Delete Contact Form Settings Route and Views
     fs.unlinkSync(workspacePath + '/routes/' + codeNameSettings + '.js');
