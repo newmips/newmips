@@ -448,8 +448,7 @@ exports.newContactForm = function (attr, callback) {
     toSyncObject[idApp + "_" + codeNameSettings] = {};
 
     var mailConfigPath = workspacePath + "/config/mail";
-    delete require.cache[require.resolve(mailConfigPath)];
-    var mailConfig = require(mailConfigPath);
+    var mailConfig = JSON.parse(fs.readFileSync(mailConfigPath, 'utf8'));
 
     var insertSettings = "INSERT INTO `" + idApp + "_" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
             " VALUES(1,'" + mailConfig.transport.host + "'," +
