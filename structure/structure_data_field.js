@@ -1136,8 +1136,7 @@ exports.setupHasManyPresetTab = function (attr, callback) {
 
 exports.saveHasManyData = function (attr, data, foreignKey, callback){
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
-    delete require.cache[require.resolve(jsonPath)];
-    var toSync = require(jsonPath);
+    var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
     toSync.queries = [];
     var firstKey = "fk_id_"+attr.options.source;
     var secondKey = "fk_id_"+attr.options.target;
@@ -1432,8 +1431,7 @@ exports.deleteDataField = function (attr, callback) {
     var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
 
     // Clear the require cache
-    delete require.cache[require.resolve(jsonPath)];
-    var dataToWrite = require(jsonPath);
+    var dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
     for (var i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
@@ -1462,8 +1460,7 @@ exports.deleteDataField = function (attr, callback) {
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
         jsonPath = __dirname + '/../workspace/' + idApp + '/models/attributes/' + name_data_entity + '.json';
-        delete require.cache[require.resolve(jsonPath)];
-        dataToWrite = require(jsonPath);
+        dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
         delete dataToWrite[name_data_field];
 
