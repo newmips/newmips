@@ -508,6 +508,7 @@ router.get('/readme/:entity', block_access.actionAccessMiddleware("document_temp
         data['entities'] = document_template_helper.build_help(entity, req.session.lang_user);
         data.document_template_entities = document_template_helper.get_entities(models);
         data.readme = document_template_helper.getReadmeMessages(req.session.lang_user);
+        data.selectedEntity=entity;
         res.render('e_document_template/readme', data);
     }
 });
