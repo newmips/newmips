@@ -56,24 +56,6 @@
         });
     </script>
     {/actionAccess}
-    {! UPDATE !}
-    {@actionAccess entity="URL_VALUE_CONTACT" action="update"}
-    <script type="text/javascript">
-        DATALIST_BUTTONS.push({
-            render: function (data, type, row) {
-                var aTag = '\
-                <a href="/toi/update_form?id='+row['id']+'">\
-                    <button class="btn btn-warning">\
-                        <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
-                        <span>{@__ key="button.update" /}</span>\
-                    </button>\
-                </a>';
-                return aTag;
-            },
-            searchable: false
-        });
-    </script>
-    {/actionAccess}
     {! DELETE !}
     {@actionAccess entity="URL_VALUE_CONTACT" action="delete"}
     <script type="text/javascript">

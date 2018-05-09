@@ -22,7 +22,7 @@ module.exports = function (modelName, params, speInclude, speWhere) {
         // Building where values -> {$and: [{id: 'id'}, {name: {$like: '%jero%'}}]};
         var search = {};
         search[searchType] = [];
-        var attributes = [];
+        var attributes = ['id'];
 
         for (var i = 0; i < params.columns.length; i++) {
             var column = params.columns[i];

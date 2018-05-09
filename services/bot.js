@@ -2608,7 +2608,7 @@ exports.complete = function (instruction) {
             // Template to compare to
             var template = training[action][i].split(" ");
 
-            // Split curent key phrase and instructions into arrays to loop
+            // Split current key phrase and instructions into arrays to loop
             var instr = instruction.trim().split(" ");
 
             var k = 0; // index in template

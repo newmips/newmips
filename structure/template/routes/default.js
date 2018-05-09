@@ -13,6 +13,7 @@ var models = require('../models/');
 var Jimp = require("jimp");
 var entity_helper = require('../utils/entity_helper');
 var dust = require('dustjs-linkedin');
+var enums_radios = require('../utils/enum_radio.js');
 
 // ===========================================
 // Redirection Home =====================
@@ -96,6 +97,8 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
             sourceOptions = JSON.parse(fs.readFileSync(__dirname+'/../models/options/e_'+source+'.json', 'utf8'));
         } catch(e) {res.status(500).end()}
 
+        // Add enum / radio information
+        dustData.enum_radio = enums_radios.translated("e_"+source, req.session.lang_user, sourceOptions);
 
         imagePromises = [];
         // Source entity images

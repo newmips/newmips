@@ -466,22 +466,22 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                 id: ENTITY_NAME[historyAlias][0][statusAlias].id
             },
             include: [{
-                    model: models.E_status,
-                    as: 'r_children',
+                model: models.E_status,
+                as: 'r_children',
+                include: [{
+                    model: models.E_action,
+                    as: 'r_actions',
+                    order: 'f_position ASC',
                     include: [{
-                            model: models.E_action,
-                            as: 'r_actions',
-                            order: 'f_position ASC',
-                            include: [{
-                                    model: models.E_media,
-                                    as: 'r_media',
-                                    include: {
-                                        all: true,
-                                        nested: true
-                                    }
-                                }]
-                        }]
+                        model: models.E_media,
+                        as: 'r_media',
+                        include: {
+                            all: true,
+                            nested: true
+                        }
+                    }]
                 }]
+            }]
         }).then(function (current_status) {
             if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
