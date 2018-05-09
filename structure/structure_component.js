@@ -447,7 +447,7 @@ exports.newContactForm = function (attr, callback) {
         toSyncObject.queries = [];
     toSyncObject[idApp + "_" + codeNameSettings] = {};
 
-    var mailConfigPath = workspacePath + "/config/mail";
+    var mailConfigPath = workspacePath + "/config/mail.js";
     delete require.cache[require.resolve(mailConfigPath)];
     var mailConfig = require(mailConfigPath);
 
@@ -474,34 +474,37 @@ exports.newContactForm = function (attr, callback) {
     fs.unlinkSync(workspacePath + '/routes/' + codeName + '.js');
     fs.copySync(piecesPath + '/routes/route_contact_form.js', workspacePath + '/routes/' + codeName + '.js');
 
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "URL_VALUE_SETTINGS", urlNameSettings);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "CODE_VALUE_SETTINGS", codeNameSettings);
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "MODEL_VALUE_CONTACT", codeName.charAt(0).toUpperCase() + codeName.toLowerCase().slice(1));
-    replaceValuesInFile(workspacePath + '/routes/' + codeName + '.js', "MODEL_VALUE_SETTINGS", codeNameSettings.charAt(0).toUpperCase() + codeNameSettings.toLowerCase().slice(1));
+    var workspaceRoutePath = workspacePath + '/routes/' + codeName + '.js';
+    var workspaceViewPath = workspacePath + '/views/' + codeName;
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceRoutePath, "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceRoutePath, "URL_VALUE_SETTINGS", urlNameSettings);
+    replaceValuesInFile(workspaceRoutePath, "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceRoutePath, "CODE_VALUE_SETTINGS", codeNameSettings);
+    replaceValuesInFile(workspaceRoutePath, "MODEL_VALUE_CONTACT", codeName.charAt(0).toUpperCase() + codeName.toLowerCase().slice(1));
+    replaceValuesInFile(workspaceRoutePath, "MODEL_VALUE_SETTINGS", codeNameSettings.charAt(0).toUpperCase() + codeNameSettings.toLowerCase().slice(1));
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/create_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/create.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/create.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/create.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/show_fields.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/show_fields.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/create_fields.dust', "CODE_VALUE_CONTACT", codeName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceViewPath + '/show_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/show_fields.dust', "URL_VALUE_CONTACT", urlName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list_fields.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/list_fields.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/list.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/list.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/list.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings.dust', "CODE_VALUE_CONTACT", codeName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceViewPath + '/list_fields.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/list_fields.dust', "URL_VALUE_CONTACT", urlName);
 
-    replaceValuesInFile(workspacePath + '/views/' + codeName + '/settings_fields.dust', "CODE_VALUE_SETTINGS", codeNameSettings);
+    replaceValuesInFile(workspaceViewPath + '/settings.dust', "CODE_VALUE_CONTACT", codeName);
+    replaceValuesInFile(workspaceViewPath + '/settings.dust', "URL_VALUE_CONTACT", urlName);
+    replaceValuesInFile(workspaceViewPath + '/settings.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+
+    replaceValuesInFile(workspaceViewPath + '/settings_fields.dust', "CODE_VALUE_SETTINGS", codeNameSettings);
 
     // Delete Contact Form Settings Route and Views
     fs.unlinkSync(workspacePath + '/routes/' + codeNameSettings + '.js');
@@ -1170,6 +1173,7 @@ exports.addNewComponentAddress = function (attr, callback) {
         var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
         var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
         var showFieldsFile = application_path + 'views/' + source + '/' + 'show_fields.dust';
+        var printFieldsFile = application_path + 'views/' + source + '/' + 'print_fields.dust';
         var listFieldsFile = application_path + 'views/' + source + '/' + 'list_fields.dust';
 
         var showHtml = fs.readFileSync(c_address_path + 'views/show.dust', 'utf8');
@@ -1184,111 +1188,116 @@ exports.addNewComponentAddress = function (attr, callback) {
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/fields.dust', fields.showFieldsHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/show.dust', showHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/list_fields.dust', fields.headers);
-//        fs.copySync(c_address_path + 'views/maps.dust', application_path + 'views/' + componentCodeName + '/maps.dust');
+        //fs.copySync(c_address_path + 'views/maps.dust', application_path + 'views/' + componentCodeName + '/maps.dust');
 
         domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
             domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
                 domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
-                    $createFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/create_fields"/}</div>');
-                    $updateFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/update_fields"/}</div>');
-                    $showFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
-                    domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
-                        domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
-                            domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
-                                //update locales
-                                var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-                                var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                langFR.component[componentCodeName] = fields.locales.fr;
-                                langEN.component[componentCodeName] = fields.locales.en;
+                    domHelper.read(printFieldsFile).then(function ($printFieldsFile) {
+                        $createFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/create_fields"/}</div>');
+                        $updateFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/update_fields"/}</div>');
+                        $showFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
+                        $printFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
+                        domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
+                            domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
+                                domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
+                                    domHelper.write(printFieldsFile, $printFieldsFile).then(function () {
+                                        //update locales
+                                        var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
+                                        var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+                                        langFR.component[componentCodeName] = fields.locales.fr;
+                                        langEN.component[componentCodeName] = fields.locales.en;
 
-                                setupComponentModel(attr.id_application, 'address', componentCodeName, 'address', function () {
-                                    //Check if component config exist, if not we create it
-                                    var address_settings_config;
-                                    var p = new Promise(function (resolve, reject) {
-                                        fs.readFile(application_path + 'config/' + c_address_settings + '.json', function (err, config) {
-                                            if (err) {
-                                                //files doesn't exist
-                                                address_settings_config = {entities: {}};
-                                                //add settings locales
-                                                langFR.component[c_address_settings] = {
-                                                    "label_component": "Configuration adresse",
-                                                    "position": "Position de la carte",
-                                                    "top": "Au dessus",
-                                                    "right": "A droite",
-                                                    "bottom": "En dessous",
-                                                    "left": "A gauche",
-                                                    "distance": "Afficher la distance",
-                                                    "settings": "Configurer",
-                                                    "enableMaps": "Activer la maps",
-                                                    "entity": "Entité",
-                                                    "zoomBar": "Afficher panneau de zoom",
-                                                    "navigation": "Activer la navigation",
-                                                    "mousePosition": "Afficher les coordonnées de la souris",
-                                                    "addressNotValid": "Adresse non valide",
-                                                    "info_c_address_maps":"Pour avoir une maps valide, veuillez utiliser le champ en dessous pour saisir l'adresse"
-                                                };
-                                                langEN.component[c_address_settings] = {
-                                                    "label_component": "Addresses settings",
-                                                    "position": "Maps position",
-                                                    "top": "Top",
-                                                    "right": "Right",
-                                                    "bottom": "Bottom",
-                                                    "left": "Left",
-                                                    "distance": "Display distance",
-                                                    "settings": "Settings",
-                                                    "enableMaps": "Enable Maps",
-                                                    "entity": "Entity",
-                                                    "zoomBar": "Display zoom bar",
-                                                    "navigation": "Enable navigation",
-                                                    "mousePosition": "Display mouse coordinate",
-                                                    "addressNotValid": "Not valid address",
-                                                    "info_c_address_maps":"To have a valid maps, please use the field below to enter the address"
-                                                };
-                                                //add component address files
-                                                fs.mkdirpSync(application_path + 'views/' + c_address_settings);
-                                                fs.copySync(c_address_path + 'views/config.dust', application_path + 'views/' + c_address_settings + '/config.dust');
-                                                fs.copySync(c_address_path + 'views/config_fields.dust', application_path + 'views/' + c_address_settings + '/config_fields.dust');
-                                                fs.copySync(c_address_path + 'route/' + c_address_settings + '.js', application_path + 'routes/' + c_address_settings + '.js');
-                                                addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
-                                                    if (!err) {
-                                                        //add new menu in administration for address settings
-                                                        addMenuComponentAddressSettings(attr, c_address_settings, function (err) {
-                                                            if (!err)
-                                                                resolve();
-                                                            else
+                                        setupComponentModel(attr.id_application, 'address', componentCodeName, 'address', function () {
+                                            //Check if component config exist, if not we create it
+                                            var address_settings_config;
+                                            var p = new Promise(function (resolve, reject) {
+                                                fs.readFile(application_path + 'config/' + c_address_settings + '.json', function (err, config) {
+                                                    if (err) {
+                                                        //files doesn't exist
+                                                        address_settings_config = {entities: {}};
+                                                        //add settings locales
+                                                        langFR.component[c_address_settings] = {
+                                                            "label_component": "Configuration adresse",
+                                                            "position": "Position de la carte",
+                                                            "top": "Au dessus",
+                                                            "right": "A droite",
+                                                            "bottom": "En dessous",
+                                                            "left": "A gauche",
+                                                            "distance": "Afficher la distance",
+                                                            "settings": "Configurer",
+                                                            "enableMaps": "Activer la maps",
+                                                            "entity": "Entité",
+                                                            "zoomBar": "Afficher panneau de zoom",
+                                                            "navigation": "Activer la navigation",
+                                                            "mousePosition": "Afficher les coordonnées de la souris",
+                                                            "addressNotValid": "Adresse non valide",
+                                                            "info_c_address_maps":"Pour avoir une maps valide, veuillez utiliser le champ en dessous pour saisir l'adresse"
+                                                        };
+                                                        langEN.component[c_address_settings] = {
+                                                            "label_component": "Addresses settings",
+                                                            "position": "Maps position",
+                                                            "top": "Top",
+                                                            "right": "Right",
+                                                            "bottom": "Bottom",
+                                                            "left": "Left",
+                                                            "distance": "Display distance",
+                                                            "settings": "Settings",
+                                                            "enableMaps": "Enable Maps",
+                                                            "entity": "Entity",
+                                                            "zoomBar": "Display zoom bar",
+                                                            "navigation": "Enable navigation",
+                                                            "mousePosition": "Display mouse coordinate",
+                                                            "addressNotValid": "Not valid address",
+                                                            "info_c_address_maps":"To have a valid maps, please use the field below to enter the address"
+                                                        };
+                                                        //add component address files
+                                                        fs.mkdirpSync(application_path + 'views/' + c_address_settings);
+                                                        fs.copySync(c_address_path + 'views/config.dust', application_path + 'views/' + c_address_settings + '/config.dust');
+                                                        fs.copySync(c_address_path + 'views/config_fields.dust', application_path + 'views/' + c_address_settings + '/config_fields.dust');
+                                                        fs.copySync(c_address_path + 'route/' + c_address_settings + '.js', application_path + 'routes/' + c_address_settings + '.js');
+                                                        addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
+                                                            if (!err) {
+                                                                //add new menu in administration for address settings
+                                                                addMenuComponentAddressSettings(attr, c_address_settings, function (err) {
+                                                                    if (!err)
+                                                                        resolve();
+                                                                    else
+                                                                        reject(err);
+                                                                });
+                                                            } else
                                                                 reject(err);
                                                         });
-                                                    } else
-                                                        reject(err);
+                                                    } else {
+                                                        address_settings_config = JSON.parse(config);
+                                                        resolve();
+                                                    }
                                                 });
-                                            } else {
-                                                address_settings_config = JSON.parse(config);
-                                                resolve();
-                                            }
+                                            });
+                                            p.then(function () {
+                                                address_settings_config.entities[attr.entityCodeName] = {
+                                                    "enableMaps": false,
+                                                    "mapsPosition": {
+                                                        "top": false,
+                                                        "right": true,
+                                                        "bottom": false,
+                                                        "left": false
+                                                    },
+                                                    "estimateDistance": false,
+                                                    "zoomBar": false,
+                                                    "navigation": true,
+                                                    "mousePosition": false
+                                                };
+                                                //set locales
+                                                fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                                                fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+                                                //update or create address settings
+                                                fs.writeFileSync(application_path + 'config/' + c_address_settings + '.json', JSON.stringify(address_settings_config, null, 4));
+                                                callback(null);
+                                            }).catch(function (e) {
+                                                return callback(e);
+                                            });
                                         });
-                                    });
-                                    p.then(function () {
-                                        address_settings_config.entities[attr.entityCodeName] = {
-                                            "enableMaps": false,
-                                            "mapsPosition": {
-                                                "top": false,
-                                                "right": true,
-                                                "bottom": false,
-                                                "left": false
-                                            },
-                                            "estimateDistance": false,
-                                            "zoomBar": false,
-                                            "navigation": true,
-                                            "mousePosition": false
-                                        };
-                                        //set locales
-                                        fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                                        fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-                                        //update or create address settings
-                                        fs.writeFileSync(application_path + 'config/' + c_address_settings + '.json', JSON.stringify(address_settings_config, null, 4));
-                                        callback(null);
-                                    }).catch(function (e) {
-                                        return callback(e);
                                     });
                                 });
                             });

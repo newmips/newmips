@@ -1,5 +1,6 @@
 var models = require('../models/');
 var dbconfig = require('../config/database');
+var fs = require('fs-extra');
 
 // route middleware to make sure
 exports.isLoggedIn = function(req, res, next) {
@@ -25,25 +26,27 @@ exports.isLoggedIn = function(req, res, next) {
     }
     else if (req.isAuthenticated())
         return next();
-    else {
-        //req.session.rejectedUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    else
         res.redirect('/login');
-    }
 };
 
 //If the user is already identified, he can't access the login page
 exports.loginAccess = function(req, res, next) {
     // if user is not authenticated in the session, carry on
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated())
         return next();
-    }
+
     res.redirect('/default/home');
 };
 
 function getAccess() {
-    delete require.cache[require.resolve('../config/access.json')]
-    return require('../config/access.json');
+    var access;
+    try {
+        access = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
+    } catch(e) {console.error(e);return {};}
+    return access;
 }
+
 function isInBothArray(stringArray, objectArray) {
     if (stringArray.length == 0)
         return false;
@@ -83,10 +86,10 @@ exports.moduleAccessMiddleware = function(moduleName) {
             return res.redirect('/login');
         if (moduleAccess(req.session.passport.user.r_group, moduleName))
             return next();
-        req.session.toastr.push({
+        req.session.toastr = [{
             level: 'error',
             'message': "Your Group(s) doesn't have access to this module"
-        });
+        }];
     }
 }
 
@@ -117,10 +120,10 @@ exports.entityAccessMiddleware = function(entityName) {
         var userGroups = req.session.passport.user.r_group;
         if (entityAccess(userGroups, entityName))
             return next();
-        req.session.toastr.push({
+        req.session.toastr = [{
             level: 'error',
             'message': "Your Group(s) doesn't have access to this entity"
-        });
+        }];
         res.redirect('/default/home');
     }
 }
@@ -147,10 +150,10 @@ exports.actionAccessMiddleware = function(entityName, action) {
         var userRoles = req.session.passport.user.r_role;
         if (actionAccess(userRoles, entityName, action))
             return next();
-        req.session.toastr.push({
+        req.session.toastr = [{
             level: 'error',
             'message': "Your Role(s) doesn't have access to action " + action + ' on entity ' + entityName
-        });
+        }];
         res.redirect('/default/home');
     }
 }
