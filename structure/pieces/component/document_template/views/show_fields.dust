@@ -12,7 +12,7 @@
                 <div class="input-group-addon">
                     <i class="fa fa-download"></i>
                 </div>
-                <a href="/default/download?entity=e_document_template&amp;f={f_file}" class="form-control text-left" name="f_file" readonly="">{f_file}</a>
+                <a href="/default/download?entity=e_document_template&amp;f={f_file}" class="form-control text-left" name="f_file" title='{@__ key="button.download"/}'>{f_file}</a>
             </div>
         </div>
     </div>
