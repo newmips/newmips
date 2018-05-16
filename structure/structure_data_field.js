@@ -1498,8 +1498,8 @@ exports.deleteDataField = function (attr, callback) {
                 $("td[data-field='" + name_data_field + "']").remove();
 
                 // In case of related to
-                $("th[data-field='r_" + name_data_field.substring(2) + "']").remove();
-                $("td[data-field='r_" + name_data_field.substring(2) + "']").remove();
+                $("th[data-field^='r_" + name_data_field.substring(2) + ".']").remove();
+                $("td[data-field^='r_" + name_data_field.substring(2) + ".']").remove();
                 domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
                     resolve();
                 });
