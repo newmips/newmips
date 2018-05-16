@@ -181,6 +181,13 @@ function initHasOne(tab, data) {
 // HAS MANY
 function initHasMany(tab, data) {
     tab.find('.ajax-content').html(data.content);
+
+    var sourceUrl = tab.data('asso-source').substring(2);
+    var targetUrl = data.option.target.substring(2);
+    var doPagination = data.option.relation == 'belongsToMany' ? false : true;
+
+    var table = tab.find('table');
+    table.find('.filters').remove();
     if (!data.option.noCreateBtn) {
         var newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
@@ -210,17 +217,12 @@ function initHasMany(tab, data) {
         }];
     }
 
-    var sourceUrl = tab.data('asso-source').substring(2);
-    var targetUrl = data.option.target.substring(2);
-    var table = tab.find('table');
-    table.find('.filters').remove();
-
     // Set subdatalist url and subentity to table
-    var tableUrl = '/'+sourceUrl+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
+    var tableUrl = '/'+sourceUrl+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag')+'&paginate='+doPagination;
     table.data('url', tableUrl);
 
     // DataTable
-    init_datatable('#'+table.attr('id'), true);
+    init_datatable('#'+table.attr('id'), true, doPagination);
 }
 
 // HAS MANY PRESET

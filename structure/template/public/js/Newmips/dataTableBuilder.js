@@ -238,8 +238,9 @@ var delay = (function() {
     };
 })();
 
-function init_datatable(tableID, isSubDataList) {
+function init_datatable(tableID, isSubDataList, doPagination) {
     isSubDataList = typeof isSubDataList !== 'undefined' && isSubDataList == true ? true : false;
+    doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
     // Fetch columns from html
     var columns = [];
@@ -401,6 +402,7 @@ function init_datatable(tableID, isSubDataList) {
         "columns": columns,
         "columnDefs": columnDefs,
         "language": STR_LANGUAGE,
+        "paging": doPagination,
         "bLengthChange": true,
         "iDisplayLength": 25,
         "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],

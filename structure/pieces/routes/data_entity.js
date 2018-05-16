@@ -61,21 +61,26 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     var sourceId = req.query.sourceId;
     var subentityAlias = req.query.subentityAlias;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
+    var doPagination = req.query.paginate;
 
     var queryAttributes = [];
     for (var i = 0; i < req.body.columns.length; i++)
         if (req.body.columns[i].searchable == 'true')
             queryAttributes.push(req.body.columns[i].data);
 
+    var include = {
+        model: models[subentityModel],
+        as: subentityAlias,
+        include: {all: true}
+    }
+    if (doPagination == "true") {
+        include.limit = length;
+        include.offset = start;
+    }
+
     models.MODEL_NAME.findOne({
         where: {id: parseInt(sourceId)},
-        include: {
-            model: models[subentityModel],
-            as: subentityAlias,
-            offset: start,
-            limit: length,
-            include: {all: true}
-        }
+        include: include
     }).then(function (ENTITY_NAME) {
         if (!ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
             console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
