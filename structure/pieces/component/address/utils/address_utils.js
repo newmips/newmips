@@ -84,7 +84,7 @@ exports.generateFields = function (componentName, componentCodeName) {
             var max = (typeof attribute.maxLength !== 'undefined' && attribute.maxLength !== '') ? 'maxlength="' + attribute.maxLength + '"' : '';
             var min = (typeof attribute.minLength !== 'undefined' && attribute.minLength !== '') ? 'minlength="' + attribute.minLength + '"' : '';
 
-            var pattern = (typeof attribute.pattern !== 'undefined' && attribute.pattern !== '') ? 'pattern=' + attribute.pattern : '';
+            var pattern = (typeof attribute.pattern !== 'undefined' && attribute.pattern !== '') ? 'pattern="' + attribute.pattern + '"' : '';
             var defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
             var type = typeof attribute.type !== 'undefined' ? attribute.type : 'text';
             var display = 'block';
