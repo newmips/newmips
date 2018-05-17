@@ -45,6 +45,9 @@ sequelize.customAfterSync = function() {
                         case "INTEGER":
                             type = "INT";
                             break;
+                        case "BIGINT":
+                            type = "BIGINT";
+                            break;
                         case "DATE":
                             type = "DATETIME";
                             break;

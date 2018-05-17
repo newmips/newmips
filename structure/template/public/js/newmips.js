@@ -91,16 +91,19 @@ function initForm(context) {
 
     /* --------------- Regex on decimal input --------------- */
     var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
-    $("input[data-custom-type='decimal']", context).keyup(function (e) {
+    $("input[data-custom-type='decimal']", context).keyup(function () {
         while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
     });
 
     /* --------------- Max length on input number --------------- */
-    $("input[type='number']", context).keyup(function (e) {
-        if (typeof $(this).data("customtype") === "undefined")
+    $("input[type='number']", context).keyup(function () {
+        if (typeof $(this).data("custom-type") === "undefined"){
             if (this.value.length > 10)
                 this.value = this.value.slice(0, 10);
+        } else if($(this).data("custom-type") == "bigint")
+            if (this.value.length > 19)
+                this.value = this.value.slice(0, 19);
     });
 
     /* --------------- Initialisation des DatetimePicker --------------- */
@@ -250,7 +253,7 @@ function initForm(context) {
         var jq_element = $(element);
         var id = jq_element.attr('name');
         var img = '<br><img id="' + id + '" class="img img-responsive"/>';
-        var barcodeType = jq_element.attr('data-customtype');
+        var barcodeType = jq_element.attr('data-custom-type');
         if (typeof barcodeType != 'undefined') {
             jq_element.parent().after(img);
             try {
@@ -274,7 +277,7 @@ function initForm(context) {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
-            if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
+            if ($(this).attr('data-custom-type') === 'code39' || $(this).attr('data-custom-type') === 'alpha39') {
                 $(this).on('keyup', function () {
                     $(this).val($(this).val().toUpperCase());
                 });
@@ -763,7 +766,7 @@ function validateForm(form) {
     form.find("input[data-type='barcode']").each(function () {
         var val = $(this).val();
         if (val != '') {
-            var customType = $(this).attr('data-customtype');
+            var customType = $(this).attr('data-custom-type');
             if (typeof customType != 'undefined') {
                 var error = false;
                 var len;
