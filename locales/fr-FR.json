@@ -194,6 +194,7 @@
         "plural": "entités"
     },
     "error": {
+        "oneLetter": "Il doit y avoir au moins une lettre dans le nom.",
         "oops": "Oups! Une erreur s'est produite :(",
         "textone": "Vous devriez contacter votre administrateur, et vous pouvez",
         "texttwo": "retourner à l'accueil",
