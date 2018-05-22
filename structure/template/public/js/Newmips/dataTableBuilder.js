@@ -273,7 +273,16 @@ function init_datatable(tableID, isSubDataList, doPagination) {
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
     var columnDefs = [];
     for (var i = 0; i < columns.length; i++) {
-        var objColumnDefToPush = {
+        var objColumnDefToPush = {};
+        if(columns[i].hidden){
+            objColumnDefToPush.targets = i;
+            objColumnDefToPush.render = function(){return "";};
+            objColumnDefToPush.visible = false;
+            objColumnDefToPush.searchable = false;
+            columnDefs.push(objColumnDefToPush);
+            continue;
+        }
+        objColumnDefToPush = {
             targets: i,
             render: function (data, type, row, meta) {
                 var cellValue;
@@ -370,10 +379,7 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                 return cellValue;
             }
         };
-        if(columns[i].hidden){
-            objColumnDefToPush.visible = false;
-            objColumnDefToPush.searchable = false;
-        } else if(columns[i].type == "password"){
+        if(columns[i].type == "password"){
             objColumnDefToPush.searchable = false;
             objColumnDefToPush.orderable = false;
         }
