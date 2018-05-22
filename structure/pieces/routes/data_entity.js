@@ -571,8 +571,17 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 
     // Possibility to add custom where in select2 ajax instanciation
     if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+        for (var param in req.body.customWhere){
+            // If the custom where is on a foreign key
+            if(param.indexOf("fk_") != -1){
+                for (var option in options){
+                    // We only add where condition on key that are standard hasMany relation, not belongsToMany association
+                    if(options[option].otherKey == param && options[option].relation != "belongsToMany")
+                        where.where[param] = req.body.customWhere[param];
+                }
+            } else
+                where.where[param] = req.body.customWhere[param];
+        }
 
     where.offset = offset;
     where.limit = limit;
