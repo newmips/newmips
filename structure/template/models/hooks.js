@@ -24,16 +24,29 @@ module.exports = function(model_name, attributes) {
 		                    getModels().E_status.findOrCreate({
 		                        where: {f_entity: model_name, f_field: fieldIn, f_default: true},
 		                        defaults: {f_entity: model_name, f_field: fieldIn, f_name: 'Initial', f_default: true},
-		                        include: [{
-		                        	model: getModels().E_action,
-		                        	as: 'r_actions',
-		                        	include: [{
-		                        		model: getModels().E_media,
-		                        		as: 'r_media',
-		                        		include: [{all: true, nested: true}]
-		                        	}]
-		                        }]
-		                    }).spread(function(status, created) {
+                                include: [{
+                                    model: getModels().E_action,
+                                    as: 'r_actions',
+                                    include: [{
+                                        model: getModels().E_media,
+                                        as: 'r_media',
+                                        include: [{
+                                            model: getModels().E_media_mail,
+                                            as: 'r_media_mail'
+                                        }, {
+                                            model: getModels().E_media_notification,
+                                            as: 'r_media_notification',
+                                            include: [{
+                                                model: getModels().E_group,
+                                                as: 'r_target_groups'
+                                            }, {
+                                                model: getModels().E_user,
+                                                as: 'r_target_users'
+                                            }]
+                                        }]
+                                    }]
+                                }]
+                            }).spread(function(status, created) {
 		                        var historyObject = {
 		                            version:1,
 		                            f_comment: 'Creation'
