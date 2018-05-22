@@ -2445,13 +2445,14 @@ exports.createComponentChat = function (attr, callback) {
 }
 
 //Create new component address
-exports.createNewComponentAddress = function (attr, callback) {
+exports.createNewComponentAddress = function(attr, callback) {
     var componentCodeName = 'c_address_' + attr.id_data_entity;
+
     if (attr.id_data_entity) {
-        db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function (err, alreadyExist) {
+        db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function(err, alreadyExist) {
             if (!err) {
                 if (!alreadyExist) {
-                    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+                    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
                         if (!err) {
                             attr.componentCodeName = componentCodeName;
                             attr.options.name = attr.options.componentName;
@@ -2472,7 +2473,7 @@ exports.createNewComponentAddress = function (attr, callback) {
                                 targetType: "component",
                                 toSync: true
                             };
-                            structure_data_entity.setupAssociation(associationOption, function () {
+                            structure_data_entity.setupAssociation(associationOption, function() {
                                 attr.sourceEntity = entity.codeName;
                                 attr.foreignKey = associationOption.foreignKey;
                                 attr.targetEntity = componentCodeName;
@@ -2480,21 +2481,19 @@ exports.createNewComponentAddress = function (attr, callback) {
                                 attr.constraintDelete = 'CASCADE';
                                 attr.constraintUpdate = 'CASCADE';
                                 attr.dropForeignKey = true;
-//                                database.addConstraintDeleteUpdate(attr, function (err) {
-//                                    if (!err) {
-                                db_component.createNewComponentOnEntity(attr, function (err, info) {
+                                db_component.createNewComponentOnEntity(attr, function(err, info) {
                                     if (!err) {
-                                        structure_component.addNewComponentAddress(attr, function (err) {
+                                        structure_component.addNewComponentAddress(attr, function(err) {
                                             if (err)
                                                 return callback(err);
-                                            callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
+                                            callback(null, {
+                                                message: 'database.component.create.success',
+                                                messageParams: ["Adresse", attr.options.componentName || '']
+                                            });
                                         });
                                     } else
                                         return callback(err);
                                 });
-//                                    } else
-//                                        return callback(err);
-//                                });
                             });
                         } else
                             return callback(err);

@@ -50,7 +50,7 @@ label.required:after {
 .connectedSortable {
     padding-bottom: 10px;
 }
-.quicklinks span{
+.quicklinks a, .quicklinks button {
     margin-right: 6px;
 }
 .dataTable thead{

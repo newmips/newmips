@@ -1,8 +1,7 @@
 <label>{@__ key="component.COMPONENT_NAME.label_component"/}</label>
-<section id='COMPONENT_NAME_fields' class='col-xs-12 section_c_address_fields'>
+<section id='COMPONENT_NAME_fields' class='col-xs-12 section_c_address_fields' style="padding-top: 10px;">
     {@ifTrue key=componentAddressConfig.enableMaps}
     {@eq key=componentAddressConfig.mapsPosition value="top"}
-
     <div class="row">
         <div class="col-md-12 col-xs-12">
             {>"COMPONENT_NAME/maps"/}
@@ -21,7 +20,6 @@
             {>"COMPONENT_NAME/maps"/}
         </div>
     </div>
-
     {/eq}
     {@eq key=componentAddressConfig.mapsPosition value="bottom"}
     <div class="row">
@@ -32,7 +30,6 @@
             {>"COMPONENT_NAME/maps"/}
         </div>
     </div>
-
     {/eq}
     {@eq key=componentAddressConfig.mapsPosition value="left"}
     <div class="row">
