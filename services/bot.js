@@ -807,6 +807,19 @@ exports.createNewComponentCra = function (result) {
  */
 exports.createNewComponentAddress = function (result) {
     var options = {
+        componentName: "Address",
+        instruction: result[0]
+    };
+    return checkAndCreateAttr("createNewComponentAddress", options, "Address");
+};
+
+/**
+ * Component Address
+ * @param {type} result of bot analyzer (this.parse)
+ * @returns {function name and user instruction}
+ */
+exports.createNewComponentAddressWithName = function (result) {
+    var options = {
         componentName: result[1].toLowerCase(),
         instruction: result[0]
     };
@@ -2358,18 +2371,22 @@ var training = {
         "supprimer le composant impression appelé (.*)"
     ],
     "createNewComponentAddress": [
-        "add component Address with name (.*)",
+        "add component address",
+        "create component address",
+        "ajouter un composant adresse",
+        "créer un composant adresse",
+        "ajouter composant adresse",
+        "créer composant adresse"
+    ],
+    "createNewComponentAddressWithName": [
         "add component address with name (.*)",
-        "add component Address called (.*)",
         "add component address called (.*)",
+        "create component address with name (.*)",
+        "create component address called (.*)",
         "ajouter un composant adresse nommé (.*)",
         "ajouter un composant adresse appelé (.*)",
-        "ajouter un composant Adresse nommé (.*)",
-        "ajouter un composant Adresse appelé (.*)",
         "ajouter composant adresse nommé (.*)",
         "ajouter composant adresse appelé (.*)",
-        "ajouter composant Adresse nommé (.*)",
-        "ajouter composant Adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
         "delete component address",
