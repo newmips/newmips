@@ -341,6 +341,10 @@ router.post('/execute', block_access.isLoggedIn, multer({
             value: 1,
             errorMessage: "You can't create a entity group, because it's a default entity in the application."
         },
+        setFieldUnique: {
+            value: 1,
+            errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
+        }
     };
 
     rl.on('line', function(sourceLine) {
@@ -364,35 +368,38 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
             }
+            var parserResult = parser.parse(line);
             // Get the wanted function given by the bot to do some checks
-            var designerFunction = parser.parse(line)["function"];
+            var designerFunction = parserResult.function;
             var designerValue = null;
-            if(typeof parser.parse(line)["options"] !== "undefined")
-                designerValue = parser.parse(line)["options"]["value"]?parser.parse(line)["options"]["value"]:null;
+            if(typeof parserResult.options !== "undefined")
+                designerValue = parserResult.options.value?parserResult.options.value:null;
 
-            if (designerFunction == "createNewProject" || designerFunction == "selectProject"){
+            if (designerFunction == "createNewProject" || designerFunction == "selectProject")
                 exception.createNewProject.value += 1;
-            }
+
             if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
                 if (designerFunction == "createNewApplication")
                     scriptData[userId].authInstructions = true;
                 exception.createNewApplication.value += 1;
             }
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home"){
+            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home")
                 exception.createModuleHome.value += 1;
-            }
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication"){
+
+            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication")
                 exception.createModuleAuthentication.value += 1;
-            }
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user"){
+
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user")
                 exception.createEntityUser.value += 1;
-            }
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role"){
+
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role")
                 exception.createEntityRole.value += 1;
-            }
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group"){
+
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
-            }
+
+            if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
+                exception.setFieldUnique.value += 1;
             fileLines.push(line);
         }
     });
@@ -566,6 +573,10 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             value: 1,
             errorMessage: "You can't create a entity group, because it's a default entity in the application."
         },
+        setFieldUnique: {
+            value: 1,
+            errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
+        }
     };
 
     rl.on('line', function(sourceLine) {
@@ -589,35 +600,37 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
             }
+            var parserResult = parser.parse(line);
             // Get the wanted function given by the bot to do some checks
-            var designerFunction = parser.parse(line)["function"];
+            var designerFunction = parserResult.function;
             var designerValue = null;
-            if(typeof parser.parse(line)["options"] !== "undefined")
-                designerValue = parser.parse(line)["options"]["value"]?parser.parse(line)["options"]["value"]:null;
-
-            if (designerFunction == "createNewProject" || designerFunction == "selectProject"){
+            if(typeof parserResult.options !== "undefined")
+                designerValue = parserResult.options.value?parserResult.options.value:null;
+            if (designerFunction == "createNewProject" || designerFunction == "selectProject")
                 exception.createNewProject.value += 1;
-            }
             if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
                 if (designerFunction == "createNewApplication")
                     scriptData[userId].authInstructions = true;
                 exception.createNewApplication.value += 1;
             }
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home"){
+            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home")
                 exception.createModuleHome.value += 1;
-            }
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication"){
+
+            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication")
                 exception.createModuleAuthentication.value += 1;
-            }
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user"){
+
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user")
                 exception.createEntityUser.value += 1;
-            }
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role"){
+
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role")
                 exception.createEntityRole.value += 1;
-            }
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group"){
+
+            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
-            }
+
+            if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
+                exception.setFieldUnique.value += 1;
+
             fileLines.push(line);
         }
     });
