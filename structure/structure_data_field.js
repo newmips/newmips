@@ -1123,15 +1123,6 @@ exports.setupHasManyPresetTab = function (attr, callback) {
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
 
-            // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
-            var usingField = "id";
-            var usingFieldDisplay = "id";
-
-            if (typeof attr.options.usingField !== "undefined") {
-                usingField = attr.options.usingField[0].toLowerCase();
-                usingFieldDisplay = attr.options.usingField;
-            }
-
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';

@@ -1172,7 +1172,8 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                         relation: "belongsToMany",
                         through: through,
                         toSync: false,
-                        type: attr.targetType
+                        type: attr.targetType,
+                        usingField: attr.options.usingField || undefined,
                     };
                     structure_data_entity.setupAssociation(associationOptionOne, function () {
                         var associationOptionTwo = {
@@ -1185,7 +1186,8 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                             relation: "belongsToMany",
                             through: through,
                             toSync: false,
-                            type: attr.targetType
+                            type: attr.targetType,
+                            usingField: optionObj.usingField || undefined,
                         };
                         structure_data_entity.setupAssociation(associationOptionTwo, function () {
                             structure_data_field[setupFunction](attr, function () {
@@ -1509,21 +1511,6 @@ exports.createNewHasManyPreset = function (attr, callback) {
             // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
             // If not we continue doing a simple has many association.
             if (!doingBelongsToMany) {
-                /*var reversedAttr = {
-                 options: {
-                 source: attr.options.target,
-                 showSource: attr.options.showTarget,
-                 target: attr.options.source,
-                 showTarget: attr.options.showSource,
-                 foreignKey: attr.options.foreignKey,
-                 showForeignKey: attr.options.showForeignKey
-                 },
-                 id_data_entity: attr.id_data_entity,
-                 id_module: attr.id_module,
-                 id_application: attr.id_application
-                 };*/
-
-                //db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
                 db_field.createNewForeignKey(attr, function (err, created_foreignKey) {
                     if (err) {
                         return callback(err, null);
