@@ -350,7 +350,7 @@ $(function() {
                     return reloadTab(tab);
                 var isCreate = href.indexOf('update_form') != -1 ? false : true;
                 var action, idInput = '', button = '';
-                var cancel = '<button class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
+                var cancel = '<button type="button" class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
                 var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
                 if (isCreate)
                     action = '/'+target+'/create';
