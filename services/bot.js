@@ -6,7 +6,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     };
 
     if (!isNaN(valueToCheck)) {
-        attr.error = "There must be at least one letter in the name."
+        attr.error = "error.oneLetter";
     }
 
     if (valueToCheck.length > 30) {
