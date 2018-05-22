@@ -532,31 +532,10 @@ var generateDocxDoc = function (options) {
 };
 var generatePDFDoc = function (options) {
     return new Promise(function (resolve, reject) {
-//        var pdfFiller = require('pdffiller');
-//        var sourcePDF = options.file;
-//        var destinationPDF = globalConfig.localstorage + '' + Date.now() + '.pdf';
-//        var pdfData = buildPDFJSON(options.entity, options.data);
-//        pdfFiller.fillForm(sourcePDF, destinationPDF, pdfData, function (err) {
-//            if (err)
-//                reject({message: langMessage[options.lang || lang].failToFillPDF});
-//            fs.readFile(destinationPDF, function (err, buffer) {
-//                if (err)
-//                    reject({message: ''});
-//                else {
-//                    fs.unlink(destinationPDF, function (e) {});
-//                    resolve({
-//                        buffer: buffer,
-//                        contentType: "application/pdf",
-//                        ext: '.pdf'
-//                    });
-//                }
-//            });
-//        });
         var pdfFiller = require('fill-pdf');
         var sourcePDF = options.file;
-//        var destinationPDF = globalConfig.localstorage + '' + Date.now() + '.pdf';
         var pdfData = buildPDFJSON(options.entity, options.data);
-        pdfFiller.generatePdf(pdfData, sourcePDF, function (err, out) {
+        pdfFiller.generatePdf(pdfData, sourcePDF, ["flatten"], function (err, out) {
             if (err)
                 reject({message: langMessage[options.lang || lang].failToFillPDF});
             else {

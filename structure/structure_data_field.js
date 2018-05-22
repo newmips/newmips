@@ -131,9 +131,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "			<i class='fa fa-barcode'></i>\n";
             str += "		</div>\n";
             if (file == "show")
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' type='text' data-type='barcode' " + readOnly + "/>\n";
             else
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
@@ -159,7 +159,13 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "nombre" :
         case "int" :
         case "integer" :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
+            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='2147483648' " + readOnly + "/>\n";
+            break;
+        case "big number" :
+        case "big int" :
+        case "big integer" :
+        case "grand nombre" :
+            str += "    <input class='form-control input' data-custom-type='bigint' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='9223372036854775807' " + readOnly + "/>\n";
             break;
         case "decimal" :
         case "double" :
@@ -563,6 +569,13 @@ exports.setupDataField = function (attr, callback) {
         case "integer" :
         case "nombre" :
             typeForModel = "INTEGER";
+            typeForDatalist = "integer";
+            break;
+        case "big number" :
+        case "big int" :
+        case "big integer" :
+        case "grand nombre" :
+            typeForModel = "BIGINT";
             typeForDatalist = "integer";
             break;
         case "url":
