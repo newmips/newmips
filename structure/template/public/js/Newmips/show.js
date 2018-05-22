@@ -351,14 +351,12 @@ $(function() {
                 var isCreate = href.indexOf('update_form') != -1 ? false : true;
                 var action, idInput = '', button = '';
                 var cancel = '<button class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
-                if (isCreate) {
+                var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
+                if (isCreate)
                     action = '/'+target+'/create';
-                    button = '<button type="submit" class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>'+CREATE_TEXT+'</button>';
-                }
                 else if (!isCreate) {
                     idInput = '<input type="hidden" name="id" value="'+id+'">';
                     action = '/'+target+'/update';
-                    button = '<button type="submit" class="btn btn-primary"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
                 }
                 else
                     return reloadTab(tab);
