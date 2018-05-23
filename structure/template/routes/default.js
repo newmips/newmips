@@ -14,6 +14,7 @@ var Jimp = require("jimp");
 var entity_helper = require('../utils/entity_helper');
 var dust = require('dustjs-linkedin');
 var enums_radios = require('../utils/enum_radio.js');
+var component_helper = require('../utils/component_helper');
 
 // ===========================================
 // Redirection Home =====================
@@ -114,6 +115,9 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
             else
                 imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as], sourceOptions[i].target));
         }
+
+        // Component address
+        dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist('e_'+source);
 
         Promise.all(imagePromises).then(function() {
             // Open and render dust file
