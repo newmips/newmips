@@ -1552,23 +1552,15 @@ function addMenuComponentAddressSettings(attr, urlDataEntity, callback) {
         var li = '';
         // Create new html
         li += '<!--{@entityAccess entity="address_settings"}-->\n';
-        li += "     <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;' class='treeview'>\n";
-        li += '         <a href="#">\n';
-        li += '             <i class="fa fa-map-marker"></i>\n';
-        li += '             <span><!--{@__ key="component.' + urlDataEntity.toLowerCase() + '.label_component" /}--></span>\n';
-        li += '             <i class="fa fa-angle-left pull-right"></i>\n';
-        li += '         </a>\n';
-        li += '         <ul class="treeview-menu">\n';
-        li += '             <!--{@actionAccess entity="address_settings" action="create"}-->';
-        li += '                 <li>\n';
-        li += "                     <a href='/address_settings/config'>\n";
-        li += '                         <i class="fa fa-angle-double-right"></i>\n';
-        li += '                         {@__ key="component.' + urlDataEntity + '.settings" /}\n';
-        li += '                     </a>\n';
-        li += '                 </li>';
-        li += '             <!--{/actionAccess}-->';
-        li += '         </ul>\n';
-        li += '     </li>\n';
+        li += '     <!--{@actionAccess entity="address_settings" action="create"}-->';
+        li += "         <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;'>\n";
+        li += '             <a href="/address_settings/config">\n';
+        li += '                 <i class="fa fa-map-marker"></i>\n';
+        li += '                 <span><!--{@__ key="component.' + urlDataEntity.toLowerCase() + '.label_component" /}--></span>\n';
+        li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+        li += '             </a>\n';
+        li += '         </li>\n';
+        li += '     <!--{/actionAccess}-->';
         li += '<!--{/entityAccess}-->\n';
 
         // Add new html to document
