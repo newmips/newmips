@@ -985,7 +985,7 @@ $(document).ready(function () {
         // Clear component address
         $(".print-tab .section_c_address_fields .c_address_maps").replaceWith(
             "<div style='position:relative;height:450px;overflow:hidden;'>"+
-            $(".print-tab .section_c_address_fields .c_address_maps").find(".olLayerGrid").html()+
+            $(".print-tab .section_c_address_fields .c_address_maps").find(".olLayerGrid").parent().html()+
             "</div>");
         window.print();
         return true;
