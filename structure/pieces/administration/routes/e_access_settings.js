@@ -78,7 +78,8 @@ router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionA
     var applicationConfig = require(__dirname+'/../config/application.json');
     applicationConfig.api_enabled = enable == 'true' ? true : false;
     fs.writeFileSync(__dirname+'/../config/application.json', JSON.stringify(applicationConfig, null, 4), 'utf8');
-    delete require.cache[require.resolve(__dirname+'/../config/application.json')]
+
+    return JSON.stringify(applicationConfig, null, 4);
 
     res.status(200).end();
 });

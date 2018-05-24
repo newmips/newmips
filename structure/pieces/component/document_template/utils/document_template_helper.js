@@ -27,9 +27,15 @@ var langMessage = {
                     + "  Elles seront remplacées à la volée par les données de l'entité au moment où vous cliquerez sur le bouton \"Générer\"."
                     + "</p>"
                     + "<p>NB: cliquez sur les titres des sections de chaque entité pour découvrir l'usage des variables.</p>"
-                    + "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Pour utiliser la date de création ou de modification de chaque enregistrement veuillez utiliser:<br><br>"
-                    + "       <strong>{createdAt}</strong> format Docx ou <strong>createdAt</strong> format PDF pour la date de création <br>"
-                    + "       <strong>{updatedAt}</strong> format Docx ou <strong>updatedAt</strong> format PDF pour la date de modification.</h5>",
+                    + "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Pour utiliser la date de création ou de modification de chaque enregistrement veuillez utiliser:<br>"
+                    + "       &nbsp;&nbsp;&nbsp;&nbsp;<strong>{createdAt}</strong> format Docx ou <strong>createdAt</strong> format PDF pour la date de création <br>"
+                    + "       &nbsp;&nbsp;&nbsp;&nbsp;<strong>{updatedAt}</strong> format Docx ou <strong>updatedAt</strong> format PDF pour la date de modification.</h5>"
+                    + " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type boolean<br>"
+                    + " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} pour avoir accès à la valeur non traduite du champs</h5>"
+                    + " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type enum<br>"
+                    + " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} pour avoir accès à la valeur non traduite du champs pour un fichier PDF<br>"
+                    + " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>translation</strong>} pour avoir accès à la traduction du champs </h5>"
+            ,
             entityInformations: "Informations concernant l'entité",
             entityTableRow1: "Entité",
             entityTableRow2: "Variable",
@@ -78,9 +84,14 @@ var langMessage = {
                     + "  They will be replaced by the entity's data when you click on the \"Generate\" button who is on entity show page."
                     + "</p>"
                     + "<p>Click on each entity name to discover the use of the variables.</p>"
-                    + "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; To use createdAt and updatedAt of each entity please add:<br><br>"
-                    + "       <strong>{createdAt}</strong> for Docx file or <strong>createdAt</strong> for PDF file <br>"
-                    + "       <strong>{updatedAt}</strong> for Docx file or <strong>updatedAt</strong> for PDF file</h5>",
+                    + "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; To use createdAt and updatedAt of each entity please add:<br>"
+                    + "       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>{createdAt}</strong> for Docx file or <strong>createdAt</strong> for PDF file <br>"
+                    + "       &nbsp;&nbsp;&nbsp;&nbsp;<strong>{updatedAt}</strong> for Docx file or <strong>updatedAt</strong> for PDF file</h5>"
+                    + " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type boolean<br>"
+                    + " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} to access the untranslated value of field</h5>"
+                    + " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type enum<br>"
+                    + " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} to access the untranslated value or code of field for PDF file<br>"
+                    + " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>translation</strong>} to access field translation  </h5>",
             entityInformations: "Entity informations",
             entityTableRow1: "Entity",
             entityTableRow2: "Variable",
@@ -204,13 +215,14 @@ module.exports = {
                     //clean all date
                     if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && object[item] !== '') {
                         var format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
-                        object[item] = moment(object[item]).format(format);
+                        object[item] = moment(new Date(object[item])).format(format);
                     }
                     if ((attribute.newmipsType === "password")) {
                         object[item] = '';
                     }
                     //translate boolean values
                     if (attribute.newmipsType === "boolean") {
+                        object[item + '_value'] = object[item];//true value
                         if (fileType === "application/pdf") {
                             object[item] = object[item] == true ? "Yes" : "No";
                         } else
@@ -225,9 +237,8 @@ module.exports = {
                         object[item] = format_tel(object[item], ' ');
                     }
                     if (attribute.type === "ENUM") {
-                        if (fileType === "application/pdf") {
-                            setEnumValue(object, item, entityName);
-                        }
+
+                        setEnumValue(object, item, entityName, fileType, userLang);
                     }
                     break;
 //                if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
@@ -521,25 +532,19 @@ var generateDocxDoc = function (options) {
 };
 var generatePDFDoc = function (options) {
     return new Promise(function (resolve, reject) {
-        var pdfFiller = require('pdffiller');
+        var pdfFiller = require('fill-pdf');
         var sourcePDF = options.file;
-        var destinationPDF = globalConfig.localstorage + '' + Date.now() + '.pdf';
         var pdfData = buildPDFJSON(options.entity, options.data);
-        pdfFiller.fillForm(sourcePDF, destinationPDF, pdfData, function (err) {
+        pdfFiller.generatePdf(pdfData, sourcePDF, ["flatten"], function (err, out) {
             if (err)
                 reject({message: langMessage[options.lang || lang].failToFillPDF});
-            fs.readFile(destinationPDF, function (err, buffer) {
-                if (err)
-                    reject({message: ''});
-                else {
-                    fs.unlink(destinationPDF, function (e) {});
-                    resolve({
-                        buffer: buffer,
-                        contentType: "application/pdf",
-                        ext: '.pdf'
-                    });
-                }
-            });
+            else {
+                resolve({
+                    buffer: out,
+                    contentType: "application/pdf",
+                    ext: '.pdf'
+                });
+            }
         });
     });
 };
@@ -600,13 +605,18 @@ var format_tel = function (tel, separator) {
         return str;
 };
 
-var setEnumValue = function (object, enumItem, entityName) {
+var setEnumValue = function (object, enumItem, entityName, fileType, userLang) {
     var values = enums_radios[entityName][enumItem];
     if (typeof values !== "undefined") {
         for (var i = 0; i < values.length; i++) {
             var entry = values[i];
             if (object[enumItem].toLowerCase() === entry.value.toLowerCase()) {
-                object[enumItem] = (i + 1) + '';
+                if (fileType === "application/pdf") {
+                    object[enumItem] = (i + 1) + '';
+                    object[enumItem + '_value'] = entry.value;
+                } else
+                    object[enumItem] = entry.value;
+                object[enumItem + '_translation'] = entry.translations[userLang];
                 break;
             }
         }

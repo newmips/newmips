@@ -6,6 +6,11 @@
 Core: General style
 ----------------------------
 */
+/* DataTables buttons*/
+.dt-buttons: {
+    margin-left: 20px;
+}
+
 .hover:hover {
     cursor: pointer;
 }
@@ -19,15 +24,17 @@ label.no-weight {
     font-weight: normal !important;
 }
 /** Component Address**/
-.section_c_address{
+.section_c_address_fields{
     border:1px solid #dddddd;
-    margin: 5px;
+    /*margin: 5px;*/
+    margin-bottom: 5px;
+    padding-bottom: 5px;
 }
 .div_c_address_search_area{
     margin-top: -16px;
 }
 .c_address_maps{
-    margin-top: 25px;
+    margin-top: 25px  !important;
     height: 405px;
     background-color: #efefef;
 }
@@ -43,7 +50,7 @@ label.required:after {
 .connectedSortable {
     padding-bottom: 10px;
 }
-.quicklinks span{
+.quicklinks a, .quicklinks button {
     margin-right: 6px;
 }
 .dataTable thead{
@@ -208,4 +215,8 @@ div.dataTables_length select {
 
 .fieldLineHeight{
     min-height: 75px;
+}
+
+.input-group-addon{
+    cursor: pointer;
 }

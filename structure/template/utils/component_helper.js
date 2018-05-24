@@ -25,7 +25,6 @@ module.exports = {
             } else
                 resolve();
         });
-
     },
     updateAddressIfComponentExist: function (entityObject, options, data/*req.body*/) {
         if (entityObject.fk_id_c_address) {

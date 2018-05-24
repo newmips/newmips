@@ -91,16 +91,19 @@ function initForm(context) {
 
     /* --------------- Regex on decimal input --------------- */
     var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
-    $("input[data-custom-type='decimal']", context).keyup(function (e) {
+    $("input[data-custom-type='decimal']", context).keyup(function () {
         while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
     });
 
     /* --------------- Max length on input number --------------- */
-    $("input[type='number']", context).keyup(function (e) {
-        if (typeof $(this).data("customtype") === "undefined")
+    $("input[type='number']", context).keyup(function () {
+        if (typeof $(this).data("custom-type") === "undefined"){
             if (this.value.length > 10)
                 this.value = this.value.slice(0, 10);
+        } else if($(this).data("custom-type") == "bigint")
+            if (this.value.length > 19)
+                this.value = this.value.slice(0, 19);
     });
 
     /* --------------- Initialisation des DatetimePicker --------------- */
@@ -250,7 +253,7 @@ function initForm(context) {
         var jq_element = $(element);
         var id = jq_element.attr('name');
         var img = '<br><img id="' + id + '" class="img img-responsive"/>';
-        var barcodeType = jq_element.attr('data-customtype');
+        var barcodeType = jq_element.attr('data-custom-type');
         if (typeof barcodeType != 'undefined') {
             jq_element.parent().after(img);
             try {
@@ -274,7 +277,7 @@ function initForm(context) {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
-            if ($(this).attr('data-customType') === 'code39' || $(this).attr('data-customType') === 'alpha39') {
+            if ($(this).attr('data-custom-type') === 'code39' || $(this).attr('data-custom-type') === 'alpha39') {
                 $(this).on('keyup', function () {
                     $(this).val($(this).val().toUpperCase());
                 });
@@ -368,8 +371,8 @@ function initForm(context) {
                 });
             },
             renameFilename: function (filename) {
-                if (filename.indexOf('dfltImg_') != -1)
-                    return filename;
+                if (filename.indexOf("dfltImg_") != -1)
+                    return filename.replace("dfltImg_", "");
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
                     var timeFile = moment().format("YYYYMMDD-HHmmss");
                     $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
@@ -385,7 +388,7 @@ function initForm(context) {
         var dropzoneId = $(this).attr('id') + '';
         if ($('#' + dropzoneId + '_hidden').val() != '') {
             var mockFile = {
-                name: $('#' + dropzoneId + '_hidden').val(),
+                name: "dfltImg_" + $('#' + dropzoneId + '_hidden').val(),
                 type: 'mockfile',
                 default: true
             };
@@ -396,6 +399,15 @@ function initForm(context) {
         }
         dropzoneInit.done = false;
         dropzonesFieldArray.push(dropzoneInit);
+    });
+
+    // Component address
+    if(typeof context.data === "undefined" || context.data("tabtype") != "print")
+        initComponentAddress();
+
+    // Input group addons click
+    $(document).on("click", ".input-group-addon", function(){
+        $(this).next("input").focus();
     });
 }
 
@@ -464,7 +476,7 @@ function initPrint() {
         $(this).attr("placeholder", "-");
         $(this).css("cursor", "default");
         $(this).css("padding", "0");
-        if ($(this).attr("type") == "hidden")
+        if ($(this).attr("type") == "hidden" && !$(this).hasClass("print-not-remove"))
             $(this).remove();
     });
 
@@ -556,6 +568,13 @@ function initPrint() {
     $(".print-tab .print-remove").each(function () {
         $(this).remove();
     });
+
+    // Component address
+    $(".print-tab .c_address_maps").attr("mapsid", $(".print-tab .c_address_maps").attr("mapsid") + "_print");
+    $(".print-tab .c_address_maps").attr("id", $(".print-tab .c_address_maps").attr("id") + "_print");
+    setTimeout(function() {
+        initMapsIfComponentAddressExists($(".print-tab"));
+    }, 500);
 }
 
 function validateForm(form) {
@@ -659,7 +678,7 @@ function validateForm(form) {
     form.find("input[data-type='barcode']").each(function () {
         var val = $(this).val();
         if (val != '') {
-            var customType = $(this).attr('data-customtype');
+            var customType = $(this).attr('data-custom-type');
             if (typeof customType != 'undefined') {
                 var error = false;
                 var len;
@@ -961,41 +980,55 @@ $(document).ready(function () {
         });
     });
 
-    //Component address
-    (function () {
+    /* Component print button action */
+    $(document).on("click", ".component-print-button", function () {
+        // Clear component address
+        $(".print-tab .section_c_address_fields .c_address_maps").replaceWith(
+            "<div style='position:relative;height:450px;overflow:hidden;'>"+
+            $(".print-tab .section_c_address_fields .c_address_maps").find(".olLayerGrid").parent().html()+
+            "</div>");
+        window.print();
+        return true;
+    });
+});
+
+function initComponentAddress(context) {
+    (function() {
         var componentAddressConf = {
             url: "https://api-adresse.data.gouv.fr/search/",
             query_parm: 'q',
-            type: 'get', //HTTP request type
-            addresses: 'features', //objet which contain list of address, if equal '.' whe take response as list, 
-            address_fields: 'properties', //objet name which contain attributes or '.' , 
-            autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
-            enable: true//If  enable, do query and get data, else data should be to set manually by user
+            type: 'get', // HTTP request type
+            addresses: 'features', // objet which contain list of address, if equal '.' whe take response as list,
+            address_fields: 'properties', // objet name which contain attributes or '.' ,
+            autocomplete_field: 'label', // field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
+            enable: true // If  enable, do query and get data, else data should be to set manually by user
         };
         if (componentAddressConf.enable) {
-            $('.c_address_field').on('keyup', function () {
+            $('.c_address_field').on('keyup', function() {
                 $(this).val($(this).val().toUpperCase());
             });
-            $('#c_address_search_area').each(function () {
+            $("#c_address_search_area", context).each(function() {
                 var result;
                 var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
                 $(this).autocomplete({
                     minLength: 1,
-                    source: function (req, res) {
+                    source: function(req, res) {
                         var val = $('#c_address_search_area').val();
-                        var data = {limit: 10};
+                        var data = {
+                            limit: 10
+                        };
                         data[componentAddressConf.query_parm] = val;
                         $.ajax({
                             url: componentAddressConf.url,
                             type: componentAddressConf.type,
                             data: data,
                             dataType: 'json',
-                            success: function (data) {
+                            success: function(data) {
                                 result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
-                                res($.map(result, function (_address) {
+                                res($.map(result, function(_address) {
                                     var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
                                     var toReturn = '';
-                                    fieldsToShow.forEach(function (field) {
+                                    fieldsToShow.forEach(function(field) {
                                         toReturn += objet[field] + ' ';
                                     });
                                     return toReturn;
@@ -1003,12 +1036,12 @@ $(document).ready(function () {
                             }
                         });
                     },
-                    select: function (e, ui) {
-                        result.forEach(function (_) {
+                    select: function(e, ui) {
+                        result.forEach(function(_) {
                             var toReturn = '';
                             var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
                             var toReturn = '';
-                            fieldsToShow.forEach(function (field) {
+                            fieldsToShow.forEach(function(field) {
                                 toReturn += _address[field] + ' ';
                             });
                             if (ui.item.value == toReturn) {
@@ -1019,6 +1052,9 @@ $(document).ready(function () {
                                 /** Set Lat and Long value **/
                                 $('input[name=f_c_address_lat]').val(_.geometry.coordinates[0]);
                                 $('input[name=f_c_address_lon]').val(_.geometry.coordinates[1]);
+                                if ((!_address.street || typeof _address.street === "undefined") && _address.name)
+                                    $("#f_c_address_street").val(_address.name);
+
                             }
                         });
                     }
@@ -1026,45 +1062,90 @@ $(document).ready(function () {
             });
         }
     }());
-    function initComponentAddressMaps(lat, lon) {
-        $('#c_address_maps').empty();
-        var options = {
-            controls: [
-            ]
-        };
-        if ($('#f_c_address_navigation').val() === 'true')
-            options.controls.push(new OpenLayers.Control.Navigation());
-        if ($('#f_c_address_zoomBar').val() === 'true')
-            options.controls.push(new OpenLayers.Control.PanZoomBar());
-        if ($('#f_c_address_mousePosition').val() === 'true')
-            options.controls.push(new OpenLayers.Control.MousePosition());
-        map = new OpenLayers.Map("c_address_maps", options);
-        var mapnik = new OpenLayers.Layer.OSM();
-        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
-        var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-        var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
-        var zoom = 15;
-        var markers = new OpenLayers.Layer.Markers("Markers");
-        map.addLayer(markers);
-        markers.addMarker(new OpenLayers.Marker(position));
-        map.addLayer(mapnik);
-        map.setCenter(position, zoom);
-    }
-    var f_c_address_lat = $('#f_c_address_lat').val();
-    var f_c_address_lon = $('#f_c_address_lon').val();
-    var f_c_address_enableMaps = $('#f_c_address_enableMaps').val();
-    if (f_c_address_lat && f_c_address_lon && f_c_address_enableMaps) {
-        initComponentAddressMaps(f_c_address_lat, f_c_address_lon);
-    } else if ((!f_c_address_lat || !f_c_address_lon) && f_c_address_enableMaps) {
-        var info = '<div class="alert bg-gray alert-dismissible hidden-xs" >'
-                + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
-                + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_c_address_notValid').val() + '</h4>'
-                + '</div>';
-        $('#c_address_maps').append(info);
-    }
-    /* Component print button action */
-    $(document).on("click", ".component-print-button", function () {
-        window.print();
-        return true;
+    $('#info_c_address_maps').on('click', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/address_settings/info_c_address_maps_ajax',
+            methode: 'GET',
+            success: function(data) {
+                if (data && data.message) {
+                    var html = '<div class="modal fade" tabindex="-1" role="dialog">';
+                    html += '<div class="modal-dialog" role="document">';
+                    html += '<div class="modal-content">';
+                    html += '<div class="modal-header" style="background:#3c8dbc;color:#ffffff">';
+                    html += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+                    html += '<h4 class="modal-title">Information</h4>';
+                    html += '</div>';
+                    html += '<div class="modal-body">';
+                    html += data.message;
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    $(html).modal('show');
+                }
+            },
+            error: function(e) {}
+        });
+        return false;
     });
-});
+    setTimeout(function() {
+        initMapsIfComponentAddressExists(context);
+    }, 500);
+}
+
+function initMapsIfComponentAddressExists(context) {
+    if (!context)
+        context = document;
+    $('.section_c_address_fields', context).each(function () {
+        var address_context = this;
+
+        var f_c_address_lat = $(address_context).find('.f_c_address_lat').val();
+        var f_c_address_lon = $(address_context).find('.f_c_address_lon').val();
+        var f_c_address_enableMaps = $(address_context).find('.f_c_address_enableMaps').val();
+        if (f_c_address_lat && f_c_address_lon && f_c_address_enableMaps) {
+            initComponentAddressMaps(f_c_address_lat, f_c_address_lon, address_context);
+        } else if ((!f_c_address_lat || !f_c_address_lon) && f_c_address_enableMaps) {
+            var info = '<div class="alert bg-gray alert-dismissible " >'
+                    + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true" id="btnDismissInfoInvalidAddress">×</button>'
+                    + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_c_address_notValid').val() + '</h4>'
+                    + '</div>';
+            $('.c_address_maps', address_context).append(info);
+            $('#btnDismissInfoInvalidAddress', address_context).on('click', function () {
+                $('.c_address_maps', address_context).parent().remove();
+                $('.c_address_fields', address_context).removeClass('col-md-6').addClass('col-md-12');
+            });
+        }
+    });
+    function initComponentAddressMaps(lat, lon, mapsContext) {
+        try {
+            $(mapsContext).find('.c_address_maps').each(function () {
+                $(this).empty();
+                var options = {
+                    controls: []
+                };
+                if ($('.f_c_address_navigation', mapsContext).val() === 'true')
+                    options.controls.push(new OpenLayers.Control.Navigation());
+                if ($('.f_c_address_zoomBar', mapsContext).val() === 'true')
+                    options.controls.push(new OpenLayers.Control.PanZoomBar());
+                if ($('.f_c_address_mousePosition', mapsContext).val() === 'true')
+                    options.controls.push(new OpenLayers.Control.MousePosition());
+
+                var map = new OpenLayers.Map($(this).attr('mapsid'), options);
+                var mapnik = new OpenLayers.Layer.OSM();
+                var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+                var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+                var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
+                var zoom = 15;
+                var markers = new OpenLayers.Layer.Markers("Markers");
+
+                map.addLayer(markers);
+                markers.addMarker(new OpenLayers.Marker(position));
+                map.addLayer(mapnik);
+                map.setCenter(position, zoom);
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+}

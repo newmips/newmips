@@ -50,18 +50,23 @@
         var CREATE_TEXT = '{@__ key="button.create"/}';
         var UPDATE_TEXT = '{@__ key="button.update"/}';
         var SAVE_TEXT = '{@__ key="button.save"/}';
+        var DELETE_TEXT = '{@__ key="button.delete"/}';
         var CANCEL_TEXT = '{@__ key="button.cancel"/}';
+        var REMOVE_TEXT = '{@__ key="button.remove" /}';
         var DEL_CONFIRM_TEXT = '{@__ key="button.delete_confirm"/}';
         var CREATE_BUTTON = '<a href="#" data-href="" class="ajax btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>'+CREATE_TEXT+'</span></a>';
         var UPDATE_BUTTON = '<a style="margin-right:8px;" data-href="" href="#" class="ajax btn btn-warning"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>'+UPDATE_TEXT+'</span></a>';
         var DELETE_FORM = '<form action="" class="ajax" method="post"><button onclick="return confirm(\''+DEL_CONFIRM_TEXT+'\');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.delete" /}</span><input name="id" type="hidden"></button></form>';
         var FIELDSET_SELECT = '<form action="" class="ajax" method="post" style="margin-bottom: 20px;"><select style="width:200px;" class="form-control regular-select" name="ids" required="" multiple=""></select><button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button><input type="hidden" value="{custom_data_entity.id}" name="idEntity"></form>';
+
+        var DATALIST_BUTTONS = [];
     </script>
 
     <!-- DATA TABLES SCRIPT-->
     <script src="/js/plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
-    <script src="/js/plugins/datatables/simpleTable.js" type="text/javascript"></script>
+    <script src="/js/Newmips/dataTableBuilder.js" type="text/javascript"></script>
+    <script src="/js/Newmips/simpleTable.js" type="text/javascript"></script>
     <!-- DATATABLE EXPORT-->
     <script src="/js/plugins/datatables/buttons/datatableButton.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>
