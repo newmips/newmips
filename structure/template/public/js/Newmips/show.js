@@ -147,7 +147,7 @@ function currencyFormat(num) {
 function initHasOne(tab, data) {
     var associationHref = buildAssociationHref(tab);
     // Set new content
-    tab.find('.ajax-content').html(data.empty == true ? EMPTY+'<br><br>' : data.content);
+    tab.find('.ajax-content').html(data.empty == true ? EMPTY+'<br><br>' : $(data.content).find("#home").length?$(data.content).find("#home"):data.content);
     // Delete buttons from original view
     tab.find('.quicklinks').remove();
 
