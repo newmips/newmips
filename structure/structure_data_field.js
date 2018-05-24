@@ -46,13 +46,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             case "boolean" :
             case "checkbox" :
             case "case à cocher" :
-                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
                     value = true;
-                } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
                     value = false;
-                } else {
+                else
                     console.log("ERROR: Invalid default value " + defaultValue + " for boolean input.")
-                }
                 break;
             case "enum" :
                 value = attrHelper.clearString(defaultValue);
@@ -132,9 +131,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "			<i class='fa fa-barcode'></i>\n";
             str += "		</div>\n";
             if (file == "show")
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' type='text' data-type='barcode' " + readOnly + "/>\n";
             else
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
@@ -160,7 +159,13 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "nombre" :
         case "int" :
         case "integer" :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
+            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='2147483648' " + readOnly + "/>\n";
+            break;
+        case "big number" :
+        case "big int" :
+        case "big integer" :
+        case "grand nombre" :
+            str += "    <input class='form-control input' data-custom-type='bigint' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='9223372036854775807' " + readOnly + "/>\n";
             break;
         case "decimal" :
         case "double" :
@@ -362,20 +367,18 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "text" :
         case "texte" :
             value = "{" + dataField + "|s}";
-            if (file == 'show') {
+            if (file == 'show')
                 str += "    <div class='show-textarea'>"+value+"</div>\n";
-            } else{
+            else
                 str += "    <textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
-            }
             break;
         case "regular text" :
         case "texte standard" :
             value = "{" + dataField + "|s}";
-            if (file == 'show') {
+            if (file == 'show')
                 str += "    <div class='show-textarea'>"+value+"</div>\n";
-            } else{
+            else
                 str += "    <textarea class='form-control textarea regular-textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
-            }
             break;
         case "localfile" :
         case "fichier":
@@ -389,7 +392,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-download'></i>\n";
                 str += "		</div>\n";
-                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + " " + readOnly + ">" + value + "</a>\n";
+                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">" + value + "</a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -509,9 +512,8 @@ exports.setupDataField = function (attr, callback) {
         var values = options.allValues;
         if (values.indexOf(",") != -1) {
             values_data_field = values.split(",");
-            for (var j = 0; j < values_data_field.length; j++) {
+            for (var j = 0; j < values_data_field.length; j++)
                 values_data_field[j] = values_data_field[j].trim();
-            }
         } else {
             var err = new Error();
             err.message = "structure.field.attributes.noSpace";
@@ -520,11 +522,9 @@ exports.setupDataField = function (attr, callback) {
 
         var sameResults_sorted = values_data_field.slice().sort();
         var sameResults = [];
-        for (var i = 0; i < values_data_field.length - 1; i++) {
-            if (sameResults_sorted[i + 1] == sameResults_sorted[i]) {
+        for (var i = 0; i < values_data_field.length - 1; i++)
+            if (sameResults_sorted[i + 1] == sameResults_sorted[i])
                 sameResults.push(sameResults_sorted[i]);
-            }
-        }
 
         if(sameResults.length > 0){
             var err = new Error();
@@ -569,6 +569,13 @@ exports.setupDataField = function (attr, callback) {
         case "integer" :
         case "nombre" :
             typeForModel = "INTEGER";
+            typeForDatalist = "integer";
+            break;
+        case "big number" :
+        case "big int" :
+        case "big integer" :
+        case "grand nombre" :
+            typeForModel = "BIGINT";
             typeForDatalist = "integer";
             break;
         case "url":
@@ -690,16 +697,15 @@ exports.setupDataField = function (attr, callback) {
 
     // Default value managment
     if (typeof options.defaultValue !== "undefined" && options.defaultValue != null){
-        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM"){
+        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM")
             defaultValueForOption = options.defaultValue;
-        } else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue)){
+        else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue))
             defaultValueForOption = options.defaultValue;
-        } else if(typeForModel == "BOOLEAN"){
-            if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+        else if(typeForModel == "BOOLEAN"){
+            if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
                 defaultValueForOption = 1;
-            } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+            else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
                 defaultValueForOption = 0;
-            }
         }
     }
 
@@ -711,9 +717,9 @@ exports.setupDataField = function (attr, callback) {
             err.message = "structure.field.attributes.missingValues";
             return callback(err, null);
         }
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
-        }
+
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues,
@@ -732,9 +738,8 @@ exports.setupDataField = function (attr, callback) {
             err.message = "structure.field.attributes.missingValues";
             return callback(err,null);
         }
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
-        }
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues,
@@ -796,7 +801,7 @@ exports.setupDataField = function (attr, callback) {
         if (radioData[codeName_data_entity.toLowerCase()])
             json = radioData[codeName_data_entity.toLowerCase()];
         json[key] = [];
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             json[key].push({
                 value: cleanRadioValues[i],
                 translations: {
@@ -804,7 +809,6 @@ exports.setupDataField = function (attr, callback) {
                     "en-EN": values_data_field[i]
                 }
             });
-        }
         radioData[codeName_data_entity.toLowerCase()] = json;
 
         // Write Enum file
@@ -852,11 +856,11 @@ exports.setRequiredAttribute = function (attr, callback) {
     var attribute = attr.options.word.toLowerCase();
     var set = null;
 
-    if (possibilityRequired.indexOf(attribute) != -1) {
+    if (possibilityRequired.indexOf(attribute) != -1)
         set = true;
-    } else if (possibilityOptionnal.indexOf(attribute) != -1) {
+    else if (possibilityOptionnal.indexOf(attribute) != -1)
         set = false;
-    } else {
+    else {
         var err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
@@ -929,11 +933,11 @@ exports.setUniqueField = function (attr, callback) {
     var idApplication = attr.id_application;
     var codeName_data_entity = attr.name_data_entity.toLowerCase();
 
-    if (possibilityUnique.indexOf(attribute) != -1) {
+    if (possibilityUnique.indexOf(attribute) != -1)
         set = true;
-    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+    else if (possibilityNotUnique.indexOf(attribute) != -1)
         set = false;
-    } else {
+    else {
         var err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
@@ -1019,9 +1023,9 @@ function addTab(attr, file, newLi, newTabContent, target) {
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
-            } else {
-                context = $("#tabs");
             }
+            else
+                context = $("#tabs");
 
             // Append created elements to `context` to handle presence of tab or not
             newLi = '<!--{@entityAccess entity="'+target.substring(2)+'"}-->\n'+newLi+'\n<!--{/entityAccess}-->';
@@ -1119,15 +1123,6 @@ exports.setupHasManyPresetTab = function (attr, callback) {
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
 
-            // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
-            var usingField = "id";
-            var usingFieldDisplay = "id";
-
-            if (typeof attr.options.usingField !== "undefined") {
-                usingField = attr.options.usingField[0].toLowerCase();
-                usingFieldDisplay = attr.options.usingField;
-            }
-
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
@@ -1145,15 +1140,13 @@ exports.setupHasManyPresetTab = function (attr, callback) {
 
 exports.saveHasManyData = function (attr, data, foreignKey, callback){
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
-    delete require.cache[require.resolve(jsonPath)];
-    var toSync = require(jsonPath);
+    var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
     toSync.queries = [];
     var firstKey = "fk_id_"+attr.options.source;
     var secondKey = "fk_id_"+attr.options.target;
     /* Insert value in toSync queries array to add values of the old has many in the belongs to many */
-    for(var i=0; i<data.length; i++){
+    for(var i=0; i<data.length; i++)
         toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
-    }
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
     callback();
 }
@@ -1442,8 +1435,7 @@ exports.deleteDataField = function (attr, callback) {
     var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
 
     // Clear the require cache
-    delete require.cache[require.resolve(jsonPath)];
-    var dataToWrite = require(jsonPath);
+    var dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
     for (var i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
@@ -1472,8 +1464,7 @@ exports.deleteDataField = function (attr, callback) {
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
         jsonPath = __dirname + '/../workspace/' + idApp + '/models/attributes/' + name_data_entity + '.json';
-        delete require.cache[require.resolve(jsonPath)];
-        dataToWrite = require(jsonPath);
+        dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
         delete dataToWrite[name_data_field];
 
@@ -1511,8 +1502,8 @@ exports.deleteDataField = function (attr, callback) {
                 $("td[data-field='" + name_data_field + "']").remove();
 
                 // In case of related to
-                $("th[data-field^='r_" + name_data_field.substring(2) + "']").remove();
-                $("td[data-field^='r_" + name_data_field.substring(2) + "']").remove();
+                $("th[data-col^='r_" + name_data_field.substring(2) + ".']").remove();
+                $("td[data-col^='r_" + name_data_field.substring(2) + ".']").remove();
                 domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
                     resolve();
                 });
@@ -1583,6 +1574,10 @@ exports.deleteTab = function (attr, callback) {
             $("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
             // Remove tab content
             $("#r_" + tabNameWithoutPrefix).remove();
+
+            // If last tab have been deleted, remove tab structure from view
+            if ($(".tab-content .tab-pane").length == 1)
+                $("#tabs").replaceWith($("#home").html());
 
             domHelper.write(showFile, $).then(function () {
                 var printFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/print_fields.dust';

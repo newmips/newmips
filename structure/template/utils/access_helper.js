@@ -14,8 +14,7 @@ exports.getPreviewData = function() {
 				values.roles = roles || [];
 
 				// Get access configuration
-				delete require.cache[require.resolve('../config/access.json')]
-				var access = require('../config/access.json');
+				var access = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
 
 				// Restructure access object for dustjs
 				var modules = [];
@@ -35,8 +34,7 @@ exports.getPreviewData = function() {
 
 exports.setGroupAccess = function(modules, entities) {
 	var accessFileName = __dirname+'/../config/access.json';
-	delete require.cache[require.resolve(accessFileName)];
-	var access = require(accessFileName);
+	var access = JSON.parse(fs.readFileSync(accessFileName, 'utf8'));
 
 	// Loop through access.json modules
 	for (var module in access) {
@@ -61,8 +59,7 @@ exports.setGroupAccess = function(modules, entities) {
 
 exports.setRoleAccess = function(entities) {
 	var accessFileName = __dirname+'/../config/access.json';
-	delete require.cache[require.resolve(accessFileName)];
-	var access = require(accessFileName);
+	var access = JSON.parse(fs.readFileSync(accessFileName, 'utf8'));
 
 	for (var module in access) {
 		for (var i = 0; i < access[module].entities.length; i++) {

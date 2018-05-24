@@ -35,7 +35,7 @@ router.get('/', function(req, res) {
     if (include.length)
         query.include = include;
 
-    var where = {}, haveFilter = false;
+    var where = {};
     for (var field in req.query)
         if (field.indexOf('f_') == 0 && attributes[field])
             where[field] = req.query[field];
@@ -123,9 +123,16 @@ router.get('/:id/:association', function(req, res) {
         return res.status(404).json(answer);
     }
 
+    var where = {};
+    for (var field in req.query)
+        if (field.indexOf('f_') == 0)
+            where[field] = req.query[field];
+    if (Object.keys(where).length)
+        include.where = where;
+
     models.MODEL_NAME.findOne({
         where: {id: id_ENTITY_NAME},
-        include: [include]
+        include: include
     }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             answer.error = "No ENTITY_NAME with ID "+id_ENTITY_NAME;

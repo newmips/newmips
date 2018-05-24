@@ -195,6 +195,7 @@
         "plural": "entities"
     },
     "error":{
+        "oneLetter": "There must be at least one letter in the name.",
         "oops": "Oops! An error occured :(",
         "textone": "You should contact your system administrator, and you can",
         "texttwo": "go to the home page",

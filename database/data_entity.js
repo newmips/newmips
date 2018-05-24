@@ -83,22 +83,22 @@ exports.selectEntity = function(attr, callback) {
 }
 
 // DataEntity with just a name
-exports.selectEntityTarget = function (attr, callback) {
+exports.selectEntityTarget = function(attr, callback) {
 
     models.DataEntity.findOne({
         where: {
             name: attr.options.showTarget
         },
         include: [{
-                model: models.Module,
-                include: [{
-                        model: models.Application,
-                        where: {
-                            id: attr.id_application
-                        }
-                    }]
+            model: models.Module,
+            include: [{
+                model: models.Application,
+                where: {
+                    id: attr.id_application
+                }
             }]
-    }).then(function (dataEntity) {
+        }]
+    }).then(function(dataEntity) {
         if (!dataEntity) {
             var err = new Error();
             err.level = 0;
@@ -106,7 +106,7 @@ exports.selectEntityTarget = function (attr, callback) {
             return callback(err, null);
         }
         callback(null, dataEntity);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
@@ -169,21 +169,25 @@ exports.createNewEntity = function(attr, callback) {
     });
 }
 
-exports.createNewEntityTarget = function (attr, callback) {
+exports.createNewEntityTarget = function(attr, callback) {
     models.DataEntity.findOne({
         where: {
-            $or: [{name: attr.options.showTarget}, {codeName: attr.options.target}]
+            $or: [{
+                name: attr.options.showTarget
+            }, {
+                codeName: attr.options.target
+            }]
         },
         include: [{
-                model: models.Module,
-                include: [{
-                        model: models.Application,
-                        where: {
-                            id: attr.id_application
-                        }
-                    }]
+            model: models.Module,
+            include: [{
+                model: models.Application,
+                where: {
+                    id: attr.id_application
+                }
             }]
-    }).then(function (dataEntity) {
+        }]
+    }).then(function(dataEntity) {
         if (dataEntity) {
             var err = new Error();
             err.message = "database.entity.create.alreadyExist";
@@ -195,37 +199,37 @@ exports.createNewEntityTarget = function (attr, callback) {
             codeName: attr.options.target,
             id_module: attr.id_module,
             version: 1
-        }).then(function (createdEntity) {
+        }).then(function(createdEntity) {
             var info = {};
             info.insertId = createdEntity.id;
             info.name = createdEntity.name;
             info.codeName = createdEntity.codeName;
             info.message = "database.entity.create.success";
-            models.Module.findById(attr.id_module).then(function (module) {
+            models.Module.findById(attr.id_module).then(function(module) {
                 info.messageParams = [createdEntity.name, createdEntity.id, module.name, createdEntity.name];
                 callback(null, info);
             });
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // List Entity
-exports.listDataEntity = function (attr, callback) {
+exports.listDataEntity = function(attr, callback) {
 
     models.DataEntity.findAll({
         order: 'id DESC',
         include: [{
-                model: models.Module,
-                include: [{
-                        model: models.Application,
-                        where: {
-                            id: attr.id_application
-                        }
-                    }]
+            model: models.Module,
+            include: [{
+                model: models.Application,
+                where: {
+                    id: attr.id_application
+                }
             }]
-    }).then(function (dataEntities) {
+        }]
+    }).then(function(dataEntities) {
         var info = {};
         info.message = "<br><ul>";
         if (!dataEntities || dataEntities.length == 0)
@@ -237,28 +241,30 @@ exports.listDataEntity = function (attr, callback) {
         info.message += "</ul>";
         info.rows = dataEntities;
         callback(null, info);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // List data entity names by application id
-exports.listDataEntityNameByApplicationId = function (id_application, callback) {
+exports.listDataEntityNameByApplicationId = function(id_application, callback) {
     models.Application.findOne({
-        where: {id: id_application},
+        where: {
+            id: id_application
+        },
         include: [{
-                model: models.Module,
-                include: models.DataEntity
-            }]
-    }).then(function (app) {
+            model: models.Module,
+            include: models.DataEntity
+        }]
+    }).then(function(app) {
         callback(null, app);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // GetById
-exports.getNameDataEntityById = function (idEntity, callback) {
+exports.getNameDataEntityById = function(idEntity, callback) {
 
     if (idEntity == null) {
         var err = new Error();
@@ -266,7 +272,11 @@ exports.getNameDataEntityById = function (idEntity, callback) {
         return callback(err, null);
     }
 
-    models.DataEntity.findOne({where: {id: idEntity}}).then(function (dataEntity) {
+    models.DataEntity.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then(function(dataEntity) {
         if (!dataEntity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisID";
@@ -275,13 +285,13 @@ exports.getNameDataEntityById = function (idEntity, callback) {
         }
 
         callback(null, dataEntity.name);
-    }).catch(function (err) {
+    }).catch(function(err) {
         return callback(err, null);
     });
 }
 
 // GetById
-exports.getDataEntityById = function (idEntity, callback) {
+exports.getDataEntityById = function(idEntity, callback) {
 
     if (idEntity == null) {
         var err = new Error();
@@ -289,7 +299,11 @@ exports.getDataEntityById = function (idEntity, callback) {
         return callback(err, null);
     }
 
-    models.DataEntity.findOne({where: {id: idEntity}}).then(function (dataEntity) {
+    models.DataEntity.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then(function(dataEntity) {
         if (!dataEntity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisID";
@@ -298,13 +312,18 @@ exports.getDataEntityById = function (idEntity, callback) {
         }
 
         callback(null, dataEntity);
-    }).catch(function (err) {
+    }).catch(function(err) {
         return callback(err, null);
     });
 }
 
-exports.getIdDataEntityByCodeName = function (idModule, codeNameEntity, callback) {
-    models.DataEntity.findOne({where: {codeName: codeNameEntity, id_module: idModule}}).then(function (entity) {
+exports.getIdDataEntityByCodeName = function(idModule, codeNameEntity, callback) {
+    models.DataEntity.findOne({
+        where: {
+            codeName: codeNameEntity,
+            id_module: idModule
+        }
+    }).then(function(entity) {
         if (!entity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisCodeNameAndModule";
@@ -312,13 +331,17 @@ exports.getIdDataEntityByCodeName = function (idModule, codeNameEntity, callback
             return callback(err, null);
         }
         callback(null, entity.id);
-    }).catch(function (err) {
+    }).catch(function(err) {
         return callback(err, null);
     });
 }
 
-exports.getIdDataEntityByCodeNameWithoutModuleCheck = function (idModule, codeNameEntity, callback) {
-    models.DataEntity.findOne({where: {codeName: codeNameEntity}}).then(function (entity) {
+exports.getIdDataEntityByCodeNameWithoutModuleCheck = function(idModule, codeNameEntity, callback) {
+    models.DataEntity.findOne({
+        where: {
+            codeName: codeNameEntity
+        }
+    }).then(function(entity) {
         if (!entity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisCodeNameAndModule";
@@ -326,44 +349,49 @@ exports.getIdDataEntityByCodeNameWithoutModuleCheck = function (idModule, codeNa
             return callback(err, null);
         }
         callback(null, entity.id);
-    }).catch(function (err) {
+    }).catch(function(err) {
         return callback(err, null);
     });
 }
 
 // Delete
-exports.deleteDataEntity = function (attr, callback) {
+exports.deleteDataEntity = function(attr, callback) {
     var idModule = attr.id_module;
     var showNameEntity = attr.show_name_data_entity;
     var nameEntity = attr.name_data_entity;
 
-    models.DataEntity.destroy({where: {codeName: nameEntity, id_module: idModule}}).then(function () {
+    models.DataEntity.destroy({
+        where: {
+            codeName: nameEntity,
+            id_module: idModule
+        }
+    }).then(function() {
         var info = {};
         info.message = "database.entity.delete.deleted";
         info.messageParams = [showNameEntity];
         callback(null, info);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // Get a DataEntity with a given codename
-exports.getDataEntityByCodeName = function (idApplication, nameEntity, callback) {
+exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) {
 
     models.DataEntity.findOne({
         where: {
             codeName: nameEntity
         },
         include: [{
-                model: models.Module,
-                include: [{
-                        model: models.Application,
-                        where: {
-                            id: idApplication
-                        }
-                    }]
+            model: models.Module,
+            include: [{
+                model: models.Application,
+                where: {
+                    id: idApplication
+                }
             }]
-    }).then(function (entity) {
+        }]
+    }).then(function(entity) {
         if (!entity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisName";
@@ -371,19 +399,19 @@ exports.getDataEntityByCodeName = function (idApplication, nameEntity, callback)
             return callback(err, null);
         }
         callback(null, entity);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // Get a DataEntity with a given name
-exports.getDataEntityByName = function (nameEntity, idModule, callback) {
+exports.getDataEntityByName = function(nameEntity, idModule, callback) {
     models.DataEntity.findOne({
         where: {
             name: nameEntity,
             id_module: idModule
         }
-    }).then(function (dataEntity) {
+    }).then(function(dataEntity) {
         if (!dataEntity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisName";
@@ -391,13 +419,19 @@ exports.getDataEntityByName = function (nameEntity, idModule, callback) {
             return callback(err, null);
         }
         callback(null, dataEntity);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
-exports.getModuleCodeNameByEntityCodeName = function (nameEntity, idModule, callback) {
-    models.DataEntity.findOne({where: {codeName: nameEntity, id_module: idModule}, include: [models.Module]}).then(function (entity) {
+exports.getModuleCodeNameByEntityCodeName = function(nameEntity, idModule, callback) {
+    models.DataEntity.findOne({
+        where: {
+            codeName: nameEntity,
+            id_module: idModule
+        },
+        include: [models.Module]
+    }).then(function(entity) {
         if (!entity) {
             var err = new Error();
             err.message = "database.entity.notFound.withThisName";
@@ -405,12 +439,12 @@ exports.getModuleCodeNameByEntityCodeName = function (nameEntity, idModule, call
             return callback(err, null);
         }
         callback(null, entity.Module.codeName);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
-exports.retrieveWorkspaceHasManyData = function (idApp, codeNameEntity, foreignKey, callback) {
+exports.retrieveWorkspaceHasManyData = function(idApp, codeNameEntity, foreignKey, callback) {
     delete require.cache[require.resolve('../workspace/' + idApp + '/models/')];
     var workspaceModels = require('../workspace/' + idApp + '/models/');
     var where = {};
@@ -421,9 +455,9 @@ exports.retrieveWorkspaceHasManyData = function (idApp, codeNameEntity, foreignK
     workspaceModels[capitalizeFirstLetter(codeNameEntity)].findAll({
         attributes: ["id", foreignKey],
         where: where
-    }).then(function (result) {
+    }).then(function(result) {
         callback(result, null);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback([]);
     });
 }
@@ -431,26 +465,26 @@ exports.retrieveWorkspaceHasManyData = function (idApp, codeNameEntity, foreignK
 /* --- COMPONENT LINK --- */
 
 // Add a component ID on an already created entity found with a codeName
-exports.addComponentOnEntityByCodeName = function (codeName, idComponent, idModule, callback) {
+exports.addComponentOnEntityByCodeName = function(codeName, idComponent, idModule, callback) {
     models.DataEntity.findOne({
         where: {
             codeName: codeName,
             id_module: idModule
         }
-    }).then(function (foundEntity) {
+    }).then(function(foundEntity) {
         if (!foundEntity) {
             var err = new Error();
             err.message = "database.entity.create.addComponent";
             err.messageParams = [codeName];
             callback(err);
         } else {
-            foundEntity.addComponent(idComponent).then(function () {
+            foundEntity.addComponent(idComponent).then(function() {
                 callback(null, null);
-            }).catch(function (err) {
+            }).catch(function(err) {
                 callback(err, null);
             });
         }
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }

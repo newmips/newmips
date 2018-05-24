@@ -456,23 +456,19 @@ exports.createNewEntity = function (attr, callback) {
 
     // Get active application module name
     db_module.getModuleById(attr.id_module, function (err, module) {
-        if (err) {
-            callback(err, null);
-        } else {
+        if (err)
+            return callback(err, null);
 
-            attr.show_name_module = module.name;
-            attr.name_module = module.codeName;
-            // Generator database
-            db_entity.createNewEntity(attr, function (err, infoDB) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    structure_data_entity.setupDataEntity(attr, function (err, data) {
-                        callback(null, infoDB);
-                    });
-                }
+        attr.show_name_module = module.name;
+        attr.name_module = module.codeName;
+        // Generator database
+        db_entity.createNewEntity(attr, function (err, infoDB) {
+            if (err)
+                return callback(err, null);
+            structure_data_entity.setupDataEntity(attr, function (err, data) {
+                callback(null, infoDB);
             });
-        }
+        });
     });
 }
 
@@ -683,38 +679,31 @@ exports.deleteDataEntity = deleteDataEntity;
 exports.createNewDataField = function (attr, callback) {
     // Get active data entity name
     db_entity.getDataEntityById(attr.id_data_entity, function (err, data_entity) {
-        if (err) {
-            callback(err, null);
-        } else {
+        if (err)
+            return callback(err, null);
 
-            // Get active application module name
-            db_module.getNameModuleById(attr.id_module, function (err, name_module) {
-                if (err) {
-                    callback(err, null);
-                } else {
+        // Get active application module name
+        db_module.getNameModuleById(attr.id_module, function (err, name_module) {
+            if (err)
+                return callback(err, null);
 
-                    attr.name_module = name_module;
-                    db_field.createNewDataField(attr, function (err, info) {
-                        if (err) {
+            attr.name_module = name_module;
+            db_field.createNewDataField(attr, function (err, info) {
+                if (err)
+                    return callback(err, null);
+
+                attr.name_data_entity = data_entity.name;
+                attr.codeName_data_entity = data_entity.codeName;
+                structure_data_field.setupDataField(attr, function (err, data) {
+                    if (err)
+                        db_field.deleteDataField(attr, function (error, info) {
                             callback(err, null);
-                        } else {
-
-                            attr.name_data_entity = data_entity.name;
-                            attr.codeName_data_entity = data_entity.codeName;
-                            structure_data_field.setupDataField(attr, function (err, data) {
-                                if (err) {
-                                    db_field.deleteDataField(attr, function (error, info) {
-                                        callback(err, null);
-                                    });
-                                } else {
-                                    callback(null, info);
-                                }
-                            });
-                        }
-                    });
-                }
+                        });
+                    else
+                        callback(null, info);
+                });
             });
-        }
+        });
     });
 }
 
@@ -1183,7 +1172,8 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                         relation: "belongsToMany",
                         through: through,
                         toSync: false,
-                        type: attr.targetType
+                        type: attr.targetType,
+                        usingField: attr.options.usingField || undefined,
                     };
                     structure_data_entity.setupAssociation(associationOptionOne, function () {
                         var associationOptionTwo = {
@@ -1196,7 +1186,8 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                             relation: "belongsToMany",
                             through: through,
                             toSync: false,
-                            type: attr.targetType
+                            type: attr.targetType,
+                            usingField: optionObj.usingField || undefined,
                         };
                         structure_data_entity.setupAssociation(associationOptionTwo, function () {
                             structure_data_field[setupFunction](attr, function () {
@@ -1520,21 +1511,6 @@ exports.createNewHasManyPreset = function (attr, callback) {
             // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
             // If not we continue doing a simple has many association.
             if (!doingBelongsToMany) {
-                /*var reversedAttr = {
-                 options: {
-                 source: attr.options.target,
-                 showSource: attr.options.showTarget,
-                 target: attr.options.source,
-                 showTarget: attr.options.showSource,
-                 foreignKey: attr.options.foreignKey,
-                 showForeignKey: attr.options.showForeignKey
-                 },
-                 id_data_entity: attr.id_data_entity,
-                 id_module: attr.id_module,
-                 id_application: attr.id_application
-                 };*/
-
-                //db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
                 db_field.createNewForeignKey(attr, function (err, created_foreignKey) {
                     if (err) {
                         return callback(err, null);
@@ -1748,7 +1724,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "belongsTo") {
-                        console.log("WARNING: Source entity has already a related to association.");
+                        //console.log("WARNING: Source entity already has a related to association with the target.");
                     } else if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadySameAlias";
@@ -2469,13 +2445,14 @@ exports.createComponentChat = function (attr, callback) {
 }
 
 //Create new component address
-exports.createNewComponentAddress = function (attr, callback) {
+exports.createNewComponentAddress = function(attr, callback) {
     var componentCodeName = 'c_address_' + attr.id_data_entity;
+
     if (attr.id_data_entity) {
-        db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function (err, alreadyExist) {
+        db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function(err, alreadyExist) {
             if (!err) {
                 if (!alreadyExist) {
-                    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+                    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
                         if (!err) {
                             attr.componentCodeName = componentCodeName;
                             attr.options.name = attr.options.componentName;
@@ -2496,19 +2473,27 @@ exports.createNewComponentAddress = function (attr, callback) {
                                 targetType: "component",
                                 toSync: true
                             };
-                            structure_data_entity.setupAssociation(associationOption, function () {
-//                                database.addConstraint(attr, function () {
-                                    db_component.createNewComponentOnEntity(attr, function (err, info) {
-                                        if (!err) {
-                                            structure_component.addNewComponentAddress(attr, function (err) {
-                                                if (err)
-                                                    return callback(err);
-                                                callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
+                            structure_data_entity.setupAssociation(associationOption, function() {
+                                attr.sourceEntity = entity.codeName;
+                                attr.foreignKey = associationOption.foreignKey;
+                                attr.targetEntity = componentCodeName;
+                                attr.targetKey = 'id';
+                                attr.constraintDelete = 'CASCADE';
+                                attr.constraintUpdate = 'CASCADE';
+                                attr.dropForeignKey = true;
+                                db_component.createNewComponentOnEntity(attr, function(err, info) {
+                                    if (!err) {
+                                        structure_component.addNewComponentAddress(attr, function(err) {
+                                            if (err)
+                                                return callback(err);
+                                            callback(null, {
+                                                message: 'database.component.create.success',
+                                                messageParams: ["Adresse", attr.options.componentName || '']
                                             });
-                                        } else
-                                            return callback(err);
-                                    });
-//                                });
+                                        });
+                                    } else
+                                        return callback(err);
+                                });
                             });
                         } else
                             return callback(err);
@@ -2657,7 +2642,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                                                                 return callback(err);
                                                             else
                                                                 return callback(null, {message: 'database.component.create.success',
-                                                                    messageParams: ["document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : ""]});
+                                                                    messageParams: ["Document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template"]});
                                                         });
                                                     }).catch(function (e) {
                                                         return callback(e);

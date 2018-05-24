@@ -32,7 +32,7 @@
                     <div class="form-group">
                         <form action="/user/update" method="post">
                             {#e_user}
-                                {>"e_user/update_fields"/}
+                                {>"e_user/update_fields" settings="true"/}
                             {/e_user}
                             <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
                             <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>

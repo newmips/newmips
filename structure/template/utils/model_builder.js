@@ -21,7 +21,8 @@ exports.addHooks = function (Model, model_name, attributes) {
 
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
-exports.buildForModel = function objectify(attributes, DataTypes) {
+exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) {
+    addTimestamp = typeof addTimestamp === 'undefined' ? true : addTimestamp;
     var object = {};
     for (var prop in attributes) {
         var currentValue = attributes[prop];
@@ -35,8 +36,10 @@ exports.buildForModel = function objectify(attributes, DataTypes) {
         else
             object[prop] = currentValue;
     }
-    object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
-    object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+    if (addTimestamp) {
+        object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+        object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+    }
     return object;
 }
 
@@ -229,7 +232,7 @@ exports.getDatalistInclude = function getDatalistInclude(models, options, column
                 if (parts[0] == options[i].as)
                     attributes.push(parts[1]);
             }
-            if (attributes.length)
+            if (attributes.length && target != "E_status")
                 include.attributes = attributes;
             structureDatalist.push(include);
         }
