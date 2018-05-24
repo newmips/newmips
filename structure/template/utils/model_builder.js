@@ -232,7 +232,7 @@ exports.getDatalistInclude = function getDatalistInclude(models, options, column
                 if (parts[0] == options[i].as)
                     attributes.push(parts[1]);
             }
-            if (attributes.length)
+            if (attributes.length && target != "E_status")
                 include.attributes = attributes;
             structureDatalist.push(include);
         }
