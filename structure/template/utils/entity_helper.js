@@ -5,6 +5,9 @@ var file_helper = require('./file_helper');
 var logger = require('./logger');
 var fs = require('fs-extra');
 var language = require('../services/language');
+var models = require('../models/');
+var enums_radios = require('../utils/enum_radio.js');
+var globalConfig = require('../config/global');
 
 // Winston logger
 var logger = require('./logger');
@@ -12,6 +15,73 @@ var logger = require('./logger');
 var funcs = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+    },
+    prepareDatalistResult: function(entityName, data, lang_user) {
+        return new Promise(function(resolve, reject) {
+            var attributes = require('../models/attributes/'+entityName);
+            var options = require('../models/options/'+entityName);
+            var statusPromises = [];
+            if (funcs.status.statusFieldList(attributes).length > 0)
+                for (var i = 0; i < data.data.length; i++)
+                    statusPromises.push(funcs.status.currentStatus(models, entityName, data.data[i], attributes, lang_user));
+
+            Promise.all(statusPromises).then(function () {
+                // Replace data enum value by translated value for datalist
+                var enumsTranslation = enums_radios.translated(entityName, lang_user, options);
+                var todo = [];
+                for (var i = 0; i < data.data.length; i++) {
+                    for (var field in data.data[i]) {
+                        // Look for enum translation
+                        for (var enumEntity in enumsTranslation)
+                            for (var enumField in enumsTranslation[enumEntity])
+                                if (enumField == field)
+                                    for (var j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
+                                        if (enumsTranslation[enumEntity][enumField][j].value == data.data[i][field]) {
+                                            data.data[i][field] = enumsTranslation[enumEntity][enumField][j].translation;
+                                            break;
+                                        }
+
+                        //get attribute value
+                        var value = data.data[i][field];
+                        //for type picture, get thumbnail picture
+                        if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
+                            var partOfFile = value.split('-');
+                            if (partOfFile.length > 1) {
+                                //if field value have valide picture name, add new task in todo list
+                                //we will use todo list to get all pictures binary
+                                var thumbnailFolder = globalConfig.thumbnail.folder;
+                                var filePath = thumbnailFolder + entityName+'/' + partOfFile[0] + '/' + value;
+                                todo.push({
+                                    value: value,
+                                    file: filePath,
+                                    field: field,
+                                    dataIndex: i
+                                });
+                            }
+                        }
+                    }
+                }
+                //check if we have to get some picture buffer before send data
+                if (todo.length) {
+                    var counter = 0;
+                    for (var i = 0; i < todo.length; i++) {
+                        (function (task) {
+                            file_helper.getFileBuffer64(task.file, function (success, buffer) {
+                                counter++;
+                                data.data[task.dataIndex][task.field] = {
+                                    value: task.value,
+                                    buffer: buffer
+                                };
+                                if (counter === todo.length)
+                                    resolve(data)
+
+                            });
+                        }(todo[i]));
+                    }
+                } else
+                    resolve(data)
+            }).catch(reject);
+        });
     },
     status: {
         entityFieldTree: function (entity, alias) {
@@ -206,8 +276,55 @@ var funcs = {
             });
         }
     },
+    optimizedFindOne: function(modelName, idObj, options, forceOptions) {
+        // Split SQL request if too many inclusion
+        return new Promise(function(resolve, reject){
+            var include = [];
+            for (var i = 0; i < options.length; i++)
+                if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
+                    var opt = {
+                        model: models[funcs.capitalizeFirstLetter(options[i].target)],
+                        as: options[i].as
+                    };
+                    // Include status children
+                    if (options[i].target == 'e_status')
+                        opt.include = {model: models.E_status, as: 'r_children'};
+                    include.push(opt);
+                }
+
+            if (forceOptions && forceOptions.length)
+                include = include.concat(forceOptions);
+
+            if(include.length >= 6) {
+                var firstLength = Math.floor(include.length / 2);
+                var secondLength = include.length - firstLength;
+
+                var firstInclude = include.slice(0, firstLength);
+                var secondInclude = include.slice(firstLength, include.length);
+
+                models[modelName].findOne({where: {id: idObj}, include: firstInclude}).then(function (entity1) {
+                    models[modelName].findOne({where: {id: idObj}, include: secondInclude}).then(function (entity2) {
+                        for(var item in entity2)
+                            if(item.substring(0, 2) == "r_" || item.substring(0, 2) == "c_"){
+                                entity1[item] = entity2[item];
+                                entity1.dataValues[item] = entity2.dataValues[item];
+                            }
+                        resolve(entity1);
+                    }).catch(function (err) {
+                        reject(err);
+                    });
+                }).catch(reject);
+            }
+            else
+                models[modelName].findOne({where: {id: idObj}, include: include}).then(function (entity1) {
+                    resolve(entity1);
+                }).catch(reject);
+        });
+    },
     error500: function(err, req, res, redirect) {
         var isKnownError = false;
+        var ajax = req.query.ajax || false;
+
         try {
             var lang = "fr-FR";
             if(typeof req.session.lang_user !== "undefined")
@@ -229,6 +346,10 @@ var funcs = {
             }
 
         } finally {
+            if (ajax){
+                console.log(err);
+                return res.status(500).send(req.session.toastr);
+            }
             if (isKnownError)
                 return res.redirect(redirect || '/');
             else
@@ -237,69 +358,45 @@ var funcs = {
             var data = {};
             data.code = 500;
             data.message = err.message || null;
-            res.render('common/error', data);
+            res.status(data.code).render('common/error', data);
         }
     },
-    getPicturesBuffers: function(entity, attributes, options, modelName)  {
-        try{
-            for (var key in entity.dataValues) {
-                // Image managment in standard fields
-                for (var attribute in attributes) {
-                    if (attributes[attribute].newmipsType === 'picture' &&
-                        attribute == key) {
-                        (function(keyCopy) {
+    getPicturesBuffers: function(entity, modelName, isThumbnail)  {
+        return new Promise(function(resolve, reject) {
+            if (!entity)
+                resolve();
+            var attributes;
+            try {
+                attributes = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+modelName+'.json'));
+            } catch(e) {resolve();}
+
+            var bufferPromises = [];
+            for (var key in entity.dataValues)
+                if (attributes[key] && attributes[key].newmipsType == 'picture') {
+                    (function(keyCopy) {
+                        bufferPromises.push(new Promise(function(resolveBuf, rejectBuf) {
                             var value = entity.dataValues[keyCopy] || '';
                             var partOfValue = value.split('-');
-                            if (partOfValue.length > 1) {
-                                var path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
-                                file_helper.getFileBuffer64(path, function(success, buffer) {
-                                    // entity.dataValues[keyCopy] = buffer;
-                                    entity.dataValues[keyCopy] = {
-                                        value: value,
-                                        buffer: buffer
-                                    };
-                                });
-                            }
-                        }(key));
-                        break;
-                    }
+                            if (partOfValue.length <= 1)
+                                return resolveBuf();
+                            var path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
+                            if (isThumbnail)
+                                path = 'thumbnail/'+path;
+                            file_helper.getFileBuffer64(path, function(success, buffer) {
+                                entity.dataValues[keyCopy] = {
+                                    value: value,
+                                    buffer: buffer
+                                };
+                                resolveBuf();
+                            });
+                        }));
+                    }(key));
                 }
 
-                // Image managment in relation fields
-                if(entity.dataValues[key] != null && typeof entity.dataValues[key].dataValues !== "undefined"){
-                    for(var i=0; i<options.length; i++){
-                        if(options[i].as == key){
-                            var optionAttributes = require('../models/attributes/'+options[i].target);
-                            for (var optionKey in entity.dataValues[key].dataValues) {
-                                for (var optionAttribute in optionAttributes) {
-                                    if (optionAttributes[optionAttribute].newmipsType === 'picture' &&
-                                        optionAttribute == optionKey) {
-                                        (function(keyCopy, optionKeyCopy) {
-                                            var value = entity.dataValues[keyCopy].dataValues[optionKeyCopy] || '';
-                                            var partOfValue = value.split('-');
-                                            if (partOfValue.length > 1) {
-                                                var path = options[i].target.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy].dataValues[optionKeyCopy];
-                                                file_helper.getFileBuffer64(path, function(success, buffer) {
-                                                    // entity.dataValues[optionKeyCopy] = buffer;
-                                                    entity.dataValues[keyCopy].dataValues[optionKeyCopy] = {
-                                                        value: value,
-                                                        buffer: buffer
-                                                    };
-                                                });
-                                            }
-                                        }(key, optionKey));
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return entity;
-        } catch(e){
-            console.log(e);
-        }
+            Promise.all(bufferPromises).then(function() {
+                resolve();
+            });
+        });
     },
     remove_files: function(entityName, entity, attributes) {
         for (var key in entity.dataValues) {

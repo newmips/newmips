@@ -100,7 +100,7 @@ exports.restart = function (attr, callback) {
 }
 
 exports.installNodePackage = function (attr, callback) {
-    structure_application.installAppModules().then(function(){
+    structure_application.installAppModules().then(function () {
         var info = {
             message: "structure.global.npmInstall.success"
         };
@@ -438,9 +438,17 @@ exports.deleteModule = function (attr, callback) {
 exports.selectEntity = function (attr, callback) {
     db_entity.selectEntity(attr, function (err, info) {
         if (err)
-            callback(err, null);
-        else
-            callback(null, info);
+            return callback(err, null);
+        db_module.getModuleById(info.moduleId, function (err, module) {
+            if (err)
+                return callback(err, null);
+            structure_data_field.selectEntity(attr.id_application, module.codeName, info.urlEntity, function (err, doRedirect) {
+                if (err)
+                    return callback(err, null);
+                info.doRedirect = doRedirect;
+                callback(null, info);
+            });
+        });
     });
 }
 
@@ -448,23 +456,19 @@ exports.createNewEntity = function (attr, callback) {
 
     // Get active application module name
     db_module.getModuleById(attr.id_module, function (err, module) {
-        if (err) {
-            callback(err, null);
-        } else {
+        if (err)
+            return callback(err, null);
 
-            attr.show_name_module = module.name;
-            attr.name_module = module.codeName;
-            // Generator database
-            db_entity.createNewEntity(attr, function (err, infoDB) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    structure_data_entity.setupDataEntity(attr, function (err, data) {
-                        callback(null, infoDB);
-                    });
-                }
+        attr.show_name_module = module.name;
+        attr.name_module = module.codeName;
+        // Generator database
+        db_entity.createNewEntity(attr, function (err, infoDB) {
+            if (err)
+                return callback(err, null);
+            structure_data_entity.setupDataEntity(attr, function (err, data) {
+                callback(null, infoDB);
             });
-        }
+        });
     });
 }
 
@@ -675,38 +679,31 @@ exports.deleteDataEntity = deleteDataEntity;
 exports.createNewDataField = function (attr, callback) {
     // Get active data entity name
     db_entity.getDataEntityById(attr.id_data_entity, function (err, data_entity) {
-        if (err) {
-            callback(err, null);
-        } else {
+        if (err)
+            return callback(err, null);
 
-            // Get active application module name
-            db_module.getNameModuleById(attr.id_module, function (err, name_module) {
-                if (err) {
-                    callback(err, null);
-                } else {
+        // Get active application module name
+        db_module.getNameModuleById(attr.id_module, function (err, name_module) {
+            if (err)
+                return callback(err, null);
 
-                    attr.name_module = name_module;
-                    db_field.createNewDataField(attr, function (err, info) {
-                        if (err) {
+            attr.name_module = name_module;
+            db_field.createNewDataField(attr, function (err, info) {
+                if (err)
+                    return callback(err, null);
+
+                attr.name_data_entity = data_entity.name;
+                attr.codeName_data_entity = data_entity.codeName;
+                structure_data_field.setupDataField(attr, function (err, data) {
+                    if (err)
+                        db_field.deleteDataField(attr, function (error, info) {
                             callback(err, null);
-                        } else {
-
-                            attr.name_data_entity = data_entity.name;
-                            attr.codeName_data_entity = data_entity.codeName;
-                            structure_data_field.setupDataField(attr, function (err, data) {
-                                if (err) {
-                                    db_field.deleteDataField(attr, function (error, info) {
-                                        callback(err, null);
-                                    });
-                                } else {
-                                    callback(null, info);
-                                }
-                            });
-                        }
-                    });
-                }
+                        });
+                    else
+                        callback(null, info);
+                });
             });
-        }
+        });
     });
 }
 
@@ -1175,7 +1172,8 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                         relation: "belongsToMany",
                         through: through,
                         toSync: false,
-                        type: attr.targetType
+                        type: attr.targetType,
+                        usingField: attr.options.usingField || undefined,
                     };
                     structure_data_entity.setupAssociation(associationOptionOne, function () {
                         var associationOptionTwo = {
@@ -1188,7 +1186,8 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                             relation: "belongsToMany",
                             through: through,
                             toSync: false,
-                            type: attr.targetType
+                            type: attr.targetType,
+                            usingField: optionObj.usingField || undefined,
                         };
                         structure_data_entity.setupAssociation(associationOptionTwo, function () {
                             structure_data_field[setupFunction](attr, function () {
@@ -1211,11 +1210,11 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     id_data_entity: attr.id_data_entity
                                 };
 
-                                if (attr.targetType == "hasmany") {
+                                if (attr.targetType == "hasMany") {
                                     structure_data_field.setupHasManyTab(reversedAttr, function () {
                                         resolve();
                                     });
-                                } else if (attr.targetType == "hasmanypreset") {
+                                } else if (attr.targetType == "hasManyPreset") {
                                     structure_data_field.setupHasManyPresetTab(reversedAttr, function () {
                                         resolve();
                                     });
@@ -1512,29 +1511,10 @@ exports.createNewHasManyPreset = function (attr, callback) {
             // If there is a circular has many we have to convert it to a belongsToMany assocation, so we stop the code here.
             // If not we continue doing a simple has many association.
             if (!doingBelongsToMany) {
-                /*var reversedAttr = {
-                 options: {
-                 source: attr.options.target,
-                 showSource: attr.options.showTarget,
-                 target: attr.options.source,
-                 showTarget: attr.options.showSource,
-                 foreignKey: attr.options.foreignKey,
-                 showForeignKey: attr.options.showForeignKey
-                 },
-                 id_data_entity: attr.id_data_entity,
-                 id_module: attr.id_module,
-                 id_application: attr.id_application
-                 };*/
-
-                //db_field.createNewForeignKey(reversedAttr, function (err, created_foreignKey) {
                 db_field.createNewForeignKey(attr, function (err, created_foreignKey) {
                     if (err) {
                         return callback(err, null);
                     }
-
-                    // Right now we have id_TARGET_as and we want id_SOURCE_as
-                    //var newForeignKey = "fk_id_" + attr.options.urlSource + "_" + attr.options.as.toLowerCase().substring(2);
-                    //newForeignKey = newForeignKey.toLowerCase();
 
                     var associationOption = {
                         idApp: attr.id_application,
@@ -1546,6 +1526,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         relation: "hasMany",
                         through: null,
                         toSync: toSync,
+                        usingField: attr.options.usingField || undefined,
                         type: "hasManyPreset"
                     };
                     // Créer le lien belongsTo en la source et la target
@@ -1743,13 +1724,13 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "belongsTo") {
-                        console.log("WARNING: Source entity has already a related to association.");
+                        //console.log("WARNING: Source entity already has a related to association with the target.");
                     } else if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadySameAlias";
                         return callback(err, null);
                     }
-                } else if(optionsSourceObject[i].relation == "belongsToMany" && (attr.options.as == optionsSourceObject[i].as)){
+                } else if (optionsSourceObject[i].relation == "belongsToMany" && (attr.options.as == optionsSourceObject[i].as)) {
                     var err = new Error();
                     err.message = "structure.association.error.alreadySameAlias";
                     return callback(err, null);
@@ -1758,7 +1739,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 
             var info = {};
             attr.options.through = attr.id_application + "_" + source_entity.id + "_" + entityTarget.id + "_" + attr.options.as.substring(2);
-            if(attr.options.through.length > 55){
+            if (attr.options.through.length > 55) {
                 var err = new Error();
                 err.message = "error.valueTooLong";
                 err.messageParams = [attr.options.through];
@@ -1772,7 +1753,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             for (var i = 0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
                     attr.options.through = attr.id_application + "_" + entityTarget.id + "_" + source_entity.id + "_" + attr.options.as.substring(2);
-                    if(attr.options.through.length > 55){
+                    if (attr.options.through.length > 55) {
                         var err = new Error();
                         err.message = "error.valueTooLong";
                         err.messageParams = [attr.options.through];
@@ -1858,41 +1839,53 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 exports.createNewComponentStatus = function (attr, callback) {
     var self = this;
 
+
     db_entity.getDataEntityById(attr.id_data_entity, function (err, source_entity) {
         if (err)
             return callback(err, null);
 
-        // These instructions create a has many with a new entity history_status
-        // It also does a hasMany relation with e_status
-        attr.source = source_entity.codeName;
-        attr.showSource = source_entity.name;
-        attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
-
-        if(attr.history_table.length >= 52){
-            var err = new Error();
-            err.message = "error.valueTooLong";
-            err.messageParams = [attr.history_table];
-            return callback(err, null);
-        }
-
-        var instructions = [
-            "entity " + source_entity.name + ' has many ' + attr.history_table + ' called History ' + attr.options.showValue,
-            "select entity " + attr.history_table,
-            "add field " + attr.options.showValue + " related to Status using name, color",
-            "add field Comment with type text",
-            "entity status has many " + attr.history_table,
-            "select entity " + source_entity.name,
-            "add field " + attr.options.showValue + " related to Status using name"
-        ];
-
-        self.recursiveInstructionExecute(attr, instructions, 0, function (err) {
+        db_field.createNewDataField({
+            id_data_entity: attr.id_data_entity,
+            options: {
+                value: attr.options.value,
+                showValue: attr.options.value.substring(2)
+            }
+        }, function (err, info) {
             if (err)
                 return callback(err, null);
 
-            structure_component.newStatus(attr, function (err) {
-                if (err)
-                    return callback(err, null);
-                callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.showSource]});
+            attr.source = source_entity.codeName;
+            attr.showSource = source_entity.name;
+            attr.history_table_db_name = 'history_' + source_entity.id + '_' + info.insertId;
+            attr.history_table = 'history_' + attr.source + '_' + attr.options.value;
+
+            // These instructions create a has many with a new entity history_status
+            // It also does a hasMany relation with e_status
+            var instructions = [
+                "entity " + source_entity.name + ' has many ' + attr.history_table_db_name + ' called History ' + attr.options.showValue,
+                "select entity " + attr.history_table_db_name,
+                "add field " + attr.options.showValue + " related to Status using name, color",
+                "add field Comment with type text",
+                "entity status has many " + attr.history_table_db_name,
+                "select entity " + source_entity.name,
+                "add field " + attr.options.showValue + " related to Status using name"
+            ];
+
+            self.recursiveInstructionExecute(attr, instructions, 0, function (err) {
+                if (err) {
+                    return db_field.deleteDataFieldById(info.insertId, function () {
+                        return callback(err, null);
+                    });
+                }
+
+                structure_component.newStatus(attr, function (err) {
+                    if (err) {
+                        return db_field.deleteDataFieldById(info.insertId, function () {
+                            return callback(err, null);
+                        });
+                    }
+                    callback(null, {message: 'database.component.create.successOnEntity', messageParams: ['status', attr.options.showValue, attr.showSource]});
+                });
             });
         });
     });
@@ -1949,7 +1942,7 @@ exports.createNewComponentLocalFileStorage = function (attr, callback) {
                                 relation: "hasMany",
                                 through: null,
                                 toSync: false,
-                                type: null
+                                type: 'localfilestorage'
                             };
                             structure_data_entity.setupAssociation(associationOption, function () {
                                 // Get module info needed for structure
@@ -2287,7 +2280,7 @@ exports.createNewComponentCra = function (attr, callback) {
             "set field Name required",
             "add field Description with type text",
             "add field Client",
-            "add field Active with type boolean",
+            "add field Active with type boolean and default value true",
             "add entity CRA",
             "add field Month with type number",
             "add field Year with type number",
@@ -2452,50 +2445,55 @@ exports.createComponentChat = function (attr, callback) {
 }
 
 //Create new component address
-exports.createNewComponentAddress = function (attr, callback) {
+exports.createNewComponentAddress = function(attr, callback) {
     var componentCodeName = 'c_address_' + attr.id_data_entity;
+
     if (attr.id_data_entity) {
-        db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function (err, alreadyExist) {
+        db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function(err, alreadyExist) {
             if (!err) {
                 if (!alreadyExist) {
-                    db_module.getModuleById(attr.id_module, function (err, module) {
+                    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
                         if (!err) {
-                            db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                                if (!err) {
-                                    attr.id_module = module.id;
-                                    attr.componentCodeName = componentCodeName;
-                                    attr.options.name = attr.options.componentName;
-                                    attr.entityCodeName = entity.codeName;
-                                    attr.componentCodeName = componentCodeName;
-                                    attr.componentName = attr.options.componentName;
-                                    attr.moduleName = module.codeName;
-
-                                    var associationOption = {
-                                        idApp: attr.id_application,
-                                        source: entity.codeName,
-                                        target: componentCodeName,
-                                        foreignKey: 'fk_id_c_address',
-                                        as: 'r_address',
-                                        showAs: "",
-                                        structureType: "hasOne",
-                                        relation: "belongsTo",
-                                        toSync: true
-                                    };
-                                    // Créer le lien belongsTo en la source et la target
-                                    structure_data_entity.setupAssociation(associationOption, function () {
-                                        db_component.createNewComponentOnEntity(attr, function (err, info) {
-                                            if (!err) {
-                                                structure_component.addNewComponentAddress(attr, function (err) {
-                                                    if (err)
-                                                        return callback(err);
-                                                    callback(null, {message: 'database.component.create.success', messageParams: ["Adresse", attr.options.componentName || '']});
-                                                });
-                                            } else
+                            attr.componentCodeName = componentCodeName;
+                            attr.options.name = attr.options.componentName;
+                            attr.entityCodeName = entity.codeName;
+                            attr.componentName = attr.options.componentName;
+                            attr.moduleName = module.codeName;
+                            attr.options.showValue = attr.options.componentName;
+                            attr.options.value = componentCodeName;
+                            var associationOption = {
+                                idApp: attr.id_application,
+                                source: entity.codeName,
+                                target: componentCodeName,
+                                foreignKey: 'fk_id_c_address',
+                                as: 'c_address',
+                                showAs: "",
+                                type: "relatedTo",
+                                relation: "belongsTo",
+                                targetType: "component",
+                                toSync: true
+                            };
+                            structure_data_entity.setupAssociation(associationOption, function() {
+                                attr.sourceEntity = entity.codeName;
+                                attr.foreignKey = associationOption.foreignKey;
+                                attr.targetEntity = componentCodeName;
+                                attr.targetKey = 'id';
+                                attr.constraintDelete = 'CASCADE';
+                                attr.constraintUpdate = 'CASCADE';
+                                attr.dropForeignKey = true;
+                                db_component.createNewComponentOnEntity(attr, function(err, info) {
+                                    if (!err) {
+                                        structure_component.addNewComponentAddress(attr, function(err) {
+                                            if (err)
                                                 return callback(err);
+                                            callback(null, {
+                                                message: 'database.component.create.success',
+                                                messageParams: ["Adresse", attr.options.componentName || '']
+                                            });
                                         });
-                                    });
-                                } else
-                                    return callback(err);
+                                    } else
+                                        return callback(err);
+                                });
                             });
                         } else
                             return callback(err);
@@ -2517,48 +2515,54 @@ exports.createNewComponentAddress = function (attr, callback) {
 
 exports.deleteComponentAddress = function (attr, callback) {
     var componentName = 'c_address_' + attr.id_data_entity;
-    db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
-        if (!err) {
-            if (componentExist) {
-                db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
-                    if (!err) {
-                        database.dropDataEntity(attr.id_application, componentName, function (err) {
-                            db_module.getModuleById(attr.id_module, function (err, module) {
-                                if (!err) {
-                                    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                                        if (!err) {
-                                            attr.entityName = entity.codeName;
-                                            attr.moduleName = module.codeName;
-                                            structure_component.deleteComponentAddress(attr, function (err) {
-                                                if (err)
-                                                    return callback(err);
-                                                else
-                                                    callback(null, {message: 'database.component.delete.success'});
-                                            });
-                                        } else
-                                            return callback(err);
-                                    });
-                                } else
-                                    return callback(err);
+    if (attr.id_data_entity) {
+        db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
+            if (!err) {
+                if (componentExist) {
+                    db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
+                        if (!err) {
+                            database.dropDataEntity(attr.id_application, componentName, function (err) {
+                                db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+                                    if (!err) {
+                                        attr.entityName = entity.codeName;
+                                        attr.moduleName = module.codeName;
+                                        structure_component.deleteComponentAddress(attr, function (err) {
+                                            if (err)
+                                                return callback(err);
+                                            else {
+                                                attr.name_data_entity = attr.entityName;
+                                                attr.fieldToDrop = 'fk_id_c_address';
+                                                database.dropFKDataField(attr, function (err) {
+                                                    callback(err, {message: 'database.component.delete.success'});
+                                                });
+                                            }
+                                        });
+                                    } else
+                                        return callback(err);
+                                });
                             });
-                        });
-                    } else
-                        return callback(err);
-                });
-            } else {
-                var err = new Error();
-                err.message = "database.component.notFound.notFoundedInModule";
-                return callback(err, null);
-            }
-        } else
-            return callback(err);
+                        } else
+                            return callback(err);
+                    });
+                } else {
+                    var err = new Error();
+                    err.message = "database.component.notFound.notFoundedInModule";
+                    return callback(err, null);
+                }
+            } else
+                return callback(err);
 
-    });
+        });
+    } else {
+        var err = new Error();
+        err.message = "database.field.error.selectOrCreateBefore";
+        return callback(err, null);
+    }
+
 }
-
 /************************Create Component Template document***********************/
 /**
- * 
+ *
  * @param {type} attr
  * @param {type} callback
  * @returns {callback}
@@ -2572,7 +2576,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
         if (!err) {
             if (module) {
                 attr.id_module = module.id;
-                //check if entity is selected 
+                //check if entity is selected
                 if (attr.id_data_entity) {
                     //get entity on which we will add component
                     db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
@@ -2638,7 +2642,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                                                                 return callback(err);
                                                             else
                                                                 return callback(null, {message: 'database.component.create.success',
-                                                                    messageParams: ["document template", ""]});
+                                                                    messageParams: ["Document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template"]});
                                                         });
                                                     }).catch(function (e) {
                                                         return callback(e);
@@ -2677,8 +2681,8 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
 };
 
 /**
- * 
- * @param {type} attr 
+ *
+ * @param {type} attr
  * @param {type} callback
  */
 exports.deleteComponentDocumentTemplate = function (attr, callback) {
@@ -2696,7 +2700,7 @@ exports.deleteComponentDocumentTemplate = function (attr, callback) {
                                     //Delete juste association
                                     db_component.deleteComponentAndEntityAssociation(componentName, module.id, attr.id_data_entity, function (err, info) {
                                         if (!err) {
-                                            //Delete tab on entity 
+                                            //Delete tab on entity
                                             structure_component.deleteComponentDocumentTemplateOnEntity(attr, function (err) {
                                                 if (err)
                                                     return callback(err);
@@ -2817,24 +2821,6 @@ exports.listTheme = function (attr, callback) {
         callback(null, infoStructure);
     });
 }
-
-/*exports.setSkin = function(attr, callback) {
- structure_ui.setSkin(attr, function(err, infoStructure){
- if(err)
- return callback(err, null);
- 
- callback(null, infoStructure);
- });
- }
- 
- exports.listSkin = function(attr, callback) {
- structure_ui.listSkin(attr, function(err, infoStructure){
- if(err)
- return callback(err, null);
- 
- callback(null, infoStructure);
- });
- }*/
 
 exports.listIcon = function (attr, callback) {
     callback(null, {
@@ -3005,5 +2991,4 @@ function deleteEntityWidgets(attr, callback) {
     });
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;
-
 return designer;

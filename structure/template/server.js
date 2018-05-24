@@ -110,23 +110,17 @@ if (process.argv[2] == 'autologin') {
 // When application process is a child of generator process, log each routes for the generator
 // to keep track of it, and redirect after server restart
 if (startedFromGenerator) {
-	app.get('/*', function(req, res, next){
+	app.get('/*', function(req, res, next) {
+		var url = req.originalUrl;
 		// Do not remove this comment
-		if(req.originalUrl.indexOf("/inline_help/") != -1)
+		if(url.indexOf("/inline_help/") != -1 || url.indexOf('/loadtab/') != -1 || req.query.ajax)
 			return next();
-		console.log("IFRAME_URL::"+req.originalUrl);
+		if (url.indexOf('/show') == -1 && url.indexOf('/list') == -1 && url.indexOf('/create') == -1 && url.indexOf('/update') == -1)
+			return next();
+		console.log("IFRAME_URL::"+url);
 		next();
 	});
 }
-
-app.get('/*', function(req, res, next) {
-    delete require.cache[require.resolve('./config/application.json')]
-    var appConf = require('./config/application.json');
-    if (appConf.maintenance == false)
-    	return next();
-
-	res.status(503).render('common/maintenance');
-});
 
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
@@ -259,8 +253,18 @@ app.use(function(req, res, next) {
     next();
 });
 
-// Overload res.render to always get and reset toastr
 app.use(function(req, res, next) {
+	var redirect = res.redirect;
+	res.redirect = function(view) {
+		// If request comes from ajax call, no need to render show/list/etc.. pages, 200 status is enough
+		if (req.query.ajax) {
+			req.session.toastr = [];
+			return res.sendStatus(200);
+		}
+		redirect.call(res, view);
+	}
+
+	// Overload res.render to always get and reset toastr, load notifications and inline-help helper
     var render = res.render;
     res.render = function(view, locals, cb) {
     	if(typeof locals === "undefined")
@@ -291,10 +295,22 @@ app.use(function(req, res, next) {
         	locals.notificationsCount = notifications.count;
         	locals.notifications = notifications.rows;
 
-	        // Load inline-help when rendering create or update page
-	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1) {
+	        // Load inline-help when rendering create, update or show page
+	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
 	    		var entityName = view.split('/')[0];
-	    		models.E_inline_help.findAll({where: {f_entity: entityName}}).then(function(helps) {
+	    		var options;
+	    		try {
+	    			options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
+	    		} catch(e) {
+	    			// No options file, always return false
+	    			dust.helpers.inline_help = function(){return false;}
+	    			return render.call(res, view, locals, cb);
+	    		}
+	    		var entityList = [entityName];
+	    		for (var i = 0; i < options.length; i++)
+	    			entityList.push(options[i].target);
+
+	    		models.E_inline_help.findAll({where: {f_entity: {$in: entityList}}}).then(function(helps) {
 	    			dust.helpers.inline_help = function(ch, con, bod, params){
 	    				for (var i = 0; i < helps.length; i++) {
 	    					if (params.field == helps[i].f_field)
@@ -327,7 +343,7 @@ app.use(function(req, res, next) {
 
 // Handle 404
 app.use(function(req, res) {
-	res.status(400);
+	res.status(404);
 	res.render('common/404');
 });
 

@@ -50,11 +50,11 @@ app.use(morgan('dev', {
 		}
 	},
 	stream: split().on('data', function (line) {
-		if(allLogStream.bytesWritten < 1000){
+		if(allLogStream.bytesWritten < 5000){
 			allLogStream.write(moment().format("YY-MM-DD HH:mm:ss") + ": "+ansiToHtml.toHtml(line)+"\n");
 			process.stdout.write(line+"\n");
 		} else{
-			/* Clear all.log if to much bytes are written */
+			/* Clear all.log if too much bytes are written */
 			fs.writeFileSync(path.join(__dirname, 'all.log'), '');
 			allLogStream.bytesWritten = 0;
 		}
@@ -168,7 +168,7 @@ app.use('/ui_editor', require('./routes/ui_editor'));
 
 // Handle 404
 app.use(function(req, res) {
-	res.status(400);
+	res.status(404);
 	res.render('common/404');
 });
 

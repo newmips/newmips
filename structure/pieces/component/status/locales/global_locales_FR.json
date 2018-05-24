@@ -6,6 +6,8 @@
 				"action_error": "Une ou plusieurs actions n'ont pas pu être éxecutée. Verifiez que les notifications sont activées et verifiez votre configuration mail"
 			},
 			"next_status": "Statut suivant",
+			"available_status": "Statuts disponibles",
+			"children": "Statuts suivants",
 			"no_status_field": "Vous n'avez pas d'entité ayant un composant statut. Utilisez le générateur pour ajouter un composant statut et cette page vous permettra de configurer ces statuts"
 		}
 	},
@@ -19,7 +21,8 @@
             "f_field": "Champ",
             "f_name": "Nom",
             "f_color": "Couleur",
-            "f_default": "Défaut"
+            "f_default": "Défaut",
+            "apply_default": "Appliquer ce statut aux entités sans statut"
 		},
 		"e_translation": {
 			"label_entity": "Traduction",
@@ -28,6 +31,9 @@
 			"as_r_translations": "Traductions",
 			"f_value": "Valeur",
 			"f_language": "Langage"
+		},
+		"e_api_credentials": {
+			"f_client_name": "Nom client"
 		},
         "e_notification": {
             "f_title": "Titre",
@@ -47,7 +53,12 @@
             "plural_entity": "Média",
             "id_entity": "ID",
             "as_r_media": "Média",
-            "f_target_entity": "Entité ciblé"
+            "f_target_entity": "Entité ciblé",
+            "f_name": "Nom",
+            "f_title": "Titre",
+            "f_description": "Description",
+            "f_icon": "Icône",
+            "f_color": "Couleur"
 		},
 		"e_media_mail": {
 			"f_to": "Destinataire",
@@ -56,6 +67,15 @@
 			"f_content": "Contenu"
 		},
 		"e_media_notification": {
+            "label_entity": "Média Notification",
+            "name_entity": "Média Notification",
+            "plural_entity": "Média Notification",
+            "id_entity": "ID",
+            "as_r_media_notification": "Média Notification",
+            "f_title": "Titre",
+            "f_description": "Description",
+            "f_icon": "Icône",
+            "f_color": "Couleur",
 			"r_target_groups": "Groupes ciblés",
 			"r_target_users": "Utilisateurs ciblés"
 		},

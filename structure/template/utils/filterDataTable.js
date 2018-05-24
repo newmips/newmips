@@ -1,11 +1,11 @@
 var models = require('../models/');
 var entity_helper = require('./entity_helper');
 
-module.exports = function(modelName, params, speInclude, speWhere) {
-    return new Promise(function(resolve, reject) {
+module.exports = function (modelName, params, speInclude, speWhere) {
+    return new Promise(function (resolve, reject) {
         var start = 1,
-            length = 10,
-            count = 0;
+                length = 10,
+                count = 0;
 
         if (typeof params.start !== 'undefined')
             start = params.start;
@@ -16,12 +16,13 @@ module.exports = function(modelName, params, speInclude, speWhere) {
         length = parseInt(length);
 
         var searchType = "$or";
-        if(params.search.value == "")
+        if (params.search.value == "")
             searchType = "$and";
 
         // Building where values -> {$and: [{id: 'id'}, {name: {$like: '%jero%'}}]};
         var search = {};
         search[searchType] = [];
+        var attributes = ['id'];
 
         for (var i = 0; i < params.columns.length; i++) {
             var column = params.columns[i];
@@ -32,6 +33,9 @@ module.exports = function(modelName, params, speInclude, speWhere) {
             }
             var orRow = {};
             if (column.searchable == 'true') {
+                // Build attributes array to query only necessary ones
+                if (column.data.indexOf('.') == -1)
+                    attributes.push(column.data);
                 // Column search
                 if (column.search.value != '') {
                     if (descriptor && descriptor.type == 'datetime') {
@@ -97,7 +101,8 @@ module.exports = function(modelName, params, speInclude, speWhere) {
             var field = partOfColumn[partOfColumn.length - 1];
             //set required for innerJoin
             include.required = true;
-            include.where = {};
+            if (!include.where)
+                include.where = {};
             include.where[field] = {
                 $like: '%' + column.search.value + '%'
             };
@@ -149,40 +154,43 @@ module.exports = function(modelName, params, speInclude, speWhere) {
         }
 
         // Building final query object
-        var where = speWhere;
+        var queryObject = speWhere;
         if (search[searchType].length == 0)
-            where = {
-                order: order,
-                limit: length,
-                offset: start
-            };
+            queryObject = {order: order};
         else
-            where = {
+            queryObject = {
                 where: search,
-                order: order,
-                limit: length,
-                offset: start
+                order: order
             };
+        if (length != -1) {
+            queryObject.limit = length
+            queryObject.offset = start
+        }
+
         if (speInclude)
-            where.include = speInclude;
+            queryObject.include = speInclude;
         if (speWhere) {
-            if (!where.where)
-                where.where = speWhere;
+            if (!queryObject.where)
+                queryObject.where = speWhere;
             else
                 for (var prop in speWhere)
-                    where.where[prop] = speWhere[prop];
+                    queryObject.where[prop] = speWhere[prop];
         }
         if (speInclude)
-            where.distinct = true;
+            queryObject.distinct = true;
 
+        queryObject.attributes = attributes;
         // Execute query with filters and get total count
-        models[modelName].findAndCountAll(where).then(function(result) {
+        models[modelName].findAndCountAll(queryObject).then(function (result) {
             var data = {};
             data.recordsTotal = result.count;
             data.recordsFiltered = result.count;
-            data.data = result.rows;
+            lightRows = [];
+            for (var i = 0; i < result.rows.length; i++)
+                lightRows.push(result.rows[i].get({plain: true}));
+            data.data = lightRows;
             return resolve(data);
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.log(err);
             reject(err);
         });

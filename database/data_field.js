@@ -9,8 +9,6 @@ exports.createNewDataField = function (attr, callback) {
         err.message = "database.field.error.selectOrCreateBefore";
         return callback(err, null);
     }
-
-    var type_field = "string";
     var version = 1;
 
     if (typeof attr !== 'undefined' && typeof attr.options !== "undefined") {
@@ -23,8 +21,7 @@ exports.createNewDataField = function (attr, callback) {
         var name_field = options.value;
         var showNameField = options.showValue;
 
-        if (typeof options.type !== "undefined")
-            type_field = options.type
+        var type_field = (typeof options.type !== "undefined") ? options.type : "string";
 
         if (typeof options !== 'undefined' && name_field != "" && id_data_entity != "") {
 
@@ -142,6 +139,18 @@ exports.deleteDataField = function (attr, callback) {
         info.message = "database.field.delete.deleted";
         info.messageParams = [attr.options.showValue];
         callback(null, info);
+    }).catch(function (err) {
+        callback(err, null);
+    });
+}
+
+exports.deleteDataFieldById = function (id, callback) {
+    models.DataField.destroy({
+        where: {
+            id: id
+        }
+    }).then(function () {
+        callback(null, true);
     }).catch(function (err) {
         callback(err, null);
     });

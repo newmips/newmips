@@ -63,7 +63,8 @@
         "add": "Add",
         "documentation": "Documentation",
         "cancel": "Cancel",
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "help": "Help"
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -127,7 +128,7 @@
         "action": "Import now!",
         "downloadsqlfile": "Download the valid SQL file.",
         "confFile": "Configuration file",
-        "fileType": "XLSX or CSV File"
+        "fileType": "XLSX File"
     },
     "settings": {
         "legend": "Settings",
@@ -194,13 +195,14 @@
         "plural": "entities"
     },
     "error":{
+        "oneLetter": "There must be at least one letter in the name.",
         "oops": "Oops! An error occured :(",
         "textone": "You should contact your system administrator, and you can",
         "texttwo": "go to the home page",
         "or": "or",
         "textthree": "simply go back.",
         "404": "The link you followed may be broken, or the page may have been removed.",
-        "valueTooLong": "Sorry, but the given value (%s) is too long (>30).",
+        "valueTooLong": "Sorry, but the given value (%s) is too long (<30).",
         "cannotFindInstruction": "Sorry, I do not understand what you're asking of me."
     },
     "back":{

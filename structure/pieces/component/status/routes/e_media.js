@@ -51,71 +51,11 @@ router.get('/list', block_access.actionAccessMiddleware("media", "read"), functi
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("media", "read"), function (req, res) {
-
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
-    filterDataTable("E_media", req.body, include).then(function (data) {
-
-        var statusPromises = [];
-        if (entity_helper.status.statusFieldList(attributes).length > 0)
-            for (var i = 0; i < data.data.length; i++)
-                statusPromises.push(entity_helper.status.currentStatus(models, "e_media", data.data[i], attributes, req.session.lang_user));
-
-        Promise.all(statusPromises).then(function() {
-            // Replace data enum value by translated value for datalist
-            var enumsTranslation = enums_radios.translated("e_media", req.session.lang_user, options);
-            var todo = [];
-            for (var i = 0; i < data.data.length; i++) {
-                for (var field in data.data[i].dataValues) {
-                    // Look for enum translation
-                    for (var enumEntity in enumsTranslation)
-                        for (var enumField in enumsTranslation[enumEntity])
-                            if (enumField == field)
-                                for (var j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
-                                    if (enumsTranslation[enumEntity][enumField][j].value == data.data[i].dataValues[field]) {
-                                        data.data[i].dataValues[field] = enumsTranslation[enumEntity][enumField][j].translation;
-                                        break;
-                                    }
-
-                    //get attribute value
-                    var value = data.data[i].dataValues[field];
-                    //for type picture, get thumbnail picture
-                    if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
-                        var partOfFile = value.split('-');
-                        if (partOfFile.length > 1) {
-                            //if field value have valide picture name, add new task in todo list
-                            //we will use todo list to get all pictures binary
-                            var thumbnailFolder = globalConf.thumbnail.folder;
-                            var filePath = thumbnailFolder + 'e_media/' + partOfFile[0] + '/' + value;
-                            todo.push({
-                                value: value,
-                                file: filePath,
-                                field: field,
-                                dataIndex: i
-                            });
-                        }
-                    }
-                }
-            }
-            //check if we have to get some picture buffer before send data
-            if (todo.length) {
-                var counter=0;
-                for (var i = 0; i < todo.length; i++) {
-                    (function (task) {
-                        file_helper.getFileBuffer64(task.file, function (success, buffer) {
-                            counter++;
-                            data.data[task.dataIndex].dataValues[task.field] = {
-                                value: task.value,
-                                buffer: buffer
-                            };
-                            if (counter === todo.length)
-                                res.send(data).end();
-
-                        });
-                    }(todo[i]));
-                }
-            } else
-                res.send(data).end();
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
+    filterDataTable("E_media", req.body, include).then(function (rawData) {
+        entity_helper.prepareDatalistResult('e_media', rawData, req.session.lang_user).then(function(preparedData) {
+            res.send(preparedData).end();
         });
     }).catch(function (err) {
         console.log(err);
@@ -170,9 +110,12 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
             }
 
             // Update some data before show, e.g get picture binary
-            e_media = entity_helper.getPicturesBuffers(e_media, attributes, options, "e_media");
-            entity_helper.status.translate(e_media, attributes, req.session.lang_user);
-            res.render('e_media/show', data);
+            entity_helper.getPicturesBuffers(e_media, "e_media").then(function() {
+                entity_helper.status.translate(e_media, attributes, req.session.lang_user);
+                res.render('e_media/show', data);
+            }).catch(function (err) {
+                entity_helper.error500(err, req, res, "/");
+            });
        });
 
     }).catch(function (err) {
@@ -466,6 +409,50 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
         entity_helper.error500(err, req, res, "/");
     });
 });
+
+var SELECT_PAGE_SIZE = 10
+router.post('/search', block_access.actionAccessMiddleware('media', 'read'), function (req, res) {
+    var search = '%' + (req.body.search || '') + '%';
+    var limit = SELECT_PAGE_SIZE;
+    var offset = (req.body.page-1)*limit;
+
+    // ID is always needed
+    if (req.body.searchField.indexOf("id") == -1)
+        req.body.searchField.push('id');
+
+    var where = {raw: true, attributes: req.body.searchField, where: {}};
+    if (search != '%%') {
+        if (req.body.searchField.length == 1) {
+            where.where[req.body.searchField[0]] = {$like: search};
+        } else {
+            where.where.$or = [];
+            for (var i = 0; i < req.body.searchField.length; i++) {
+                if (req.body.searchField[i] != "id") {
+                    var currentOrObj = {};
+                    currentOrObj[req.body.searchField[i]] = {$like: search}
+                    where.where.$or.push(currentOrObj);
+                }
+            }
+        }
+    }
+
+    // Possibility to add custom where in select2 ajax instanciation
+    if (typeof req.body.customWhere !== "undefined")
+        for (var param in req.body.customWhere)
+            where.where[param] = req.body.customWhere[param];
+
+    where.offset = offset;
+    where.limit = limit;
+
+    models.E_media.findAndCountAll(where).then(function (results) {
+        results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        res.json(results);
+    }).catch(function (e) {
+        console.error(e);
+        res.status(500).json(e);
+    });
+});
+
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
     var alias = req.params.alias;

@@ -1,64 +1,55 @@
-<div id="COMPONENT_NAME_LOWER" class="tab-pane fade">
-	<legend class="print-remove"> {@__ key="button.add"/}&nbsp;{@__ key="component.COMPONENT_NAME_LOWER.label_component"/} </legend>
-	<form action="/COMPONENT_URL_NAME_LOWER/create" class="component-form" data-component="COMPONENT_URL_NAME_LOWER" method="post">
-		<div class='dropzone dropzone_local_file_component' style="width:100%;" id='COMPONENT_NAME_LOWER_dropzone_component' data-source="SOURCE_LOWER" data-sourceId="{SOURCE_LOWER.id}" data-storage='local' data-component='COMPONENT_URL_NAME_LOWER' ></div>
-		<input type='hidden' name='f_name' id='COMPONENT_NAME_LOWER_dropzone_component_hidden_name'/>
-		<input type='hidden' name='f_filename' id='COMPONENT_NAME_LOWER_dropzone_component_hidden'/>
-		<input type='hidden' name='SOURCE_LOWER' value="{SOURCE_LOWER.id}" />
-		<input type="hidden" name="version" value="1" />
-		<br>
-		<button type="submit" class="btn btn-primary">{@__ key="button.add"/}</button>
-	</form>
-	<br class="print-remove">
-	<br class="print-remove">
-	<legend class="print-remove">{@__ key="operation.list"/}&nbsp;{@__ key="component.COMPONENT_NAME_LOWER.label_component"/}</legend>
-	<table id="table_COMPONENT_NAME_LOWER" class="dataTable table table-bordered table-striped" style="margin-bottom: 50px;">
-		<thead class="main">
-			<tr class="fields">
-				<th data-col="id">ID</th>
-				<th data-field="f_filename" data-col="f_filename">{@__ key="global_component.local_file_storage.filename"/}</th>
-				<th></th>
-				<th></th>
+<legend class="print-remove"> {@__ key="button.add"/}&nbsp;{@__ key="component.COMPONENT_NAME_LOWER.label_component"/} </legend>
+<form action="/COMPONENT_URL_NAME_LOWER/create" class="component-form ajax" data-component="COMPONENT_URL_NAME_LOWER" method="post">
+	<div class='dropzone dropzone_local_file_component' style="width:100%;" id='COMPONENT_NAME_LOWER_dropzone_component' data-source="SOURCE_LOWER" data-sourceId="{sourceId}" data-storage='local' data-component='COMPONENT_URL_NAME_LOWER' ></div>
+	<input type='hidden' name='f_name' id='COMPONENT_NAME_LOWER_dropzone_component_hidden_name'/>
+	<input type='hidden' name='f_filename' id='COMPONENT_NAME_LOWER_dropzone_component_hidden'/>
+	<input type='hidden' name='SOURCE_LOWER' value="{sourceId}" />
+	<input type="hidden" name="version" value="1" />
+	<br>
+	<button type="submit" class="btn btn-primary">{@__ key="button.add"/}</button>
+</form>
+<br class="print-remove">
+<br class="print-remove">
+<legend class="print-remove">{@__ key="operation.list"/}&nbsp;{@__ key="component.COMPONENT_NAME_LOWER.label_component"/}</legend>
+<table id="table_COMPONENT_NAME_LOWER" class="dataTable table table-bordered table-striped" style="margin-bottom: 50px;">
+	<thead class="main">
+		<tr class="fields">
+			<th data-col="id">ID</th>
+			<th data-field="f_filename" data-col="f_filename">{@__ key="global_component.local_file_storage.filename"/}</th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		{#COMPONENT_NAME_LOWER}
+			<tr id="bodyTR">
+				<td>{id}</td>
+				<td data-field="f_filename">{f_name}</td>
+				<td>
+					<form action="/COMPONENT_URL_NAME_LOWER/file_download" method="POST" class='componentFileDownloadForm'>
+						<input type='hidden' value='local' name='storageType'>
+						<input type='hidden' value='COMPONENT_URL_NAME_LOWER' name='dataComponent'>
+						<input type='hidden' value='SOURCE_LOWER' name='dataSource'>
+						<input type='hidden' value='{sourceId}' name='dataSourceID'>
+						<input type='hidden' value='{f_filename}' name='originalname'>
+						<button type="submit" class="btn btn-info">
+							<i class="fa fa-download fa-md">&nbsp;&nbsp;</i>
+							<span>{@__ key="button.download" /}</span>
+						</button>
+					</form>
+				</td>
+				<td>
+					<form action="/COMPONENT_URL_NAME_LOWER/delete?ajax=true" data-component="COMPONENT_URL_NAME_LOWER" class='componentDeleteForm'>
+						<input type='hidden' value='{id}' name='idRemove'>
+						<input type='hidden' value='COMPONENT_URL_NAME_LOWER' name='dataComponent'>
+						<input type='hidden' value='{sourceId}' name='idEntity'>
+						<button type="submit" class="btn btn-danger">
+							<i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
+							<span>{@__ key="button.delete" /}</span>
+						</button>
+					</form>
+				</td>
 			</tr>
-		</thead>
-		<thead class="filters">
-			<tr class="fields">
-				<th data-col="id">ID</th>
-				<th data-field="f_filename" data-col="f_filename">{@__ key="global_component.local_file_storage.filename"/}</th>
-				<th></th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			<!--{#COMPONENT_NAME_LOWER}-->
-				<tr id="bodyTR">
-					<td>{id}</td>
-					<td data-field="f_filename">{f_name}</td>
-					<td>
-						<form action="/COMPONENT_URL_NAME_LOWER/file_download" method="POST" class='componentFileDownloadForm'>
-							<input type='hidden' value='local' name='storageType'>
-							<input type='hidden' value='COMPONENT_URL_NAME_LOWER' name='dataComponent'>
-							<input type='hidden' value='SOURCE_LOWER' name='dataSource'>
-							<input type='hidden' value='{SOURCE_LOWER.id}' name='dataSourceID'>
-							<input type='hidden' value='{f_filename}' name='originalname'>
-							<button type="submit" class="btn btn-info">
-								<i class="fa fa-download fa-md">&nbsp;&nbsp;</i>
-								<span>{@__ key="button.download" /}</span>
-							</button>
-						</form>
-					</td>
-					<td>
-						<form data-component="COMPONENT_URL_NAME_LOWER" class='componentDeleteForm'>
-							<input type='hidden' value='{id}' name='idRemove'>
-							<input type='hidden' value='COMPONENT_URL_NAME_LOWER' name='dataComponent'>
-							<button type="submit" class="btn btn-danger">
-								<i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
-								<span>{@__ key="button.delete" /}</span>
-							</button>
-						</form>
-					</td>
-				</tr>
-			<!--{/COMPONENT_NAME_LOWER}-->
-		</tbody>
-	</table>
-</div>
+		{/COMPONENT_NAME_LOWER}
+	</tbody>
+</table>

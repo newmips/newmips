@@ -17,6 +17,7 @@ exports.setupAssociation = function (associationOption, callback) {
     var through = associationOption.through;
     var toSync = associationOption.toSync;
     var type = associationOption.type;
+    var targetType = associationOption.targetType;
 
     // SETUP MODEL OPTIONS FILE
     var optionsFileName = './workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
@@ -35,14 +36,15 @@ exports.setupAssociation = function (associationOption, callback) {
         if(source == target)
             baseOptions.otherKey += "_bis";
     }
-
+    if (typeof targetType !== "undefined")
+        baseOptions.targetType = targetType;
     if (type != null)
         baseOptions.structureType = type;
     else
         baseOptions.structureType = "";
 
     // Save using field in related to and related to many fields
-    if(typeof associationOption.usingField !== "undefined")
+    if (typeof associationOption.usingField !== "undefined")
         baseOptions.usingField = associationOption.usingField;
 
     optionsObject.push(baseOptions);
@@ -56,9 +58,10 @@ exports.setupAssociation = function (associationOption, callback) {
         if (typeof toSyncObject[idApp + "_" + source.toLowerCase()] === "undefined") {
             toSyncObject[idApp + "_" + source.toLowerCase()] = {};
             toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
-        } else if (typeof toSyncObject[idApp + "_" + source.toLowerCase()].options === "undefined") {
-            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
         }
+        else if (typeof toSyncObject[idApp + "_" + source.toLowerCase()].options === "undefined")
+            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
+
         toSyncObject[idApp + "_" + source.toLowerCase()].options.push(baseOptions);
     }
 
@@ -73,9 +76,8 @@ exports.setupAssociation = function (associationOption, callback) {
             writeStream2.on('finish', function () {
                 callback();
             });
-        } else {
+        } else
             callback();
-        }
     });
 }
 
@@ -115,7 +117,6 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(modelTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            //console.log('File => Model ------------------ CREATED');
             callback();
         });
     }
@@ -137,14 +138,12 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(JSON.stringify(baseAttributes, null, 4));
         writeStream.end();
         writeStream.on('finish', function () {
-            //console.log("Model => attributes ------------------ CREATED");
             // CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
             var writeStreamOption = fs.createWriteStream('./workspace/' + idApplication + '/models/options/' + nameDataEntity.toLowerCase() + '.json');
             var baseOptions = [];
             writeStreamOption.write(JSON.stringify(baseOptions, null, 4));
             writeStreamOption.end();
             writeStreamOption.on('finish', function () {
-                //console.log("Model => options/associations ------------------ CREATED");
                 callback();
             });
         });
@@ -160,7 +159,6 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(routeTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            //console.log('File => Route file ------------------ CREATED')
             callback();
         });
     }
@@ -174,7 +172,6 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.write(apiTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
-            //console.log('File => REST API file ------------------ CREATED')
             callback();
         });
     }
@@ -261,12 +258,10 @@ exports.setupDataEntity = function (attr, callback) {
         result = result.replace(/custom_url_data_entity/g, urlDataEntity.toLowerCase());
 
         var stream_file = fs.createWriteStream(fileToWrite);
-        /* Node.js 0.10+ emits finish when complete */
 
         stream_file.write(result);
         stream_file.end();
         stream_file.on('finish', function () {
-            //console.log("File => " + file + " ------------------ WRITTEN");
             callback();
         });
     }
@@ -310,7 +305,7 @@ exports.setupDataEntity = function (attr, callback) {
 
                                                                             // Write new data entity to access.json file, within module's context
                                                                             var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
-                                                                            var accessObject = require(accessPath);
+                                                                            var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
                                                                             accessObject[name_module.substring(2).toLowerCase()].entities.push({
                                                                                 name: url_name_data_entity,
                                                                                 groups: [],
@@ -378,11 +373,10 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
     name_module = name_module.toLowerCase();
 
     // Clean up access config
-    var access = require(baseFolder + '/config/access.json');
-    for (var i = 0; i < access[name_module.substring(2)].entities.length; i++) {
+    var access = JSON.parse(fs.readFileSync(baseFolder + '/config/access.json', 'utf8'));
+    for (var i = 0; i < access[name_module.substring(2)].entities.length; i++)
         if (access[name_module.substring(2)].entities[i].name == url_name_data_entity)
             access[name_module.substring(2)].entities.splice(i, 1);
-    }
     fs.writeFileSync(baseFolder + '/config/access.json', JSON.stringify(access, null, 4));
 
     // Remove entity entry from layout select

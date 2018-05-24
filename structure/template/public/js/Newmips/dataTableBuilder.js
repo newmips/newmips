@@ -31,6 +31,54 @@
 //      - input(name='id', type='hidden') sera automatiquement remplace par
 //      input(name='id', type='hidden', value='1') lors de la generation du bouton
 //
+var STR_LANGUAGE;
+if (lang_user == "fr-FR") {
+    STR_LANGUAGE = {
+        "processing": "Traitement en cours...",
+        "search": "Rechercher&nbsp;:",
+        "lengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
+        "info": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
+        "infoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
+        "infoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+        "infoPostFix": "",
+        "loadingRecords": "Chargement en cours...",
+        "zeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
+        "emptyTable": "Aucune donn&eacute;e disponible dans le tableau",
+        "paginate": {
+            "first": "Premier",
+            "previous": "Pr&eacute;c&eacute;dent",
+            "next": "Suivant",
+            "last": "Dernier"
+        },
+        "aria": {
+            "sortAscending": ": activer pour trier la colonne par ordre croissant",
+            "sortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+        }
+    };
+} else {
+    STR_LANGUAGE = {
+        "processing": "Processing...",
+        "search": "Search&nbsp;:",
+        "lengthMenu": "Display _MENU_ records",
+        "info": "Displaying records _START_ to _END_ on _TOTAL_ records",
+        "infoEmpty": "No record to display",
+        "infoFiltered": "(filter on _MAX_ records total)",
+        "infoPostFix": "",
+        "loadingRecords": "Loading...",
+        "zeroRecords": "No record to display",
+        "emptyTable": "No data available in this array",
+        "paginate": {
+            "first": "First",
+            "previous": "Previous",
+            "next": "Next",
+            "last": "Last"
+        },
+        "aria": {
+            "sortAscending": ": click to sort column by ascending order",
+            "sortDescending": ": click to sort column by descending order"
+        }
+    };
+}
 
 function formatDateTimeFR(value) {
     if (value == '')
@@ -163,7 +211,37 @@ function formatDateEN(value) {
     return timeBuild + value.substring(6, 8);
 }
 
-function init_datatable(tableID) {
+// Bind search fields
+function saveFilter(value, el, tableId, field) {
+    var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
+    if (filterSave == null)
+        filterSave = {};
+    filterSave[field] = value;
+    localStorage.setItem("newmips_filter_save_" + tableId, JSON.stringify(filterSave));
+}
+
+function getFilterSave(tableId, field) {
+    var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
+    if (filterSave == null)
+        return "";
+    else if (typeof filterSave[field] === "undefined")
+        return "";
+    else
+        return filterSave[field];
+}
+
+var delay = (function() {
+    var timer = 0;
+    return function(callback, ms) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+})();
+
+function init_datatable(tableID, isSubDataList, doPagination) {
+    isSubDataList = typeof isSubDataList !== 'undefined' && isSubDataList == true ? true : false;
+    doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
+
     // Fetch columns from html
     var columns = [];
     $(tableID + " .main th").each(function () {
@@ -195,7 +273,16 @@ function init_datatable(tableID) {
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
     var columnDefs = [];
     for (var i = 0; i < columns.length; i++) {
-        var objColumnDefToPush = {
+        var objColumnDefToPush = {};
+        if(columns[i].hidden){
+            objColumnDefToPush.targets = i;
+            objColumnDefToPush.render = function(){return "";};
+            objColumnDefToPush.visible = false;
+            objColumnDefToPush.searchable = false;
+            columnDefs.push(objColumnDefToPush);
+            continue;
+        }
+        objColumnDefToPush = {
             targets: i,
             render: function (data, type, row, meta) {
                 var cellValue;
@@ -292,10 +379,7 @@ function init_datatable(tableID) {
                 return cellValue;
             }
         };
-        if(columns[i].hidden){
-            objColumnDefToPush.visible = false;
-            objColumnDefToPush.searchable = false;
-        } else if(columns[i].type == "password"){
+        if(columns[i].type == "password"){
             objColumnDefToPush.searchable = false;
             objColumnDefToPush.orderable = false;
         }
@@ -304,121 +388,17 @@ function init_datatable(tableID) {
 
     var columnCount = columns.length - 1;
 
-    // Render SHOW button
-    if ($(tableID + "_show").length > 0)
+    // Build row's buttons from global DATALIST_BUTTONS var defined in view (list/show)
+    for (var i = 0; i < DATALIST_BUTTONS.length; i++) {
         columnDefs.push({
-            render: function (data, type, row) {
-                var originHref = $(tableID + "_show a").attr('href');
-                var params = originHref.split('?')[1].split('&');
-                var setParams = '';
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i].substr(0, params[i].indexOf('='));
-                    if (typeof row[param] !== 'undefined') {
-                        setParams += param + '=' + row[param] + '&';
-                    } else if (params[i] != "") {
-                        setParams += params[i] + '&';
-                    }
-                }
-
-                var finalUrl = originHref.substr(0, originHref.indexOf('?') + 1) + setParams;
-                $(tableID + "_show a").attr('href', finalUrl);
-
-                return $(tableID + "_show").html();
-            },
-            targets: columnCount += 1,
-            searchable: false
+            render: DATALIST_BUTTONS[i].render,
+            searchable: typeof DATALIST_BUTTONS[i].searchable === 'undefined' ? false : DATALIST_BUTTONS[i].searchable,
+            targets: columnCount += 1
         });
-
-    // Render UPDATE button
-    if ($(tableID + "_update").length > 0)
-        columnDefs.push({
-            render: function (data, type, row) {
-                var originHref = $(tableID + "_update a").attr('href');
-                var params = originHref.split('?')[1].split('&');
-                var setParams = '';
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i].substr(0, params[i].indexOf('='));
-                    if (typeof row[param] !== 'undefined') {
-                        setParams += param + '=' + row[param] + '&';
-                    } else if (params[i] != "") {
-                        setParams += params[i] + '&';
-                    }
-                }
-
-                var finalUrl = originHref.substr(0, originHref.indexOf('?') + 1) + setParams;
-                $(tableID + "_update a").attr('href', finalUrl);
-
-                return $(tableID + "_update").html();
-            },
-            targets: columnCount += 1,
-            searchable: false
-        });
-
-    // Render DELETE button
-    if ($(tableID + "_delete").length > 0)
-        columnDefs.push({
-            render: function (data, type, row) {
-                $(tableID + "_delete input").each(function () {
-                    if (typeof row[$(this).attr('name')] !== 'undefined') {
-                        $(this).val(row[$(this).attr('name')]);
-                    }
-                });
-                return $(tableID + "_delete").html();
-            },
-            targets: columnCount += 1,
-            searchable: false
-        });
-
-    if (lang_user == "fr-FR") {
-        str_language = {
-            "processing": "Traitement en cours...",
-            "search": "Rechercher&nbsp;:",
-            "lengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
-            "info": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
-            "infoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
-            "infoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
-            "infoPostFix": "",
-            "loadingRecords": "Chargement en cours...",
-            "zeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
-            "emptyTable": "Aucune donn&eacute;e disponible dans le tableau",
-            "paginate": {
-                "first": "Premier",
-                "previous": "Pr&eacute;c&eacute;dent",
-                "next": "Suivant",
-                "last": "Dernier"
-            },
-            "aria": {
-                "sortAscending": ": activer pour trier la colonne par ordre croissant",
-                "sortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
-            }
-        };
-    } else {
-        str_language = {
-            "processing": "Processing...",
-            "search": "Search&nbsp;:",
-            "lengthMenu": "Display _MENU_ records",
-            "info": "Displaying records _START_ to _END_ on _TOTAL_ records",
-            "infoEmpty": "No record to display",
-            "infoFiltered": "(filter on _MAX_ records total)",
-            "infoPostFix": "",
-            "loadingRecords": "Loading...",
-            "zeroRecords": "No record to display",
-            "emptyTable": "No data available in this array",
-            "paginate": {
-                "first": "First",
-                "previous": "Previous",
-                "next": "Next",
-                "last": "Last"
-            },
-            "aria": {
-                "sortAscending": ": click to sort column by ascending order",
-                "sortDescending": ": click to sort column by descending order"
-            }
-        };
     }
 
     // Init DataTable
-    var table = $(tableID).DataTable({
+    var tableOptions = {
         "serverSide": true,
         "ajax": {
             "url": $(tableID).data('url'),
@@ -427,12 +407,12 @@ function init_datatable(tableID) {
         "responsive": true,
         "columns": columns,
         "columnDefs": columnDefs,
-        "language": str_language,
+        "language": STR_LANGUAGE,
+        "paging": doPagination,
         "bLengthChange": true,
-        "iDisplayLength": 50,
-        "aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
+        "iDisplayLength": 25,
+        "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],
         "bAutoWidth": false,
-        "dom": 'lBfrtip',
         "order": [ 0, 'desc' ],
         "buttons": [
             {
@@ -466,116 +446,21 @@ function init_datatable(tableID) {
                 exportOptions: {
                     columns: ':visible'
                 }
+            }, {
+                text: '<i class="fa fa-arrow-right"></i>',
+                titleAttr: 'Scroll right',
+                action: function ( e, dt, node, config ) {
+                    $(tableID).parents(".table-responsive").animate({scrollLeft: $(tableID).width()}, 800);
+                }
             }
         ]
-    });
-
-    // Bind search fields
-    function saveFilter(value, el, tableId, field) {
-        var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
-        if (filterSave == null)
-            filterSave = {};
-        filterSave[field] = value;
-        localStorage.setItem("newmips_filter_save_" + tableId, JSON.stringify(filterSave));
     }
-
-    function getFilterSave(tableId, field) {
-        var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
-        if (filterSave == null)
-            return "";
-        else if (typeof filterSave[field] === "undefined")
-            return "";
-        else
-            return filterSave[field];
-    }
-
-    // Bind search fields
-    $(tableID + ' .filters th').each(function (i) {
-        var title = $(this).text();
-        var mainTh = $(this);
-        // Custom
-        var currentField = mainTh.data('field');
-        var val = getFilterSave(tableID.substring(1), currentField);
-        var search = '<input type="text" value="' + val + '" placeholder="' + title + '" />';
-        function searchInDatalist(searchValue) {
-            var valueObject = {type: '', value: ''};
-            // Special data types re-formating for search
-            if (typeof mainTh.data('type') !== 'undefined') {
-                // Date
-                if (mainTh.data('type') == 'date') {
-                    valueObject.type = 'date';
-                    searchValue = lang_user == 'fr-FR' ? formatDateFR($(this).find("input").inputmask('unmaskedvalue')) : formatDateEN($(this).find("input").inputmask('unmaskedvalue'));
-                }
-                // Time
-                else if (mainTh.data('type') == 'time') {
-                    valueObject.type = 'time';
-                    searchValue = formatTime($(this).find("input").inputmask('unmaskedvalue'));
-                }
-                // DateTime
-                else if (mainTh.data('type') == 'datetime') {
-                    valueObject.type = 'datetime';
-                    searchValue = lang_user == 'fr-FR' ? formatDateTimeFR($(this).find("input").inputmask('unmaskedvalue')) : formatDateTimeEN($(this).find("input").inputmask('unmaskedvalue'));
-                }
-                // Currency
-                else if (mainTh.data('type') == 'currency') {
-                    valueObject.type = 'currency';
-                }
-            }
-            valueObject.value = searchValue;
-            table.columns(i).search(JSON.stringify(valueObject)).draw();
-        }
-        // If it's not an action button
-        if (title != '') {
-            if($(this).data("hidden") != 1){
-                $(this).html('');
-                $(search).appendTo(this).keyup(function () {
-                    var searchValue = this.value;
-                    saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
-                    searchInDatalist(searchValue);
-                });
-                // Initialize masks on filters inputs
-                if (typeof mainTh.data('type') !== 'undefined') {
-                    if (lang_user == 'fr-FR') {
-                        if (mainTh.data('type') == 'datetime')
-                            $(this).find("input").inputmask({
-                                mask: "d/m/y h:s:s",
-                                placeholder: "dd/mm/yyyy hh:mm:ss",
-                                alias: "datetime",
-                                timeseparator: ":",
-                                hourFormat: "24"
-                            });
-                        if (mainTh.data('type') == 'date')
-                            $(this).find("input").inputmask({"alias": "dd/mm/yyyy"});
-                    } else if (lang_user == 'en-EN') {
-                        if (mainTh.data('type') == 'datetime')
-                            $(this).find("input").inputmask({
-                                mask: "y-m-d h:s:s",
-                                placeholder: "yyyy-mm-dd hh:mm:ss",
-                                alias: "datetime",
-                                timeseparator: ":",
-                                hourFormat: "24"
-                            });
-                        if (mainTh.data('type') == 'date')
-                            $(this).find("input").inputmask({"alias": "yyyy-mm-dd"});
-                    }
-                    if (mainTh.data('type') == 'time')
-                        $(this).find("input").inputmask({
-                            mask: "h:s:s",
-                            placeholder: "hh:mm:ss",
-                            separator: "-"
-                        });
-                }
-            } else {
-                $(this).hide();
-            }
-        }
-        if (val != "") {
-            searchInDatalist(val);
-        }
-    });
+    // Global search
+    tableOptions.dom = isSubDataList ? 'lBrtip' : 'lBfrtip';
+    var table = $(tableID).DataTable(tableOptions);
 
     //modal on click on picture cell
-    $(tableID + ' tbody').on('click', 'td img', function () {
+    $(tableID+' tbody').on('click', 'td img', function () {
         var colIdx = table.cell($(this).parent()).index().column;
         if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
             var entity = tableID.replace('#table_', '');
@@ -609,12 +494,98 @@ function init_datatable(tableID) {
         }
     });
 
-    //Les butons exports
-    $('.dt-buttons').css("margin-left", '20px');
+    if (!isSubDataList) {
+        // Bind search fields
+        $(tableID + ' .filters th').each(function (i) {
+            var title = $(this).text();
+            var mainTh = $(this);
+            // Custom
+            var currentField = mainTh.data('field');
+            var val = getFilterSave(tableID.substring(1), currentField);
+            var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
+            function searchInDatalist(searchValue) {
+                var valueObject = {type: '', value: ''};
+                // Special data types re-formating for search
+                if (typeof mainTh.data('type') !== 'undefined') {
+                    // Date
+                    if (mainTh.data('type') == 'date') {
+                        valueObject.type = 'date';
+                        searchValue = lang_user == 'fr-FR' ? formatDateFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateEN(mainTh.find("input").inputmask('unmaskedvalue'));
+                    }
+                    // Time
+                    else if (mainTh.data('type') == 'time') {
+                        valueObject.type = 'time';
+                        searchValue = formatTime(mainTh.find("input").inputmask('unmaskedvalue'));
+                    }
+                    // DateTime
+                    else if (mainTh.data('type') == 'datetime') {
+                        valueObject.type = 'datetime';
+                        searchValue = lang_user == 'fr-FR' ? formatDateTimeFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateTimeEN(mainTh.find("input").inputmask('unmaskedvalue'));
+                    }
+                    // Currency
+                    else if (mainTh.data('type') == 'currency') {
+                        valueObject.type = 'currency';
+                    }
+                }
+                valueObject.value = searchValue;
+                table.columns(i).search(JSON.stringify(valueObject)).draw();
+            }
+            // If it's not an action button
+            if (title != '') {
+                if($(this).data("hidden") != 1){
+                    $(this).html('');
+                    $(search).appendTo(this).keyup(function () {
+                        var searchValue = this.value;
+                        saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
+                        delay(function(){
+                            searchInDatalist(searchValue);
+                        }, 500);
+                    });
+                    // Initialize masks on filters inputs
+                    if (typeof mainTh.data('type') !== 'undefined') {
+                        if (lang_user == 'fr-FR') {
+                            if (mainTh.data('type') == 'datetime')
+                                $(this).find("input").inputmask({
+                                    mask: "d/m/y h:s:s",
+                                    placeholder: "dd/mm/yyyy hh:mm:ss",
+                                    alias: "datetime",
+                                    timeseparator: ":",
+                                    hourFormat: "24"
+                                });
+                            if (mainTh.data('type') == 'date')
+                                $(this).find("input").inputmask({"alias": "dd/mm/yyyy"});
+                        } else if (lang_user == 'en-EN') {
+                            if (mainTh.data('type') == 'datetime')
+                                $(this).find("input").inputmask({
+                                    mask: "y-m-d h:s:s",
+                                    placeholder: "yyyy-mm-dd hh:mm:ss",
+                                    alias: "datetime",
+                                    timeseparator: ":",
+                                    hourFormat: "24"
+                                });
+                            if (mainTh.data('type') == 'date')
+                                $(this).find("input").inputmask({"alias": "yyyy-mm-dd"});
+                        }
+                        if (mainTh.data('type') == 'time')
+                            $(this).find("input").inputmask({
+                                mask: "h:s:s",
+                                placeholder: "hh:mm:ss",
+                                separator: "-"
+                            });
+                    }
+                } else {
+                    $(this).hide();
+                }
+            }
+            if (val != "") {
+                searchInDatalist(val);
+            }
+        });
+    }
 }
 
 $(function () {
     $(".dataTable").each(function () {
         init_datatable('#' + $(this).attr('id'));
-    })
+    });
 });
