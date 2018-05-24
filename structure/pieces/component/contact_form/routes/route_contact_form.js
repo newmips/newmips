@@ -8,52 +8,25 @@ var filterDataTable = require('../utils/filterDataTable');
 var models = require('../models/');
 var attributes = require('../models/attributes/CODE_VALUE_CONTACT');
 var options = require('../models/options/CODE_VALUE_CONTACT');
-
-var attributesSettings = require('../models/attributes/CODE_VALUE_SETTINGS');
-var optionsSettings = require('../models/options/CODE_VALUE_SETTINGS');
-
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
+var file_helper = require('../utils/file_helper');
+var component_helper = require('../utils/component_helper');
+var globalConfig = require('../config/global');
+var fs = require('fs-extra');
+var dust = require('dustjs-linkedin');
+var SELECT_PAGE_SIZE = 10;
+
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
 
+// Custom component
 var mailer_helper = require('../utils/mailer');
-
-function error500(err, req, res, redirect) {
-    var isKnownError = false;
-    try {
-
-        //Sequelize validation error
-        if (err.name == "SequelizeValidationError") {
-            req.session.toastr.push({level: 'error', message: err.errors[0].message});
-            isKnownError = true;
-        }
-
-        // Unique value constraint error
-        if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
-            req.session.toastr.push({level: 'error', message: err.errors[0].message});
-            isKnownError = true;
-        }
-
-    } finally {
-        if (isKnownError)
-            return res.redirect(redirect || '/');
-        else
-            console.error(err);
-        logger.debug(err);
-        var data = {};
-        data.code = 500;
-        data.message = err.message || null;
-        res.render('common/error', data);
-    }
-}
-
-function capitalizeFirstLetter(word) {
-    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
-}
+var attributesSettings = require('../models/attributes/CODE_VALUE_SETTINGS');
+var optionsSettings = require('../models/options/CODE_VALUE_SETTINGS');
 
 router.get('/list', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function (req, res) {
     var data = {
@@ -70,20 +43,15 @@ router.get('/list', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
 router.post('/datalist', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function (req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
-
-    filterDataTable("MODEL_VALUE_CONTACT", req.body, include).then(function (data) {
-        // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options);
-        for(var i=0; i<data.data.length; i++)
-            for(var field in data.data[i].dataValues)
-                for(var enumField in enumsTranslation)
-                    if(field == enumField)
-                        for(var j=0; j<enumsTranslation[enumField].length; j++)
-                            if(data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value)
-                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][j].translation;
-
-        res.send(data).end();
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
+    filterDataTable("MODEL_VALUE_CONTACT", req.body, include).then(function (rawData) {
+        entity_helper.prepareDatalistResult('CODE_VALUE_CONTACT', rawData, req.session.lang_user).then(function (preparedData) {
+            res.send(preparedData).end();
+        }).catch(function (err) {
+            console.log(err);
+            logger.debug(err);
+            res.end();
+        });
     }).catch(function (err) {
         console.log(err);
         logger.debug(err);
@@ -102,7 +70,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_
         }
 
         // Get all associations
-        CODE_VALUE_CONTACT['get' + capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
+        CODE_VALUE_CONTACT['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
             // Remove entity from association array
             for (var i = 0; i < aliasEntities.length; i++)
                 if (aliasEntities[i].id == idToRemove) {
@@ -111,12 +79,12 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_
                 }
 
             // Set back associations without removed entity
-            CODE_VALUE_CONTACT['set' + capitalizeFirstLetter(alias)](aliasEntities).then(function () {
+            CODE_VALUE_CONTACT['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             });
         });
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -139,11 +107,11 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VAL
             return res.redirect('/URL_VALUE_CONTACT/show?id=' + idEntity + "#" + alias);
         }
 
-        CODE_VALUE_CONTACT['add' + capitalizeFirstLetter(alias)](toAdd).then(function () {
+        CODE_VALUE_CONTACT['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/URL_VALUE_CONTACT/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -196,7 +164,7 @@ router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
         });
 
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -224,7 +192,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
         req.session.toastr = [];
         res.render('CODE_VALUE_CONTACT/create', data);
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -265,12 +233,12 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 
                 if (typeof req.body.associationFlag !== 'undefined') {
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-                    models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+                    models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
                         if (!association) {
                             CODE_VALUE_CONTACT.destroy();
                             var err = new Error();
                             err.message = "Association not found."
-                            return error500(err, req, res, "/");
+                            return entity_helper.error500(err, req, res, "/");
                         }
 
                         var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -289,10 +257,10 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
                 model_builder.setAssocationManyValues(CODE_VALUE_CONTACT, req.body, createObject, options);
                 res.redirect(redirect);
             }).catch(function (err) {
-                error500(err, req, res, '/URL_VALUE_CONTACT/create_form');
+                entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/create_form');
             });
         }).catch(function(err) {
-            error500(err, req, res, '/URL_VALUE_CONTACT/create_form');
+            entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/create_form');
         });
     });
 });
@@ -317,10 +285,10 @@ router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
             res.redirect(redirect);
             entity_helper.remove_files("CODE_VALUE_CONTACT",deleteObject,attributes);
         }).catch(function (err) {
-            error500(err, req, res, '/URL_VALUE_CONTACT/list');
+            entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/list');
         });
     }).catch(function (err) {
-        error500(err, req, res, '/URL_VALUE_CONTACT/list');
+        entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/list');
     });
 });
 
@@ -379,10 +347,10 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
             req.session.toastr = [];
             res.render('CODE_VALUE_CONTACT/settings', data);
         }).catch(function (err) {
-            error500(err, req, res, "/");
+            entity_helper.error500(err, req, res, "/");
         });
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -419,10 +387,10 @@ router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS
 
             res.redirect(redirect);
         }).catch(function (err) {
-            error500(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
+            entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
         });
     }).catch(function (err) {
-        error500(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
+        entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
     });
 });
 

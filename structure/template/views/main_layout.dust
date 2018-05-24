@@ -64,6 +64,8 @@
             <script>
                 var lang_user = "{lang_user}";
                 var id_user = "{session.passport.user.id}";
+                var SELECT_DEFAULT_TEXT = '{@__ key="select.default" /}';
+                var WAIT_UPLOAD_TEXT = '{@__ key="global_component.local_file_storage.wait_upload" /}';
             </script>
             <header class="main-header">
                 <a href="/default/home" class="logo">
@@ -205,6 +207,8 @@
         <script src="/js/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
         {! Bootstrap 3.0.3 !}
         <script src="/js/Bootstrap/bootstrap.min.js" type="text/javascript"></script>
+        {!OpenStreetMaps!}
+        <script src="/js/plugins/openstreetmaps/OpenLayers.js" type="text/javascript"></script>
         {! Toastr !}
         <script src="/js/plugins/toastr/toastr.min.js" type="text/javascript"></script>
         {! Datepicker !}

@@ -134,7 +134,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 		// Send only notifications total. This is used on client init, before the chat is expanded and the contacts loaded
 		socket.on('notifications-total', function() {
 			models.E_user_chat.findAll({
-				where: {id_user: user.id}
+				where: {id_user: user.id},
+				attributes: ['id_chat', 'id_user', 'id_last_seen_message', 'id']
 			}).then(function(userChat) {
 				var notificationsPromises = [];
 				for (var i = 0; i < userChat.length; i++) {
@@ -154,7 +155,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				}
 
 				models.E_user_channel.findAll({
-					where: {id_user: user.id}
+					where: {id_user: user.id},
+				attributes: ['id_channel', 'id_user', 'id_last_seen_message', 'id']
 				}).then(function(userChannels) {
 					for (var i = 0; i < userChannels.length; i++)
 						notificationsPromises.push(new Promise(function(resolve, reject) {

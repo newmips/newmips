@@ -44,7 +44,7 @@ router.get('/list', block_access.actionAccessMiddleware("api_credentials", "read
 router.post('/datalist', block_access.actionAccessMiddleware("api_credentials", "read"), function (req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
 
     filterDataTable("E_api_credentials", req.body, include).then(function (data) {
         res.send(data).end();

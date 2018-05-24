@@ -193,11 +193,15 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "c
         return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_';
     }).forEach(function(file) {
         var fields = [];
-        var fileContent = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
+        var attributesObj = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
+        var optionsObj = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+file));
         var entityName = file.substring(0, file.length-5);
-        for (var field in fileContent)
+        for (var field in attributesObj)
             if (field != 'id' && field != 'version' && field.indexOf('f_') == 0)
                 fields.push({tradKey: 'entity.'+entityName+'.'+field, field: field});
+        for (var i = 0; i < optionsObj.length; i++)
+            if (optionsObj[i].structureType == 'relatedTo' || optionsObj[i].structureType == 'relatedToMany')
+                fields.push({tradKey: 'entity.'+entityName+'.'+optionsObj[i].as, field: optionsObj[i].as});
         if (fields.length > 0)
             entities.push({tradKey: 'entity.'+entityName+'.label_entity', entity: entityName, fields: fields});
     });

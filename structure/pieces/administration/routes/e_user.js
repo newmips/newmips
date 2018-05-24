@@ -34,7 +34,7 @@ router.get('/list', block_access.actionAccessMiddleware("user", "read"), functio
 router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), function (req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("E_user", req.body, include).then(function (data) {
 
         var statusPromises = [];
@@ -513,6 +513,50 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
         entity_helper.error500(err, req, res, '/user/list');
     });
 });
+
+var SELECT_PAGE_SIZE = 10
+router.post('/search', block_access.actionAccessMiddleware('user', 'read'), function (req, res) {
+    var search = '%' + (req.body.search || '') + '%';
+    var limit = SELECT_PAGE_SIZE;
+    var offset = (req.body.page-1)*limit;
+
+    // ID is always needed
+    if (req.body.searchField.indexOf("id") == -1)
+        req.body.searchField.push('id');
+
+    var where = {raw: true, attributes: req.body.searchField, where: {}};
+    if (search != '%%') {
+        if (req.body.searchField.length == 1) {
+            where.where[req.body.searchField[0]] = {$like: search};
+        } else {
+            where.where.$or = [];
+            for (var i = 0; i < req.body.searchField.length; i++) {
+                if (req.body.searchField[i] != "id") {
+                    var currentOrObj = {};
+                    currentOrObj[req.body.searchField[i]] = {$like: search}
+                    where.where.$or.push(currentOrObj);
+                }
+            }
+        }
+    }
+
+    // Possibility to add custom where in select2 ajax instanciation
+    if (typeof req.body.customWhere !== "undefined")
+        for (var param in req.body.customWhere)
+            where.where[param] = req.body.customWhere[param];
+
+    where.offset = offset;
+    where.limit = limit;
+
+    models.E_user.findAndCountAll(where).then(function (results) {
+        results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        res.json(results);
+    }).catch(function (e) {
+        console.error(e);
+        res.status(500).json(e);
+    });
+});
+
 
 router.get('/settings', block_access.isLoggedIn, function(req, res) {
     var id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;

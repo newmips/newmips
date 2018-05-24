@@ -1,0 +1,41 @@
+{>"layout_m_administration"/}
+{<custom_css}
+    <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
+    <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
+{/custom_css}
+{<header}
+    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
+        <li class="active">{@__ key="module.m_administration"/}</li>
+    </ol>
+{/header}
+{<content}
+    <div class="row">
+        <div class="col-xs-12 connectedSortable">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{@__ key="operation.show"/} {@__ key="component.c_address_settings.label_component" /}</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    {>"c_address_settings/config_fields"/}
+                </div>
+            </div>
+        </div>
+    </div>
+{/content}
+{<custom_js}
+    <!-- DATA TABLES SCRIPT-->
+    <script src="/js/plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
+    <script src="/js/Newmips/simpleTable.js" type="text/javascript"></script>
+    <!-- DATATABLE EXPORT-->
+    <script src="/js/plugins/datatables/buttons/datatableButton.min.js" type="text/javascript"></script>
+    <script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>
+    <script src="/js/plugins/datatables/buttons/buttons.html5.min.js" type="text/javascript"></script>
+    <script src="/js/plugins/datatables/buttons/buttons.print.min.js" type="text/javascript"></script>
+{/custom_js}

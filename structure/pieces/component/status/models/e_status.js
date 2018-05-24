@@ -27,7 +27,7 @@ module.exports = function (sequelize, DataTypes) {
                 return new Promise(function(resolve, reject) {
                     function orderedExecute(actions, idx) {
                         // All actions executed
-                        if (!actions[idx])
+                        if (!actions || !actions[idx])
                             return resolve();
                         // No media to execute, go next
                         if (!actions[idx].r_media)

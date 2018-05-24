@@ -105,7 +105,8 @@
         "generate":"Générer",
         "help":"Aide",
         "cancel": "Annuler",
-        "return": "Retour"
+        "return": "Retour",
+        "delete_confirm": "Etes-vous sûr de vouloir supprimer cet enregistrement ?"
     },
     "operation": {
         "show": "Afficher",
@@ -135,7 +136,8 @@
     "entity": {},
     "global_component": {
         "local_file_storage": {
-            "filename": "Nom du fichier"
+            "filename": "Nom du fichier",
+            "wait_upload": "Des images sont en téléchargement, veuillez patienter un instant et sauvegardez de nouveau"
         },
         "contact_form": {
             "firstname": "Prénom",

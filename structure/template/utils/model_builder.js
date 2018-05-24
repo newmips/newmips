@@ -21,7 +21,8 @@ exports.addHooks = function (Model, model_name, attributes) {
 
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
-exports.buildForModel = function objectify(attributes, DataTypes) {
+exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) {
+    addTimestamp = typeof addTimestamp === 'undefined' ? true : addTimestamp;
     var object = {};
     for (var prop in attributes) {
         var currentValue = attributes[prop];
@@ -35,8 +36,10 @@ exports.buildForModel = function objectify(attributes, DataTypes) {
         else
             object[prop] = currentValue;
     }
-    object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
-    object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+    if (addTimestamp) {
+        object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+        object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+    }
     return object;
 }
 
@@ -163,65 +166,75 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
             var toAdd = true;
             for(var propObj in buildForRouteObj){
                 if(propBody == "id" || propBody == propObj)
-                    toAdd=false;
+                    toAdd = false;
             }
             if(toAdd)
                 unusedValueFromReqBody.push(propBody);
         }
 
         var cpt = 0;
+        if(unusedValueFromReqBody.length == 0)
+            return resolve();
 
+        var promises = [];
         // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
         for (var i=0; i<options.length; i++) {
-            if(unusedValueFromReqBody.length == 0)
-                done();
             // Loop on the unused (for now) values in body
             for (var j=0; j<unusedValueFromReqBody.length; j++) {
-                // if the alias match between the option and the body
-                if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
-                    // BelongsTo association have been already done before
-                    if(options[i].relation != "belongsTo"){
-                        var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
-                        var value = [];
+                promises.push(new Promise(function(resolveBis, rejectBis){
+                    // if the alias match between the option and the body
+                    if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
+                        // BelongsTo association have been already done before
+                        if(options[i].relation != "belongsTo"){
+                            var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+                            var value = [];
 
-                        if(body[unusedValueFromReqBody[j]].length > 0)
-                            value = body[unusedValueFromReqBody[j]];
+                            if(body[unusedValueFromReqBody[j]].length > 0)
+                                value = body[unusedValueFromReqBody[j]];
 
-                        model['set' + target](value).then(function(){
-                            done();
-                        });
-                    } else {
-                        done();
+                            model['set' + target](value).then(function(){
+                                resolveBis();
+                            });
+                        } else {
+                            resolveBis();
+                        }
+                    } else {
+                        resolveBis();
                     }
-                } else {
-                    done();
-                }
+                }));
             }
         }
 
-        done();
-
-        function done(){
-            if(cpt == options.length){
-                resolve();
-            } else {
-                cpt++;
-            }
-        }
+        Promise.all(promises).then(function(){
+            resolve();
+        });
     });
 }
 
-exports.getDatalistInclude = function getDatalistInclude(models, options) {
+exports.getDatalistInclude = function getDatalistInclude(models, options, columns) {
     var structureDatalist = [];
 
     /* Then get attributes from other entity associated to main entity */
     for (var i = 0; i < options.length; i++) {
         if (options[i].relation.toLowerCase() == "hasone" || options[i].relation.toLowerCase() == "belongsto") {
             var target = capitalizeFirstLetter(options[i].target.toLowerCase());
-            structureDatalist.push({
+
+            var include = {
                 model: models[target],
                 as: options[i].as
-            });
+            };
+            // Add include's attributes for performance
+            var attributes = [];
+            for (var j = 0; j < columns.length; j++) {
+                if (columns[j].data.indexOf('.') == -1)
+                    continue;
+                var parts = columns[j].data.split('.');
+                if (parts[0] == options[i].as)
+                    attributes.push(parts[1]);
+            }
+            if (attributes.length && target != "E_status")
+                include.attributes = attributes;
+            structureDatalist.push(include);
         }
     }
     return structureDatalist;

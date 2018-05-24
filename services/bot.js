@@ -6,7 +6,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
     };
 
     if (!isNaN(valueToCheck)) {
-        attr.error = "There must be at least one letter in the name."
+        attr.error = "error.oneLetter";
     }
 
     if (valueToCheck.length > 30) {
@@ -807,6 +807,19 @@ exports.createNewComponentCra = function (result) {
  */
 exports.createNewComponentAddress = function (result) {
     var options = {
+        componentName: "Address",
+        instruction: result[0]
+    };
+    return checkAndCreateAttr("createNewComponentAddress", options, "Address");
+};
+
+/**
+ * Component Address
+ * @param {type} result of bot analyzer (this.parse)
+ * @returns {function name and user instruction}
+ */
+exports.createNewComponentAddressWithName = function (result) {
+    var options = {
         componentName: result[1].toLowerCase(),
         instruction: result[0]
     };
@@ -889,6 +902,13 @@ exports.createComponentDocumentTemplate = function (result) {
     };
 };
 
+exports.createComponentDocumentTemplateWithName = function (result) {
+    var options={
+        instruction:result[0],
+        componentName:result[1]
+    };
+    return checkAndCreateAttr("createComponentDocumentTemplate",options,result[1]);
+};
 /**
  * Delete component DocumentTemplate
  */
@@ -2351,18 +2371,22 @@ var training = {
         "supprimer le composant impression appelé (.*)"
     ],
     "createNewComponentAddress": [
-        "add component Address with name (.*)",
+        "add component address",
+        "create component address",
+        "ajouter un composant adresse",
+        "créer un composant adresse",
+        "ajouter composant adresse",
+        "créer composant adresse"
+    ],
+    "createNewComponentAddressWithName": [
         "add component address with name (.*)",
-        "add component Address called (.*)",
         "add component address called (.*)",
+        "create component address with name (.*)",
+        "create component address called (.*)",
         "ajouter un composant adresse nommé (.*)",
         "ajouter un composant adresse appelé (.*)",
-        "ajouter un composant Adresse nommé (.*)",
-        "ajouter un composant Adresse appelé (.*)",
         "ajouter composant adresse nommé (.*)",
         "ajouter composant adresse appelé (.*)",
-        "ajouter composant Adresse nommé (.*)",
-        "ajouter composant Adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
         "delete component address",
@@ -2528,12 +2552,26 @@ var training = {
     "createComponentDocumentTemplate": [
         "add component document template",
         "ajouter un composant document template",
-        "ajouter composant document template"
+        "ajouter le composant document template",
+        "ajouter composant document template",
+        "ajouter composant modèle de document",
+        "ajouter un composant modèle de document",
+        "ajouter le composant modèle de document"
     ],
     "deleteComponentDocumentTemplate": [
         "delete component document template",
         "supprimer le composant document template",
-        "supprimer composant document template"
+        "supprimer composant document template",
+        "supprimer composant modèle de document",
+        "supprimer un composant modèle de document"
+    ],
+    "createComponentDocumentTemplateWithName": [
+        "add component document template with name (.*)",
+        "ajouter un composant modèle de document appelé (.*)",
+        "ajouter un composant modèle de document nommé (.*)",
+        "ajouter composant modèle de document appelé (.*)",
+        "ajouter composant modèle de document nommé (.*)",
+        "ajouter le composant modèle de document appelé (.*)"
     ]
 };
 // ******* Parse *******
@@ -2587,7 +2625,7 @@ exports.complete = function (instruction) {
             // Template to compare to
             var template = training[action][i].split(" ");
 
-            // Split curent key phrase and instructions into arrays to loop
+            // Split current key phrase and instructions into arrays to loop
             var instr = instruction.trim().split(" ");
 
             var k = 0; // index in template

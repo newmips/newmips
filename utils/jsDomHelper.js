@@ -1,10 +1,9 @@
 var fs = require("fs-extra");
 var jsdom = require('jsdom');
 var html = require('html');
-var beautify_html = require('js-beautify').html;
-var beautify_js = require('js-beautify').js;
 var jquery = fs.readFileSync(__dirname + "/../public/js/jQuery/jquery.min.js", "utf-8");
 var helpers = require("./helpers");
+var prettyGirl = require('pretty');
 
 function read(fileName) {
 	return new Promise(function(resolve, reject) {
@@ -94,7 +93,7 @@ function write(fileName, $) {
 		newFileData = newFileData.replace('<script class="jsdom" src="http://code.jquery.com/jquery.js"></script>', '');
 
 		// Indent generated html
-		newFileData = beautify_html(newFileData, {indent_size: 4});
+		newFileData = prettyGirl(newFileData,{indent_size: 4});
 
 		// Uncomment dust tags
 		newFileData = newFileData.replace(/<!--({[<>@^:#\/].+?})-->/g, '$1');
@@ -130,10 +129,7 @@ exports.writeMainLayout = function(fileName, $) {
 		newFileData = newFileData.replace('<script class="jsdom" src="http://code.jquery.com/jquery.js"></script>', '');
 
 		// Indent generated html
-		newFileData = beautify_html(newFileData, {indent_size: 4});
-
-		/* Remove this beautify because it cut the code and it is no doing well its job */
-		/*newFileData = html.prettyPrint(newFileData, {indent_size: 4});*/
+		newFileData = prettyGirl(newFileData,{indent_size: 4});
 
 		// Uncomment dust tags
 		newFileData = newFileData.replace(/<!--({[<>@^:#\/].+?})-->/g, '$1');

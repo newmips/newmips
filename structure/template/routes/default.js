@@ -11,6 +11,10 @@ var crypto = require('../utils/crypto_helper');
 var upload = multer().single('file');
 var models = require('../models/');
 var Jimp = require("jimp");
+var entity_helper = require('../utils/entity_helper');
+var dust = require('dustjs-linkedin');
+var enums_radios = require('../utils/enum_radio.js');
+var component_helper = require('../utils/component_helper');
 
 // ===========================================
 // Redirection Home =====================
@@ -22,6 +26,34 @@ router.get('/status', function(req, res) {
 });
 
 // *** Dynamic Module | Do not remove ***
+
+// m_administration
+router.get('/administration', block_access.isLoggedIn, block_access.moduleAccessMiddleware("administration"), function(req, res) {
+    var widgetPromises = [];
+    // *** Widget module m_administration | Do not remove ***
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_administration', data);
+    });
+});
+
+
+// m_home
+router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function(req, res) {
+    var widgetPromises = [];
+    // *** Widget module m_home | Do not remove ***
+    Promise.all(widgetPromises).then(function(results) {
+        var data = {};
+        for (var i = 0; i < results.length; i++)
+            for (var prop in results[i])
+                data[prop] = results[i][prop];
+        res.render('default/m_home', data);
+    });
+});
+
 
 // m_authentication
 router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
@@ -53,6 +85,59 @@ router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware
     });
 });
 
+router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
+    var source = req.params.source;
+    var id = req.params.id;
+
+    models['E_'+source].findOne({
+        where: {id: id},
+        include: [{all: true, eager: true}]
+    }).then(function(dustData){
+        var sourceOptions;
+        try {
+            sourceOptions = JSON.parse(fs.readFileSync(__dirname+'/../models/options/e_'+source+'.json', 'utf8'));
+        } catch(e) {res.status(500).end()}
+
+        // Add enum / radio information
+        dustData.enum_radio = enums_radios.translated("e_"+source, req.session.lang_user, sourceOptions);
+
+        imagePromises = [];
+        // Source entity images
+        imagePromises.push(entity_helper.getPicturesBuffers(dustData, 'e_'+source));;
+        // Relations images
+        for (var i = 0; i < sourceOptions.length; i++) {
+            // Has many/preset
+            if (dustData[sourceOptions[i].as] instanceof Array) {
+                for (var j = 0; j < dustData[sourceOptions[i].as].length; j++)
+                    imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as][j], sourceOptions[i].target, true));;
+            }
+            // Has one
+            else
+                imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as], sourceOptions[i].target));
+        }
+
+        // Component address
+        dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist('e_'+source);
+
+        Promise.all(imagePromises).then(function() {
+            // Open and render dust file
+            var file = fs.readFileSync(__dirname+'/../views/e_'+source+'/print_fields.dust', 'utf8');
+            dust.renderSource(file, dustData || {}, function(err, rendered) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end();
+                }
+
+                // Send response to ajax request
+                res.json({
+                    content: rendered,
+                    option: {structureType: 'print'}
+                });
+            });
+        });
+    });
+});
+
 router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
     res.render('common/unauthorized');
 });
@@ -70,64 +155,47 @@ router.post('/change_language', block_access.isLoggedIn, function (req, res) {
 /* Dropzone FIELD ajax upload file */
 router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     upload(req, res, function (err) {
-        if (!err) {
-            if (req.body.storageType == 'local') {
-                var folder = req.file.originalname.split('-');
-                var dataEntity = req.body.dataEntity;
-                if (folder.length > 1 && !!dataEntity) {
-                    var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
-                    fse.mkdirs(basePath, function (err) {
-                        if (!err) {
-                            var uploadPath = basePath + req.file.originalname;
-                            var outStream = fs.createWriteStream(uploadPath);
-                            outStream.write(req.file.buffer);
-                            outStream.end();
-                            outStream.on('finish', function (err) {
-                                res.json({
-                                    success: true
-                                });
-                            });
-                            if (req.body.dataType == 'picture') {
-                                //We make thumbnail and reuse it in datalist
-                                basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
-                                fse.mkdirs(basePath, function (err) {
-                                    if (!err) {
-                                        Jimp.read(uploadPath, function (err, imgThumb) {
-                                            if (!err) {
-                                                imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
-                                                        .quality(globalConf.thumbnail.quality)  // set JPEG quality
-                                                        .write(basePath + req.file.originalname);
-                                            } else {
-                                                console.log(err);
-                                            }
-                                        });
-                                    } else {
-                                        console.log(err);
-                                    }
-                                });
-                            }
-                        } else{
-                            console.log(err);
-                            res.status(500).end(err);
-                        }
-                    });
-                } else{
-                    var err = new Error();
-                    err.message = 'Internal error, entity not found.';
-                    res.status(500).end(err);
-                }
-            } else if (req.body.storageType == 'cloud') {
-                var err = new Error();
-                err.message = 'Internal error, cloud file are not available.';
-                res.status(500).end(err);
-            } else{
-                var err = new Error();
-                err.message = 'Storage type not found.';
-                res.status(500).end(err);
-            }
-        } else{
+        if (err) {
             console.log(err);
-            res.status(500).end(err);
+            return res.status(500).end(err);
+        }
+        var folder = req.file.originalname.split('-');
+        var dataEntity = req.body.dataEntity;
+        if (folder.length > 1 && !!dataEntity) {
+            var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
+            fse.mkdirs(basePath, function (err) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).end(err);
+                }
+                var uploadPath = basePath + req.file.originalname;
+                var outStream = fs.createWriteStream(uploadPath);
+                outStream.write(req.file.buffer);
+                outStream.end();
+                outStream.on('finish', function (err) {
+                    res.json({
+                        success: true
+                    });
+                });
+
+                if (req.body.dataType == 'picture') {
+                    //We make thumbnail and reuse it in datalist
+                    basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
+                    fse.mkdirs(basePath, function (err) {
+                        if (err)
+                            return console.log(err);
+
+                        Jimp.read(uploadPath, function (err, imgThumb) {
+                            if (err)
+                                return console.log(err);
+
+                            imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
+                                    .quality(globalConf.thumbnail.quality)
+                                    .write(basePath + req.file.originalname);
+                        });
+                    });
+                }
+            });
         }
     });
 });

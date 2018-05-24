@@ -1,0 +1,100 @@
+<form action="/address_settings/save" method="POST">
+    <div id="fields" class="row">
+        <div class="col-xs-12">
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th> {@__ key="component.c_address_settings.entity"/}</th>
+                        <th><i class="fa fa-map"></i> {@__ key="component.c_address_settings.enableMaps"/}</th>
+                        <th><i class="fa fa-expand"></i> {@__ key="component.c_address_settings.position"/}</th>
+                        <th>{@__ key="component.c_address_settings.navigation"/}</th>
+                        <th>{@__ key="component.c_address_settings.zoomBar"/}</th>
+                        <th>{@__ key="component.c_address_settings.mousePosition"/}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#address_settings}
+                    <tr>
+                        <td>{entity}</td>
+                        <td>
+                            {@ifTrue key=enableMaps}
+                            <input type="checkbox" class="input" checked="" value="1" name="enableMaps[]"/>
+                            {:else}
+                            <input type="checkbox" class="input"  value="0" name="enableMaps[]"/>
+                            {/ifTrue}
+                        </td>
+                        <td>
+                            {@ifTrue key=mapsPosition.top}
+                            <label>
+                                <input type="radio" class="input" checked="" value="top" name="mapsPosition{entity}"/>
+                                &nbsp;{@__ key="component.c_address_settings.top" /}&nbsp;
+                            </label>
+                            {:else}
+                            <label>
+                                <input type="radio" class="input"  value="top" name="mapsPosition{entity}" />
+                                &nbsp;{@__ key="component.c_address_settings.top" /}&nbsp;
+                            </label>
+                            {/ifTrue}
+                            {@ifTrue key=mapsPosition.right}
+                            <label>
+                                <input type="radio" class="input" checked="" value="right" name="mapsPosition{entity}"/>
+                                &nbsp;{@__ key="component.c_address_settings.right" /}&nbsp;
+                            </label>
+                            {:else}
+                            <label>
+                                <input type="radio" class="input"  value="right" name="mapsPosition{entity}" />
+                                &nbsp;{@__ key="component.c_address_settings.right" /}&nbsp;
+                            </label>
+                            {/ifTrue}
+                            {@ifTrue key=mapsPosition.bottom}
+                            <label>
+                                <input type="radio" class="input" checked="" value="bottom" name="mapsPosition{entity}"/>
+                                &nbsp;{@__ key="component.c_address_settings.bottom" /}&nbsp;
+                            </label>
+                            {:else}
+                            <label>
+                                <input type="radio" class="input"  value="bottom" name="mapsPosition{entity}" />
+                                &nbsp;{@__ key="component.c_address_settings.bottom" /}&nbsp;
+                            </label>
+                            {/ifTrue}
+                            {@ifTrue key=mapsPosition.left}
+                            <label>
+                                <input type="radio" class="input" checked="" value="left" name="mapsPosition{entity}"/>
+                                &nbsp;{@__ key="component.c_address_settings.left" /}&nbsp;
+                            </label>
+                            {:else}
+                            <label>
+                                <input type="radio" class="input"  value="left" name="mapsPosition{entity}" />
+                                &nbsp;{@__ key="component.c_address_settings.left" /}&nbsp;
+                            </label>
+                            {/ifTrue}
+                        </td>
+                        <td>
+                            {@ifTrue key=navigation}
+                            <input type="checkbox" class="input" checked="" value="1" name="navigation[]"/>
+                            {:else}
+                            <input type="checkbox" class="input"  value="" name="navigation[]" />
+                            {/ifTrue}
+                        </td>
+                        <td>
+                            {@ifTrue key=zoomBar}
+                            <input type="checkbox" class="input" checked="" value="1" name="zoomBar[]"/>
+                            {:else}
+                            <input type="checkbox" class="input"  value="" name="zoomBar[]" />
+                            {/ifTrue}
+                        </td>
+                        <td>
+                            {@ifTrue key=mousePosition}
+                            <input type="checkbox" class="input" checked="" value="1" name="mousePosition[]"/>
+                            {:else}
+                            <input type="checkbox" class="input"  value="" name="mousePosition[]" />
+                            {/ifTrue}
+                        </td>
+                    </tr>
+                    {/address_settings}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <button class="btn btn-info">{@__ key="button.save"/}</button>
+</form>

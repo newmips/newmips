@@ -42,26 +42,14 @@ sequelize.customAfterSync = function() {
                         case "STRING":
                             type = "VARCHAR(255)";
                             break;
-                        case "TEXT":
-                            type = "TEXT";
-                            break;
                         case "INTEGER":
                             type = "INT";
                             break;
-                        case "BOOLEAN":
-                            type = "BOOLEAN";
-                            break;
-                        case "TIME":
-                            type = "TIME";
+                        case "BIGINT":
+                            type = "BIGINT";
                             break;
                         case "DATE":
                             type = "DATETIME";
-                            break;
-                        case "FLOAT":
-                            type = "FLOAT";
-                            break;
-                        case "DOUBLE":
-                            type = "DOUBLE";
                             break;
                         case "DECIMAL":
                             type = "DECIMAL(10,3)";
@@ -74,6 +62,14 @@ sequelize.customAfterSync = function() {
                                     type += ",";
                             }
                             type += ")";
+                            break;
+                        case "TEXT":
+                        case "BOOLEAN":
+                        case "TIME":
+                        case "FLOAT":
+                        case "DOUBLE":
+                            // Same type as the switch parameter
+                            type = toSyncObject[entity].attributes[attribute].type;
                             break;
                         default:
                             type = "VARCHAR(255)";
@@ -118,7 +114,18 @@ sequelize.customAfterSync = function() {
                             promises.push(new Promise(function(resolve0, reject0) {
                                 var tableName = sourceEntity.substring(sourceEntity.indexOf('_')+1);
                                 var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
-                                var targetName = db[option.target.charAt(0).toUpperCase() + option.target.slice(1)].getTableName();
+                                var targetName;
+                                // Status specific target. Get real history table name from attributes
+                                if (option.target.indexOf('e_history_') == 0) {
+                                    var attris = JSON.parse(fs.readFileSync(__dirname+'/attributes/'+sourceEntity.substring(sourceEntity.indexOf('e_'), sourceEntity.length)+'.json', 'utf8'));
+                                    for (var attri in attris)
+                                        if (attris[attri].history_table && attris[attri].history_table == option.target)
+                                            targetName = attris[attri].history_model;
+                                }
+                                // Regular target
+                                if (!targetName)
+                                    targetName = option.target;
+                                targetName = db[targetName.charAt(0).toUpperCase() + targetName.slice(1)].getTableName();
 
                                 var request;
                                 if (option.relation == "belongsTo") {

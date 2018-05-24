@@ -72,8 +72,8 @@
                 treeSelect += '</select>';
 
                 /* Append to each form's inputs */
-                $("input:not('.media-field'), textarea").each(function() {
-                    var label = $(this).parent().find('label');
+                $("input:not('.media-field'):not(.select2-search__field), textarea").each(function() {
+                    var label = $(this).parent().find('label:eq(0)');
                     $(treeSelect).appendTo(label).css('width', '100%').select2();
                 });
 

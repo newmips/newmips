@@ -46,13 +46,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             case "boolean" :
             case "checkbox" :
             case "case à cocher" :
-                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
                     value = true;
-                } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+                else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
                     value = false;
-                } else {
+                else
                     console.log("ERROR: Invalid default value " + defaultValue + " for boolean input.")
-                }
                 break;
             case "enum" :
                 value = attrHelper.clearString(defaultValue);
@@ -66,10 +65,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
     var disabled = readOnly ? "disabled" : "";
     readOnly = readOnly ? "readOnly" : "";
-    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    str += "\t<label for='" + dataField + "'>\n\t\t\t\t{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}\n";
-    str += '\t\t\t\t&nbsp;{@inline_help field="'+dataField+'"}<i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}\n'
-    str += "\t\t\t</label>\n"
+    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n";
+    str += "    <div class='form-group'>\n";
+    str += "        <label for='" + dataField + "'>\n";
+    str += "                <!--{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}-->&nbsp;\n";
+    str += '                <!--{@inline_help field="'+dataField+'"}-->\n';
+    str += '                    <i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    str += '                <!--{/inline_help}-->\n'
+    str += "            </label>\n"
     // Check type of field
     switch (type) {
         case "string" :
@@ -120,12 +123,6 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "code39":
         case "alpha39":
         case "code128":
-        //case "codecip":
-        //case "cip":
-        //case "isbn":
-        //case "issn":
-        //case "hr":
-        //case "codehr":
             var inputType = 'number';
             if (type === "code39" || type === "alpha39" || type === "code128")
                 inputType = 'text';
@@ -134,9 +131,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "			<i class='fa fa-barcode'></i>\n";
             str += "		</div>\n";
             if (file == "show")
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' data-customtype='"+type+"' type='text' data-type='barcode' " + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' type='text' data-type='barcode' " + readOnly + "/>\n";
             else
-                str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-customtype='"+type+"' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
@@ -162,7 +159,13 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "nombre" :
         case "int" :
         case "integer" :
-            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
+            str += "	<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='2147483648' " + readOnly + "/>\n";
+            break;
+        case "big number" :
+        case "big int" :
+        case "big integer" :
+        case "grand nombre" :
+            str += "    <input class='form-control input' data-custom-type='bigint' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='9223372036854775807' " + readOnly + "/>\n";
             break;
         case "decimal" :
         case "double" :
@@ -364,20 +367,18 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "text" :
         case "texte" :
             value = "{" + dataField + "|s}";
-            if (file == 'show') {
+            if (file == 'show')
                 str += "    <div class='show-textarea'>"+value+"</div>\n";
-            } else{
+            else
                 str += "    <textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
-            }
             break;
         case "regular text" :
         case "texte standard" :
             value = "{" + dataField + "|s}";
-            if (file == 'show') {
+            if (file == 'show')
                 str += "    <div class='show-textarea'>"+value+"</div>\n";
-            } else{
+            else
                 str += "    <textarea class='form-control textarea regular-textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
-            }
             break;
         case "localfile" :
         case "fichier":
@@ -391,7 +392,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-download'></i>\n";
                 str += "		</div>\n";
-                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + " " + readOnly + ">" + value + "</a>\n";
+                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">" + value + "</a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -401,7 +402,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "photo":
             if (file != 'show') {
                 str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{"+value2+".buffer}\"/>\n";
             }
             else {
                 str += "	<div class='input-group'>\n";
@@ -433,13 +434,18 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     str += '{@__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
     str += '</th>';
     ret.headers = str;
+
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
     str = '<td data-field="' + dataField + '"';
-    str += ' data-type="' + type + '"';
+    str += ' data-type="' + type + '">';
     if (type == "text")
-        str += ' >{' + dataField + '|s}</td>';
+        str += '{' + dataField + '|s}';
+    else if (type == 'picture')
+        str += '<img src="data:image/;base64,{'+dataField+'.buffer}" class="img img-responsive" data-type="picture" name="'+dataField+'" readonly="">';
     else
-        str += ' >{' + dataField + '}</td>';
+        str += '{' + dataField + '}';
+    str += '</td>';
+
     ret.body = str;
     return ret;
 }
@@ -506,9 +512,8 @@ exports.setupDataField = function (attr, callback) {
         var values = options.allValues;
         if (values.indexOf(",") != -1) {
             values_data_field = values.split(",");
-            for (var j = 0; j < values_data_field.length; j++) {
+            for (var j = 0; j < values_data_field.length; j++)
                 values_data_field[j] = values_data_field[j].trim();
-            }
         } else {
             var err = new Error();
             err.message = "structure.field.attributes.noSpace";
@@ -517,11 +522,9 @@ exports.setupDataField = function (attr, callback) {
 
         var sameResults_sorted = values_data_field.slice().sort();
         var sameResults = [];
-        for (var i = 0; i < values_data_field.length - 1; i++) {
-            if (sameResults_sorted[i + 1] == sameResults_sorted[i]) {
+        for (var i = 0; i < values_data_field.length - 1; i++)
+            if (sameResults_sorted[i + 1] == sameResults_sorted[i])
                 sameResults.push(sameResults_sorted[i]);
-            }
-        }
 
         if(sameResults.length > 0){
             var err = new Error();
@@ -566,6 +569,13 @@ exports.setupDataField = function (attr, callback) {
         case "integer" :
         case "nombre" :
             typeForModel = "INTEGER";
+            typeForDatalist = "integer";
+            break;
+        case "big number" :
+        case "big int" :
+        case "big integer" :
+        case "grand nombre" :
+            typeForModel = "BIGINT";
             typeForDatalist = "integer";
             break;
         case "url":
@@ -687,16 +697,15 @@ exports.setupDataField = function (attr, callback) {
 
     // Default value managment
     if (typeof options.defaultValue !== "undefined" && options.defaultValue != null){
-        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM"){
+        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM")
             defaultValueForOption = options.defaultValue;
-        } else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue)){
+        else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue))
             defaultValueForOption = options.defaultValue;
-        } else if(typeForModel == "BOOLEAN"){
-            if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+        else if(typeForModel == "BOOLEAN"){
+            if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
                 defaultValueForOption = 1;
-            } else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1) {
+            else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
                 defaultValueForOption = 0;
-            }
         }
     }
 
@@ -708,9 +717,9 @@ exports.setupDataField = function (attr, callback) {
             err.message = "structure.field.attributes.missingValues";
             return callback(err, null);
         }
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
-        }
+
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues,
@@ -729,9 +738,8 @@ exports.setupDataField = function (attr, callback) {
             err.message = "structure.field.attributes.missingValues";
             return callback(err,null);
         }
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
-        }
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues,
@@ -793,7 +801,7 @@ exports.setupDataField = function (attr, callback) {
         if (radioData[codeName_data_entity.toLowerCase()])
             json = radioData[codeName_data_entity.toLowerCase()];
         json[key] = [];
-        for (var i = 0; i < values_data_field.length; i++) {
+        for (var i = 0; i < values_data_field.length; i++)
             json[key].push({
                 value: cleanRadioValues[i],
                 translations: {
@@ -801,7 +809,6 @@ exports.setupDataField = function (attr, callback) {
                     "en-EN": values_data_field[i]
                 }
             });
-        }
         radioData[codeName_data_entity.toLowerCase()] = json;
 
         // Write Enum file
@@ -849,11 +856,11 @@ exports.setRequiredAttribute = function (attr, callback) {
     var attribute = attr.options.word.toLowerCase();
     var set = null;
 
-    if (possibilityRequired.indexOf(attribute) != -1) {
+    if (possibilityRequired.indexOf(attribute) != -1)
         set = true;
-    } else if (possibilityOptionnal.indexOf(attribute) != -1) {
+    else if (possibilityOptionnal.indexOf(attribute) != -1)
         set = false;
-    } else {
+    else {
         var err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
@@ -926,11 +933,11 @@ exports.setUniqueField = function (attr, callback) {
     var idApplication = attr.id_application;
     var codeName_data_entity = attr.name_data_entity.toLowerCase();
 
-    if (possibilityUnique.indexOf(attribute) != -1) {
+    if (possibilityUnique.indexOf(attribute) != -1)
         set = true;
-    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+    else if (possibilityNotUnique.indexOf(attribute) != -1)
         set = false;
-    } else {
+    else {
         var err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
@@ -1016,9 +1023,9 @@ function addTab(attr, file, newLi, newTabContent, target) {
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
-            } else {
-                context = $("#tabs");
             }
+            else
+                context = $("#tabs");
 
             // Append created elements to `context` to handle presence of tab or not
             newLi = '<!--{@entityAccess entity="'+target.substring(2)+'"}-->\n'+newLi+'\n<!--{/entityAccess}-->';
@@ -1073,27 +1080,10 @@ exports.setupHasManyTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasmany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '';
-            newTab += '	<div id="' + alias + '" class="tab-pane fade" data-tabType="hasMany">\n';
-            newTab += '     <div class="sub-tab-table">\n';
-            newTab += '		   <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTab += '			  <!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTab += '				 {>"' + target + '/list_fields" associationAlias="' + alias + '" associationForeignKey="' + foreignKey + '" associationFlag="{' + source + '.id}" associationSource="' + source + '" associationUrl="' + urlSource + '" for="hasMany" /}\n';
-            newTab += '			  <!--{/eq}-->\n';
-            newTab += '		   <!--{:else}-->\n';
-            newTab += '				 {>"' + target + '/list_fields" /}\n';
-            newTab += '		   <!--{/' + alias + '}-->\n';
-            newTab += '     </div>\n';
-            newTab += '		<br>\n';
-
-            // Create button to directly associate created object to relation
-            newTab += '		<a href="/' + urlTarget + '/create_form?associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-success">\n';
-            newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
-            newTab += '		</a>\n';
-            newTab += '</div>\n';
+            var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content sub-tab-table"></div></div>';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTab, target).then(callback);
@@ -1133,51 +1123,13 @@ exports.setupHasManyPresetTab = function (attr, callback) {
         stream_fileTranslationEN.end();
         stream_fileTranslationEN.on('finish', function () {
 
-            // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
-            var usingField = "id";
-            var usingFieldDisplay = "id";
-
-            if (typeof attr.options.usingField !== "undefined") {
-                usingField = attr.options.usingField[0].toLowerCase();
-                usingFieldDisplay = attr.options.usingField;
-            }
-
             // Setup association tab for show_fields.dust
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
 
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasmanypreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
-            var newTabContent = '';
-            // Create select to add elements
-            newTabContent += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasManyPreset">\n';
-            newTabContent += '  <form action="/' + urlSource + '/fieldset/' + alias + '/add" method="post" style="margin-bottom: 20px;">\n';
-            newTabContent += '      <select style="width:200px;" class="form-control" name="ids" required multiple>\n';
-            newTabContent += '          <!--{#' + alias + '_global_list}-->\n';
-            newTabContent += '              {@existInContextById ofContext=' + alias + ' key=id}\n';
-            newTabContent += '              {:else}\n';
-            newTabContent += '                  <!--{#' + usingField + '}-->\n';
-            newTabContent += '                      <option value="{id}">{' + usingField + '}</option>\n';
-            newTabContent += '                  <!--{:else}-->\n';
-            newTabContent += '                      <option value="{id}">{id} - ' + usingFieldDisplay + ' not defined</option>\n';
-            newTabContent += '                  <!--{/' + usingField + '}-->\n';
-            newTabContent += '              {/existInContextById}\n';
-            newTabContent += '          <!--{/' + alias + '_global_list}-->\n';
-            newTabContent += '      </select>\n';
-            newTabContent += '      <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>\n';
-            newTabContent += '      <input type="hidden" value="{' + source + '.id}" name="idEntity">\n';
-            newTabContent += '  </form>\n';
-            // Include association's fields
-            newTabContent += '  <div class="sub-tab-table">\n';
-            newTabContent += '      <!--{#' + alias + ' ' + target + '=' + alias + '}-->\n';
-            newTabContent += '              <!--{@eq key=id value=' + target + '[0].id}-->\n';
-            newTabContent += '          {>"' + target + '/list_fields" for="fieldset" /}\n';
-            newTabContent += '              <!--{/eq}-->\n';
-            newTabContent += '      <!--{:else}-->\n';
-            newTabContent += '              {>"' + target + '/list_fields" /}\n';
-            newTabContent += '      <!--{/' + alias + '}-->\n';
-            newTabContent += '  </div>\n';
-            newTabContent += '</div>\n';
+            var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content sub-tab-table"></div></div>';
 
             printHelper.addHasMany(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTabContent, target).then(callback);
@@ -1188,15 +1140,13 @@ exports.setupHasManyPresetTab = function (attr, callback) {
 
 exports.saveHasManyData = function (attr, data, foreignKey, callback){
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
-    delete require.cache[require.resolve(jsonPath)];
-    var toSync = require(jsonPath);
+    var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
     toSync.queries = [];
     var firstKey = "fk_id_"+attr.options.source;
     var secondKey = "fk_id_"+attr.options.target;
     /* Insert value in toSync queries array to add values of the old has many in the belongs to many */
-    for(var i=0; i<data.length; i++){
+    for(var i=0; i<data.length; i++)
         toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
-    }
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
     callback();
 }
@@ -1213,7 +1163,7 @@ exports.setupRelatedToField = function (attr, callback) {
     var showAlias = attr.options.showAs;
     var urlAs = attr.options.urlAs.toLowerCase();
 
-    // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
+    // Check if field is used in select, default to id
     var usingField = [{value:"id", type:"string"}];
     var showUsingField = ["ID"];
 
@@ -1222,20 +1172,26 @@ exports.setupRelatedToField = function (attr, callback) {
     if (typeof attr.options.showUsingField !== "undefined")
         showUsingField = attr.options.showUsingField;
 
+    var usingList = [], usingOption = [];
+    for(var i=0; i<usingField.length; i++) {
+        usingList.push(usingField[i].value);
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+    }
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-    select += '     <select style="width:100%;" class="form-control" name="' + alias + '">\n';
-    select += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
+    select += '     <label for="' + alias + '">\n';
+    select += '         {@__ key="entity.' + source + '.' + alias + '" /}&nbsp;\n'
+    select += '         <!--{@inline_help field="'+alias+'"}-->\n';
+    select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    select += '         <!--{/inline_help}-->\n';
+    select += '     </label>\n';
+    select += '     <select style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+    select += '         <option value="">\n';
+    select += '             {@__ key="select.default" /}\n';
+    select += '         </option>\n';
     select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}">';
-    for(var i=0; i<usingField.length; i++){
-        select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-        if(i != usingField.length - 1)
-            select += " - ";
-    }
-    select += '</option>\n';
+    select += '         <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1244,34 +1200,6 @@ exports.setupRelatedToField = function (attr, callback) {
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
     updateFile(fileBase, file, select, function () {
-
-        // Setup association field for update_fields
-        select = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-        select += '<select style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += "     <option value=''>{@__ key=\"select.default\" /}</option>\n";
-        select += '     <!--{#' + alias + '_global_list}-->\n';
-        select += '         <!--{@eq key=' + alias + '.id value=id}-->\n';
-        select += '             <option value="{id}" selected>';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{:else}-->\n';
-        select += '             <option value="{id}">';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{/eq}-->\n';
-        select += '     <!--{/' + alias + '_global_list}-->\n';
-        select += '</select>\n';
-        select += '</div>\n</div>\n';
-
         file = 'update_fields';
         // Update update_fields file
         updateFile(fileBase, file, select, function () {
@@ -1366,19 +1294,24 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     if (typeof attr.options.showUsingField !== "undefined")
         showUsingField = attr.options.showUsingField;
 
+    var usingList = [], usingOption = [];
+    for(var i=0; i<usingField.length; i++) {
+        usingList.push(usingField[i].value);
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+    }
     // Setup association field for create_fields
     var select = '';
-    select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-    select += '     <select multiple style="width:100%;" class="form-control" name="' + alias + '">\n';
+    select += '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+    select += '     <label for="f_' + urlAs + '">\n';
+    select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
+    select += '         <!--{@inline_help field="'+alias+'"}-->\n';
+    select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    select += '         <!--{/inline_help}-->\n';
+    select += '     </label>\n';
+    select += '     <select multiple style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+    select += '         <option value="">{@__ key="select.default" /}</option>\n';
     select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}">';
-    for(var i=0; i<usingField.length; i++){
-        select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-        if(i != usingField.length - 1)
-            select += " - ";
-    }
-    select += '</option>\n';
+    select += '             <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1387,62 +1320,42 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
     updateFile(fileBase, file, select, function () {
-
-        select = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-        select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-        select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '">\n';
-        select += '     <!--{#' + alias + '_global_list}-->\n';
-        select += '         <!--{@inArray field="id" array=' + alias + ' value=id}-->\n';
-        select += '             <option value="{id}" selected>';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{:else}-->\n';
-        select += '             <option value="{id}">';
-        for(var i=0; i<usingField.length; i++){
-            select += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-            if(i != usingField.length - 1)
-                select += " - ";
-        }
-        select += '</option>\n';
-        select += '         <!--{/inArray}-->\n';
-        select += '     <!--{/' + alias + '_global_list}-->\n';
-        select += '</select>\n';
-        select += '</div>\n</div>\n';
-
         file = 'update_fields';
         // Update update_fields file
         updateFile(fileBase, file, select, function () {
 
+            select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+            select += '     <label for="f_' + urlAs + '">\n';
+            select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
+            select += '         <!--{@inline_help field="'+alias+'"}-->\n';
+            select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+            select += '         <!--{/inline_help}-->\n';
+            select += '     </label>\n';
+            select += '     <select multiple disabled readonly style="width:100%;" class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+            select += '         <!--{#' + alias + '}-->\n';
+            select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
+            select += '         <!--{/' + alias + '}-->\n';
+            select += '     </select>\n';
+            select += '</div>\n</div>\n';
+
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
-
-                var usingFieldContent = "";
-                for(var i=0; i<usingField.length; i++){
-                    usingFieldContent += '{' + usingField[i].value + '|' + usingField[i].type +'}';
-                    if(i != usingField.length - 1)
-                        usingFieldContent += " - ";
-                }
-
-                // Add read only field in show file. No tab required
-                select = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-                select += '<label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-                select += '<select multiple style="width:100%;" class="form-control" name="' + alias + '" disabled readonly>\n';
-                select += '     <!--{#' + alias + '}-->\n';
-                select += '         <option value="'+usingFieldContent+'" selected>'+usingFieldContent+'</option>\n';
-                select += '     <!--{/' + alias + '}-->\n';
-                select += '</select>\n';
-                select += '</div>\n</div>\n';
                 $("#fields").append(select);
-
                 domHelper.write(file, $).then(function () {
                     // Add the related to many field in the entity print template
                     file = fileBase + '/print_fields.dust';
                     domHelper.read(file).then(function ($) {
+
+                        select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+                        select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+                        select += '     <select multiple disabled readonly style="width:100%;" class="regular-select form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+                        select += '         <!--{#' + alias + '}-->\n';
+                        select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
+                        select += '         <!--{/' + alias + '}-->\n';
+                        select += '     </select>\n';
+                        select += '</div>\n</div>\n';
+
                         $("#fields").append(select);
                         domHelper.write(file, $).then(function () {
                             translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
@@ -1497,39 +1410,8 @@ exports.setupHasOneTab = function (attr, callback) {
             var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '';
-            newTab += '<div id="' + alias + '" class="tab-pane fade" data-tabType="hasOne">\n';
+            var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
 
-            // Include association's fields
-            newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '     {>"' + target + '/show_fields" hideTab="true"/}\n';
-            newTab += '<!--{:else}-->\n';
-            newTab += '     {@__ key="message.empty" /}<br><br>\n';
-            newTab += '<!--{/' + alias + '}-->\n';
-
-            newTab += '<!--{#' + alias + '}-->\n';
-            newTab += '		<form action="/' + urlTarget + '/delete" method="post">\n';
-            newTab += '			<a style="margin-right:8px;" href="/' + urlTarget + '/update_form?id={id}&associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-warning">\n';
-            newTab += '				<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>\n';
-            newTab += '			</a>\n';
-            newTab += '			<button onclick="return confirm(\'Êtes-vous sûr de vouloir supprimer cet enregistrement ?\');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\n';
-            newTab += '				<span>{@__ key="button.delete" /}</span>\n';
-            newTab += '				<input name="id" value="{id}" type="hidden"/>\n';
-            newTab += '				<input name="associationAlias" value="' + alias + '" type="hidden"/>\n';
-            newTab += '				<input name="associationForeignKey" value="' + foreignKey + '" type="hidden"/>\n';
-            newTab += '				<input name="associationFlag" value="{' + source + '.id}" type="hidden"/>\n';
-            newTab += '				<input name="associationSource" value="' + source + '" type="hidden"/>\n';
-            newTab += '				<input name="associationUrl" value="' + urlSource + '" type="hidden"/>\n';
-            newTab += '			</button>\n';
-            newTab += '		</form>\n';
-            newTab += '<!--{:else}-->\n';
-            // Create button to directly associate created object to relation
-            newTab += '		<a href="/' + urlTarget + '/create_form?associationAlias=' + alias + '&associationForeignKey=' + foreignKey + '&associationFlag={' + source + '.id}&associationSource=' + source + '&associationUrl=' + urlSource + '" class="btn btn-success">\n';
-            newTab += '			<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>\n';
-            newTab += '		</a>\n';
-            newTab += '<!--{/' + alias + '}-->\n';
-
-            newTab += '</div>\n';
             printHelper.addHasOne(fileBase, target, alias).then(function(){
                 addTab(attr, file, newLi, newTab, target).then(callback);
             });
@@ -1553,8 +1435,7 @@ exports.deleteDataField = function (attr, callback) {
     var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
 
     // Clear the require cache
-    delete require.cache[require.resolve(jsonPath)];
-    var dataToWrite = require(jsonPath);
+    var dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
     for (var i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
@@ -1583,8 +1464,7 @@ exports.deleteDataField = function (attr, callback) {
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
         jsonPath = __dirname + '/../workspace/' + idApp + '/models/attributes/' + name_data_entity + '.json';
-        delete require.cache[require.resolve(jsonPath)];
-        dataToWrite = require(jsonPath);
+        dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
         delete dataToWrite[name_data_field];
 
@@ -1622,8 +1502,8 @@ exports.deleteDataField = function (attr, callback) {
                 $("td[data-field='" + name_data_field + "']").remove();
 
                 // In case of related to
-                $("th[data-field^='r_" + name_data_field.substring(2) + "']").remove();
-                $("td[data-field^='r_" + name_data_field.substring(2) + "']").remove();
+                $("th[data-col^='r_" + name_data_field.substring(2) + ".']").remove();
+                $("td[data-col^='r_" + name_data_field.substring(2) + ".']").remove();
                 domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
                     resolve();
                 });
@@ -1695,6 +1575,10 @@ exports.deleteTab = function (attr, callback) {
             // Remove tab content
             $("#r_" + tabNameWithoutPrefix).remove();
 
+            // If last tab have been deleted, remove tab structure from view
+            if ($(".tab-content .tab-pane").length == 1)
+                $("#tabs").replaceWith($("#home").html());
+
             domHelper.write(showFile, $).then(function () {
                 var printFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/print_fields.dust';
                 domHelper.read(printFile).then(function ($) {
@@ -1713,5 +1597,17 @@ exports.deleteTab = function (attr, callback) {
         }).catch(function (err) {
             callback(err, null);
         });
+    });
+}
+
+exports.selectEntity = function(id_application, moduleCodeName, entityName, callback) {
+    var layout_path = __dirname+'/../workspace/'+id_application+'/views/layout_'+moduleCodeName+'.dust';
+    domHelper.read(layout_path).then(function($) {
+        if ($('#'+entityName+'_menu_item')[0].style.display === 'block')
+            return callback(null, true);
+        callback(null, false);
+    }).catch(function(err) {
+        console.log(err);
+        callback(err);
     });
 }

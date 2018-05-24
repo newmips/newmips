@@ -102,7 +102,7 @@ exports.setupModule = function (attr, callback) {
                                 // Wait for all the layouts to be modified before calling `callback()`
                                 Promise.all(promises).then(function () {
                                     var accessPath = __dirname + '/../workspace/' + idApp + '/config/access.json';
-                                    var accessObject = require(accessPath);
+                                    var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
                                     accessObject[url_name_module.toLowerCase()] = {groups: [], entities: []};
                                     fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
                                         callback();
@@ -134,7 +134,7 @@ exports.deleteModule = function (attr, callback) {
     fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/routes/default.js', defaultRouteContent);
 
     // Clean up access config
-    var access = require(__dirname + '/../workspace/' + attr.id_application + '/config/access.json');
+    var access = JSON.parse(fs.readFileSync(__dirname + '/../workspace/' + attr.id_application + '/config/access.json', 'utf8'));
     for (var module in access) {
         if (module == attr.module_name.toLowerCase().substring(2))
             delete access[module];
