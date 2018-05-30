@@ -42,7 +42,7 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
         include: [{
             model: models.E_action,
             as: 'r_actions',
-            order: 'f_position ASC',
+            order: ["f_position", "ASC"],
             include: [{
                 model: models.E_media,
                 as: 'r_media',
@@ -498,7 +498,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
         model: models[historyModel],
         as: historyAlias,
         limit: 1,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         include: [{
             model: models.E_status,
             as: statusAlias
@@ -522,7 +522,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
                     include: [{
                     model: models.E_action,
                     as: 'r_actions',
-                    order: 'f_position ASC',
+                    order: ["f_position", "ASC"],
                     include: [{
                         model: models.E_media,
                         as: 'r_media',

@@ -1,4 +1,3 @@
-// router/routes.js
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
@@ -8,20 +7,12 @@ var readline = require('readline');
 var fs = require('fs');
 var docBuilder = require('../utils/api_doc_builder');
 var moment = require('moment');
-
-// Parser
 var designer = require('../services/designer.js');
 var structure_application = require('../structure/structure_application');
 var fs = require("fs");
-
-// Session
 var session_manager = require('../services/session.js');
-
 var parser = require('../services/bot.js');
-
 var scriptData = [];
-
-// Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
 function execute(req, instruction) {

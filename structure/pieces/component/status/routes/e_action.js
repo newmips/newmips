@@ -105,7 +105,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("action", "create
                 where: {
                     fk_id_status_actions: status.id
                 },
-                order: 'f_order DESC',
+                order: [["f_order", "DESC"]],
                 limit: 1
             }).then(function(actionMax) {
                 data.max = (actionMax && actionMax[0] && actionMax[0].f_order) ? actionMax[0].f_order+1 : 1;
@@ -382,7 +382,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
         model: models[historyModel],
         as: historyAlias,
         limit: 1,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         include: [{
             model: models.E_status,
             as: statusAlias
@@ -406,7 +406,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
                     include: [{
                     model: models.E_action,
                     as: 'r_actions',
-                    order: 'f_position ASC',
+                    order: ["f_position", "ASC"],
                     include: [{
                         model: models.E_media,
                         as: 'r_media',

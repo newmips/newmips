@@ -131,7 +131,7 @@ exports.deleteApplication = function(idApp, callback) {
 exports.listApplication = function(attr, callback) {
 
     models.Application.findAll({
-        order: "id DESC"
+        order: [["id", "DESC"]]
     }).then(function(applications){
         var info = {};
         info.message = "<br><ul>";

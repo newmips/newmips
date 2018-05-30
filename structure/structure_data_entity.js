@@ -273,7 +273,6 @@ exports.setupDataEntity = function (attr, callback) {
                     createLayoutFile(id_application, name_data_entity, url_name_data_entity, name_module, function () {
                         /* *** 5 - Copy CRUD view folder and customize them according to data entity properties *** */
                         fs.copySync(__dirname + '/pieces/views/entity', __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity.toLowerCase());
-                        /* Edit create.jade to match data entity properties */
                         var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity.toLowerCase();
 
                         /* Replace all variables 'custom_module' in create.dust */

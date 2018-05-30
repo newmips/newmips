@@ -27,7 +27,6 @@ try {
 
 //Sequelize
 var models = require('../models/');
-
 var exec = require('child_process').exec;
 
 function installAppModules() {

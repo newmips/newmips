@@ -2,7 +2,7 @@
 var models = require('../models/');
 
 // Create new Data Field in Data Entity
-exports.createNewDataField = function (attr, callback) {
+exports.createNewDataField = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
         var err = new Error();
@@ -28,9 +28,13 @@ exports.createNewDataField = function (attr, callback) {
             models.DataField.findOne({
                 where: {
                     id_data_entity: id_data_entity,
-                    $or: [{name: showNameField}, {codeName: name_field}]
+                    $or: [{
+                        name: showNameField
+                    }, {
+                        codeName: name_field
+                    }]
                 }
-            }).then(function (dataField) {
+            }).then(function(dataField) {
                 if (dataField) {
                     var err = new Error();
                     err.message = "database.field.error.alreadyExist";
@@ -44,8 +48,8 @@ exports.createNewDataField = function (attr, callback) {
                     type: type_field,
                     id_data_entity: id_data_entity,
                     version: version
-                }).then(function (dataField) {
-                    models.DataEntity.findById(id_data_entity).then(function(dataEntity){
+                }).then(function(dataField) {
+                    models.DataEntity.findById(id_data_entity).then(function(dataEntity) {
                         var info = {
                             insertId: dataField.id,
                             message: "database.field.create.created",
@@ -53,10 +57,10 @@ exports.createNewDataField = function (attr, callback) {
                         };
                         callback(null, info);
                     });
-                }).catch(function (err) {
+                }).catch(function(err) {
                     callback(err, null);
                 });
-            }).catch(function (err) {
+            }).catch(function(err) {
                 callback(err, null);
             });
         } else {
@@ -72,7 +76,7 @@ exports.createNewDataField = function (attr, callback) {
 }
 
 //Create a foreign key in an Entity
-exports.createNewForeignKey = function (attr, callback) {
+exports.createNewForeignKey = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
         var err = new Error();
@@ -89,6 +93,7 @@ exports.createNewForeignKey = function (attr, callback) {
         },
         include: [{
             model: models.Module,
+            required: true,
             include: [{
                 model: models.Application,
                 where: {
@@ -96,29 +101,29 @@ exports.createNewForeignKey = function (attr, callback) {
                 }
             }]
         }]
-    }).then(function (dataEntity) {
+    }).then(function(dataEntity) {
         models.DataField.create({
             name: name,
             codeName: codeName,
             type: "INTEGER",
             version: 1,
             id_data_entity: dataEntity.id
-        }).then(function (createdForeignKey) {
+        }).then(function(createdForeignKey) {
             var info = {};
             info.insertId = createdForeignKey.id;
             info.message = "database.field.create.foreignKeyCreated";
             info.messageParams = [createdForeignKey.id, createdForeignKey.name];
             callback(null, info);
-        }).catch(function (err) {
+        }).catch(function(err) {
             callback(err, null);
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // Delete
-exports.deleteDataField = function (attr, callback) {
+exports.deleteDataField = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
         var err = new Error();
@@ -134,37 +139,37 @@ exports.deleteDataField = function (attr, callback) {
             codeName: nameField,
             id_data_entity: idEntity
         }
-    }).then(function () {
+    }).then(function() {
         var info = {};
         info.message = "database.field.delete.deleted";
         info.messageParams = [attr.options.showValue];
         callback(null, info);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
-exports.deleteDataFieldById = function (id, callback) {
+exports.deleteDataFieldById = function(id, callback) {
     models.DataField.destroy({
         where: {
             id: id
         }
-    }).then(function () {
+    }).then(function() {
         callback(null, true);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // List
-exports.listDataField = function (attr, callback) {
-
+exports.listDataField = function(attr, callback) {
     models.DataField.findAll({
-        order: 'id DESC',
+        order: [["id", "DESC"]],
         include: [{
             model: models.DataEntity,
             include: [{
                 model: models.Module,
+                required: true,
                 include: [{
                     model: models.Application,
                     where: {
@@ -173,7 +178,7 @@ exports.listDataField = function (attr, callback) {
                 }]
             }]
         }]
-    }).then(function (dataFields) {
+    }).then(function(dataFields) {
 
         var info = {};
         info.message = "<br><ul>";
@@ -181,23 +186,23 @@ exports.listDataField = function (attr, callback) {
             info.message = info.message + "-\n";
         else
             for (var i = 0; i < dataFields.length; i++)
-                info.message += "<li>" + dataFields[i].DataEntity.Module.name + " | " + dataFields[i].DataEntity.name + " | " + dataFields[i].name + "("+dataFields[i].id+")</li>";
+                info.message += "<li>" + dataFields[i].DataEntity.Module.name + " | " + dataFields[i].DataEntity.name + " | " + dataFields[i].name + "(" + dataFields[i].id + ")</li>";
         info.message += "</ul>";
         info.rows = dataFields;
         callback(null, info);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
 // GetById
-exports.getNameDataFieldById = function (idField, callback) {
+exports.getNameDataFieldById = function(idField, callback) {
 
     models.DataField.findOne({
         where: {
             id: idField
         }
-    }).then(function (dataField) {
+    }).then(function(dataField) {
         if (!dataField) {
             var err = new Error();
             err.message = "database.field.notFound.withThisID";
@@ -206,7 +211,7 @@ exports.getNameDataFieldById = function (idField, callback) {
         }
 
         callback(null, dataField);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
@@ -214,7 +219,9 @@ exports.getNameDataFieldById = function (idField, callback) {
 exports.getCodeNameByNameArray = function(names, idEntity, callback) {
     var columns = [];
     for (var i = 0; i < names.length; i++)
-        columns.push({name: names[i].toLowerCase()});
+        columns.push({
+            name: names[i].toLowerCase()
+        });
     models.DataField.findAll({
         attributes: ['codeName', 'name'],
         where: {
@@ -229,14 +236,13 @@ exports.getCodeNameByNameArray = function(names, idEntity, callback) {
     });
 }
 
-exports.getFieldByCodeName = function (params, callback) {
-
+exports.getFieldByCodeName = function(params, callback) {
     models.DataField.findOne({
         where: {
             codeName: params.codeName,
             id_data_entity: params.idEntity
         }
-    }).then(function (field) {
+    }).then(function(field) {
         if (!field) {
             var err = new Error();
             err.message = "database.field.notFound.withThisName";
@@ -245,7 +251,7 @@ exports.getFieldByCodeName = function (params, callback) {
         }
 
         callback(null, field);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }

@@ -29,37 +29,38 @@ $(function() {
         "z-index": "999999"
     }).addClass("no-print");
     widget_settings.append(
-            "<h4 style='margin: 0 0 5px 0; border-bottom: 1px dashed #ddd; padding-bottom: 3px;'>Recorder Options</h4>"
-            + "<div class='form-group no-margin'>"
-            + "<div class='btn.btn-default'>"
-            + "<label>"
-            + "<input type='button' onclick='change_layout();'' value='Record'></input>"
-            + ""
-            + ""
-            + "</label>"
-            + "</div>"
-            + "</div>"
-            );
+        "<h4 style='margin: 0 0 5px 0; border-bottom: 1px dashed #ddd; padding-bottom: 3px;'>Recorder Options</h4>" +
+        "<div class='form-group no-margin'>" +
+        "<div class='btn.btn-default'>" +
+        "<label>" +
+        "<input type='button' onclick='change_layout();'' value='Record'></input>" +
+        "" +
+        "" +
+        "</label>" +
+        "</div>" +
+        "</div>"
+    );
     widget_settings.append(
-            "<h4 style='margin: 0 0 5px 0; border-bottom: 1px dashed #ddd; padding-bottom: 3px;'>Skins</h4>"
-            + "<div class='form-group no-margin'>"
-            + "<div class='.radio'>"
-            + "<label>"
-            + "<input name='skins' type='radio' onchange='change_skin(\"skin-black\");' /> "
-            + "Black"
-            + "</label>"
-            + "</div>"
-            + "</div>"
+        "<h4 style='margin: 0 0 5px 0; border-bottom: 1px dashed #ddd; padding-bottom: 3px;'>Skins</h4>" +
+        "<div class='form-group no-margin'>" +
+        "<div class='.radio'>" +
+        "<label>" +
+        "<input name='skins' type='radio' onchange='change_skin(\"skin-black\");' /> " +
+        "Black" +
+        "</label>" +
+        "</div>" +
+        "</div>"
 
-            + "<div class='form-group no-margin'>"
-            + "<div class='.radio'>"
-            + "<label>"
-            + "<input name='skins' type='radio' onchange='change_skin(\"skin-blue\");' checked='checked'/> "
-            + "Blue"
-            + "</label>"
-            + "</div>"
-            + "</div>"
-            );
+        +
+        "<div class='form-group no-margin'>" +
+        "<div class='.radio'>" +
+        "<label>" +
+        "<input name='skins' type='radio' onchange='change_skin(\"skin-blue\");' checked='checked'/> " +
+        "Blue" +
+        "</label>" +
+        "</div>" +
+        "</div>"
+    );
 
     widget.click(function() {
         if (!$(this).hasClass("open")) {

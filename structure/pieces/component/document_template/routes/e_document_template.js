@@ -20,7 +20,7 @@ var moment = require('moment');
 // Winston logger
 var logger = require('../utils/logger');
 
-router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
     var data = {
         "menu": "e_document_template",
         "sub_menu": "list_e_document_template"
@@ -32,22 +32,22 @@ router.get('/list', block_access.actionAccessMiddleware("document_template", "re
     res.render('e_document_template/list', data);
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+router.post('/datalist', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("E_document_template", req.body, include).then(function (rawData) {
+    filterDataTable("E_document_template", req.body, include).then(function(rawData) {
         entity_helper.prepareDatalistResult('e_document_template', rawData, req.session.lang_user).then(function(preparedData) {
             res.send(preparedData).end();
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         console.log(err);
         logger.debug(err);
         res.end();
     });
 });
 
-router.get('/show', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+router.get('/show', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
     var id_e_document_template = req.query.id;
     var tab = req.query.tab;
     var data = {
@@ -63,7 +63,11 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
 
     /* Looking for two level of include to get all associated data in show tab list */
 
-    models.E_document_template.findOne({where: {id: id_e_document_template}}).then(function (e_document_template) {
+    models.E_document_template.findOne({
+        where: {
+            id: id_e_document_template
+        }
+    }).then(function(e_document_template) {
         if (!e_document_template) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -75,19 +79,22 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
         var reworkRelations = [];
         var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
         for (var i = 0; i < relations.length; i++) {
-            reworkRelations[i] = {item: relations[i], value: relations[i]};
+            reworkRelations[i] = {
+                item: relations[i],
+                value: relations[i]
+            };
             if (f_exclude_relations.indexOf(relations[i]) < 0)
                 reworkRelations[i].isSelected = true;
         }
         data.e_document_template.document_template_relations = reworkRelations;
         res.render('e_document_template/show', data);
 
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
     var data = {
         menu: "e_document_template",
         sub_menu: "create_e_document_template",
@@ -104,17 +111,17 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
 
     var associationsFinder = model_builder.associationsFinder(models, options);
 
-    Promise.all(associationsFinder).then(function (found) {
+    Promise.all(associationsFinder).then(function(found) {
         for (var i = 0; i < found.length; i++)
             data[found[i].model] = found[i].rows;
         data.document_template_entities = document_template_helper.get_entities(models);
         res.render('e_document_template/create', data);
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     var relations = document_template_helper.getRelations(req.body.f_entity);
@@ -124,19 +131,19 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
         if (f_exclude_relations.indexOf(relations[i]) < 0)
             exclude_relations.push(relations[i]);
     createObject.f_exclude_relations = exclude_relations.join(',');
-    models.E_document_template.create(createObject).then(function (e_document_template) {
+    models.E_document_template.create(createObject).then(function(e_document_template) {
         var redirect = '/document_template/show?id=' + e_document_template.id;
         req.session.toastr = [{
-                message: 'message.create.success',
-                level: "success"
-            }];
+            message: 'message.create.success',
+            level: "success"
+        }];
         res.redirect(redirect);
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/document_template/create_form');
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("document_template", "update"), function(req, res) {
     var id_e_document_template = req.query.id;
     var data = {
         menu: "e_document_template",
@@ -154,8 +161,15 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
 
     var associationsFinder = model_builder.associationsFinder(models, options);
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.E_document_template.findOne({where: {id: id_e_document_template}, include: [{all: true}]}).then(function (e_document_template) {
+    Promise.all(associationsFinder).then(function(found) {
+        models.E_document_template.findOne({
+            where: {
+                id: id_e_document_template
+            },
+            include: [{
+                all: true
+            }]
+        }).then(function(e_document_template) {
             if (!e_document_template) {
                 data.error = 404;
                 return res.render('common/error', data);
@@ -190,22 +204,25 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
             var reworkRelations = [];
             var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
             for (var i = 0; i < relations.length; i++) {
-                reworkRelations[i] = {item: relations[i], value: relations[i]};
+                reworkRelations[i] = {
+                    item: relations[i],
+                    value: relations[i]
+                };
                 if (f_exclude_relations.indexOf(relations[i]) < 0)
                     reworkRelations[i].isSelected = true;
             }
             data.e_document_template.document_template_relations = reworkRelations;
 
             res.render('e_document_template/update', data);
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, "/");
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("document_template", "update"), function(req, res) {
     var id_e_document_template = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -222,39 +239,43 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
         if (f_exclude_relations.indexOf(relations[i]) < 0)
             exclude_relations.push(relations[i]);
     updateObject.f_exclude_relations = exclude_relations.join(',');
-    models.E_document_template.findOne({where: {id: id_e_document_template}}).then(function (e_document_template) {
+    models.E_document_template.findOne({
+        where: {
+            id: id_e_document_template
+        }
+    }).then(function(e_document_template) {
         if (!e_document_template) {
             data.error = 404;
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
 
-        e_document_template.update(updateObject).then(function () {
+        e_document_template.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
-            model_builder.setAssocationManyValues(e_document_template, req.body, updateObject, options).then(function () {
+            model_builder.setAssocationManyValues(e_document_template, req.body, updateObject, options).then(function() {
 
                 var redirect = '/document_template/show?id=' + id_e_document_template;
                 if (typeof req.body.associationFlag !== 'undefined')
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
                 req.session.toastr = [{
-                        message: 'message.update.success',
-                        level: "success"
-                    }];
+                    message: 'message.update.success',
+                    level: "success"
+                }];
 
                 res.redirect(redirect);
             });
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
     });
 });
 
-router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
+router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
     var historyModel = 'E_history_e_document_template_' + req.params.status;
     var historyAlias = 'r_history_' + req.params.status.substring(2);
     var statusAlias = 'r_' + req.params.status.substring(2);
@@ -262,55 +283,76 @@ router.get('/set_status/:id_document_template/:status/:id_new_status', block_acc
     var errorRedirect = '/document_template/show?id=' + req.params.id_document_template;
     // Find target entity instance
     models.E_document_template.findOne({
-        where: {id: req.params.id_document_template},
+        where: {
+            id: req.params.id_document_template
+        },
         include: [{
-                model: models[historyModel],
-                as: historyAlias,
-                limit: 1,
-                order: 'createdAt DESC',
-                include: [{
-                        model: models.E_status,
-                        as: statusAlias
-                    }]
-            }, {
-                // Include all associations that can later be used by media to include variables value
-                all: true, nested: true
+            model: models[historyModel],
+            as: historyAlias,
+            limit: 1,
+            order: [["createdAt", "DESC"]],
+            include: [{
+                model: models.E_status,
+                as: statusAlias
             }]
-    }).then(function (e_document_template) {
+        }, {
+            // Include all associations that can later be used by media to include variables value
+            all: true,
+            nested: true
+        }]
+    }).then(function(e_document_template) {
         if (!e_document_template || !e_document_template[historyAlias] || !e_document_template[historyAlias][0][statusAlias]) {
             logger.debug("Not found - Set status");
-            return res.render('common/error', {error: 404});
+            return res.render('common/error', {
+                error: 404
+            });
         }
 
         // Find the children of the current status
         models.E_status.findOne({
-            where: {id: e_document_template[historyAlias][0][statusAlias].id},
+            where: {
+                id: e_document_template[historyAlias][0][statusAlias].id
+            },
             include: [{
-                    model: models.E_status,
-                    as: 'r_children',
+                model: models.E_status,
+                as: 'r_children',
+                include: [{
+                    model: models.E_action,
+                    as: 'r_actions',
+                    order: ["f_position", "ASC"],
                     include: [{
-                            model: models.E_action,
-                            as: 'r_actions',
-                            order: 'f_position ASC',
+                        model: models.E_media,
+                        as: 'r_media',
+                        include: [{
+                            model: getModels().E_media_mail,
+                            as: 'r_media_mail'
+                        }, {
+                            model: getModels().E_media_notification,
+                            as: 'r_media_notification',
                             include: [{
-                                    model: models.E_media,
-                                    as: 'r_media',
-                                    include: [{all: true, nested: true}]
-                                }]
+                                model: getModels().E_group,
+                                as: 'r_target_groups'
+                            }, {
+                                model: getModels().E_user,
+                                as: 'r_target_users'
+                            }]
                         }]
+                    }]
                 }]
-        }).then(function (current_status) {
+            }]
+        }).then(function(current_status) {
             if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
-                return res.render('common/error', {error: 404});
+                return res.render('common/error', {
+                    error: 404
+                });
             }
 
             // Check if new status is actualy the current status's children
             var children = current_status.r_children;
             var nextStatus = false;
             for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status)
-                {
+                if (children[i].id == req.params.id_new_status) {
                     nextStatus = children[i];
                     break;
                 }
@@ -318,42 +360,48 @@ router.get('/set_status/:id_document_template/:status/:id_new_status', block_acc
             // Unautorized
             if (nextStatus === false) {
                 req.session.toastr = [{
-                        level: 'error',
-                        message: 'component.status.error.illegal_status'
-                    }]
+                    level: 'error',
+                    message: 'component.status.error.illegal_status'
+                }]
                 return res.redirect(errorRedirect);
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(e_document_template).then(function () {
+            nextStatus.executeActions(e_document_template).then(function() {
                 // Create history record for this status field
                 // Beeing the most recent history for document_template it will now be its current status
                 var createObject = {}
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_document_template_history_" + req.params.status.substring(2)] = req.params.id_document_template;
-                models[historyModel].create(createObject).then(function () {
+                models[historyModel].create(createObject).then(function() {
                     e_document_template['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/document_template/show?id=' + req.params.id_document_template)
                 });
             });
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, errorRedirect);
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("document_template", "delete"), function (req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("document_template", "delete"), function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
-    models.E_document_template.findOne({where: {id: idEntity}}).then(function (e_document_template) {
+    models.E_document_template.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then(function(e_document_template) {
         if (!e_document_template) {
-            var data = {error: 404};
+            var data = {
+                error: 404
+            };
             return res.render('common/error', data);
         }
 
         // Get all associations
-        e_document_template['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
+        e_document_template['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function(aliasEntities) {
             // Remove entity from association array
             for (var i = 0; i < aliasEntities.length; i++)
                 if (aliasEntities[i].id == idToRemove) {
@@ -361,28 +409,34 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
                     break;
                 }
 
-            // Set back associations without removed entity
-            e_document_template['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
+                // Set back associations without removed entity
+            e_document_template['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function() {
                 res.sendStatus(200).end();
             });
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
-    models.E_document_template.findOne({where: {id: idEntity}}).then(function (e_document_template) {
+    models.E_document_template.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then(function(e_document_template) {
         if (!e_document_template) {
-            var data = {error: 404};
+            var data = {
+                error: 404
+            };
             logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
         var toAdd;
-        if (typeof (toAdd = req.body.ids) === 'undefined') {
+        if (typeof(toAdd = req.body.ids) === 'undefined') {
             req.session.toastr.push({
                 message: 'message.create.failure',
                 level: "error"
@@ -390,53 +444,68 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("documen
             return res.redirect('/document_template/show?id=' + idEntity + "#" + alias);
         }
 
-        e_document_template['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
+        e_document_template['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/document_template/show?id=' + idEntity + "#" + alias);
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("document_template", "delete"), function (req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("document_template", "delete"), function(req, res) {
     var id_e_document_template = parseInt(req.body.id);
 
-    models.E_document_template.findOne({where: {id: id_e_document_template}}).then(function (deleteObject) {
+    models.E_document_template.findOne({
+        where: {
+            id: id_e_document_template
+        }
+    }).then(function(deleteObject) {
         models.E_document_template.destroy({
             where: {
                 id: id_e_document_template
             }
-        }).then(function () {
+        }).then(function() {
             req.session.toastr = [{
-                    message: 'message.delete.success',
-                    level: "success"
-                }];
+                message: 'message.delete.success',
+                level: "success"
+            }];
 
             var redirect = '/document_template/list';
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
             entity_helper.remove_files("e_document_template", deleteObject, attributes);
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, '/document_template/list');
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/document_template/list');
     });
 });
 
-router.post('/generate', block_access.isLoggedIn, function (req, res) {
+router.post('/generate', block_access.isLoggedIn, function(req, res) {
     var id_entity = req.body.id_entity;
     var entity = req.body.entity;
     var id_document = req.body.f_model_document;
     if (id_entity && id_document && entity) {
-        models.E_document_template.findOne({where: {id: id_document}}).then(function (e_model_document) {
+        models.E_document_template.findOne({
+            where: {
+                id: id_document
+            }
+        }).then(function(e_model_document) {
             if (e_model_document && e_model_document.f_file) {
-                entity = entity.charAt(0).toUpperCase() + entity.slice(1);//uc first
-                var includes = [{all: true}];
+                entity = entity.charAt(0).toUpperCase() + entity.slice(1); //uc first
+                var includes = [{
+                    all: true
+                }];
                 if (e_model_document.f_exclude_relations)
                     includes = document_template_helper.buildInclude(entity, e_model_document.f_exclude_relations, models);
-                models[entity].findOne({where: {id: id_entity}, include: includes}).then(function (e_entity) {
+                models[entity].findOne({
+                    where: {
+                        id: id_entity
+                    },
+                    include: includes
+                }).then(function(e_entity) {
                     if (e_entity) {
                         var partOfFilepath = e_model_document.f_file.split('-');
                         if (partOfFilepath.length > 1) {
@@ -453,7 +522,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             //rework with own options
                             var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user, mimeType);
                             //now add others variables
-                            document_template_helper.globalVariables.forEach(function (g) {
+                            document_template_helper.globalVariables.forEach(function(g) {
                                 if (g.type === "date" || g.type === "datetime" || g.type === "time")
                                     data[g.name] = moment().format(document_template_helper.getDateFormatUsingLang(req.session.lang_user, g.type));
                             });
@@ -467,21 +536,24 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                                 entity: entity,
                                 lang: req.session.lang_user
                             };
-                            document_template_helper.generateDoc(options).then(function (infos) {
-                                var filename = (e_entity.id || '')
-                                        + '_' + today.format('DDMMYYYY_HHmmss')
-                                        + '_' + today.unix()
-                                        + infos.ext;
-                                res.writeHead(200, {"Content-Type": infos.contentType, "Content-Disposition": "attachment;filename=" + filename});
+                            document_template_helper.generateDoc(options).then(function(infos) {
+                                var filename = (e_entity.id || '') +
+                                    '_' + today.format('DDMMYYYY_HHmmss') +
+                                    '_' + today.unix() +
+                                    infos.ext;
+                                res.writeHead(200, {
+                                    "Content-Type": infos.contentType,
+                                    "Content-Disposition": "attachment;filename=" + filename
+                                });
                                 res.write(infos.buffer);
                                 res.end();
-                            }).catch(function (e) {
+                            }).catch(function(e) {
                                 data.toastr = req.session.toastr;
                                 req.session.toastr = [];
                                 req.session.toastr = [{
-                                        message: e.message,
-                                        level: "error"
-                                    }];
+                                    message: e.message,
+                                    level: "error"
+                                }];
                                 res.redirect(req.headers.referer);
                             });
                         } else
@@ -496,7 +568,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
         res.redirect(req.headers.referer);
 });
 
-router.get('/readme/:entity', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+router.get('/readme/:entity', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
     var data = {
         "menu": "e_document_template",
         "sub_menu": "list_e_document_template"
@@ -508,48 +580,61 @@ router.get('/readme/:entity', block_access.actionAccessMiddleware("document_temp
         data['entities'] = document_template_helper.build_help(entity, req.session.lang_user);
         data.document_template_entities = document_template_helper.get_entities(models);
         data.readme = document_template_helper.getReadmeMessages(req.session.lang_user);
-        data.selectedEntity=entity;
+        data.selectedEntity = entity;
         res.render('e_document_template/readme', data);
     }
 });
 
-router.get('/help/:type', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+router.get('/help/:type', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
     var type = req.params.type;
 
     if (type === "subEntities") {
-        res.json({message: document_template_helper.getSubEntitiesHelp(req.session.lang_user)});
+        res.json({
+            message: document_template_helper.getSubEntitiesHelp(req.session.lang_user)
+        });
     } else
         res.status(404).end();
 });
 
-
-router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
     var entity = req.params.entity;
     var type = req.query.t;
     if (entity) {
         if (type === 'html') {
             var html = document_template_helper.buildHTMLHelpEntitiesAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
-            res.json({HTMLRelationsList: html});
+            res.json({
+                HTMLRelationsList: html
+            });
         } else
-            res.json({relations: document_template_helper.getRelations(entity)});
+            res.json({
+                relations: document_template_helper.getRelations(entity)
+            });
     } else
         res.end([]);
 });
 
-router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-    res.json({HTMLGlobalVariables: document_template_helper.buildHTMLGlobalVariables(req.session.lang_user)});
+router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
+    res.json({
+        HTMLGlobalVariables: document_template_helper.buildHTMLGlobalVariables(req.session.lang_user)
+    });
 });
+
 /* Select 2 AJAX LOAD */
-router.post('/search', block_access.isLoggedIn, function (req, res) {
+router.post('/search', block_access.isLoggedIn, function(req, res) {
     var entity = req.body.entity;
     entity = entity.replace('e_', '');
     entity = entity.charAt(0).toUpperCase() + entity.slice(1);
-    models.E_document_template.findAll({where: {
-            $and: [
-                {f_entity: entity},
-                {f_name: {$like: '%' + req.body.search + '%'}}
-            ]
-        }}).then(function (results) {
+    models.E_document_template.findAll({
+        where: {
+            $and: [{
+                f_entity: entity
+            }, {
+                f_name: {
+                    $like: '%' + req.body.search + '%'
+                }
+            }]
+        }
+    }).then(function(results) {
         var data = [];
         /* Format data for select2 */
         for (var j = 0; j < results.length; j++) {

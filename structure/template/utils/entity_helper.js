@@ -244,7 +244,7 @@ var funcs = {
                     (function(status, Model, whereCls) {
                         nextStatusPromises.push(Model.findAll({
                             limit: 1,
-                            order: 'createdAt DESC',
+                            order: [["createdAt", "DESC"]],
                             where: whereCls,
                             include: [{
                                 model: models.E_status,

@@ -17,11 +17,6 @@ var re = /(?:\.([^.]+))?$/;
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
-// ===========================================
-// Redirection Editor =====================
-// ===========================================
-
-// Homepage
 router.get('/:id_application', block_access.isLoggedIn, function(req, res) {
     var data = {};
     var id_application = req.params.id_application;

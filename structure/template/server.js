@@ -3,8 +3,8 @@ process.env.TZ = 'UTC';
 // Set up ======================================================================
 // Get all the tools we need
 var path = require('path');
-var express  = require('express');
-var session  = require('express-session');
+var express = require('express');
+var session = require('express-session');
 var SessionStore = require('express-mysql-session');
 var dbconfig = require('./config/database');
 var cookieParser = require('cookie-parser');
@@ -15,7 +15,7 @@ var globalConf = require('./config/global');
 var protocol = globalConf.protocol;
 var port = globalConf.port;
 var passport = require('passport');
-var flash    = require('connect-flash');
+var flash = require('connect-flash');
 var block_access = require('./utils/block_access');
 var models = require('./models/');
 var moment = require('moment');
@@ -288,7 +288,7 @@ app.use(function(req, res, next) {
         		where: {id: userId}
         	}],
         	subQuery: false,
-        	order: 'createdAt DESC',
+        	order: [["createdAt", "DESC"]],
         	offset: 0,
         	limit: 10
         }).then(function(notifications) {

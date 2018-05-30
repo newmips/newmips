@@ -14,11 +14,6 @@ var bot = require('../services/bot.js');
 //Sequelize
 var models = require('../models/');
 
-// ===========================================
-// Redirection Home =====================
-// ===========================================
-
-// Homepage
 router.get('/home', block_access.isLoggedIn, function(req, res) {
     var data = {};
     // Set ReturnTo URL in cas of unauthenticated users trying to reach a page

@@ -150,7 +150,7 @@ module.exports = function (modelName, params, speInclude, speWhere) {
             order.push(orderContent);
         } else {
             // Defining a simple order by
-            order = params.columns[params.order[0].column].data + ' ' + params.order[0].dir;
+            order = [[params.columns[params.order[0].column].data, params.order[0].dir]];
         }
 
         // Building final query object
