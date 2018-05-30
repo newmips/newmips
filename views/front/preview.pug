@@ -216,7 +216,7 @@ block content
 										a.btn.btn-app(target="_blank", href="https://github.com/newmips/newmips/issues/new")
 											i.fa.fa-github
 											|#{__("preview.issue-button")}
-									else if globalConf.env == 'develop' || globalConf.env == 'cloud_recette'
+									else if globalConf.env == 'cloud' || globalConf.env == 'cloud_recette'
 										div.btn.btn-app#message-box(title="", data-toggle="tooltip", data-original-title="Talk bubble")
 											i.fa.fa-comment
 											div(class="badge badge-danger slack-message-count", style="display: none;")
@@ -800,73 +800,59 @@ block custom_js
 			/////////
 			// Autocomplete
 			/////////
-			$(document).on("keyup", "input#instruction", function(e){
-				if (e.ctrlKey)
-					return;
-				var newstr = $("#instruction").val();
+			$("#instruction").autocomplete({
+			    autoFocus: true,
+			    delay: 200,
+			    source: function(request, response) {
+			        $.getJSON('/default/completion', {
+			            "str": request.term
+			        }, response);
+			    },
+			    search: function() {
+			        return true;
+			    },
+			    focus: function() {
+			        // prevent value inserted on focus
+			        return false;
+			    },
+			    select: function(event, ui) {
 
-				function split( val ) {
-			    	return val.split( /,\s*/ );
-			    }
-			    function extractLast( term ) {
-			    	return split( term ).pop();
-			    }
-
-		        $("#instruction").autocomplete({
-		            autoFocus: true,
-		            delay: 200,
-		            source: function(request, response) {
-		                $.getJSON('/default/completion', {
-		                    "str": newstr
-		                }, response);
-		            },
-		            search: function() {
-		                return true;
-		            },
-		            focus: function() {
-		                // prevent value inserted on focus
-		                return false;
-		            },
-		            select: function(event, ui) {
-
-		            	var ENTERKEY = 13;
-		            	if (event.keyCode != ENTERKEY) {
-			                var completeVal = ui.item.value;
-			                // If complete value have already typed string in it, dont concat with current value
-			                if (completeVal.indexOf(this.value) == 0) {
-			                    this.value = completeVal.split("[variable]").join("").trim();
-			                } else {
-			                    // Remove the last word of already typed instruction because it is also in the completed value
-			                    var parts = this.value.split(' ');
-			                    if (parts[parts.length - 1] == " ")
-			                        parts.pop();
-			                    else {
-			                        compareNum = 0;
-			                        l = Math.min(completeVal.length, parts[parts.length - 1].length);
-			                        for (i = 0; i < l; i++) {
-			                            if (completeVal.charAt(i) == parts[parts.length - 1].charAt(i)) compareNum++;
-			                        }
-			                        if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
-			                            parts.pop();
-			                    }
-			                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
-			                }
-
-			                var TABKEY = 9;
-				            if (event.keyCode == TABKEY) {
-				                event.preventDefault();
-				                this.value = this.value+" ";
-				                $('#instruction').focus();
-				            }
-			                return false;
+			    	var ENTERKEY = 13;
+			    	if (event.keyCode != ENTERKEY) {
+			            var completeVal = ui.item.value;
+			            // If complete value have already typed string in it, dont concat with current value
+			            if (completeVal.indexOf(this.value) == 0) {
+			                this.value = completeVal.split("[variable]").join("").trim();
 			            } else {
-			            	event.preventDefault();
-			            	$('#execute_instruction').click();
-			            	return false;
+			                // Remove the last word of already typed instruction because it is also in the completed value
+			                var parts = this.value.split(' ');
+			                if (parts[parts.length - 1] == " ")
+			                    parts.pop();
+			                else {
+			                    compareNum = 0;
+			                    l = Math.min(completeVal.length, parts[parts.length - 1].length);
+			                    for (i = 0; i < l; i++) {
+			                        if (completeVal.charAt(i) == parts[parts.length - 1].charAt(i)) compareNum++;
+			                    }
+			                    if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
+			                        parts.pop();
+			                }
+			                this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
 			            }
-		            }
-		        });
-				// }
+
+			            var TABKEY = 9;
+			            if (event.keyCode == TABKEY) {
+			                event.preventDefault();
+			                this.value = this.value+" ";
+			                $('#instruction').focus();
+			            }
+			            return false;
+			        } else {
+			        	event.preventDefault();
+			        	$('#execute_instruction').click();
+			        	return false;
+			        }
+			    }
 			});
 
 			/////////
