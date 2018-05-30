@@ -15,6 +15,13 @@ function handleError(error, par2, par3) {
     }
 }
 
+function firstElementFocus(tab, idx = 0) {
+    var element = $(".form-group:eq("+idx+") label:eq(0)", tab).next().focus();
+    if ((element && (element.prop('disabled') == true || element.prop('readonly') == true))
+    && ($(".form-group", tab).length > 0 && idx <= $(".form-group", tab).length))
+        firstElementFocus(idx+1);
+}
+
 function buildAssociationHref(tab) {
     var associationData = {
         associationAlias: tab.data('asso-alias'),
@@ -374,6 +381,7 @@ $(function() {
                 tab.find('.ajax-form').slideDown();
                 initForm(tab);
                 ajaxForm(formWrapper.find('form'), tab);
+                firstElementFocus(tab.find('.ajax-form'));
             },
             error: handleError
         });
