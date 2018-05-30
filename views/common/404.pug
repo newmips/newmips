@@ -1,0 +1,23 @@
+extends ../main_layout
+block header
+	h1 #{__("menu.error")} 404
+	ol.breadcrumb
+		li
+			a(href='/')
+				i.fa.fa-dashboard
+				| #{__("menu.home")}
+		li
+			a(href='#') #{__("menu.error")}
+		li.active #{__("menu.error")} 404
+block content
+	.error-page
+		h2.headline 404
+		.error-content
+				h3
+					i.fa.fa-warning.text-yellow
+					|&nbsp;#{__("error.404")}
+				p
+					|#{__("error.textone")}
+					a(href='/') &nbsp;#{__("error.texttwo")}
+					|&nbsp;#{__("error.or")}&nbsp;
+					a(href='javascript:history.back();') #{__("error.textthree")}
