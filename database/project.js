@@ -79,7 +79,7 @@ exports.createNewProject = function(attr, callback) {
 exports.listProject = function(attr, callback) {
 
     models.Project.findAll({
-        order: "id DESC"
+        order: [["id", "DESC"]]
     }).then(function(projects) {
         var info = new Array();
         info.message = "<br><ul>";

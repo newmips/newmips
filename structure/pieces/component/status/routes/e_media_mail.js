@@ -184,7 +184,7 @@ router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.act
             model: models[historyModel],
             as: historyAlias,
             limit: 1,
-            order: 'createdAt DESC',
+            order: [["createdAt", "DESC"]],
             include: [{
                 model: models.E_status,
                 as: statusAlias

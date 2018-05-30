@@ -395,7 +395,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
         model: models[historyModel],
         as: historyAlias,
         limit: 1,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         include: [{
             model: models.E_status,
             as: statusAlias
@@ -419,7 +419,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
                     include: [{
                     model: models.E_action,
                     as: 'r_actions',
-                    order: 'f_position ASC',
+                    order: ["f_position", "ASC"],
                     include: [{
                         model: models.E_media,
                         as: 'r_media',

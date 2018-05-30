@@ -19,7 +19,7 @@ router.get('/load/:offset', function(req, res) {
             where: {id: req.session.passport.user.id}
         }],
         subQuery: false,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         limit: 10,
         offset: offset
     }).then(function(notifications) {

@@ -9,7 +9,7 @@ function sendChatChannelList(user, socket) {
 			include: [{
 				model: models.E_channel,
 				as: 'r_user_channel',
-				order: ['id DESC']
+				order: [['id', 'DESC']]
 			}, {
 				model: models.E_chat,
 				as: 'r_chat',
@@ -298,7 +298,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				}, {
 					model: models.E_channelmessage,
 					as: 'r_channelmessage',
-					order: 'id DESC',
+					order: [["id", "DESC"]],
 					limit: data.limit,
 					offset: data.offset,
 					include: [{
@@ -402,7 +402,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				include: [{
 					model: models.E_chatmessage,
 					as: 'r_chatmessage',
-					order: 'id DESC',
+					order: [["id", "DESC"]],
 					limit: data.limit,
 					offset: data.offset,
 					include: [{
