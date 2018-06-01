@@ -2,23 +2,6 @@ var fs = require('fs');
 var crypto = require("crypto");
 var models = require('../models/');
 
-function getNbInstruction(callback) {
-    var query = "SELECT (SELECT COUNT(*) FROM project) AS projects, "+
-    "(SELECT COUNT(*) FROM application) AS applications, "+
-    "(SELECT COUNT(*) FROM module) AS modules, "+
-    "(SELECT COUNT(*) FROM data_entity) AS entities, "+
-    "(SELECT COUNT(*) FROM data_field) AS field, "+
-    "(SELECT COUNT(*) FROM component) AS components "+
-    "FROM project, application, module, data_entity, data_field "+
-    "GROUP BY projects;";
-
-    models.sequelize.query(query, {type: models.sequelize.QueryTypes.SELECT}).then(function(result){
-        if(result.length == 0)
-            return callback(0);
-        callback(result[0].projects + result[0].applications + result[0].modules + result[0].entities + result[0].field + result[0].components)
-    });
-}
-
 function rmdirSyncRecursive(path) {
     if (fs.existsSync(path)) {
         fs.readdirSync(path).forEach(function (file, index) {
@@ -187,6 +170,5 @@ module.exports = {
     },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,
-    getNbInstruction: getNbInstruction,
     sortEditorFolder: sortEditorFolder
 }

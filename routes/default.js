@@ -70,20 +70,6 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
     });
 });
 
-router.get('/update_instruction_cpt', function(req, res) {
-    helper.getNbInstruction(function(totalInstruction){
-        var data = {};
-        // Get nbInstruction
-        var cptInstruction = totalInstruction;
-        // Pourcent for progress bar
-        var pourcentInstruction = (cptInstruction*100)/300;
-        res.json({
-            cptInstruction: cptInstruction,
-            pourcentInstruction: pourcentInstruction
-        });
-    });
-});
-
 router.get('/update_logs', function(req, res) {
     try{
         res.send(fs.readFileSync(__dirname + "/../all.log"));

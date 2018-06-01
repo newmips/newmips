@@ -5,9 +5,9 @@ var path = require('path');
 var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
 var env = require('../config/global');
-var config = require('../config/database');
-var db = {};
+var dbConfig = require('../config/database');
 var moment_timezone = require('moment-timezone');
+var db = {};
 
 const Op = Sequelize.Op;
 const operatorsAliases = {
@@ -47,11 +47,11 @@ const operatorsAliases = {
     $col: Op.col
 };
 
-var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
-    host: config.connection.host,
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
+    host: dbConfig.host,
     logging: false,
-    port: config.connection.port,
-    dialect: "mysql",
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
     dialectOptions: {
         multipleStatements: true
     },

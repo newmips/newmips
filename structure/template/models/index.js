@@ -4,10 +4,10 @@ var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
-var config = require('../config/database');
+var dbConfig = require('../config/database');
 var globalConf = require('../config/global');
-var db = {};
 var moment_timezone = require('moment-timezone');
+var db = {};
 
 const Op = Sequelize.Op;
 const operatorsAliases = {
@@ -47,11 +47,11 @@ const operatorsAliases = {
     $col: Op.col
 };
 
-var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
-    host: config.connection.host,
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
+    host: dbConfig.host,
     logging: false,
-    port: config.connection.port,
-    dialect: "mysql",
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
     dialectOptions: {
         multipleStatements: true
     },
@@ -121,8 +121,13 @@ sequelize.customAfterSync = function() {
                         toSyncObject[entity].attributes[attribute].defaultValue = "'" + toSyncObject[entity].attributes[attribute].defaultValue + "'";
 
                     var request = "ALTER TABLE ";
-                    request += entity;
-                    request += " ADD COLUMN `" + attribute + "` " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
+                    if(sequelize.options.dialect == "mysql"){
+                        request += entity;
+                        request += " ADD COLUMN `" + attribute + "` " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
+                    } else if(sequelize.options.dialect == "postgres"){
+                        request += '"'+entity+'"';
+                        request += " ADD COLUMN " + attribute + " " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
+                    }
 
                     (function(query, entityB, attributeB) {
                         promises.push(new Promise(function(resolve0, reject0) {
@@ -169,15 +174,29 @@ sequelize.customAfterSync = function() {
                                 var request;
                                 if (option.relation == "belongsTo") {
                                     request = "ALTER TABLE ";
-                                    request += sourceName;
-                                    request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
-                                    request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                    if(sequelize.options.dialect == "mysql"){
+                                        request += sourceName;
+                                        request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
+                                        request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                    } else if(sequelize.options.dialect == "postgres"){
+                                        request += '"'+sourceName+'"';
+                                        request += " ADD COLUMN " +option.foreignKey+ " INT DEFAULT NULL;";
+                                        request += "ALTER TABLE " +sourceName+ " ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES " +targetName+ " (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                    }
                                 }
                                 else if (option.relation == 'hasMany') {
-                                    request = "ALTER TABLE ";
-                                    request += targetName;
-                                    request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
-                                    request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
+                                    if(sequelize.options.dialect == "mysql"){
+                                        request = "ALTER TABLE ";
+                                        request += targetName;
+                                        request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
+                                        request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
+                                    } else if(sequelize.options.dialect == "postgres"){
+                                        request = "ALTER TABLE ";
+                                        request += '"'+targetName+'"';
+                                        request += " ADD COLUMN "+option.foreignKey+" INT DEFAULT NULL;";
+                                        request += "ALTER TABLE "+targetName+" ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES "+sourceName+" (id);";
+
+                                    }
                                 }
 
                                 sequelize.query(request).then(function() {

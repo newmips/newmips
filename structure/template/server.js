@@ -5,8 +5,18 @@ process.env.TZ = 'UTC';
 var path = require('path');
 var express = require('express');
 var session = require('express-session');
-var SessionStore = require('express-mysql-session');
-var dbconfig = require('./config/database');
+var dbConfig = require('./config/database');
+
+// MySql
+if(dbConfig.dialect == "mysql")
+    var SessionStore = require('express-mysql-session');
+
+// Postgres
+if(dbConfig.dialect == "postgres"){
+    var pg = require('pg');
+    var SessionStore = require('connect-pg-simple')(session);
+}
+
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
@@ -66,13 +76,22 @@ app.set('view engine', 'dust');
 
 // Required for passport
 var options = {
-	host: dbconfig.connection.host,
-	port: dbconfig.connection.port,
-	user: dbconfig.connection.user,
-	password: dbconfig.connection.password,
-	database: dbconfig.connection.database
+	host: dbConfig.host,
+	port: dbConfig.port,
+	user: dbConfig.user,
+	password: dbConfig.password,
+	database: dbConfig.database
 };
-var sessionStore = new SessionStore(options);
+
+if(dbConfig.dialect == "mysql")
+    var sessionStore = new SessionStore(options);
+
+if(dbConfig.dialect == "postgres"){
+    var pgPool = new pg.Pool(options);
+    var sessionStore = new SessionStore({
+        pool: pgPool
+    });
+}
 
 var sessionInstance = session({
 	store: sessionStore,
@@ -81,8 +100,7 @@ var sessionInstance = session({
 	resave: true,
 	saveUninitialized: false,
 	maxAge: 360*5,
-	// We concat port for a workspace specific session, instead of generator specific
-	key: 'workspaceCookie'+port
+	key: 'workspaceCookie'+port // We concat port for a workspace specific session, instead of generator specific
 });
 var socketSession = require('express-socket.io-session');
 
@@ -348,88 +366,56 @@ app.use(function(req, res) {
 });
 
 // Launch ======================================================================
-if (protocol == 'https') {
-	models.sequelize.sync({ logging: false, hooks: false }).then(function() {
-		models.sequelize.customAfterSync().then(function(){
-			models.E_user.findAll().then(function(users) {
-				if (!users || users.length == 0) {
-                    models.E_group.create({f_label: 'admin'}).then(function(){
-                        models.E_role.create({f_label: 'admin'}).then(function(){
-                            models.E_user.create({
-                                f_login: 'admin',
-                                f_password: null,
-                                f_enabled: 0
-                            }).then(function(user) {
-                            	user.setR_role(1);
-                            	user.setR_group(1);
-                            });
+
+models.sequelize.sync({logging: false, hooks: false}).then(function() {
+    models.sequelize.customAfterSync().then(function() {
+        models.E_user.findAll().then(function(users) {
+            if (!users || users.length == 0) {
+                models.E_group.create({
+                    version: 0,
+                    f_label: 'admin'
+                }).then(function() {
+                    models.E_role.create({
+                        version: 0,
+                        f_label: 'admin'
+                    }).then(function() {
+                        models.E_user.create({
+                            f_login: 'admin',
+                            f_password: null,
+                            f_enabled: 0,
+                            version: 0
+                        }).then(function(user) {
+                            user.setR_role(1);
+                            user.setR_group(1);
                         });
                     });
-                }
-			});
-			var server = https.createServer(globalConf.ssl, app);
+                });
+            }
+        });
+        var server;
+        if (protocol == 'https')
+            server = https.createServer(globalConf.ssl, app);
+        else
+            server = http.createServer(app);
 
-			if (globalConf.socket.enabled) {
-				io = require('socket.io')(server);
-				// Provide shared express session to sockets
-				io.use(socketSession(sessionInstance));
-				require('./services/socket')(io);
-			}
+        if (globalConf.socket.enabled) {
+            io = require('socket.io')(server);
+            // Provide shared express session to sockets
+            io.use(socketSession(sessionInstance));
+            require('./services/socket')(io);
+        }
 
-			server.listen(port);
-			console.log("Started https on "+port);
-		}).catch(function(err){
-			console.log("ERROR - SYNC");
-			logger.silly(err);
-			console.log(err);
-		});
-	}).catch(function(err){
-		console.log("ERROR - SYNC");
-		logger.silly(err);
-		console.log(err);
-	});
-}
-else {
-	models.sequelize.sync({ logging: false, hooks: false }).then(function() {
-		models.sequelize.customAfterSync().then(function(){
-			models.E_user.findAll().then(function(users) {
-				if (!users || users.length == 0) {
-                    models.E_group.create({version:0, f_label: 'admin'}).then(function(){
-                        models.E_role.create({version:0, f_label: 'admin'}).then(function(){
-                            models.E_user.create({
-                                f_login: 'admin',
-                                f_password: null,
-                                f_enabled: 0,
-                                version: 0
-                            }).then(function(user) {
-                            	user.setR_role(1);
-                            	user.setR_group(1);
-                            });
-                        });
-                    });
-                }
-			});
-			var server = http.createServer(app);
-
-			if (globalConf.socket.enabled) {
-				io = require('socket.io')(server);
-				// Provide shared express session to sockets
-				io.use(socketSession(sessionInstance));
-				require('./services/socket')(io);
-			}
-
-			server.listen(port);
-			console.log("Started on "+port);
-		}).catch(function(err){
-			console.log("ERROR - SYNC");
-			logger.silly(err);
-			console.log(err);
-		});
-	}).catch(function(err){
-		console.log("ERROR - SYNC");
-		logger.silly(err);
-		console.log(err);
-	});
-}
+        server.listen(port);
+        console.log("Started " + protocol + " on " + port + " !");
+    }).catch(function(err) {
+        console.log("ERROR - SYNC");
+        console.log(err);
+        logger.silly(err);
+    });
+}).catch(function(err) {
+    console.log("ERROR - SYNC");
+    console.log(err);
+    logger.silly(err);
+});
 
 module.exports = app;

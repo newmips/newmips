@@ -5,8 +5,18 @@ process.env.TZ = 'UTC';
 var path = require('path');
 var express = require('express');
 var session = require('express-session');
-var SessionStore = require('express-mysql-session');
-var dbconfig = require('./config/database');
+var dbConfig = require('./config/database');
+
+// MySql
+if(dbConfig.dialect == "mysql")
+    var SessionStore = require('express-mysql-session');
+
+// Postgres
+if(dbConfig.dialect == "postgres"){
+    var pg = require('pg');
+    var SessionStore = require('connect-pg-simple')(session);
+}
+
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
@@ -26,6 +36,7 @@ var split = require('split');
 var AnsiToHTML = require('ansi-to-html');
 var ansiToHtml = new AnsiToHTML();
 var moment = require('moment');
+var models = require('./models/');
 
 // Passport for configuration
 require('./utils/authStrategies');
@@ -41,7 +52,7 @@ var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {
 app.use(morgan('dev', {
     skip: function(req, res) {
         // Empeche l'apparition de certain log polluant.
-        var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status", "/completion", "/"];
+        var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/"];
         var currentURL = req.url;
         if (currentURL.indexOf("?") != -1) {
             // Remove params from URL
@@ -79,14 +90,23 @@ app.set('view engine', 'pug');
 
 // Required for passport
 var options = {
-    host: dbconfig.connection.host,
-    port: dbconfig.connection.port,
-    user: dbconfig.connection.user,
-    password: dbconfig.connection.password,
-    database: dbconfig.connection.database
+    host: dbConfig.host,
+    port: dbConfig.port,
+    user: dbConfig.user,
+    password: dbConfig.password,
+    database: dbConfig.database
 };
 
-var sessionStore = new SessionStore(options);
+if(dbConfig.dialect == "mysql")
+    var sessionStore = new SessionStore(options);
+
+if(dbConfig.dialect == "postgres"){
+    var pgPool = new pg.Pool(options);
+    var sessionStore = new SessionStore({
+        pool: pgPool
+    });
+}
+
 app.use(session({
     store: sessionStore,
     cookieName: 'newmipsCookie',
@@ -148,15 +168,7 @@ app.use(function(req, res, next) {
             var slackConf = require('./config/slack');
             locals.slackApiToken = slackConf.SLACK_API_TOKEN;
         }
-        helper.getNbInstruction(function(totalInstruction) {
-            // Get nbInstruction
-            locals.cptInstruction = totalInstruction;
-            // Get limit instruction
-            //locals.limitInstruction = globalConf.limitInstruction;
-            // Pourcent for progress bar
-            locals.pourcentInstruction = (locals.cptInstruction * 100) / 300;
-            render.call(res, view, locals, cb);
-        });
+        render.call(res, view, locals, cb);
     };
     next();
 });
@@ -171,13 +183,46 @@ app.use(function(req, res) {
 });
 
 // Launch ======================================================================
-if (protocol == 'https') {
-    var server = https.createServer(globalConf.ssl, app);
-    server.listen(port);
-    console.log("Started https on " + port);
-} else {
-    app.listen(port);
-    console.log("Started on " + port);
-}
+
+models.sequelize.sync({
+    logging: false,
+    hooks: false
+}).then(function() {
+    models.User.findAll().then(function(users) {
+        if (!users || users.length == 0) {
+            models.Role.create({
+                version: 1,
+                name: 'admin'
+            }).then(function() {
+                models.User.create({
+                    email: null,
+                    enabled: 0,
+                    first_name: "admin",
+                    last_name: "NEWMIPS",
+                    login: "admin",
+                    password: null,
+                    phone: null,
+                    id_role: 1,
+                    version: 1
+                }).then(function(user) {
+                    user.setRole(1);
+                });
+            });
+        }
+    });
+    if (protocol == 'https') {
+        var server = https.createServer(globalConf.ssl, app);
+        server.listen(port);
+        console.log("Started https on " + port);
+    } else {
+
+        app.listen(port);
+        console.log("Started on " + port);
+    }
+}).catch(function(err) {
+    console.log("ERROR - SYNC");
+    logger.silly(err);
+    console.log(err);
+});
 
 module.exports = app;
