@@ -136,7 +136,7 @@ sequelize.customAfterSync = function() {
                                 resolve0();
                             }).catch(function(err) {
                                 if(typeof err.parent !== "undefined"){
-                                    if(err.parent.errno == 1060){
+                                    if(err.parent.errno == 1060 || err.parent.code == 42701){
                                         console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
                                         resolve0();
                                     } else{
@@ -204,7 +204,7 @@ sequelize.customAfterSync = function() {
                                     resolve0();
                                 }).catch(function(err) {
                                     if(typeof err.parent !== "undefined"){
-                                        if(err.parent.errno == 1060){
+                                        if(err.parent.errno == 1060 || err.parent.code == 42701){
                                             console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
                                             resolve0();
                                         } else{

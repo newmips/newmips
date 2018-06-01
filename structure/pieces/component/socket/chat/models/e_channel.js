@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     var Model = sequelize.define('E_channel', attributes, options);
-    Model.associate: builder.buildAssociation('E_channel', associations);
+    Model.associate = builder.buildAssociation('E_channel', associations);
     builder.addHooks(Model, "e_channel", attributes_origin);
 
     return Model;

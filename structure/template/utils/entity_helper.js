@@ -339,7 +339,7 @@ var funcs = {
             }
 
             // Unique value constraint error
-            if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
+            if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
                 var message = __('message.unique') + " " + err.errors[0].path;
                 req.session.toastr.push({level: 'error', message: message});
                 isKnownError = true;
@@ -354,6 +354,7 @@ var funcs = {
                 return res.redirect(redirect || '/');
             else
                 console.error(err);
+
             logger.debug(err);
             var data = {};
             data.code = 500;

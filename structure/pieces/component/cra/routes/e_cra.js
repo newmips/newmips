@@ -31,7 +31,7 @@ function error500(err, req, res, redirect) {
         }
 
         // Unique value constraint error
-        if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
+        if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
             req.session.toastr.push({level: 'error', message: err.errors[0].message});
             isKnownError = true;
         }

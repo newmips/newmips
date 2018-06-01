@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     var Model = sequelize.define('E_chatmessage', attributes, options);
-    Model.associate: builder.buildAssociation('E_chatmessage', associations);
+    Model.associate = builder.buildAssociation('E_chatmessage', associations);
     builder.addHooks(Model, "e_chatmessage", attributes_origin);
 
     return Model;
