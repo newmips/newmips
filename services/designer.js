@@ -930,10 +930,18 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                 var request = "";
 
                 // Add or remove the unique constraint ?
-                if (possibilityUnique.indexOf(attribute) != -1) {
-                    request = "ALTER TABLE `" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + attr.options.value + "`);";
-                } else if (possibilityNotUnique.indexOf(attribute) != -1) {
-                    request = "ALTER TABLE `" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
+                if(sequelize.options.dialect == "mysql"){
+                    if (possibilityUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE `" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + attr.options.value + "`);";
+                    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE `" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
+                    }
+                } else if (sequelize.options.dialect == "postgres"){
+                    if (possibilityUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE \"" + sourceEntity + "\" ADD CONSTRAINT \"" + constraintName + "\" UNIQUE (" + attr.options.value + ");";
+                    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE \"" + sourceEntity + "\" DROP INDEX \"" + constraintName + "\";";
+                    }
                 }
 
                 sequelize.query(request).then(function () {
@@ -947,7 +955,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                         });
                     });
                 }).catch(function (err) {
-                    if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
+                    if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
                         var err = new Error();
                         err.message = "structure.field.attributes.duplicateUnique";
                     }

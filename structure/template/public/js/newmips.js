@@ -382,7 +382,7 @@ function initForm(context) {
             }
         });
         if (type == 'picture')
-            dropzoneInit.options.acceptedFiles = 'image/*';
+            dropzoneInit.options.acceptedFiles = 'image/gif, image/png, image/jpeg';
         else if (type === "docx/pdf")
             dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         var dropzoneId = $(this).attr('id') + '';

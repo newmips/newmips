@@ -703,9 +703,9 @@ exports.setupDataField = function (attr, callback) {
             defaultValueForOption = options.defaultValue;
         else if(typeForModel == "BOOLEAN"){
             if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
-                defaultValueForOption = 1;
+                defaultValueForOption = true;
             else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
-                defaultValueForOption = 0;
+                defaultValueForOption = false;
         }
     }
 

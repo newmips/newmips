@@ -454,7 +454,7 @@ exports.newContactForm = function (attr, callback) {
     var insertSettings = "INSERT INTO `" + idApp + "_" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
             " VALUES(1,'" + mailConfig.transport.host + "'," +
             "'" + mailConfig.transport.port + "'," +
-            mailConfig.transport.secure + "," +
+            mailConfig.transport.secure ? 1 : 0 + "," +
             "'" + mailConfig.transport.auth.user + "'," +
             "'" + mailConfig.transport.auth.pass + "'," +
             "'" + mailConfig.administrateur + "'," +

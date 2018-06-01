@@ -262,7 +262,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
         var isKnownError = false;
         try {
             // Unique value constraint
-            if (err.parent.errno == 1062) {
+            if (err.parent.errno == 1062 || err.parent.code == 23505) {
                 req.session.toastr.push({level: 'error', message: err.errors[0].message});
                 isKnownError = true;
             }
@@ -368,7 +368,7 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", 'u
             var isKnownError = false;
             try {
                 // Unique value constraint
-                if (err.parent.errno == 1062) {
+                if (err.parent.errno == 1062 || err.parent.code == 23505) {
                     req.session.toastr.push({level: 'error', message: err.errors[0].message});
                     isKnownError = true;
                 }

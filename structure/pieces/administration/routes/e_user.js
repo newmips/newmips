@@ -618,7 +618,7 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
         var isKnownError = false;
         try {
             // Unique value constraint
-            if (err.parent.errno == 1062) {
+            if (err.parent.errno == 1062 || err.parent.code == 23505) {
                 req.session.toastr.push({level: 'error', message: err.errors[0].message});
                 isKnownError = true;
             }
