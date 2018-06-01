@@ -15,7 +15,7 @@ var databaseConf = {
         user: 'newmips',
         password: 'newmips',
         database: 'newmips',
-        dialect: 'postgres' //mysql or postgres
+        dialect: 'mysql' //mysql or postgres
     },
     production: {
         host: '127.0.0.1',
@@ -23,7 +23,7 @@ var databaseConf = {
         user: 'newmips',
         password: 'newmips',
         database: 'newmips',
-        dialect: 'postgres' //mysql or postgres
+        dialect: 'mysql' //mysql or postgres
     }
 }
 
