@@ -46,7 +46,6 @@ function execute(req, instruction) {
                 throw new Error(attr.error);
 
             return designer[attr.function](attr, function(err, info) {
-
                 if (err) {
                     // Error handling code goes here
                     scriptData[userId].answers.unshift({
@@ -429,12 +428,15 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
                 var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
+                var tableName = "TABLE_NAME";
+                if(workspaceSequelize.sequelize.options.dialect == "postgres")
+                    tableName = "table_name";
                 // Looking for already exisiting table in workspace BDD
-                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
+                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
                     var workspaceTables = [];
                     for(var i=0; i<result.length; i++){
-                        if(result[i].TABLE_NAME.substring(0, result[i].TABLE_NAME.indexOf("_")+1) == idApplication+"_"){
-                            workspaceTables.push(result[i].TABLE_NAME);
+                        if(result[i][tableName].substring(0, result[i][tableName].indexOf("_")+1) == idApplication+"_"){
+                            workspaceTables.push(result[i][tableName]);
                         }
                     }
 
@@ -660,12 +662,15 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                 var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
                 var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
+                var tableName = "TABLE_NAME";
+                if(workspaceSequelize.sequelize.options.dialect == "postgres")
+                    tableName = "table_name";
                 // Looking for already exisiting table in workspace BDD
-                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
+                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
                     var workspaceTables = [];
                     for(var i=0; i<result.length; i++){
-                        if(result[i].TABLE_NAME.substring(0, result[i].TABLE_NAME.indexOf("_")+1) == idApplication+"_"){
-                            workspaceTables.push(result[i].TABLE_NAME);
+                        if(result[i][tableName].substring(0, result[i][tableName].indexOf("_")+1) == idApplication+"_"){
+                            workspaceTables.push(result[i][tableName]);
                         }
                     }
 
@@ -712,6 +717,8 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     } else {
                         scriptData[userId].over = true;
                     }
+                }).catch(function(err) {
+                    console.log(err);
                 });
             }).catch(function(err) {
                 console.log(err);

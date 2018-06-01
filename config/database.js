@@ -2,39 +2,28 @@ var globalConf = require('./global');
 
 var databaseConf = {
     develop: {
-        connection: {
-            host: '127.0.0.1',
-            port: '3306',
-            user: 'newmips',
-            password: 'newmips',
-            database: 'newmips',
-            users_table: 'user',
-            dateStrings: 'true'
-        }
+        host: '127.0.0.1',
+        port: '3306', //mysql: 3306 - postgres: 5432
+        user: 'newmips',
+        password: 'newmips',
+        database: 'newmips',
+        dialect: 'mysql'  //mysql or postgres
     },
-
-    production: {
-        connection: {
-            host: '127.0.0.1',
-            port: '3306',
-            user: 'newmips',
-            password: 'newmips',
-            database: 'newmips',
-            users_table: 'user',
-            dateStrings: 'true'
-        }
-    },
-
     recette: {
-        connection: {
-            host: '127.0.0.1',
-            port: '3306',
-            user: 'newmips',
-            password: 'newmips',
-            database: 'newmips',
-            users_table: 'user',
-            dateStrings: 'true'
-        }
+        host: '127.0.0.1',
+        port: '3306',
+        user: 'newmips',
+        password: 'newmips',
+        database: 'newmips',
+        dialect: 'postgres' //mysql or postgres
+    },
+    production: {
+        host: '127.0.0.1',
+        port: '3306',
+        user: 'newmips',
+        password: 'newmips',
+        database: 'newmips',
+        dialect: 'postgres' //mysql or postgres
     }
 }
 

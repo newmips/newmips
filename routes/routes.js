@@ -185,6 +185,8 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                 res.redirect('/login');
             }
         }).catch(function(err){
+            console.log("RORORORO");
+            console.log(err);
             req.session.toastr = [{
                 message: err.message,
                 level: "error"

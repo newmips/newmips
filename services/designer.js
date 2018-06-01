@@ -184,6 +184,7 @@ exports.deleteProject = function (attr, callback) {
     db_project.getProjectApplications(attr.options.showValue, function (err, applications) {
         if (err)
             return callback(err, null);
+
         var appIds = [];
         for (var i = 0; i < applications.length; i++)
             appIds.push(applications[i].id);
@@ -269,7 +270,14 @@ function deleteApplication(attr, callback) {
         structure_application.deleteApplication(id_application, function (err, infoStructure) {
             if (err)
                 return callback(err, null);
-            sequelize.query("SHOW TABLES LIKE '" + id_application + "_%'").spread(function (results, metada) {
+
+            var request = "";
+            if(sequelize.options.dialect == "mysql")
+                request = "SHOW TABLES LIKE '" + id_application + "_%';";
+            else if(sequelize.options.dialect == "postgres")
+                request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + id_application + "_%'";
+
+            sequelize.query(request).spread(function (results, metada) {
                 db_application.deleteApplication(id_application, function (err, infoDB) {
                     if (err)
                         return callback(err, null);
@@ -283,25 +291,34 @@ function deleteApplication(attr, callback) {
                     }
 
                     /* Function when all query are done */
-                    function done(currentCpt) {
-                        if (currentCpt == resultLength) {
-                            callback(null, infoDB);
-                        }
-                    }
-
-                    var cpt = 0;
+                    var request = "";
+                    if(sequelize.options.dialect == "mysql")
+                        request += "SET FOREIGN_KEY_CHECKS=0;";
                     for (var i = 0; i < results.length; i++) {
                         for (var prop in results[i]) {
-                            // For each request disable foreign key checks, drop table. Foreign key check
-                            // last only for the time of the request
-                            sequelize.query("SET FOREIGN_KEY_CHECKS=0; DROP TABLE " + results[i][prop] + ";SET FOREIGN_KEY_CHECKS=1;").then(function () {
-                                done(++cpt);
-                            });
+                            // Postgres additionnal check
+                            if(typeof results[i][prop] == "string" && results[i][prop].indexOf(id_application + "_") != -1){
+                                // For each request disable foreign key checks, drop table. Foreign key check
+                                // last only for the time of the request
+                                if(sequelize.options.dialect == "mysql")
+                                    request += "DROP TABLE " + results[i][prop] + ";";
+                                if(sequelize.options.dialect == "postgres")
+                                    request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
+                            }
                         }
                     }
-                });
-            });
-        });
+                    if(sequelize.options.dialect == "mysql")
+                        request += "SET FOREIGN_KEY_CHECKS=1;";
+                    sequelize.query(request).then(function () {
+                        callback(null, infoDB);
+                    }).catch(function(err){
+                        console.log("ERROR ERR: "+err.message);
+                        console.log("ERROR SQL: "+err.original.sql);
+                        callback(null, infoDB);
+                    })
+                })
+            })
+        })
     }
     if (isNaN(attr.options.showValue))
         db_application.getIdApplicationByCodeName(attr.options.value, attr.options.showValue, function (err, id_application) {
