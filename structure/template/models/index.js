@@ -181,7 +181,7 @@ sequelize.customAfterSync = function() {
                                     } else if(sequelize.options.dialect == "postgres"){
                                         request += '"'+sourceName+'"';
                                         request += " ADD COLUMN " +option.foreignKey+ " INT DEFAULT NULL;";
-                                        request += "ALTER TABLE " +sourceName+ " ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES " +targetName+ " (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                        request += "ALTER TABLE \"" +sourceName+ "\" ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES \"" +targetName+ "\" (id) ON DELETE SET NULL ON UPDATE CASCADE;";
                                     }
                                 }
                                 else if (option.relation == 'hasMany') {
@@ -194,7 +194,7 @@ sequelize.customAfterSync = function() {
                                         request = "ALTER TABLE ";
                                         request += '"'+targetName+'"';
                                         request += " ADD COLUMN "+option.foreignKey+" INT DEFAULT NULL;";
-                                        request += "ALTER TABLE "+targetName+" ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES "+sourceName+" (id);";
+                                        request += "ALTER TABLE \""+targetName+"\" ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES \""+sourceName+"\" (id);";
 
                                     }
                                 }
