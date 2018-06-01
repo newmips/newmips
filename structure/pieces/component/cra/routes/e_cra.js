@@ -128,7 +128,7 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
 
 router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
 
     var where = {};
     if(req.isAdmin){
@@ -147,23 +147,14 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
         }
     }
 
-    filterDataTable("E_cra", req.body, include, where).then(function (data) {
-        // Replace data enum value by translated value for datalist
-        var enumsTranslation = enums_radios.translated("e_cra", req.session.lang_user, options);
-        for(var i=0; i<data.data.length; i++){
-            for(var field in data.data[i].dataValues){
-                for(var enumField in enumsTranslation){
-                    if(field == enumField){
-                        for(var j=0; j<enumsTranslation[enumField].length; j++){
-                            if(data.data[i].dataValues[enumField] == enumsTranslation[enumField][j].value){
-                                data.data[i].dataValues[enumField] = enumsTranslation[enumField][j].translation;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        res.send(data).end();
+    filterDataTable("E_cra", req.body, include, where).then(function (rawData) {
+        entity_helper.prepareDatalistResult('e_cra', rawData, req.session.lang_user).then(function (preparedData) {
+            res.send(preparedData).end();
+        }).catch(function (err) {
+            console.log(err);
+            logger.debug(err);
+            res.end();
+        });
     }).catch(function (err) {
         console.log(err);
         logger.debug(err);
