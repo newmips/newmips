@@ -191,10 +191,12 @@ models.sequelize.sync({
     models.User.findAll().then(function(users) {
         if (!users || users.length == 0) {
             models.Role.create({
-                version: 1,
-                name: 'admin'
+                id: 1,
+                name: 'admin',
+                version: 1
             }).then(function() {
                 models.User.create({
+                    id: 1,
                     email: null,
                     enabled: 0,
                     first_name: "admin",
