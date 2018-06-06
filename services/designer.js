@@ -882,7 +882,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
         db_field.getFieldByCodeName(checkFieldParams, function (err, fieldExist) {
             if (err) {
                 // Not found as a simple field, look for related to field
-                var optionsArray = JSON.parse(helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + dataEntity.codeName + '.json'));
+                var optionsArray = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + dataEntity.codeName + '.json'));
                 var founded = false;
                 for (var i = 0; i < optionsArray.length; i++) {
                     if (optionsArray[i].showAs == attr.options.showValue) {
@@ -1037,7 +1037,7 @@ exports.createNewHasOne = function (attr, callback) {
         function structureCreation(attr, callback) {
 
             // Vérification si une relation existe déjà de la source VERS la target
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
@@ -1054,7 +1054,7 @@ exports.createNewHasOne = function (attr, callback) {
             }
 
             // Vérification si une relation existe déjà de la target VERS la source
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var targetOptionsObject = JSON.parse(optionsFile);
             for (var i = 0; i < targetOptionsObject.length; i++) {
                 if (targetOptionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && targetOptionsObject[i].relation != "hasMany" && targetOptionsObject[i].relation != "belongsToMany") {
@@ -1271,7 +1271,7 @@ exports.createNewHasMany = function (attr, callback) {
 
         attr.id_data_entity = IDdataEntitySource;
 
-        var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+        var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
         var optionsSourceObject = JSON.parse(optionsSourceFile);
 
         // Vérification si une relation existe déjà de la source VERS la target
@@ -1388,7 +1388,7 @@ exports.createNewHasMany = function (attr, callback) {
                                 if (err) {
                                     return callback(err, null);
                                 }
-                                var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+                                var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
                                 optionsObject = JSON.parse(optionsFile);
                                 structureCreation(attr, callback);
                             });
@@ -1400,7 +1400,7 @@ exports.createNewHasMany = function (attr, callback) {
             } else {
                 // KEEP - Select the target if it already exist
                 //info.insertId = dataEntity.id;
-                var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+                var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
                 optionsObject = JSON.parse(optionsFile);
 
                 var cptExistingHasMany = 0;
@@ -1462,7 +1462,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
             if (err)
                 return callback(err, null);
 
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
             var toSync = true;
@@ -1483,7 +1483,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
                 }
             }
 
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
 
             var cptExistingHasMany = 0;
@@ -1616,7 +1616,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 return callback(err, null);
             }
             // Check if an association already exists from source to target
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
             var toSync = true;
             for (var i = 0; i < optionsSourceObject.length; i++) {
@@ -1633,7 +1633,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 }
             }
             // Check if an association already exists from target to source
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
             for (var i = 0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany") {
@@ -1739,7 +1739,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             }
 
             // Check if an association already exists from source to target
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
             var toSync = true;
@@ -1772,7 +1772,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             }
 
             // Check if an association already exists from target to source
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
 
             for (var i = 0; i < optionsObject.length; i++) {

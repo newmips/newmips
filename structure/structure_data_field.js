@@ -536,11 +536,11 @@ exports.setupDataField = function (attr, callback) {
     /* ----------------- 2 - Update the entity model, add the attribute ----------------- */
 
     // attributes.json
-    var attributesFileName = './workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
+    var attributesFileName = __dirname+'/../workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
     var attributesFile = fs.readFileSync(attributesFileName);
     var attributesObject = JSON.parse(attributesFile);
     // toSync.json
-    var toSyncFileName = './workspace/' + id_application + '/models/toSync.json';
+    var toSyncFileName = __dirname+'/../workspace/' + id_application + '/models/toSync.json';
     var toSyncFile = fs.readFileSync(toSyncFileName);
     var toSyncObject = JSON.parse(toSyncFile);
     if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] === "undefined")
