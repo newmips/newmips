@@ -20,7 +20,7 @@ exports.setupAssociation = function (associationOption, callback) {
     var targetType = associationOption.targetType;
 
     // SETUP MODEL OPTIONS FILE
-    var optionsFileName = './workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
+    var optionsFileName = __dirname+'/../workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
     var optionsFile = fs.readFileSync(optionsFileName);
     var optionsObject = JSON.parse(optionsFile);
 
@@ -51,7 +51,7 @@ exports.setupAssociation = function (associationOption, callback) {
 
     if (toSync) {
         // SETUP toSync.json
-        var toSyncFileName = './workspace/' + idApp + '/models/toSync.json';
+        var toSyncFileName = __dirname+'/../workspace/' + idApp + '/models/toSync.json';
         var toSyncFile = fs.readFileSync(toSyncFileName);
         var toSyncObject = JSON.parse(toSyncFile);
 
@@ -109,11 +109,11 @@ exports.setupDataEntity = function (attr, callback) {
 
     function createModelFile(idApplication, nameDataEntity, callback) {
         // CREATE MODEL FILE
-        var modelTemplate = fs.readFileSync('./structure/pieces/models/data_entity.js', 'utf8');
+        var modelTemplate = fs.readFileSync(`${__dirname}/pieces/models/data_entity.js`, 'utf8');
         modelTemplate = modelTemplate.replace(/MODEL_NAME_LOWER/g, nameDataEntity.toLowerCase());
         modelTemplate = modelTemplate.replace(/MODEL_NAME/g, nameDataEntity.charAt(0).toUpperCase() + nameDataEntity.toLowerCase().slice(1));
         modelTemplate = modelTemplate.replace(/TABLE_NAME/g, idApplication + '_' + nameDataEntity.toLowerCase());
-        var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/models/' + nameDataEntity.toLowerCase() + '.js');
+        var writeStream = fs.createWriteStream(`${__dirname}/../workspace/${idApplication}/models/${nameDataEntity.toLowerCase()}.js`);
         writeStream.write(modelTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
@@ -123,7 +123,7 @@ exports.setupDataEntity = function (attr, callback) {
 
     function createModelAttributesFile(idApplication, nameDataEntity, callback) {
         // CREATE MODEL ATTRIBUTES FILE
-        var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/models/attributes/' + nameDataEntity.toLowerCase() + '.json');
+        var writeStream = fs.createWriteStream(__dirname+'/../workspace/' + idApplication + '/models/attributes/' + nameDataEntity.toLowerCase() + '.json');
         var baseAttributes = {
             "id": {
                 "type": "INTEGER",
@@ -139,7 +139,7 @@ exports.setupDataEntity = function (attr, callback) {
         writeStream.end();
         writeStream.on('finish', function () {
             // CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
-            var writeStreamOption = fs.createWriteStream('./workspace/' + idApplication + '/models/options/' + nameDataEntity.toLowerCase() + '.json');
+            var writeStreamOption = fs.createWriteStream(__dirname+'/../workspace/' + idApplication + '/models/options/' + nameDataEntity.toLowerCase() + '.json');
             var baseOptions = [];
             writeStreamOption.write(JSON.stringify(baseOptions, null, 4));
             writeStreamOption.end();
@@ -151,11 +151,11 @@ exports.setupDataEntity = function (attr, callback) {
 
     function createRouteFile(idApplication, nameDataEntity, urlDataEntity, callback) {
         // CREATE ROUTE FILE
-        var routeTemplate = fs.readFileSync('./structure/pieces/routes/data_entity.js', 'utf8');
+        var routeTemplate = fs.readFileSync(__dirname+'/pieces/routes/data_entity.js', 'utf8');
         routeTemplate = routeTemplate.replace(/ENTITY_NAME/g, nameDataEntity.toLowerCase());
         routeTemplate = routeTemplate.replace(/ENTITY_URL_NAME/g, urlDataEntity.toLowerCase());
         routeTemplate = routeTemplate.replace(/MODEL_NAME/g, nameDataEntity.charAt(0).toUpperCase() + nameDataEntity.toLowerCase().slice(1));
-        var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/routes/' + nameDataEntity.toLowerCase() + '.js');
+        var writeStream = fs.createWriteStream(__dirname+'/../workspace/' + idApplication + '/routes/' + nameDataEntity.toLowerCase() + '.js');
         writeStream.write(routeTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
@@ -165,10 +165,10 @@ exports.setupDataEntity = function (attr, callback) {
 
     function createApiFile(idApplication, nameDataEntity, callback) {
         // CREATE ROUTE FILE
-        var apiTemplate = fs.readFileSync('./structure/pieces/api/api_entity.js', 'utf8');
+        var apiTemplate = fs.readFileSync(__dirname+'/pieces/api/api_entity.js', 'utf8');
         apiTemplate = apiTemplate.replace(/ENTITY_NAME/g, nameDataEntity.toLowerCase());
         apiTemplate = apiTemplate.replace(/MODEL_NAME/g, nameDataEntity.charAt(0).toUpperCase() + nameDataEntity.toLowerCase().slice(1));
-        var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/api/' + nameDataEntity.toLowerCase() + '.js');
+        var writeStream = fs.createWriteStream(__dirname+'/../workspace/' + idApplication + '/api/' + nameDataEntity.toLowerCase() + '.js');
         writeStream.write(apiTemplate);
         writeStream.end();
         writeStream.on('finish', function () {
