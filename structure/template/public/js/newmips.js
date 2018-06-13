@@ -79,7 +79,18 @@ function initForm(context) {
     /* --------------- Initialisation des Textarea --------------- */
     $("textarea:not(.regular-textarea)", context).each(function () {
         $(this).summernote({
-            height: 200
+            height: 200,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+                ['custom', ['stt']]
+            ]
         });
     });
 

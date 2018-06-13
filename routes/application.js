@@ -349,7 +349,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 
         req.session.name_application = application.codeName.substring(2);
 
-        var instruction = req.body.instruction || "";
+        var instruction = req.body.instruction.trim() || "";
         var currentUserID = req.session.passport.user.id;
         var currentAppID = application.id;
 

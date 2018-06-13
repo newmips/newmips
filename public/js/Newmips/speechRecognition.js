@@ -8,7 +8,6 @@ var final_transcript = '';
 var recognizing = false;
 
 if ('webkitSpeechRecognition' in window) {
-
     var recognition = new webkitSpeechRecognition();
 
     recognition.continuous = true;
@@ -44,7 +43,6 @@ if ('webkitSpeechRecognition' in window) {
         }
         final_transcript = capitalize(final_transcript);
         $("#instruction").val(final_transcript);
-
     };
 }
 
@@ -73,18 +71,15 @@ function startDictation(event) {
     final_transcript = '';
     recognition.lang = user_lang;
     recognition.start();
-
 }
 
 $(document).on("click", "#btn-speech", function(event) {
     if ('webkitSpeechRecognition' in window) {
-
         startDictation(event);
         $("#btn-speech").css({
             background: "#ff3d00",
             color: "#fff"
         });
-
     } else
         toastr.error("Votre naviguateur n'est pas compatible avec la reconnaissance vocale.");
 });
