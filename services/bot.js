@@ -1186,7 +1186,6 @@ var training = {
         "git commit"
     ],
     "gitStatus": [
-        "status",
         "git status"
     ],
     "selectProject": [
