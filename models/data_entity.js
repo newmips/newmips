@@ -24,11 +24,13 @@ module.exports = (sequelize, DataTypes) => {
         DataEntity.hasMany(models.DataField, {
             foreignKey: {
                 name: 'id_data_entity'
-            }
+            },
+            onDelete: 'cascade'
         })
         DataEntity.belongsToMany(models.Component, {
             foreignKey: 'id_entity',
-            through: "component_data_entity"
+            through: "component_data_entity",
+            onDelete: 'cascade'
         })
     }
 

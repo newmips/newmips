@@ -24,12 +24,14 @@ module.exports = (sequelize, DataTypes) => {
         Module.hasMany(models.DataEntity, {
             foreignKey: {
                 name: 'id_module'
-            }
+            },
+            onDelete: 'cascade'
         })
         Module.hasMany(models.Component, {
             foreignKey: {
                 name: 'id_module'
-            }
+            },
+            onDelete: 'cascade'
         })
     }
 
