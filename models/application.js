@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
         Application.hasMany(models.Module, {
             foreignKey: {
                 name: 'id_application'
-            }
+            },
+            onDelete: 'cascade'
         })
     }
 

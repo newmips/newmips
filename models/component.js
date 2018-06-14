@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     Component.associate = (models) => {
         Component.belongsToMany(models.DataEntity, {
             foreignKey: 'id_component',
-            through: "component_data_entity"
+            through: "component_data_entity",
+            onDelete: 'cascade'
         })
         Component.belongsTo(models.Module, {
             foreignKey: {
