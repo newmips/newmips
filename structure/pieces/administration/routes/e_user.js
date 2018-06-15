@@ -179,8 +179,8 @@ router.get('/create_form', block_access.actionAccessMiddleware("user", "create")
     Promise.all(associationsFinder).then(function (found) {
         for (var i = 0; i < found.length; i++)
             data[found[i].model] = found[i].rows;
-
-        res.render('e_user/create', data);
+        var view = req.query.ajax ? 'e_user/create_fields' : 'e_user/create';
+        res.render(view, data);
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
     });
@@ -292,7 +292,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("user", "update")
             }
 
             req.session.toastr = [];
-            res.render('e_user/update', data);
+            if (req.query.ajax) {
+                res.render('e_user/update_fields', e_user.get({plain: true}));
+            } else
+                res.render('e_user/update', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
         });
@@ -540,14 +543,16 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
         }
     }
 
+    // /!\ DISABLED FOR USER /!\
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    // if (typeof req.body.customWhere !== "undefined")
+    //     for (var param in req.body.customWhere)
+    //         where.where[param] = req.body.customWhere[param];
 
     where.offset = offset;
     where.limit = limit;
-
+    console.log(where);
+    where.include = [{model: models.E_role, as:'r_role'}, {model: models.E_group, as: 'r_group'}];
     models.E_user.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         res.json(results);
