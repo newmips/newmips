@@ -170,7 +170,7 @@ router.post('/', function(req, res) {
                     console.error("API: Couldn't set association.\nAPI: ENTITY_NAME.set"+entity_helper.capitalizeFirstLetter(prop)+"() is undefined.");
             }
 
-        associationPromises.then(function() {
+        Promise.all(associationPromises).then(function() {
             res.status(200).json(answer);
         }).catch(function(err) {
             answer.error = "Error with associations";
@@ -213,7 +213,7 @@ router.put('/:id', function(req, res) {
                         console.error("API: Couldn't set association.\nAPI: ENTITY_NAME.set"+entity_helper.capitalizeFirstLetter(prop)+"() is undefined.");
                 }
 
-            associationPromises.then(function() {
+            Promise.all(associationPromises).then(function() {
                 res.status(200).json(answer);
             }).catch(function(err) {
                 answer.error = "Error with associations";
