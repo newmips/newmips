@@ -343,6 +343,15 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                             });
                                             fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
+                                            // Set role-group/user structureType to hasManyPreset to be used by ajax
+                                            var opts = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_role.json', 'utf8'));
+                                            opts[0].structureType = "hasManyPreset";
+                                            fs.writeFileSync(workspacePath+'/models/options/e_role.json', JSON.stringify(opts, null, 4), 'utf8');
+                                            // Set role-group/user structureType to hasManyPreset to be used by ajax
+                                            var opts = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_group.json', 'utf8'));
+                                            opts[0].structureType = "hasManyPreset";
+                                            fs.writeFileSync(workspacePath+'/models/options/e_group.json', JSON.stringify(opts, null, 4), 'utf8');
+
                                             domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
                                                 var li = '';
                                                 li += '{@entityAccess entity="access_settings"}\n';
