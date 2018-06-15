@@ -420,7 +420,6 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
                 if (err) {
                     console.error(err);
                     return res.status(500).end();
->>>>>>> 2.6.2
                 }
 
                 // Send response to ajax request
