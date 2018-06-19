@@ -34,7 +34,7 @@
         "submit": "Submit"
     },
     "settings": {
-        "title": "Settings",
+        "title": "Access managment",
         "auth_component": {
             "access_managment": "Access managment per group",
             "action_managment": "Action managment per role",
@@ -53,6 +53,19 @@
                 "update": "Update",
                 "delete": "Delete"
             }
+        },
+        "db_tool": {
+            "title": "DB Tool",
+            "export_title": "Export",
+            "import_title": "Import",
+            "export_action": "Export",
+            "import_action": "Import",
+            "import_file": "SQL File",
+            "import_success": "The import has been successfully completed.",
+            "file_needed": "Missing import file.",
+            "wrong_db_pwd": "Wrong password.",
+            "modal_password_title": "Password confirmation",
+            "modal_password_content": "Please confirm the database password:"
         },
         "legend": "Change your user settings",
         "lang": "Language",

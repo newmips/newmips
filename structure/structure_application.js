@@ -329,10 +329,20 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                             uniqueField('e_role', 'f_label');
                                             uniqueField('e_group', 'f_label');
 
-                                            // Manualy add settings to access file because it's not a real entity
+                                            // Manualy add settings and db_tool to access file because it's not a real entity
                                             var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
                                             access.administration.entities.push({
                                                 name: 'access_settings',
+                                                groups: [],
+                                                actions: {
+                                                    read: [],
+                                                    create: [],
+                                                    update: [],
+                                                    delete: []
+                                                }
+                                            });
+                                            access.administration.entities.push({
+                                                name: 'db_tool',
                                                 groups: [],
                                                 actions: {
                                                     read: [],
@@ -345,6 +355,18 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
                                             domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
                                                 var li = '';
+                                                li += '{@entityAccess entity="db_tool"}\n';
+                                                li += '     {@actionAccess entity="db_tool" action="read"}\n';
+                                                li += '         <li>\n';
+                                                li += '             <a href="/db_tool/show">\n';
+                                                li += '                 <i class="fa fa-database"></i>\n';
+                                                li += '                 <span>{@__ key="settings.db_tool.title" /}</span>\n';
+                                                li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+                                                li += '             </a>\n';
+                                                li += '         </li>\n';
+                                                li += '     {/actionAccess}\n';
+                                                li += '{/entityAccess}\n';
+
                                                 li += '{@entityAccess entity="access_settings"}\n';
                                                 li += '     {@actionAccess entity="access_settings" action="read"}\n';
                                                 li += '         <li>\n';
