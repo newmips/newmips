@@ -6,9 +6,12 @@ Dropzone.autoDiscover = false;
 
 function select2_ajaxsearch(select) {
     var searchField = select.data('using').split(',');
+
+    // Use custom url on select or build default url
+    var url = select.data('href') ? select.data('href') : '/' + select.data('source') + '/search';
     select.select2({
         ajax: {
-            url: '/' + select.data('source') + '/search',
+            url: url,
             dataType: 'json',
             method: 'POST',
             delay: 250,
