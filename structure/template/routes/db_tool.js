@@ -26,9 +26,17 @@ var logger = require('../utils/logger');
 var exec = require('child_process');
 
 router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "read"), function(req, res) {
-    var data = {};
+    if(dbConfig.dialect != "mysql"){
+        req.session.toastr = [{
+            message: 'settings.db_tool.wrong_dialect',
+            level: "error"
+        }];
+        return res.redirect("/default/administration")
+    }
 
-    var entities = []
+    var data = {};
+    var entities = [];
+
     fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
         return file.indexOf('.') !== 0
             && file.slice(-5) === '.json'

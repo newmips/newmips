@@ -65,7 +65,8 @@
             "file_needed": "Missing import file.",
             "wrong_db_pwd": "Wrong password.",
             "modal_password_title": "Password confirmation",
-            "modal_password_content": "Please confirm the database password:"
+            "modal_password_content": "Please confirm the database password:",
+            "wrong_dialect": "Sorry, DB tools only work with MySQL for now."
         },
         "legend": "Change your user settings",
         "lang": "Language",

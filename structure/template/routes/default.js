@@ -27,21 +27,7 @@ router.get('/status', function(req, res) {
 
 // *** Dynamic Module | Do not remove ***
 
-// m_administration
-router.get('/administration', block_access.isLoggedIn, block_access.moduleAccessMiddleware("administration"), function(req, res) {
-    var widgetPromises = [];
-    // *** Widget module m_administration | Do not remove ***
-    Promise.all(widgetPromises).then(function(results) {
-        var data = {};
-        for (var i = 0; i < results.length; i++)
-            for (var prop in results[i])
-                data[prop] = results[i][prop];
-        res.render('default/m_administration', data);
-    });
-});
-
-
-// m_home
+// Module home
 router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function(req, res) {
     var widgetPromises = [];
     // *** Widget module m_home | Do not remove ***
@@ -54,19 +40,16 @@ router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware
     });
 });
 
-
-// m_authentication
-router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
+// Module administration
+router.get('/administration', block_access.isLoggedIn, block_access.moduleAccessMiddleware("administration"), function(req, res) {
     var widgetPromises = [];
-
-    // *** Widget module m_authentication | Do not remove ***
-
-    Promise.all(widgetPromises).then(function (results) {
+    // *** Widget module m_administration | Do not remove ***
+    Promise.all(widgetPromises).then(function(results) {
         var data = {};
         for (var i = 0; i < results.length; i++)
             for (var prop in results[i])
                 data[prop] = results[i][prop];
-        res.render('default/m_authentication', data);
+        res.render('default/m_administration', data);
     });
 });
 
