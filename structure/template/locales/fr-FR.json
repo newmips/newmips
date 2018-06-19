@@ -65,7 +65,8 @@
             "file_needed": "Merci d'ajouter le fichier d'import.",
             "wrong_db_pwd": "Mot de passe incorrect.",
             "modal_password_title": "Confirmation du mot de passe",
-            "modal_password_content": "Merci de confirmer le mot de passe de la base de données:"
+            "modal_password_content": "Merci de confirmer le mot de passe de la base de données:",
+            "wrong_dialect": "Désolé, les outils de base de données ne fonctionne qu'avec MySQL pour le moment."
         },
         "legend": "Modifier vos paramètres",
         "lang": "Langue",
