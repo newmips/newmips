@@ -12,14 +12,6 @@ var filterDataTable = require('../utils/filterDataTable');
 // Winston logger
 var logger = require('../utils/logger');
 
-function error500(err, res) {
-    console.error(err);
-    logger.debug(err);
-    var data = {};
-    data.error = 500;
-    res.render('common/error', data);
-}
-
 router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
     var id_e_user = req.query.id;
     var tab = req.query.tab;

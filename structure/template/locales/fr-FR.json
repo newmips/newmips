@@ -34,12 +34,12 @@
         "submit": "Soumettre"
     },
     "settings": {
-        "title": "Paramètres",
+        "title": "Gestion des accès",
         "auth_component": {
             "access_managment": "Gestion des accès par groupe",
             "action_managment": "Gestion des actions par rôle",
-            "moduleList": "Les modules",
-            "entityList": "Les entités",
+            "moduleList": "Modules",
+            "entityList": "Entités",
             "grouplist": "Groupes:",
             "rolelist": "Rôles:",
             "entitylist": "Entités:",
@@ -53,6 +53,19 @@
                 "update": "Modifier",
                 "delete": "Supprimer"
             }
+        },
+        "db_tool": {
+            "title": "Outil BDD",
+            "export_title": "Export",
+            "import_title": "Import",
+            "export_action": "Exporter",
+            "import_action": "Importer",
+            "import_file": "Fichier SQL",
+            "import_success": "L'import a bien été effectué.",
+            "file_needed": "Merci d'ajouter le fichier d'import.",
+            "wrong_db_pwd": "Mot de passe incorrect.",
+            "modal_password_title": "Confirmation du mot de passe",
+            "modal_password_content": "Merci de confirmer le mot de passe de la base de données:"
         },
         "legend": "Modifier vos paramètres",
         "lang": "Langue",
