@@ -6,6 +6,7 @@ var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
 var dbConfig = require('../config/database');
 var globalConf = require('../config/global');
+var moment = require('moment');
 var moment_timezone = require('moment-timezone');
 var db = {};
 
@@ -72,11 +73,14 @@ sequelize.customAfterSync = function() {
         var toSyncFileName = globalConf.env == 'cloud' || globalConf.env == 'cloud_recette' ? __dirname + '/toSyncProd.lock.json' : __dirname + '/toSync.json';
         var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
+        var dialect = sequelize.options.dialect;
+
         for (var entity in toSyncObject) {
             // Sync attributes
             if (toSyncObject[entity].attributes)
                 for (var attribute in toSyncObject[entity].attributes) {
                     var type;
+                    var request = "";
                     switch (toSyncObject[entity].attributes[attribute].type) {
                         case "STRING":
                             type = "VARCHAR(255)";
@@ -88,19 +92,35 @@ sequelize.customAfterSync = function() {
                             type = "BIGINT";
                             break;
                         case "DATE":
-                            type = "DATETIME";
+                            if(dialect == "postgres")
+                                type = "timestamp with time zone";
+                            else
+                                type = "DATETIME";
                             break;
                         case "DECIMAL":
                             type = "DECIMAL(10,3)";
                             break;
                         case "ENUM":
-                            type = "ENUM(";
-                            for(var i=0; i<toSyncObject[entity].attributes[attribute].values.length; i++){
-                                type += "'"+toSyncObject[entity].attributes[attribute].values[i]+"'";
-                                if(i != toSyncObject[entity].attributes[attribute].values.length-1)
-                                    type += ",";
+                            if(dialect == "postgres"){
+                                var postgresEnumType = attribute+"_enum_"+moment();
+                                request += "CREATE TYPE "+postgresEnumType+" as ENUM (";
+                                for(var i=0; i<toSyncObject[entity].attributes[attribute].values.length; i++){
+                                    request += "'"+toSyncObject[entity].attributes[attribute].values[i]+"'";
+                                    if(i != toSyncObject[entity].attributes[attribute].values.length-1)
+                                        request += ",";
+                                }
+                                request += ");"
+                                type = postgresEnumType;
                             }
-                            type += ")";
+                            else {
+                                type = "ENUM(";
+                                for(var i=0; i<toSyncObject[entity].attributes[attribute].values.length; i++){
+                                    type += "'"+toSyncObject[entity].attributes[attribute].values[i]+"'";
+                                    if(i != toSyncObject[entity].attributes[attribute].values.length-1)
+                                        type += ",";
+                                }
+                                type += ")";
+                            }
                             break;
                         case "TEXT":
                         case "BOOLEAN":
@@ -120,14 +140,16 @@ sequelize.customAfterSync = function() {
                     if(toSyncObject[entity].attributes[attribute].defaultValue != null)
                         toSyncObject[entity].attributes[attribute].defaultValue = "'" + toSyncObject[entity].attributes[attribute].defaultValue + "'";
 
-                    var request = "ALTER TABLE ";
-                    if(sequelize.options.dialect == "mysql"){
+                    request += "ALTER TABLE ";
+                    if(dialect == "mysql"){
                         request += entity;
                         request += " ADD COLUMN `" + attribute + "` " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
-                    } else if(sequelize.options.dialect == "postgres"){
+                    } else if(dialect == "postgres"){
                         request += '"'+entity+'"';
                         request += " ADD COLUMN " + attribute + " " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
                     }
+
+                    console.log(request);
 
                     (function(query, entityB, attributeB) {
                         promises.push(new Promise(function(resolve0, reject0) {
@@ -174,23 +196,23 @@ sequelize.customAfterSync = function() {
                                 var request;
                                 if (option.relation == "belongsTo") {
                                     request = "ALTER TABLE ";
-                                    if(sequelize.options.dialect == "mysql"){
+                                    if(dialect == "mysql"){
                                         request += sourceName;
                                         request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
                                         request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
-                                    } else if(sequelize.options.dialect == "postgres"){
+                                    } else if(dialect == "postgres"){
                                         request += '"'+sourceName+'"';
                                         request += " ADD COLUMN " +option.foreignKey+ " INT DEFAULT NULL;";
                                         request += "ALTER TABLE \"" +sourceName+ "\" ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES \"" +targetName+ "\" (id) ON DELETE SET NULL ON UPDATE CASCADE;";
                                     }
                                 }
                                 else if (option.relation == 'hasMany') {
-                                    if(sequelize.options.dialect == "mysql"){
+                                    if(dialect == "mysql"){
                                         request = "ALTER TABLE ";
                                         request += targetName;
                                         request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
                                         request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
-                                    } else if(sequelize.options.dialect == "postgres"){
+                                    } else if(dialect == "postgres"){
                                         request = "ALTER TABLE ";
                                         request += '"'+targetName+'"';
                                         request += " ADD COLUMN "+option.foreignKey+" INT DEFAULT NULL;";
