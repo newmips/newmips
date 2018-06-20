@@ -65,7 +65,7 @@
 
             function displayVariableSelector(entityTree) {
                 /* Create select  and options */
-                var treeSelect = '<select name="treeSelect" style="width:100%;">';
+                var treeSelect = '<select name="treeSelect">';
                 treeSelect += '<option default value="-1">Inserer une variable...</option>';
                 for (var i = 0; i < entityTree.length; i++)
                     treeSelect += '<option value="'+entityTree[i].codename+'">'+entityTree[i].traduction+'</option>';

@@ -25,7 +25,7 @@
                 <i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <select multiple="" disabled="" readonly="" style="width:100%;" class="form-control" name="r_role" data-source="role" data-using="f_label">
+            <select multiple="" disabled="" readonly="" class="form-control" name="r_role" data-source="role" data-using="f_label">
                 {#r_role}
                 <option value="{f_label|string}" selected="">{f_label|string}</option>
                 {/r_role}
@@ -40,7 +40,7 @@
                 <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <select multiple="" disabled="" readonly="" style="width:100%;" class="form-control" name="r_group" data-source="group" data-using="f_label">
+            <select multiple="" disabled="" readonly="" class="form-control" name="r_group" data-source="group" data-using="f_label">
                 {#r_group}
                 <option value="{f_label|string}" selected="">{f_label|string}</option>
                 {/r_group}

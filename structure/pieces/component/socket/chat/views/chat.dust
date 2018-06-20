@@ -105,7 +105,7 @@
                     {@__ key="component.chat.chat_create" /}
                 </div>
                 <div class="col-xs-6">
-                    <select id="createChatId" style="width:100%;" data-choice-select2="0" class="form-control" required=""></select>
+                    <select id="createChatId" data-choice-select2="0" class="form-control" required=""></select>
                 </div>
                 <div class="col-xs-4">
                     <button id="doCreateChat" class="btn btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;{@__ key="button.create" /}</button>

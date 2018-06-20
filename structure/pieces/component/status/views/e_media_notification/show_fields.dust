@@ -39,7 +39,7 @@
     <div data-field="f_target_groups" class="col-xs-12">
         <div class="form-group">
             <label for="f_target_groups">{@__ key="entity.e_media_notification.r_target_groups" /}</label>
-            <select multiple="" style="width:100%;" class="form-control" name="r_target_groups" disabled="" readonly="">
+            <select multiple="" class="form-control" name="r_target_groups" disabled="" readonly="">
      {#r_target_groups_global_list}
          {@inArray field="id" array=e_media.r_media_notification.r_target_groups value=id}
              <option value="{f_label|string}" selected="">{f_label|string}</option>
@@ -53,7 +53,7 @@
     <div data-field="f_target_users" class="col-xs-12">
         <div class="form-group">
             <label for="f_target_users">{@__ key="entity.e_media_notification.r_target_users" /}</label>
-            <select multiple="" style="width:100%;" class="form-control" name="r_target_users" disabled="" readonly="">
+            <select multiple="" class="form-control" name="r_target_users" disabled="" readonly="">
      {#r_target_users_global_list}
          {@inArray field="id" array=e_media.r_media_notification.r_target_users value=id}
              <option value="{f_login|string}" selected="">{f_login|string}</option>

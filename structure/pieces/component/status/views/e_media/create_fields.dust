@@ -8,7 +8,7 @@
     <div data-field="f_type" class="col-xs-12">
         <div class="form-group">
             <label for="f_type"> {@__ key="entity.e_media.f_type"/} {@inline_help field="f_type"}&nbsp;<i data-field="f_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <select style="width:100%;" class="form-control select media-field" name="f_media_type">
+            <select class="form-control select media-field" name="f_media_type">
                 <option value="" selected="">{@__ key="select.default" /}</option>
                 {#enum_radio.e_media.f_type}
                     <option value="{.value}"> {.translation} </option>
@@ -19,7 +19,7 @@
     <div data-field="f_target_entity" class="col-xs-12">
         <div class="form-group">
             <label for="f_target_entity"> {@__ key="entity.e_media.f_target_entity"/} {@inline_help field="f_target_entity"}&nbsp;<i data-field="f_target_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <select style="width:100%;" class="form-control select media-field" name="f_target_entity">
+            <select class="form-control select media-field" name="f_target_entity">
                 <option value="" selected="">{@__ key="select.default" /}</option>
                 {#target_entities}
                     <option value="{codename}"> {@__ key=tradKey /} </option>
