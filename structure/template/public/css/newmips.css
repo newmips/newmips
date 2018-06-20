@@ -10,7 +10,9 @@ Core: General style
 .dt-buttons: {
     margin-left: 20px;
 }
-
+select{
+    width: 100%;
+}
 .hover:hover {
     cursor: pointer;
 }

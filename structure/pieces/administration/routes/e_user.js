@@ -314,6 +314,15 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
+    var redirect = '/user/show?id=' + id_e_user;
+    // If we are in user settings,then he cannot modify sensible data, and we redirect differently
+    if(req.body.is_settings){
+        delete updateObject.f_login;
+        delete updateObject.r_role;
+        delete updateObject.r_group;
+        redirect = '/user/settings';
+    }
+
     models.E_user.findOne({where: {id: id_e_user}}).then(function (e_user) {
         if (!e_user) {
             data.error = 404;
@@ -321,16 +330,13 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
             return res.render('common/error', data);
         }
 
-            updateObject.f_token_password_reset = undefined;
-            updateObject.f_enabled = undefined;
-            updateObject.f_password = undefined;
-            e_user.update(updateObject).then(function () {
-
+        updateObject.f_token_password_reset = undefined;
+        updateObject.f_enabled = undefined;
+        updateObject.f_password = undefined;
+        e_user.update(updateObject).then(function () {
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
             model_builder.setAssocationManyValues(e_user, req.body, updateObject, options).then(function () {
-
-                var redirect = '/user/show?id=' + id_e_user;
                 if (typeof req.body.associationFlag !== 'undefined')
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 

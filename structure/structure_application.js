@@ -302,7 +302,6 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                             // Clean user create fields
                             domHelper.read(workspacePath + '/views/e_user/create_fields.dust').then(function($) {
                                 $("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-
                                 domHelper.write(workspacePath + '/views/e_user/create_fields.dust', $).then(function() {
                                     // Clean user update fields
                                     domHelper.read(workspacePath + '/views/e_user/update_fields.dust').then(function($) {
