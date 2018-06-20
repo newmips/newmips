@@ -364,6 +364,14 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                         else
                             cellValue = '';
                     }
+                    else if (columns[meta.col].type == 'file') {
+                        if(cellValue != "" && cellValue != null){
+                            // Get current entity by splitting current table id
+                            var currentEntity = tableID.split("#table_")[1];
+                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+cellValue+'" name="'+columns[meta.col].data+'">'+cellValue+'</a>';
+                        } else
+                            cellValue = '';
+                    }
                     else if (columns[meta.col].type == 'url' && cellValue!=null)
                         cellValue = '<a target="_blank" href="'+cellValue+'">'+cellValue+'</a>';
                     else if (columns[meta.col].type == 'time' && cellValue != null){
