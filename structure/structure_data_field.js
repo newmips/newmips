@@ -442,6 +442,8 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
         str += '{' + dataField + '|s}';
     else if (type == 'picture')
         str += '<img src="data:image/;base64,{'+dataField+'.buffer}" class="img img-responsive" data-type="picture" name="'+dataField+'" readonly="">';
+    else if (type == 'file')
+        str += '<a href="/default/download?entity='+dataEntity+'&amp;f={'+dataField+'}" name="'+dataField+'">{'+dataField+'}</a>';
     else
         str += '{' + dataField + '}';
     str += '</td>';
