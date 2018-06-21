@@ -583,6 +583,39 @@ exports.createFieldRelatedToMultipleUsing = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
+exports.createFieldRelatedToMultipleCheckbox = function (result) {
+
+    var as = result[1];
+    var target = result[2];
+
+    // Preparing Options
+    var options = {
+        target: target,
+        isCheckbox: true,
+        as: as,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
+};
+
+exports.createFieldRelatedToMultipleCheckboxUsing = function (result) {
+
+    var as = result[1];
+    var target = result[2];
+    var usingField = result[3];
+
+    var options = {
+        target: target,
+        as: as,
+        usingField: usingField,
+        isCheckbox: true,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
+};
+
 // --------- One to Many ---------
 // Tabs in show
 exports.relationshipHasMany = function (result) {
@@ -1931,6 +1964,38 @@ var training = {
         "entité (.*) possède plusieurs (.*) existant en utilisant le champ (.*) appelées (.*)",
         "entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
         "entité (.*) possède plusieurs (.*) existant en affichant le champ (.*) appelées (.*)"
+    ],
+    "createFieldRelatedToMultipleCheckbox": [
+        "create field (.*) related to multiple (.*) with type checkbox",
+        "add field (.*) related to multiple (.*) with type checkbox",
+        "create data field (.*) related to multiple (.*) with type checkbox",
+        "add data field (.*) related to multiple (.*) with type checkbox",
+        "create field (.*) related to many (.*) with type checkbox",
+        "add field (.*) related to many (.*) with type checkbox",
+        "create data field (.*) related to many (.*) with type checkbox",
+        "add data field (.*) related to many (.*) with type checkbox",
+        "créer un champ (.*) relié à plusieurs (.*) avec le type case à cocher",
+        "ajouter un champ (.*) relié à plusieurs (.*) avec le type case à cocher",
+        "créer champ (.*) relié à plusieurs (.*) avec le type case à cocher",
+        "ajouter champ (.*) relié à plusieurs (.*) avec le type case à cocher"
+    ],
+    "createFieldRelatedToMultipleCheckboxUsing": [
+        "create field (.*) related to multiple (.*) with type checkbox using (.*)",
+        "add field (.*) related to multiple (.*) with type checkbox using (.*)",
+        "create data field (.*) related to multiple (.*) with type checkbox using (.*)",
+        "add data field (.*) related to multiple (.*) with type checkbox using (.*)",
+        "create field (.*) related to many (.*) with type checkbox using (.*)",
+        "add field (.*) related to many (.*) with type checkbox using (.*)",
+        "create data field (.*) related to many (.*) using (.*)",
+        "add data field (.*) related to many (.*) with type checkbox using (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)"
     ],
     "createFieldRelatedToMultiple": [
         "create field (.*) related to multiple (.*)",

@@ -1844,6 +1844,10 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                 if (typeof attr.options.usingField !== "undefined") {
                     associationOption.usingField = attr.options.usingField;
                 }
+                if (typeof attr.options.isCheckbox !== "undefined" && attr.options.isCheckbox) {
+                    // If it's a checkbox presentation style, we need to load association directly in the route, not in ajax
+                    associationOption.loadOnStart = true;
+                }
                 structure_data_entity.setupAssociation(associationOption, function () {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToMultipleField(attr, function () {

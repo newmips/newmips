@@ -1302,49 +1302,70 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
     }
     // Setup association field for create_fields
+    var head = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+    head += '     <label for="f_' + urlAs + '">\n';
+    head += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
+    head += '         <!--{@inline_help field="'+alias+'"}-->\n';
+    head += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    head += '         <!--{/inline_help}-->\n';
+    head += '     </label>\n';
+
     var select = '';
-    select += '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-    select += '     <label for="f_' + urlAs + '">\n';
-    select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
-    select += '         <!--{@inline_help field="'+alias+'"}-->\n';
-    select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
-    select += '         <!--{/inline_help}-->\n';
-    select += '     </label>\n';
-    select += '     <select multiple class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
-    select += '         <option value="">{@__ key="select.default" /}</option>\n';
-    select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}">'+usingOption.join(' - ')+'</option>\n';
-    select += '         <!--{/' + alias + '}-->\n';
-    select += '     </select>\n';
+    if(attr.options.isCheckbox){
+        select += '  <!--{#' + alias + '_all}-->\n';
+        select += '      <br><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;'+usingOption.join(' - ')+'\n';
+        select += '  <!--{/' + alias + '_all}-->\n';
+    } else {
+        select += '     <select multiple class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+        select += '         <option value="">{@__ key="select.default" /}</option>\n';
+        select += '         <!--{#' + alias + '}-->\n';
+        select += '             <option value="{id}">'+usingOption.join(' - ')+'</option>\n';
+        select += '         <!--{/' + alias + '}-->\n';
+        select += '     </select>\n';
+    }
     select += '</div>\n</div>\n';
 
     // Update create_fields file
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
-    updateFile(fileBase, file, select, function () {
-        select = select.replace(/<option value="{id}">/, '<option value="{id}" selected>');
+    updateFile(fileBase, file, head + select, function () {
+        if(attr.options.isCheckbox){
+            select = '  <!--{#' + alias + '_all}-->\n';
+            select += '     <br>\n';
+            select += '     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+            select += '         <input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;'+usingOption.join(' - ')+'\n';
+            select += '     <!--{:else}-->\n';
+            select += '         <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;'+usingOption.join(' - ')+'\n';
+            select += '     <!--{/existInContextById}-->\n';
+            select += '  <!--{/' + alias + '_all}-->\n';
+        } else
+            select = select.replace(/<option value="{id}">/, '<option value="{id}" selected>');
         file = 'update_fields';
         // Update update_fields file
-        updateFile(fileBase, file, select, function () {
-
-            select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-            select += '     <label for="f_' + urlAs + '">\n';
-            select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
-            select += '         <!--{@inline_help field="'+alias+'"}-->\n';
-            select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
-            select += '         <!--{/inline_help}-->\n';
-            select += '     </label>\n';
-            select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
-            select += '         <!--{#' + alias + '}-->\n';
-            select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
-            select += '         <!--{/' + alias + '}-->\n';
-            select += '     </select>\n';
+        updateFile(fileBase, file, head + select, function () {
+            select = '';
+            if(attr.options.isCheckbox){
+                select += '  <!--{#' + alias + '_all}-->\n';
+                select += '     <br>\n';
+                select += '     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+                select += '         <input type="checkbox" disabled checked name="' + alias + '">&nbsp;&nbsp;'+usingOption.join(' - ')+'\n';
+                select += '     <!--{:else}-->\n';
+                select += '         <input type="checkbox" disabled name="' + alias + '">&nbsp;&nbsp;'+usingOption.join(' - ')+'\n';
+                select += '     <!--{/existInContextById}-->\n';
+                select += '  <!--{/' + alias + '_all}-->\n';
+            } else {
+                select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+                select += '         <!--{#' + alias + '}-->\n';
+                select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
+                select += '         <!--{/' + alias + '}-->\n';
+                select += '     </select>\n';
+            }
             select += '</div>\n</div>\n';
 
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
-                $("#fields").append(select);
+                $("#fields").append(head + select);
                 domHelper.write(file, $).then(function () {
                     // Add the related to many field in the entity print template
                     file = fileBase + '/print_fields.dust';

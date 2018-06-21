@@ -10,8 +10,12 @@ Core: General style
 .dt-buttons: {
     margin-left: 20px;
 }
-select{
+select.form-control{
     width: 100%;
+}
+.select2-dropdown .select2-search__field:focus, .select2-search--inline .select2-search__field:focus {
+    border: 1px solid lightgrey;
+    border-radius: 3px;
 }
 .hover:hover {
     cursor: pointer;
