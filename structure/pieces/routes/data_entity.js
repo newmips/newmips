@@ -134,7 +134,12 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function () {
             entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
             data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
-            res.render('ENTITY_NAME/show', data);
+            // Get association data that needed to be load directly here (loadOnStart param in options).
+            entity_helper.getLoadOnStartData(data, options).then(function(data){
+                res.render('ENTITY_NAME/show', data);
+            }).catch(function(err){
+                entity_helper.error500(err, req, res, "/");
+            })
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
         });
@@ -158,8 +163,13 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
-    res.render(view, data);
+    // Get association data that needed to be load directly here (loadOnStart param in options).
+    entity_helper.getLoadOnStartData(data, options).then(function(data){
+        var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
+        res.render(view, data);
+    }).catch(function(err){
+        entity_helper.error500(err, req, res, '/bb/create_form');
+    })
 });
 
 router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
@@ -243,17 +253,23 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function () {
-            if (req.query.ajax) {
-                ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
-                res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
-            } else
-                res.render('ENTITY_NAME/update', data);
+            // Get association data that needed to be load directly here (loadOnStart param in options).
+            entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data){
+                if (req.query.ajax) {
+                    ENTITY_NAME.dataValues = data;
+                    ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
+                    res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
+                } else
+                    res.render('ENTITY_NAME/update', data);
+            }).catch(function(err){
+                entity_helper.error500(err, req, res, "/");
+            })
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
-        });
+        })
     }).catch(function (err) {
         entity_helper.error500(err, req, res, "/");
-    });
+    })
 });
 
 router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
@@ -284,11 +300,13 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
                 req.session.toastr = [{
-                        message: 'message.update.success',
-                        level: "success"
-                    }];
+                    message: 'message.update.success',
+                    level: "success"
+                }];
 
                 res.redirect(redirect);
+            }).catch(function (err) {
+                entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
             });
         }).catch(function (err) {
             entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
@@ -333,6 +351,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         var dustData = ENTITY_NAME[option.as] || null;
         var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
         var dustFile, idSubentity, promisesData = [];
+        var subentityOptions = [];
 
         // Build tab specific variables
         switch (option.structureType) {
@@ -342,7 +361,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     dustData.hideTab = true;
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                     promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-                    var subentityOptions = require('../models/options/' + option.target);
+                    subentityOptions = require('../models/options/' + option.target);
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
@@ -408,23 +427,29 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 return res.status(500).end();
         }
 
-        // Image buffer promise
-        Promise.all(promisesData).then(function () {
-            // Open and render dust file
-            var file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
-            dust.renderSource(file, dustData || {}, function (err, rendered) {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).end();
-                }
+        // Get association data that needed to be load directly here (loadOnStart param in options).
+        entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData){
+            // Image buffer promise
+            Promise.all(promisesData).then(function () {
+                // Open and render dust file
+                var file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+                dust.renderSource(file, dustData || {}, function (err, rendered) {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).end();
+                    }
 
-                // Send response to ajax request
-                res.json({
-                    content: rendered,
-                    data: idSubentity || {},
-                    empty: empty,
-                    option: option
+                    // Send response to ajax request
+                    res.json({
+                        content: rendered,
+                        data: idSubentity || {},
+                        empty: empty,
+                        option: option
+                    });
                 });
+            }).catch(function (err) {
+                console.error(err);
+                res.status(500).send(err);
             });
         }).catch(function (err) {
             console.error(err);

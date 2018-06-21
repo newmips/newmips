@@ -47,6 +47,10 @@ exports.setupAssociation = function (associationOption, callback) {
     if (typeof associationOption.usingField !== "undefined")
         baseOptions.usingField = associationOption.usingField;
 
+    // Load this association directly in standard route data
+    if (typeof associationOption.loadOnStart !== "undefined" && associationOption.loadOnStart)
+        baseOptions.loadOnStart = true;
+
     optionsObject.push(baseOptions);
 
     if (toSync) {

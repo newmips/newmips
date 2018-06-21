@@ -321,6 +321,29 @@ var funcs = {
                 }).catch(reject);
         });
     },
+    getLoadOnStartData: function(data, options) {
+        // Check in given options if there is associations data (loadOnStart param) that we need to push in our data object
+        return new Promise(function(resolve, reject){
+            var todoPromises = [];
+            for (var i = 0; i < options.length; i++){
+                if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart){
+                    (function(alias){
+                        todoPromises.push(new Promise(function(resolve1, reject1){
+                            models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw:true}).then(function(results){
+                                // Change alias name to avoid conflict
+                                data[alias+"_all"] = results;
+                                resolve1();
+                            }).catch(reject1);
+                        }))
+                    })(options[i].as)
+                }
+            }
+
+            Promise.all(todoPromises).then(function(){
+                resolve(data);
+            }).catch(reject)
+        });
+    },
     error500: function(err, req, res, redirect) {
         var isKnownError = false;
         var ajax = req.query.ajax || false;

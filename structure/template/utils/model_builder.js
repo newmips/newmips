@@ -176,13 +176,12 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
         if(unusedValueFromReqBody.length == 0)
             return resolve();
 
-        var promises = [];
-        // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
-        for (var i=0; i<options.length; i++) {
-            // Loop on the unused (for now) values in body
-            for (var j=0; j<unusedValueFromReqBody.length; j++) {
-                promises.push(new Promise(function(resolveBis, rejectBis){
-                    // if the alias match between the option and the body
+        async function setAssociationMany(){
+            // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
+            for (var i=0; i<options.length; i++) {
+                // Loop on the unused (for now) values in body
+                for (var j=0; j<unusedValueFromReqBody.length; j++) {
+                    // If the alias match between the option and the body
                     if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
                         // BelongsTo association have been already done before
                         if(options[i].relation != "belongsTo"){
@@ -190,25 +189,27 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
                             var value = [];
 
                             if(body[unusedValueFromReqBody[j]].length > 0)
-                                value = body[unusedValueFromReqBody[j]];
-
-                            model['set' + target](value).then(function(){
-                                resolveBis();
-                            });
-                        } else {
-                            resolveBis();
+                                // Empty string is not accepted by postgres, clean array to avoid error
+                                for(var val in body[unusedValueFromReqBody[j]])
+                                    if(body[unusedValueFromReqBody[j]][val] != "")
+                                        value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
+                            try {
+                                await model['set' + target](value)
+                            } catch(err){
+                                throw err
+                            }
                         }
-                    } else {
-                        resolveBis();
                     }
-                }));
+                }
             }
         }
 
-        Promise.all(promises).then(function(){
+        setAssociationMany().then(function(){
             resolve();
-        });
-    });
+        }).catch(function(err){
+            reject(err);
+        })
+    })
 }
 
 exports.getDatalistInclude = function getDatalistInclude(models, options, columns) {

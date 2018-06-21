@@ -663,12 +663,22 @@ function validateForm(form) {
 
     /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
     form.find("input[type='checkbox']").each(function () {
-        if ($(this).prop("checked")) {
-            $(this).val(true);
+        if(!$(this).hasClass("no-formatage")){
+            if ($(this).prop("checked")) {
+                $(this).val(true);
+            } else {
+                /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
+                $(this).prop("checked", true);
+                $(this).val(false);
+            }
         } else {
-            /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
-            $(this).prop("checked", true);
-            $(this).val(false);
+            // If it's a multiple checkbox, we have to set an empty value in the req.body if no checkbox are checked
+            if($("input[type='checkbox'][name='"+$(this).attr("name")+"']").length > 0){
+                if($("input[type='checkbox'][name='"+$(this).attr("name")+"']:enabled:checked").length == 0){
+                    var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
+                    form.append($(input));
+                }
+            }
         }
     });
 
