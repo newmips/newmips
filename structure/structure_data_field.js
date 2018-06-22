@@ -139,9 +139,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "url" :
         case "lien" :
         case "link" :
-            if (file == 'show')
-                str += "    <br><a href='"+value+"' target='_blank' type='url' data-type='url'>"+value+"</a>\n";
-            else{
+            if (file == 'show'){
+                str += "    <br><a href='"+value+"' target='_blank' type='url' data-type='url' style='display: table-cell;padding-right: 5px;'>"+value+"</a>\n";
+                str += "    <div class='copy-button'>\n";
+                str += "        <i class='fa fa-copy'></i>\n";
+                str += "    </div>\n";
+            } else {
                 str += "    <div class='input-group'>\n";
                 str += "        <div class='input-group-addon'>\n";
                 str += "            <i class='fa fa-link'></i>\n";

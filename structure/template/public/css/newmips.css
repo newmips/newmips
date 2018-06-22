@@ -226,3 +226,22 @@ div.dataTables_length select {
 .input-group-addon{
     cursor: pointer;
 }
+
+.copy-button {
+    /*padding: 6px 12px;*/
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1;
+    color: #555;
+    text-align: center;
+    background-color: transparent;
+    border: "none";
+    border-radius: 4px;
+    width: 40px;
+    cursor: pointer;
+    display: table-cell;
+}
+
+.copy-button:hover {
+    background-color: #eee;
+}

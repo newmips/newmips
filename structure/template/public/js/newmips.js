@@ -317,6 +317,21 @@ function initForm(context) {
         }).maskMoney('mask');
     });
 
+    /* Add http:// by default if missing on given url */
+    $("input[type='url']", context).each(function () {
+        $(this).blur(function(){
+            var currentUrl = $(this).val();
+            if (currentUrl.indexOf("http://") == -1 && currentUrl.indexOf("https://") == -1) {
+                if(currentUrl.indexOf("://") != -1){
+                    var toKeep = currentUrl.split("://")[1];
+                    $(this).val("http://"+toKeep);
+                } else {
+                    $(this).val("http://"+currentUrl);
+                }
+            }
+        })
+    });
+
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
     $('.dropzone-field', context).each(function (index) {
         var that = $(this);
@@ -422,6 +437,15 @@ function initForm(context) {
     // Input group addons click
     $(document).on("click", ".input-group-addon", function(){
         $(this).next("input").focus();
+    });
+
+    $(document).on("click", ".copy-button", function(){
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(this).prev("a").text()).select();
+        document.execCommand("copy");
+        toastr.success('<i class="fa fa-copy"></i> : '+$(this).prev("a").text()+'</i>')
+        $temp.remove();
     });
 }
 
