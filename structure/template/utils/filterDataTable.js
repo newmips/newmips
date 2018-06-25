@@ -77,8 +77,10 @@ module.exports = function (modelName, params, speInclude, speWhere) {
                             $like: '%' + params.search.value + '%'
                         };
                         search[searchType].push(orRow);
-                    } else
+                    } else{
+                        column.search.value = params.search.value;
                         updateInclude(column);
+                    }
                 }
             }
         }
@@ -93,16 +95,25 @@ module.exports = function (modelName, params, speInclude, speWhere) {
                     var relation = partOfColumn[j];
                     var include = entity_helper.find_include(include.include, 'as', relation);
                     //update true objet
-                    include.required = true;
+                    // No required in include for a global search
+                    if(searchType != "$or")
+                        include.required = true;
+                    else
+                        include.required = false;
                 }
             }
-            //now set where option on field
-            //the last value of partOfColumn is the field value
+            // Now set where option on field
+            // The last value of partOfColumn is the field value
             var field = partOfColumn[partOfColumn.length - 1];
-            //set required for innerJoin
-            include.required = true;
+            // Set required for innerJoin
+            // No required in include for a global search
+            if(searchType != "$or")
+                include.required = true;
+            else
+                include.required = false;
             if (!include.where)
                 include.where = {};
+
             include.where[field] = {
                 $like: '%' + column.search.value + '%'
             };
