@@ -148,7 +148,9 @@
             "menu": "Agenda",
             "add_event": "Add new event",
             "no_category": "No category",
-            "pending_event": "Pending event(s)"
+            "pending_event": "Pending event(s)",
+            "startHour": "Start hour",
+            "endHour": "End hour"
         },
         "print": {
             "action": "Print"
