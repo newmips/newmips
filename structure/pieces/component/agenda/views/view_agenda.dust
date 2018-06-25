@@ -1,4 +1,4 @@
-{>"layout_m_home"/}
+{>"layout_MODULE_NAME"/}
 {<custom_css_2}
 	<link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' />
 	<link href='/css/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
@@ -292,14 +292,14 @@
 		        	};
 
 		        	$.ajax({
-						url : '/agenda/add_event',
+						url : '/URL_ROUTE/add_event',
 						type : 'POST',
 						data : JSON.stringify(ajaxData),
 						dataType : 'json',
 						contentType: "application/json",
 						context: this,
 						success: function (data) {
-							/*event.url = "/agenda_event/show?id="+data.idEvent;*/
+							/*event.url = "/URL_EVENT/show?id="+data.idEvent;*/
 							event.eventId = data.idEvent;
 							$('#calendar').fullCalendar('updateEvent', event);
 						},
@@ -321,7 +321,7 @@
 		        	};
 
 		        	$.ajax({
-						url : '/agenda/resize_event',
+						url : '/URL_ROUTE/resize_event',
 						type : 'POST',
 						data : JSON.stringify(ajaxData),
 						dataType : 'json',
@@ -348,7 +348,7 @@
 		        	};
 
 		        	$.ajax({
-						url : '/agenda/update_event_drop',
+						url : '/URL_ROUTE/update_event_drop',
 						type : 'POST',
 						data : JSON.stringify(ajaxData),
 						dataType : 'json',
@@ -429,7 +429,7 @@
 				var idEventToDelete = $("#modalUpdateEventID").val();
 				var idEventCalendarToDelete = $("#modalUpdateID").val();
 				$.ajax({
-					url : '/agenda/delete_event',
+					url : '/URL_ROUTE/delete_event',
 					type : 'POST',
 					data : JSON.stringify({id: idEventToDelete}),
 					dataType : 'json',
@@ -468,7 +468,7 @@
 				}
 
 				$.ajax({
-					url : '/agenda/update_event',
+					url : '/URL_ROUTE/update_event',
 					type : 'POST',
 					data : {
 						id: idEventToUpdate,
@@ -532,7 +532,7 @@
 				};
 
 				$.ajax({
-					url : '/agenda/add_event',
+					url : '/URL_ROUTE/add_event',
 					type : 'POST',
 					data : JSON.stringify(ajaxData),
 					dataType : 'json',
