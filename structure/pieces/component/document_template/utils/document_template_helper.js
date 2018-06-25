@@ -497,11 +497,11 @@ var generateDocxDoc = function (options) {
                     var zip = new JSZip(content);
                     var doc = new Docxtemplater();
                     var templateOptions = {
-                        nullGetter: function (part) {
+                        nullGetter: function (part, scope) {
                             if (part && part.value) {
                                 var parts = part.value.split('.');
                                 if (parts.length)
-                                    return getValue(parts, options.data);
+                                    return getValue(parts, options.data, scope);
                                 return "";
                             }
                             return "";
@@ -566,19 +566,33 @@ var buildPDFJSON = function (entityRoot, data) {
     }
     return result;
 };
-//get value with key as x.y.z
-var getValue = function (cellArrayKeyValue, row) {
-    var i = 0;
-    var key = cellArrayKeyValue[i];
-    do {
-        if (row != null && typeof row[key] !== 'undefined') {
-            row = row[key];
-        } else
-            return '';
-        i++;
-        key = cellArrayKeyValue[i];
-    } while (i < cellArrayKeyValue.length);
-    return row;
+
+//get value in json object with key like x.y.z
+var getValue = function (itemPath/*array*/, data, scope/*where value is expected*/) {
+
+    try {
+        var i = 0;
+        var key = itemPath[i];
+        if (scope && scope.scopePath
+                && scope.scopePathItem
+                && scope.scopePath.length
+                && scope.scopePath.length === scope.scopePathItem.length) {
+            //Go to data scope  before search value
+            for (var j = 0; j < scope.scopePath.length; j++)
+                data = data[scope.scopePath[j]][scope.scopePathItem[j]];
+        }
+        do {
+            if (data != null && typeof data !== "undefined" && typeof data[key] !== 'undefined') {
+                data = data[key];
+            } else
+                return '';
+            i++;
+            key = itemPath[i];
+        } while (i < itemPath.length);
+        return data;
+    } catch (e) {
+        return '';
+    }
 };
 
 var format_tel = function (tel, separator) {
