@@ -5,8 +5,8 @@ var databaseConf = {
 		connection: {
                   host: '127.0.0.1',
                   port: '3306',
-                  user: 'newmips',
-                  password: 'newmips',
+                  user: 'root',
+                  password: '2653',
                   database: 'newmips',
                   users_table: 'user',
                   dateStrings: 'true'

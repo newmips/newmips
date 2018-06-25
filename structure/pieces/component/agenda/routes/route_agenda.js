@@ -56,6 +56,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                 start: events[i].f_start_date,
                 end: events[i].f_end_date,
                 allDay: events[i].f_all_day,
+                idCategory: events[i].r_category.id,
                 backgroundColor: events[i].r_category.f_color,
                 url: "/CODE_NAME_EVENT_URL/show?id="+events[i].id,
                 ressourceIds: ressourceIds
@@ -119,7 +120,7 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_even
     });
 });
 
-router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "update"), function (req, res) {
+router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "update"), function(req, res) {
     var id_e_URL_ROUTE_event = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -129,24 +130,28 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
-    models.CODE_NAME_EVENT_MODEL.findOne({where: {id: id_e_URL_ROUTE_event}}).then(function (e_URL_ROUTE_event) {
+    models.CODE_NAME_EVENT_MODEL.findOne({
+        where: {
+            id: id_e_URL_ROUTE_event
+        }
+    }).then(function(e_URL_ROUTE_event) {
         if (!e_URL_ROUTE_event) {
             data.error = 404;
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
 
-        e_URL_ROUTE_event.update(updateObject).then(function () {
+        e_URL_ROUTE_event.update(updateObject).then(function(updatedObject) {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
-            model_builder.setAssocationManyValues(e_URL_ROUTE_event, req.body, updateObject, options).then(function () {
-                res.send(true);
+            model_builder.setAssocationManyValues(e_URL_ROUTE_event, req.body, updateObject, options).then(function() {
+                res.send(updatedObject);
             });
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
     });
 });
