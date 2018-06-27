@@ -2,6 +2,8 @@ var models = require('../models/');
 var entity_helper = require('./entity_helper');
 
 module.exports = function (modelName, params, speInclude, speWhere) {
+
+    // speWhere param example: [{field: value}]
     return new Promise(function (resolve, reject) {
         var start = 1,
                 length = 10,
