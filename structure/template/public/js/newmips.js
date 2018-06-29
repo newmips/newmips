@@ -101,10 +101,10 @@ function initForm(context) {
 
     /* --------------- Max length on input number --------------- */
     $("input[type='number']", context).keyup(function () {
-        if (typeof $(this).data("custom-type") === "undefined"){
+        if (typeof $(this).data("custom-type") === "undefined") {
             if (this.value.length > 10)
                 this.value = this.value.slice(0, 10);
-        } else if($(this).data("custom-type") == "bigint")
+        } else if ($(this).data("custom-type") == "bigint")
             if (this.value.length > 19)
                 this.value = this.value.slice(0, 19);
     });
@@ -297,6 +297,16 @@ function initForm(context) {
 
     //Mask for data-type currency
     $("input[data-type='currency']", context).each(function () {
+        var val = $(this).val();
+        //Fix display maskMoney bug with number and with zero
+        if (val || val != '') {
+            var partsOfVal = val.split('.');
+            if (partsOfVal[1] && (partsOfVal[1].length < maskMoneyPrecision)) {
+                for (var i = partsOfVal[1].length; i < maskMoneyPrecision; i++)
+                    val += '0';
+            }
+        }
+        $(this).val(val);
         $(this).maskMoney({
             thousands: ' ',
             decimal: '.',
@@ -405,11 +415,11 @@ function initForm(context) {
     });
 
     // Component address
-    if(typeof context.data === "undefined" || context.data("tabtype") != "print")
+    if (typeof context.data === "undefined" || context.data("tabtype") != "print")
         initComponentAddress();
 
     // Input group addons click
-    $(document).on("click", ".input-group-addon", function(){
+    $(document).on("click", ".input-group-addon", function () {
         $(this).next("input").focus();
     });
 }
@@ -575,7 +585,7 @@ function initPrint() {
     // Component address
     $(".print-tab .c_address_maps").attr("mapsid", $(".print-tab .c_address_maps").attr("mapsid") + "_print");
     $(".print-tab .c_address_maps").attr("id", $(".print-tab .c_address_maps").attr("id") + "_print");
-    setTimeout(function() {
+    setTimeout(function () {
         initMapsIfComponentAddressExists($(".print-tab"));
     }, 500);
 }
@@ -987,16 +997,16 @@ $(document).ready(function () {
     $(document).on("click", ".component-print-button", function () {
         // Clear component address
         $(".print-tab .section_c_address_fields .c_address_maps").replaceWith(
-            "<div style='position:relative;height:450px;overflow:hidden;'>"+
-            $(".print-tab .section_c_address_fields .c_address_maps").find(".olLayerGrid").parent().html()+
-            "</div>");
+                "<div style='position:relative;height:450px;overflow:hidden;'>" +
+                $(".print-tab .section_c_address_fields .c_address_maps").find(".olLayerGrid").parent().html() +
+                "</div>");
         window.print();
         return true;
     });
 });
 
 function initComponentAddress(context) {
-    (function() {
+    (function () {
         var componentAddressConf = {
             url: "https://api-adresse.data.gouv.fr/search/",
             query_parm: 'q',
@@ -1007,15 +1017,15 @@ function initComponentAddress(context) {
             enable: true // If  enable, do query and get data, else data should be to set manually by user
         };
         if (componentAddressConf.enable) {
-            $('.c_address_field').on('keyup', function() {
+            $('.c_address_field').on('keyup', function () {
                 $(this).val($(this).val().toUpperCase());
             });
-            $("#c_address_search_area", context).each(function() {
+            $("#c_address_search_area", context).each(function () {
                 var result;
                 var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
                 $(this).autocomplete({
                     minLength: 1,
-                    source: function(req, res) {
+                    source: function (req, res) {
                         var val = $('#c_address_search_area').val();
                         var data = {
                             limit: 10
@@ -1026,12 +1036,12 @@ function initComponentAddress(context) {
                             type: componentAddressConf.type,
                             data: data,
                             dataType: 'json',
-                            success: function(data) {
+                            success: function (data) {
                                 result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
-                                res($.map(result, function(_address) {
+                                res($.map(result, function (_address) {
                                     var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
                                     var toReturn = '';
-                                    fieldsToShow.forEach(function(field) {
+                                    fieldsToShow.forEach(function (field) {
                                         toReturn += objet[field] + ' ';
                                     });
                                     return toReturn;
@@ -1039,12 +1049,12 @@ function initComponentAddress(context) {
                             }
                         });
                     },
-                    select: function(e, ui) {
-                        result.forEach(function(_) {
+                    select: function (e, ui) {
+                        result.forEach(function (_) {
                             var toReturn = '';
                             var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
                             var toReturn = '';
-                            fieldsToShow.forEach(function(field) {
+                            fieldsToShow.forEach(function (field) {
                                 toReturn += _address[field] + ' ';
                             });
                             if (ui.item.value == toReturn) {
@@ -1065,12 +1075,12 @@ function initComponentAddress(context) {
             });
         }
     }());
-    $('#info_c_address_maps').on('click', function(e) {
+    $('#info_c_address_maps').on('click', function (e) {
         e.preventDefault();
         $.ajax({
             url: '/address_settings/info_c_address_maps_ajax',
             methode: 'GET',
-            success: function(data) {
+            success: function (data) {
                 if (data && data.message) {
                     var html = '<div class="modal fade" tabindex="-1" role="dialog">';
                     html += '<div class="modal-dialog" role="document">';
@@ -1088,11 +1098,11 @@ function initComponentAddress(context) {
                     $(html).modal('show');
                 }
             },
-            error: function(e) {}
+            error: function (e) {}
         });
         return false;
     });
-    setTimeout(function() {
+    setTimeout(function () {
         initMapsIfComponentAddressExists(context);
     }, 500);
 }

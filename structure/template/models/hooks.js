@@ -55,12 +55,35 @@ module.exports = function(model_name, attributes) {
 		                        historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = model.id;
 		                        getModels()[historyModel].create(historyObject).then(function() {
 									model['setR_'+fieldIn.substring(2)](status.id);
-									if (!created)
-										status.executeActions(model).then(resolve).catch(function(err){
+									if (!created) {
+										// Load options of entity to look for relatedTo associations
+										var associationProm = [];
+										var modelOptions = require(__dirname+'/options/e_'+model_urlvalue);
+										for (var i = 0; i < modelOptions.length; i++) {
+											var func = 'getR_'+modelOptions[i].as.substring(2);
+											// If relatedTo association is found, execute the association getter so actions can use associations values
+											if (model[func] && modelOptions[i].structureType == 'relatedTo')
+												(function(alias) {
+													associationProm.push(new Promise(function(assoReso, assoReje) {
+														model[func]().then(function(asso) {
+															model[alias] = asso;
+															assoReso();
+														}).catch(assoReje);
+													}));
+												})(modelOptions[i].as);
+										}
+										Promise.all(associationProm).then(function() {
+											status.executeActions(model).then(resolve).catch(function(err){
+												console.error("Unable to execute actions");
+												console.error(err);
+												resolve();
+											});
+										}).catch(function(err){
 											console.error("Unable to execute actions");
 											console.error(err);
 											resolve();
 										});
+									}
 									else
 		                            	resolve();
 		                        });
