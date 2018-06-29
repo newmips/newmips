@@ -8,8 +8,8 @@
                 </select>
                 <input type="hidden" name="f_entity" value="{f_entity}">
             {:else}
-                <select name="f_entity" required class="form-control">
-                    <option default>{@__ key="select.default" /}</option>
+                <select name="f_entity" required class="form-control" style="width:100%;">
+                    <option value="" selected>{@__ key="select.default" /}</option>
                     {#entities}
                         <option value="{entity}">{@__ key=entityTrad /}</option>
                     {/entities}
@@ -30,8 +30,8 @@
             {#entities}
                 <div id="{entity}.status" style="display: none;" class="form-group">
                     <label for="f_field" class="required">{@__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
-                    <select name="f_field" required disabled class="form-control">
-                        <option default>{@__ key="select.default" /}</option>
+                    <select name="f_field" required disabled class="form-control" style="width:100%;">
+                        <option value="" selected>{@__ key="select.default" /}</option>
                         {#statuses}
                             <option value="{status}">{@__ key=statusTrad /}</option>
                         {/statuses}
