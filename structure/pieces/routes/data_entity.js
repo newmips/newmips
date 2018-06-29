@@ -601,7 +601,7 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
             if(param.indexOf("fk_") != -1){
                 for (var option in options){
                     // We only add where condition on key that are standard hasMany relation, not belongsToMany association
-                    if(options[option].otherKey == param && options[option].relation != "belongsToMany")
+                    if((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
                         where.where[param] = req.body.customWhere[param];
                 }
             } else

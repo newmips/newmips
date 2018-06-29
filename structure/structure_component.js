@@ -659,9 +659,9 @@ exports.newAgenda = function (attr, callback) {
                 translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function () {
 
                     // FR translation of the component
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "label_entity"], "Événement " + showComponentName);
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "name_entity"], "Événement " + showComponentName);
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "plural_entity"], "Événement " + showComponentName);
+                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "label_entity"], "Événement");
+                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "name_entity"], "Événement");
+                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "plural_entity"], "Événement");
                     translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_title"], "Titre");
                     translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_place"], "Lieu");
                     translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_start_date"], "Date de début");
@@ -669,9 +669,9 @@ exports.newAgenda = function (attr, callback) {
                     translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_all_day"], "Toute la journée");
                     translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
 
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie " + showComponentName);
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie " + showComponentName);
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "plural_entity"], "Catégorie " + showComponentName);
+                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie");
+                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie");
+                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "plural_entity"], "Catégorie");
                     translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "f_color"], "Couleur");
 
                     var layoutFileName = __dirname + '/../workspace/' + idApplication + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
@@ -684,32 +684,26 @@ exports.newAgenda = function (attr, callback) {
                         li += "<li id='" + urlComponent + "_menu_item' style='display:block;' class='treeview'>\n";
                         li += "    <a href='#'>\n";
                         li += "        <i class='fa fa-calendar-o'></i> <span><!--{@__ key=\"component." + valueComponentLower + ".label_component\" /}--></span>\n";
-                        //li += "        <span class='pull-right-container'>\n";
                         li += "            <i class='fa fa-angle-left pull-right'></i>\n";
-                        //li += "        </span>\n";
                         li += "    </a>\n";
                         li += "    <ul class='treeview-menu'>\n";
                         li += "        <li><a href='/" + urlComponent + "'><i class='fa fa-calendar'></i> <!--{@__ key=\"global_component.agenda.menu\" /}--></a></li>\n";
                         li += "        <li id='" + urlEvent + "_menu_item' style='display:block;' class='treeview'>\n";
                         li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> <!--{@__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n";
-                        //li += "                <span class='pull-right-container'>\n";
                         li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-                        //li += "                </span>\n";
                         li += "            </a>\n";
                         li += "            <ul class='treeview-menu'>\n";
-                        li += "                <li><a href='/" + urlEvent + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity." + valueEvent + ".label_entity\" /}--></a></li>\n";
-                        li += "                <li><a href='/" + urlEvent + "/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}--> <!--{@__ key=\"entity." + valueEvent + ".plural_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlEvent + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}-->&nbsp;<!--{@__ key=\"entity." + valueEvent + ".label_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlEvent + "/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}-->&nbsp;<!--{@__ key=\"entity." + valueEvent + ".plural_entity\" /}--></a></li>\n";
                         li += "            </ul>\n";
                         li += "        </li>\n";
                         li += "        <li id='" + urlCategory + "_menu_item' style='display:block;' class='treeview'>\n";
                         li += "            <a href='#'><i class='fa fa-bookmark'></i> <!--{@__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n";
-                        //li += "                <span class='pull-right-container'>\n";
                         li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-                        //li += "                </span>\n";
                         li += "            </a>\n";
                         li += "            <ul class='treeview-menu'>\n";
-                        li += "                <li><a href='/" + urlCategory + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}--> <!--{@__ key=\"entity." + valueCategory + ".label_entity\" /}--></a></li>\n";
-                        li += "                <li><a href='/" + urlCategory + "/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}--> <!--{@__ key=\"entity." + valueCategory + ".plural_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlCategory + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}-->&nbsp;<!--{@__ key=\"entity." + valueCategory + ".label_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlCategory + "/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}-->&nbsp;<!--{@__ key=\"entity." + valueCategory + ".plural_entity\" /}--></a></li>\n";
                         li += "            </ul>\n";
                         li += "        </li>\n";
                         li += "    </ul>\n";

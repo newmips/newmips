@@ -164,7 +164,9 @@
             "menu": "Agenda",
             "add_event": "Ajouter un événement",
             "no_category": "Pas de catégorie",
-            "pending_event": "Événement(s) en attente"
+            "pending_event": "Événement(s) en attente",
+            "startHour": "Heure de début",
+            "endHour": "Heure de fin"
         },
         "print": {
             "action": "Imprimer"
