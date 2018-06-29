@@ -3,6 +3,8 @@
 //
 function handleError(error, par2, par3) {
     try {
+        if(typeof error.responseText === "string")
+            return toastr.error(error.responseText);
         var toastrAr = JSON.parse(error.responseText);
         if (toastrAr instanceof Array) {
             for (var i = 0; i < toastrAr.length; i++)
@@ -303,6 +305,8 @@ $(function() {
 
                 // Clear tab content
                 tab.find('.ajax-content').html('');
+                // Clear potential datalist buttons
+                DATALIST_BUTTONS = [];
                 // Set data-target to tab so document.delegate on a.ajax/form.ajax can use it
                 tab.data('target', data.option.target);
 
