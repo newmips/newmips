@@ -59,6 +59,8 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.passwor
     define: {
         timestamps: false
     },
+    charset: 'utf8',
+    collate: 'utf8_general_ci',
     timezone: moment_timezone.tz.guess(),
     operatorsAliases
 });
