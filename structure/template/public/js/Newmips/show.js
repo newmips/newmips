@@ -3,6 +3,8 @@
 //
 function handleError(error, par2, par3) {
     try {
+        if(typeof error.responseText === "string")
+            return toastr.error(error.responseText);
         var toastrAr = JSON.parse(error.responseText);
         if (toastrAr instanceof Array) {
             for (var i = 0; i < toastrAr.length; i++)
