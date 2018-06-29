@@ -303,6 +303,8 @@ $(function() {
 
                 // Clear tab content
                 tab.find('.ajax-content').html('');
+                // Clear potential datalist buttons
+                DATALIST_BUTTONS = [];
                 // Set data-target to tab so document.delegate on a.ajax/form.ajax can use it
                 tab.data('target', data.option.target);
 
