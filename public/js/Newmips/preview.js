@@ -387,6 +387,8 @@ $(document).ready(function() {
             }, response);
         },
         search: function() {
+            /* !important! Fix google chrome lag/crach issues */
+            $(this).data("ui-autocomplete").menu.bindings = $();
             return true;
         },
         focus: function() {
