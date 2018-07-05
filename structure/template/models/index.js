@@ -151,8 +151,6 @@ sequelize.customAfterSync = function() {
                         request += " ADD COLUMN " + attribute + " " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
                     }
 
-                    console.log(request);
-
                     (function(query, entityB, attributeB) {
                         promises.push(new Promise(function(resolve0, reject0) {
                             sequelize.query(query).then(function() {
