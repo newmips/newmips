@@ -2923,10 +2923,6 @@ exports.createWidgetLastRecords = function (attr, callback) {
                 if (err)
                     return callback(err);
 
-                console.log("COLUMNS FOUND FOR ENTITY ID : " + entity.id);
-                console.log(columns);
-                console.log("COLUMNS PROVIDED IN INSTRUCTION :");
-                console.log(attr.columns);
                 // Check for not found fields and build error message
                 if (attr.columns.length != columns.length) {
                     var notFound = [];
