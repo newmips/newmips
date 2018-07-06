@@ -980,13 +980,15 @@ exports.newStatus = function (attr, callback) {
                     // Display status as a badge instead of an input
                     // Also add next status buttons after status field
                     domHelper.read(workspacePath + '/views/' + attr.source + '/show_fields.dust').then(function ($) {
-                        var statusBadgeHtml = '<br><span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
+                        var statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
                         var nextStatusHtml = '';
-                        nextStatusHtml += '<div class="form-group">';
-                        nextStatusHtml += '{#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}';
-                        nextStatusHtml += '<a href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
-                        nextStatusHtml += '{/' + statusAlias + '.r_children}';
-                        nextStatusHtml += '</div>';
+                        nextStatusHtml += '<div class="form-group">\n';
+                        nextStatusHtml += '     {#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}\n';
+                        nextStatusHtml += '         {@checkStatusPermission status=.}\n';
+                        nextStatusHtml += '             <a href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>\n';
+                        nextStatusHtml += '         {/checkStatusPermission}\n';
+                        nextStatusHtml += '     {/' + statusAlias + '.r_children}\n';
+                        nextStatusHtml += '</div>\n';
                         $("div[data-field='" + statusAliasHTML + "']").find('input').replaceWith(statusBadgeHtml);
                         $("div[data-field='" + statusAliasHTML + "']").append(nextStatusHtml);
                         // Input used for default ordering

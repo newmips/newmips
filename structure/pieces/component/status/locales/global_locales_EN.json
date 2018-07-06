@@ -2,19 +2,21 @@
 	"component": {
 		"status": {
 			"error": {
-				"illegal_status": "This status isn't valid",
-				"action_error": "One or more actions couldn't be executed. Verify that notifications are enabled or that you have a correct mail configuration"
+				"illegal_status": "This status is not valid.",
+				"action_error": "One or more actions couldn't be executed. Verify that notifications are enabled or that you have a correct mail configuration."
 			},
 			"next_status": "Next status",
 			"available_status": "Available status",
 			"children": "Next statuses",
-			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure its status"
+			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure it."
 		}
 	},
 	"entity": {
 		"e_status": {
 			"as_r_children": "Next status",
-            "apply_default": "Apply this status to entities without status"
+            "apply_default": "Apply this status to entities without status",
+            "r_accepted_group": "Accepted group (No group means accepted for all)",
+            "f_default": "Is the default status"
 		}
 	}
 }
