@@ -909,15 +909,24 @@ exports.setFieldKnownAttribute = function (attr, callback) {
 
             // Check the attribute asked in the instruction
             if (requiredAttribute.indexOf(wordParam) != -1) {
-                structure_data_field.setRequiredAttribute(attr, function (err) {
-                    if (err)
-                        return callback(err, null);
+                // Get DB SQL type needed to Alter Column
+                db_field.getDatabaseSQLType({
+                    table: attr.id_application+"_"+attr.name_data_entity.toLowerCase(),
+                    column: attr.options.value
+                }, function(sqlDataType, sqlDataTypeLength){
+                    attr.sqlDataType = sqlDataType;
+                    attr.sqlDataTypeLength = sqlDataTypeLength;
+                    attr.dialect = sequelize.options.dialect;
+                    structure_data_field.setRequiredAttribute(attr, function (err) {
+                        if (err)
+                            return callback(err, null);
 
-                    callback(null, {
-                        message: "structure.field.attributes.successKnownAttribute",
-                        messageParams: [attr.options.showValue, attr.options.word]
-                    });
-                });
+                        callback(null, {
+                            message: "structure.field.attributes.successKnownAttribute",
+                            messageParams: [attr.options.showValue, attr.options.word]
+                        })
+                    })
+                })
             } else if (uniqueAttribute.indexOf(wordParam) != -1) {
 
                 var sourceEntity = attr.id_application + "_" + attr.name_data_entity;
