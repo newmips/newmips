@@ -17,9 +17,9 @@
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="entity.e_status.f_color"/}
             </th>
-            <th data-field="f_position" data-col="f_position" data-type="integer">
+            {! <th data-field="f_position" data-col="f_position" data-type="integer">
                 {@__ key="entity.e_status.f_position"/}
-            </th>
+            </th> !}
             <th data-field="f_default" data-col="f_default" data-type="boolean">
                 {@__ key="entity.e_status.f_default"/}
             </th>
@@ -46,9 +46,9 @@
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="entity.e_status.f_color"/}
             </th>
-            <th data-field="f_position" data-col="f_position" data-type="integer">
+            {! <th data-field="f_position" data-col="f_position" data-type="integer">
                 {@__ key="entity.e_status.f_position"/}
-            </th>
+            </th> !}
             <th data-field="f_default" data-col="f_default" data-type="boolean">
                 {@__ key="entity.e_status.f_default"/}
             </th>

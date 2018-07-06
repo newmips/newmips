@@ -2,13 +2,13 @@
 	"component": {
 		"status": {
 			"error": {
-				"illegal_status": "This status isn't valid",
-				"action_error": "Une ou plusieurs actions n'ont pas pu être éxecutée. Verifiez que les notifications sont activées et verifiez votre configuration mail"
+				"illegal_status": "Ce statut n'est pas valide.",
+				"action_error": "Une ou plusieurs actions n'ont pas pu être éxecutée. Verifiez que les notifications sont activées et verifiez votre configuration mail."
 			},
 			"next_status": "Statut suivant",
 			"available_status": "Statuts disponibles",
 			"children": "Statuts suivants",
-			"no_status_field": "Vous n'avez pas d'entité ayant un composant statut. Utilisez le générateur pour ajouter un composant statut et cette page vous permettra de configurer ces statuts"
+			"no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici."
 		}
 	},
 	"entity": {
@@ -21,7 +21,8 @@
             "f_field": "Champ",
             "f_name": "Nom",
             "f_color": "Couleur",
-            "f_default": "Défaut",
+            "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tous le monde)",
+            "f_default": "Est le statut par défaut",
             "apply_default": "Appliquer ce statut aux entités sans statut"
 		},
 		"e_translation": {
