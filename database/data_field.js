@@ -1,7 +1,7 @@
 // **** Database Generator Field ****
 var models = require('../models/');
 
-// Create new Data Field in Data Entity
+// Create new field in entity
 exports.createNewDataField = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
@@ -75,7 +75,7 @@ exports.createNewDataField = function(attr, callback) {
     }
 }
 
-//Create a foreign key in an Entity
+// Create a foreign key in an entity
 exports.createNewForeignKey = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
@@ -122,46 +122,6 @@ exports.createNewForeignKey = function(attr, callback) {
     });
 }
 
-// Delete
-exports.deleteDataField = function(attr, callback) {
-
-    if (attr.id_data_entity == null) {
-        var err = new Error();
-        err.message = "database.field.error.selectOrCreateBefore";
-        return callback(err, null);
-    }
-
-    var idEntity = attr.id_data_entity;
-    var nameField = attr.options.value;
-
-    models.DataField.destroy({
-        where: {
-            codeName: nameField,
-            id_data_entity: idEntity
-        }
-    }).then(function() {
-        var info = {};
-        info.message = "database.field.delete.deleted";
-        info.messageParams = [attr.options.showValue];
-        callback(null, info);
-    }).catch(function(err) {
-        callback(err, null);
-    });
-}
-
-exports.deleteDataFieldById = function(id, callback) {
-    models.DataField.destroy({
-        where: {
-            id: id
-        }
-    }).then(function() {
-        callback(null, true);
-    }).catch(function(err) {
-        callback(err, null);
-    });
-}
-
-// List
 exports.listDataField = function(attr, callback) {
     models.DataField.findAll({
         order: [["id", "DESC"]],
@@ -195,7 +155,6 @@ exports.listDataField = function(attr, callback) {
     });
 }
 
-// GetById
 exports.getNameDataFieldById = function(idField, callback) {
 
     models.DataField.findOne({
@@ -254,4 +213,57 @@ exports.getFieldByCodeName = function(params, callback) {
     }).catch(function(err) {
         callback(err, null);
     });
+}
+
+exports.deleteDataField = function(attr, callback) {
+
+    if (attr.id_data_entity == null) {
+        var err = new Error();
+        err.message = "database.field.error.selectOrCreateBefore";
+        return callback(err, null);
+    }
+
+    var idEntity = attr.id_data_entity;
+    var nameField = attr.options.value;
+
+    models.DataField.destroy({
+        where: {
+            codeName: nameField,
+            id_data_entity: idEntity
+        }
+    }).then(function() {
+        var info = {};
+        info.message = "database.field.delete.deleted";
+        info.messageParams = [attr.options.showValue];
+        callback(null, info);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+exports.deleteDataFieldById = function(id, callback) {
+    models.DataField.destroy({
+        where: {
+            id: id
+        }
+    }).then(function() {
+        callback(null, true);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+// Get real SQL type in DB, not sequelize datatype
+// Params:
+// {
+//     table: yourTableName,
+//     column: yourColumnName
+// }
+exports.getDatabaseSQLType = function(params, callback) {
+    var request = "SELECT DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+params.table+"' AND COLUMN_NAME = '"+params.column+"';"
+    models.sequelize.query(request, {type: models.sequelize.QueryTypes.SELECT}).then(function(result){
+        if(result.length > 0)
+            return callback(result[0].DATA_TYPE, result[0].CHARACTER_MAXIMUM_LENGTH);
+        callback(false, false)
+    })
 }

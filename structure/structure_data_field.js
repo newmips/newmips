@@ -908,8 +908,18 @@ exports.setRequiredAttribute = function (attr, callback) {
                             // becaude the required field is not given during the creation
                             if(entityCodeName != "e_user" && entityCodeName != "e_role" && entityCodeName != "e_group")
                                 attributesObj[attr.options.value].allowNull = set ? false : true;
-                            if(!attributesObj[attr.options.value].allowNull && attributesObj[attr.options.value].defaultValue == null){
-                                var defaultValue = "";
+                            // Alter column to set default value in DB if models already exist
+                            var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
+                            var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+                            if(typeof toSync.queries === "undefined")
+                                toSync.queries = [];
+
+                            var defaultValue = null;
+                            var tableName = attr.id_application+"_"+entityCodeName;
+                            var length = "";
+                            if(attr.sqlDataType == "varchar")
+                                length = "("+attr.sqlDataTypeLength+")";
+                            if(set){
                                 switch (attributesObj[attr.options.value].type) {
                                     case "STRING":
                                     case "ENUM":
@@ -935,15 +945,22 @@ exports.setRequiredAttribute = function (attr, callback) {
                                         break;
                                 }
                                 attributesObj[attr.options.value].defaultValue = defaultValue;
-
-                                // Alter column to set default value in DB if models already exist
-                                var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
-                                var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-                                if(typeof toSync.queries === "undefined")
-                                    toSync.queries = [];
-                                toSync.queries.push("ALTER TABLE `"+attr.id_application+"_"+entityCodeName+"` ALTER `"+attr.options.value+"` SET DEFAULT '"+defaultValue+"';");
-                                fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
+                                // TODO postgres
+                                if(attr.sqlDataType && attr.dialect == "mysql"){
+                                    // Update all NULL value before set not null
+                                    toSync.queries.push("UPDATE `"+tableName+"` SET `"+attr.options.value+"`='"+defaultValue+"' WHERE `"+attr.options.value+"` IS NULL;");
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` CHANGE `"+attr.options.value+"` `"+attr.options.value+"` "+attr.sqlDataType+length+" NOT NULL");
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` ALTER `"+attr.options.value+"` SET DEFAULT '"+defaultValue+"';");
+                                }
+                            } else {
+                                attributesObj[attr.options.value].defaultValue = null;
+                                // TODO postgres
+                                if(attr.sqlDataType && attr.dialect == "mysql"){
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` CHANGE `"+attr.options.value+"` `"+attr.options.value+"` "+attr.sqlDataType+length+" NULL");
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` ALTER `"+attr.options.value+"` SET DEFAULT NULL;");
+                                }
                             }
+                            fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
                             fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
                         }
                         callback();
