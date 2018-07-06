@@ -245,3 +245,11 @@ div.dataTables_length select {
 .copy-button:hover {
     background-color: #eee;
 }
+
+.icon-wrap{
+    cursor: pointer;
+}
+
+.icon-wrap:hover{
+    background: #3c8dbc;
+}
