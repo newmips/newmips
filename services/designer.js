@@ -1177,8 +1177,13 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                     "select entity " + attr.options.showTarget
                 ];
 
+                var setRequired = false;
+
                 if (optionObj.structureType == "relatedToMultiple") {
                     instructions.push("delete field " + optionObj.as.substring(2));
+                    // If related to is required, then rebuilt it required
+                    if(optionObj.allowNull === false)
+                        setRequired = true;
                 } else {
                     instructions.push("delete tab " + optionObj.as.substring(2));
                 }
@@ -1256,7 +1261,15 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     if (typeof optionObj.usingField !== "undefined")
                                         reversedAttr.options.usingField = optionObj.usingField;
                                     structure_data_field.setupRelatedToMultipleField(reversedAttr, function () {
-                                        resolve();
+                                        if(setRequired){
+                                            reversedAttr.name_data_entity = reversedAttr.options.source;
+                                            reversedAttr.options.value = "f_"+reversedAttr.options.urlAs;
+                                            reversedAttr.options.word = "required";
+                                            structure_data_field.setRequiredAttribute(reversedAttr, function () {
+                                                resolve();
+                                            });
+                                        } else
+                                            resolve();
                                     });
                                 } else {
                                     reject("Error: Unknown target type for belongsToMany generation.")
