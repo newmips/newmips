@@ -962,6 +962,17 @@ exports.setRequiredAttribute = function (attr, callback) {
                             }
                             fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
                             fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+                        } else {
+                            // If not in attributes, maybe in options
+                            var pathToOptionJson = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + entityCodeName + ".json";
+                            var optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
+                            var aliasValue = "r_"+attr.options.value.substring(2);
+                            for(var i=0; i<optionsObj.length; i++)
+                                if(optionsObj[i].as == aliasValue)
+                                    optionsObj[i].allowNull = set ? false : true;
+
+                            // Set option allowNull
+                            fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
                         }
                         callback();
                     });
