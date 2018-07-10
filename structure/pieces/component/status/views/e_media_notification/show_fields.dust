@@ -1,5 +1,5 @@
 <div id="fields" class="row">
-    <div data-field="f_title" class="col-xs-12">
+    <div data-field="f_title" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_title">
                 {@__ key="entity.e_media_notification.f_title"/}
@@ -8,7 +8,7 @@
             <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
         </div>
     </div>
-    <div data-field="f_description" class="col-xs-12">
+    <div data-field="f_description" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_description">
                 {@__ key="entity.e_media_notification.f_description"/}
@@ -27,7 +27,7 @@
             <i class="fa fa-2x {f_icon}"></i>
         </div>
     </div>
-    <div data-field="f_color" class="col-xs-12">
+    <div data-field="f_color" class="col-xs-12 col-sm-4">
         <div class="form-group">
             <label for="f_color">
                 {@__ key="entity.e_media_notification.f_color"/}
@@ -36,32 +36,32 @@
             <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
         </div>
     </div>
-    <div data-field="f_target_groups" class="col-xs-12">
+    <div data-field="f_target_groups" class="col-xs-12 col-sm-4">
         <div class="form-group">
             <label for="f_target_groups">{@__ key="entity.e_media_notification.r_target_groups" /}</label>
             <select multiple="" class="form-control" name="r_target_groups" disabled="" readonly="">
-     {#r_target_groups_global_list}
-         {@inArray field="id" array=e_media.r_media_notification.r_target_groups value=id}
-             <option value="{f_label|string}" selected="">{f_label|string}</option>
-         {:else}
-             <option value="{f_label|string}">{f_label|string}</option>
-         {/inArray}
-     {/r_target_groups_global_list}
-</select>
+                {#r_target_groups_global_list}
+                {@inArray field="id" array=e_media.r_media_notification.r_target_groups value=id}
+                <option value="{f_label|string}" selected="">{f_label|string}</option>
+                {:else}
+                <option value="{f_label|string}">{f_label|string}</option>
+                {/inArray}
+                {/r_target_groups_global_list}
+            </select>
         </div>
     </div>
-    <div data-field="f_target_users" class="col-xs-12">
+    <div data-field="f_target_users" class="col-xs-12 col-sm-4">
         <div class="form-group">
             <label for="f_target_users">{@__ key="entity.e_media_notification.r_target_users" /}</label>
             <select multiple="" class="form-control" name="r_target_users" disabled="" readonly="">
-     {#r_target_users_global_list}
-         {@inArray field="id" array=e_media.r_media_notification.r_target_users value=id}
-             <option value="{f_login|string}" selected="">{f_login|string}</option>
-         {:else}
-             <option value="{f_login|string}">{f_login|string}</option>
-         {/inArray}
-     {/r_target_users_global_list}
-</select>
+                {#r_target_users_global_list}
+                {@inArray field="id" array=e_media.r_media_notification.r_target_users value=id}
+                <option value="{f_login|string}" selected="">{f_login|string}</option>
+                {:else}
+                <option value="{f_login|string}">{f_login|string}</option>
+                {/inArray}
+                {/r_target_users_global_list}
+            </select>
         </div>
     </div>
 </div>
@@ -70,29 +70,29 @@
         <div class="quicklinks">
             <span>
                 <button class="btn btn-danger">
-                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.delete"/}</span>
-            </button>
-            <input name="id" type="hidden" value="{r_media_notification.id}" class="form-control">
+                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                <span>{@__ key="button.delete"/}</span>
+                </button>
+                <input name="id" type="hidden" value="{r_media_notification.id}" class="form-control">
             </span>
             <span>
                 <a href="/media/update_form?id={r_media_notification.id}" class="btn btn-warning">
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
                     <span>{@__ key="button.update"/}</span>
-            </a>
+                </a>
             </span>
             {^hideButton}
             <span>
-                    <a href="/media/create_form" class="btn btn-success">
-                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                        <span>{@__ key="button.create"/}</span>
-            </a>
+                <a href="/media/create_form" class="btn btn-success">
+                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.create"/}</span>
+                </a>
             </span>
             <span>
-                    <a href="/media/list" type="submit" class="btn btn-primary">
-                        <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
-                        <span>{@__ key="button.list"/}</span>
-            </a>
+                <a href="/media/list" type="submit" class="btn btn-primary">
+                    <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                    <span>{@__ key="button.list"/}</span>
+                </a>
             </span>
             {/hideButton}
         </div>

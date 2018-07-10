@@ -95,7 +95,8 @@
 					<h4 class="modal-title" id="myModalLabel">Créer un évenement</h4>
 				</div>
 				<div class="modal-body">
-					<input type="hidden" id="modalCreateStartDate" />
+					<input type="hidden" id="modalCreateStartDate" >
+					<input type="hidden" id="modalCreateUser" >
 					<select style="width: 100%;" class="form-control selectCategoryColor" id="modalCreateCategory">
 						<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
 						{#categories}
@@ -103,14 +104,28 @@
 						{/categories}
 					</select>
 					<div style="margin-top: 10px;width: 100%;" class="input-group">
-						<input type="text" id="modalCreateTitle" placeholder='{@__ key="entity.e_agenda_event.f_title"/}' class="form-control" autofocus/>
+						<input type="text" id="modalCreateTitle" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control" autofocus/>
 					</div>
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<label>{@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
+						<input class='form-control input' id="createEventAllDayCheckbox" type='checkbox'>
+                	</div>
+					<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<label>{@__ key="global_component.agenda.startHour"/}</label>
                 		<div class='input-group'>
                 			<div class='input-group-addon'>
                 				<i class='fa fa-clock-o'></i>
                 			</div>
                 			<input class='form-control input timepicker' id="modalCreateStartTime" type='text' />
+                		</div>
+                	</div>
+                	<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<label>{@__ key="global_component.agenda.endHour"/}</label>
+                		<div class='input-group'>
+                			<div class='input-group-addon'>
+                				<i class='fa fa-clock-o'></i>
+                			</div>
+                			<input class='form-control input timepicker' id="modalCreateEndTime" type='text' />
                 		</div>
                 	</div>
 				</div>
@@ -138,14 +153,28 @@
 						{/categories}
 					</select>
 					<div style="margin-top: 10px;width: 100%;" class="input-group">
-						<input type="text" id="modalUpdateTitle" placeholder='{@__ key="entity.e_agenda_event.f_title"/}' class="form-control" autofocus/>
+						<input type="text" id="modalUpdateTitle" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control" autofocus/>
 					</div>
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<label>{@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
+						<input class='form-control input' id="updateEventAllDayCheckbox" type='checkbox'>
+                	</div>
+                	<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<label>{@__ key="global_component.agenda.startHour"/}</label>
                 		<div class='input-group'>
                 			<div class='input-group-addon'>
                 				<i class='fa fa-clock-o'></i>
                 			</div>
                 			<input class='form-control input timepicker' id="modalUpdateStartTime" type='text' />
+                		</div>
+                	</div>
+                	<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<label>{@__ key="global_component.agenda.endHour"/}</label>
+                		<div class='input-group'>
+                			<div class='input-group-addon'>
+                				<i class='fa fa-clock-o'></i>
+                			</div>
+                			<input class='form-control input timepicker' id="modalUpdateEndTime" type='text' />
                 		</div>
                 	</div>
 				</div>
@@ -171,7 +200,7 @@
 		{#.ressourceIds}
 			<script>resourceIdsArray.push({.})</script>
 		{/.ressourceIds}
-		<script>calendarEvents.push({eventId:{eventId}, title: "{title}", start: moment.utc("{start}").format("YYYY-MM-DD HH:mm:ss"), end: moment.utc("{end}").format("YYYY-MM-DD HH:mm:ss"), allDay:"{allDay}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", resourceIds: resourceIdsArray});</script>
+		<script>calendarEvents.push({eventId:{eventId}, title: "{title}", start: moment.utc("{start}").format("YYYY-MM-DD HH:mm:ss"), end: moment.utc("{end}").format("YYYY-MM-DD HH:mm:ss"), allDay:"{allDay}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", idCategory: "{idCategory}", resourceIds: resourceIdsArray});</script>
 	{/events}
 	<script>var usersRessources = [];</script>
 	{#users}
@@ -304,7 +333,6 @@
 					});
 		        },
 		        eventDrop: function(event){
-
 		        	/* Convert into good SQL format */
 		        	var startDate = moment.utc(event.start).format("YYYY-MM-DD HH:mm:ss");
         			if(event.end == null)
@@ -335,14 +363,35 @@
 					$("#modalUpdateEventID").val(calEvent.eventId);
 					$("#modalUpdateID").val(calEvent._id);
 					$("#modalUpdateTitle").val(calEvent.title);
-					$("#modalUpdateStartTime").val(moment(calEvent.start).format("HH:mm"));
-					if(calEvent.categoryId != 0)
-						$("#modalUpdateCategory").val(calEvent.categoryId).trigger("change");
+					if(calEvent.allDay){
+						$('#updateEventAllDayCheckbox').iCheck('check');
+					} else {
+						$('#updateEventAllDayCheckbox').iCheck('uncheck');
+						$("#modalUpdateStartTime").val(moment(calEvent.start).format("HH:mm"));
+						$("#modalUpdateEndTime").val(moment(calEvent.end).format("HH:mm"));
+					}
+					if(calEvent.idCategory != 0)
+						$("#modalUpdateCategory").val(calEvent.idCategory).trigger("change");
 					$('#eventUpdateModal').modal('show');
 				},
-				dayClick: function(date, jsEvent, view) {
+				dayClick: function(date, jsEvent, view, ressources) {
 					$("#modalCreateStartDate").val(date._d);
+					/* Get the start hours when the user clicked in the calendar */
 					$("#modalCreateStartTime").val(moment.utc(date._d).format("HH:mm"));
+					/* Add 4 hours to default end time in create modal */
+					$("#modalCreateEndTime").val(moment.utc(date._d).add(4, "hours").format("HH:mm"));
+
+					$("#modalCreateUser").val(null);
+					if(typeof ressources !== "undefined"){
+						$("#modalCreateUser").val(ressources.id)
+					}
+
+					if($("#modalCreateStartTime").val() == "00:00"){
+						/* If start date is 00:00 then we considered that the event is all day, so check allDay checkbox */
+						$('#createEventAllDayCheckbox').iCheck('check');
+					} else{
+						$('#createEventAllDayCheckbox').iCheck('uncheck');
+					}
 					$("#modalCreateTitle").val("");
 					$("#modalCreateCategory").val("").trigger("change");
 					$('#eventCreateModal').modal('show');
@@ -350,6 +399,30 @@
 		        resourceLabelText: ressourceName,
 				resources: usersRessources,
 				events: calendarEvents
+			});
+
+			/* Create event modal, all day checkbox managment */
+			$(document).on("ifChanged", "#createEventAllDayCheckbox", function(){
+				/* Disable start & end timepicker depend allDay checkbox state */
+				if($(this).iCheck('update')[0].checked){
+					$("#modalCreateStartTime").prop("disabled", true);
+					$("#modalCreateEndTime").prop("disabled", true);
+				} else {
+					$("#modalCreateStartTime").prop("disabled", false);
+					$("#modalCreateEndTime").prop("disabled", false);
+				}
+			});
+
+			/* Update event modal, all day checkbox managment */
+			$(document).on("ifChanged", "#updateEventAllDayCheckbox", function(){
+				/* Disable start & end timepicker depend allDay checkbox state */
+				if($(this).iCheck('update')[0].checked){
+					$("#modalUpdateStartTime").prop("disabled", true);
+					$("#modalUpdateEndTime").prop("disabled", true);
+				} else {
+					$("#modalUpdateStartTime").prop("disabled", false);
+					$("#modalUpdateEndTime").prop("disabled", false);
+				}
 			});
 
 			$(document).on("click", "#deleteEvent", function(){
@@ -373,32 +446,49 @@
 			});
 
 			$(document).on("click", "#updateEvent", function(){
-				var idEventToDelete = $("#modalUpdateEventID").val();
+				var idEventToUpdate = $("#modalUpdateEventID").val();
 				var idEventCalendarToDelete = $("#modalUpdateID").val();
 
 				var newTitle = $("#modalUpdateTitle").val();
 				var newCategory = $("#modalUpdateCategory").val();
 				var newCategoryColor = $("#modalUpdateCategory").find("option:selected").data("backgroundcolor");
+				var allDay = $("#updateEventAllDayCheckbox").iCheck('update')[0].checked ? true : false;
 
 				var eventObj = $("#calendar").fullCalendar('clientEvents', idEventCalendarToDelete);
 
 				var startDate = eventObj[0].start.format("YYYY-MM-DD HH:mm:ss").split(" ");
-				var chosenTime = moment($("#modalUpdateStartTime").val(), "HH:mm").format("HH:mm");
-				var newStartDate = startDate[0]+ " " + chosenTime + ":00";
+				var chosenTimeStart = moment($("#modalUpdateStartTime").val(), "HH:mm").format("HH:mm");
+				var chosenTimeEnd = moment($("#modalUpdateEndTime").val(), "HH:mm").format("HH:mm");
+				var newStartDate = startDate[0]+ " " + chosenTimeStart + ":00";
+				var newEndDate = startDate[0]+ " " + chosenTimeEnd + ":00";
+
+				if(!allDay && moment(newStartDate).diff(newEndDate) >= 0){
+					toastr.error("Cannot set end date same or before start date !");
+					return false;
+				}
 
 				$.ajax({
 					url : '/URL_ROUTE/update_event',
 					type : 'POST',
-					data : JSON.stringify({id: idEventToDelete, f_title: newTitle, f_start_date:newStartDate, r_category: newCategory}),
-					dataType : 'json',
-					contentType: "application/json",
+					data : {
+						id: idEventToUpdate,
+						f_title: newTitle,
+						f_all_day: allDay,
+						f_start_date: allDay ? startDate[0]+ " 00:00:00" : newStartDate,
+						f_end_date: allDay ? startDate[0]+ " 00:00:00" : newEndDate,
+						r_category: newCategory
+					},
 					context: this,
 					success: function (data) {
-						eventObj[0].start = moment.utc(newStartDate);
+						eventObj[0].allDay = allDay;
+						eventObj[0].start = allDay ? moment.utc(startDate[0]+ " 00:00:00") : moment.utc(newStartDate);
 						eventObj[0].title = newTitle;
-						eventObj[0].categoryId = newCategory;
+						eventObj[0].idCategory = newCategory;
 						eventObj[0].backgroundColor = newCategoryColor;
 						eventObj[0].borderColor = newCategoryColor;
+						$('#calendar').fullCalendar('updateEvent', eventObj[0]);
+						/* Little trick to set end date */
+						eventObj[0].end = allDay ? moment.utc(startDate[0]+ " 00:00:00") : moment.utc(newEndDate);
 						$('#calendar').fullCalendar('updateEvent', eventObj[0]);
 						$('#calendar').fullCalendar("refetchEvents");
 						$('#eventUpdateModal').modal('hide');
@@ -414,17 +504,31 @@
 				var newTitle = $("#modalCreateTitle").val();
 				var newCategory = $("#modalCreateCategory").val();
 				var newCategoryColor = $("#modalCreateCategory").find("option:selected").data("backgroundcolor");
+				var allDay = $("#createEventAllDayCheckbox").iCheck('update')[0].checked ? true : false;
 
 				var startDate = moment($("#modalCreateStartDate").val()).format("YYYY-MM-DD HH:mm:ss").split(" ");
-				var chosenTime = moment($("#modalCreateStartTime").val(), "HH:mm").format("HH:mm");
-				var newStartDate = startDate[0]+ " " + chosenTime + ":00";
+				var chosenTimeStart = moment($("#modalCreateStartTime").val(), "HH:mm").format("HH:mm");
+				var chosenTimeEnd = moment($("#modalCreateEndTime").val(), "HH:mm").format("HH:mm");
+				var newStartDate = startDate[0]+ " " + chosenTimeStart + ":00";
+				var newEndDate = startDate[0]+ " " + chosenTimeEnd + ":00";
+
+				var idUser = null;
+				if($("#modalCreateUser").val() != null && $("#modalCreateUser").val() != ""){
+					idUser = $("#modalCreateUser").val();
+				}
+
+				if(!allDay && moment(newStartDate).diff(newEndDate) >= 0){
+					toastr.error("Cannot set end date same or before start date !");
+					return false;
+				}
 
 				var ajaxData = {
 					title: newTitle,
-					start: newStartDate,
-					end: newStartDate,
-					allday: 0,
-					idCategory: newCategory || null
+					start: allDay ? startDate[0]+ " 00:00:00" : newStartDate,
+					end: allDay ? startDate[0]+ " 00:00:00" : newEndDate,
+					allday: allDay,
+					idCategory: newCategory || null,
+					idUser: idUser
 				};
 
 				$.ajax({
@@ -435,9 +539,10 @@
 					contentType: "application/json",
 					context: this,
 					success: function (data) {
-
-						var newEvent = {eventId: data.idEvent, title: newTitle, start: newStartDate, allday: false, backgroundColor: newCategoryColor, borderColor: newCategoryColor, idCategory: ajaxData.idCategory};
-						$('#calendar').fullCalendar( 'renderEvent', newEvent, true);
+						var newEvent = {eventId: data.idEvent, title: newTitle, start: newStartDate, end: newEndDate,
+							allDay: allDay, backgroundColor: newCategoryColor, borderColor: newCategoryColor,
+							idCategory: ajaxData.idCategory, resourceId: idUser};
+						$('#calendar').fullCalendar('renderEvent', newEvent, true);
 						$('#eventCreateModal').modal('hide');
 					},
 					error: function (error) {

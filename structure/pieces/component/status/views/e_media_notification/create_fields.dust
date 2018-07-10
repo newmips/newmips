@@ -1,5 +1,5 @@
 <div id="fields" class="row">
-    <div data-field="f_title" class="col-xs-12">
+    <div data-field="f_title" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_title">
                 {@__ key="entity.e_media_notification.f_title"/}
@@ -8,7 +8,7 @@
             <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_title" /}' name="f_title" value="" type="text">
         </div>
     </div>
-    <div data-field="f_description" class="col-xs-12">
+    <div data-field="f_description" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_description">
                 {@__ key="entity.e_media_notification.f_description"/}
@@ -39,7 +39,7 @@
             </div>
         </div>
     </div>
-    <div data-field="f_color" class="col-xs-12">
+    <div data-field="f_color" class="col-xs-12 col-sm-4">
         <div class="form-group">
             <label for="f_color">
                 {@__ key="entity.e_media_notification.f_color"/}
@@ -48,20 +48,20 @@
             <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_color" /}' name="f_color" value="#000000" type="color">
         </div>
     </div>
-    <div data-field="f_target_groups" class="col-xs-12">
+    <div data-field="f_target_groups" class="col-xs-12 col-sm-4">
         <div class="form-group">
-            <label for="f_target_groups">{@__ key="entity.e_media_notification.r_target_groups" /}</label>
-            <select multiple="" class="form-control" name="r_target_groups">
+            <label for="f_target_groups">{@__ key="entity.e_media_notification.r_target_groups" /}</label><br>
+            <select style="width: 100%;" multiple="" class="form-control" name="r_target_groups">
                 {#r_target_groups}
                 <option value="{id}">{f_label|string}</option>
                 {/r_target_groups}
             </select>
         </div>
     </div>
-    <div data-field="f_target_users" class="col-xs-12">
+    <div data-field="f_target_users" class="col-xs-12 col-sm-4">
         <div class="form-group">
-            <label for="f_target_users">{@__ key="entity.e_media_notification.r_target_users" /}</label>
-            <select multiple="" class="form-control" name="r_target_users">
+            <label for="f_target_users">{@__ key="entity.e_media_notification.r_target_users" /}</label><br>
+            <select style="width: 100%;" multiple="" class="form-control" name="r_target_users">
                 {#r_target_users}
                 <option value="{id}">{f_login|string}</option>
                 {/r_target_users}
@@ -69,7 +69,6 @@
         </div>
     </div>
 </div>
-
 <script type="text/javascript">
     $(function() {
         var icons = "{icon_list}".split(',');
@@ -105,14 +104,14 @@
                     $("#icons").append('<div class="icon-wrap col-xs-12">'+(lang_user == 'fr-FR' ? 'Aucun résultat' : 'No results...')+'</div>');
             });
         /* Icon selected (clicked) */
-        $(document).delegate('.icon-selection', 'click', function() {
+        $(document).on('click', '.icon-wrap', function() {
             $(".icon-selection").each(function() {
                 $(this).parent().removeClass('label-primary');
             });
-            $(this).parent().addClass('label-primary');
+            $(this).addClass('label-primary');
             $("#current-icon").removeClass();
-            $("#current-icon").addClass('fa fa-2x '+$(this).data('awesome'));
-            $("input[name=f_icon]").val($(this).data('awesome'));
+            $("#current-icon").addClass('fa fa-2x '+$(this).find(".icon-selection").data('awesome'));
+            $("input[name=f_icon]").val($(this).find(".icon-selection").data('awesome'));
         });
     });
 </script>

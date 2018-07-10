@@ -909,15 +909,24 @@ exports.setFieldKnownAttribute = function (attr, callback) {
 
             // Check the attribute asked in the instruction
             if (requiredAttribute.indexOf(wordParam) != -1) {
-                structure_data_field.setRequiredAttribute(attr, function (err) {
-                    if (err)
-                        return callback(err, null);
+                // Get DB SQL type needed to Alter Column
+                db_field.getDatabaseSQLType({
+                    table: attr.id_application+"_"+attr.name_data_entity.toLowerCase(),
+                    column: attr.options.value
+                }, function(sqlDataType, sqlDataTypeLength){
+                    attr.sqlDataType = sqlDataType;
+                    attr.sqlDataTypeLength = sqlDataTypeLength;
+                    attr.dialect = sequelize.options.dialect;
+                    structure_data_field.setRequiredAttribute(attr, function (err) {
+                        if (err)
+                            return callback(err, null);
 
-                    callback(null, {
-                        message: "structure.field.attributes.successKnownAttribute",
-                        messageParams: [attr.options.showValue, attr.options.word]
-                    });
-                });
+                        callback(null, {
+                            message: "structure.field.attributes.successKnownAttribute",
+                            messageParams: [attr.options.showValue, attr.options.word]
+                        })
+                    })
+                })
             } else if (uniqueAttribute.indexOf(wordParam) != -1) {
 
                 var sourceEntity = attr.id_application + "_" + attr.name_data_entity;
@@ -1168,8 +1177,13 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                     "select entity " + attr.options.showTarget
                 ];
 
+                var setRequired = false;
+
                 if (optionObj.structureType == "relatedToMultiple") {
                     instructions.push("delete field " + optionObj.as.substring(2));
+                    // If related to is required, then rebuilt it required
+                    if(optionObj.allowNull === false)
+                        setRequired = true;
                 } else {
                     instructions.push("delete tab " + optionObj.as.substring(2));
                 }
@@ -1247,7 +1261,15 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     if (typeof optionObj.usingField !== "undefined")
                                         reversedAttr.options.usingField = optionObj.usingField;
                                     structure_data_field.setupRelatedToMultipleField(reversedAttr, function () {
-                                        resolve();
+                                        if(setRequired){
+                                            reversedAttr.name_data_entity = reversedAttr.options.source;
+                                            reversedAttr.options.value = "f_"+reversedAttr.options.urlAs;
+                                            reversedAttr.options.word = "required";
+                                            structure_data_field.setRequiredAttribute(reversedAttr, function () {
+                                                resolve();
+                                            });
+                                        } else
+                                            resolve();
                                     });
                                 } else {
                                     reject("Error: Unknown target type for belongsToMany generation.")
@@ -2923,10 +2945,6 @@ exports.createWidgetLastRecords = function (attr, callback) {
                 if (err)
                     return callback(err);
 
-                console.log("COLUMNS FOUND FOR ENTITY ID : " + entity.id);
-                console.log(columns);
-                console.log("COLUMNS PROVIDED IN INSTRUCTION :");
-                console.log(attr.columns);
                 // Check for not found fields and build error message
                 if (attr.columns.length != columns.length) {
                     var notFound = [];

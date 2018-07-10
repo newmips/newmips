@@ -2,6 +2,8 @@ var models = require('../models/');
 var entity_helper = require('./entity_helper');
 
 module.exports = function (modelName, params, speInclude, speWhere) {
+
+    // speWhere param example: [{field: value}]
     return new Promise(function (resolve, reject) {
         var start = 1,
                 length = 10,
@@ -16,8 +18,11 @@ module.exports = function (modelName, params, speInclude, speWhere) {
         length = parseInt(length);
 
         var searchType = "$or";
-        if (params.search.value == "")
+        var isGlobalSearch = true;
+        if (params.search.value == ""){
             searchType = "$and";
+            isGlobalSearch = false;
+        }
 
         // Building where values -> {$and: [{id: 'id'}, {name: {$like: '%jero%'}}]};
         var search = {};
@@ -77,35 +82,53 @@ module.exports = function (modelName, params, speInclude, speWhere) {
                             $like: '%' + params.search.value + '%'
                         };
                         search[searchType].push(orRow);
-                    } else
+                    } else{
+                        column.search.value = params.search.value;
                         updateInclude(column);
+                    }
                 }
             }
         }
 
         function updateInclude(column) {
             var partOfColumn = column.data.split('.');
-            //partOfColumn[0] is a first relation include to find
+            // partOfColumn[0] is a first relation include to find
             var include = entity_helper.find_include(speInclude, 'as', partOfColumn[0]);
             for (var j = 1; j < partOfColumn.length - 1; j++) {
                 if (include.include) {
-                    //choose the good next include if many
+                    // Choose the good next include if many
                     var relation = partOfColumn[j];
                     var include = entity_helper.find_include(include.include, 'as', relation);
-                    //update true objet
-                    include.required = true;
+                    // Update true objet
+                    // No required in include for a global search
+                    if(isGlobalSearch)
+                        include.required = false;
+                    else
+                        include.required = true;
                 }
             }
-            //now set where option on field
-            //the last value of partOfColumn is the field value
+            // Now set where option on field
+            // The last value of partOfColumn is the field value
             var field = partOfColumn[partOfColumn.length - 1];
-            //set required for innerJoin
-            include.required = true;
-            if (!include.where)
-                include.where = {};
-            include.where[field] = {
-                $like: '%' + column.search.value + '%'
-            };
+            // Set required for innerJoin
+            if(isGlobalSearch){
+                // No required in include for a global search
+                include.required = false;
+                // The where condition in global search need to be in the first where
+                // With $$ you can add condition on include attribute
+                orRow['$'+include.as+'.'+field+'$'] = {
+                    $like: '%' + params.search.value + '%'
+                };
+                search[searchType].push(orRow);
+            } else {
+                include.required = true;
+                if (!include.where)
+                    include.where = {};
+
+                include.where[field] = {
+                    $like: '%' + column.search.value + '%'
+                };
+            }
         }
 
         // Defining order by

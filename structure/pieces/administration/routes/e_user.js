@@ -11,7 +11,11 @@ var options = require('../models/options/e_user');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var component_helper = require('../utils/component_helper');
 var globalConfig = require('../config/global');
+var fs = require('fs-extra');
+var dust = require('dustjs-linkedin');
+var SELECT_PAGE_SIZE = 10;
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -111,6 +115,59 @@ router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), fu
         console.log(err);
         logger.debug(err);
         res.end();
+    });
+});
+
+router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"), function (req, res) {
+    var start = parseInt(req.body.start || 0);
+    var length = parseInt(req.body.length || 10);
+
+    var sourceId = req.query.sourceId;
+    var subentityAlias = req.query.subentityAlias;
+    var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
+    var doPagination = req.query.paginate;
+
+    var queryAttributes = [];
+    for (var i = 0; i < req.body.columns.length; i++)
+        if (req.body.columns[i].searchable == 'true')
+            queryAttributes.push(req.body.columns[i].data);
+
+    var include = {
+        model: models[subentityModel],
+        as: subentityAlias,
+        include: {all: true}
+    }
+    if (doPagination == "true") {
+        include.limit = length;
+        include.offset = start;
+    }
+
+    models.E_user.findOne({
+        where: {id: parseInt(sourceId)},
+        include: include
+    }).then(function (e_user) {
+        if (!e_user['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
+            console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
+            return res.status(500).end();
+        }
+
+        e_user['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function (count) {
+            var rawData = {
+                recordsTotal: count,
+                recordsFiltered: count,
+                data: []
+            };
+            for (var i = 0; i < e_user[subentityAlias].length; i++)
+                rawData.data.push(e_user[subentityAlias][i].get({plain: true}));
+
+            entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function (preparedData) {
+                res.send(preparedData).end();
+            }).catch(function (err) {
+                console.log(err);
+                logger.debug(err);
+                res.end();
+            });
+        });
     });
 });
 
@@ -355,6 +412,144 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
     });
 });
 
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'read'), function (req, res) {
+    var alias = req.params.alias;
+    var id = req.params.id;
+
+    // Find tab option
+    var option;
+    for (var i = 0; i < options.length; i++)
+        if (options[i].as == req.params.alias) {
+            option = options[i];
+            break;
+        }
+    if (!option)
+        return res.status(404).end();
+
+    // Check access rights to subentity
+    if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
+        return res.status(403).end();
+
+    var queryOpts = {where: {id: id}};
+    // If hasMany, no need to include anything since it will be fetched using /subdatalist
+    if (option.structureType != 'hasMany')
+        queryOpts.include = {
+            model: models[entity_helper.capitalizeFirstLetter(option.target)],
+            as: option.as,
+            include: {all: true}
+        }
+
+    // Fetch tab data
+    models.E_user.findOne(queryOpts).then(function (e_user) {
+        if (!e_user)
+            return res.status(404).end();
+
+        var dustData = e_user[option.as] || null;
+        var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
+        var dustFile, idSubentity, promisesData = [];
+
+        // Build tab specific variables
+        switch (option.structureType) {
+            case 'hasOne':
+                if (!empty) {
+                    idSubentity = dustData.id;
+                    dustData.hideTab = true;
+                    dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
+                    promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
+                    var subentityOptions = require('../models/options/' + option.target);
+                    // Fetch status children to be able to switch status
+                    // Apply getR_children() on each current status
+                    var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
+                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    for (var i = 0; i < subentityOptions.length; i++)
+                        if (subentityOptions[i].target.indexOf('e_status') == 0)
+                            (function (alias) {
+                                promisesData.push(new Promise(function (resolve, reject) {
+                                    dustData[alias].getR_children().then(function (children) {
+                                        dustData[alias].r_children = children;
+                                        resolve();
+                                    });
+                                }));
+                            })(subentityOptions[i].as);
+                }
+                dustFile = option.target + '/show_fields';
+                break;
+
+            case 'hasMany':
+                dustFile = option.target + '/list_fields';
+                // Status history specific behavior. Replace history_model by history_table to open view
+                if (option.target.indexOf('e_history_e_') == 0)
+                    option.noCreateBtn = true;
+                dustData = {for : 'hasMany'};
+                if (typeof req.query.associationFlag !== 'undefined')
+                {
+                    dustData.associationFlag = req.query.associationFlag;
+                    dustData.associationSource = req.query.associationSource;
+                    dustData.associationForeignKey = req.query.associationForeignKey;
+                    dustData.associationAlias = req.query.associationAlias;
+                    dustData.associationUrl = req.query.associationUrl;
+                }
+                break;
+
+            case 'hasManyPreset':
+                dustFile = option.target + '/list_fields';
+                var obj = {};
+                obj[option.target] = dustData;
+                dustData = obj;
+                if (typeof req.query.associationFlag !== 'undefined')
+                {
+                    dustData.associationFlag = req.query.associationFlag;
+                    dustData.associationSource = req.query.associationSource;
+                    dustData.associationForeignKey = req.query.associationForeignKey;
+                    dustData.associationAlias = req.query.associationAlias;
+                    dustData.associationUrl = req.query.associationUrl;
+                }
+                dustData.for = 'fieldset';
+                for (var i = 0; i < dustData[option.target].length; i++)
+                    promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
+
+                break;
+
+            case 'localfilestorage':
+                dustFile = option.target + '/list_fields';
+                var obj = {};
+                obj[option.target] = dustData;
+                dustData = obj;
+                dustData.sourceId = id;
+                break;
+
+            default:
+                return res.status(500).end();
+        }
+
+        // Image buffer promise
+        Promise.all(promisesData).then(function () {
+            // Open and render dust file
+            var file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+            dust.renderSource(file, dustData || {}, function (err, rendered) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end();
+                }
+
+                // Send response to ajax request
+                res.json({
+                    content: rendered,
+                    data: idSubentity || {},
+                    empty: empty,
+                    option: option
+                });
+            });
+        }).catch(function (err) {
+            console.error(err);
+            res.status(500).send(err);
+        });
+    }).catch(function (err) {
+        console.error(err);
+        res.status(500).send(err);
+    });
+});
+
 router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
     var historyModel = 'E_history_e_user_'+req.params.status;
     var historyAlias = 'r_history_'+req.params.status.substring(2);
@@ -523,7 +718,6 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
     });
 });
 
-var SELECT_PAGE_SIZE = 10
 router.post('/search', block_access.actionAccessMiddleware('user', 'read'), function (req, res) {
     var search = '%' + (req.body.search || '') + '%';
     var limit = SELECT_PAGE_SIZE;
@@ -557,7 +751,6 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 
     where.offset = offset;
     where.limit = limit;
-    console.log(where);
     where.include = [{model: models.E_role, as:'r_role'}, {model: models.E_group, as: 'r_group'}];
     models.E_user.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
@@ -567,7 +760,6 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
         res.status(500).json(e);
     });
 });
-
 
 router.get('/settings', block_access.isLoggedIn, function(req, res) {
     var id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
