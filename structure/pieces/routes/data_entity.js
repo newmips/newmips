@@ -23,7 +23,7 @@ var enums_radios = require('../utils/enum_radio.js');
 // Winston logger
 var logger = require('../utils/logger');
 
-router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
+router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
     var data = {
         "menu": "ENTITY_NAME",
         "sub_menu": "list_ENTITY_NAME"
@@ -35,26 +35,26 @@ router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     res.render('ENTITY_NAME/list', data);
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
+router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("MODEL_NAME", req.body, include).then(function (rawData) {
-        entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(function (preparedData) {
+    filterDataTable("MODEL_NAME", req.body, include).then(function(rawData) {
+        entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(function(preparedData) {
             res.send(preparedData).end();
-        }).catch(function (err) {
+        }).catch(function(err) {
             console.log(err);
             logger.debug(err);
             res.end();
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         console.log(err);
         logger.debug(err);
         res.end();
     });
 });
 
-router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
+router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
     var start = parseInt(req.body.start || 0);
     var length = parseInt(req.body.length || 10);
 
@@ -71,7 +71,9 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     var include = {
         model: models[subentityModel],
         as: subentityAlias,
-        include: {all: true}
+        include: {
+            all: true
+        }
     }
     if (doPagination == "true") {
         include.limit = length;
@@ -79,26 +81,30 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     }
 
     models.MODEL_NAME.findOne({
-        where: {id: parseInt(sourceId)},
+        where: {
+            id: parseInt(sourceId)
+        },
         include: include
-    }).then(function (ENTITY_NAME) {
+    }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
             console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
             return res.status(500).end();
         }
 
-        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function (count) {
+        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
             var rawData = {
                 recordsTotal: count,
                 recordsFiltered: count,
                 data: []
             };
             for (var i = 0; i < ENTITY_NAME[subentityAlias].length; i++)
-                rawData.data.push(ENTITY_NAME[subentityAlias][i].get({plain: true}));
+                rawData.data.push(ENTITY_NAME[subentityAlias][i].get({
+                    plain: true
+                }));
 
-            entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function (preparedData) {
+            entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
                 res.send(preparedData).end();
-            }).catch(function (err) {
+            }).catch(function(err) {
                 console.log(err);
                 logger.debug(err);
                 res.end();
@@ -107,7 +113,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     });
 });
 
-router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function (req, res) {
+router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
     var id_ENTITY_NAME = req.query.id;
     var tab = req.query.tab;
     var data = {
@@ -121,7 +127,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
 
-    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function (ENTITY_NAME) {
+    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -131,24 +137,24 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         /* Update local ENTITY_NAME data before show */
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function () {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
             entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
             data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
             // Get association data that needed to be load directly here (loadOnStart param in options).
-            entity_helper.getLoadOnStartData(data, options).then(function(data){
+            entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('ENTITY_NAME/show', data);
-            }).catch(function(err){
+            }).catch(function(err) {
                 entity_helper.error500(err, req, res, "/");
             })
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, "/");
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function(req, res) {
     var data = {
         menu: "ENTITY_NAME",
         sub_menu: "create_ENTITY_NAME",
@@ -164,31 +170,35 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
     }
 
     // Get association data that needed to be load directly here (loadOnStart param in options).
-    entity_helper.getLoadOnStartData(data, options).then(function(data){
+    entity_helper.getLoadOnStartData(data, options).then(function(data) {
         var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
         res.render(view, data);
-    }).catch(function(err){
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/bb/create_form');
     })
 });
 
-router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function(req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-    models.MODEL_NAME.create(createObject).then(function (ENTITY_NAME) {
+    models.MODEL_NAME.create(createObject).then(function(ENTITY_NAME) {
         var redirect = '/ENTITY_URL_NAME/show?id=' + ENTITY_NAME.id;
         req.session.toastr = [{
-                message: 'message.create.success',
-                level: "success"
-            }];
+            message: 'message.create.success',
+            level: "success"
+        }];
 
         var promises = [];
 
         if (typeof req.body.associationFlag !== 'undefined') {
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            promises.push(new Promise(function (resolve, reject) {
-                models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+            promises.push(new Promise(function(resolve, reject) {
+                models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({
+                    where: {
+                        id: req.body.associationFlag
+                    }
+                }).then(function(association) {
                     if (!association) {
                         ENTITY_NAME.destroy();
                         var err = new Error();
@@ -198,13 +208,13 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 
                     var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
                     if (typeof association['add' + modelName] !== 'undefined') {
-                        association['add' + modelName](ENTITY_NAME.id).then(resolve).catch(function (err) {
+                        association['add' + modelName](ENTITY_NAME.id).then(resolve).catch(function(err) {
                             reject(err);
                         });
                     } else {
                         var obj = {};
                         obj[req.body.associationForeignKey] = ENTITY_NAME.id;
-                        association.update(obj).then(resolve).catch(function (err) {
+                        association.update(obj).then(resolve).catch(function(err) {
                             reject(err);
                         });
                     }
@@ -214,21 +224,21 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
         // because those values are not updated for now
-        model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function () {
-            Promise.all(promises).then(function () {
-                component_helper.setAddressIfComponentExist(ENTITY_NAME, options, req.body).then(function () {
+        model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function() {
+            Promise.all(promises).then(function() {
+                component_helper.setAddressIfComponentExist(ENTITY_NAME, options, req.body).then(function() {
                     res.redirect(redirect);
                 });
-            }).catch(function (err) {
+            }).catch(function(err) {
                 entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/create_form');
             });
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/create_form');
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
     var id_ENTITY_NAME = req.query.id;
     var data = {
         menu: "ENTITY_NAME",
@@ -244,7 +254,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function (ENTITY_NAME) {
+    entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             return res.render('common/error', data);
@@ -252,27 +262,29 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function () {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
             // Get association data that needed to be load directly here (loadOnStart param in options).
-            entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data){
+            entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
                 if (req.query.ajax) {
                     ENTITY_NAME.dataValues = data;
                     ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
-                    res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({plain: true}));
+                    res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({
+                        plain: true
+                    }));
                 } else
                     res.render('ENTITY_NAME/update', data);
-            }).catch(function(err){
+            }).catch(function(err) {
                 entity_helper.error500(err, req, res, "/");
             })
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, "/");
         })
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     })
 });
 
-router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
+router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -282,18 +294,22 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (ENTITY_NAME) {
+    models.MODEL_NAME.findOne({
+        where: {
+            id: id_ENTITY_NAME
+        }
+    }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
             data.error = 404;
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
         component_helper.updateAddressIfComponentExist(ENTITY_NAME, options, req.body);
-        ENTITY_NAME.update(updateObject).then(function () {
+        ENTITY_NAME.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
-            model_builder.setAssocationManyValues(ENTITY_NAME, req.body, updateObject, options).then(function () {
+            model_builder.setAssocationManyValues(ENTITY_NAME, req.body, updateObject, options).then(function() {
 
                 var redirect = '/ENTITY_URL_NAME/show?id=' + id_ENTITY_NAME;
                 if (typeof req.body.associationFlag !== 'undefined')
@@ -305,18 +321,18 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
                 }];
 
                 res.redirect(redirect);
-            }).catch(function (err) {
+            }).catch(function(err) {
                 entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
             });
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
     });
 });
 
-router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function (req, res) {
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function(req, res) {
     var alias = req.params.alias;
     var id = req.params.id;
 
@@ -334,17 +350,23 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
         return res.status(403).end();
 
-    var queryOpts = {where: {id: id}};
+    var queryOpts = {
+        where: {
+            id: id
+        }
+    };
     // If hasMany, no need to include anything since it will be fetched using /subdatalist
     if (option.structureType != 'hasMany')
         queryOpts.include = {
             model: models[entity_helper.capitalizeFirstLetter(option.target)],
             as: option.as,
-            include: {all: true}
+            include: {
+                all: true
+            }
         }
 
     // Fetch tab data
-    models.MODEL_NAME.findOne(queryOpts).then(function (ENTITY_NAME) {
+    models.MODEL_NAME.findOne(queryOpts).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME)
             return res.status(404).end();
 
@@ -364,13 +386,14 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     subentityOptions = require('../models/options/' + option.target);
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
-                    var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
+                    var statusGetterPromise = [],
+                        subentityOptions = require('../models/options/' + option.target);
                     dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
-                            (function (alias) {
-                                promisesData.push(new Promise(function (resolve, reject) {
-                                    dustData[alias].getR_children().then(function (children) {
+                            (function(alias) {
+                                promisesData.push(new Promise(function(resolve, reject) {
+                                    dustData[alias].getR_children().then(function(children) {
                                         dustData[alias].r_children = children;
                                         resolve();
                                     });
@@ -385,9 +408,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 // Status history specific behavior. Replace history_model by history_table to open view
                 if (option.target.indexOf('e_history_e_') == 0)
                     option.noCreateBtn = true;
-                dustData = {for : 'hasMany'};
-                if (typeof req.query.associationFlag !== 'undefined')
-                {
+                dustData = {
+                    for: 'hasMany'
+                };
+                if (typeof req.query.associationFlag !== 'undefined') {
                     dustData.associationFlag = req.query.associationFlag;
                     dustData.associationSource = req.query.associationSource;
                     dustData.associationForeignKey = req.query.associationForeignKey;
@@ -401,8 +425,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 var obj = {};
                 obj[option.target] = dustData;
                 dustData = obj;
-                if (typeof req.query.associationFlag !== 'undefined')
-                {
+                if (typeof req.query.associationFlag !== 'undefined') {
                     dustData.associationFlag = req.query.associationFlag;
                     dustData.associationSource = req.query.associationSource;
                     dustData.associationForeignKey = req.query.associationForeignKey;
@@ -428,12 +451,12 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         }
 
         // Get association data that needed to be load directly here (loadOnStart param in options).
-        entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData){
+        entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData) {
             // Image buffer promise
-            Promise.all(promisesData).then(function () {
+            Promise.all(promisesData).then(function() {
                 // Open and render dust file
                 var file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
-                dust.renderSource(file, dustData || {}, function (err, rendered) {
+                dust.renderSource(file, dustData || {}, function(err, rendered) {
                     if (err) {
                         console.error(err);
                         return res.status(500).end();
@@ -447,21 +470,21 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                         option: option
                     });
                 });
-            }).catch(function (err) {
+            }).catch(function(err) {
                 console.error(err);
                 res.status(500).send(err);
             });
-        }).catch(function (err) {
+        }).catch(function(err) {
             console.error(err);
             res.status(500).send(err);
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         console.error(err);
         res.status(500).send(err);
     });
 });
 
-router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function (req, res) {
+router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
     var historyModel = 'E_history_ENTITY_NAME_' + req.params.status;
     var historyAlias = 'r_history_' + req.params.status.substring(2);
     var statusAlias = 'r_' + req.params.status.substring(2);
@@ -475,19 +498,25 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
         model: models[historyModel],
         as: historyAlias,
         limit: 1,
-        order: [["id", "DESC"]],
+        order: [
+            ["id", "DESC"]
+        ],
         include: [{
-                model: models.E_status,
-                as: statusAlias
-            }]
+            model: models.E_status,
+            as: statusAlias
+        }]
     });
     models.MODEL_NAME.findOne({
-        where: {id: req.params.id_ENTITY_URL_NAME},
+        where: {
+            id: req.params.id_ENTITY_URL_NAME
+        },
         include: includeTree
-    }).then(function (ENTITY_NAME) {
+    }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]) {
             logger.debug("Not found - Set status");
-            return res.render('common/error', {error: 404});
+            return res.render('common/error', {
+                error: 404
+            });
         }
 
         // Find the children of the current status
@@ -512,7 +541,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     }]
                 }]
             }]
-        }).then(function (current_status) {
+        }).then(function(current_status) {
             if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
                 return res.render('common/error', {
@@ -532,14 +561,14 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
             // Unautorized
             if (nextStatus === false) {
                 req.session.toastr = [{
-                        level: 'error',
-                        message: 'component.status.error.illegal_status'
-                    }]
+                    level: 'error',
+                    message: 'component.status.error.illegal_status'
+                }]
                 return res.redirect(errorRedirect);
             }
 
             // Execute newStatus actions
-            nextStatus.executeActions(ENTITY_NAME).then(function () {
+            nextStatus.executeActions(ENTITY_NAME).then(function() {
                 // Create history record for this status field
                 // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
                 var createObject = {}
@@ -547,31 +576,31 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                     createObject.f_comment = req.query.comment;
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function () {
+                models[historyModel].create(createObject).then(function() {
                     ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
-            }).catch(function (err) {
+            }).catch(function(err) {
                 console.error(err);
                 req.session.toastr = [{
-                        level: 'warning',
-                        message: 'component.status.error.action_error'
-                    }]
+                    level: 'warning',
+                    message: 'component.status.error.action_error'
+                }]
                 var createObject = {}
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function () {
+                models[historyModel].create(createObject).then(function() {
                     ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                     res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
                 });
             });
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, errorRedirect);
     });
 });
 
-router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function (req, res) {
+router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function(req, res) {
     var search = '%' + (req.body.search || '') + '%';
     var limit = SELECT_PAGE_SIZE;
     var offset = (req.body.page - 1) * limit;
@@ -580,16 +609,24 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
     if (req.body.searchField.indexOf("id") == -1)
         req.body.searchField.push('id');
 
-    var where = {raw: true, attributes: req.body.searchField, where: {}};
+    var where = {
+        raw: true,
+        attributes: req.body.searchField,
+        where: {}
+    };
     if (search != '%%') {
         if (req.body.searchField.length == 1) {
-            where.where[req.body.searchField[0]] = {$like: search};
+            where.where[req.body.searchField[0]] = {
+                $like: search
+            };
         } else {
             where.where.$or = [];
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
-                    currentOrObj[req.body.searchField[i]] = {$like: search}
+                    currentOrObj[req.body.searchField[i]] = {
+                        $like: search
+                    }
                     where.where.$or.push(currentOrObj);
                 }
             }
@@ -598,12 +635,12 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 
     // Possibility to add custom where in select2 ajax instanciation
     if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere){
+        for (var param in req.body.customWhere) {
             // If the custom where is on a foreign key
-            if(param.indexOf("fk_") != -1){
-                for (var option in options){
+            if (param.indexOf("fk_") != -1) {
+                for (var option in options) {
                     // We only add where condition on key that are standard hasMany relation, not belongsToMany association
-                    if(options[option].otherKey == param && options[option].relation != "belongsToMany")
+                    if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
                         where.where[param] = req.body.customWhere[param];
                 }
             } else
@@ -613,27 +650,33 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
     where.offset = offset;
     where.limit = limit;
 
-    models.MODEL_NAME.findAndCountAll(where).then(function (results) {
+    models.MODEL_NAME.findAndCountAll(where).then(function(results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         res.json(results);
-    }).catch(function (e) {
+    }).catch(function(e) {
         console.error(e);
         res.status(500).json(e);
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
-    models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
+    models.MODEL_NAME.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
-            var data = {error: 404};
+            var data = {
+                error: 404
+            };
             return res.render('common/error', data);
         }
 
         // Get all associations
-        ENTITY_NAME['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
+        ENTITY_NAME['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function(aliasEntities) {
             // Remove entity from association array
             for (var i = 0; i < aliasEntities.length; i++)
                 if (aliasEntities[i].id == idToRemove) {
@@ -641,30 +684,36 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
                     break;
                 }
 
-            // Set back associations without removed entity
-            ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
+                // Set back associations without removed entity
+            ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function() {
                 res.sendStatus(200).end();
-            }).catch(function (err) {
+            }).catch(function(err) {
                 entity_helper.error500(err, req, res, "/");
             });
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function (req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function(req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
-    models.MODEL_NAME.findOne({where: {id: idEntity}}).then(function (ENTITY_NAME) {
+    models.MODEL_NAME.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
-            var data = {error: 404};
+            var data = {
+                error: 404
+            };
             logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
         var toAdd;
-        if (typeof (toAdd = req.body.ids) === 'undefined') {
+        if (typeof(toAdd = req.body.ids) === 'undefined') {
             req.session.toastr.push({
                 message: 'message.create.failure',
                 level: "error"
@@ -672,39 +721,43 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
             return res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
         }
 
-        ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
+        ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, "/");
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function (req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function(req, res) {
     var id_ENTITY_NAME = parseInt(req.body.id);
 
-    models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function (deleteObject) {
+    models.MODEL_NAME.findOne({
+        where: {
+            id: id_ENTITY_NAME
+        }
+    }).then(function(deleteObject) {
         models.MODEL_NAME.destroy({
             where: {
                 id: id_ENTITY_NAME
             }
-        }).then(function () {
+        }).then(function() {
             req.session.toastr = [{
-                    message: 'message.delete.success',
-                    level: "success"
-                }];
+                message: 'message.delete.success',
+                level: "success"
+            }];
 
             var redirect = '/ENTITY_URL_NAME/list';
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
             entity_helper.remove_files("ENTITY_NAME", deleteObject, attributes);
-        }).catch(function (err) {
+        }).catch(function(err) {
             entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/list');
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/list');
     });
 });

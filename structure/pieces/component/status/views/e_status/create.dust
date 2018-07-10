@@ -20,7 +20,7 @@
                     </div>
                     <div class="box-body">
                         {^entities}
-                            {@__ key="component.status.no_status_field" /}
+                            <div class="text-center"><b>{@__ key="component.status.no_status_field" /}</b></div>
                         {:else}
                             {>"e_status/create_fields"/}
                             <div class="form-group">

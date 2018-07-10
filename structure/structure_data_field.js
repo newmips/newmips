@@ -857,6 +857,7 @@ exports.setRequiredAttribute = function (attr, callback) {
 
     var possibilityRequired = ["mandatory", "required", "obligatoire"];
     var possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
+    var entityCodeName = attr.name_data_entity.toLowerCase();
 
     var attribute = attr.options.word.toLowerCase();
     var set = null;
@@ -871,7 +872,7 @@ exports.setRequiredAttribute = function (attr, callback) {
         return callback(err);
     }
 
-    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity.toLowerCase();
+    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + entityCodeName;
 
     // Update create_fields.dust file
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
@@ -898,14 +899,80 @@ exports.setRequiredAttribute = function (attr, callback) {
                     domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
 
                         // Update the Sequelize attributes.json to set allowNull
-                        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.name_data_entity.toLowerCase() + ".json";
-                        var attributesObj = require(pathToAttributesJson);
+                        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + entityCodeName + ".json";
+                        var attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
 
                         if (attributesObj[attr.options.value]) {
-                            attributesObj[attr.options.value].allowNull = set ? false : true;
-                            if(!attributesObj[attr.options.value].allowNull && attributesObj[attr.options.value].defaultValue == null)
-                                attributesObj[attr.options.value].defaultValue = "";
+                            // TODO: Handle allowNull: false field in user, role, group to avoid error during autogeneration
+                            // In script you can set required a field in user, role or group but it crash the user admin autogeneration
+                            // becaude the required field is not given during the creation
+                            if(entityCodeName != "e_user" && entityCodeName != "e_role" && entityCodeName != "e_group")
+                                attributesObj[attr.options.value].allowNull = set ? false : true;
+                            // Alter column to set default value in DB if models already exist
+                            var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
+                            var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+                            if(typeof toSync.queries === "undefined")
+                                toSync.queries = [];
+
+                            var defaultValue = null;
+                            var tableName = attr.id_application+"_"+entityCodeName;
+                            var length = "";
+                            if(attr.sqlDataType == "varchar")
+                                length = "("+attr.sqlDataTypeLength+")";
+                            if(set){
+                                switch (attributesObj[attr.options.value].type) {
+                                    case "STRING":
+                                    case "ENUM":
+                                    case "TEXT":
+                                        defaultValue = "";
+                                        break;
+                                    case "INTEGER":
+                                    case "BIGINT":
+                                    case "DECIMAL":
+                                    case "BOOLEAN":
+                                    case "FLOAT":
+                                    case "DOUBLE":
+                                        defaultValue = 0;
+                                        break;
+                                    case "DATE":
+                                        defaultValue = "1900-01-01 00:00:00.000";
+                                        break;
+                                    case "TIME":
+                                        defaultValue = "00:00:00.0000000";
+                                        break;
+                                    default:
+                                        defaultValue = "";
+                                        break;
+                                }
+                                attributesObj[attr.options.value].defaultValue = defaultValue;
+                                // TODO postgres
+                                if(attr.sqlDataType && attr.dialect == "mysql"){
+                                    // Update all NULL value before set not null
+                                    toSync.queries.push("UPDATE `"+tableName+"` SET `"+attr.options.value+"`='"+defaultValue+"' WHERE `"+attr.options.value+"` IS NULL;");
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` CHANGE `"+attr.options.value+"` `"+attr.options.value+"` "+attr.sqlDataType+length+" NOT NULL");
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` ALTER `"+attr.options.value+"` SET DEFAULT '"+defaultValue+"';");
+                                }
+                            } else {
+                                attributesObj[attr.options.value].defaultValue = null;
+                                // TODO postgres
+                                if(attr.sqlDataType && attr.dialect == "mysql"){
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` CHANGE `"+attr.options.value+"` `"+attr.options.value+"` "+attr.sqlDataType+length+" NULL");
+                                    toSync.queries.push("ALTER TABLE `"+tableName+"` ALTER `"+attr.options.value+"` SET DEFAULT NULL;");
+                                }
+                            }
+                            fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
                             fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+                        } else {
+                            // If not in attributes, maybe in options
+                            var pathToOptionJson = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + entityCodeName + ".json";
+                            var optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
+                            var aliasValue = "r_"+attr.options.value.substring(2);
+                            for(var i=0; i<optionsObj.length; i++)
+                                if(optionsObj[i].as == aliasValue)
+                                    optionsObj[i].allowNull = set ? false : true;
+
+                            // Set option allowNull
+                            fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
                         }
                         callback();
                     });

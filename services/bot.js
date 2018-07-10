@@ -1078,8 +1078,6 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-    console.log(result);
-    console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];

@@ -58,12 +58,12 @@
 	</div>
 	<div class="row">
 		<div class="col-xs-12 col-sm-6">
-			<div class="box collapsed-box">
+			<div class="box">
                 <div class="box-header">
                     <h3 class="box-title">{@__ key="settings.auth_component.access_managment" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <i class="fa fa-plus"></i></button>
+                        <i class="fa fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="box-body">
@@ -131,12 +131,12 @@
 			</div>
 		</div>
 		<div class="col-xs-12 col-sm-6">
-			<div class="box collapsed-box">
+			<div class="box">
                 <div class="box-header">
                     <h3 class="box-title">{@__ key="settings.auth_component.action_managment" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <i class="fa fa-plus"></i></button>
+                        <i class="fa fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="box-body">

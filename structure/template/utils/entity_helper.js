@@ -286,7 +286,7 @@ var funcs = {
                     };
                     // Include status children
                     if (options[i].target == 'e_status')
-                        opt.include = {model: models.E_status, as: 'r_children'};
+                        opt.include = {model: models.E_status, as: 'r_children', include: [{model: models.E_group, as: "r_accepted_group"}]};
                     include.push(opt);
                 }
 

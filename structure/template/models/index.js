@@ -59,6 +59,8 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.passwor
     define: {
         timestamps: false
     },
+    charset: 'utf8',
+    collate: 'utf8_general_ci',
     timezone: moment_timezone.tz.guess(),
     operatorsAliases
 });
@@ -148,8 +150,6 @@ sequelize.customAfterSync = function() {
                         request += '"'+entity+'"';
                         request += " ADD COLUMN " + attribute + " " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
                     }
-
-                    console.log(request);
 
                     (function(query, entityB, attributeB) {
                         promises.push(new Promise(function(resolve0, reject0) {

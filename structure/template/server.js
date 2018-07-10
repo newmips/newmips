@@ -240,6 +240,24 @@ app.use(function(req, res, next) {
 		}
 		return false;
 	}
+	dust.helpers.checkStatusPermission = function(chunk, context, bodies, params) {
+		var status = params.status;
+		var acceptedGroup = status.r_accepted_group;
+		var currentUserGroupIds = [];
+
+        for(var i=0; i<req.session.passport.user.r_group.length; i++)
+            currentUserGroupIds.push(req.session.passport.user.r_group[i].id);
+
+        // If no role given in status, then accepted for everyone
+        if(acceptedGroup.length == 0)
+            return true;
+        else
+            for(var j=0; j<acceptedGroup.length; j++)
+                if(currentUserGroupIds.indexOf(acceptedGroup[j].id) != -1)
+                    return true;
+
+        return false;
+	}
 	/* Filter DUST - example {myDate|convertToDateFormat} */
 	dust.filters.date = function(value) {
 		if (value != "") {

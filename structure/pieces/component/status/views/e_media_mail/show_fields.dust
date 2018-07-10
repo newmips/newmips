@@ -1,23 +1,23 @@
 <div id="fields" class="row">
-    <div data-field="f_to" class="col-xs-12">
+    <div data-field="f_to" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_to"> {@__ key="entity.e_media_mail.f_to"/} {@inline_help field="f_to"}&nbsp;<i data-field="f_to" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_to" /}' name="f_to" value="{f_to}" type="text" readonly="">
         </div>
     </div>
-    <div data-field="f_cc" class="col-xs-12">
+    <div data-field="f_cc" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_cc"> {@__ key="entity.e_media_mail.f_cc"/} {@inline_help field="f_cc"}&nbsp;<i data-field="f_cc" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_cc" /}' name="f_cc" value="{f_cc}" type="text" readonly="">
         </div>
     </div>
-    <div data-field="f_cci" class="col-xs-12">
+    <div data-field="f_cci" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_cci"> {@__ key="entity.e_media_mail.f_cci"/} {@inline_help field="f_cci"}&nbsp;<i data-field="f_cci" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_cci" /}' name="f_cci" value="{f_cci}" type="text" readonly="">
         </div>
     </div>
-    <div data-field="f_from" class="col-xs-12">
+    <div data-field="f_from" class="col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_from"> {@__ key="entity.e_media_mail.f_from"/} {@inline_help field="f_from"}&nbsp;<i data-field="f_from" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_from" /}' name="f_from" value="{f_from}" type="text" readonly="">
