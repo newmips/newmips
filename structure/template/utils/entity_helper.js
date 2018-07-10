@@ -106,14 +106,12 @@ var funcs = {
 
             // Building children array
             for (var i = 0; i < entityAssociations.length; i++)
-                if (entityAssociations[i].relation == 'belongsTo')
+                if (entityAssociations[i].relation == 'belongsTo' && entityAssociations[i].target != entity)
                     fieldTree.children.push(this.entityFieldTree(entityAssociations[i].target, entityAssociations[i].as));
 
             return fieldTree;
         },
         generateEntityInclude: function(models, entity) {
-            var entityTree = this.entityFieldTree(entity);
-
             function includeBuilder(obj) {
                 var includes = [];
                 for (var i = 0; obj.children && i < obj.children.length; i++) {

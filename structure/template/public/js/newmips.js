@@ -808,6 +808,25 @@ $(document).ready(function () {
 
     initForm();
 
+   /* --------------- Status comment modal --------------- */
+    $(".status").click(function() {
+        var url = $(this).data('href');
+
+        // No comment for this status
+        if ($(this).data('comment') != true)
+            return location.href = url;
+
+        // Comment required
+        // Set hidden fields values
+        var hrefParts = $(this).data('href').split('/');
+        $("#statusComment input[name=parentName]").val(hrefParts[hrefParts.length-5]);
+        $("#statusComment input[name=parentId]").val(hrefParts[hrefParts.length-3]);
+        $("#statusComment input[name=field]").val(hrefParts[hrefParts.length-2]);
+        $("#statusComment input[name=statusId]").val(hrefParts[hrefParts.length-1]);
+
+        $("#statusComment").modal('show');
+    });
+
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function () {
         if (typeof sidebarPref !== "undefined" && sidebarPref != "null" && sidebarPref != null) {
@@ -822,6 +841,7 @@ $(document).ready(function () {
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
 
+    // Validate any form before submit
     $('form').submit(function (e) {
         if (!validateForm($(this)))
             return false;
