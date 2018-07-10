@@ -543,6 +543,8 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
                 // Create history record for this status field
                 // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
                 var createObject = {}
+                if (req.query.comment)
+                    createObject.f_comment = req.query.comment;
                 createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                 createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
                 models[historyModel].create(createObject).then(function () {

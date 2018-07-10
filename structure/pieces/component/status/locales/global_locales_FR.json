@@ -22,6 +22,7 @@
             "f_name": "Nom",
             "f_color": "Couleur",
             "f_default": "Défaut",
+            "modal_title": "Commentaire",
             "apply_default": "Appliquer ce statut aux entités sans statut"
 		},
 		"e_translation": {

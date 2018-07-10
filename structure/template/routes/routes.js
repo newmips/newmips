@@ -19,10 +19,14 @@ router.get('/', function(req, res) {
     res.redirect('/login');
 });
 
+// Route used to redirect to set_status when submitting comment modal
+router.get('/status_comment', block_access.isLoggedIn, function(req, res) {
+    res.redirect('/'+req.body.parentName+'/set_status/'+req.body.parentId+'/'+req.body.field+'/'+req.body.statusId+'?comment='+encodeURIComponent(req.body.comment));
+});
+
 // =====================================
 // LOGIN ===============================
 // =====================================
-
 router.get('/login', block_access.loginAccess, function(req, res) {
 
     var msg = "";

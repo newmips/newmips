@@ -798,6 +798,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Color with type color");
     instructions.push("add field Position with type number");
     instructions.push("add field Default with type boolean");
+    instructions.push("add field Comment with type boolean");
     instructions.push("entity Status has many Status called Children");
     instructions.push("entity status has many Translation called Translations");
     instructions.push("select entity translation");

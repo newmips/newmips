@@ -14,7 +14,8 @@
 	"entity": {
 		"e_status": {
 			"as_r_children": "Next status",
-            "apply_default": "Apply this status to entities without status"
+            "apply_default": "Apply this status to entities without status",
+            "modal_title": "Comment"
 		}
 	}
 }

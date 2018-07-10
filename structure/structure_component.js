@@ -990,7 +990,7 @@ exports.newStatus = function (attr, callback) {
                         var nextStatusHtml = '';
                         nextStatusHtml += '<div class="form-group">';
                         nextStatusHtml += '{#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}';
-                        nextStatusHtml += '<a href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
+                        nextStatusHtml += '<a data-href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="btn btn-info status" style="margin-right: 5px;">{f_name}</a>';
                         nextStatusHtml += '{/' + statusAlias + '.r_children}';
                         nextStatusHtml += '</div>';
                         $("div[data-field='" + statusAliasHTML + "']").find('input').replaceWith(statusBadgeHtml);
