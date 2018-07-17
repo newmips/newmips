@@ -4,7 +4,7 @@ var dropzonesFieldArray = [];
 var dropzonesComponentArray = [];
 Dropzone.autoDiscover = false;
 
-function select2_ajaxsearch(select) {
+function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
     var searchField = select.data('using').split(',');
 
     // Use custom url on select or build default url
@@ -58,7 +58,7 @@ function select2_ajaxsearch(select) {
         templateResult: function (data) {
             return data.text;
         },
-        placeholder: SELECT_DEFAULT_TEXT
+        placeholder: placeholder
     });
 }
 

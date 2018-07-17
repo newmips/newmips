@@ -18,6 +18,45 @@ module.exports = (sequelize, DataTypes) => {
     Model.prototype.execute = function(resolve, reject, dataInstance) {
         var self = this;
 
+        async function insertValues(property) {
+            var groupIds = [],
+                userIds = [],
+                userMails = [],
+                newString = self[property];
+
+            var groupRegex = new RegExp(/{(group\|[^])}/g);
+            while ((match = groupRegex.exec(self[property])) != null) {
+                var groupId = parseInt(match[1].split('|')[1]);
+                groupIds.push(groupId);
+                newString = newString.replace(match[0], "");
+            }
+            var groups = await models.E_group.findAll({
+                where: {id: {$in: groupIds}},
+                include: {model: models.E_user, as: 'r_user'}
+            });
+            for (var i = 0; i < groups.length; i++)
+                for (var j = 0; j < groups[i].r_user.length; j++)
+                    if (groups[i].r_user[j].f_email && groups[i].r_user[j].f_email != '')
+                        userMails.push(groups[i].r_user[j].f_email);
+
+            var userRegex = new RegExp(/{(user\|[^])}/g);
+            while ((match = userRegex.exec(self[property])) != null) {
+                var userId = parseInt(match[1].split('|')[1]);
+                userIds.push(userId);
+                newString = newString.replace(match[0], "");
+            }
+            var users = await models.E_user.findAll({
+                where: {id: {$in: userIds}}
+            });
+            for (var i = 0; i < users.length; i++)
+                if (users[i].f_email && users[i].f_email != '')
+                    userMails.push(users[i].f_email);
+        }
+
+
+
+
+
         function insertVariablesValue(property) {
             function diveData(object, depths, idx) {
                 if (!object[depths[idx]])
