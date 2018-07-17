@@ -6,58 +6,91 @@ var attributes_origin = require("./attributes/e_media_mail.json");
 var associations = require("./options/e_media_mail.json");
 var moment = require('moment');
 
+var INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci'];
+
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
         tableName: 'ID_APPLICATION_e_media_mail',
         timestamps: true
     };
-
+// console.log(sequelize);
     var Model = sequelize.define('E_media_mail', attributes, options);
+
     Model.associate = builder.buildAssociation('E_media_mail', associations);
+    builder.addHooks(Model, 'e_media_mail', attributes_origin);
+
     Model.prototype.execute = function(resolve, reject, dataInstance) {
         var self = this;
 
-        async function insertValues(property) {
-            var groupIds = [],
-                userIds = [],
-                userMails = [],
-                newString = self[property];
+        async function insertGroupAndUserEmail() {
+            for (var fieldIdx = 0; fieldIdx < INSERT_USER_GROUP_FIELDS.length; fieldIdx++) {
+                property = INSERT_USER_GROUP_FIELDS[fieldIdx];
+                var groupIds = [],
+                    userIds = [],
+                    userMails = [],
+                    intermediateData = {};
 
-            var groupRegex = new RegExp(/{(group\|[^])}/g);
-            while ((match = groupRegex.exec(self[property])) != null) {
-                var groupId = parseInt(match[1].split('|')[1]);
-                groupIds.push(groupId);
-                newString = newString.replace(match[0], "");
-            }
-            var groups = await models.E_group.findAll({
-                where: {id: {$in: groupIds}},
-                include: {model: models.E_user, as: 'r_user'}
-            });
-            for (var i = 0; i < groups.length; i++)
-                for (var j = 0; j < groups[i].r_user.length; j++)
-                    if (groups[i].r_user[j].f_email && groups[i].r_user[j].f_email != '')
-                        userMails.push(groups[i].r_user[j].f_email);
+                // GROUP EMAIL INSERTION
+                {
+                    // Exctract all group IDs from property to find them all at once
+                    var groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+                    while ((match = groupRegex.exec(self[property])) != null) {
+                        intermediateData[match[0]] = {emails: []};
+                        var groupId = parseInt(match[1].split('|')[1]);
+                        groupIds.push(groupId);
+                    }
 
-            var userRegex = new RegExp(/{(user\|[^])}/g);
-            while ((match = userRegex.exec(self[property])) != null) {
-                var userId = parseInt(match[1].split('|')[1]);
-                userIds.push(userId);
-                newString = newString.replace(match[0], "");
+                    // Fetch all groups found and their users
+                    var groups = await sequelize.models.E_group.findAll({
+                        where: {id: {$in: groupIds}},
+                        include: {model: sequelize.models.E_user, as: 'r_user'}
+                    });
+
+                    // Exctract email and build intermediateData object used to replace placeholders
+                    for (var i = 0; i < groups.length; i++) {
+                        var intermediateKey = '{group|'+groups[i].id+'}';
+                        for (var j = 0; j < groups[i].r_user.length; j++)
+                            if (groups[i].r_user[j].f_email && groups[i].r_user[j].f_email != '') {
+                                intermediateData[intermediateKey].emails.push(groups[i].r_user[j].f_email);
+                                userMails.push(groups[i].r_user[j].f_email);
+                            }
+                    }
+                }
+
+                // USER EMAIL INSERTION
+                {
+                    // Exctract all user IDs from property to find them all at once
+                    var userRegex = new RegExp(/{(user\|[^}]*)}/g);
+                    while ((match = userRegex.exec(self[property])) != null) {
+                        intermediateData[match[0]] = {emails: []};
+                        var userId = parseInt(match[1].split('|')[1]);
+                        userIds.push(userId);
+                    }
+
+                    // Fetch all users found
+                    var users = await sequelize.models.E_user.findAll({
+                        where: {id: {$in: userIds}}
+                    });
+
+                    // Exctract email and build intermediateData object used to replace placeholders
+                    for (var i = 0; i < users.length; i++) {
+                        var intermediateKey = '{user|'+users[i].id+'}';
+                        if (users[i].f_email && users[i].f_email != '') {
+                            intermediateData[intermediateKey].emails.push(users[i].f_email);
+                            userMails.push(users[i].f_email);
+                        }
+                    }
+                }
+
+                // Replace each occurence of {group|id} and {user|id} placeholders by their built emails list
+                for (var placeholder in intermediateData)
+                    self[property] = self[property].replace(placeholder, intermediateData[placeholder].emails.join(', '));
             }
-            var users = await models.E_user.findAll({
-                where: {id: {$in: userIds}}
-            });
-            for (var i = 0; i < users.length; i++)
-                if (users[i].f_email && users[i].f_email != '')
-                    userMails.push(users[i].f_email);
         }
 
-
-
-
-
         function insertVariablesValue(property) {
+            // Recursive function to dive into relations object until matching field or nothing is found
             function diveData(object, depths, idx) {
                 if (!object[depths[idx]])
                     return "";
@@ -65,29 +98,38 @@ module.exports = (sequelize, DataTypes) => {
                     if (object[depths[idx]] instanceof Date)
                         return moment(object[depths[idx]]).format("DD/MM/YYYY");
                     return diveData(object[depths[idx]], depths, ++idx);
-                } else
+                }
+                else
                     return object[depths[idx]];
             }
 
             var newString = self[property];
-            var regex = new RegExp(/{([^}]*)}/g),
+            var regex = new RegExp(/{field\|([^}]*)}/g),
                 matches = null;
             while ((matches = regex.exec(self[property])) != null)
                 newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 
+            self[property] = newString;
             return newString || "";
         }
-        var options = {
-            from: insertVariablesValue('f_from'),
-            to: insertVariablesValue('f_to'),
-            cc: insertVariablesValue('f_cc'),
-            cci: insertVariablesValue('f_cci'),
-            subject: insertVariablesValue('f_subject'),
-            data: dataInstance
-        };
-        mailer.sendHtml(insertVariablesValue('f_content'), options).then(resolve).catch(reject);
+
+        // Replace {group|id} and {user|id} placeholders before inserting variables
+        // to avoid trying to replace placeholders as entity's fields
+        insertGroupAndUserEmail().then(function() {
+            // Build mail options and replace entity's fields
+            var options = {
+                from: insertVariablesValue('f_from'),
+                to: insertVariablesValue('f_to'),
+                cc: insertVariablesValue('f_cc'),
+                cci: insertVariablesValue('f_cci'),
+                subject: insertVariablesValue('f_subject'),
+                data: dataInstance
+            };
+
+            // Send mail
+            mailer.sendHtml(insertVariablesValue('f_content'), options).then(resolve).catch(reject);
+        });
     };
-    builder.addHooks(Model, 'e_media_mail', attributes_origin);
 
     return Model;
 };
