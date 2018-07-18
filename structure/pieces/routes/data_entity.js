@@ -11,6 +11,7 @@ var options = require('../models/options/ENTITY_NAME');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var component_helper = require('../utils/component_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
@@ -138,7 +139,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
-            entity_helper.status.translate(ENTITY_NAME, attributes, req.session.lang_user);
+            status_helper.translate(ENTITY_NAME, attributes, req.session.lang_user);
             data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
             // Get association data that needed to be load directly here (loadOnStart param in options).
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
@@ -491,7 +492,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
 
     var errorRedirect = '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'ENTITY_NAME');
+    var includeTree = status_helper.generateEntityInclude(models, 'ENTITY_NAME');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({

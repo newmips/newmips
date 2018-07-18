@@ -11,7 +11,7 @@ var options = require('../models/options/e_media_mail');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
-var global = require('../config/global');
+var status_helper = require('../utils/status_helper');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -20,7 +20,7 @@ var enums_radios = require('../utils/enum_radio.js');
 var logger = require('../utils/logger');
 
 router.get('/entityTree', function(req, res) {
-    res.json(entity_helper.status.entityFieldTree('e_media_mail'));
+    res.json(status_helper.entityFieldTree('e_media_mail'));
 });
 
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {

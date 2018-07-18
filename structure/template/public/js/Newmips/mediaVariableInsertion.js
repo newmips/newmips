@@ -1,6 +1,6 @@
 var insertionHandler = {
     field: {
-        displaySelector: function(label, element) {
+        displaySelector: function(label) {
             var entity = $("select[name=f_target_entity]").find('option:selected').val();
             if (!entity)
                 return toastr.warning('Aucune entité n\'est ciblé');
@@ -9,13 +9,13 @@ var insertionHandler = {
                 url: '/media/entity_tree/'+entity,
                 success: function(entityTree) {
                     /* Create select  and options */
-                    var fieldSelect = '<select name="insertionSelect" data-type="field">';
+                    var fieldSelect = '<select style="float:left;" name="insertionSelect" data-type="field">';
                     fieldSelect += '<option value="-1">'+CHOOSE_FIELD+'</option>';
                     for (var i = 0; i < entityTree.length; i++)
                         fieldSelect += '<option value="'+entityTree[i].codename+'">'+entityTree[i].traduction+'</option>';
                     fieldSelect += '</select>';
 
-                    $(fieldSelect).appendTo(label).css('width', '100%').select2();
+                    $(fieldSelect).appendTo(label).css('width', '230px').select2();
                 }
             });
         },
@@ -24,9 +24,9 @@ var insertionHandler = {
         }
     },
     group: {
-        displaySelector: function(label, element) {
-            var groupSelect = '<select class="ajax form-control" data-type="group" name="insertionSelect" data-source="group" data-using="f_label"></select>';
-            $(groupSelect).appendTo(label).css('width', '100%');
+        displaySelector: function(label) {
+            var groupSelect = '<select style="float:left;" class="ajax form-control" data-type="group" name="insertionSelect" data-source="group" data-using="f_label"></select>';
+            $(groupSelect).appendTo(label).css('width', '230px');
             select2_ajaxsearch(label.find('select'), CHOOSE_GROUP);
         },
         insertValue: function(data) {
@@ -34,9 +34,9 @@ var insertionHandler = {
         }
     },
     user: {
-        displaySelector: function(label, element) {
-            var groupSelect = '<select class="ajax form-control" data-type="user" name="insertionSelect" data-source="user" data-using="f_login,f_email"></select>';
-            $(groupSelect).appendTo(label).css('width', '100%');
+        displaySelector: function(label) {
+            var groupSelect = '<select style="float:left;" class="ajax form-control" data-type="user" name="insertionSelect" data-source="user" data-using="f_login,f_email"></select>';
+            $(groupSelect).appendTo(label).css('width', '230px');
             select2_ajaxsearch(label.find('select'), CHOOSE_USER);
         },
         insertValue: function(data) {
@@ -50,12 +50,20 @@ $(function() {
     $(".insert").click(function(e) {
         var type = $(this).data('type');
         var targetLabel = $(this).parents('label').eq(0);
-        var targetElement = $(this).parents('.form-group').find("input, textarea").eq(0);
 
         // Remove previously created selects
         targetLabel.find('select').eq(0).select2('destroy').remove();
         // Display new select depending on type
-        insertionHandler[type].displaySelector(targetLabel, targetElement);
+        insertionHandler[type].displaySelector(targetLabel);
+    });
+
+    // When target entity change, reload each related select2
+    $("select[name=f_target_entity]").on('change', function() {
+        $("select[name=insertionSelect]").each(function() {
+            var label = $(this).parent('label');
+            $(this).select2('destroy').remove();
+            insertionHandler.field.displaySelector(label);
+        });
     });
 
     // Insert value in element when option selected

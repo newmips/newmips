@@ -11,6 +11,7 @@ var options = require('../models/options/e_action');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -73,7 +74,7 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
         data.e_action = e_action;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_action, "e_action").then(function() {
-            entity_helper.status.translate(e_action, attributes, req.session.lang_user);
+            status_helper.translate(e_action, attributes, req.session.lang_user);
             res.render('e_action/show', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
@@ -375,7 +376,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
 
     var errorRedirect = '/action/show?id='+req.params.id_action;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_action');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_action');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({
