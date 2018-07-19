@@ -210,10 +210,10 @@
                         </div>
                         <div class="modal-body">
                             <textarea name="comment"></textarea>
-                            <input style="display:none;" name="parentName">
-                            <input style="display:none;" name="parentId">
-                            <input style="display:none;" name="field">
-                            <input style="display:none;" name="statusId">
+                            <input type="hidden" name="parentName">
+                            <input type="hidden" name="parentId">
+                            <input type="hidden" name="field">
+                            <input type="hidden" name="statusId">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">{@__ key="button.close" /}</button>
