@@ -80,7 +80,8 @@ function initForm(context) {
     });
 
     /* --------------- Initialisation des Textarea --------------- */
-    $("textarea:not(.regular-textarea)", context).each(function () {
+    // `.note-codable` is a summernote hidden textarea. Filter out to avoid textarea inception
+    $("textarea:not(.regular-textarea):not(.note-codable)", context).each(function () {
         $(this).summernote({
             height: 200,
             toolbar: [

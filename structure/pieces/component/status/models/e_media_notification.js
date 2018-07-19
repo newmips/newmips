@@ -73,15 +73,23 @@ module.exports = (sequelize, DataTypes) => {
                 return targetIds.indexOf(item) == pos;
             });
 
+            var entityUrl;
             try {
-                var entityUrl = dataInstance.$modelOptions.tableName;
-                entityUrl = entityUrl.substring(entityUrl.indexOf('e_') + 2, entityUrl.length);
+                try {
+                    // Build show url of targeted entity
+                    entityUrl = dataInstance.$modelOptions.tableName;
+                    entityUrl = entityUrl.substring(entityUrl.indexOf('e_') + 2, entityUrl.length);
+                    entityUrl = '/' + entityUrl + '/show?id=' + dataInstance.id;
+                } catch(e) {
+                    // Will redirect to current page
+                    entityUrl = '#';
+                }
                 var notificationObj = {
                     f_color: self.f_color,
                     f_icon: insertVariablesValue('f_icon'),
                     f_title: insertVariablesValue('f_title'),
                     f_description: insertVariablesValue('f_description'),
-                    f_url: '/' + entityUrl + '/show?id=' + dataInstance.id
+                    f_url: entityUrl
                 };
             } catch (e) {
                 return reject(e);

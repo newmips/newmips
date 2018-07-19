@@ -36,7 +36,7 @@ module.exports = {
                 var include = {};
                 var child = obj.children[i];
                 include.as = child.alias;
-                include.model = models[funcs.capitalizeFirstLetter(child.entity)];
+                include.model = models[child.entity.charAt(0).toUpperCase() + child.entity.toLowerCase().slice(1)];
                 if (child.children && child.children.length != 0) {
                     include.include = includeBuilder(child);
                 }
