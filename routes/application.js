@@ -834,8 +834,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Description");
     instructions.push("add field Icon");
     instructions.push("add field Color with type color");
-    instructions.push("add field Target Groups related to many Group using label");
-    instructions.push("add field Target Users related to many User using login");
+    instructions.push("add field targets");
     instructions.push("add entity Notification");
     instructions.push("add field Title");
     instructions.push("add field Description");

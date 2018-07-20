@@ -31,13 +31,14 @@ module.exports = (sequelize, DataTypes) => {
                     userMails = [],
                     intermediateData = {};
 
-                // GROUP EMAIL INSERTION
+                // FETCH GROUP EMAIL
                 {
                     // Exctract all group IDs from property to find them all at once
                     var groupRegex = new RegExp(/{(group\|[^}]*)}/g);
                     while ((match = groupRegex.exec(self[property])) != null) {
-                        intermediateData[match[0]] = {emails: []};
-                        var groupId = parseInt(match[1].split('|')[1]);
+                        var placeholderParts = match[1].split('|');
+                        var groupId = parseInt(placeholderParts[placeholderParts.length-1]);
+                        intermediateData['group'+groupId] = {placeholder: match[0], emails: []};
                         groupIds.push(groupId);
                     }
 
@@ -49,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
 
                     // Exctract email and build intermediateData object used to replace placeholders
                     for (var i = 0; i < groups.length; i++) {
-                        var intermediateKey = '{group|'+groups[i].id+'}';
+                        var intermediateKey = 'group'+groups[i].id;
                         for (var j = 0; j < groups[i].r_user.length; j++)
                             if (groups[i].r_user[j].f_email && groups[i].r_user[j].f_email != '') {
                                 intermediateData[intermediateKey].emails.push(groups[i].r_user[j].f_email);
@@ -58,13 +59,14 @@ module.exports = (sequelize, DataTypes) => {
                     }
                 }
 
-                // USER EMAIL INSERTION
+                // FETCH USER EMAIL
                 {
                     // Exctract all user IDs from property to find them all at once
                     var userRegex = new RegExp(/{(user\|[^}]*)}/g);
                     while ((match = userRegex.exec(self[property])) != null) {
-                        intermediateData[match[0]] = {emails: []};
-                        var userId = parseInt(match[1].split('|')[1]);
+                        var placeholderParts = match[1].split('|');
+                        var userId = parseInt(placeholderParts[placeholderParts.length-1]);
+                        intermediateData['user'+userId] = {placeholder: match[0], emails: []};
                         userIds.push(userId);
                     }
 
@@ -75,7 +77,7 @@ module.exports = (sequelize, DataTypes) => {
 
                     // Exctract email and build intermediateData object used to replace placeholders
                     for (var i = 0; i < users.length; i++) {
-                        var intermediateKey = '{user|'+users[i].id+'}';
+                        var intermediateKey = 'user'+users[i].id;
                         if (users[i].f_email && users[i].f_email != '') {
                             intermediateData[intermediateKey].emails.push(users[i].f_email);
                             userMails.push(users[i].f_email);
@@ -83,9 +85,14 @@ module.exports = (sequelize, DataTypes) => {
                     }
                 }
 
-                // Replace each occurence of {group|id} and {user|id} placeholders by their built emails list
-                for (var placeholder in intermediateData)
-                    self[property] = self[property].replace(placeholder, intermediateData[placeholder].emails.join(', '));
+                // Replace each occurence of {group|label|id} and {user|label|id} placeholders by their built emails list
+                for (var prop in intermediateData) {
+                    // Escape placeholder and use it as a regex key to execute the replace on self[property]
+                    var regKey = intermediateData[prop].placeholder.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
+                    // Replace globaly
+                    var reg = new RegExp(regKey, 'g');
+                    self[property] = self[property].replace(reg, intermediateData[prop].emails.join(', '));
+                }
             }
         }
 

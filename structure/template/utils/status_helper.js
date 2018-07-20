@@ -7,6 +7,7 @@ module.exports = {
             entity: entity,
             alias: alias || entity,
             fields: [],
+            email_fields: [],
             children: []
         }
 
@@ -19,8 +20,11 @@ module.exports = {
         }
 
         // Building field array
-        for (var field in entityFields)
+        for (var field in entityFields) {
+            if (entityFields[field].newmipsType == "mail")
+                fieldTree.email_fields.push(field);
             fieldTree.fields.push(field);
+        }
 
         // Building children array
         for (var i = 0; i < entityAssociations.length; i++)
@@ -59,7 +63,8 @@ module.exports = {
                 options.push({
                     codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
                     traduction: traduction,
-                    target: obj.entity
+                    target: obj.entity,
+                    isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false
                 });
             }
 
