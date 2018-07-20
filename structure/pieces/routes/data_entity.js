@@ -261,6 +261,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
             return res.render('common/error', data);
         }
 
+        ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
@@ -268,7 +269,6 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
             entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
                 if (req.query.ajax) {
                     ENTITY_NAME.dataValues = data;
-                    ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
                     res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({
                         plain: true
                     }));
