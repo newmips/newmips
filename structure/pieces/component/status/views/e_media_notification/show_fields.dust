@@ -51,38 +51,11 @@
 
     <div style="min-height: 75px;" class="emptySpaceColumn col-md-12 col-sm-12 col-xs-12 column">
         <hr>
-        <h4 class="box-title">Cibles de la notification</h4>
+        <h4 class="box-title">{@__ key="component.status.notification_targets" /}</h4>
         <div class="row">
-            <div data-field="f_target_users" class="col-xs-12 col-sm-4 col-md-6" style="">
+            <div data-field="f_targets" class="col-xs-12 col-sm-6 col-md-4" style="">
                 <div class="form-group">
-                    <label for="f_target_users">
-                        {@__ key="entity.e_media_notification.r_target_users" /}
-                    </label>
-                    <select multiple="" class="form-control" name="r_target_users" disabled="" readonly="">
-                        {#r_target_users_global_list}
-                        {@inArray field="id" array=e_media.r_media_notification.r_target_users value=id}
-                        <option value="{f_login|string}" selected="">{f_login|string}</option>
-                        {:else}
-                        <option value="{f_login|string}">{f_login|string}</option>
-                        {/inArray}
-                        {/r_target_users_global_list}
-                    </select>
-                </div>
-            </div>
-            <div data-field="f_target_groups" class="col-xs-12 col-sm-4 col-md-6" style="">
-                <div class="form-group">
-                    <label for="f_target_groups">
-                        {@__ key="entity.e_media_notification.r_target_groups" /}
-                    </label>
-                    <select multiple="" class="form-control" name="r_target_groups" disabled="" readonly="">
-                        {#r_target_groups_global_list}
-                        {@inArray field="id" array=e_media.r_media_notification.r_target_groups value=id}
-                        <option value="{f_label|string}" selected="">{f_label|string}</option>
-                        {:else}
-                        <option value="{f_label|string}">{f_label|string}</option>
-                        {/inArray}
-                        {/r_target_groups_global_list}
-                    </select>
+                    <input name="f_targets" value="{f_targets}" class="form-control" readonly="">
                 </div>
             </div>
         </div>

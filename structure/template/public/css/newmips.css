@@ -19,7 +19,8 @@ select.form-control{
 }
 .hover:hover,
 .inline-help:hover,
-input[type=color]:hover {
+input[type=color]:hover,
+.insert:hover {
     cursor: pointer;
 }
 

@@ -91,24 +91,29 @@
 
     <div style="min-height: 75px;" class="emptySpaceColumn col-md-12 col-sm-12 col-xs-12 column">
         <hr>
-        <h4 class="box-title">Cibles de la notification</h4>
+        <h4 class="box-title">{@__ key="component.status.notification_targets" /}</h4>
         <div class="row">
-            <div data-field="f_target_users" class="col-xs-12 col-sm-4 col-md-6" style="">
+            <div data-field="f_targets" class="col-xs-12 col-sm-6 col-md-4" style="">
                 <div class="form-group">
-                    <label for="f_target_users">
-                        {@__ key="entity.e_media_notification.r_target_users" /}
+                    <label for="f_targets" style="float:left;height: 60px;">
+                        <br>
+                        <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                            </button>
+                            &nbsp;&nbsp;
+                            <ul class="dropdown-menu">
+{!                                 <li>
+                                    <a class="insert" data-type="email_field">
+                                        {@__ key="component.status.choose_email_field" /}
+                                    </a>
+                                </li>
+ !}                                <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
+                                <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
+                            </ul>
+                        </div>
                     </label>
-                    <br>
-                    <select style="width: 100%;" multiple="" class="ajax form-control" name="r_target_users" data-source="user" data-using="f_login"></select>
-                </div>
-            </div>
-            <div data-field="f_target_groups" class="col-xs-12 col-sm-4 col-md-6" style="">
-                <div class="form-group">
-                    <label for="f_target_groups">
-                        {@__ key="entity.e_media_notification.r_target_groups" /}
-                    </label>
-                    <br>
-                    <select style="width: 100%;" multiple="" class="ajax form-control" name="r_target_groups" data-source="group" data-using="f_label"></select>
+                    <input name="f_targets" class="form-control" readonly="">
                 </div>
             </div>
         </div>

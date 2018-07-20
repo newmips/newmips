@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
             }
 
             var newString = self[property];
-            var regex = new RegExp(/{([^}]*)}/g),
+            var regex = new RegExp(/{field\|([^}]*)}/g),
                 matches = null;
             while ((matches = regex.exec(self[property])) != null)
                 newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
@@ -42,37 +42,54 @@ module.exports = (sequelize, DataTypes) => {
             return newString || "";
         }
 
-        // Find all target users idY87
-        var targetIds = [];
-        var groupsIds = [];
-        // User list
-        for (var i = 0; self.r_target_users && i < self.r_target_users.length; i++)
-            targetIds.push(self.r_target_users[i].id);
-        // Group list
-        for (var i = 0; self.r_target_groups && i < self.r_target_groups.length; i++)
-            groupsIds.push(self.r_target_groups[i].id);
-        // Find all with group
-        models.E_user.findAll({
-            attributes: ['id'],
-            include: [{
-                model: models.E_group,
-                as: 'r_group',
-                where: {
-                    id: {
-                        $in: groupsIds
-                    }
+        async function getGroupAndUserID() {
+            property = 'f_targets';
+            var userIds = [];
+
+            // FETCH GROUP USERS
+            {
+                var groupIds = [];
+                // Exctract all group IDs from property to find them all at once
+                var groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+                while ((match = groupRegex.exec(self[property])) != null) {
+                    var placeholderParts = match[1].split('|');
+                    var groupId = parseInt(placeholderParts[placeholderParts.length-1]);
+                    groupIds.push(groupId);
                 }
-            }],
-            raw: true
-        }).then(function(groupUsers) {
-            for (var i = 0; i < groupUsers.length; i++)
-                targetIds.push(groupUsers[i].id);
+
+                // Fetch all groups found and their users
+                var groups = await sequelize.models.E_group.findAll({
+                    where: {id: {$in: groupIds}},
+                    include: {model: sequelize.models.E_user, as: 'r_user'}
+                });
+
+                // Exctract email and build intermediateData object used to replace placeholders
+                for (var i = 0; i < groups.length; i++) {
+                    for (var j = 0; j < groups[i].r_user.length; j++)
+                        userIds.push(groups[i].r_user[j].id);
+                }
+            }
+
+            // FETCH USERS
+            {
+                // Exctract all user IDs from property to find them all at once
+                var userRegex = new RegExp(/{(user\|[^}]*)}/g);
+                while ((match = userRegex.exec(self[property])) != null) {
+                    var placeholderParts = match[1].split('|');
+                    var userId = parseInt(placeholderParts[placeholderParts.length-1]);
+                    userIds.push(userId);
+                }
+            }
 
             // Remove duplicate id from array
-            targetIds = targetIds.filter(function(item, pos) {
-                return targetIds.indexOf(item) == pos;
+            userIds = userIds.filter(function(item, pos) {
+                return userIds.indexOf(item) == pos;
             });
 
+            return userIds;
+        }
+
+        getGroupAndUserID().then(function(targetIds) {
             var entityUrl;
             try {
                 try {
@@ -104,7 +121,6 @@ module.exports = (sequelize, DataTypes) => {
             }).catch(reject);
         });
     }
-
     builder.addHooks(Model, 'e_media_notification', attributes_origin);
 
     return Model;

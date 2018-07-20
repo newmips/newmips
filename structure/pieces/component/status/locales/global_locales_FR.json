@@ -12,6 +12,8 @@
 			"choose_from_user": "Séléctionner un utilisateur",
 			"choose_from_group": "Séléctionner un groupe",
 			"choose_from_field": "Séléctionner un champ",
+			"choose_email_field": "Séléctionner un champ email",
+			"notification_targets": "Cibles de la notification",
 			"no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici."
 		}
 	},
