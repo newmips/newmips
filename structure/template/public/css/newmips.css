@@ -17,12 +17,13 @@ select.form-control{
     border: 1px solid lightgrey;
     border-radius: 3px;
 }
-.hover:hover {
+.hover:hover,
+.inline-help:hover,
+input[type=color]:hover,
+.insert:hover {
     cursor: pointer;
 }
-.inline-help:hover {
-    cursor: pointer;
-}
+
 .icon-wrap {
     margin-bottom: 20px;
 }

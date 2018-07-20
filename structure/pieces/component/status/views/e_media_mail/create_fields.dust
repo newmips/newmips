@@ -1,37 +1,105 @@
 <div id="fields" class="row">
     <div data-field="f_to" class="col-xs-12 col-sm-6">
         <div class="form-group">
-            <label style="width:400px;" for="f_to"> {@__ key="entity.e_media_mail.f_to"/} </label>
+            <label class="mosaic-label" style="float:left;height: 60px;" for="f_to">
+                {@__ key="entity.e_media_mail.f_to"/}<br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
+                        <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
+                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_to" /}' name="f_to" value="" type="text">
         </div>
     </div>
     <div data-field="f_cc" class="col-xs-12 col-sm-6">
         <div class="form-group">
-            <label style="width:400px;" for="f_cc"> {@__ key="entity.e_media_mail.f_cc"/} </label>
+            <label class="mosaic-label" style="float:left;height: 60px;" for="f_cc">
+                {@__ key="entity.e_media_mail.f_cc"/}<br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
+                        <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
+                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_cc" /}' name="f_cc" value="" type="text">
         </div>
     </div>
     <div data-field="f_cci" class="col-xs-12 col-sm-6">
         <div class="form-group">
-            <label style="width:400px;" for="f_cci"> {@__ key="entity.e_media_mail.f_cci"/} </label>
+            <label class="mosaic-label" style="float:left;height: 60px;" for="f_cci">
+                {@__ key="entity.e_media_mail.f_cci"/}<br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
+                        <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
+                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_cci" /}' name="f_cci" value="" type="text">
         </div>
     </div>
     <div data-field="f_from" class="col-xs-12 col-sm-6">
         <div class="form-group">
-            <label style="width:400px;" for="f_from"> {@__ key="entity.e_media_mail.f_from"/} </label>
+            <label class="mosaic-label" style="float:left;height: 60px;" for="f_from">
+                {@__ key="entity.e_media_mail.f_from"/}<br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
+                        <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
+                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_from" /}' name="f_from" value="" type="text">
         </div>
     </div>
     <div data-field="f_subject" class="col-xs-12">
         <div class="form-group">
-            <label style="width:400px;" for="f_subject"> {@__ key="entity.e_media_mail.f_subject"/} </label>
+            <label class="mosaic-label" style="float:left;height: 60px;" for="f_subject">
+                {@__ key="entity.e_media_mail.f_subject"/}<br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
             <input class="form-control input" placeholder='{@__ key="entity.e_media_mail.f_subject" /}' name="f_subject" value="" type="text">
         </div>
     </div>
     <div data-field="f_content" class="col-xs-12">
         <div class="form-group">
-            <label style="width:400px;" for="f_content"> {@__ key="entity.e_media_mail.f_content"/} </label>
+            <label class="mosaic-label" style="height: 60px;" for="f_content">
+                {@__ key="entity.e_media_mail.f_content"/}<br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
             <textarea class="form-control textarea" placeholder='{@__ key="entity.e_media_mail.f_content" /}' name="f_content" id="f_content_textareaid" type="text">{f_content|s}</textarea>
         </div>
     </div>

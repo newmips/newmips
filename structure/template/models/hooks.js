@@ -35,14 +35,7 @@ module.exports = function(model_name, attributes) {
                                             as: 'r_media_mail'
                                         }, {
                                             model: getModels().E_media_notification,
-                                            as: 'r_media_notification',
-                                            include: [{
-                                                model: getModels().E_group,
-                                                as: 'r_target_groups'
-                                            }, {
-                                                model: getModels().E_user,
-                                                as: 'r_target_users'
-                                            }]
+                                            as: 'r_media_notification'
                                         }]
                                     }]
                                 }]

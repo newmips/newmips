@@ -11,6 +11,7 @@ var options = require('../models/options/e_api_credentials');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var component_helper = require('../utils/component_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
@@ -134,7 +135,7 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
         data.e_api_credentials = e_api_credentials;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials").then(function () {
-            entity_helper.status.translate(e_api_credentials, attributes, req.session.lang_user);
+            status_helper.translate(e_api_credentials, attributes, req.session.lang_user);
             data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("e_api_credentials");
             res.render('e_api_credentials/show', data);
         }).catch(function (err) {
@@ -447,7 +448,7 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 
     var errorRedirect = '/api_credentials/show?id=' + req.params.id_api_credentials;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_api_credentials');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_api_credentials');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({

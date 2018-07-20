@@ -11,6 +11,7 @@ var options = require('../models/options/e_media');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConf = require('../config/global');
 var fs = require('fs-extra');
 
@@ -34,7 +35,7 @@ fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
 });
 
 router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
-    var entityTree = entity_helper.status.entityFieldForSelect(req.params.entity, req.session.lang_user);
+    var entityTree = status_helper.entityFieldForSelect(req.params.entity, req.session.lang_user);
     res.json(entityTree).end();
 });
 
@@ -111,7 +112,7 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
 
             // Update some data before show, e.g get picture binary
             entity_helper.getPicturesBuffers(e_media, "e_media").then(function() {
-                entity_helper.status.translate(e_media, attributes, req.session.lang_user);
+                status_helper.translate(e_media, attributes, req.session.lang_user);
                 res.render('e_media/show', data);
             }).catch(function (err) {
                 entity_helper.error500(err, req, res, "/");
@@ -138,10 +139,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var notifOptions = require('../models/options/e_media_notification');
     var associationsFinder = model_builder.associationsFinder(models, options);
-    associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, notifOptions));
-
     Promise.all(associationsFinder).then(function (found) {
         for (var i = 0; i < found.length; i++)
             data[found[i].model] = found[i].rows;

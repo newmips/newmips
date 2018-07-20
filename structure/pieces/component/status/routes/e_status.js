@@ -11,6 +11,7 @@ var options = require('../models/options/e_status');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -175,7 +176,7 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
             e_status.f_field = 'entity.'+e_status.f_entity+'.'+e_status.f_field;
             e_status.f_entity = entityTradKey;
 
-            entity_helper.status.translate(e_status, attributes, req.session.lang_user);
+            status_helper.translate(e_status, attributes, req.session.lang_user);
             data.e_status = e_status;
             res.render('e_status/show', data);
         });
@@ -191,7 +192,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "create
         enum_radio: enums_radios.translated("e_status", req.session.lang_user, options)
     };
 
-    data.entities = entity_helper.status.entityStatusFieldList();
+    data.entities = status_helper.entityStatusFieldList();
 
     if (typeof req.query.associationFlag !== 'undefined') {
         data.associationFlag = req.query.associationFlag;
@@ -491,7 +492,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 
     var errorRedirect = '/status/show?id='+req.params.id_status;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_status');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_status');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({
