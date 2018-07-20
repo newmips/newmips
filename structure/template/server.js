@@ -242,7 +242,7 @@ app.use(function(req, res, next) {
 	}
 	dust.helpers.checkStatusPermission = function(chunk, context, bodies, params) {
 		var status = params.status;
-		var acceptedGroup = status.r_accepted_group;
+		var acceptedGroup = status.r_accepted_group || [];
 		var currentUserGroupIds = [];
 
         for(var i=0; i<req.session.passport.user.r_group.length; i++)
