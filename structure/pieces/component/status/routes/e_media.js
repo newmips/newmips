@@ -211,9 +211,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
         data.associationUrl = req.query.associationUrl;
     }
 
-    var notifOptions = require('../models/options/e_media_notification');
     var associationsFinder = model_builder.associationsFinder(models, options);
-    associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, notifOptions));
 
     Promise.all(associationsFinder).then(function (found) {
         models.E_media.findOne({where: {id: id_e_media}, include: [{all: true, nested: true}]}).then(function (e_media) {
