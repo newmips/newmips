@@ -11,6 +11,7 @@ var options = require('../models/options/e_cra_team');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -109,7 +110,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
         data.e_cra_team = e_cra_team;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_cra_team, "e_cra_team").then(function() {
-            entity_helper.status.translate(e_cra_team, attributes, req.session.lang_user);
+            status_helper.translate(e_cra_team, attributes, req.session.lang_user);
             res.render('e_cra_team/show', data);
         }).catch(function (err) {
             entity_helper.error500(err, req, res, "/");
@@ -408,7 +409,7 @@ router.get('/set_status/:id_cra_team/:status/:id_new_status', block_access.actio
 
     var errorRedirect = '/cra_team/show?id='+req.params.id_cra_team;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_cra_team');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_cra_team');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({

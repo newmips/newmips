@@ -10,6 +10,7 @@ var attributes = require('../models/attributes/e_user');
 var options = require('../models/options/e_user');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
+var status_helper = require('../utils/status_helper');
 var file_helper = require('../utils/file_helper');
 var component_helper = require('../utils/component_helper');
 var globalConfig = require('../config/global');
@@ -42,9 +43,9 @@ router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), fu
     filterDataTable("E_user", req.body, include).then(function (data) {
 
         var statusPromises = [];
-        if (entity_helper.status.statusFieldList(attributes).length > 0)
+        if (status_helper.statusFieldList(attributes).length > 0)
             for (var i = 0; i < data.data.length; i++)
-                statusPromises.push(entity_helper.status.currentStatus(models, "e_user", data.data[i], attributes, req.session.lang_user));
+                statusPromises.push(status_helper.currentStatus(models, "e_user", data.data[i], attributes, req.session.lang_user));
 
         Promise.all(statusPromises).then(function() {
             // Replace data enum value by translated value for datalist
@@ -207,7 +208,7 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
 
             // Update some data before show, e.g get picture binary
             e_user = entity_helper.getPicturesBuffers(e_user, attributes, options, "e_user");
-            entity_helper.status.translate(e_user, attributes, req.session.lang_user);
+            status_helper.translate(e_user, attributes, req.session.lang_user);
             res.render('e_user/show', data);
        });
 

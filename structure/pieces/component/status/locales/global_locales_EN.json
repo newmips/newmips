@@ -8,6 +8,12 @@
 			"next_status": "Next status",
 			"available_status": "Available status",
 			"children": "Next statuses",
+			"insert_variable": "Insert variable...",
+			"choose_from_user": "Choose a user",
+			"choose_from_group": "Choose a group",
+			"choose_from_field": "Choose a field",
+			"choose_email_field": "Choose email field",
+			"notification_targets": "Notification targets",
 			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure it."
 		}
 	},

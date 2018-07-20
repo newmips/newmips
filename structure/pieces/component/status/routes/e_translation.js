@@ -11,6 +11,7 @@ var options = require('../models/options/e_translation');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -73,9 +74,9 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
         data.e_translation = e_translation;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_translation, "e_translation").then(function() {
-            entity_helper.status.translate(e_translation, attributes, req.session.lang_user);
+            status_helper.translate(e_translation, attributes, req.session.lang_user);
             // Check if entity has Status component defined and get the possible next status
-            entity_helper.status.nextStatus(models, "e_translation", e_translation.id, attributes).then(function(nextStatus) {
+            status_helper.nextStatus(models, "e_translation", e_translation.id, attributes).then(function(nextStatus) {
                 if (nextStatus)
                     data.next_status = nextStatus;
 
@@ -388,7 +389,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 
     var errorRedirect = '/translation/show?id='+req.params.id_translation;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_translation');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_translation');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({
