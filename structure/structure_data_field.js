@@ -1386,7 +1386,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         select += '      <br><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;'+usingOption.join(' - ')+'\n';
         select += '  <!--{/' + alias + '_all}-->\n';
     } else {
-        select += '     <select multiple class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+        select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'" style="width:100%;">\n';
         select += '         <option value="">{@__ key="select.default" /}</option>\n';
         select += '         <!--{#' + alias + '}-->\n';
         select += '             <option value="{id}">'+usingOption.join(' - ')+'</option>\n';
@@ -1424,7 +1424,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                 select += '     <!--{/existInContextById}-->\n';
                 select += '  <!--{/' + alias + '_all}-->\n';
             } else {
-                select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+                select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'" style="width: 100%;">\n';
                 select += '         <!--{#' + alias + '}-->\n';
                 select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
                 select += '         <!--{/' + alias + '}-->\n';
