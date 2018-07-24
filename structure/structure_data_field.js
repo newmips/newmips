@@ -1132,8 +1132,8 @@ exports.setupHasManyTab = function (attr, callback) {
     var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
     var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
-    dataFR.entity[target]["as_" + alias] = showAlias;
-    dataEN.entity[target]["as_" + alias] = showAlias;
+    dataFR.entity[source][alias] = showAlias;
+    dataEN.entity[source][alias] = showAlias;
 
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -1152,7 +1152,7 @@ exports.setupHasManyTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</a></li>';
 
             // Create new tab content
             var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content sub-tab-table"></div></div>';
@@ -1182,8 +1182,8 @@ exports.setupHasManyPresetTab = function (attr, callback) {
     var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
     var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
-    dataFR.entity[target]["as_" + alias] = showAlias;
-    dataEN.entity[target]["as_" + alias] = showAlias;
+    dataFR.entity[source][alias] = showAlias;
+    dataEN.entity[source][alias] = showAlias;
 
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -1199,7 +1199,7 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
 
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</a></li>';
 
             var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content sub-tab-table"></div></div>';
 
@@ -1481,8 +1481,8 @@ exports.setupHasOneTab = function (attr, callback) {
     var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
     var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
-    dataFR.entity[target]["as_" + alias] = showAlias;
-    dataEN.entity[target]["as_" + alias] = showAlias;
+    dataFR.entity[source][alias] = showAlias;
+    dataEN.entity[source][alias] = showAlias;
 
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -1501,7 +1501,7 @@ exports.setupHasOneTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</a></li>';
 
             // Create new tab content
             var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';

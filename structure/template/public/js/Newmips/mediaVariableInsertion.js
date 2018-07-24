@@ -43,21 +43,20 @@ var insertionHandler = {
             return "{user|"+data.text+"|"+data.id+"}";
         }
     },
-    email_field: {
+    user_target: {
         displaySelector: function(label) {
             var entity = $("select[name=f_target_entity]").find('option:selected').val();
             if (!entity)
                 return toastr.warning('Aucune entité n\'est ciblé');
 
             $.ajax({
-                url: '/media/entity_tree/'+entity,
-                success: function(entityTree) {
+                url: '/media/user_tree/'+entity,
+                success: function(userTree) {
                     /* Create select  and options */
-                    var fieldSelect = '<select style="float:left;" class="emailFieldInsertion" name="insertionSelect" data-type="email_field">';
-                    fieldSelect += '<option value="-1">'+CHOOSE_FIELD+'</option>';
-                    for (var i = 0; i < entityTree.length; i++)
-                        if (entityTree[i].entity == "e_user")
-                            fieldSelect += '<option value="'+entityTree[i].codename+'">'+entityTree[i].traduction+'</option>';
+                    var fieldSelect = '<select style="float:left;" class="emailFieldInsertion" name="insertionSelect" data-type="user_target">';
+                    fieldSelect += '<option value="-1">'+CHOOSE_USER_TARGET+'</option>';
+                    for (var i = 0; i < userTree.length; i++)
+                        fieldSelect += '<option value="'+userTree[i].field+'">'+userTree[i].traduction+'</option>';
                     fieldSelect += '</select>';
 
                     $(fieldSelect).appendTo(label).css('width', '230px').select2();
@@ -65,7 +64,10 @@ var insertionHandler = {
             });
         },
         insertValue: function(data) {
-            return "{email_field|"+data.text+"|"+data.id+"}";
+            var userPath = data.id;
+            // Remove first and last char being `{` and `}`
+            userPath = data.id.substring(1, data.id.length-1);
+            return "{user_target|"+data.text+"|"+userPath+"}";
         }
     }
 }

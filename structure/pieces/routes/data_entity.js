@@ -493,37 +493,16 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     var errorRedirect = '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME;
 
     var includeTree = status_helper.generateEntityInclude(models, 'ENTITY_NAME');
-
-    // Find target entity instance and include its child to be able to replace variables in media
-    includeTree.push({
-        model: models[historyModel],
-        as: historyAlias,
-        limit: 1,
-        order: [
-            ["id", "DESC"]
-        ],
-        include: [{
-            model: models.E_status,
-            as: statusAlias
-        }]
-    });
     models.MODEL_NAME.findOne({
         where: {
             id: req.params.id_ENTITY_URL_NAME
         },
         include: includeTree
     }).then(function(ENTITY_NAME) {
-        if (!ENTITY_NAME || !ENTITY_NAME[historyAlias] || !ENTITY_NAME[historyAlias][0][statusAlias]) {
-            logger.debug("Not found - Set status");
-            return res.render('common/error', {
-                error: 404
-            });
-        }
-
         // Find the children of the current status
         models.E_status.findOne({
             where: {
-                id: ENTITY_NAME[historyAlias][0][statusAlias].id
+                id: ENTITY_NAME[statusAlias].id
             },
             include: [{
                 model: models.E_status,

@@ -21,7 +21,7 @@
         </li>
         {/entityAccess}
         {@entityAccess entity="action"}
-        <li><a id="r_actions-click" data-toggle="tab" data-tabtype="hasMany" href="#r_actions">{@__ key="entity.e_action.as_r_actions" /}</a></li>
+        <li><a id="r_actions-click" data-toggle="tab" data-tabtype="hasMany" href="#r_actions">{@__ key="entity.e_status.r_actions" /}</a></li>
         {/entityAccess}
     </ul>
     {/hideTab}

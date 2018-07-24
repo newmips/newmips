@@ -552,65 +552,60 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 });
 
 router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
-    var historyModel = 'E_history_e_user_'+req.params.status;
-    var historyAlias = 'r_history_'+req.params.status.substring(2);
-    var statusAlias = 'r_'+req.params.status.substring(2);
+    var historyModel = 'E_history_e_user_' + req.params.status;
+    var historyAlias = 'r_history_' + req.params.status.substring(2);
+    var statusAlias = 'r_' + req.params.status.substring(2);
 
-    var errorRedirect = '/user/show?id='+req.params.id_user;
-    // Find target entity instance
+    var errorRedirect = '/user/show?id=' + req.params.id_user;
+
+    var includeTree = status_helper.generateEntityInclude(models, 'e_user');
     models.E_user.findOne({
-        where: {id: req.params.id_user},
-        include: [{
-            model: models[historyModel],
-            as: historyAlias,
-            limit: 1,
-            order: [["createdAt", "DESC"]],
-            include: [{
-                model: models.E_status,
-                as: statusAlias
-            }]
-        }, {
-            // Include all associations that can later be used by media to include variables value
-            all: true, nested: true
-        }]
+        where: {
+            id: req.params.id_user
+        },
+        include: includeTree
     }).then(function(e_user) {
-        if (!e_user || !e_user[historyAlias] || !e_user[historyAlias][0][statusAlias]){
-            logger.debug("Not found - Set status");
-            return res.render('common/error', {error: 404});
-        }
-
         // Find the children of the current status
         models.E_status.findOne({
-            where: {id: e_user[historyAlias][0][statusAlias].id},
+            where: {
+                id: e_user[statusAlias].id
+            },
             include: [{
                 model: models.E_status,
                 as: 'r_children',
-                    include: [{
+                include: [{
                     model: models.E_action,
                     as: 'r_actions',
                     order: ["f_position", "ASC"],
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
-                        include: [{all: true, nested: true}]
+                        include: {
+                            all: true,
+                            nested: true
+                        }
                     }]
                 }]
             }]
         }).then(function(current_status) {
-            if (!current_status || !current_status.r_children){
+            if (!current_status || !current_status.r_children) {
                 logger.debug("Not found - Set status");
-                return res.render('common/error', {error: 404});
+                return res.render('common/error', {
+                    error: 404
+                });
             }
 
             // Check if new status is actualy the current status's children
             var children = current_status.r_children;
             var nextStatus = false;
             for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status)
-                    {nextStatus = children[i]; break;}
+                if (children[i].id == req.params.id_new_status) {
+                    nextStatus = children[i];
+                    break;
+                }
             }
             // Unautorized
-            if (nextStatus === false){
+            if (nextStatus === false) {
                 req.session.toastr = [{
                     level: 'error',
                     message: 'component.status.error.illegal_status'
@@ -623,11 +618,26 @@ router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAcc
                 // Create history record for this status field
                 // Beeing the most recent history for user it will now be its current status
                 var createObject = {}
-                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_user_history_"+req.params.status.substring(2)] = req.params.id_user;
+                if (req.query.comment)
+                    createObject.f_comment = req.query.comment;
+                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_user_history_" + req.params.status.substring(2)] = req.params.id_user;
                 models[historyModel].create(createObject).then(function() {
-                    e_user['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/user/show?id='+req.params.id_user)
+                    e_user['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/user/show?id=' + req.params.id_user)
+                });
+            }).catch(function(err) {
+                console.error(err);
+                req.session.toastr = [{
+                    level: 'warning',
+                    message: 'component.status.error.action_error'
+                }]
+                var createObject = {}
+                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                createObject["fk_id_user_history_" + req.params.status.substring(2)] = req.params.id_user;
+                models[historyModel].create(createObject).then(function() {
+                    e_user['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+                    res.redirect('/user/show?id=' + req.params.id_user)
                 });
             });
         });

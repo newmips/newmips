@@ -81,6 +81,30 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
 
+            // FETCH USER TARGETED THROUGH RELATION
+            {
+                function findAndPushUser(object, path, depth) {
+                    if (depth < path.length && (!path[depth] || !object[path[depth]]))
+                        return null;
+                    if (depth < path.length)
+                        return findAndPushUser(object[path[depth]], path, ++depth);
+
+                    var targetedUser = object;
+                    if (targetedUser instanceof Array)
+                        for (var i = 0; i < targetedUser.length; i++)
+                            userIds.push(targetedUser[i].id);
+                    else
+                        userIds.push(targetedUser.id)
+                }
+                // Exctract all user IDs from property to find them all at once
+                var userRegex = new RegExp(/{(user_target\|[^}]*)}/g);
+                while ((match = userRegex.exec(self[property])) != null) {
+                    var placeholderParts = match[1].split('|');
+                    var userFieldPath = placeholderParts[placeholderParts.length-1];
+                    // Dive in dataInstance to find targeted user
+                    findAndPushUser(dataInstance, userFieldPath.split('.'), 0);
+                }
+            }
             // Remove duplicate id from array
             userIds = userIds.filter(function(item, pos) {
                 return userIds.indexOf(item) == pos;
