@@ -93,7 +93,7 @@
         <hr>
         <h4 class="box-title">{@__ key="component.status.notification_targets" /}</h4>
         <div class="row">
-            <div data-field="f_targets" class="col-xs-12 col-sm-6 col-md-4" style="">
+            <div data-field="f_targets" class="col-xs-12 col-sm-12 col-md-12" style="">
                 <div class="form-group">
                     <label for="f_targets" style="float:left;height: 60px;">
                         <br>
@@ -103,12 +103,8 @@
                             </button>
                             &nbsp;&nbsp;
                             <ul class="dropdown-menu">
-{!                                 <li>
-                                    <a class="insert" data-type="email_field">
-                                        {@__ key="component.status.choose_email_field" /}
-                                    </a>
-                                </li>
- !}                                <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
+                                <li><a class="insert" data-type="user_target">{@__ key="component.status.choose_user_target" /}</a></li>
+                                <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
                                 <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
                             </ul>
                         </div>

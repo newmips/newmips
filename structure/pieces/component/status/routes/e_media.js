@@ -39,6 +39,12 @@ router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", 
     res.json(entityTree).end();
 });
 
+router.get('/user_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
+    var userTree = status_helper.getUserTargetList(models, req.params.entity, req.session.lang_user);
+
+    res.json(userTree).end();
+});
+
 router.get('/list', block_access.actionAccessMiddleware("media", "read"), function (req, res) {
     var data = {
         "menu": "e_media",

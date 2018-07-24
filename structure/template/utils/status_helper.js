@@ -33,6 +33,59 @@ module.exports = {
 
         return fieldTree;
     },
+    fullEntityFieldTree: function (entity, alias, genealogy = []) {
+        var fieldTree = {
+            entity: entity,
+            alias: alias || entity,
+            fields: [],
+            email_fields: [],
+            children: []
+        }
+        try {
+            var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+            var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+        } catch (e) {
+            console.error(e);
+            return fieldTree;
+        }
+
+        // Building field array
+        for (var field in entityFields) {
+            if (entityFields[field].newmipsType == "mail")
+                fieldTree.email_fields.push(field);
+            fieldTree.fields.push(field);
+        }
+
+        // Check if current entity has already been built in this branch of the tree to avoid infinite loop
+        if (genealogy.indexOf(entity) != -1)
+            return fieldTree;
+        genealogy.push(entity);
+
+        // Building children array
+        for (var i = 0; i < entityAssociations.length; i++)
+            fieldTree.children.push(this.fullEntityFieldTree(entityAssociations[i].target, entityAssociations[i].as, genealogy));
+
+        return fieldTree;
+    },
+    getUserTargetList: function(models, entity, lang) {
+        var __ = language(lang).__;
+        var entityTree = this.fullEntityFieldTree(entity);
+        entityTree.topLevel = true;
+        var userList = [];
+        function dive(obj, parent = null) {
+            if (obj.entity == "e_user") {
+                userList.push({
+                    traduction: __("entity."+parent.entity+"."+obj.alias),
+                    field: "{" + (parent == null || parent.topLevel ? obj.alias : parent.alias+'.'+obj.alias) + "}"
+                });
+            }
+            else
+                for (var i = 0; i < obj.children.length; i++)
+                    dive(obj.children[i], obj)
+        }
+        dive(entityTree);
+        return userList;
+    },
     generateEntityInclude: function(models, entity) {
         function includeBuilder(obj) {
             var includes = [];
@@ -48,7 +101,7 @@ module.exports = {
             }
             return includes;
         }
-        return includeBuilder(this.entityFieldTree(entity));
+        return includeBuilder(this.fullEntityFieldTree(entity));
     },
     entityFieldForSelect: function(entity, lang) {
         var mainTree = this.entityFieldTree(entity);
