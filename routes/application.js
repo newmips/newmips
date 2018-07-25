@@ -810,13 +810,13 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Value");
     instructions.push("create entity Media");
     instructions.push("set icon envelope");
-    instructions.push("add field Type with type enum and values Mail, Notification, Function");
+    instructions.push("add field Type with type enum and values Mail, Notification, SMS");
     instructions.push("add field Name");
     instructions.push("set field Name required");
     instructions.push("add field Target entity");
     instructions.push("entity Media has one Media Mail");
     instructions.push("entity Media has one Media Notification");
-    instructions.push("entity Media has one Media Function");
+    instructions.push("entity Media has one Media SMS");
     instructions.push("entity status has many Action called Actions");
     instructions.push("select entity action");
     instructions.push("add field Media related to Media using name");
@@ -841,9 +841,9 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field URL");
     instructions.push("add field Color with type color");
     instructions.push("add field Icon");
-    instructions.push("select entity media function");
-    instructions.push("add field Title");
-    instructions.push("add field Function with type text");
+    instructions.push("select entity media SMS");
+    instructions.push("add field Message with type text");
+    instructions.push("add field Phone numbers");
     instructions.push("entity user has many notification");
     instructions.push("entity notification has many user");
 

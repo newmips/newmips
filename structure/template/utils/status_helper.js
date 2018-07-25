@@ -8,6 +8,7 @@ module.exports = {
             alias: alias || entity,
             fields: [],
             email_fields: [],
+            phone_fields: [],
             children: []
         }
 
@@ -39,6 +40,7 @@ module.exports = {
             alias: alias || entity,
             fields: [],
             email_fields: [],
+            phone_fields: [],
             children: []
         }
         try {
@@ -53,6 +55,8 @@ module.exports = {
         for (var field in entityFields) {
             if (entityFields[field].newmipsType == "mail")
                 fieldTree.email_fields.push(field);
+            if (entityFields[field].newmipsType == "phone")
+                fieldTree.phone_fields.push(field);
             fieldTree.fields.push(field);
         }
 
@@ -67,9 +71,8 @@ module.exports = {
 
         return fieldTree;
     },
-    getUserTargetList: function(models, entity, lang) {
+    getUserTargetList: function(models, entityTree, lang) {
         var __ = language(lang).__;
-        var entityTree = this.fullEntityFieldTree(entity);
         entityTree.topLevel = true;
         var userList = [];
         function dive(obj, parent = null) {
@@ -103,8 +106,7 @@ module.exports = {
         }
         return includeBuilder(this.fullEntityFieldTree(entity));
     },
-    entityFieldForSelect: function(entity, lang) {
-        var mainTree = this.entityFieldTree(entity);
+    entityFieldForSelect: function(entityTree, lang) {
         var __ = language(lang).__;
         var separator = ' > ';
         var options = [];
@@ -117,7 +119,8 @@ module.exports = {
                     codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
                     traduction: traduction,
                     target: obj.entity,
-                    isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false
+                    isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
+                    isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false
                 });
             }
 
@@ -126,7 +129,7 @@ module.exports = {
         }
 
         // Build options array
-        dive(mainTree);
+        dive(entityTree);
 
         // Sort options array
         function sort(optsArray, i) {

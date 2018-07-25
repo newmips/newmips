@@ -35,13 +35,21 @@ fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
 });
 
 router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
-    var entityTree = status_helper.entityFieldForSelect(req.params.entity, req.session.lang_user);
-    res.json(entityTree).end();
+    var entityTree = status_helper.entityFieldTree(req.params.entity);
+    var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
+    res.json(entityTreeSelect).end();
+});
+
+router.get('/entity_phone_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
+    var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
+    var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
+    console.log(entityTreeSelect)
+    res.json(entityTreeSelect).end();
 });
 
 router.get('/user_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
-    var userTree = status_helper.getUserTargetList(models, req.params.entity, req.session.lang_user);
-
+    var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
+    var userTree = status_helper.getUserTargetList(models, entityTree, req.session.lang_user);
     res.json(userTree).end();
 });
 

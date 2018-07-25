@@ -243,6 +243,8 @@ function initializeWorkflow(id_application, name_application) {
         fs.copySync(piecesPath + '/views/e_media_mail/', workspacePath + '/views/e_media_mail/');
         // media notification
         fs.copySync(piecesPath + '/views/e_media_notification/', workspacePath + '/views/e_media_notification/');
+        // // media sms
+        fs.copySync(piecesPath + '/views/e_media_sms/', workspacePath + '/views/e_media_sms/');
         // translation
         fs.copySync(piecesPath + '/views/e_translation/', workspacePath + '/views/e_translation/');
         // action
@@ -267,6 +269,10 @@ function initializeWorkflow(id_application, name_application) {
                 modelMedia = fs.readFileSync(piecesPath + '/models/e_media_notification.js', 'utf8');
                 modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
                 fs.writeFileSync(workspacePath + '/models/e_media_notification.js', modelMedia, 'utf8');
+                // Media sms
+                modelMedia = fs.readFileSync(piecesPath + '/models/e_media_sms.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath + '/models/e_media_sms.js', modelMedia, 'utf8');
                 // Write new locales trees
                 var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
