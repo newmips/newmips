@@ -69,6 +69,31 @@ var insertionHandler = {
             userPath = data.id.substring(1, data.id.length-1);
             return "{user_target|"+data.text+"|"+userPath+"}";
         }
+    },
+    phone_field: {
+        displaySelector: function(label) {
+            var entity = $("select[name=f_target_entity]").find('option:selected').val();
+            if (!entity)
+                return toastr.warning('Aucune entité n\'est ciblé');
+
+            $.ajax({
+                url: '/media/entity_phone_tree/'+entity,
+                success: function(userTree) {
+                    /* Create select  and options */
+                    var fieldSelect = '<select style="float:left;" class="phoneFieldInsertion" name="insertionSelect" data-type="phone_field">';
+                    fieldSelect += '<option value="-1">'+CHOOSE_USER_TARGET+'</option>';
+                    for (var i = 0; i < userTree.length; i++)
+                        if (userTree[i].isPhone)
+                            fieldSelect += '<option value="'+userTree[i].codename+'">'+userTree[i].traduction+'</option>';
+                    fieldSelect += '</select>';
+
+                    $(fieldSelect).appendTo(label).css('width', '230px').select2();
+                }
+            });
+        },
+        insertValue: function(data) {
+            return "{field|"+data.id+"}";
+        }
     }
 }
 
@@ -86,11 +111,18 @@ $(function() {
 
     // When target entity change, reload each related select2
     $("select[name=f_target_entity]").on('change', function() {
-        $(".fieldInsertion, .emailFieldInsertion").each(function() {
+        $(".fieldInsertion, .emailFieldInsertion, .phoneFieldInsertion").each(function() {
             var label = $(this).parent('label');
-            var isEmail = $(this).hasClass('emailFieldInsertion');
+            var handlerType;
+            if ($(this).hasClass('emailFieldInsertion'))
+                handlerType = 'email_field';
+            else if ($(this).hasClass('phoneFieldInsertion'))
+                handlerType = 'phone_field';
+            else
+                handlerType = 'field';
+
             $(this).select2('destroy').remove();
-            insertionHandler[isEmail ? 'email_field' : 'field'].displaySelector(label);
+            insertionHandler[handlerType].displaySelector(label);
         });
     });
 

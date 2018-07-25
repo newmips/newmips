@@ -762,7 +762,8 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 
     where.offset = offset;
     where.limit = limit;
-    where.include = [{model: models.E_role, as:'r_role'}, {model: models.E_group, as: 'r_group'}];
+// If this is uncommentted, when a user have multiple roles/groups he appear multiple times in the search select
+//    where.include = [{model: models.E_role, as:'r_role'}, {model: models.E_group, as: 'r_group'}];
     models.E_user.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         res.json(results);
