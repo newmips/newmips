@@ -6,5 +6,6 @@
 		"chat": false,
 		"notification": true
 	},
+	"contact_field_for_sms": "f_phone",
 	"maintenance": false
 }

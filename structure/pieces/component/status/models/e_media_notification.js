@@ -21,32 +21,12 @@ module.exports = (sequelize, DataTypes) => {
         if (!models)
             models = require('./index');
 
-        function insertVariablesValue(property) {
-            function diveData(object, depths, idx) {
-                if (!object[depths[idx]])
-                    return "";
-                else if (typeof object[depths[idx]] === 'object') {
-                    if (object[depths[idx]] instanceof Date)
-                        return moment(object[depths[idx]]).format("DD/MM/YYYY");
-                    return diveData(object[depths[idx]], depths, ++idx);
-                } else
-                    return object[depths[idx]];
-            }
-
-            var newString = self[property];
-            var regex = new RegExp(/{field\|([^}]*)}/g),
-                matches = null;
-            while ((matches = regex.exec(self[property])) != null)
-                newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
-
-            return newString || "";
-        }
-
         async function getGroupAndUserID() {
             property = 'f_targets';
             var userIds = [];
 
-            // FETCH GROUP USERS
+            // EXTRACT GROUP USERS
+            // Placeholder ex: {group|Admin|1}
             {
                 var groupIds = [];
                 // Exctract all group IDs from property to find them all at once
@@ -70,7 +50,8 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
 
-            // FETCH USERS
+            // EXTRACT USERS
+            // Placeholder ex: {user|Jeremy|4}
             {
                 // Exctract all user IDs from property to find them all at once
                 var userRegex = new RegExp(/{(user\|[^}]*)}/g);
@@ -81,11 +62,12 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
 
-            // FETCH USER TARGETED THROUGH RELATION
+            // EXTRACT USER TARGETED THROUGH RELATION
+            // Placeholder ex: {user_target|Enfant|r_parent.r_enfant}
             {
-                function findAndPushUser(object, path, depth) {
+                function findAndPushUser(object, path, depth = 0) {
                     if (depth < path.length && (!path[depth] || !object[path[depth]]))
-                        return null;
+                        return;
                     if (depth < path.length)
                         return findAndPushUser(object[path[depth]], path, ++depth);
 
@@ -96,13 +78,13 @@ module.exports = (sequelize, DataTypes) => {
                     else
                         userIds.push(targetedUser.id)
                 }
-                // Exctract all user IDs from property to find them all at once
+
                 var userRegex = new RegExp(/{(user_target\|[^}]*)}/g);
                 while ((match = userRegex.exec(self[property])) != null) {
                     var placeholderParts = match[1].split('|');
                     var userFieldPath = placeholderParts[placeholderParts.length-1];
                     // Dive in dataInstance to find targeted user
-                    findAndPushUser(dataInstance, userFieldPath.split('.'), 0);
+                    findAndPushUser(dataInstance, userFieldPath.split('.'));
                 }
             }
             // Remove duplicate id from array
@@ -111,6 +93,27 @@ module.exports = (sequelize, DataTypes) => {
             });
 
             return userIds;
+        }
+
+        function insertVariablesValue(property) {
+            function diveData(object, depths, idx) {
+                if (!object[depths[idx]])
+                    return "";
+                else if (typeof object[depths[idx]] === 'object') {
+                    if (object[depths[idx]] instanceof Date)
+                        return moment(object[depths[idx]]).format("DD/MM/YYYY");
+                    return diveData(object[depths[idx]], depths, ++idx);
+                } else
+                    return object[depths[idx]];
+            }
+
+            var newString = self[property];
+            var regex = new RegExp(/{field\|([^}]*)}/g),
+                matches = null;
+            while ((matches = regex.exec(self[property])) != null)
+                newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
+
+            return newString || "";
         }
 
         getGroupAndUserID().then(function(targetIds) {

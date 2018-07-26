@@ -43,7 +43,6 @@ router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", 
 router.get('/entity_phone_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
     var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
     var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
-    console.log(entityTreeSelect)
     res.json(entityTreeSelect).end();
 });
 
@@ -116,7 +115,7 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
         var associationsFinder = model_builder.associationsFinder(models, options);
         associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_notification')));
         associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_mail')));
-        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_function')));
+        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_sms')));
 
         Promise.all(associationsFinder).then(function (found) {
             for (var i = 0; i < found.length; i++) {

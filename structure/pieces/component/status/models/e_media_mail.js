@@ -116,8 +116,8 @@ module.exports = (sequelize, DataTypes) => {
             while ((matches = regex.exec(self[property])) != null)
                 newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 
-            self[property] = newString;
-            return newString || "";
+            self[property] = newString || "";
+            return self[property];
         }
 
         // Replace {group|id} and {user|id} placeholders before inserting variables

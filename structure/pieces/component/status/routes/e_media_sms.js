@@ -33,7 +33,7 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
             f_type: 'SMS',
             f_name: req.body.f_name,
             f_target_entity: req.body.f_target_entity,
-            fk_id_media_notification: e_media_sms.id
+            fk_id_media_sms: e_media_sms.id
         }).then(function(e_media) {
 
             var redirect = '/media/show?id=' + e_media.id;

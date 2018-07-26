@@ -124,7 +124,7 @@ var lang = 'fr-FR';
 
 module.exports = {
     entities_to_exclude: [
-        'E_action', 'E_api_credentials', 'E_inline_help', 'E_media', 'E_media_function', 'E_media_mail',
+        'E_action', 'E_api_credentials', 'E_inline_help', 'E_media', 'E_media_sms', 'E_media_mail',
         'E_notification', 'E_status', 'E_document_template', 'E_media_notification', 'E_translation'
     ],
     globalVariables: [
