@@ -2,6 +2,7 @@ var fs = require('fs-extra');
 var language = require('../services/language');
 
 module.exports = {
+    // Build entity tree with fields and ONLY belongsTo associations
     entityFieldTree: function (entity, alias) {
         var fieldTree = {
             entity: entity,
@@ -34,10 +35,11 @@ module.exports = {
 
         return fieldTree;
     },
-    fullEntityFieldTree: function (entity, alias, genealogy = []) {
+    // Build entity tree with fields and ALL associations
+    fullEntityFieldTree: function (entity, alias = entity, genealogy = []) {
         var fieldTree = {
             entity: entity,
-            alias: alias || entity,
+            alias: alias,
             fields: [],
             email_fields: [],
             phone_fields: [],
@@ -71,6 +73,21 @@ module.exports = {
 
         return fieldTree;
     },
+    // Build sequelize formated include object from tree
+    buildIncludeFromTree: function(models, entityTree) {
+        var includes = [];
+        for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
+            var include = {};
+            var child = entityTree.children[i];
+            include.as = child.alias;
+            include.model = models[child.entity.charAt(0).toUpperCase() + child.entity.toLowerCase().slice(1)];
+            if (child.children && child.children.length != 0)
+                include.include = this.buildIncludeFromTree(models, child);
+            includes.push(include);
+        }
+        return includes;
+    },
+    // Build array of user target for media_notification insertion <select>
     getUserTargetList: function(models, entityTree, lang) {
         var __ = language(lang).__;
         entityTree.topLevel = true;
@@ -89,32 +106,17 @@ module.exports = {
         dive(entityTree);
         return userList;
     },
-    generateEntityInclude: function(models, entity) {
-        function includeBuilder(obj) {
-            var includes = [];
-            for (var i = 0; obj.children && i < obj.children.length; i++) {
-                var include = {};
-                var child = obj.children[i];
-                include.as = child.alias;
-                include.model = models[child.entity.charAt(0).toUpperCase() + child.entity.toLowerCase().slice(1)];
-                if (child.children && child.children.length != 0) {
-                    include.include = includeBuilder(child);
-                }
-                includes.push(include);
-            }
-            return includes;
-        }
-        return includeBuilder(this.fullEntityFieldTree(entity));
-    },
+    // Build array of fields for media sms/notification/email insertion <select>
     entityFieldForSelect: function(entityTree, lang) {
         var __ = language(lang).__;
         var separator = ' > ';
         var options = [];
-        function dive(obj, codename) {
+        function dive(obj, codename, parent) {
             for (var j = 0; j < obj.fields.length; j++) {
                 if (obj.fields[j].indexOf('f_') != 0)
                     continue;
-                var traduction = __('entity.'+obj.entity+'.label_entity') + separator +__('entity.'+obj.entity+'.'+obj.fields[j]);
+                var traduction = (parent) ? __('entity.'+parent.entity+'.'+obj.alias) : __('entity.'+obj.entity+'.label_entity');
+                traduction += separator + __('entity.'+obj.entity+'.'+obj.fields[j]);
                 options.push({
                     codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
                     traduction: traduction,
@@ -125,7 +127,7 @@ module.exports = {
             }
 
             for (var i = 0; i < obj.children.length; i++)
-                dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias);
+                dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias, obj);
         }
 
         // Build options array

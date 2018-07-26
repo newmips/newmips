@@ -81,7 +81,7 @@ var insertionHandler = {
                 success: function(userTree) {
                     /* Create select  and options */
                     var fieldSelect = '<select style="float:left;" class="phoneFieldInsertion" name="insertionSelect" data-type="phone_field">';
-                    fieldSelect += '<option value="-1">'+CHOOSE_USER_TARGET+'</option>';
+                    fieldSelect += '<option value="-1">'+CHOOSE_PHONE_FIELD+'</option>';
                     for (var i = 0; i < userTree.length; i++)
                         if (userTree[i].isPhone)
                             fieldSelect += '<option value="'+userTree[i].codename+'">'+userTree[i].traduction+'</option>';
@@ -92,7 +92,7 @@ var insertionHandler = {
             });
         },
         insertValue: function(data) {
-            return "{field|"+data.id+"}";
+            return "{phone_field|"+data.id+"}";
         }
     }
 }

@@ -109,7 +109,7 @@
                             </ul>
                         </div>
                     </label>
-                    <input name="f_targets" class="form-control" readonly="">
+                    <input name="f_targets" class="form-control">
                 </div>
             </div>
         </div>

@@ -492,7 +492,8 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
 
     var errorRedirect = '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME;
 
-    var includeTree = status_helper.generateEntityInclude(models, 'ENTITY_NAME');
+    var entityTree = status_helper.fullEntityFieldTree('ENTITY_NAME');
+    var includeTree = status_helper.buildIncludeFromTree(models, entityTree)
     models.MODEL_NAME.findOne({
         where: {
             id: req.params.id_ENTITY_URL_NAME

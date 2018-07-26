@@ -45,9 +45,9 @@
             {>"e_media_notification/update_fields" /}
         </div>
     {/r_media_notification}
-    {#r_media_function}
-        <div id="media-function" class="media-type col-xs-12">
-            {>"e_media_function/update_fields" /}
+    {#r_media_sms}
+        <div id="media-sms" class="media-type col-xs-12">
+            {>"e_media_sms/update_fields" /}
         </div>
-    {/r_media_function}
+    {/r_media_sms}
 </div>

@@ -30,9 +30,9 @@
                     <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
                     </button>&nbsp;&nbsp;
                     <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="phone_field">{@__ key="component.status.choose_from_phone_field" /}</a></li>
                         <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
                         <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
-                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
                     </ul>
                 </div>
             </label>

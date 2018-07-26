@@ -12,6 +12,7 @@
 			"choose_from_user": "Choose a user",
 			"choose_from_group": "Choose a group",
 			"choose_from_field": "Choose a field",
+			"choose_from_phone_field": "Choose a field with type phone",
 			"choose_user_target": "Choose field related to user",
 			"notification_targets": "Notification targets",
 			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure it."
