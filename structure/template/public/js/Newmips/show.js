@@ -318,8 +318,10 @@ $(function() {
                 tab.data('target', data.option.target);
 
                 // Build tab content
-                if (data.option.structureType == 'hasOne')
+                if (data.option.structureType == 'hasOne') {
                     initHasOne(tab, data);
+                    bindStatusComment(tab);
+                }
                 else if (data.option.structureType == 'hasMany')
                     initHasMany(tab, data);
                 else if (data.option.structureType == 'hasManyPreset')
