@@ -814,13 +814,9 @@ function validateForm(form) {
     return isValid;
 }
 
-// DOM READY LOADING
-$(document).ready(function () {
-
-    initForm();
-
-   /* --------------- Status comment modal --------------- */
-    $(".status").click(function() {
+/* --------------- Status comment modal --------------- */
+function bindStatusComment(context = document) {
+    $(".status", context).click(function() {
         var url = $(this).data('href');
 
         // No comment for this status
@@ -837,6 +833,12 @@ $(document).ready(function () {
 
         $("#statusComment").modal('show');
     });
+}
+
+// DOM READY LOADING
+$(document).ready(function () {
+
+    initForm();
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function () {
