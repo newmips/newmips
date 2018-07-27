@@ -121,7 +121,7 @@ module.exports = (sequelize, DataTypes) => {
             try {
                 try {
                     // Build show url of targeted entity
-                    entityUrl = dataInstance.$modelOptions.tableName;
+                    entityUrl = dataInstance._modelOptions.tableName;
                     entityUrl = entityUrl.substring(entityUrl.indexOf('e_') + 2, entityUrl.length);
                     entityUrl = '/' + entityUrl + '/show?id=' + dataInstance.id;
                 } catch(e) {
