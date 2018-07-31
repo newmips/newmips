@@ -839,6 +839,7 @@ function bindStatusComment(context = document) {
 $(document).ready(function () {
 
     initForm();
+    bindStatusComment();
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function () {
