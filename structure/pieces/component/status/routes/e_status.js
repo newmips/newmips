@@ -121,6 +121,65 @@ router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), 
     });
 });
 
+router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"), function(req, res) {
+    var start = parseInt(req.body.start || 0);
+    var length = parseInt(req.body.length || 10);
+
+    var sourceId = req.query.sourceId;
+    var subentityAlias = req.query.subentityAlias;
+    var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
+    var doPagination = req.query.paginate;
+
+    var queryAttributes = [];
+    for (var i = 0; i < req.body.columns.length; i++)
+        if (req.body.columns[i].searchable == 'true')
+            queryAttributes.push(req.body.columns[i].data);
+
+    var include = {
+        model: models[subentityModel],
+        as: subentityAlias,
+        include: {
+            all: true
+        }
+    }
+    if (doPagination == "true") {
+        include.limit = length;
+        include.offset = start;
+    }
+
+    models.E_status.findOne({
+        where: {
+            id: parseInt(sourceId)
+        },
+        include: include
+    }).then(function(e_status) {
+        if (!e_status['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
+            console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
+            return res.status(500).end();
+        }
+
+        e_status['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+            var rawData = {
+                recordsTotal: count,
+                recordsFiltered: count,
+                data: []
+            };
+            for (var i = 0; i < e_status[subentityAlias].length; i++)
+                rawData.data.push(e_status[subentityAlias][i].get({
+                    plain: true
+                }));
+
+            entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
+                res.send(preparedData).end();
+            }).catch(function(err) {
+                console.log(err);
+                logger.debug(err);
+                res.end();
+            });
+        });
+    });
+});
+
 router.get('/show', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
     var id_e_status = req.query.id;
     var tab = req.query.tab;
@@ -611,9 +670,15 @@ router.post('/search', block_access.actionAccessMiddleware('status', 'read'), fu
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;

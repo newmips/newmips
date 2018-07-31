@@ -22,6 +22,8 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
                     page: params.page || 1,
                     searchField: searchField
                 };
+                if (select.data('customwhere') !== undefined)
+                    ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
                 return JSON.stringify(ajaxdata);
             },
             processResults: function (answer, params) {

@@ -528,9 +528,15 @@ router.post('/search', block_access.actionAccessMiddleware('cra_team', 'read'), 
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;
