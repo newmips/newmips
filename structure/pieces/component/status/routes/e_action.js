@@ -110,6 +110,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("action", "create
                 limit: 1
             }).then(function(actionMax) {
                 data.max = (actionMax && actionMax[0] && actionMax[0].f_order) ? actionMax[0].f_order+1 : 1;
+                data.status_target = status.f_entity;
                 res.render(view, data);
             });
         });
@@ -495,9 +496,15 @@ router.post('/search', block_access.actionAccessMiddleware('action', 'read'), fu
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;
@@ -510,7 +517,6 @@ router.post('/search', block_access.actionAccessMiddleware('action', 'read'), fu
         res.status(500).json(e);
     });
 });
-
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("action", "delete"), function (req, res) {
     var alias = req.params.alias;

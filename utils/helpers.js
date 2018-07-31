@@ -33,6 +33,8 @@ function sortEditorFolder(workspaceFolder) {
     var fileArray = [];
     var answer = [];
 
+    if (!workspaceFolder)
+        return [];
     workspaceFolder.forEach(function (file, index) {
         if (typeof file.under !== "undefined") {
             file.under = sortEditorFolder(file.under);
