@@ -29,7 +29,7 @@
             "f_name": "Nom",
             "f_color": "Couleur",
             "modal_title": "Commentaire",
-            "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tous le monde)",
+            "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tout le monde)",
             "f_default": "Est le statut par défaut",
             "apply_default": "Appliquer ce statut aux entités sans statut"
 		},
