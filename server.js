@@ -204,7 +204,6 @@ models.sequelize.sync({
                     login: "admin",
                     password: null,
                     phone: null,
-                    id_role: 1,
                     version: 1
                 }).then(function(user) {
                     user.setRole(1);
