@@ -135,17 +135,6 @@ module.exports = function (modelName, params, speInclude, speWhere) {
         // IMPORTANT --> include[{all: true}] will crash the application, you have to define precisely all the inclusion
         // TODO -> Gerer l'erreur avec le include all
 
-        /* Return the include that has the as */
-        function searchInInclude(include, searchAs) {
-            for (var x = 0; x < include.length; x++) {
-                if (searchAs == include[x].as) {
-                    return include[x];
-                } else if (typeof include[x].include !== "undefined") {
-                    return searchInInclude(include[x].include, searchAs);
-                }
-            }
-        }
-
         /* ORDER BY Managment on inclusion column */
         var order;
         var stringOrder = params.columns[params.order[0].column].data;
@@ -157,7 +146,7 @@ module.exports = function (modelName, params, speInclude, speWhere) {
             var orderContent = [];
             for (var j = 0; j < arrayOrder.length; j++) {
                 if (j < arrayOrder.length - 1) {
-                    var modelInclude = searchInInclude(speInclude, arrayOrder[j]);
+                    var modelInclude = entity_helper.searchInInclude(speInclude, arrayOrder[j]);
                     /* Apparently modelInclude.model is an OBJECT !! So use modelInclude.model.name to get the name */
                     orderContent.push({
                         model: models[modelInclude.model.name],
