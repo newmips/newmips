@@ -62,6 +62,8 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     var sourceId = req.query.sourceId;
     var subentityAlias = req.query.subentityAlias;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
+    var subentityOptions = JSON.parse(fs.readFileSync(__dirname+"/../models/options/"+req.query.subentityModel+".json"));
+    var subentityInclude = model_builder.getDatalistInclude(models, subentityOptions, req.body.columns);
     var doPagination = req.query.paginate;
 
     var queryAttributes = [];
@@ -69,13 +71,42 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
         if (req.body.columns[i].searchable == 'true')
             queryAttributes.push(req.body.columns[i].data);
 
+    /* ORDER BY */
+    var order;
+    var stringOrder = req.body.columns[req.body.order[0].column].data;
+    var arrayOrder = stringOrder.split(".");
+
+    /* If there are inclusions, seperate with dot */
+    if (arrayOrder.length > 1) {
+        order = [];
+        var orderContent = [];
+        for (var j = 0; j < arrayOrder.length; j++) {
+            if (j < arrayOrder.length - 1) {
+                var modelInclude = entity_helper.searchInInclude(subentityInclude, arrayOrder[j]);
+                orderContent.push({
+                    model: models[modelInclude.model.name],
+                    as: arrayOrder[j]
+                });
+            } else {
+                /* Add the field and the order */
+                orderContent.push(arrayOrder[j]);
+                orderContent.push(req.body.order[0].dir);
+            }
+        }
+        /* Create the new order for the Sequelize request */
+        order.push(orderContent);
+    } else {
+        // Defining a simple order by
+        order = [[req.body.columns[req.body.order[0].column].data, req.body.order[0].dir]];
+    }
+
     var include = {
         model: models[subentityModel],
         as: subentityAlias,
-        include: {
-            all: true
-        }
+        order: order,
+        include: subentityInclude
     }
+
     if (doPagination == "true") {
         include.limit = length;
         include.offset = start;
