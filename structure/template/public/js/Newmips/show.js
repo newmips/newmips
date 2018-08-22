@@ -169,7 +169,7 @@ function initHasOne(tab, data) {
     // NOT EMPTY: Set content, add update/delete button
     else {
         tab.find('a').each(function() {
-            if ($(this).data('href').indexOf('/set_status/') != -1)
+            if (typeof $(this).data('href') !== "undefined" && $(this).data('href').indexOf('/set_status/') != -1)
                 $(this).addClass('ajax');
         });
         var updBtn = $(UPDATE_BUTTON);
