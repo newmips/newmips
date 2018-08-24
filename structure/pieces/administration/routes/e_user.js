@@ -404,6 +404,8 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
                 }];
 
                 res.redirect(redirect);
+            }).catch(function (err) {
+                entity_helper.error500(err, req, res, '/user/update_form?id=' + id_e_user);
             });
         }).catch(function (err) {
             entity_helper.error500(err, req, res, '/user/update_form?id=' + id_e_user);
