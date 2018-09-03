@@ -1,9 +1,3 @@
-var intro2 = "#{__('editor.intro')}" + "\n";
-intro2 += "#{__('editor.intro2')}" + "\n";
-intro2 += "#{__('editor.intro3')}";
-var savingButtonText = "#{__('button.save')}";
-var loadingButtonText = "#{__('button.loading')}";
-
 $(document).ready(function() {
 
     function getTranslation(key, params, callback) {
@@ -176,8 +170,7 @@ $(document).ready(function() {
     // Input instruction
     /////////
     var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
-    var idApplication = "#{session.application.id_application}";
-    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApplication));
+    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
     var indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
     $("input#instruction").css("transition", "color 0.2s");
 
@@ -240,7 +233,7 @@ $(document).ready(function() {
             if (instructionHistory == null)
                 instructionHistory = [];
             instructionHistory.push($("#instruction").val());
-            localStorage.setItem("newmips_given_instruction_history_" + idApplication, JSON.stringify(instructionHistory));
+            localStorage.setItem("newmips_given_instruction_history_" + idApp, JSON.stringify(instructionHistory));
         }
 
         $("#execute_instruction").html("Loading...");
@@ -277,7 +270,7 @@ $(document).ready(function() {
                     $(".sessionEntityInfo").text(" " + data.session.data_entity.noEntity);
 
                 // Keep instructionHistory up to date
-                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApplication));
+                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
                 indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
                 // User instruction
                 var userItem = data.chat.items[data.chat.items.length - 2];
