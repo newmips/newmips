@@ -192,7 +192,7 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
                             if(body[unusedValueFromReqBody[j]].length > 0){
                                 // If just one value in select2, then it give a string, not an array
                                 if(typeof body[unusedValueFromReqBody[j]] == "string"){
-                                    if(body[unusedValueFromReqBody[j]][val] != "")
+                                    if(body[unusedValueFromReqBody[j]] != "")
                                         value.push(parseInt(body[unusedValueFromReqBody[j]]))
                                 } else if(typeof body[unusedValueFromReqBody[j]] == "object") {
                                     for(var val in body[unusedValueFromReqBody[j]])

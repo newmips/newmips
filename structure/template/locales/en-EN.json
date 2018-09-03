@@ -149,7 +149,9 @@
     "entity": {},
     "global_component": {
         "local_file_storage": {
-            "filename": "Filename"
+            "filename": "Filename",
+            "wait_upload": "Uploading... Please wait.",
+            "required_file": "Some file / image upload fields are required, please fill them."
         },
         "contact_form": {
             "firstname": "Firstname",

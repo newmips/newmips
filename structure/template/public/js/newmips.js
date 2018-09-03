@@ -632,16 +632,33 @@ function validateForm(form) {
     var isValid = true;
 
     function isFileProcessing() {
-        for (var i = 0; i < dropzonesFieldArray.length; i++)
-            if (dropzonesFieldArray[i].files.length == 1)
-                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
+        for (var i = 0; i < dropzonesFieldArray.length; i++){
+            if (dropzonesFieldArray[i].files.length == 1){
+                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)){
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    function isFileRequired() {
+        for (var i = 0; i < dropzonesFieldArray.length; i++){
+            if($("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden").prop("required") && $("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden").val() == ""){
+                return true;
+            }
+        }
         return false;
     }
     // If there are files to upload, block submition until files are uploaded
     if (isFileProcessing()) {
         toastr.warning(WAIT_UPLOAD_TEXT);
+        return false;
+    }
+
+    // Check if input required and input file is empty to pop client side rejection toastr
+    if (isFileRequired()) {
+        toastr.error(REQUIRED_FILE_TEXT);
         return false;
     }
 
