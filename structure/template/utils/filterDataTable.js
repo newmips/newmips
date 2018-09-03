@@ -192,6 +192,17 @@ module.exports = function (modelName, params, speInclude, speWhere) {
             queryObject.distinct = true;
 
         queryObject.attributes = attributes;
+
+        // If postgres, then we have to parse all value to text, postgres cannot compare varchar with integer for example
+        if(models.sequelize.options.dialect == "postgres" && typeof queryObject.where !== "undefined"){
+            for(var item in queryObject.where[searchType]){
+                var attribute = Object.keys(queryObject.where[searchType][item])[0]
+                queryObject.where[searchType][item][attribute] = models.sequelize.where(
+                    models.sequelize.cast(models.sequelize.col(modelName+'.'+attribute), 'text'),
+                    queryObject.where[searchType][item][attribute])
+            }
+        }
+
         // Execute query with filters and get total count
         models[modelName].findAndCountAll(queryObject).then(function (result) {
             var data = {};

@@ -151,7 +151,8 @@
     "global_component": {
         "local_file_storage": {
             "filename": "Nom du fichier",
-            "wait_upload": "Des images sont en téléchargement, veuillez patienter un instant et sauvegardez de nouveau"
+            "wait_upload": "Des fichiers sont en cours de téléchargement, merci de bien vouloir patienter.",
+            "required_file": "Des champs fichiers / images sont obligatoires, merci de les renseigner."
         },
         "contact_form": {
             "firstname": "Prénom",
