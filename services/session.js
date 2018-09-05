@@ -107,8 +107,8 @@ exports.deploy = function(attr, callback) {
     fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
 
     // Create toSyncProd.lock file
-    if (fs.exists(applicationPath +'/models/toSyncProd.json'))
-        fs.unlink(applicationPath +'/models/toSyncProd.json');
+    if (fs.exists(applicationPath +'/models/toSyncProd.lock.json'))
+        fs.unlink(applicationPath +'/models/toSyncProd.lock.json');
     fs.copySync(applicationPath +'/models/toSyncProd.json', applicationPath +'/models/toSyncProd.lock.json');
 
     // Clear toSyncProd (not locked) file
