@@ -549,7 +549,6 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
                                 res.end();
                             }).catch(function(e) {
                                 data.toastr = req.session.toastr;
-                                req.session.toastr = [];
                                 req.session.toastr = [{
                                     message: e.message,
                                     level: "error"

@@ -645,19 +645,28 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
         }
     }
 
+    // Example custom where in select HTML attributes, please respect " and ':
+    // data-customwhere='{"myField": "myValue"}'
+
+    // Notice that customwhere feature do not work with related to many field if the field is a foreignKey !
+
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere) {
+    if (typeof req.body.customwhere !== "undefined"){
+        // If customwhere from select HTML attribute, we need to parse to object
+        if(typeof req.body.customwhere === "string")
+            req.body.customwhere = JSON.parse(req.body.customwhere);
+        for (var param in req.body.customwhere) {
             // If the custom where is on a foreign key
             if (param.indexOf("fk_") != -1) {
                 for (var option in options) {
                     // We only add where condition on key that are standard hasMany relation, not belongsToMany association
                     if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
-                        where.where[param] = req.body.customWhere[param];
+                        where.where[param] = req.body.customwhere[param];
                 }
             } else
-                where.where[param] = req.body.customWhere[param];
+                where.where[param] = req.body.customwhere[param];
         }
+    }
 
     where.offset = offset;
     where.limit = limit;
