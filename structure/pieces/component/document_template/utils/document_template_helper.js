@@ -589,6 +589,8 @@ var getValue = function (itemPath/*array*/, data, scope/*where value is expected
             i++;
             key = itemPath[i];
         } while (i < itemPath.length);
+        if(data == null)
+            data = "";
         return data;
     } catch (e) {
         return '';

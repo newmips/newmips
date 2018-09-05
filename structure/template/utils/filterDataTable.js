@@ -214,7 +214,6 @@ module.exports = function (modelName, params, speInclude, speWhere) {
             data.data = lightRows;
             return resolve(data);
         }).catch(function (err) {
-            console.log(err);
             reject(err);
         });
     });

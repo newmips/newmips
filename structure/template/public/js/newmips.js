@@ -22,6 +22,8 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
                     page: params.page || 1,
                     searchField: searchField
                 };
+                // customwhere example: data-customwhere='{"myField": "myValue"}'
+                // Do not work for related to many fields if the field is a foreignKey !
                 if (select.data('customwhere') !== undefined)
                     ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
                 return JSON.stringify(ajaxdata);
