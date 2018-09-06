@@ -172,6 +172,11 @@ div.dataTables_length select {
     color: #ffffff;
     border-bottom: 0 solid transparent;
 }
+.user-panel > .image > a > img {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+}
 .content-header {
     background: transparent;
 }
