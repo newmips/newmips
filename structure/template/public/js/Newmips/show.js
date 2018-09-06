@@ -21,7 +21,7 @@ function handleError(error, par2, par3) {
         if(isValidJSON(error.responseText)){
             var errorObj = JSON.parse(error.responseText);
             if(errorObj.refresh)
-                location.reload();
+                return location.reload();
             if (errorObj instanceof Array) {
                 for (var i = 0; i < errorObj.length; i++)
                     toastr[errorObj[i].level](errorObj[i].message);
