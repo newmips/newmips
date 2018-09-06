@@ -321,6 +321,10 @@ exports.setSessionForInstructionScript = function(attrFunction, userArray, info)
             userArray.ids.id_module = info.insertId;
             userArray.ids.id_data_entity = null;
             break;
+        case "selectEntity":
+            userArray.ids.id_data_entity = info.insertId;
+            userArray.ids.id_module = info.moduleId;
+            break;
         case "createNewEntity":
         case "selectEntity":
         case "createNewEntityWithBelongsTo":
