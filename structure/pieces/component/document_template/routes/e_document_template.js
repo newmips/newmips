@@ -20,6 +20,8 @@ var moment = require('moment');
 // Winston logger
 var logger = require('../utils/logger');
 
+var SELECT_PAGE_SIZE = 10;
+
 router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
     var data = {
         "menu": "e_document_template",
@@ -618,31 +620,73 @@ router.get('/global-variables', block_access.actionAccessMiddleware("document_te
     });
 });
 
-/* Select 2 AJAX LOAD */
-router.post('/search', block_access.isLoggedIn, function(req, res) {
-    var entity = req.body.entity;
-    entity = entity.replace('e_', '');
-    entity = entity.charAt(0).toUpperCase() + entity.slice(1);
-    models.E_document_template.findAll({
-        where: {
-            $and: [{
-                f_entity: entity
-            }, {
-                f_name: {
-                    $like: '%' + req.body.search + '%'
+router.post('/search', block_access.actionAccessMiddleware('document_template', 'read'), function(req, res) {
+    var search = '%' + (req.body.search || '') + '%';
+    var limit = SELECT_PAGE_SIZE;
+    var offset = (req.body.page - 1) * limit;
+
+    // ID is always needed
+    if (req.body.searchField.indexOf("id") == -1)
+        req.body.searchField.push('id');
+
+    var where = {
+        raw: true,
+        attributes: req.body.searchField,
+        where: {}
+    };
+    if (search != '%%') {
+        if (req.body.searchField.length == 1) {
+            where.where[req.body.searchField[0]] = {
+                $like: search
+            };
+        } else {
+            where.where.$or = [];
+            for (var i = 0; i < req.body.searchField.length; i++) {
+                if (req.body.searchField[i] != "id") {
+                    var currentOrObj = {};
+                    currentOrObj[req.body.searchField[i]] = {
+                        $like: search
+                    }
+                    where.where.$or.push(currentOrObj);
                 }
-            }]
+            }
         }
-    }).then(function(results) {
-        var data = [];
-        /* Format data for select2 */
-        for (var j = 0; j < results.length; j++) {
-            data.push({
-                id: results[j].id,
-                text: results[j].f_name
-            });
+    }
+
+    // Example custom where in select HTML attributes, please respect " and ':
+    // data-customwhere='{"myField": "myValue"}'
+
+    // Notice that customwhere feature do not work with related to many field if the field is a foreignKey !
+
+    // Possibility to add custom where in select2 ajax instanciation
+    if (typeof req.body.customwhere !== "undefined"){
+        // If customwhere from select HTML attribute, we need to parse to object
+        if(typeof req.body.customwhere === "string")
+            req.body.customwhere = JSON.parse(req.body.customwhere);
+        for (var param in req.body.customwhere) {
+            // If the custom where is on a foreign key
+            if (param.indexOf("fk_") != -1) {
+                for (var option in options) {
+                    // We only add where condition on key that are standard hasMany relation, not belongsToMany association
+                    if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
+                        where.where[param] = req.body.customwhere[param];
+                }
+            } else
+                where.where[param] = req.body.customwhere[param];
         }
-        res.send(data);
+    }
+
+    where.offset = offset;
+    where.limit = limit;
+
+    models.E_document_template.findAndCountAll(where).then(function(results) {
+        console.log(results)
+        results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        res.json(results);
+    }).catch(function(e) {
+        console.error(e);
+        res.status(500).json(e);
     });
 });
+
 module.exports = router;

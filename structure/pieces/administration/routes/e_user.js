@@ -172,7 +172,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
     });
 });
 
-router.get('/show', block_access.actionAccessMiddleware("user", "read"), function (req, res) {
+router.get('/show', block_access.actionAccessMiddleware("user", "read"), function(req, res) {
     var id_e_user = req.query.id;
     var tab = req.query.tab;
     var data = {
@@ -186,10 +186,7 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
     if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
 
-    /* Looking for two level of include to get all associated data in show tab list */
-    var include = model_builder.getTwoLevelIncludeAll(models, options);
-
-    models.E_user.findOne({attributes: {exclude: ['f_password', 'f_token_password_reset', 'f_enabled']}, where: {id: id_e_user}, include: include}).then(function (e_user) {
+    entity_helper.optimizedFindOne('E_user', id_e_user, options).then(function(e_user) {
         if (!e_user) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -198,21 +195,20 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
 
         /* Update local e_user data before show */
         data.e_user = e_user;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.e_user[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            // Update some data before show, e.g get picture binary
-            e_user = entity_helper.getPicturesBuffers(e_user, attributes, options, "e_user");
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(e_user, "e_user").then(function() {
             status_helper.translate(e_user, attributes, req.session.lang_user);
-            res.render('e_user/show', data);
-       });
-
-    }).catch(function (err) {
+            data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("e_user");
+            // Get association data that needed to be load directly here (loadOnStart param in options).
+            entity_helper.getLoadOnStartData(data, options).then(function(data) {
+                res.render('e_user/show', data);
+            }).catch(function(err) {
+                entity_helper.error500(err, req, res, "/");
+            })
+        }).catch(function(err) {
+            entity_helper.error500(err, req, res, "/");
+        });
+    }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
     });
 });

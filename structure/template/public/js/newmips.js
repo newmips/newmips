@@ -24,8 +24,13 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
                 };
                 // customwhere example: data-customwhere='{"myField": "myValue"}'
                 // Do not work for related to many fields if the field is a foreignKey !
-                if (select.data('customwhere') !== undefined)
-                    ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
+                if (select.data('customwhere') !== undefined){
+                    // Handle this syntax: {'myField': 'myValue'}, JSON.stringify need "", no ''
+                    if(typeof select.data('customwhere') === "object")
+                        ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
+                    else
+                        ajaxdata.customwhere = JSON.stringify(JSON.parse(select.data('customwhere').replace(/'/g, '"')));
+                }
                 return JSON.stringify(ajaxdata);
             },
             processResults: function (answer, params) {
@@ -646,7 +651,7 @@ function validateForm(form) {
 
     function isFileRequired() {
         for (var i = 0; i < dropzonesFieldArray.length; i++){
-            if($("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden").prop("required") && $("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden").val() == ""){
+            if($("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).prop("required") && $("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).val() == ""){
                 return true;
             }
         }
@@ -1050,38 +1055,6 @@ $(document).ready(function () {
     /* ---------------------- Composants ---------------------- */
     /** Do not remove **/
     /** Do not remove **/
-    $("#component_document_template").each(function () {
-        $(this).select2({
-            ajax: {
-                url: '/document_template/search',
-                dataType: 'json',
-                method: 'POST',
-                delay: 250,
-                contentType: "application/json",
-                context: this,
-                data: function (params) {
-                    var ajaxdata = {
-                        search: params.term,
-                        entity: $(this).attr('entity')
-                    };
-                    return JSON.stringify(ajaxdata);
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 1,
-            escapeMarkup: function (markup) {
-                return markup;
-            },
-            templateResult: function (data) {
-                return data.text;
-            }
-        });
-    });
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
