@@ -1,4 +1,3 @@
-
 var maskMoneyPrecision = 2;
 var dropzonesFieldArray = [];
 var dropzonesComponentArray = [];
@@ -365,6 +364,7 @@ function initForm(context) {
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
+            dictInvalidFileType: "Vous ne pouvez pas uploader un fichier de ce type.",
             autoDiscover: false,
             thumbnailWidth: 500,
             thumbnailHeight: 500,

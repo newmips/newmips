@@ -172,7 +172,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
             status_helper.translate(ENTITY_NAME, attributes, req.session.lang_user);
             data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
-            // Get association data that needed to be load directly here (loadOnStart param in options).
+            // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('ENTITY_NAME/show', data);
             }).catch(function(err) {
@@ -201,7 +201,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    // Get association data that needed to be load directly here (loadOnStart param in options).
+    // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
     entity_helper.getLoadOnStartData(data, options).then(function(data) {
         var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
         res.render(view, data);
@@ -296,7 +296,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
-            // Get association data that needed to be load directly here (loadOnStart param in options).
+            // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
                 if (req.query.ajax) {
                     ENTITY_NAME.dataValues = data;
@@ -482,7 +482,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 return res.status(500).end();
         }
 
-        // Get association data that needed to be load directly here (loadOnStart param in options).
+        // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
         entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData) {
             // Image buffer promise
             Promise.all(promisesData).then(function() {
