@@ -1533,6 +1533,9 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     //new entry for source relation view
     var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
+    var sourceDoc = source.substring(2);
+    sourceDoc = sourceDoc.charAt(0).toUpperCase() + sourceDoc.slice(1);
+    newTabContent = newTabContent.replace(/ENTITY_DOC/g, sourceDoc);
     newTabContent = newTabContent.replace(/ENTITY/g, source);
     addTab(attr, relationEntityShowFieldsFile, newLi, newTabContent).then(function () {
         callback(null);
