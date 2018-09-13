@@ -288,6 +288,13 @@ app.use(function(req, res, next) {
         }
 		return value;
 	};
+
+	dust.filters.filename = function(value) {
+		// Remove datetime part from filename display
+		if (value != "" && value.length > 16)
+			return value.substring(16);
+		return value;
+	};
     next();
 });
 
