@@ -678,12 +678,13 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                var newDate = date[2] + "-" + date[1] + "-" + date[0];
+                if(date.length > 1){
+                    var newDate = date[2] + "-" + date[1] + "-" + date[0];
 
-                // Remove mask to enable to transform the date
-                $(this).inputmask('remove');
-
-                $(this).val(newDate);
+                    // Remove mask to enable to transform the date
+                    $(this).inputmask('remove');
+                    $(this).val(newDate);
+                }
             }
         });
 
@@ -694,13 +695,15 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                var yearDate = date[2].split(" ");
-                var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
+                if(date.length > 1){
+                    var yearDate = date[2].split(" ");
+                    var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
 
-                // Remove mask to enable to transform the date
-                $(this).inputmask('remove');
+                    // Remove mask to enable to transform the date
+                    $(this).inputmask('remove');
 
-                $(this).val(newDate);
+                    $(this).val(newDate);
+                }
             }
         });
     }
