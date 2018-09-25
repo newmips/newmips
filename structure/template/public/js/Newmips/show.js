@@ -72,13 +72,13 @@ function select2_fieldset(select, data) {
             delay: 250,
             contentType: "application/json",
             data: function (params) {
-                var customWhere = {};
-                customWhere[data.option.foreignKey] = null;
+                var customwhere = {};
+                customwhere[data.option.foreignKey] = null;
                 var ajaxdata = {
                     search: params.term,
                     page: params.page || 1,
                     searchField: searchField,
-                    customWhere: customWhere
+                    customwhere: customwhere
                 };
                 return JSON.stringify(ajaxdata);
             },
