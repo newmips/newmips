@@ -636,8 +636,14 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
-                    currentOrObj[req.body.searchField[i]] = {
-                        $like: search
+                    if(req.body.searchField[i].indexOf(".") != -1){
+                        currentOrObj["$"+req.body.searchField[i]+"$"] = {
+                            $like: search
+                        }
+                    } else {
+                        currentOrObj[req.body.searchField[i]] = {
+                            $like: search
+                        }
                     }
                     where.where.$or.push(currentOrObj);
                 }
@@ -660,16 +666,31 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
             if (param.indexOf("fk_") != -1) {
                 for (var option in options) {
                     // We only add where condition on key that are standard hasMany relation, not belongsToMany association
-                    if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
-                        where.where[param] = req.body.customwhere[param];
+                    if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany"){
+                        // Where on include managment if fk
+                        if(param.indexOf(".") != -1){
+                            where.where["$"+param+"$"] = req.body.customwhere[param];
+                        } else {
+                            where.where[param] = req.body.customwhere[param];
+                        }
+                    }
                 }
-            } else
-                where.where[param] = req.body.customwhere[param];
+            } else {
+                if(param.indexOf(".") != -1){
+                    where.where["$"+param+"$"] = req.body.customwhere[param];
+                } else {
+                    where.where[param] = req.body.customwhere[param];
+                }
+            }
         }
     }
 
     where.offset = offset;
     where.limit = limit;
+
+    // If you need to show fields in the select that are in an other associate entity
+    // You have to include those entity here
+    // where.include = [{model: models.E_myentity, as: "r_myentity"}]
 
     models.MODEL_NAME.findAndCountAll(where).then(function(results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
