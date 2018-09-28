@@ -76,9 +76,15 @@ function initForm(context) {
         context = document;
 
     $("select.ajax", context).each(function () {
-        select2_ajaxsearch($(this));
+        // Avoid new instanciation if already in select2
+        // Fix width css glitch when switching tabs
+        if(typeof $(this).data("select2") === "undefined")
+            select2_ajaxsearch($(this));
     });
-    $("select:not(.ajax):not(.regular-select)", context).select2();
+    $("select:not(.ajax):not(.regular-select)", context).each(function () {
+        if(typeof $(this).data("select2") === "undefined")
+            $(this).select2();
+    });
 
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
     $("input[type='checkbox'], input[type='radio']", context).iCheck({
