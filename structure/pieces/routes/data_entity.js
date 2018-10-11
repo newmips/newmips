@@ -384,11 +384,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     dustData.hideTab = true;
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                     promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-                    subentityOptions = require('../models/options/' + option.target);
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
-                    var statusGetterPromise = [],
-                        subentityOptions = require('../models/options/' + option.target);
+                    var subentityOptions = require('../models/options/' + option.target);
                     dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
