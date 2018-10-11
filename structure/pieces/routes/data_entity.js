@@ -62,6 +62,8 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     var sourceId = req.query.sourceId;
     var subentityAlias = req.query.subentityAlias;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
+    var subentityOptions = JSON.parse(fs.readFileSync(__dirname+"/../models/options/"+req.query.subentityModel+".json"));
+    var subentityInclude = model_builder.getDatalistInclude(models, subentityOptions, req.body.columns);
     var doPagination = req.query.paginate;
 
     var queryAttributes = [];
@@ -69,13 +71,42 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
         if (req.body.columns[i].searchable == 'true')
             queryAttributes.push(req.body.columns[i].data);
 
+    /* ORDER BY */
+    var order;
+    var stringOrder = req.body.columns[req.body.order[0].column].data;
+    var arrayOrder = stringOrder.split(".");
+
+    /* If there are inclusions, seperate with dot */
+    if (arrayOrder.length > 1) {
+        order = [];
+        var orderContent = [];
+        for (var j = 0; j < arrayOrder.length; j++) {
+            if (j < arrayOrder.length - 1) {
+                var modelInclude = entity_helper.searchInInclude(subentityInclude, arrayOrder[j]);
+                orderContent.push({
+                    model: models[modelInclude.model.name],
+                    as: arrayOrder[j]
+                });
+            } else {
+                /* Add the field and the order */
+                orderContent.push(arrayOrder[j]);
+                orderContent.push(req.body.order[0].dir);
+            }
+        }
+        /* Create the new order for the Sequelize request */
+        order.push(orderContent);
+    } else {
+        // Defining a simple order by
+        order = [[req.body.columns[req.body.order[0].column].data, req.body.order[0].dir]];
+    }
+
     var include = {
         model: models[subentityModel],
         as: subentityAlias,
-        include: {
-            all: true
-        }
+        order: order,
+        include: subentityInclude
     }
+
     if (doPagination == "true") {
         include.limit = length;
         include.offset = start;
@@ -141,7 +172,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
             status_helper.translate(ENTITY_NAME, attributes, req.session.lang_user);
             data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
-            // Get association data that needed to be load directly here (loadOnStart param in options).
+            // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('ENTITY_NAME/show', data);
             }).catch(function(err) {
@@ -170,7 +201,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.associationUrl = req.query.associationUrl;
     }
 
-    // Get association data that needed to be load directly here (loadOnStart param in options).
+    // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
     entity_helper.getLoadOnStartData(data, options).then(function(data) {
         var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
         res.render(view, data);
@@ -265,7 +296,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
-            // Get association data that needed to be load directly here (loadOnStart param in options).
+            // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
                 if (req.query.ajax) {
                     ENTITY_NAME.dataValues = data;
@@ -449,7 +480,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                 return res.status(500).end();
         }
 
-        // Get association data that needed to be load directly here (loadOnStart param in options).
+        // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
         entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData) {
             // Image buffer promise
             Promise.all(promisesData).then(function() {
@@ -603,8 +634,14 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
-                    currentOrObj[req.body.searchField[i]] = {
-                        $like: search
+                    if(req.body.searchField[i].indexOf(".") != -1){
+                        currentOrObj["$"+req.body.searchField[i]+"$"] = {
+                            $like: search
+                        }
+                    } else {
+                        currentOrObj[req.body.searchField[i]] = {
+                            $like: search
+                        }
                     }
                     where.where.$or.push(currentOrObj);
                 }
@@ -612,22 +649,46 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
         }
     }
 
+    // Example custom where in select HTML attributes, please respect " and ':
+    // data-customwhere='{"myField": "myValue"}'
+
+    // Notice that customwhere feature do not work with related to many field if the field is a foreignKey !
+
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere) {
+    if (typeof req.body.customwhere !== "undefined"){
+        // If customwhere from select HTML attribute, we need to parse to object
+        if(typeof req.body.customwhere === "string")
+            req.body.customwhere = JSON.parse(req.body.customwhere);
+        for (var param in req.body.customwhere) {
             // If the custom where is on a foreign key
             if (param.indexOf("fk_") != -1) {
                 for (var option in options) {
                     // We only add where condition on key that are standard hasMany relation, not belongsToMany association
-                    if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
-                        where.where[param] = req.body.customWhere[param];
+                    if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany"){
+                        // Where on include managment if fk
+                        if(param.indexOf(".") != -1){
+                            where.where["$"+param+"$"] = req.body.customwhere[param];
+                        } else {
+                            where.where[param] = req.body.customwhere[param];
+                        }
+                    }
                 }
-            } else
-                where.where[param] = req.body.customWhere[param];
+            } else {
+                if(param.indexOf(".") != -1){
+                    where.where["$"+param+"$"] = req.body.customwhere[param];
+                } else {
+                    where.where[param] = req.body.customwhere[param];
+                }
+            }
         }
+    }
 
     where.offset = offset;
     where.limit = limit;
+
+    // If you need to show fields in the select that are in an other associate entity
+    // You have to include those entity here
+    // where.include = [{model: models.E_myentity, as: "r_myentity"}]
 
     models.MODEL_NAME.findAndCountAll(where).then(function(results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;

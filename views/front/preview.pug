@@ -416,5 +416,13 @@ block custom_js
 				var chatDisabledMsg = '#{__("preview.help-disabled")}';
 				toastr.info(chatDisabledMsg);
 			});
+
+	script.
+		var intro2 = "#{__('editor.intro')}" + "\n";
+		intro2 += "#{__('editor.intro2')}" + "\n";
+		intro2 += "#{__('editor.intro3')}";
+		var savingButtonText = "#{__('button.save')}";
+		var loadingButtonText = "#{__('button.loading')}";
+
 	// Preview JS
 	script(src='/js/Newmips/preview.js', type='text/javascript')

@@ -91,7 +91,6 @@ block custom_js
 							$(tr).remove();
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);
-							updateInstructionCount();
 						},
 						complete: function() {
 							$(document.body).css({cursor: 'default'});
@@ -131,7 +130,6 @@ block custom_js
 							$(document.body).css({cursor: 'default'});
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);
-							updateInstructionCount();
 						}
 					});
 

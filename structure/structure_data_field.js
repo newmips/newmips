@@ -395,7 +395,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-download'></i>\n";
                 str += "		</div>\n";
-                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">" + value + "</a>\n";
+                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">{" + value2 + "|filename}</a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -1697,7 +1697,7 @@ exports.deleteTab = function (attr, callback) {
 exports.selectEntity = function(id_application, moduleCodeName, entityName, callback) {
     var layout_path = __dirname+'/../workspace/'+id_application+'/views/layout_'+moduleCodeName+'.dust';
     domHelper.read(layout_path).then(function($) {
-        if ($('#'+entityName+'_menu_item')[0].style.display === 'block')
+        if (typeof $('#'+entityName+'_menu_item')[0] !== "undefined" && $('#'+entityName+'_menu_item')[0].style.display === 'block')
             return callback(null, true);
         callback(null, false);
     }).catch(function(err) {

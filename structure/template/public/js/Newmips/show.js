@@ -1,17 +1,37 @@
 //
 // UTILS
 //
+
+// Check if a string has a valid JSON syntax to parse it
+function isValidJSON(string) {
+    if (/^[\],:{}\s]*$/.test(string.replace(/\\["\\\/bfnrtu]/g, '@')
+            .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+            .replace(/(?:^|:|,)(?:\s*\[)+/g, '')))
+        return true;
+    else
+        return false;
+}
+
+// Server side you can:
+// Show an error message like this: return res.status(500).send("My Error Message");
+// Show multiple message like this: return res.status(500).send([message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
+// You can also force the page to refresh like this: return res.status(500).send({refresh: true});
 function handleError(error, par2, par3) {
     try {
-        if(typeof error.responseText === "string")
-            return toastr.error(error.responseText);
-        var toastrAr = JSON.parse(error.responseText);
-        if (toastrAr instanceof Array) {
-            for (var i = 0; i < toastrAr.length; i++)
-                toastr[toastrAr[i].level](toastrAr[i].message);
+        if(isValidJSON(error.responseText)){
+            var errorObj = JSON.parse(error.responseText);
+            if(errorObj.refresh)
+                return location.reload();
+            if (errorObj instanceof Array) {
+                for (var i = 0; i < errorObj.length; i++)
+                    toastr[errorObj[i].level](errorObj[i].message);
+            }
+            else
+                toastr.error(error.responseText);
+        } else {
+            if(typeof error.responseText === "string")
+                return toastr.error(error.responseText);
         }
-        else
-            toastr.error(error.responseText);
     } catch(e) {
         console.error(error, par2, par3);
     }
@@ -52,13 +72,13 @@ function select2_fieldset(select, data) {
             delay: 250,
             contentType: "application/json",
             data: function (params) {
-                var customWhere = {};
-                customWhere[data.option.foreignKey] = null;
+                var customwhere = {};
+                customwhere[data.option.foreignKey] = null;
                 var ajaxdata = {
                     search: params.term,
                     page: params.page || 1,
                     searchField: searchField,
-                    customWhere: customWhere
+                    customwhere: customwhere
                 };
                 return JSON.stringify(ajaxdata);
             },
@@ -169,7 +189,7 @@ function initHasOne(tab, data) {
     // NOT EMPTY: Set content, add update/delete button
     else {
         tab.find('a').each(function() {
-            if ($(this).data('href').indexOf('/set_status/') != -1)
+            if (typeof $(this).data('href') !== "undefined" && $(this).data('href').indexOf('/set_status/') != -1)
                 $(this).addClass('ajax');
         });
         var updBtn = $(UPDATE_BUTTON);

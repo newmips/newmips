@@ -4,6 +4,8 @@ var block_access = require('../utils/block_access');
 var dust = require('dustjs-linkedin');
 var pdf = require('html-pdf');
 var fs = require('fs-extra');
+var entity_helper = require('../utils/entity_helper');
+var moment = require('moment');
 
 // Datalist
 var filterDataTable = require('../utils/filterDataTable');
@@ -19,39 +21,6 @@ var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
-
-function error500(err, req, res, redirect) {
-    var isKnownError = false;
-    try {
-
-        //Sequelize validation error
-        if(err.name == "SequelizeValidationError"){
-            req.session.toastr.push({level: 'error', message: err.errors[0].message});
-            isKnownError = true;
-        }
-
-        // Unique value constraint error
-        if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-            req.session.toastr.push({level: 'error', message: err.errors[0].message});
-            isKnownError = true;
-        }
-
-    } finally {
-        if (isKnownError)
-            return res.redirect(redirect || '/');
-        else
-            console.error(err);
-            logger.debug(err);
-            var data = {};
-            data.code = 500;
-            data.message = err.message || err || null;
-            res.render('common/error', data);
-    }
-}
-
-function capitalizeFirstLetter(word) {
-    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
-}
 
 function teamAdminMiddleware(req, res, next) {
     models.E_cra_team.findOne({
@@ -77,6 +46,81 @@ function teamAdminMiddleware(req, res, next) {
         next();
     });
 }
+
+function getValue(itemPath, data, scope) {
+    try {
+        var i = 0;
+        var key = itemPath[i];
+        if (scope && scope.scopePath &&
+            scope.scopePathItem &&
+            scope.scopePath.length &&
+            scope.scopePath.length === scope.scopePathItem.length) {
+            //Go to data scope  before search value
+            for (var j = 0; j < scope.scopePath.length; j++)
+                data = data[scope.scopePath[j]][scope.scopePathItem[j]];
+        }
+        do {
+            if (data != null && typeof data !== "undefined" && typeof data[key] !== 'undefined') {
+                data = data[key];
+            } else
+                return '';
+            i++;
+            key = itemPath[i];
+        } while (i < itemPath.length);
+        if(data == null)
+            data = "";
+        return data;
+    } catch (e) {
+        return '';
+    }
+};
+
+function generateDocxDoc(options) {
+    return new Promise(function(resolve, reject) {
+        fs.readFile(options.file, function(err, content) {
+            if (!err) {
+                var JSZip = require('jszip');
+                var Docxtemplater = require('docxtemplater');
+                try {
+                    var zip = new JSZip(content);
+                    var doc = new Docxtemplater();
+                    var templateOptions = {
+                        nullGetter: function(part, scope) {
+                            if (part && part.value) {
+                                var parts = part.value.split('.');
+                                if (parts.length)
+                                    return getValue(parts, options.data, scope);
+                                return "";
+                            }
+                            return "";
+                        }
+                    };
+                    doc.setOptions(templateOptions);
+                    doc.loadZip(zip);
+                    doc.setData(options.data);
+                    try {
+                        doc.render();
+                        var buf = doc.getZip().generate({
+                            type: 'nodebuffer',
+                            compression: "DEFLATE"
+                        });
+                        resolve({
+                            buffer: buf,
+                            contentType: "application/msword",
+                            ext: '.docx'
+                        });
+                    } catch (error) {
+                        reject(error);
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            } else {
+                reject(new Error("Template not found."));
+            }
+        });
+    });
+};
 
 router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
     var data = {
@@ -173,7 +217,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("cra"
         }
 
         // Get all associations
-        e_cra['get' + capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
+        e_cra['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
             // Remove entity from association array
             for (var i = 0; i < aliasEntities.length; i++)
                 if (aliasEntities[i].id == idToRemove) {
@@ -182,12 +226,12 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("cra"
                 }
 
             // Set back associations without removed entity
-            e_cra['set' + capitalizeFirstLetter(alias)](aliasEntities).then(function () {
+            e_cra['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             });
         });
     }).catch(function (err) {
-        error500(err, req, res);
+        entity_helper.error500(err, req, res);
     });
 });
 
@@ -210,11 +254,11 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra", "
             return res.redirect('/cra/show?id=' + idEntity + "#" + alias);
         }
 
-        e_cra['add' + capitalizeFirstLetter(alias)](toAdd).then(function () {
+        e_cra['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/cra/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        error500(err, req, res);
+        entity_helper.error500(err, req, res);
     });
 });
 
@@ -233,7 +277,7 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
         }]
     }).then(function(user) {
         if (!user)
-            return error500("Unable to find associated user", req, res);
+            return entity_helper.error500("Unable to find associated user", req, res);
         data.user = user;
         models.E_cra_activity.findAll({where: {f_active: true}}).then(function(activities) {
             models.E_cra_team.findOne({
@@ -458,7 +502,7 @@ router.get('/getCra', block_access.actionAccessMiddleware("cra", 'read'), functi
         }]
     }).then(function(user) {
         if (!user)
-            return error500("Unable to find associated user", req, res);
+            return entity_helper.error500("Unable to find associated user", req, res);
         data.user = user;
         models.E_cra_activity.findAll({where: {f_active: true}}).then(function(activities) {
             models.E_cra_team.findOne({
@@ -783,34 +827,65 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                 where: {id: user.id}
             }]
         }).then(function(team) {
-            dust.renderSource(dustSrc, {
-                activities: activities,
-                daysAndLabels: daysAndLabels,
-                workedDays: workedDays,
-                cra: cra,
-                user: user,
-                team: team
-            }, function(err, html) {
-                if (err)
-                    return error500(err, req, res);
-
-                var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
-                var myfileName = "CRA_"+user.f_login+"_"+cra.f_year+'_'+cra.f_month+'.pdf';
-
-                pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
-                    if (err)
-                        return error500(err, req, res);
-                    fs.readFile(fileName, function(err, data) {
-                        if (err)
-                            return error500(err, req, res);
-                        res.writeHead(200, {'Content-disposition': 'attachment; filename='+myfileName, "Content-Type": "application/pdf"});
-                        res.write(data);
-                        res.end();
-
-                        fs.unlinkSync(fileName);
-                    });
+            var options = {
+                file: __dirname + '/../views/e_cra/export_template.docx',
+                mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                data: {
+                    activities: activities,
+                    daysAndLabels: daysAndLabels,
+                    workedDays: workedDays,
+                    cra: cra,
+                    user: user,
+                    team: team
+                },
+                lang: req.session.lang_user
+            };
+            generateDocxDoc(options).then(function(infos) {
+                var filename = moment().format('DDMMYYYY_HHmmss') +
+                    '_' + moment().unix() +
+                    infos.ext;
+                res.writeHead(200, {
+                    "Content-Type": infos.contentType,
+                    "Content-Disposition": "attachment;filename=" + filename
                 });
+                res.write(infos.buffer);
+                res.end();
+            }).catch(function(e) {
+                console.log(e);
+                req.session.toastr = [{
+                    message: e.message,
+                    level: "error"
+                }];
+                res.redirect(req.headers.referer);
             });
+            // dust.renderSource(dustSrc, {
+            //     activities: activities,
+            //     daysAndLabels: daysAndLabels,
+            //     workedDays: workedDays,
+            //     cra: cra,
+            //     user: user,
+            //     team: team
+            // }, function(err, html) {
+            //     if (err)
+            //         return entity_helper.error500(err, req, res);
+
+            //     var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
+            //     var myfileName = "CRA_"+user.f_login+"_"+cra.f_year+'_'+cra.f_month+'.pdf';
+
+            //     pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
+            //         if (err)
+            //             return entity_helper.error500(err, req, res);
+            //         fs.readFile(fileName, function(err, data) {
+            //             if (err)
+            //                 return entity_helper.error500(err, req, res);
+            //             res.writeHead(200, {'Content-disposition': 'attachment; filename='+myfileName, "Content-Type": "application/pdf"});
+            //             res.write(data);
+            //             res.end();
+
+            //             fs.unlinkSync(fileName);
+            //         });
+            //     });
+            // });
         });
     });
 });
@@ -868,7 +943,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra", "read"), function
         });
 
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -896,7 +971,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "create"),
         req.session.toastr = [];
         res.render('e_cra/create', data);
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -914,12 +989,12 @@ router.post('/create', block_access.actionAccessMiddleware("cra", "create"), fun
 
         if (typeof req.body.associationFlag !== 'undefined') {
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-            models[capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+            models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
                 if (!association) {
                     e_cra.destroy();
                     var err = new Error();
                     err.message = "Association not found."
-                    return error500(err, req, res, "/");
+                    return entity_helper.error500(err, req, res, "/");
                 }
 
                 var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -939,7 +1014,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra", "create"), fun
 
         res.redirect(redirect);
     }).catch(function (err) {
-        error500(err, req, res, '/cra/create_form');
+        entity_helper.error500(err, req, res, '/cra/create_form');
     });
 });
 
@@ -998,10 +1073,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", 'update'),
             req.session.toastr = [];
             res.render('e_cra/update', data);
         }).catch(function (err) {
-            error500(err, req, res, "/");
+            entity_helper.error500(err, req, res, "/");
         });
     }).catch(function (err) {
-        error500(err, req, res, "/");
+        entity_helper.error500(err, req, res, "/");
     });
 });
 
@@ -1040,10 +1115,10 @@ router.post('/update', block_access.actionAccessMiddleware("cra", 'update'), fun
 
             res.redirect(redirect);
         }).catch(function (err) {
-            error500(err, req, res, '/cra/update_form?id=' + id_e_cra);
+            entity_helper.error500(err, req, res, '/cra/update_form?id=' + id_e_cra);
         });
     }).catch(function (err) {
-        error500(err, req, res, '/cra/update_form?id=' + id_e_cra);
+        entity_helper.error500(err, req, res, '/cra/update_form?id=' + id_e_cra);
     });
 });
 
@@ -1064,7 +1139,7 @@ router.post('/delete', block_access.actionAccessMiddleware("cra", "delete"), fun
             redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
         res.redirect(redirect);
     }).catch(function (err) {
-        error500(err, req, res, '/cra/list');
+        entity_helper.error500(err, req, res, '/cra/list');
     });
 });
 
