@@ -56,141 +56,6 @@ function setupComponentRoute(idApplication, folderComponent, componentName, urlS
     });
 }
 
-function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, valueCategory, callback) {
-
-    var valueAgendaModel = valueAgenda.charAt(0).toUpperCase() + valueAgenda.toLowerCase().slice(1);
-    var valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.toLowerCase().slice(1);
-    var valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.toLowerCase().slice(1);
-
-    var urlRouteAgenda = valueAgenda.substring(2).toLowerCase();
-
-    // CREATE ROUTE FILE
-    var routeTemplate = fs.readFileSync('./structure/pieces/component/agenda/routes/route_agenda.js', 'utf8');
-
-    routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, valueAgenda);
-    routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRouteAgenda);
-
-    routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_MODEL/g, valueEventModel);
-    routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_URL/g, valueEvent.substring(2));
-
-    routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_MODEL/g, valueCategoryModel);
-    routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_URL/g, valueCategory.substring(2));
-
-    var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/routes/' + valueAgenda + '.js');
-    writeStream.write(routeTemplate);
-    writeStream.end();
-    writeStream.on('finish', function () {
-        callback();
-    });
-}
-
-function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, moduleName, callback) {
-
-    // Calendar View
-    var codeName = valueComponent.toLowerCase();
-
-    var componentViewFolder = __dirname + '/pieces/component/agenda/views';
-    var viewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + codeName;
-    fs.copySync(componentViewFolder, viewsFolder);
-
-    var viewPiece = __dirname + '/../workspace/' + idApplication + '/views/agenda/view_agenda.dust';
-    var viewFile = __dirname + '/../workspace/' + idApplication + '/views/' + codeName + '/view_agenda.dust';
-
-    var viewTemplate = fs.readFileSync(viewFile, 'utf8');
-    viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
-    viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-    viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
-    viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
-    viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-
-    var writeStream = fs.createWriteStream(viewFile);
-    writeStream.write(viewTemplate);
-    writeStream.end();
-    writeStream.on('finish', function () {
-
-        // Copy the event view folder
-        var componentEventViewFolder = __dirname + '/pieces/component/agenda/views_event';
-        var eventViewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent;
-
-        fs.copySync(componentEventViewFolder, eventViewsFolder);
-
-        // Replace variable in each files
-        var fileToReplace = ["show_fields", "create_fields", "update_fields"];
-        var urlEvent = valueEvent.toLowerCase().substring(2);
-
-        for (var i = 0; i < fileToReplace.length; i++) {
-            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
-            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
-
-            eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-            eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
-
-            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-        }
-
-        // Inject custom_js
-        var fileToInject = ["create", "update"];
-
-        for (var i = 0; i < fileToInject.length; i++) {
-            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
-            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
-
-            eventTemplate += "\n\n" +
-                    "{<custom_js}\n" +
-                    "    <script type='text/javascript'>\n" +
-                    "        var format;\n" +
-                    "        if (lang_user == 'fr-FR')\n" +
-                    "            format = 'DD/MM/YYYY HH:mm';\n" +
-                    "        else\n" +
-                    "            format = 'YYYY-MM-DD HH:mm';\n" +
-                    "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
-                    "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    toastr.error(\"Error: Start date is after end date.\");\n" +
-                    "                    return false;\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    toastr.error(\"Error: End date is before start date.\");\n" +
-                    "                    return false;\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "            return true;" +
-                    "        });\n" +
-                    "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
-                    "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                    "                var start = moment($(this).val(), format);\n" +
-                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    $(this).val('');\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "        });\n" +
-                    "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
-                    "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                    "                var end = moment($(this).val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    $(this).val('');\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "        });\n" +
-                    "    </script>\n" +
-                    "{/custom_js}\n";
-
-            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-        }
-
-
-        callback();
-    });
-}
-
 function addTab(attr, file, newLi, newTabContent) {
     return new Promise(function (resolve, reject) {
         var source = attr.options.source.toLowerCase();
@@ -617,6 +482,141 @@ exports.newContactForm = function (attr, callback) {
 
 exports.newAgenda = function (attr, callback) {
 
+    function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, valueCategory, callback) {
+
+        var valueAgendaModel = valueAgenda.charAt(0).toUpperCase() + valueAgenda.toLowerCase().slice(1);
+        var valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.toLowerCase().slice(1);
+        var valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.toLowerCase().slice(1);
+
+        var urlRouteAgenda = valueAgenda.substring(2).toLowerCase();
+
+        // CREATE ROUTE FILE
+        var routeTemplate = fs.readFileSync('./structure/pieces/component/agenda/routes/route_agenda.js', 'utf8');
+
+        routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, valueAgenda);
+        routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRouteAgenda);
+
+        routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_MODEL/g, valueEventModel);
+        routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_URL/g, valueEvent.substring(2));
+
+        routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_MODEL/g, valueCategoryModel);
+        routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_URL/g, valueCategory.substring(2));
+
+        var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/routes/' + valueAgenda + '.js');
+        writeStream.write(routeTemplate);
+        writeStream.end();
+        writeStream.on('finish', function () {
+            callback();
+        });
+    }
+
+    function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, moduleName, callback) {
+
+        // Calendar View
+        var codeName = valueComponent.toLowerCase();
+
+        var componentViewFolder = __dirname + '/pieces/component/agenda/views';
+        var viewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + codeName;
+        fs.copySync(componentViewFolder, viewsFolder);
+
+        var viewPiece = __dirname + '/../workspace/' + idApplication + '/views/agenda/view_agenda.dust';
+        var viewFile = __dirname + '/../workspace/' + idApplication + '/views/' + codeName + '/view_agenda.dust';
+
+        var viewTemplate = fs.readFileSync(viewFile, 'utf8');
+        viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
+        viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+        viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
+        viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
+        viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
+
+        var writeStream = fs.createWriteStream(viewFile);
+        writeStream.write(viewTemplate);
+        writeStream.end();
+        writeStream.on('finish', function () {
+
+            // Copy the event view folder
+            var componentEventViewFolder = __dirname + '/pieces/component/agenda/views_event';
+            var eventViewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent;
+
+            fs.copySync(componentEventViewFolder, eventViewsFolder);
+
+            // Replace variable in each files
+            var fileToReplace = ["show_fields", "create_fields", "update_fields"];
+            var urlEvent = valueEvent.toLowerCase().substring(2);
+
+            for (var i = 0; i < fileToReplace.length; i++) {
+                var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
+                var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+                eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+                eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
+
+                fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+            }
+
+            // Inject custom_js
+            var fileToInject = ["create", "update"];
+
+            for (var i = 0; i < fileToInject.length; i++) {
+                var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
+                var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+                eventTemplate += "\n\n" +
+                        "{<custom_js}\n" +
+                        "    <script type='text/javascript'>\n" +
+                        "        var format;\n" +
+                        "        if (lang_user == 'fr-FR')\n" +
+                        "            format = 'DD/MM/YYYY HH:mm';\n" +
+                        "        else\n" +
+                        "            format = 'YYYY-MM-DD HH:mm';\n" +
+                        "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
+                        "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    toastr.error(\"Error: Start date is after end date.\");\n" +
+                        "                    return false;\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    toastr.error(\"Error: End date is before start date.\");\n" +
+                        "                    return false;\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "            return true;" +
+                        "        });\n" +
+                        "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
+                        "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+                        "                var start = moment($(this).val(), format);\n" +
+                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    $(this).val('');\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "        });\n" +
+                        "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
+                        "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                        "                var end = moment($(this).val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    $(this).val('');\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "        });\n" +
+                        "    </script>\n" +
+                        "{/custom_js}\n";
+
+                fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+            }
+
+
+            callback();
+        });
+    }
+
     var idApplication = attr.id_application;
 
     var valueComponent = attr.options.value;
@@ -634,20 +634,20 @@ exports.newAgenda = function (attr, callback) {
     var urlCategory = valueCategory.substring(2);
 
     // Update the event options.json to add an belongsToMany relation between event and user
-    var eventOptionsPath = './workspace/' + idApplication + '/models/options/' + valueEvent.toLowerCase() + '.json';
-    var eventOptionFile = fs.readFileSync(eventOptionsPath);
-    var eventOptionObj = JSON.parse(eventOptionFile);
+    // var eventOptionsPath = './workspace/' + idApplication + '/models/options/' + valueEvent.toLowerCase() + '.json';
+    // var eventOptionFile = fs.readFileSync(eventOptionsPath);
+    // var eventOptionObj = JSON.parse(eventOptionFile);
 
-    eventOptionObj.push({
-        "target": "e_user",
-        "relation": "belongsToMany",
-        "through": idApplication + "_" + urlComponent + "_event_user",
-        "as": "r_users",
-        "foreignKey": "event_id",
-        "otherKey": "user_id"
-    });
+    // eventOptionObj.push({
+    //     "target": "e_user",
+    //     "relation": "belongsToMany",
+    //     "through": idApplication + "_" + urlComponent + "_event_user",
+    //     "as": "r_users",
+    //     "foreignKey": "event_id",
+    //     "otherKey": "user_id"
+    // });
 
-    fs.writeFileSync(eventOptionsPath, JSON.stringify(eventOptionObj, null, 4));
+    // fs.writeFileSync(eventOptionsPath, JSON.stringify(eventOptionObj, null, 4));
 
     // Agenda Route
     setupComponentRouteForAgenda(idApplication, valueComponent, valueEvent, valueCategory, function () {
@@ -1533,6 +1533,9 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     //new entry for source relation view
     var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
+    var sourceDoc = source.substring(2);
+    sourceDoc = sourceDoc.charAt(0).toUpperCase() + sourceDoc.slice(1);
+    newTabContent = newTabContent.replace(/ENTITY_DOC/g, sourceDoc);
     newTabContent = newTabContent.replace(/ENTITY/g, source);
     addTab(attr, relationEntityShowFieldsFile, newLi, newTabContent).then(function () {
         callback(null);

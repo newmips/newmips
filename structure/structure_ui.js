@@ -72,21 +72,42 @@ exports.setLogo = function(attr, callback) {
         return callback(err, null);
     }
 
+    // Login Layout
+    var loginPath = __dirname + '/../workspace/' + idApplication + '/views/login/';
+    var loginFiles = ["login.dust", "first_connection.dust", "reset_password.dust"];
+    for(var i=0; i<loginFiles.length; i++){
+        (function(ibis){
+            domHelper.read(loginPath+loginFiles[i]).then(function($) {
+                if($("form .body center img").length > 0)
+                    $("form .body center img").remove();
+                $("form .body center").prepend("<img src='/img/logo/"+attr.options.value+"' alt='Login logo' width=\"50%\" height=\"50%\">");
+                domHelper.write(loginPath+loginFiles[ibis], $).catch(function(err){
+                    return callback(err, null);
+                })
+            }).catch(function(err){
+                return callback(err, null);
+            })
+        })(i)
+    }
+
+    // Main Layout
     domHelper.read(mainLayoutPath).then(function($) {
         if($(".main-sidebar .sidebar .user-panel .image img").length > 0)
             $(".main-sidebar .sidebar .user-panel .image img").remove();
         $("body link[rel='icon']").remove();
         $("head link[rel='icon']").remove();
-        $(".main-sidebar .sidebar .user-panel .image").prepend("<img src='/img/logo/"+attr.options.value+"' alt='Logo' >");
+        $(".main-sidebar .sidebar .user-panel .image").prepend("<a href='/'><img src='/img/logo/"+attr.options.value+"' alt='Logo' ></a>");
         $("head").append("<link href='/img/logo/thumbnail/"+attr.options.value+"' rel=\"icon\" >");
         domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
             var info = {};
             info.message = "preview.logo.add";
             callback(null, info);
-        });
+        }).catch(function(err){
+            callback(err, null);
+        })
     }).catch(function(err){
         callback(err, null);
-    });
+    })
 }
 
 exports.removeLogo = function(attr, callback) {
@@ -94,6 +115,25 @@ exports.removeLogo = function(attr, callback) {
     var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
     var info = {};
 
+    // Login Layout
+    var loginPath = __dirname + '/../workspace/' + idApplication + '/views/login/';
+    var loginFiles = ["login.dust", "first_connection.dust", "reset_password.dust"];
+    for(var i=0; i<loginFiles.length; i++){
+        (function(ibis){
+            domHelper.read(loginPath+loginFiles[i]).then(function($) {
+                if($("form .body center img").length > 0)
+                    $("form .body center img").remove();
+                $("form .body center").prepend("<img src='/img/logo_newmips.png' alt='Login logo' width=\"50%\" height=\"50%\">");
+                domHelper.write(loginPath+loginFiles[ibis], $).catch(function(err){
+                    return callback(err, null);
+                })
+            }).catch(function(err){
+                return callback(err, null);
+            })
+        })(i)
+    }
+
+    // Main Layout
     domHelper.read(mainLayoutPath).then(function($) {
         if($(".main-sidebar .sidebar .user-panel .image img").length > 0){
             $(".main-sidebar .sidebar .user-panel .image img").remove();
@@ -106,10 +146,12 @@ exports.removeLogo = function(attr, callback) {
             info.message = "preview.logo.noLogo";
         domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
             callback(null, info);
-        });
+        }).catch(function(err){
+            callback(err, null);
+        })
     }).catch(function(err){
         callback(err, null);
-    });
+    })
 }
 
 exports.setLayout = function(attr, callback) {

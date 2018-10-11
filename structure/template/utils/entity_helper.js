@@ -271,6 +271,16 @@ var funcs = {
                 return include;
             }
         }
+    },
+    searchInInclude: function (include, searchAs) {
+        /* Return the include that has the as */
+        for (var x = 0; x < include.length; x++) {
+            if (searchAs == include[x].as) {
+                return include[x];
+            } else if (typeof include[x].include !== "undefined") {
+                return searchInInclude(include[x].include, searchAs);
+            }
+        }
     }
 };
 

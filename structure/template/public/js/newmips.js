@@ -1,4 +1,3 @@
-
 var maskMoneyPrecision = 2;
 var dropzonesFieldArray = [];
 var dropzonesComponentArray = [];
@@ -22,8 +21,15 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
                     page: params.page || 1,
                     searchField: searchField
                 };
-                if (select.data('customwhere') !== undefined)
-                    ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
+                // customwhere example: data-customwhere='{"myField": "myValue"}'
+                // Do not work for related to many fields if the field is a foreignKey !
+                if (select.data('customwhere') !== undefined){
+                    // Handle this syntax: {'myField': 'myValue'}, JSON.stringify need "", no ''
+                    if(typeof select.data('customwhere') === "object")
+                        ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
+                    else
+                        ajaxdata.customwhere = JSON.stringify(JSON.parse(select.data('customwhere').replace(/'/g, '"')));
+                }
                 return JSON.stringify(ajaxdata);
             },
             processResults: function (answer, params) {
@@ -70,9 +76,15 @@ function initForm(context) {
         context = document;
 
     $("select.ajax", context).each(function () {
-        select2_ajaxsearch($(this));
+        // Avoid new instanciation if already in select2
+        // Fix width css glitch when switching tabs
+        if(typeof $(this).data("select2") === "undefined")
+            select2_ajaxsearch($(this));
     });
-    $("select:not(.ajax):not(.regular-select)", context).select2();
+    $("select:not(.ajax):not(.regular-select)", context).each(function () {
+        if(typeof $(this).data("select2") === "undefined")
+            $(this).select2();
+    });
 
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
     $("input[type='checkbox'], input[type='radio']", context).iCheck({
@@ -358,6 +370,7 @@ function initForm(context) {
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
+            dictInvalidFileType: "Vous ne pouvez pas uploader un fichier de ce type.",
             autoDiscover: false,
             thumbnailWidth: 500,
             thumbnailHeight: 500,
@@ -632,16 +645,33 @@ function validateForm(form) {
     var isValid = true;
 
     function isFileProcessing() {
-        for (var i = 0; i < dropzonesFieldArray.length; i++)
-            if (dropzonesFieldArray[i].files.length == 1)
-                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
+        for (var i = 0; i < dropzonesFieldArray.length; i++){
+            if (dropzonesFieldArray[i].files.length == 1){
+                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)){
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    function isFileRequired() {
+        for (var i = 0; i < dropzonesFieldArray.length; i++){
+            if($("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).prop("required") && $("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).val() == ""){
+                return true;
+            }
+        }
         return false;
     }
     // If there are files to upload, block submition until files are uploaded
     if (isFileProcessing()) {
         toastr.warning(WAIT_UPLOAD_TEXT);
+        return false;
+    }
+
+    // Check if input required and input file is empty to pop client side rejection toastr
+    if (isFileRequired()) {
+        toastr.error(REQUIRED_FILE_TEXT);
         return false;
     }
 
@@ -654,12 +684,13 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                var newDate = date[2] + "-" + date[1] + "-" + date[0];
+                if(date.length > 1){
+                    var newDate = date[2] + "-" + date[1] + "-" + date[0];
 
-                // Remove mask to enable to transform the date
-                $(this).inputmask('remove');
-
-                $(this).val(newDate);
+                    // Remove mask to enable to transform the date
+                    $(this).inputmask('remove');
+                    $(this).val(newDate);
+                }
             }
         });
 
@@ -670,13 +701,15 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                var yearDate = date[2].split(" ");
-                var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
+                if(date.length > 1){
+                    var yearDate = date[2].split(" ");
+                    var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
 
-                // Remove mask to enable to transform the date
-                $(this).inputmask('remove');
+                    // Remove mask to enable to transform the date
+                    $(this).inputmask('remove');
 
-                $(this).val(newDate);
+                    $(this).val(newDate);
+                }
             }
         });
     }
@@ -1031,38 +1064,6 @@ $(document).ready(function () {
     /* ---------------------- Composants ---------------------- */
     /** Do not remove **/
     /** Do not remove **/
-    $("#component_document_template").each(function () {
-        $(this).select2({
-            ajax: {
-                url: '/document_template/search',
-                dataType: 'json',
-                method: 'POST',
-                delay: 250,
-                contentType: "application/json",
-                context: this,
-                data: function (params) {
-                    var ajaxdata = {
-                        search: params.term,
-                        entity: $(this).attr('entity')
-                    };
-                    return JSON.stringify(ajaxdata);
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 1,
-            escapeMarkup: function (markup) {
-                return markup;
-            },
-            templateResult: function (data) {
-                return data.text;
-            }
-        });
-    });
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {

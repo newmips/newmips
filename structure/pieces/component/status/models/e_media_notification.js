@@ -121,10 +121,10 @@ module.exports = (sequelize, DataTypes) => {
             try {
                 try {
                     // Build show url of targeted entity
-                    entityUrl = dataInstance._modelOptions.tableName;
-                    entityUrl = entityUrl.substring(entityUrl.indexOf('e_') + 2, entityUrl.length);
+                    entityUrl = dataInstance.constructor.getTableName().substring(4);
                     entityUrl = '/' + entityUrl + '/show?id=' + dataInstance.id;
                 } catch(e) {
+                    console.log(e);
                     // Will redirect to current page
                     entityUrl = '#';
                 }

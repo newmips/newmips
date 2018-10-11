@@ -188,11 +188,18 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
                             var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
                             var value = [];
 
-                            if(body[unusedValueFromReqBody[j]].length > 0)
-                                // Empty string is not accepted by postgres, clean array to avoid error
-                                for(var val in body[unusedValueFromReqBody[j]])
-                                    if(body[unusedValueFromReqBody[j]][val] != "")
-                                        value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
+                            // Empty string is not accepted by postgres, clean array to avoid error
+                            if(body[unusedValueFromReqBody[j]].length > 0){
+                                // If just one value in select2, then it give a string, not an array
+                                if(typeof body[unusedValueFromReqBody[j]] == "string"){
+                                    if(body[unusedValueFromReqBody[j]] != "")
+                                        value.push(parseInt(body[unusedValueFromReqBody[j]]))
+                                } else if(typeof body[unusedValueFromReqBody[j]] == "object") {
+                                    for(var val in body[unusedValueFromReqBody[j]])
+                                        if(body[unusedValueFromReqBody[j]][val] != "")
+                                            value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
+                                }
+                            }
                             try {
                                 await model['set' + target](value)
                             } catch(err){

@@ -64,7 +64,9 @@ app.use(morgan('dev'));
 // Read cookies (needed for auth)
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
-	extended: true
+	extended: true,
+	limit: '50mb',
+	parameterLimit: 1000000
 }));
 app.use(bodyParser.json());
 app.set('views', path.join(__dirname, 'views'));
@@ -284,6 +286,13 @@ app.use(function(req, res, next) {
             if (value.length == 8)
                 return value.substring(0, value.length - 3);
         }
+		return value;
+	};
+
+	dust.filters.filename = function(value) {
+		// Remove datetime part from filename display
+		if (value != "" && value.length > 16)
+			return value.substring(16);
 		return value;
 	};
     next();

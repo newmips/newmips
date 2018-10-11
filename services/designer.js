@@ -1658,7 +1658,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
             var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
             for (var i = 0; i < optionsObject.length; i++) {
-                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany") {
+                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany" && optionsObject[i].relation != "belongsToMany") {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
@@ -2192,6 +2192,7 @@ exports.createNewComponentAgenda = function (attr, callback) {
                 "add field End date with type datetime",
                 "add field All day with type boolean",
                 "add field Category related to " + showValueCategory + " using Label",
+                "add field Users related to many user using login, email",
                 "set field Title required",
                 "set field Start date required"
             ];
@@ -2201,13 +2202,6 @@ exports.createNewComponentAgenda = function (attr, callback) {
                 if (err)
                     return callback(err, null);
 
-                // Clear toSync.json because all fields will be created with the entity creation
-                // var toSyncFileName = './workspace/'+attr.id_application+'/models/toSync.json';
-                // var writeStream = fs.createWriteStream(toSyncFileName);
-                // var toSyncObject = {};
-                // writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                // writeStream.end();
-                // writeStream.on('finish', function() {
                 // Create the component in newmips database
                 db_component.createNewComponentOnModule(attr, function (err, info) {
                     if (err)
@@ -2233,7 +2227,6 @@ exports.createNewComponentAgenda = function (attr, callback) {
                         });
                     });
                 });
-                // });
             });
         }
     });

@@ -107,8 +107,8 @@ exports.deploy = function(attr, callback) {
     fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
 
     // Create toSyncProd.lock file
-    if (fs.exists(applicationPath +'/models/toSyncProd.json'))
-        fs.unlink(applicationPath +'/models/toSyncProd.json');
+    if (fs.exists(applicationPath +'/models/toSyncProd.lock.json'))
+        fs.unlink(applicationPath +'/models/toSyncProd.lock.json');
     fs.copySync(applicationPath +'/models/toSyncProd.json', applicationPath +'/models/toSyncProd.lock.json');
 
     // Clear toSyncProd (not locked) file
@@ -320,6 +320,10 @@ exports.setSessionForInstructionScript = function(attrFunction, userArray, info)
         case "createNewModule":
             userArray.ids.id_module = info.insertId;
             userArray.ids.id_data_entity = null;
+            break;
+        case "selectEntity":
+            userArray.ids.id_data_entity = info.insertId;
+            userArray.ids.id_module = info.moduleId;
             break;
         case "createNewEntity":
         case "selectEntity":
