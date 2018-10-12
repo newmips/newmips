@@ -43,7 +43,7 @@
 						<input type='hidden' value='{id}' name='idRemove'>
 						<input type='hidden' value='COMPONENT_URL_NAME_LOWER' name='dataComponent'>
 						<input type='hidden' value='{sourceId}' name='idEntity'>
-						<button type="submit" class="btn btn-danger">
+						<button type="submit" class="btn btn-danger btn-confirm">
 							<i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
 							<span>{@__ key="button.delete" /}</span>
 						</button>
