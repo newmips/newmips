@@ -1492,8 +1492,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
             // Vérification si une relation existe déjà de la source VERS la target
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
-
-                    if (optionsSourceObject[i].relation == "belongsTo") {
+                    if (optionsSourceObject[i].relation == "belongsTo" && attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadyHasOne";
                         return callback(err, null);
