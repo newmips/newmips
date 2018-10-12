@@ -37,41 +37,44 @@ module.exports = {
     },
     // Build entity tree with fields and ALL associations
     fullEntityFieldTree: function (entity, alias = entity, genealogy = []) {
-        var fieldTree = {
-            entity: entity,
-            alias: alias,
-            fields: [],
-            email_fields: [],
-            phone_fields: [],
-            children: []
-        }
-        try {
-            var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-            var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
-        } catch (e) {
-            console.error(e);
+        function loadTree(entity, alias) {
+            var fieldTree = {
+                entity: entity,
+                alias: alias,
+                fields: [],
+                email_fields: [],
+                phone_fields: [],
+                children: []
+            }
+            try {
+                var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+            } catch (e) {
+                console.error(e);
+                return fieldTree;
+            }
+
+            // Building field array
+            for (var field in entityFields) {
+                if (entityFields[field].newmipsType == "mail")
+                    fieldTree.email_fields.push(field);
+                if (entityFields[field].newmipsType == "phone")
+                    fieldTree.phone_fields.push(field);
+                fieldTree.fields.push(field);
+            }
+
+            // Check if current entity has already been built in this branch of the tree to avoid infinite loop
+            if (genealogy.indexOf(entity) != -1)
+                return fieldTree;
+            genealogy.push(entity);
+
+            // Building children array
+            for (var i = 0; i < entityAssociations.length; i++)
+                fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+
             return fieldTree;
         }
-
-        // Building field array
-        for (var field in entityFields) {
-            if (entityFields[field].newmipsType == "mail")
-                fieldTree.email_fields.push(field);
-            if (entityFields[field].newmipsType == "phone")
-                fieldTree.phone_fields.push(field);
-            fieldTree.fields.push(field);
-        }
-
-        // Check if current entity has already been built in this branch of the tree to avoid infinite loop
-        if (genealogy.indexOf(entity) != -1)
-            return fieldTree;
-        genealogy.push(entity);
-
-        // Building children array
-        for (var i = 0; i < entityAssociations.length; i++)
-            fieldTree.children.push(this.fullEntityFieldTree(entityAssociations[i].target, entityAssociations[i].as, genealogy));
-
-        return fieldTree;
+        return loadTree(entity, alias);
     },
     // Build sequelize formated include object from tree
     buildIncludeFromTree: function(models, entityTree) {
@@ -143,16 +146,22 @@ module.exports = {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                return sort(optsArray, i == 0 ? i : i-1);
+                return setTimeout(() => {
+                    sort(optsArray, i == 0 ? i : i-1);
+                }, 0);
             }
             else if (firstParts[0].toLowerCase() == secondParts[0].toLowerCase()
                 && firstParts[1].toLowerCase() > secondParts[1].toLowerCase()) {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                return sort(optsArray, i == 0 ? i : i-1);
+                return setTimeout(() => {
+                    sort(optsArray, i == 0 ? i : i-1);
+                }, 0);
             }
-            return sort(optsArray, i+1);
+            return setTimeout(() => {
+                sort(optsArray, i+1);
+            }, 0);
         }
         sort(options, 0);
 
