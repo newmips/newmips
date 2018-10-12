@@ -68,7 +68,7 @@
                                     </td>
                                     <td>
                                         <form action="/cra/delete" method="post">
-                                            <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger">
+                                            <button class="btn btn-danger btn-confirm">
                                                 <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                                                 <span>{@__ key="button.delete" /}</span>
                                                 <input name="id" value="{id}" type="hidden"/>
@@ -145,7 +145,7 @@
                 render: function (data, type, row) {
                     var form = '\
                     <form action="/cra/delete" method="post">\
-                        <button onclick="return confirm(\'Etes-vous sûr de vouloir supprimer cet enregistrement ?\');" class="btn btn-danger">\
+                        <button class="btn btn-danger btn-confirm">\
                             <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                             <span>{@__ key="button.delete" /}</span>\
                             <input name="id" type="hidden" value="'+row['id']+'" />\

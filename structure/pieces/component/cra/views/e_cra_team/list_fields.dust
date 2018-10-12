@@ -36,7 +36,7 @@
                 {@eq key=for value="fieldset"}
                 <form class="fieldsetform">
                     <input type="hidden" value="{id}" name="idRemove">
-                    <button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
+                    <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
                 </form>
                 {/eq}
                 {@eq key=for value="hasMany"}
@@ -51,7 +51,7 @@
             <td>
                 {@eq key=for value="hasMany"}
                 <form action="/cra_team/delete" method="post">
-                    <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
 			                <span>{@__ key="button.delete" /}</span>
 			                <input name="id" value="{id}" type="hidden">
 			                <input name="associationAlias" value="{associationAlias}" type="hidden">
