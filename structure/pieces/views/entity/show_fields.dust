@@ -5,7 +5,7 @@
         <div class="quicklinks">
             <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{@__ key="button.return"/}</a>
             {@actionAccess entity="custom_url_data_entity" action="delete"}
-                <button class="btn btn-danger">
+                <button class="btn btn-danger btn-confirm">
                     <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                     <span>{@__ key="button.delete"/}</span>
                 </button>

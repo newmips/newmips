@@ -30,9 +30,9 @@
                 {@__ key="button.return"/}
             </a>
             {@actionAccess entity="media_sms" action="delete"}
-            <button class="btn btn-danger">
-                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                <span>{@__ key="button.delete"/}</span>
+            <button class="btn btn-danger btn-confirm">
+            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+            <span>{@__ key="button.delete"/}</span>
             </button>
             <input name="id" type="hidden" value="{r_media_sms.id}" class="form-control">
             {/actionAccess}

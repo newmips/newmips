@@ -54,7 +54,7 @@
                 {@eq key=for value="fieldset"}
                 <form class="fieldsetform">
                     <input type="hidden" value="{id}" name="idRemove">
-                    <button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
+                    <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
                 </form>
                 {/eq}
                 {@eq key=for value="hasMany"}
