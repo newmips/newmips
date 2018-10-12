@@ -415,11 +415,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     dustData.hideTab = true;
                     dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
                     promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-                    subentityOptions = require('../models/options/' + option.target);
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
-                    var statusGetterPromise = [],
-                        subentityOptions = require('../models/options/' + option.target);
+                    var subentityOptions = require('../models/options/' + option.target);
                     dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
@@ -718,20 +716,10 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
         }
 
         // Get all associations
-        ENTITY_NAME['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function(aliasEntities) {
-            // Remove entity from association array
-            for (var i = 0; i < aliasEntities.length; i++)
-                if (aliasEntities[i].id == idToRemove) {
-                    aliasEntities.splice(i, 1);
-                    break;
-                }
-
-                // Set back associations without removed entity
-            ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function() {
-                res.sendStatus(200).end();
-            }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
-            });
+        ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(function(aliasEntities) {
+            res.sendStatus(200).end();
+        }).catch(function(err) {
+            entity_helper.error500(err, req, res, "/");
         });
     }).catch(function(err) {
         entity_helper.error500(err, req, res, "/");
