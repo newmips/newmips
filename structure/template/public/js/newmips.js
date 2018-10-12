@@ -890,6 +890,12 @@ $(document).ready(function () {
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
 
+    $(document).on("click", ".btn-confirm", function () {
+        if(confirm(DEL_CONFIRM_TEXT))
+            return true;
+        return false;
+    });
+
     // Validate any form before submit
     $('form').submit(function (e) {
         if (!validateForm($(this)))

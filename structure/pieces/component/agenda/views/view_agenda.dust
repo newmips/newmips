@@ -180,7 +180,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" id="updateEvent" >Sauvegarder</button>
-					<button type="button" class="btn btn-danger" id="deleteEvent" data-dismiss="modal">Supprimer</button>
+					<button type="button" class="btn btn-danger btn-confirm" id="deleteEvent" data-dismiss="modal">Supprimer</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
 				</div>
 			</div>

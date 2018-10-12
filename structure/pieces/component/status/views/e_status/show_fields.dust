@@ -98,7 +98,7 @@
                         </span>
                         {@actionAccess entity="status" action="delete"}
                         <span>
-                            <button class="btn btn-danger">
+                            <button class="btn btn-danger btn-confirm">
                             <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                             <span>{@__ key="button.delete"/}</span>
                             </button>
