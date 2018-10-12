@@ -71,15 +71,15 @@
     <!-- DATA TABLES SCRIPT-->
     <script src="/js/plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
-    <script src="/js/Newmips/dataTableBuilder.js" type="text/javascript"></script>
-    <script src="/js/Newmips/simpleTable.js" type="text/javascript"></script>
+    <script src="/js/Newmips/dataTableBuilder.js?v={config.version}" type="text/javascript"></script>
+    <script src="/js/Newmips/simpleTable.js?v={config.version}" type="text/javascript"></script>
     <!-- DATATABLE EXPORT-->
     <script src="/js/plugins/datatables/buttons/datatableButton.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/buttons/buttons.html5.min.js" type="text/javascript"></script>
     <script src="/js/plugins/datatables/buttons/buttons.print.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="/js/plugins/bootstrap-duallistbox/src/jquery.bootstrap-duallistbox.js"></script>
-    <script type="text/javascript" src="/js/Newmips/show.js"></script>
+    <script type="text/javascript" src="/js/Newmips/show.js?v={config.version}"></script>
 
     <script type='text/javascript'>
         $(function() {
@@ -88,7 +88,8 @@
                 selectedListLabel: NEXT_STATUS,
                 moveOnSelect: false,
                 showFilterInputs: false,
-                infoText: false
+                infoText: false,
+                selectorMinimalHeight: 250
             });
 
             /* Call component delete action */

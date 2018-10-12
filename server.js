@@ -137,11 +137,6 @@ app.use(function(req, res, next) {
     }
     // Pass translate function to pug templates
     res.locals = extend(res.locals, language(lang));
-    next();
-});
-
-// Give access to globalConf through locals
-app.use(function(req, res, next) {
     res.locals.globalConf = globalConf;
     next();
 });
