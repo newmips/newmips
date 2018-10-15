@@ -4,39 +4,51 @@ var language = require('../services/language');
 module.exports = {
     // Build entity tree with fields and ONLY belongsTo associations
     entityFieldTree: function (entity, alias) {
-        var fieldTree = {
-            entity: entity,
-            alias: alias || entity,
-            fields: [],
-            email_fields: [],
-            phone_fields: [],
-            children: []
-        }
+        var genealogy = [];
+        // Create inner function to use genealogy globaly
+        function loadTree(entity, alias) {
+            var fieldTree = {
+                entity: entity,
+                alias: alias || entity,
+                fields: [],
+                email_fields: [],
+                phone_fields: [],
+                children: []
+            }
 
-        try {
-            var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-            var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
-        } catch (e) {
-            console.error(e);
+            try {
+                var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+            } catch (e) {
+                console.error(e);
+                return fieldTree;
+            }
+
+            // Building field array
+            for (var field in entityFields) {
+                if (entityFields[field].newmipsType == "mail")
+                    fieldTree.email_fields.push(field);
+                fieldTree.fields.push(field);
+            }
+
+            // Check if current entity has already been built in this branch of the tree to avoid infinite loop
+            if (genealogy.indexOf(entity) != -1)
+                return fieldTree;
+            genealogy.push(entity);
+
+            // Building children array
+            for (var i = 0; i < entityAssociations.length; i++)
+                if (entityAssociations[i].relation == 'belongsTo' && entityAssociations[i].target != entity)
+                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+
             return fieldTree;
         }
-
-        // Building field array
-        for (var field in entityFields) {
-            if (entityFields[field].newmipsType == "mail")
-                fieldTree.email_fields.push(field);
-            fieldTree.fields.push(field);
-        }
-
-        // Building children array
-        for (var i = 0; i < entityAssociations.length; i++)
-            if (entityAssociations[i].relation == 'belongsTo' && entityAssociations[i].target != entity)
-                fieldTree.children.push(this.entityFieldTree(entityAssociations[i].target, entityAssociations[i].as));
-
-        return fieldTree;
+        return loadTree(entity, alias);
     },
     // Build entity tree with fields and ALL associations
-    fullEntityFieldTree: function (entity, alias = entity, genealogy = []) {
+    fullEntityFieldTree: function (entity, alias = entity) {
+        var genealogy = [];
+        // Create inner function to use genealogy globaly
         function loadTree(entity, alias) {
             var fieldTree = {
                 entity: entity,
