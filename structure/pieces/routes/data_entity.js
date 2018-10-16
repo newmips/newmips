@@ -515,98 +515,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 });
 
 router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
-    var historyModel = 'E_history_ENTITY_NAME_' + req.params.status;
-    var historyAlias = 'r_history_' + req.params.status.substring(2);
-    var statusAlias = 'r_' + req.params.status.substring(2);
-
-    var errorRedirect = '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME;
-
-    var entityTree = status_helper.fullEntityFieldTree('ENTITY_NAME');
-    var includeTree = status_helper.buildIncludeFromTree(models, entityTree)
-    models.MODEL_NAME.findOne({
-        where: {
-            id: req.params.id_ENTITY_URL_NAME
-        },
-        include: includeTree
-    }).then(function(ENTITY_NAME) {
-        // Find the children of the current status
-        models.E_status.findOne({
-            where: {
-                id: ENTITY_NAME[statusAlias].id
-            },
-            include: [{
-                model: models.E_status,
-                as: 'r_children',
-                include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: ["f_position", "ASC"],
-                    include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: {
-                            all: true,
-                            nested: true
-                        }
-                    }]
-                }]
-            }]
-        }).then(function(current_status) {
-            if (!current_status || !current_status.r_children) {
-                logger.debug("Not found - Set status");
-                return res.render('common/error', {
-                    error: 404
-                });
-            }
-
-            // Check if new status is actualy the current status's children
-            var children = current_status.r_children;
-            var nextStatus = false;
-            for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status) {
-                    nextStatus = children[i];
-                    break;
-                }
-            }
-            // Unautorized
-            if (nextStatus === false) {
-                req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
-                return res.redirect(errorRedirect);
-            }
-
-            // Execute newStatus actions
-            nextStatus.executeActions(ENTITY_NAME).then(function() {
-                // Create history record for this status field
-                // Beeing the most recent history for ENTITY_URL_NAME it will now be its current status
-                var createObject = {}
-                if (req.query.comment)
-                    createObject.f_comment = req.query.comment;
-                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
-                    ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
-                });
-            }).catch(function(err) {
-                console.error(err);
-                req.session.toastr = [{
-                    level: 'warning',
-                    message: 'component.status.error.action_error'
-                }]
-                var createObject = {}
-                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_ENTITY_URL_NAME_history_" + req.params.status.substring(2)] = req.params.id_ENTITY_URL_NAME;
-                models[historyModel].create(createObject).then(function() {
-                    ENTITY_NAME['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
-                });
-            });
-        });
-    }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+    status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+        res.redirect('/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME)
+    }).catch((err)=> {
+        entity_helper.error500(err, req, res, '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME);
     });
 });
 

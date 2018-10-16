@@ -1,5 +1,6 @@
 var fs = require('fs-extra');
 var language = require('../services/language');
+var models = require('../models');
 
 module.exports = {
     // Build entity tree with fields and ONLY belongsTo associations
@@ -89,7 +90,7 @@ module.exports = {
         return loadTree(entity, alias);
     },
     // Build sequelize formated include object from tree
-    buildIncludeFromTree: function(models, entityTree) {
+    buildIncludeFromTree: function(entityTree) {
         var includes = [];
         for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
             var include = {};
@@ -97,13 +98,13 @@ module.exports = {
             include.as = child.alias;
             include.model = models[child.entity.charAt(0).toUpperCase() + child.entity.toLowerCase().slice(1)];
             if (child.children && child.children.length != 0)
-                include.include = this.buildIncludeFromTree(models, child);
+                include.include = this.buildIncludeFromTree(child);
             includes.push(include);
         }
         return includes;
     },
     // Build array of user target for media_notification insertion <select>
-    getUserTargetList: function(models, entityTree, lang) {
+    getUserTargetList: (entityTree, lang)=> {
         var __ = language(lang).__;
         entityTree.topLevel = true;
         var userList = [];
@@ -233,7 +234,7 @@ module.exports = {
                 list.push(prop);
         return list;
     },
-    translate: function(entity, attributes, lang) {
+    translate: function (entity, attributes, lang) {
         var self = this;
         var statusList = self.statusFieldList(attributes);
 
@@ -249,7 +250,94 @@ module.exports = {
             }
         }
     },
-    currentStatus: function(models, entityName, entity, attributes, lang) {
+    setStatus: function(entityName, entityId, statusName, statusId, comment = "") {
+        var self = this;
+        return new Promise((resolve, reject)=> {
+            var historyModel = 'E_history_e_bouya_' + statusName;
+            var historyAlias = 'r_history_' + statusName.substring(2);
+            var statusAlias = 'r_' + statusName.substring(2);
+            var errorRedirect = '/bouya/show?id=' + entityId;
+            var entityTree = self.fullEntityFieldTree(entityName);
+            var includeTree = self.buildIncludeFromTree(entityTree)
+
+            models['E_'+entityName.substring(2)].findOne({
+                where: {
+                    id: entityId
+                },
+                include: includeTree
+            }).then((entity)=> {
+                // Find the children of the current status
+                models.E_status.findOne({
+                    where: {
+                        id: entity[statusAlias].id
+                    },
+                    include: [{
+                        model: models.E_status,
+                        as: 'r_children',
+                        include: [{
+                            model: models.E_action,
+                            as: 'r_actions',
+                            order: ["f_position", "ASC"],
+                            include: [{
+                                model: models.E_media,
+                                as: 'r_media',
+                                include: {
+                                    all: true,
+                                    nested: true
+                                }
+                            }]
+                        }]
+                    }]
+                }).then((current_status)=> {
+                    if (!current_status || !current_status.r_children) {
+                        logger.debug("Not found - Set status");
+                        return reject("Not found - Set status");
+                    }
+
+                    // Check if new status is actualy the current status's children
+                    var children = current_status.r_children;
+                    var nextStatus = false;
+                    for (var i = 0; i < children.length; i++) {
+                        if (children[i].id == statusId) {
+                            nextStatus = children[i];
+                            break;
+                        }
+                    }
+                    // Unautorized
+                    if (nextStatus === false) {
+                        return reject({
+                            level: 'error',
+                            message: 'component.status.error.illegal_status'
+                        });
+                    }
+
+                    // Execute newStatus actions
+                    nextStatus.executeActions(entity).then(()=> {
+                        // Create history record for this status field
+                        // Beeing the most recent history for bouya it will now be its current status
+                        var createObject = {}
+                        createObject.f_comment = comment;
+                        createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                        createObject["fk_id_bouya_history_" + statusName.substring(2)] = entityId;
+                        models[historyModel].create(createObject).then(()=> {
+                            entity['setR'+statusAlias.substring(1)](nextStatus.id);
+                            resolve();
+                        });
+                    }).catch((err)=> {
+                        console.error(err);
+                        var createObject = {}
+                        createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                        createObject["fk_id_bouya_history_" + statusName.substring(2)] = entityId;
+                        models[historyModel].create(createObject).then(()=> {
+                            entity['setR'+statusAlias.substring(1)](nextStatus.id);
+                            reject(err);
+                        });
+                    });
+                });
+            }).catch(reject);
+        });
+    },
+    currentStatus: function(entityName, entity, attributes, lang) {
         var self = this;
         return new Promise(function(resolve, reject) {
             var statusList = self.statusFieldList(attributes);
