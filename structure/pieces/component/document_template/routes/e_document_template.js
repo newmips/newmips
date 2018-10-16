@@ -277,112 +277,11 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
     });
 });
 
-router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
-    var historyModel = 'E_history_e_document_template_' + req.params.status;
-    var historyAlias = 'r_history_' + req.params.status.substring(2);
-    var statusAlias = 'r_' + req.params.status.substring(2);
-
-    var errorRedirect = '/document_template/show?id=' + req.params.id_document_template;
-    // Find target entity instance
-    models.E_document_template.findOne({
-        where: {
-            id: req.params.id_document_template
-        },
-        include: [{
-            model: models[historyModel],
-            as: historyAlias,
-            limit: 1,
-            order: [["createdAt", "DESC"]],
-            include: [{
-                model: models.E_status,
-                as: statusAlias
-            }]
-        }, {
-            // Include all associations that can later be used by media to include variables value
-            all: true,
-            nested: true
-        }]
-    }).then(function(e_document_template) {
-        if (!e_document_template || !e_document_template[historyAlias] || !e_document_template[historyAlias][0][statusAlias]) {
-            logger.debug("Not found - Set status");
-            return res.render('common/error', {
-                error: 404
-            });
-        }
-
-        // Find the children of the current status
-        models.E_status.findOne({
-            where: {
-                id: e_document_template[historyAlias][0][statusAlias].id
-            },
-            include: [{
-                model: models.E_status,
-                as: 'r_children',
-                include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: ["f_position", "ASC"],
-                    include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: [{
-                            model: getModels().E_media_mail,
-                            as: 'r_media_mail'
-                        }, {
-                            model: getModels().E_media_notification,
-                            as: 'r_media_notification',
-                            include: [{
-                                model: getModels().E_group,
-                                as: 'r_target_groups'
-                            }, {
-                                model: getModels().E_user,
-                                as: 'r_target_users'
-                            }]
-                        }]
-                    }]
-                }]
-            }]
-        }).then(function(current_status) {
-            if (!current_status || !current_status.r_children) {
-                logger.debug("Not found - Set status");
-                return res.render('common/error', {
-                    error: 404
-                });
-            }
-
-            // Check if new status is actualy the current status's children
-            var children = current_status.r_children;
-            var nextStatus = false;
-            for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status) {
-                    nextStatus = children[i];
-                    break;
-                }
-            }
-            // Unautorized
-            if (nextStatus === false) {
-                req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
-                return res.redirect(errorRedirect);
-            }
-
-            // Execute newStatus actions
-            nextStatus.executeActions(e_document_template).then(function() {
-                // Create history record for this status field
-                // Beeing the most recent history for document_template it will now be its current status
-                var createObject = {}
-                createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_document_template_history_" + req.params.status.substring(2)] = req.params.id_document_template;
-                models[historyModel].create(createObject).then(function() {
-                    e_document_template['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/document_template/show?id=' + req.params.id_document_template)
-                });
-            });
-        });
-    }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "update"), function(req, res) {
+    status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+        res.redirect('/document_template/show?id=' + req.params.id_document_template);
+    }).catch((err)=> {
+        entity_helper.error500(err, req, res, '/document_template/show?id=' + req.params.id_document_template);
     });
 });
 

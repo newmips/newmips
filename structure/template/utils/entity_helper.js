@@ -24,7 +24,7 @@ var funcs = {
             var statusPromises = [];
             if (status_helper.statusFieldList(attributes).length > 0)
                 for (var i = 0; i < data.data.length; i++)
-                    statusPromises.push(status_helper.currentStatus(models, entityName, data.data[i], attributes, lang_user));
+                    statusPromises.push(status_helper.currentStatus(entityName, data.data[i], attributes, lang_user));
 
             Promise.all(statusPromises).then(function () {
                 // Replace data enum value by translated value for datalist
