@@ -7,7 +7,7 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
     var searchField = select.data('using').split(',');
 
     // Use custom url on select or build default url
-    var url = select.data('href') ? select.data('href') : '/' + select.data('source') + '/search';
+    var url = select.data('href') ? select.data('href') : select.data('url') ? select.data('url') : '/' + select.data('source') + '/search';
     select.select2({
         ajax: {
             url: url,
