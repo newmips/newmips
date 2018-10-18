@@ -25,15 +25,7 @@ var enums_radios = require('../utils/enum_radio.js');
 var logger = require('../utils/logger');
 
 router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
-    var data = {
-        "menu": "ENTITY_NAME",
-        "sub_menu": "list_ENTITY_NAME"
-    };
-
-    data.toastr = req.session.toastr;
-    req.session.toastr = [];
-
-    res.render('ENTITY_NAME/list', data);
+    res.render('ENTITY_NAME/list');
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
