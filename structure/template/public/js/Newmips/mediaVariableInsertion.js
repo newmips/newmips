@@ -77,14 +77,14 @@ var insertionHandler = {
                 return toastr.warning('Aucune entité n\'est ciblé');
 
             $.ajax({
-                url: '/media/entity_phone_tree/'+entity,
-                success: function(userTree) {
+                url: '/media/entity_full_tree/'+entity,
+                success: function(phoneTree) {
                     /* Create select  and options */
                     var fieldSelect = '<select style="float:left;" class="phoneFieldInsertion" name="insertionSelect" data-type="phone_field">';
                     fieldSelect += '<option value="-1">'+CHOOSE_PHONE_FIELD+'</option>';
-                    for (var i = 0; i < userTree.length; i++)
-                        if (userTree[i].isPhone)
-                            fieldSelect += '<option value="'+userTree[i].codename+'">'+userTree[i].traduction+'</option>';
+                    for (var i = 0; i < phoneTree.length; i++)
+                        if (phoneTree[i].isPhone)
+                            fieldSelect += '<option value="'+phoneTree[i].codename+'">'+phoneTree[i].traduction+'</option>';
                     fieldSelect += '</select>';
 
                     $(fieldSelect).appendTo(label).css('width', '230px').select2();
@@ -93,6 +93,31 @@ var insertionHandler = {
         },
         insertValue: function(data) {
             return "{phone_field|"+data.id+"}";
+        }
+    },
+    email_field: {
+        displaySelector: function(label) {
+            var entity = $("select[name=f_target_entity]").find('option:selected').val();
+            if (!entity)
+                return toastr.warning('Aucune entité n\'est ciblé');
+
+            $.ajax({
+                url: '/media/entity_full_tree/'+entity,
+                success: function(entityTree) {
+                    /* Create select  and options */
+                    var fieldSelect = '<select style="float:left;" class="emailFieldInsertion" name="insertionSelect" data-type="email_field">';
+                    fieldSelect += '<option value="-1">'+CHOOSE_MAIL_FIELD+'</option>';
+                    for (var i = 0; i < entityTree.length; i++)
+                        if (entityTree[i].isEmail)
+                            fieldSelect += '<option value="'+entityTree[i].codename+'">'+entityTree[i].traduction+'</option>';
+                    fieldSelect += '</select>';
+
+                    $(fieldSelect).appendTo(label).css('width', '230px').select2();
+                }
+            });
+        },
+        insertValue: function(data) {
+            return "{field|"+data.id+"}";
         }
     }
 }
