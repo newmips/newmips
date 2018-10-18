@@ -27,8 +27,10 @@ module.exports = {
 
             // Building field array
             for (var field in entityFields) {
-                if (entityFields[field].newmipsType == "mail")
+                if (entityFields[field].newmipsType == "email")
                     fieldTree.email_fields.push(field);
+                if (entityFields[field].newmipsType == "phone")
+                    fieldTree.phone_fields.push(field);
                 fieldTree.fields.push(field);
             }
 
@@ -69,7 +71,7 @@ module.exports = {
 
             // Building field array
             for (var field in entityFields) {
-                if (entityFields[field].newmipsType == "mail")
+                if (entityFields[field].newmipsType == "email")
                     fieldTree.email_fields.push(field);
                 if (entityFields[field].newmipsType == "phone")
                     fieldTree.phone_fields.push(field);
@@ -253,10 +255,9 @@ module.exports = {
     setStatus: function(entityName, entityId, statusName, statusId, comment = "") {
         var self = this;
         return new Promise((resolve, reject)=> {
-            var historyModel = 'E_history_e_bouya_' + statusName;
+            var historyModel = 'E_history_'+entityName+'_' + statusName;
             var historyAlias = 'r_history_' + statusName.substring(2);
             var statusAlias = 'r_' + statusName.substring(2);
-            var errorRedirect = '/bouya/show?id=' + entityId;
             var entityTree = self.fullEntityFieldTree(entityName);
             var includeTree = self.buildIncludeFromTree(entityTree)
 
@@ -314,11 +315,10 @@ module.exports = {
                     // Execute newStatus actions
                     nextStatus.executeActions(entity).then(()=> {
                         // Create history record for this status field
-                        // Beeing the most recent history for bouya it will now be its current status
                         var createObject = {}
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                        createObject["fk_id_bouya_history_" + statusName.substring(2)] = entityId;
+                        createObject["fk_id_"+entityName+"_history_" + statusName.substring(2)] = entityId;
                         models[historyModel].create(createObject).then(()=> {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id);
                             resolve();
@@ -327,7 +327,7 @@ module.exports = {
                         console.error(err);
                         var createObject = {}
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                        createObject["fk_id_bouya_history_" + statusName.substring(2)] = entityId;
+                        createObject["fk_id_"+entityName+"_history_" + statusName.substring(2)] = entityId;
                         models[historyModel].create(createObject).then(()=> {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id);
                             reject(err);

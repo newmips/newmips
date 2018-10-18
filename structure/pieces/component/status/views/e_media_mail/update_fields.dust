@@ -11,7 +11,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
                         <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
-                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_field" /}</a></li>
+                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_email_field" /}</a></li>
                     </ul>
                 </div>
             </label>
@@ -30,7 +30,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
                         <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
-                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_field" /}</a></li>
+                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_email_field" /}</a></li>
                     </ul>
                 </div>
             </label>
@@ -49,7 +49,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
                         <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
-                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_field" /}</a></li>
+                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_email_field" /}</a></li>
                     </ul>
                 </div>
             </label>
@@ -68,7 +68,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
                         <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
-                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_field" /}</a></li>
+                        <li><a class="insert" data-type="email_field">{@__ key="component.status.choose_from_email_field" /}</a></li>
                     </ul>
                 </div>
             </label>

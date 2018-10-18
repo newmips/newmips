@@ -40,7 +40,7 @@ router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", 
     res.json(entityTreeSelect).end();
 });
 
-router.get('/entity_phone_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
+router.get('/entity_full_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
     var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
     var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
     res.json(entityTreeSelect).end();
