@@ -1,80 +1,96 @@
 var fs = require('fs-extra');
 var language = require('../services/language');
+var models = require('../models');
 
 module.exports = {
     // Build entity tree with fields and ONLY belongsTo associations
     entityFieldTree: function (entity, alias) {
-        var fieldTree = {
-            entity: entity,
-            alias: alias || entity,
-            fields: [],
-            email_fields: [],
-            phone_fields: [],
-            children: []
-        }
+        var genealogy = [];
+        // Create inner function to use genealogy globaly
+        function loadTree(entity, alias) {
+            var fieldTree = {
+                entity: entity,
+                alias: alias || entity,
+                fields: [],
+                email_fields: [],
+                phone_fields: [],
+                children: []
+            }
 
-        try {
-            var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-            var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
-        } catch (e) {
-            console.error(e);
+            try {
+                var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+            } catch (e) {
+                console.error(e);
+                return fieldTree;
+            }
+
+            // Building field array
+            for (var field in entityFields) {
+                if (entityFields[field].newmipsType == "mail")
+                    fieldTree.email_fields.push(field);
+                fieldTree.fields.push(field);
+            }
+
+            // Check if current entity has already been built in this branch of the tree to avoid infinite loop
+            if (genealogy.indexOf(entity) != -1)
+                return fieldTree;
+            genealogy.push(entity);
+
+            // Building children array
+            for (var i = 0; i < entityAssociations.length; i++)
+                if (entityAssociations[i].relation == 'belongsTo' && entityAssociations[i].target != entity)
+                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+
             return fieldTree;
         }
-
-        // Building field array
-        for (var field in entityFields) {
-            if (entityFields[field].newmipsType == "mail")
-                fieldTree.email_fields.push(field);
-            fieldTree.fields.push(field);
-        }
-
-        // Building children array
-        for (var i = 0; i < entityAssociations.length; i++)
-            if (entityAssociations[i].relation == 'belongsTo' && entityAssociations[i].target != entity)
-                fieldTree.children.push(this.entityFieldTree(entityAssociations[i].target, entityAssociations[i].as));
-
-        return fieldTree;
+        return loadTree(entity, alias);
     },
     // Build entity tree with fields and ALL associations
-    fullEntityFieldTree: function (entity, alias = entity, genealogy = []) {
-        var fieldTree = {
-            entity: entity,
-            alias: alias,
-            fields: [],
-            email_fields: [],
-            phone_fields: [],
-            children: []
-        }
-        try {
-            var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-            var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
-        } catch (e) {
-            console.error(e);
+    fullEntityFieldTree: function (entity, alias = entity) {
+        var genealogy = [];
+        // Create inner function to use genealogy globaly
+        function loadTree(entity, alias) {
+            var fieldTree = {
+                entity: entity,
+                alias: alias,
+                fields: [],
+                email_fields: [],
+                phone_fields: [],
+                children: []
+            }
+            try {
+                var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+            } catch (e) {
+                console.error(e);
+                return fieldTree;
+            }
+
+            // Building field array
+            for (var field in entityFields) {
+                if (entityFields[field].newmipsType == "mail")
+                    fieldTree.email_fields.push(field);
+                if (entityFields[field].newmipsType == "phone")
+                    fieldTree.phone_fields.push(field);
+                fieldTree.fields.push(field);
+            }
+
+            // Check if current entity has already been built in this branch of the tree to avoid infinite loop
+            if (genealogy.indexOf(entity) != -1)
+                return fieldTree;
+            genealogy.push(entity);
+
+            // Building children array
+            for (var i = 0; i < entityAssociations.length; i++)
+                fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+
             return fieldTree;
         }
-
-        // Building field array
-        for (var field in entityFields) {
-            if (entityFields[field].newmipsType == "mail")
-                fieldTree.email_fields.push(field);
-            if (entityFields[field].newmipsType == "phone")
-                fieldTree.phone_fields.push(field);
-            fieldTree.fields.push(field);
-        }
-
-        // Check if current entity has already been built in this branch of the tree to avoid infinite loop
-        if (genealogy.indexOf(entity) != -1)
-            return fieldTree;
-        genealogy.push(entity);
-
-        // Building children array
-        for (var i = 0; i < entityAssociations.length; i++)
-            fieldTree.children.push(this.fullEntityFieldTree(entityAssociations[i].target, entityAssociations[i].as, genealogy));
-
-        return fieldTree;
+        return loadTree(entity, alias);
     },
     // Build sequelize formated include object from tree
-    buildIncludeFromTree: function(models, entityTree) {
+    buildIncludeFromTree: function(entityTree) {
         var includes = [];
         for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
             var include = {};
@@ -82,13 +98,13 @@ module.exports = {
             include.as = child.alias;
             include.model = models[child.entity.charAt(0).toUpperCase() + child.entity.toLowerCase().slice(1)];
             if (child.children && child.children.length != 0)
-                include.include = this.buildIncludeFromTree(models, child);
+                include.include = this.buildIncludeFromTree(child);
             includes.push(include);
         }
         return includes;
     },
     // Build array of user target for media_notification insertion <select>
-    getUserTargetList: function(models, entityTree, lang) {
+    getUserTargetList: (entityTree, lang)=> {
         var __ = language(lang).__;
         entityTree.topLevel = true;
         var userList = [];
@@ -134,7 +150,12 @@ module.exports = {
         dive(entityTree);
 
         // Sort options array
+        // loopCount is used to avoid "Maximum call stack exedeed" error with large arrays.
+        // Using setTimeout (even with 0 milliseconds) will end the current call stack and create a new one.
+        // Even with 0 milliseconds timeout execution can be realy slower, so we reset call stack once every 1000 lap
+        var loopCount = 0;
         function sort(optsArray, i) {
+            loopCount++;
             if (!optsArray[i+1])
                 return;
             var firstParts = optsArray[i].traduction.split(separator);
@@ -143,16 +164,38 @@ module.exports = {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                return sort(optsArray, i == 0 ? i : i-1);
+                if (loopCount % 1000 === 0) {
+                    loopCount = 0;
+                    return setTimeout(() => {
+                        sort(optsArray, i == 0 ? i : i-1);
+                    }, 0);
+                }
+                else
+                    return sort(optsArray, i == 0 ? i : i-1)
             }
             else if (firstParts[0].toLowerCase() == secondParts[0].toLowerCase()
                 && firstParts[1].toLowerCase() > secondParts[1].toLowerCase()) {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                return sort(optsArray, i == 0 ? i : i-1);
+                if (loopCount % 1000 === 0) {
+                    loopCount = 0;
+                    return setTimeout(() => {
+                        sort(optsArray, i == 0 ? i : i-1);
+                    }, 0);
+                }
+                else
+                    return sort(optsArray, i == 0 ? i : i-1);
+
             }
-            return sort(optsArray, i+1);
+            if (loopCount % 1000 === 0) {
+                loopCount = 0;
+                return setTimeout(() => {
+                    sort(optsArray, i+1);
+                }, 0);
+            }
+            else
+                return sort(optsArray, i+1);
         }
         sort(options, 0);
 
@@ -191,7 +234,7 @@ module.exports = {
                 list.push(prop);
         return list;
     },
-    translate: function(entity, attributes, lang) {
+    translate: function (entity, attributes, lang) {
         var self = this;
         var statusList = self.statusFieldList(attributes);
 
@@ -207,7 +250,94 @@ module.exports = {
             }
         }
     },
-    currentStatus: function(models, entityName, entity, attributes, lang) {
+    setStatus: function(entityName, entityId, statusName, statusId, comment = "") {
+        var self = this;
+        return new Promise((resolve, reject)=> {
+            var historyModel = 'E_history_e_bouya_' + statusName;
+            var historyAlias = 'r_history_' + statusName.substring(2);
+            var statusAlias = 'r_' + statusName.substring(2);
+            var errorRedirect = '/bouya/show?id=' + entityId;
+            var entityTree = self.fullEntityFieldTree(entityName);
+            var includeTree = self.buildIncludeFromTree(entityTree)
+
+            models['E_'+entityName.substring(2)].findOne({
+                where: {
+                    id: entityId
+                },
+                include: includeTree
+            }).then((entity)=> {
+                // Find the children of the current status
+                models.E_status.findOne({
+                    where: {
+                        id: entity[statusAlias].id
+                    },
+                    include: [{
+                        model: models.E_status,
+                        as: 'r_children',
+                        include: [{
+                            model: models.E_action,
+                            as: 'r_actions',
+                            order: ["f_position", "ASC"],
+                            include: [{
+                                model: models.E_media,
+                                as: 'r_media',
+                                include: {
+                                    all: true,
+                                    nested: true
+                                }
+                            }]
+                        }]
+                    }]
+                }).then((current_status)=> {
+                    if (!current_status || !current_status.r_children) {
+                        logger.debug("Not found - Set status");
+                        return reject("Not found - Set status");
+                    }
+
+                    // Check if new status is actualy the current status's children
+                    var children = current_status.r_children;
+                    var nextStatus = false;
+                    for (var i = 0; i < children.length; i++) {
+                        if (children[i].id == statusId) {
+                            nextStatus = children[i];
+                            break;
+                        }
+                    }
+                    // Unautorized
+                    if (nextStatus === false) {
+                        return reject({
+                            level: 'error',
+                            message: 'component.status.error.illegal_status'
+                        });
+                    }
+
+                    // Execute newStatus actions
+                    nextStatus.executeActions(entity).then(()=> {
+                        // Create history record for this status field
+                        // Beeing the most recent history for bouya it will now be its current status
+                        var createObject = {}
+                        createObject.f_comment = comment;
+                        createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                        createObject["fk_id_bouya_history_" + statusName.substring(2)] = entityId;
+                        models[historyModel].create(createObject).then(()=> {
+                            entity['setR'+statusAlias.substring(1)](nextStatus.id);
+                            resolve();
+                        });
+                    }).catch((err)=> {
+                        console.error(err);
+                        var createObject = {}
+                        createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+                        createObject["fk_id_bouya_history_" + statusName.substring(2)] = entityId;
+                        models[historyModel].create(createObject).then(()=> {
+                            entity['setR'+statusAlias.substring(1)](nextStatus.id);
+                            reject(err);
+                        });
+                    });
+                });
+            }).catch(reject);
+        });
+    },
+    currentStatus: function(entityName, entity, attributes, lang) {
         var self = this;
         return new Promise(function(resolve, reject) {
             var statusList = self.statusFieldList(attributes);

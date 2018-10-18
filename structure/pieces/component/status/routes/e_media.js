@@ -48,7 +48,7 @@ router.get('/entity_phone_tree/:entity', block_access.actionAccessMiddleware("me
 
 router.get('/user_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
     var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
-    var userTree = status_helper.getUserTargetList(models, entityTree, req.session.lang_user);
+    var userTree = status_helper.getUserTargetList(entityTree, req.session.lang_user);
     res.json(userTree).end();
 });
 
@@ -308,85 +308,11 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
     });
 });
 
-router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAccessMiddleware("media", "create"), function(req, res) {
-    var historyModel = 'E_history_e_media_'+req.params.status;
-    var historyAlias = 'r_history_'+req.params.status.substring(2);
-    var statusAlias = 'r_'+req.params.status.substring(2);
-
-    var errorRedirect = '/media/show?id='+req.params.id_media;
-    // Find target entity instance
-    models.E_media.findOne({
-        where: {id: req.params.id_media},
-        include: [{
-            model: models[historyModel],
-            as: historyAlias,
-            limit: 1,
-            order: [["createdAt", "DESC"]],
-            include: [{
-                model: models.E_status,
-                as: statusAlias
-            }]
-        }]
-    }).then(function(e_media) {
-        if (!e_media || !e_media[historyAlias] || !e_media[historyAlias][0][statusAlias]){
-            logger.debug("Not found - Set status");
-            return res.render('common/error', {error: 404});
-        }
-
-        // Find the children of the current status
-        models.E_status.findOne({
-            where: {id: e_media[historyAlias][0][statusAlias].id},
-            include: [{
-                model: models.E_status,
-                as: 'r_children',
-                    include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: ["f_position", "ASC"],
-                    include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: [{all: true}]
-                    }]
-                }]
-            }]
-        }).then(function(current_status) {
-            if (!current_status || !current_status.r_children){
-                logger.debug("Not found - Set status");
-                return res.render('common/error', {error: 404});
-            }
-
-            // Check if new status is actualy the current status's children
-            var children = current_status.r_children;
-            var nextStatus = false;
-            for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status)
-                    {nextStatus = children[i]; break;}
-            }
-            // Unautorized
-            if (nextStatus === false){
-                req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
-                return res.redirect(errorRedirect);
-            }
-
-            // Execute newStatus actions
-            nextStatus.executeActions(e_media);
-
-            // Create history record for this status field
-            // Beeing the most recent history for media it will now be its current status
-            var createObject = {}
-            createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-            createObject["fk_id_media_history_"+req.params.status.substring(2)] = req.params.id_media;
-            models[historyModel].create(createObject).then(function() {
-                e_media['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                res.redirect('/media/show?id='+req.params.id_media)
-            }).catch(function(err) {
-                entity_helper.error500(err, req, res, errorRedirect);
-            });
-        });
+router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAccessMiddleware("media", "update"), function(req, res) {
+    status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+        res.redirect('/media/show?id=' + req.params.id_media);
+    }).catch((err)=> {
+        entity_helper.error500(err, req, res, '/media/show?id=' + req.params.id_media);
     });
 });
 
