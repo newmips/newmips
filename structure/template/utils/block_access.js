@@ -39,12 +39,19 @@ exports.loginAccess = function(req, res, next) {
     res.redirect('/default/home');
 };
 
+var LOAD_ACCESS_FILE = true;
+exports.reloadAccess = function(reload = true) {
+    LOAD_ACCESS_FILE = reload;
+}
+var ACCESS;
 function getAccess() {
-    var access;
-    try {
-        access = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
-    } catch(e) {console.error(e);return {};}
-    return access;
+    if (LOAD_ACCESS_FILE || !ACCESS) {
+        try {
+            ACCESS = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
+        } catch(e) {console.error(e);return {};}
+        LOAD_ACCESS_FILE = false;
+    }
+    return ACCESS;
 }
 
 function isInBothArray(stringArray, objectArray) {

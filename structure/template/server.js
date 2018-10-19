@@ -49,7 +49,7 @@ var cons = require('consolidate');
 // Configuration ===============================================================
 
 // Pass passport for configuration
-require('./utils/authStrategies');
+require('./utils/auth_strategies');
 
 // Set up public files access (js/css...)
 app.use(express.static(path.join(__dirname, 'public')));
