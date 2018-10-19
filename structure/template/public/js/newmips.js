@@ -465,6 +465,28 @@ function initForm(context) {
         $(this).next("input").focus();
     });
 
+    // Label click trigger concerned input
+    $(document).on("click", "div:not([data-field='']) .form-group label", function () {
+        let htmlType = ["input", "textarea", "select"]
+        let input;
+        for (var i=0; i < htmlType.length; i++) {
+            if($(this).parent().find(htmlType[i]+"[name='"+$(this).attr("for")+"']").length != 0){
+                input = $(this).parent().find(htmlType[i]+"[name='"+$(this).attr("for")+"']");
+                break;
+            }
+        }
+        if(typeof input !== "undefined"){
+            switch(input.attr("type")) {
+                case "checkbox":
+                    input.iCheck("toggle");
+                    break;
+                default:
+                    input.focus();
+                    break;
+            }
+        }
+    });
+
     $(document).on("click", ".copy-button", function(){
         var $temp = $("<input>");
         $("body").append($temp);
