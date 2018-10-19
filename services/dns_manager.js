@@ -1,6 +1,6 @@
 var crypto = require('crypto');
-var studioConfig = require('../config/studio_manager.json');
-var cloudConfig = require('../config/cloud_manager.json');
+var studioConfig = require('../config/studio_manager.js');
+var cloudConfig = require('../config/cloud_manager.js');
 var request = require('request');
 
 var algorithm = 'aes-256-ctr';
@@ -47,9 +47,31 @@ exports.createApplicationDns = function(subdomain, name_application, id_applicat
 				return reject({error: error, response: response});
 			}
 			resolve({response: response, body: body});
+		})
+	});
+}
+
+exports.deleteApplicationDns = function(subdomain, application_name, id_application) {
+	return new Promise(function(resolve, reject) {
+		var url = studioConfig.url+'/api/environment/application/delete';
+		request.post({
+			headers: {
+				"Authorization": getAuthorization(studioConfig),
+				'content-type' : 'application/json'
+			},
+			url: url,
+			rejectUnauthorized: false,
+		    form: {subdomain: subdomain, application_name: application_name, id_application: id_application}
+		}, function(error, response, body) {
+			if (error) {
+				console.log(error);
+				return reject({error: error, response: response});
+			}
+			resolve({response: response, body: body});
 		});
 	});
 }
+
 
 ///////////////////
 // Cloud-manager //
