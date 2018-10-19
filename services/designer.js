@@ -2462,7 +2462,6 @@ exports.deleteComponentPrint = function (attr, callback) {
              structure_component.newPrint(attr, function(err){
              if(err)
              return callback(err, null);
-             
              callback(null, info);
              });
              });
@@ -2470,7 +2469,7 @@ exports.deleteComponentPrint = function (attr, callback) {
              return callback(err, null);
              }
              });
-             });*/
+         });*/
         } else {
             var err = new Error();
             err.message = "structure.component.error.notExisting";

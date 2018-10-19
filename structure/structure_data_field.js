@@ -141,9 +141,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "link" :
             if (file == 'show'){
                 str += "    <br><a href='"+value+"' target='_blank' type='url' data-type='url' style='display: table-cell;padding-right: 5px;'>"+value+"</a>\n";
+                str += "    {?"+value2+"}"
                 str += "    <div class='copy-button'>\n";
                 str += "        <i class='fa fa-copy'></i>\n";
                 str += "    </div>\n";
+                str += "    {/"+value2+"}"
             } else {
                 str += "    <div class='input-group'>\n";
                 str += "        <div class='input-group-addon'>\n";
@@ -288,38 +290,43 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 if(clearDefaultValue != ""){
                     str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                     str += "    &nbsp;\n<br>\n";
+                    str += "    <label>";
                     str += "    {@eq key=\"" + clearDefaultValue + "\" value=\"{.value}\" }\n";
                     str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    {:else}\n";
                     str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    {/eq}\n";
+                    str += "    </label>";
                     str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
-                }
-                else {
+                } else {
                     str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                     str += "    &nbsp;\n<br>\n";
+                    str += "    <label>";
                     str += "    <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "    </label>";
                     str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
                 }
-            }
-            else if(file == "show") {
+            } else if(file == "show") {
                 str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "    &nbsp;\n<br>\n";
+                str += "    <label>";
                 str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {:else}\n";
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {/eq}\n";
+                str += "    </label>";
                 str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
-            }
-            else {
+            } else {
                 str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "    &nbsp;\n<br>\n";
+                str += "    <label>";
                 str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {:else}\n";
                 str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {/eq}\n";
+                str += "    </label>";
                 str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
             }
             break;
