@@ -37,7 +37,7 @@ var languageConfig = require('./config/language');
 var extend = require('util')._extend;
 var https = require('https');
 var http = require('http');
-var fs = require('fs');
+var fs = require('fs-extra');
 
 // Winston logger
 var logger = require('./utils/logger');
@@ -431,6 +431,10 @@ models.sequelize.sync({logging: false, hooks: false}).then(function() {
             io.use(socketSession(sessionInstance));
             require('./services/socket')(io);
         }
+
+        // Generate access.json lock file
+    	if (!fs.existsSync(__dirname +'/config/access.lock.json'))
+    		fs.copySync(__dirname +'/config/access.json', __dirname +'/config/access.lock.json');
 
         server.listen(port);
         console.log("Started " + protocol + " on " + port + " !");
