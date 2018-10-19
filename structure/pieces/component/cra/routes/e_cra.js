@@ -8,7 +8,7 @@ var entity_helper = require('../utils/entity_helper');
 var moment = require('moment');
 
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
 var models = require('../models/');

@@ -7,7 +7,7 @@ var fs = require('fs');
 var language = require('../services/language')('fr-FR');
 
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Winston logger
 var logger = require('../utils/logger');

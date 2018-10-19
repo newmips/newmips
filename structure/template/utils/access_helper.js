@@ -1,5 +1,6 @@
 var models = require('../models/');
 var fs = require('fs-extra');
+var block_access = require('./block_access');
 
 // Get workspace modules and entities list
 // Also get workspace's groups and roles
@@ -54,6 +55,7 @@ exports.setGroupAccess = function(modules, entities) {
 	// Write back new data to file
 	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
 
+	block_access.reloadAccess();
 	return 1;
 }
 
@@ -71,5 +73,6 @@ exports.setRoleAccess = function(entities) {
 	// Write back new data to file
 	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
 
+	block_access.reloadAccess();
 	return 1;
 }
