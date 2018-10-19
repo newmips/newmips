@@ -20,22 +20,30 @@ module.exports = function(model_name, attributes) {
 			name: 'initializeEntityStatus',
 			func: function(model, options) {
 				return new Promise((finalResolve, finalReject)=> {
+					// Look for s_status fields. If none, resolve
+					var statusFields = [];
+			        for (var field in attributes)
+			            if (field.indexOf('s_') == 0)
+			                statusFields.push(field);
+			        if (statusFields.length == 0)
+			        	return finalResolve();
+
+			        // Special object, no status available
 					if (!getModels()['E_'+model_name.substring(2)])
 						return finalResolve();
-					// Load created model with all its associations for the media execution
+
 					var modelTree = getStatusHelper().fullEntityFieldTree(model_name);
 					var modelInclude = getStatusHelper().buildIncludeFromTree(modelTree);
 
+					// Load created model with all its associations for the media execution
 					getModels()['E_'+model_name.substring(2)].findOne({
 						where: {id: model.id},
 						include: modelInclude
 					}).then((modelWithRelations)=> {
 				        var initStatusPromise = [];
-				        for (var field in attributes) {
-				            if (field.indexOf('s_') != 0)
-				                continue;
+				        for (var i = 0; i < statusFields.length; i++) {
+				        	var field = statusFields[i];
 
-				            // Create history object with initial status related to new entity
 				            initStatusPromise.push(new Promise(function(resolve, reject) {
 				                (function(fieldIn) {
 				                    var historyModel = 'E_history_'+model_name+'_'+fieldIn;
@@ -54,6 +62,9 @@ module.exports = function(model_name, attributes) {
 		                                        }, {
 		                                            model: getModels().E_media_notification,
 		                                            as: 'r_media_notification'
+		                                        }, {
+		                                            model: getModels().E_media_sms,
+		                                            as: 'r_media_sms'
 		                                        }]
 		                                    }]
 		                                }]
@@ -62,6 +73,7 @@ module.exports = function(model_name, attributes) {
 				                            version:1,
 				                            f_comment: 'Creation'
 				                        };
+							            // Create history object with initial status related to new entity
 				                        historyObject["fk_id_status_"+fieldIn.substring(2)] = status.id;
 				                        historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = modelWithRelations.id;
 				                        getModels()[historyModel].create(historyObject).then(function() {
