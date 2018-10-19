@@ -104,6 +104,16 @@ module.exports = (sequelize, DataTypes) => {
                 else if (typeof object[depths[idx]] === 'object') {
                     if (object[depths[idx]] instanceof Date)
                         return moment(object[depths[idx]]).format("DD/MM/YYYY");
+
+                    // Case where targeted field is in an array.
+                    // Ex: r_projet.r_participants.f_email <- Loop through r_participants and join all f_email
+                    else if (object[depths[idx]] instanceof Array && depths.length-2 == idx) {
+                        var values = [];
+                        for (var i = 0; i < object[depths[idx]].length; i++)
+                            if (typeof object[depths[idx]][i][depths[idx+1]] !== 'undefined')
+                                values.push(object[depths[idx]][i][depths[idx+1]]);
+                        return values.join(', ');
+                    }
                     return diveData(object[depths[idx]], depths, ++idx);
                 }
                 else

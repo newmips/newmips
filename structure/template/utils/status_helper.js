@@ -129,15 +129,22 @@ module.exports = {
         var __ = language(lang).__;
         var separator = ' > ';
         var options = [];
-        function dive(obj, codename, parent) {
+        function dive(obj, codename, parent, parentTraduction = "") {
+            var traduction;
+            // Top level. Entity traduction Ex: 'Ticket'
+            if (!parent)
+                traduction = __('entity.'+obj.entity+'.label_entity');
+            // Child level. Parent traduction with child entity alias Ex: 'Ticket > Participants' OR 'Ticket > Participants > Adresse'
+            else
+                traduction = parentTraduction + separator + __('entity.'+parent.entity+'.'+obj.alias);
+
             for (var j = 0; j < obj.fields.length; j++) {
                 if (obj.fields[j].indexOf('f_') != 0)
                     continue;
-                var traduction = (parent) ? __('entity.'+parent.entity+'.'+obj.alias) : __('entity.'+obj.entity+'.label_entity');
-                traduction += separator + __('entity.'+obj.entity+'.'+obj.fields[j]);
+                // traduction += separator + __('entity.'+obj.entity+'.'+obj.fields[j]);
                 options.push({
                     codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
-                    traduction: traduction,
+                    traduction: traduction + separator + __('entity.'+obj.entity+'.'+obj.fields[j]), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
                     target: obj.entity,
                     isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
                     isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false
@@ -145,7 +152,7 @@ module.exports = {
             }
 
             for (var i = 0; i < obj.children.length; i++)
-                dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias, obj);
+                dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias, obj, traduction);
         }
 
         // Build options array
@@ -304,7 +311,7 @@ module.exports = {
                             break;
                         }
                     }
-                    // Unautorized
+                    // Unauthorized
                     if (nextStatus === false) {
                         return reject({
                             level: 'error',
@@ -315,7 +322,7 @@ module.exports = {
                     // Execute newStatus actions
                     nextStatus.executeActions(entity).then(()=> {
                         // Create history record for this status field
-                        var createObject = {}
+                        var createObject = {};
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName+"_history_" + statusName.substring(2)] = entityId;
@@ -325,7 +332,8 @@ module.exports = {
                         });
                     }).catch((err)=> {
                         console.error(err);
-                        var createObject = {}
+                        var createObject = {};
+                        createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName+"_history_" + statusName.substring(2)] = entityId;
                         models[historyModel].create(createObject).then(()=> {
