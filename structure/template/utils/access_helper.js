@@ -54,6 +54,8 @@ exports.setGroupAccess = function(modules, entities) {
 
 	// Write back new data to file
 	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
+	// Update lock file
+	fs.writeFileSync(__dirname+'/../config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
 	block_access.reloadAccess();
 	return 1;
@@ -72,6 +74,8 @@ exports.setRoleAccess = function(entities) {
 
 	// Write back new data to file
 	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
+	// Update lock file
+	fs.writeFileSync(__dirname+'/../config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
 	block_access.reloadAccess();
 	return 1;

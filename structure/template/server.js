@@ -432,11 +432,11 @@ models.sequelize.sync({logging: false, hooks: false}).then(function() {
             require('./services/socket')(io);
         }
 
-	    // Handle access.json file for various situation
-	    block_access.accessFileManagment();
+		// Handle access.json file for various situation
+		block_access.accessFileManagment();
 
-	    server.listen(port);
-	    console.log("Started " + protocol + " on " + port + " !");
+		server.listen(port);
+		console.log("Started " + protocol + " on " + port + " !");
     }).catch(function(err) {
         console.log(err);
         logger.silly(err);
