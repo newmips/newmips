@@ -308,6 +308,7 @@ exports.setupDataEntity = function (attr, callback) {
 
                                                                             // Write new data entity to access.json file, within module's context
                                                                             var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
+                                                                            var accessLockPath = __dirname + '/../workspace/' + id_application + '/config/access.lock.json';
                                                                             var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
                                                                             accessObject[name_module.substring(2).toLowerCase()].entities.push({
                                                                                 name: url_name_data_entity,
@@ -319,12 +320,12 @@ exports.setupDataEntity = function (attr, callback) {
                                                                                     update: []
                                                                                 }
                                                                             });
-                                                                            fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-                                                                                /* --------------- New translation --------------- */
-                                                                                translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
-                                                                                    callback();
-                                                                                });
-                                                                            })
+                                                                            fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+                                                                            fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+                                                                            /* --------------- New translation --------------- */
+                                                                            translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
+                                                                                callback();
+                                                                            });
                                                                         });
                                                                     });
                                                                 });
@@ -381,6 +382,7 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
         if (access[name_module.substring(2)].entities[i].name == url_name_data_entity)
             access[name_module.substring(2)].entities.splice(i, 1);
     fs.writeFileSync(baseFolder + '/config/access.json', JSON.stringify(access, null, 4));
+    fs.writeFileSync(baseFolder + '/config/access.lock.json', JSON.stringify(access, null, 4));
 
     // Remove entity entry from layout select
     var filePath = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module + '.dust';

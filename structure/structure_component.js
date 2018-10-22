@@ -99,6 +99,7 @@ function addTab(attr, file, newLi, newTabContent) {
 function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
     // Write new data entity to access.json file, within module's context
     var accessPath = __dirname + '/../workspace/' + idApplication + '/config/access.json';
+    var accessLockPath = __dirname + '/../workspace/' + idApplication + '/config/access.lock.json';
     var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
     accessObject[urlModule.toLowerCase()].entities.push({
         name: urlComponent,
@@ -110,14 +111,15 @@ function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
             delete: []
         }
     });
-    fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-        callback();
-    });
+    fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+    fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+    callback();
 }
 
 function deleteAccessManagment(idApplication, urlComponent, urlModule, callback) {
     // Write new data entity to access.json file, within module's context
     var accessPath = __dirname + '/../workspace/' + idApplication + '/config/access.json';
+    var accessLockPath = __dirname + '/../workspace/' + idApplication + '/config/access.lock.json';
     var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
     if (accessObject[urlModule.toLowerCase()] && accessObject[urlModule.toLowerCase()].entities) {
         var entities = accessObject[urlModule.toLowerCase()].entities;
@@ -130,9 +132,9 @@ function deleteAccessManagment(idApplication, urlComponent, urlModule, callback)
         }
         if (dataIndexToRemove !== -1)
             entities.splice(dataIndexToRemove, 1);
-        fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-            callback();
-        });
+        fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+        fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+        callback();
     } else
         callback();
 }
@@ -881,6 +883,7 @@ exports.newStatus = function (attr, callback) {
                 access[module].entities[i].name = attr.history_table;
 
     fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
     // Change target of source entity to match history MODEL name (instead of TABLE name)
     var optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + attr.source + '.json'));
