@@ -432,21 +432,18 @@ models.sequelize.sync({logging: false, hooks: false}).then(function() {
             require('./services/socket')(io);
         }
 
-        // Generate access.json lock file
-    	if (!fs.existsSync(__dirname +'/config/access.lock.json'))
-    		fs.copySync(__dirname +'/config/access.json', __dirname +'/config/access.lock.json');
+	    // Handle access.json file for various situation
+	    block_access.accessFileManagment();
 
-        server.listen(port);
-        console.log("Started " + protocol + " on " + port + " !");
+	    server.listen(port);
+	    console.log("Started " + protocol + " on " + port + " !");
     }).catch(function(err) {
-        console.log("ERROR - SYNC");
         console.log(err);
         logger.silly(err);
-    });
+    })
 }).catch(function(err) {
-    console.log("ERROR - SYNC");
     console.log(err);
     logger.silly(err);
-});
+})
 
 module.exports = app;
