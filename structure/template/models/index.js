@@ -72,7 +72,7 @@ sequelize.customAfterSync = function() {
         var promises = [];
 
         /* ----------------- Récupération du toSync.json -----------------*/
-        var toSyncFileName = globalConf.env == 'cloud' || globalConf.env == 'cloud_recette' ? __dirname + '/toSyncProd.lock.json' : __dirname + '/toSync.json';
+        var toSyncFileName = __dirname + '/toSync.json';
         var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
         var dialect = sequelize.options.dialect;
