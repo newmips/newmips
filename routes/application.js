@@ -73,7 +73,7 @@ function initPreviewData(idApplication, data){
 }
 
 var chats = {};
-function setChat(req, idApp, idUser, user, content, params){
+function setChat(req, idApp, idUser, user, content, params, isError){
 
     // Init if necessary
     if(!chats[idApp])
@@ -87,7 +87,8 @@ function setChat(req, idApp, idUser, user, content, params){
             user: user,
             dateEmission: moment().format("DD MMM HH:mm"),
             content: content,
-            params: params || []
+            params: params || [],
+            isError: isError || false
         });
     }
 }
@@ -265,7 +266,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                     var initialTimestamp = new Date().getTime();
                     function checkServer() {
                         if (new Date().getTime() - initialTimestamp > timeoutServer) {
-                            setChat(req, id_application, currentUserID, "Mipsy", "structure.global.restart.error");
+                            setChat(req, id_application, currentUserID, "Mipsy", "structure.global.restart.error", [], true);
                             data.iframe_url = -1;
                             data.chat = chats[id_application][currentUserID];
                             return res.render('front/preview', data);
@@ -308,7 +309,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             // Let's do git init or commit depending the env (only on cloud env for now)
                             gitHelper.doGit(attr, function(err){
                                 if(err)
-                                    setChat(req, id_application, currentUserID, "Mipsy", err.message, []);
+                                    setChat(req, id_application, currentUserID, "Mipsy", err.message, [], true);
                                 data.chat = chats[id_application][currentUserID];
                                 res.render('front/preview', data);
                             });
@@ -420,7 +421,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     logger.debug(answer);
 
                     //Generator answer
-                    setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams);
+                    setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams, true);
 
                     /* Save ERROR an instruction history in the history script in workspace folder */
                     if(attr.function != 'restart'){
@@ -506,7 +507,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                     if (new Date().getTime() - initialTimestamp > timeoutServer) {
                                         // Timeout
                                         data.iframe_url = -1;
-                                        setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error");
+                                        setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error", [], true);
                                         data.chat = chats[currentAppID][currentUserID];
                                         return res.send(data);
                                     }
@@ -543,7 +544,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                                             // Let's do git init or commit depending the env (only on cloud env for now)
                                             gitHelper.doGit(attr, function(err){
                                                 if(err)
-                                                    setChat(req, currentAppID, currentUserID, "Mipsy", err.message, []);
+                                                    setChat(req, currentAppID, currentUserID, "Mipsy", err.message, [], true);
                                                 // Call preview page
                                                 data.chat = chats[currentAppID][currentUserID];
                                                 res.send(data);
@@ -560,7 +561,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                 }
             });
         } catch(error){
-            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams);
+            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams, true);
             // Load session values
             var attr = {};
             attr.id_project = req.session.id_project;

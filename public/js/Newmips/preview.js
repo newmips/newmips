@@ -279,7 +279,10 @@ $(document).ready(function() {
                 // Mipsy answer
                 var mipsyItem = data.chat.items[data.chat.items.length - 1];
                 getTranslation(mipsyItem.content, mipsyItem.params, function(mipsyAnswer) {
-                    $("#chat-box").append("<div class='animated pulse item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">" + mipsyItem.dateEmission + "</small>" + mipsyItem.user + "</a><span class=\"standard-writing\" style=\"display: block;\">" + mipsyAnswer + "</span></p></div><hr>");
+                    let contentMipsy = "<div class='animated pulse item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">" + mipsyItem.dateEmission + "</small>" + mipsyItem.user + "</a><span class=\"standard-writing\" style=\"display: block;\">" + mipsyAnswer + "</span></p></div><hr>";
+                    if(mipsyItem.isError)
+                        contentMipsy = "<div class='animated pulse item'><img src=\"/img/avatar.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">" + mipsyItem.dateEmission + "</small>" + mipsyItem.user + "</a><span class=\"standard-writing\" style=\"display: block;color:#e33939;\"><i class='fa fa-exclamation-circle'></i> " + mipsyAnswer + "</span></p></div><hr>";
+                    $("#chat-box").append(contentMipsy);
 
                     $("#instruction").val("");
                     $("#instruction").blur().focus();

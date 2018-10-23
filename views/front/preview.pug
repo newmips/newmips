@@ -133,6 +133,9 @@ block content
 											if (msg.content == "chat.welcome")
 												span.dynamic-writing
 													| !{__(msg.content, msg.params)}
+											else if (msg.isError)
+												span.standard-writing(style='color:#e33939;')
+													| <i class='fa fa-exclamation-circle'></i> !{__(msg.content, msg.params)}
 											else
 												span.standard-writing
 													| !{__(msg.content, msg.params)}
