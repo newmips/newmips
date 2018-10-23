@@ -12,17 +12,48 @@ var filterDataTable = require('../utils/filter_datatable');
 // Winston logger
 var logger = require('../utils/logger');
 
-router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
-    var id_e_user = req.query.id;
-    var tab = req.query.tab;
-    var data = {
-        menu: "e_settings",
-        sub_menu: "list_e_settings",
-        tab: tab
-    };
+router.get('/show_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
+    var data = {};
+    data.api_enabled = require('../config/application.json').api_enabled;
+    res.render('e_access_settings/show_api', data);
+});
 
+router.get('/show_group', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
+    var data = {};
     access_helper.getPreviewData().then(function(values) {
         data.allGroups = values.groups;
+
+        // Build traduction key for modules and entities
+        for(var i=0; i<values.modules.length; i++){
+            values.modules[i].tradKeyModule = "module.m_"+values.modules[i].name;
+            for(var j=0; j<values.modules[i].entities.length; j++){
+                // Access_settings isn't an entity
+                if(values.modules[i].entities[j].name == "access_settings")
+                    values.modules[i].entities[j].tradKeyEntity = "settings.title";
+                else {
+                    var key = "entity.e_"+values.modules[i].entities[j].name+".label_entity";
+                    if (language.__(key) == key)
+                        key = "component.c_"+values.modules[i].entities[j].name+".label_component";
+                    values.modules[i].entities[j].tradKeyEntity = key;
+                }
+            }
+        }
+
+        data.modules = values.modules;
+        dust.helpers.isGroupChecked = function(chunk, context, bodies, params) {
+            var currentSource = params.source;
+            var currentTarget = params.target;
+            if (currentSource.groups.indexOf(currentTarget) == -1)
+                return true;
+            return false;
+        }
+        res.render('e_access_settings/show_group', data);
+    });
+});
+
+router.get('/show_role', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
+    var data = {};
+    access_helper.getPreviewData().then(function(values) {
         data.allRoles = values.roles;
 
         // Build traduction key for modules and entities
@@ -42,14 +73,6 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
         }
 
         data.modules = values.modules;
-
-        dust.helpers.isGroupChecked = function(chunk, context, bodies, params) {
-            var currentSource = params.source;
-            var currentTarget = params.target;
-            if (currentSource.groups.indexOf(currentTarget) == -1)
-                return true;
-            return false;
-        }
         dust.helpers.isActionChecked = function(chunk, context, bodies, params) {
             var currentSource = params.source;
             var currentTarget = params.target;
@@ -58,21 +81,15 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
                 return true;
             return false;
         }
-        data.api_enabled = require('../config/application.json').api_enabled;
-
-        res.render('e_access_settings/show', data);
+        res.render('e_access_settings/show_role', data);
     });
 });
 
 router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
     var enable = req.body.enable;
-
     var applicationConfig = require(__dirname+'/../config/application.json');
     applicationConfig.api_enabled = enable == 'true' ? true : false;
     fs.writeFileSync(__dirname+'/../config/application.json', JSON.stringify(applicationConfig, null, 4), 'utf8');
-
-    return JSON.stringify(applicationConfig, null, 4);
-
     res.status(200).end();
 });
 
@@ -97,7 +114,7 @@ router.post('/set_group_access', block_access.isLoggedIn, block_access.actionAcc
     }
 
     access_helper.setGroupAccess(newModuleAccess, newEntityAccess);
-    res.redirect('/access_settings/show');
+    res.redirect('/access_settings/show_group');
 });
 
 router.post('/set_role_access', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
@@ -112,7 +129,7 @@ router.post('/set_role_access', block_access.isLoggedIn, block_access.actionAcce
     }
 
     access_helper.setRoleAccess(newActionRoles);
-    res.redirect('/access_settings/show');
+    res.redirect('/access_settings/show_role');
 });
 
 module.exports = router;
