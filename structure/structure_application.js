@@ -370,7 +370,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 var li = '';
                                                 li += '{@entityAccess entity="db_tool"}\n';
                                                 li += '     {@actionAccess entity="db_tool" action="read"}\n';
-                                                li += '         <li>\n';
+                                                li += '         <li id="db_tool_menu_item">\n';
                                                 li += '             <a href="/db_tool/show">\n';
                                                 li += '                 <i class="fa fa-database"></i>\n';
                                                 li += '                 <span>{@__ key="settings.db_tool.title" /}</span>\n';
@@ -382,12 +382,32 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
                                                 li += '{@entityAccess entity="access_settings"}\n';
                                                 li += '     {@actionAccess entity="access_settings" action="read"}\n';
-                                                li += '         <li>\n';
-                                                li += '             <a href="/access_settings/show">\n';
+                                                li += '         <li id="access_settings_menu_item" class="treeview">\n';
+                                                li += '             <a href="#">\n';
                                                 li += '                 <i class="fa fa-cog"></i>\n';
                                                 li += '                 <span>{@__ key="settings.title" /}</span>\n';
-                                                li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+                                                li += '                 <i class="fa fa-angle-left pull-right"></i>\n';
                                                 li += '             </a>\n';
+                                                li += '             <ul class="treeview-menu">\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/access_settings/show_role">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {@__ key="entity.e_role.label_entity" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/access_settings/show_group">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {@__ key="entity.e_group.label_entity" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/access_settings/show_api">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         API\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '             </ul>\n';
                                                 li += '         </li>\n';
                                                 li += '     {/actionAccess}\n';
                                                 li += '{/entityAccess}\n';
@@ -399,7 +419,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                     // Copy routes settings pieces
                                                     fs.copySync(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js');
                                                     // Copy view settings pieces
-                                                    fs.copySync(piecesPath + '/administration/views/e_access_settings/show.dust', workspacePath + '/views/e_access_settings/show.dust');
+                                                    fs.copySync(piecesPath + '/administration/views/e_access_settings', workspacePath + '/views/e_access_settings');
                                                     // Copy route e_api_credentials piece
                                                     fs.copySync(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js');
                                                     // Copy api e_user piece
