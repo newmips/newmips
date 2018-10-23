@@ -410,7 +410,11 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                 if (err) {
                     // Error handling code goes here
                     console.log(err);
-                    answer = err.message;
+
+                    if(typeof err.message === "undefined")
+                        answer = err;
+                    else
+                        answer = err.message;
 
                     // Winston log file
                     logger.debug(answer);
