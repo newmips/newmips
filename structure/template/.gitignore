@@ -2,3 +2,4 @@ node_modules/*
 *.log
 upload/*
 config/access.json
+package-lock.json

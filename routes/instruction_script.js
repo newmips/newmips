@@ -108,7 +108,7 @@ var mandatoryInstructions = [
     "add field Client Secret",
     "add field Token",
     "add field Token timeout TMSP",
-    "set icon unlink",
+    "set icon key",
     "add field role related to many Role using label",
     "add field group related to many Group using label",
     "add widget stat on entity User",

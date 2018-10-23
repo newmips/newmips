@@ -27,7 +27,7 @@ var pourcent_generation = {};
 
 // Exclude from Editor
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
+var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
 function initPreviewData(idApplication, data){
     return new Promise(function(resolve, reject) {
@@ -785,7 +785,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Client Name");
     instructions.push("add field Client Key");
     instructions.push("add field Client Secret");
-    instructions.push("set icon unlink");
+    instructions.push("set icon key");
     instructions.push("add field role related to many Role using label");
     instructions.push("add field group related to many Group using label");
     instructions.push("add field Token");

@@ -15,7 +15,7 @@ var re = /(?:\.([^.]+))?$/;
 
 // Exclude folder from editor
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "access.json", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
+var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
 router.get('/:id_application', block_access.isLoggedIn, function(req, res) {
     var data = {};
