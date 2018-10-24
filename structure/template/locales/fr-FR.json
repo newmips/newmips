@@ -52,7 +52,10 @@
                 "create": "Créer",
                 "update": "Modifier",
                 "delete": "Supprimer"
-            }
+            },
+            "no_access_group_module": "Votre groupe n'a pas accès à ce module.",
+            "no_access_group_entity": "Votre groupe n'a pas accès à cette entité.",
+            "no_access_role": "Votre rôle n'a pas accès à cette action sur cette entité."
         },
         "db_tool": {
             "title": "Outil BDD",

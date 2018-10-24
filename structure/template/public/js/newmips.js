@@ -683,6 +683,11 @@ function validateForm(form) {
                 return true;
             }
         }
+        for(let item in dropzonesComponentArray){
+            if($("input#"+$(dropzonesComponentArray[item][0].element).attr("id")+"_hidden", form).prop("required") && $("input#"+$(dropzonesComponentArray[item][0].element).attr("id")+"_hidden", form).val() == ""){
+                return true;
+            }
+        }
         return false;
     }
     // If there are files to upload, block submition until files are uploaded
@@ -1080,7 +1085,8 @@ $(document).ready(function () {
                 } else {
                     if (i == dropzonesComponentArray[$(this).attr("data-component")].length - 1) {
                         filesComponentProceeded = false;
-                        toastr.error("You should add a file.");
+                        toastr.error(REQUIRED_FILE_TEXT);
+                        return false;
                     }
                 }
             }
