@@ -58,7 +58,7 @@ function installAppModules() {
             } else {
                 // We need to reinstall node modules properly
                 console.log("Workspaces node modules initialization...");
-                var cmd = 'cp ' + dir + '/../structure/template/package.json ' + dir + '/../workspace/';
+                var cmd = 'cp ' + dir + '/../structure/template/package.json ' + dir + '/../workspace/ || copy ' + dir + '\..\structure\template\package.json ' + dir + '\..\workspace\\';
 
                 exec(cmd, {
                     cwd: process.cwd()

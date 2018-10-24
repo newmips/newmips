@@ -58,6 +58,7 @@
             "title": "DB Tool",
             "export_title": "Export",
             "import_title": "Import",
+            "all_db": "All the database",
             "export_action": "Export",
             "import_action": "Import",
             "import_file": "SQL File",
@@ -66,7 +67,8 @@
             "wrong_db_pwd": "Wrong password.",
             "modal_password_title": "Password confirmation",
             "modal_password_content": "Please confirm the database password:",
-            "wrong_dialect": "Sorry, DB tools only work with MySQL for now."
+            "wrong_dialect": "Sorry, DB tools only work with MySQL for now.",
+            "no_choice": "Please choose what you want to export."
         },
         "legend": "Change your user settings",
         "lang": "Language",

@@ -11,7 +11,7 @@ if (fs.existsSync('workspace/node_modules')) {
 	fs.chmodSync('workspace', '0755');
 }
 exec(cmd, {cwd: 'structure/template/'}, function(error, stdout, stderr) {
-	cmd = 'cp -r structure/template/node_modules workspace/';
+	cmd = 'cp -r structure/template/node_modules workspace/ || xcopy /e structure\template\node_modules workspace\\';
 	exec(cmd, {cwd: process.cwd()}, function(error, stdout, stderr) {
 		if(error)
 			return console.log(error);

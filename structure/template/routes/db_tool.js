@@ -36,18 +36,28 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
 
     var data = {};
     var entities = [];
+    var through = [];
 
-    fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
+    fs.readdirSync(__dirname+'/../models/options/').filter(function(file) {
         return file.indexOf('.') !== 0
             && file.slice(-5) === '.json'
             && file.substring(0, 2) == 'e_';
     }).forEach(function(file) {
-        var fields = [];
+        // Get primary tables
         var entityName = file.substring(0, file.length-5);
         var modelName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
         var tableName = models[modelName].getTableName();
-        var entityObject = {tradKey: 'entity.'+entityName+'.label_entity', entity: entityName, fields: fields, tableName: tableName};
+        var entityObject = {tradKey: 'entity.'+entityName+'.label_entity', tableName: tableName};
         entities.push(entityObject);
+
+        let currentFile = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+file))
+        // Get through tables
+        for (var i=0; i < currentFile.length; i++) {
+            if(typeof currentFile[i].through !== "undefined" && through.indexOf(currentFile[i].through) == -1){
+                through.push(currentFile[i].through);
+                entities.push({tradKey: currentFile[i].through.substring(3), tableName: currentFile[i].through});
+            }
+        }
     })
 
     data.entities = entities;
@@ -64,10 +74,17 @@ router.post('/export', block_access.isLoggedIn, block_access.actionAccessMiddlew
     }
 
     var tables = [];
-
     for(var prop in req.body)
-        if(req.body[prop] == "true")
+        if(prop != "all_db" && req.body[prop] == "true")
             tables.push(prop);
+
+    if(tables.length == 0 && req.body.all_db == "false"){
+        req.session.toastr = [{
+            message: 'settings.db_tool.no_choice',
+            level: "error"
+        }];
+        return res.redirect("/db_tool/show")
+    }
 
     var cmd = "mysqldump";
     var cmdArgs = [
@@ -81,7 +98,7 @@ router.post('/export', block_access.isLoggedIn, block_access.actionAccessMiddlew
     ];
 
     // Export selected tables
-    if (cmdArgs.length) {
+    if (cmdArgs.length && req.body.all_db == "false") {
         cmdArgs.push("--tables");
         cmdArgs = cmdArgs.concat(tables);
     }

@@ -59,6 +59,7 @@
             "export_title": "Export",
             "import_title": "Import",
             "export_action": "Exporter",
+            "all_db": "Toute la base de donnée",
             "import_action": "Importer",
             "import_file": "Fichier SQL",
             "import_success": "L'import a bien été effectué.",
@@ -66,7 +67,8 @@
             "wrong_db_pwd": "Mot de passe incorrect.",
             "modal_password_title": "Confirmation du mot de passe",
             "modal_password_content": "Merci de confirmer le mot de passe de la base de données:",
-            "wrong_dialect": "Désolé, les outils de base de données ne fonctionne qu'avec MySQL pour le moment."
+            "wrong_dialect": "Désolé, les outils de base de données ne fonctionne qu'avec MySQL pour le moment.",
+            "no_choice": "Merci de choisir ce que vous souhaitez exporter."
         },
         "legend": "Modifier vos paramètres",
         "lang": "Langue",
