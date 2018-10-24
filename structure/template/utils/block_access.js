@@ -75,6 +75,8 @@ function isInBothArray(stringArray, objectArray) {
 // Check if user's group have access to module
 function moduleAccess(userGroups, moduleName) {
     try {
+        if(userGroups.length == 0)
+            return false;
         var access = getAccess();
         for (var module in access)
             if (module == moduleName)
@@ -91,18 +93,22 @@ exports.moduleAccessMiddleware = function(moduleName) {
     return function(req, res, next) {
         if (!req.isAuthenticated())
             return res.redirect('/login');
-        if (moduleAccess(req.session.passport.user.r_group, moduleName))
+        let userGroups = req.session.passport.user.r_group;
+        if (userGroups.length > 0 && moduleAccess(userGroups, moduleName))
             return next();
         req.session.toastr = [{
             level: 'error',
-            'message': "Your Group(s) doesn't have access to this module"
+            message: "settings.auth_component.no_access_group_module"
         }];
+        return res.redirect('/');
     }
 }
 
 // Check if user's group have access to entity
 function entityAccess(userGroups, entityName) {
     try {
+        if(userGroups.length == 0)
+            return false;
         var access = getAccess();
         for (var module in access) {
             var moduleEntities = access[module].entities;
@@ -125,19 +131,21 @@ exports.entityAccess = entityAccess;
 exports.entityAccessMiddleware = function(entityName) {
     return function(req, res, next) {
         var userGroups = req.session.passport.user.r_group;
-        if (entityAccess(userGroups, entityName))
+        if (userGroups.length > 0 && entityAccess(userGroups, entityName))
             return next();
         req.session.toastr = [{
             level: 'error',
-            'message': "Your Group(s) doesn't have access to this entity"
+            message: "settings.auth_component.no_access_group_entity"
         }];
-        res.redirect('/default/home');
+        return res.redirect('/');
     }
 }
 
 // Check if user's role can do `action` on entity
 function actionAccess(userRoles, entityName, action) {
     try {
+        if(userRoles.length == 0)
+            return false;
         var access = getAccess();
         for (var module in access) {
             var moduleEntities = access[module].entities;
@@ -155,13 +163,13 @@ exports.actionAccess = actionAccess;
 exports.actionAccessMiddleware = function(entityName, action) {
     return function(req, res, next) {
         var userRoles = req.session.passport.user.r_role;
-        if (actionAccess(userRoles, entityName, action))
+        if (userRoles.length > 0 && actionAccess(userRoles, entityName, action))
             return next();
         req.session.toastr = [{
             level: 'error',
-            'message': "Your Role(s) doesn't have access to action " + action + ' on entity ' + entityName
+            message: "settings.auth_component.no_access_role"
         }];
-        res.redirect('/default/home');
+        return res.redirect('/');
     }
 }
 

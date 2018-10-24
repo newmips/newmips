@@ -30,7 +30,7 @@ exports.setupModule = function (attr, callback) {
         str += '                data[prop] = results[i][prop];\n';
         str += '        res.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
         str += '    });\n';
-        str += '});\n';
+        str += '});';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
         fs.writeFile(file, result, 'utf8', function (err) {
