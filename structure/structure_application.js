@@ -407,6 +407,12 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 li += '                         API\n';
                                                 li += '                     </a>\n';
                                                 li += '                 </li>\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/access_settings/tool">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {@__ key="settings.tool_menu" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
                                                 li += '             </ul>\n';
                                                 li += '         </li>\n';
                                                 li += '     {/actionAccess}\n';
