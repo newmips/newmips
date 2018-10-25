@@ -35,6 +35,11 @@
     },
     "settings": {
         "title": "Access managment",
+        "tool_menu": "Import / Export",
+        "tool_title": "Import / Export access configuration",
+        "tool_export": "Export access configuration",
+        "tool_import": "Import access configuration",
+        "tool_warning": "Warning, the file has to be the same structure of the current access.json file !",
         "auth_component": {
             "access_managment": "Access managment per group",
             "action_managment": "Action managment per role",

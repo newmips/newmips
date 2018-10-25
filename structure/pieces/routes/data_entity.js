@@ -16,6 +16,7 @@ var component_helper = require('../utils/component_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
+var moment = require("moment");
 var SELECT_PAGE_SIZE = 10;
 
 // Enum and radio managment

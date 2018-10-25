@@ -5,6 +5,8 @@ var access_helper = require('../utils/access_helper');
 var dust = require('dustjs-linkedin');
 var fs = require('fs');
 var language = require('../services/language')('fr-FR');
+var moment = require("moment");
+var globalConf = require('../config/global');
 
 // Datalist
 var filterDataTable = require('../utils/filter_datatable');
@@ -84,6 +86,46 @@ router.get('/show_role', block_access.isLoggedIn, block_access.actionAccessMiddl
         res.render('e_access_settings/show_role', data);
     });
 });
+
+router.get('/tool', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
+    res.render('e_access_settings/show_tool');
+});
+
+router.get('/export', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
+    var dumpPath = __dirname + '/../config/access.json';
+    res.download(dumpPath, "access_conf_"+moment().format("YYYYMMDD-HHmmss")+".json", function (err) {
+        if (err){
+            console.log(err);
+            req.session.toastr.push({
+                message: err,
+                level: "error"
+            });
+            return res.redirect("/access_settings/tool");
+        }
+    })
+})
+
+router.post('/import', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
+    var src = req.body.import_file;
+    var partOfFilepath = src.split('-');
+    if (partOfFilepath.length > 1) {
+        var base = partOfFilepath[0];
+        var completeFilePath = globalConf.localstorage + 'access_import/' + base + '/' + src;
+        var newAccessJson = fs.readFileSync(completeFilePath);
+        fs.writeFileSync(__dirname + "/../config/access.json", newAccessJson);
+        req.session.toastr.push({
+            message: "Success",
+            level: "success"
+        });
+        return res.redirect("/access_settings/tool");
+    } else {
+        req.session.toastr.push({
+            message: "An error occured.",
+            level: "error"
+        });
+        return res.redirect("/access_settings/tool");
+    }
+})
 
 router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
     var enable = req.body.enable;
