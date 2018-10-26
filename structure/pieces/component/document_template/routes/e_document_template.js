@@ -23,19 +23,10 @@ var logger = require('../utils/logger');
 var SELECT_PAGE_SIZE = 10;
 
 router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
-    var data = {
-        "menu": "e_document_template",
-        "sub_menu": "list_e_document_template"
-    };
-
-    data.toastr = req.session.toastr;
-    req.session.toastr = [];
-
-    res.render('e_document_template/list', data);
+    res.render('e_document_template/list');
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
-
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("E_document_template", req.body, include).then(function(rawData) {
@@ -388,6 +379,7 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
     var id_entity = req.body.id_entity;
     var entity = req.body.entity;
     var id_document = req.body.f_model_document;
+
     if (id_entity && id_document && entity) {
         models.E_document_template.findOne({
             where: {
@@ -395,12 +387,23 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
             }
         }).then(function(e_model_document) {
             if (e_model_document && e_model_document.f_file) {
-                entity = entity.charAt(0).toUpperCase() + entity.slice(1); //uc first
-                var includes = [{
-                    all: true
-                }];
-                if (e_model_document.f_exclude_relations)
-                    includes = document_template_helper.buildInclude(entity, e_model_document.f_exclude_relations, models);
+                // Model name
+                entity = entity.charAt(0).toUpperCase() + entity.slice(1);
+
+                // Build include according to template configuration
+                var includes = document_template_helper.buildInclude(entity, e_model_document.f_exclude_relations, models);
+
+                // If you need to add more levels in the inclusion to access deeper data
+                // You can add here more inclusion
+                // Example:
+                // if(entity == "myMainEntity")
+                //     for(var item in includes)
+                //         if(includes[item].as == "myAliasINeedToAddNewInclusion")
+                //             includes[item].include = [{
+                //                 model: models.E_mymodeltoinclude,
+                //                 as: "r_myModelToInclude"
+                //             }]
+
                 models[entity].findOne({
                     where: {
                         id: id_entity
@@ -412,17 +415,27 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
                         if (partOfFilepath.length > 1) {
                             var completeFilePath = globalConfig.localstorage + 'e_document_template/' + partOfFilepath[0] + '/' + e_model_document.f_file;
                             var today = moment();
+                            var isDust = false;
+                            if (completeFilePath.indexOf('.dust') != -1) {
+                                isDust = true;
+                                completeFilePath = completeFilePath.replace('.dust', '.html');
+                            }
                             var mimeType = require('mime-types').lookup(completeFilePath);
+                            if (isDust)
+                                completeFilePath = completeFilePath.replace('.html', '.dust');
                             var reworkOptions = {
-                                //entity by entity
-                                /**'e_entity': [
-                                 {item: 'f_date', type: 'datetime', newFormat: 'DD/MM/YYYY HH'}
-                                 ]**/
-                                //next entity
+                                // Entity by entity
+                                // 'e_entity': [{
+                                //     item: 'f_date',
+                                //     type: 'datetime',
+                                //     newFormat: 'DD/MM/YYYY HH'
+                                // }]
+                                // Next entity
                             };
-                            //rework with own options
+                            // Rework data with given options
                             var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user, mimeType);
-                            //now add others variables
+
+                            // Now add others globals variables
                             document_template_helper.globalVariables.forEach(function(g) {
                                 if (g.type === "date" || g.type === "datetime" || g.type === "time")
                                     data[g.name] = moment().format(document_template_helper.getDateFormatUsingLang(req.session.lang_user, g.type));
@@ -449,7 +462,6 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
                                 res.write(infos.buffer);
                                 res.end();
                             }).catch(function(e) {
-                                data.toastr = req.session.toastr;
                                 req.session.toastr = [{
                                     message: e.message,
                                     level: "error"
