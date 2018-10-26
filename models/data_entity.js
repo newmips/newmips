@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         })
     }
 
-    DataEntity.hook('beforeFindAfterOptions', (entity) => {
+    DataEntity.addHook('beforeFindAfterOptions', (entity) => {
         if (typeof entity.where !== "undefined") {
             if (typeof entity.where.name !== "undefined")
                 entity.where.name = entity.where.name.toLowerCase();
@@ -43,12 +43,12 @@ module.exports = (sequelize, DataTypes) => {
         }
     })
 
-    DataEntity.hook('beforeCreate', (entity) => {
+    DataEntity.addHook('beforeCreate', (entity) => {
         entity.name = entity.name ? entity.name.toLowerCase() : null;
         entity.codeName = entity.codeName ? entity.codeName.toLowerCase() : null;
     })
 
-    DataEntity.hook('beforeUpdate', (entity) => {
+    DataEntity.addHook('beforeUpdate', (entity) => {
         entity.name = entity.name ? entity.name.toLowerCase() : null;
         entity.codeName = entity.codeName ? entity.codeName.toLowerCase() : null;
     })

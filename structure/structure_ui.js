@@ -64,6 +64,7 @@ exports.setColumnVisibility = function (attr, callback) {
 exports.setLogo = function(attr, callback) {
     var idApplication = attr.id_application;
     var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+    attr.options.value = attr.options.value.trim();
 
     //Check if logo exist
     if (!fs.existsSync(__dirname + '/../workspace/' + idApplication + '/public/img/logo/'+attr.options.value)) {

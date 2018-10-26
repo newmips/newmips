@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         })
     }
 
-	Project.hook('beforeFindAfterOptions', (project) => {
+	Project.addHook('beforeFindAfterOptions', (project) => {
         if(typeof project.where !== "undefined"){
             if(typeof project.where.name !== "undefined")
                 project.where.name = project.where.name.toLowerCase();
@@ -33,12 +33,12 @@ module.exports = (sequelize, DataTypes) => {
         }
     })
 
-    Project.hook('beforeCreate', (project) => {
+    Project.addHook('beforeCreate', (project) => {
         project.name = project.name?project.name.toLowerCase():null;
         project.codeName = project.codeName?project.codeName.toLowerCase():null;
     })
 
-    Project.hook('beforeUpdate', (project) => {
+    Project.addHook('beforeUpdate', (project) => {
         project.name = project.name?project.name.toLowerCase():null;
         project.codeName = project.codeName?project.codeName.toLowerCase():null;
     })
