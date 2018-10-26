@@ -906,11 +906,17 @@ exports.newStatus = function (attr, callback) {
     // Remove useless options in toSync
     var toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
     for (var prop in toSync) {
-        if (prop.indexOf('_e_status') > 0)
-            toSync[prop] = undefined;
+        if (prop.indexOf('_e_status') > 0){
+            for (var i=0; i < toSync[prop].options.length; i++) {
+                if(toSync[prop].options[i].target.indexOf("e_history_") != -1){
+                    toSync[prop].options.splice(i, 1);
+                }
+            }
+        }
         if (prop.indexOf('_e_history_') > 0)
             toSync[prop].options = undefined;
     }
+
     fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
     // Remove useless history tab from Status views
@@ -1427,6 +1433,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
             //copy helper
             fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');
+            fs.copySync(entity_path + 'locales/document_template_locales.js', application_path + 'locales/document_template_locales.js');
             //copy route file
             fs.copySync(entity_path + 'routes/e_document_template.js', application_path + 'routes/e_document_template.js');
 
@@ -1436,25 +1443,25 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                 addNewTabComponentDocumentTemplate(attr, entity_name, function () {
                     //Set traduction
                     var lang_fr = {
-                        "label_entity": "Modèle de document",
-                        "name_entity": "Modèle de document",
-                        "plural_entity": "Modèle de documents",
-                        "id_entity": "ID",
-                        "f_name": "Nom du fichier",
-                        "f_file": "Fichier",
-                        "f_entity": "Entité",
-                        "f_exclude_relations": "Sous entités"
+                        label_entity: "Modèle de document",
+                        name_entity: "Modèle de document",
+                        plural_entity: "Modèle de documents",
+                        id_entity: "ID",
+                        f_name: "Nom du fichier",
+                        f_file: "Fichier",
+                        f_entity: "Entité",
+                        f_exclude_relations: "Sous entités"
                     };
                     lang_fr[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Modèle de document";
                     var lang_en = {
-                        "label_entity": "Document template",
-                        "name_entity": "Document template",
-                        "plural_entity": "Document templates",
-                        "id_entity": "ID",
-                        "f_name": "Filename",
-                        "f_file": "File",
-                        "f_entity": "Entity",
-                        "f_exclude_relations": "Sub entities"
+                        label_entity: "Document template",
+                        name_entity: "Document template",
+                        plural_entity: "Document templates",
+                        id_entity: "ID",
+                        f_name: "Filename",
+                        f_file: "File",
+                        f_entity: "Entity",
+                        f_exclude_relations: "Sub entities"
                     };
                     lang_en[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
                     //update locales
