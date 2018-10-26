@@ -88,10 +88,10 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
                 // Bulk create history for updated entities
                 models[historyModel].bulkCreate(historyCreateObj).then(function() {
                     res.redirect('/status/show?id='+status.id);
-                }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
-            }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
-        }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
-    }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
+                }).catch(function(err) {entity_helper.error(err, req, res, "/");});
+            }).catch(function(err) {entity_helper.error(err, req, res, "/");});
+        }).catch(function(err) {entity_helper.error(err, req, res, "/");});
+    }).catch(function(err) {entity_helper.error(err, req, res, "/");});
 });
 
 router.get('/list', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
@@ -240,7 +240,7 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
             res.render('e_status/show', data);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -329,11 +329,11 @@ router.post('/create', block_access.actionAccessMiddleware("status", "create"), 
                 else
                     res.redirect(redirect);
             }).catch(function(err){
-                entity_helper.error500(err, req, res, '/status/create_form');
+                entity_helper.error(err, req, res, '/status/create_form');
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/status/create_form');
+        entity_helper.error(err, req, res, '/status/create_form');
     });
 });
 
@@ -369,10 +369,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("status", "update
             else
                 res.render('e_status/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -420,10 +420,10 @@ router.post('/update', block_access.actionAccessMiddleware("status", "update"), 
                     res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/status/update_form?id=' + id_e_status);
+            entity_helper.error(err, req, res, '/status/update_form?id=' + id_e_status);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/status/update_form?id=' + id_e_status);
+        entity_helper.error(err, req, res, '/status/update_form?id=' + id_e_status);
     });
 });
 
@@ -639,7 +639,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -716,11 +716,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("stat
             e_status['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -746,10 +746,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("status"
         e_status['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/status/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -773,10 +773,10 @@ router.post('/delete', block_access.actionAccessMiddleware("status", "delete"), 
             res.redirect(redirect);
             entity_helper.remove_files("e_status", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/status/list');
+            entity_helper.error(err, req, res, '/status/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/status/list');
+        entity_helper.error(err, req, res, '/status/list');
     });
 });
 

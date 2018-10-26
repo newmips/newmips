@@ -83,14 +83,14 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
                         res.redirect(redirect);
                     });
                 }).catch(function(err) {
-                    entity_helper.error500(err, req, res, '/media/create_form');
+                    entity_helper.error(err, req, res, '/media/create_form');
                 });
             });
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, '/media/create_form');
+            entity_helper.error(err, req, res, '/media/create_form');
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, '/media/create_form');
+        entity_helper.error(err, req, res, '/media/create_form');
     });
 });
 
@@ -130,13 +130,13 @@ router.get('/update_form', block_access.actionAccessMiddleware("media_sms", "upd
                 } else
                     res.render('e_media/update', data);
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             })
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         })
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     })
 });
 
@@ -178,13 +178,13 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 
                 res.redirect(redirect);
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media_sms);
+                entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_sms);
             });
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media_sms);
+            entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_sms);
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media_sms);
+        entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_sms);
     });
 });
 
@@ -431,7 +431,7 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -523,11 +523,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
             e_media_sms['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function() {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -559,10 +559,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_s
         e_media_sms['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/media_sms/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -590,10 +590,10 @@ router.post('/delete', block_access.actionAccessMiddleware("media_sms", "delete"
             res.redirect(redirect);
             entity_helper.remove_files("e_media_sms", deleteObject, attributes);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, '/media_sms/list');
+            entity_helper.error(err, req, res, '/media_sms/list');
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, '/media_sms/list');
+        entity_helper.error(err, req, res, '/media_sms/list');
     });
 });
 

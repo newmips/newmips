@@ -46,7 +46,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
                         e_media.destroy();
                         var err = new Error();
                         err.message = "Association not found."
-                        return entity_helper.error500(err, req, res, "/");
+                        return entity_helper.error(err, req, res, "/");
                     }
 
                     var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -67,7 +67,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
             res.redirect(redirect);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media_mail/create_form');
+        entity_helper.error(err, req, res, '/media_mail/create_form');
     });
 });
 
@@ -121,10 +121,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
             req.session.toastr = [];
             res.render('e_media/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -164,10 +164,10 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
                 res.redirect(redirect);
             })
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media_mail/update_form?id=' + id_e_media_mail);
+            entity_helper.error(err, req, res, '/media_mail/update_form?id=' + id_e_media_mail);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media_mail/update_form?id=' + id_e_media_mail);
+        entity_helper.error(err, req, res, '/media_mail/update_form?id=' + id_e_media_mail);
     });
 });
 
@@ -232,7 +232,7 @@ router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.act
             models[historyModel].create(createObject).then(function() {
                 res.redirect('/media_mail/show?id='+req.params.id_media_mail)
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, errorRedirect);
+                entity_helper.error(err, req, res, errorRedirect);
             });
         });
     });
@@ -263,7 +263,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -290,7 +290,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media",
             res.redirect('/media_mail/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -314,10 +314,10 @@ router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), f
             res.redirect(redirect);
             entity_helper.remove_files("e_media_mail", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media_mail/list');
+            entity_helper.error(err, req, res, '/media_mail/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media_mail/list');
+        entity_helper.error(err, req, res, '/media_mail/list');
     });
 });
 

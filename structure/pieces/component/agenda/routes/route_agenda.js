@@ -16,17 +16,6 @@ var entity_helper = require('../utils/entity_helper');
 // Winston logger
 var logger = require('../utils/logger');
 
-function error500(err, res) {
-    console.error(err);
-    var data = {};
-    data.error = 500;
-    res.render('common/error', data);
-}
-
-function capitalizeFirstLetter(word) {
-    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
-}
-
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
     models.CODE_NAME_EVENT_MODEL.findAll({
@@ -149,10 +138,10 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
                 res.send(updatedObject);
             });
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
+            entity_helper.error(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
+        entity_helper.error(err, req, res, '/URL_ROUTE_event/update_form?id=' + id_e_URL_ROUTE_event);
     });
 });
 
@@ -192,10 +181,10 @@ router.post('/delete_event', block_access.actionAccessMiddleware("URL_ROUTE_even
             res.send(true);
             entity_helper.remove_files("e_URL_ROUTE_event", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/URL_ROUTE_event/list');
+            entity_helper.error(err, req, res, '/URL_ROUTE_event/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/URL_ROUTE_event/list');
+        entity_helper.error(err, req, res, '/URL_ROUTE_event/list');
     });
 });
 
