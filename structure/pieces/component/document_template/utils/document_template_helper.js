@@ -1,125 +1,12 @@
 var moment = require('moment');
 var globalConfig = require('../config/global');
 var fs = require('fs');
+var dust = require('dustjs-linkedin');
+var pdf = require('html-pdf');
 var enums_radios = require('../locales/enum_radio');
 
-var langMessage = {
-    'fr-FR': {
-        'fileTypeNotValid': 'Type de document non valide',
-        'failToFillPDF': 'Erreur lors du remplissage du PDF',
-        'useVariable': "Pour utiliser les variables de cette entité dans un <b>Docx</b>, veuillez les placer en l'intérieur de la boucle de l'entité.",
-        'example': 'Exemple:',
-        'name': 'nom',
-        'output': 'Rendra réellement',
-        'nl': 'Où NL= Nouvelle ligne vide',
-        'empty': 'Pour empêcher les nouvelles lignes vides entre les données, placer la variable sur la même ligne que le début de la boucle',
-        'whereIsNL': "Les nouvelles lignes sont conservées à l'intérieur des sections, donc le modèle exemple suivant",
-        'one': 'Un',
-        'two': 'Deux',
-        readme: {
-            pageTitle: "Modèle de document : variables utilisables",
-            description: '<p style="text-align:justify;"> ' +
-                "Les modèles de document sont utilisables dans l'onglet où est positionné le composant <strong>document template</strong> de chaque entité." +
-                "Pour ce faire, vous devez inclure dans les documents de type Word (Docx) ou PDF " +
-                "les variables listées ci-dessous.</p>" +
-                ' <p style="text-align:justify;">' +
-                "  Pour un template Docx, les variables doivent être copiées tel quel dans votre texte placées entre accolades." +
-                "  Elles seront remplacées à la volée par les données de l'entité au moment où vous cliquerez sur le bouton \"Générer\"." +
-                "</p>" +
-                "<p>NB: cliquez sur les titres des sections de chaque entité pour découvrir l'usage des variables.</p>" +
-                "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Pour utiliser la date de création ou de modification de chaque enregistrement veuillez utiliser:<br>" +
-                "       &nbsp;&nbsp;&nbsp;&nbsp;<strong>{createdAt}</strong> format Docx ou <strong>createdAt</strong> format PDF pour la date de création <br>" +
-                "       &nbsp;&nbsp;&nbsp;&nbsp;<strong>{updatedAt}</strong> format Docx ou <strong>updatedAt</strong> format PDF pour la date de modification.</h5>" +
-                " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type boolean<br>" +
-                " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} pour avoir accès à la valeur non traduite du champs</h5>" +
-                " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type enum<br>" +
-                " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} pour avoir accès à la valeur non traduite du champs pour un fichier PDF<br>" +
-                " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>translation</strong>} pour avoir accès à la traduction du champs </h5>",
-            entityInformations: "Informations concernant l'entité",
-            entityTableRow1: "Entité",
-            entityTableRow2: "Variable",
-            entityTableRow3: "Accès variable document format DOCX",
-            entityTableRow4: "Accès variable document format PDF",
-            entityTableRow5: "Description",
-            variables: "Variables globales"
-        },
-        global: {
-            variables: "Variables globales",
-            description: "Ces variables commencent par un <strong> g_ </strong> et sont accessibles dans toutes les entités.",
-            entityTableRow5: "Exemple"
-        },
-        subEntities: {
-            help: " <p>Supprimer les sous entités qui ne figurent pas dans le document pour gagner en temps de réponse lors de la génération.</p>"
-        },
-        template: {
-            notFound: 'Fichier non trouvé'
-        },
-        fields: {
-            boolean: {
-                'true': 'Vraie',
-                'false': 'Faux'
-            }
-        }
-    },
-    'en-EN': {
-        'fileTypeNotValid': 'File type not valid',
-        'failToFillPDF': 'Failed to fill PDF',
-        'useVariable': 'To use the variables of this entity in a <b> Docx </b>, please place them within the loop of the entity.',
-        'example': 'Example:',
-        'name': 'name',
-        'output': 'Will actually render',
-        'nl': ' NL= New Line',
-        'empty': 'To prevent new empty lines between data, place the variable on the same line of loop',
-        'whereIsNL': "The new lines are kept inside the sections, so the following example template",
-        'one': 'One',
-        'two': 'Two',
-        readme: {
-            pageTitle: "Usable variables",
-            description: '<p style="text-align:justify;"> ' +
-                "The document templates can be used in the tab where the component is positioned. " +
-                "To do this, you must include the variables listed below in Word (Docx) or PDF documents</p>" +
-                ' <p style="text-align:justify;">' +
-                "  For a Docx template, variables must be copied in your text enclosed in braces." +
-                "  They will be replaced by the entity's data when you click on the \"Generate\" button who is on entity show page." +
-                "</p>" +
-                "<p>Click on each entity name to discover the use of the variables.</p>" +
-                "<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; To use createdAt and updatedAt of each entity please add:<br>" +
-                "       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>{createdAt}</strong> for Docx file or <strong>createdAt</strong> for PDF file <br>" +
-                "       &nbsp;&nbsp;&nbsp;&nbsp;<strong>{updatedAt}</strong> for Docx file or <strong>updatedAt</strong> for PDF file</h5>" +
-                " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type boolean<br>" +
-                " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} to access the untranslated value of field</h5>" +
-                " <h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type enum<br>" +
-                " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>value</strong>} to access the untranslated value or code of field for PDF file<br>" +
-                " &nbsp;&nbsp;&nbsp;&nbsp;{variable_<strong>translation</strong>} to access field translation  </h5>",
-            entityInformations: "Entity informations",
-            entityTableRow1: "Entity",
-            entityTableRow2: "Variable",
-            entityTableRow3: "Variable access for DOCX",
-            entityTableRow4: "Variable access for PDF",
-            entityTableRow5: "Description",
-            variables: "Global variables"
-        },
-        global: {
-            variables: "Global variables",
-            description: "These varibales start with <strong>g_</strong> and are accessible in all entities.",
-            entityTableRow5: "Example"
-        },
-        subEntities: {
-            help: " <p>Delete sub entities who are not in the document to save response time on document generation.</p>"
-        },
-        template: {
-            notFound: 'File not found'
-        },
-        fields: {
-            boolean: {
-                'true': 'True',
-                'false': 'False'
-            }
-        }
-    }
-};
-var lang = 'fr-FR';
-
+var langMessage = require('../locales/document_template_locales');
+var lang = "fr-FR";
 
 module.exports = {
     entities_to_exclude: [
@@ -254,10 +141,10 @@ module.exports = {
                         setEnumValue(object, item, entityName, fileType, userLang);
                     }
                     break;
-                    //                if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
-                    //                    object[item] = "data:image/*;base64," + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
-                    //                    break;
-                    //                }
+                    // if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
+                    //     object[item] = "data:image/*;base64," + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
+                    //     break;
+                    // }
                 }
             }
             if (reworkOptions) {
@@ -266,7 +153,7 @@ module.exports = {
                     if (item === reworkOption.item) {
                         if ((reworkOption.type === 'date' || reworkOption.type === 'datetime') && object[item] !== '' && reworkOption.newFormat)
                             object[item] = moment(object[item], this.getDateFormatUsingLang(userLang, reworkOption.type)).format(reworkOption.newFormat);
-                        //add others types as need
+                        // Add others types as need
                         break;
                     }
                 }
@@ -398,7 +285,7 @@ module.exports = {
         var html = '';
         entities.forEach(function(entity) {
             html += '<div class="panel box" style="border-top-color:' + entity.color + '">';
-            html += '<div class="box-header with-border">';
+            html += '   <div class="box-header with-border">';
             html += '             <h4 class="box-title">';
             html += '                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse' + entity.id + '" aria-expanded="false" class="collapsed">';
             html += '                      ' + langMessage[userLang || lang].readme.entityInformations + ' ' + entity.entity;
@@ -495,6 +382,9 @@ module.exports = {
                 case "application/pdf":
                     resolve(generatePDFDoc(options));
                     break;
+                case "text/html":
+                    resolve(generateHtmlToPDF(options));
+                    break;
                 default:
                     reject({
                         message: langMessage[options.lang || lang].fileTypeNotValid
@@ -503,6 +393,61 @@ module.exports = {
         });
     }
 };
+function generateHtmlToPDF(options) {
+    return new Promise(function(resolve, reject) {
+        options.data.staticImagePath = __dirname+'/../doc/images';
+
+        var dustSrc = fs.readFileSync(options.file, 'utf8');
+        dust.renderSource(dustSrc, options.data, function(err, html) {
+            if (err)
+                return reject(err);
+
+            var tmpFileName = __dirname+'/../'+new Date().getTime()+''+(Math.floor(Math.random() * Math.floor(100)))+'.pdf';
+
+            var headerStartIdx = html.indexOf('<!--HEADER-->');
+            var headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx+('<!--HEADER-->'.length))+('<!--HEADER-->'.length);
+            var header = html.substring(headerStartIdx, headerEndIdx);
+
+            var footerStartIdx = html.indexOf('<!--FOOTER-->');
+            var footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx+('<!--FOOTER-->'.length))+('<!--FOOTER-->'.length);
+            var footer = html.substring(footerStartIdx, footerEndIdx);
+
+            pdf.create(html, {
+                orientation: "portrait",
+                format: "A4",
+                border: {
+                    top: "10px",
+                    right: "15px",
+                    bottom: "10px",
+                    left: "15px"
+                },
+                header: {
+                    contents: header
+                },
+                footer: {
+                    contents: footer
+                }
+            }).toFile(tmpFileName, function(err, data) {
+                if (err)
+                    return reject(err);
+
+                fs.readFile(tmpFileName, function(err, data) {
+                    if (!err)
+                        resolve({
+                            buffer: data,
+                            contentType: "application/pdf",
+                            ext: '.pdf'
+                        });
+
+                    fs.unlinkSync(tmpFileName, function(err) {
+                        console.error('Unable to delete file '+tmpFileName+' after pdf generation');
+                    });
+                    return reject(err);
+                });
+            });
+        });
+    });
+}
 var generateDocxDoc = function(options) {
     return new Promise(function(resolve, reject) {
         require('fs').readFile(options.file, function(err, content) {
@@ -590,9 +535,8 @@ var buildPDFJSON = function(entityRoot, data) {
     return result;
 };
 
-//get value in json object with key like x.y.z
+// Get value in json object
 var getValue = function(itemPath /*array*/ , data, scope /*where value is expected*/ ) {
-
     try {
         var i = 0;
         var key = itemPath[i];

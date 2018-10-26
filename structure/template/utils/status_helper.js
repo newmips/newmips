@@ -101,8 +101,10 @@ module.exports = {
             include.model = models[child.entity.charAt(0).toUpperCase() + child.entity.toLowerCase().slice(1)];
             if (child.children && child.children.length != 0)
                 include.include = this.buildIncludeFromTree(child);
+
             includes.push(include);
         }
+        console.log(includes)
         return includes;
     },
     // Build array of user target for media_notification insertion <select>
