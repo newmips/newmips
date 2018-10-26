@@ -30,7 +30,6 @@ router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
-
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("MODEL_NAME", req.body, include).then(function(rawData) {
@@ -142,8 +141,6 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
     var id_ENTITY_NAME = req.query.id;
     var tab = req.query.tab;
     var data = {
-        menu: "ENTITY_NAME",
-        sub_menu: "list_ENTITY_NAME",
         tab: tab,
         enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
@@ -181,8 +178,6 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 
 router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function(req, res) {
     var data = {
-        menu: "ENTITY_NAME",
-        sub_menu: "create_ENTITY_NAME",
         enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 
@@ -266,8 +261,6 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
     var id_ENTITY_NAME = req.query.id;
     var data = {
-        menu: "ENTITY_NAME",
-        sub_menu: "list_ENTITY_NAME",
         enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
     };
 

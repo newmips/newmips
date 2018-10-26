@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         })
     }
 
-    DataField.hook('beforeFindAfterOptions', (field) => {
+    DataField.addHook('beforeFindAfterOptions', (field) => {
         if (typeof field.where !== "undefined") {
             if (typeof field.where.name !== "undefined")
                 field.where.name = field.where.name.toLowerCase();
@@ -33,12 +33,12 @@ module.exports = (sequelize, DataTypes) => {
         }
     })
 
-    DataField.hook('beforeCreate', (field) => {
+    DataField.addHook('beforeCreate', (field) => {
         field.name = field.name ? field.name.toLowerCase() : null;
         field.codeName = field.codeName ? field.codeName.toLowerCase() : null;
     })
 
-    DataField.hook('beforeUpdate', (field) => {
+    DataField.addHook('beforeUpdate', (field) => {
         field.name = field.name ? field.name.toLowerCase() : null;
         field.codeName = field.codeName ? field.codeName.toLowerCase() : null;
     })
