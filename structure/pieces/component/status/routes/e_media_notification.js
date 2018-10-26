@@ -73,12 +73,12 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
                 Promise.all(promises).then(function() {
                     res.redirect(redirect);
                 }).catch(function(err){
-                    entity_helper.error500(err, req, res, '/media/create_form');
+                    entity_helper.error(err, req, res, '/media/create_form');
                 });
             });
         })
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/create_form');
+        entity_helper.error(err, req, res, '/media/create_form');
     });
 });
 
@@ -132,10 +132,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
             req.session.toastr = [];
             res.render('e_media/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -174,10 +174,10 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media_notification);
+            entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_notification);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media_notification);
+        entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_notification);
     });
 });
 
@@ -260,7 +260,7 @@ router.get('/set_status/:id_media_notification/:status/:id_new_status', block_ac
                 e_media_notification['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
                 res.redirect('/media_notification/show?id='+req.params.id_media_notification)
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, errorRedirect);
+                entity_helper.error(err, req, res, errorRedirect);
             });
         });
     });
@@ -291,7 +291,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -318,7 +318,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_n
             res.redirect('/media_notification/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -342,10 +342,10 @@ router.post('/delete', block_access.actionAccessMiddleware("media_notification",
             res.redirect(redirect);
             entity_helper.remove_files("e_media_notification", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media_notification/list');
+            entity_helper.error(err, req, res, '/media_notification/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media_notification/list');
+        entity_helper.error(err, req, res, '/media_notification/list');
     });
 });
 

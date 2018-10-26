@@ -97,10 +97,10 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
                 res.render('e_translation/show', data);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -176,11 +176,11 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
             Promise.all(promises).then(function() {
                 res.redirect(redirect);
             }).catch(function(err){
-                entity_helper.error500(err, req, res, '/translation/create_form');
+                entity_helper.error(err, req, res, '/translation/create_form');
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/translation/create_form');
+        entity_helper.error(err, req, res, '/translation/create_form');
     });
 });
 
@@ -216,10 +216,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("translation", "u
             else
                 res.render('e_translation/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -258,10 +258,10 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "updat
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/translation/update_form?id=' + id_e_translation);
+            entity_helper.error(err, req, res, '/translation/update_form?id=' + id_e_translation);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/translation/update_form?id=' + id_e_translation);
+        entity_helper.error(err, req, res, '/translation/update_form?id=' + id_e_translation);
     });
 });
 
@@ -477,7 +477,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -554,11 +554,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("tran
             e_translation['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -584,10 +584,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("transla
         e_translation['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/translation/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -611,10 +611,10 @@ router.post('/delete', block_access.actionAccessMiddleware("translation", "delet
             res.redirect(redirect);
             entity_helper.remove_files("e_translation", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/translation/list');
+            entity_helper.error(err, req, res, '/translation/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/translation/list');
+        entity_helper.error(err, req, res, '/translation/list');
     });
 });
 
