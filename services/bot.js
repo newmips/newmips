@@ -2760,7 +2760,9 @@ exports.complete = function (instruction) {
                     // Add list of types to answer
                     answers.push("string");
                     answers.push("text");
+                    answers.push("regular text");
                     answers.push("number");
+                    answers.push("big number");
                     answers.push("decimal");
                     answers.push("date");
                     answers.push("datetime");
