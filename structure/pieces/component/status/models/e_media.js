@@ -13,6 +13,14 @@ module.exports = (sequelize, DataTypes) => {
 
     var Model = sequelize.define('E_media', attributes, options);
     Model.associate = builder.buildAssociation('E_media', associations);
+
+    Model.prototype.getFieldsToInclude = function() {
+        var self = this;
+        if (!self['r_media_' + self.f_type.toLowerCase()])
+            return reject("No media with type " + self.f_type.toLowerCase());
+        return self['r_media_' + self.f_type.toLowerCase()].parseForInclude();
+    }
+
     Model.prototype.execute = function(data) {
         var self = this;
         return new Promise(function(resolve, reject) {
