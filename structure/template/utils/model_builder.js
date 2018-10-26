@@ -19,6 +19,47 @@ exports.addHooks = function (Model, model_name, attributes) {
     }
 }
 
+// PARAMETERS:
+//  models: require('models/')
+//  headEntity: The entity on which include will be used.
+//              Ex: 'e_user'
+//  fieldsArray: An array of the fields that will be used and need to be included.
+//              Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
+// RETURNS:
+//  Returns a sequelize valid include object.
+//              Ex: [{model: E_project, as:'r_project'}, {model: E_user, as:'r_user', include: [{model: E_user, as:'r_children'}]}}]
+exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
+    var globalInclude = [];
+    function buildInclude(currentEntity, includeObject, depths, idx = 0) {
+        if (depths.length-1 == idx)
+            return ;
+        var entityOptions = require('../models/options/'+currentEntity);
+
+        for (var j = 0; j < entityOptions.length; j++) {
+            if (entityOptions[j].as == depths[idx]) {
+                // If include for current depth exists, fill the same object
+                for (var i = 0; i < includeObject.length; i++)
+                    if (includeObject[i].as == depths[idx])
+                        return buildInclude(entityOptions[j].target, includeObject[i].include, depths, ++idx);
+
+                // If include fur current depth doesn't exists, create it and send include array to recursive buildInclude
+                var depthInclude = {
+                    model: models['E_'+entityOptions[j].target.slice(2)],
+                    as: depths[idx],
+                    include: []
+                }
+                buildInclude(entityOptions[j].target, depthInclude.include, depths, ++idx);
+                return includeObject.push(depthInclude)
+            }
+        }
+    }
+
+    for (var field = 0; field < fieldsArray.length; field++)
+        buildInclude(headEntity, globalInclude, fieldsArray[field].split('.'));
+
+    return globalInclude;
+}
+
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
 exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) {

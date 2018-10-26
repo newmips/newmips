@@ -16,6 +16,27 @@ module.exports = (sequelize, DataTypes) => {
 
     var Model = sequelize.define('E_media_notification', attributes, options);
     Model.associate = builder.buildAssociation('E_media_notification', associations);
+
+    // Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
+    //      Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
+    Model.prototype.parseForInclude = function() {
+        var fieldsToParse = ['f_title', 'f_description'];
+        var valuesForInclude = [];
+        for (var i = 0; i < fieldsToParse.length; i++) {
+            var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+            while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
+                valuesForInclude.push(matches[1]);
+        }
+
+        var regex = new RegExp(/{(user_target\|[^}]*)}/g), matches = null;
+        while ((matches = regex.exec(this.f_targets)) != null) {
+            var placeholderParts = matches[1].split('|');
+            var userFieldPath = placeholderParts[placeholderParts.length-1];
+            valuesForInclude.push(userFieldPath);
+        }
+        return valuesForInclude;
+    }
+
     Model.prototype.execute = function(resolve, reject, dataInstance) {
         var self = this;
         if (!models)

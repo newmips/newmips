@@ -17,6 +17,24 @@ module.exports = (sequelize, DataTypes) => {
     Model.associate = builder.buildAssociation('E_media_sms', associations);
     builder.addHooks(Model, 'e_media_sms', attributes_origin);
 
+    // Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
+    //      Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
+    Model.prototype.parseForInclude = function() {
+        var valuesForInclude = [];
+        var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+        while ((matches = regex.exec(this.f_message)) != null)
+            valuesForInclude.push(matches[1]);
+
+        var userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);
+        while ((match = userRegex.exec(this.f_targets)) != null) {
+            var placeholderParts = match[1].split('|');
+            var fieldPath = placeholderParts[placeholderParts.length-1];
+            valuesForInclude.push(fieldPath);
+        }
+
+        return valuesForInclude;
+    }
+
     Model.prototype.execute = function(resolve, reject, dataInstance) {
         var self = this;
 
