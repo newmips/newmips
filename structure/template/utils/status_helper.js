@@ -1,5 +1,6 @@
 var fs = require('fs-extra');
 var language = require('../services/language');
+var model_builder = require('../utils/model_builder');
 var models = require('../models');
 
 module.exports = {
@@ -267,20 +268,13 @@ module.exports = {
             var historyModel = 'E_history_'+entityName+'_' + statusName;
             var historyAlias = 'r_history_' + statusName.substring(2);
             var statusAlias = 'r_' + statusName.substring(2);
-            var entityTree = self.fullEntityFieldTree(entityName);
-            var includeTree = self.buildIncludeFromTree(entityTree)
 
+            // Fetch entity to get its current status's children and their media
             models['E_'+entityName.substring(2)].findOne({
-                where: {
-                    id: entityId
-                },
-                include: includeTree
-            }).then((entity)=> {
-                // Find the children of the current status
-                models.E_status.findOne({
-                    where: {
-                        id: entity[statusAlias].id
-                    },
+                where: {id: entityId},
+                include: {
+                    model: models.E_status,
+                    as: statusAlias,
                     include: [{
                         model: models.E_status,
                         as: 'r_children',
@@ -291,35 +285,55 @@ module.exports = {
                             include: [{
                                 model: models.E_media,
                                 as: 'r_media',
-                                include: {
-                                    all: true,
-                                    nested: true
-                                }
+                                include: [{
+                                    model: getModels().E_media_mail,
+                                    as: 'r_media_mail'
+                                }, {
+                                    model: getModels().E_media_notification,
+                                    as: 'r_media_notification'
+                                }, {
+                                    model: getModels().E_media_sms,
+                                    as: 'r_media_sms'
+                                }]
                             }]
                         }]
                     }]
-                }).then((current_status)=> {
-                    if (!current_status || !current_status.r_children) {
-                        logger.debug("Not found - Set status");
-                        return reject("Not found - Set status");
-                    }
+                }
+            }).then(entity => {
+                var current_status = entity[statusAlias];
+                if (!current_status || !current_status.r_children) {
+                    logger.debug("Not found - Set status");
+                    return reject("Not found - Set status");
+                }
 
-                    // Check if new status is actualy the current status's children
-                    var children = current_status.r_children;
-                    var nextStatus = false;
-                    for (var i = 0; i < children.length; i++) {
-                        if (children[i].id == statusId) {
-                            nextStatus = children[i];
-                            break;
-                        }
+                // Check if new status is actualy the current status's children
+                var nextStatus = false;
+                for (var i = 0; i < current_status.r_children.length; i++) {
+                    if (current_status.r_children[i].id == statusId) {
+                        nextStatus = current_status.r_children[i];
+                        break;
                     }
-                    // Unauthorized
-                    if (nextStatus === false) {
-                        return reject({
-                            level: 'error',
-                            message: 'component.status.error.illegal_status'
-                        });
-                    }
+                }
+                // Unauthorized
+                if (nextStatus === false) {
+                    return reject({
+                        level: 'error',
+                        message: 'component.status.error.illegal_status'
+                    });
+                }
+
+                // For each action, get the fields we need to execute the media. r_media.getFieldsToInclude() -> ['r_user.r_address.f_email', 'r_help.f_field']
+                var fieldsToInclude = [];
+                for (var i = 0; i < nextStatus.r_actions.length; i++)
+                    fieldsToInclude = fieldsToInclude.concat(nextStatus.r_actions[i].r_media.getFieldsToInclude());
+                // Generate include depending on required fields of all action's media
+                var include = model_builder.getIncludeFromFields(models, entityName, fieldsToInclude);
+
+                // Get entity with elements used in media included
+                models['E_'+entityName.substring(2)].findOne({
+                    where: {id: entityId},
+                    include: include
+                }).then((entity)=> {
 
                     // Execute newStatus actions
                     nextStatus.executeActions(entity).then(()=> {
@@ -344,7 +358,7 @@ module.exports = {
                         });
                     });
                 });
-            }).catch(reject);
+            });
         });
     },
     currentStatus: function(entityName, entity, attributes, lang) {

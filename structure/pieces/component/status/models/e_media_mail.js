@@ -14,11 +14,24 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'ID_APPLICATION_e_media_mail',
         timestamps: true
     };
-// console.log(sequelize);
+
     var Model = sequelize.define('E_media_mail', attributes, options);
 
     Model.associate = builder.buildAssociation('E_media_mail', associations);
     builder.addHooks(Model, 'e_media_mail', attributes_origin);
+
+    // Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
+    //      Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
+    Model.prototype.parseForInclude = function() {
+        var fieldsToParse = ['f_from','f_to','f_cc','f_cci','f_subject', 'f_content'];
+        var valuesForInclude = [];
+        for (var i = 0; i < fieldsToParse.length; i++) {
+            var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+            while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
+                valuesForInclude.push(matches[1]);
+        }
+        return valuesForInclude;
+    }
 
     Model.prototype.execute = function(resolve, reject, dataInstance) {
         var self = this;
