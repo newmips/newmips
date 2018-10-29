@@ -1293,23 +1293,31 @@ exports.createNewHasMany = function (attr, callback) {
 
         attr.id_data_entity = IDdataEntitySource;
 
-        var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+        let sourceOptionsPath = __dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json';
+        var optionsSourceFile = helpers.readFileSyncWithCatch(sourceOptionsPath);
         var optionsSourceObject = JSON.parse(optionsSourceFile);
-
+        let saveFile = false;
         // Vérification si une relation existe déjà de la source VERS la target
         for (var i = 0; i < optionsSourceObject.length; i++) {
             if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
-                if (optionsSourceObject[i].relation == "belongsTo") {
-                    var err = new Error();
-                    err.message = "structure.association.error.alreadyHasOne";
-                    return callback(err, null);
-                } else if (attr.options.as == optionsSourceObject[i].as) {
-                    var err = new Error();
-                    err.message = "structure.association.error.alreadySameAlias";
-                    return callback(err, null);
+                // If alias already used
+                if (attr.options.as == optionsSourceObject[i].as){
+                    if(optionsSourceObject[i].structureType == "auto_generate") {
+                        // Remove auto generate key by the generator
+                        optionsSourceObject.splice(i, 1);
+                        saveFile = true;
+                    } else {
+                        var err = new Error();
+                        err.message = "structure.association.error.alreadySameAlias";
+                        return callback(err, null);
+                    }
                 }
             }
         }
+
+        // Changes to be saved
+        if(saveFile)
+            fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8")
 
         var info = {};
         var toSync = true;
@@ -1369,10 +1377,25 @@ exports.createNewHasMany = function (attr, callback) {
                         type: "hasMany"
                     };
 
+                    let reversedOptions = {
+                        idApp: attr.id_application,
+                        source: attr.options.target,
+                        target: attr.options.source,
+                        foreignKey: attr.options.foreignKey,
+                        as: "r_"+attr.options.source.substring(2),
+                        relation: "belongsTo",
+                        toSync: toSync,
+                        type: "auto_generate"
+                    }
+
+                    // Generate hasMany relation in options
                     structure_data_entity.setupAssociation(associationOption, function () {
-                        // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-                        structure_data_field.setupHasManyTab(attr, function () {
-                            callback(null, info);
+                        // Generate opposite belongsTo relation in options
+                        structure_data_entity.setupAssociation(reversedOptions, function () {
+                            // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
+                            structure_data_field.setupHasManyTab(attr, function () {
+                                callback(null, info);
+                            });
                         });
                     });
                 });
@@ -1493,6 +1516,9 @@ exports.createNewHasManyPreset = function (attr, callback) {
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     if (optionsSourceObject[i].relation == "belongsTo" && attr.options.as == optionsSourceObject[i].as) {
+                        console.log("createNewHasManyPreset")
+                        console.log(optionsSourceObject[i])
+                        console.log(attr.options)
                         var err = new Error();
                         err.message = "structure.association.error.alreadyHasOne";
                         return callback(err, null);
