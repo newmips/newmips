@@ -39,7 +39,7 @@ router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team"
     }, function(err, holidays) {
         if (err) {
             console.log(err);
-            return entity_helper.error500(err, req, res);
+            return entity_helper.error(err, req, res);
         }
 
         var bulkCreate = [];
@@ -113,10 +113,10 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
             status_helper.translate(e_cra_team, attributes, req.session.lang_user);
             res.render('e_cra_team/show', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -171,7 +171,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "create")
                         e_cra_team.destroy();
                         var err = new Error();
                         err.message = "Association not found."
-                        return error500(err, req, res, "/");
+                        return entity_helper.error(err, req, res, "/");
                     }
 
                     var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -191,7 +191,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "create")
 
             res.redirect(redirect);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/cra_team/create_form');
+            entity_helper.error(err, req, res, '/cra_team/create_form');
         });
     });
 });
@@ -236,10 +236,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra_team", "upda
             else
                 res.render('e_cra_team/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -278,10 +278,10 @@ router.post('/update', block_access.actionAccessMiddleware("cra_team", "update")
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
+            entity_helper.error(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
+        entity_helper.error(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
     });
 });
 
@@ -497,7 +497,7 @@ router.get('/set_status/:id_cra_team/:status/:id_new_status', block_access.actio
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -574,11 +574,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("cra_
             e_cra_team['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -643,7 +643,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra_tea
         });
 
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -667,10 +667,10 @@ router.post('/delete', block_access.actionAccessMiddleware("cra_team", "delete")
             res.redirect(redirect);
             entity_helper.remove_files("e_cra_team", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/cra_team/list');
+            entity_helper.error(err, req, res, '/cra_team/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/cra_team/list');
+        entity_helper.error(err, req, res, '/cra_team/list');
     });
 });
 

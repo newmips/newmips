@@ -152,7 +152,7 @@ var funcs = {
             }).catch(reject)
         });
     },
-    error500: function(err, req, res, redirect) {
+    error: function(err, req, res, redirect) {
         var isKnownError = false;
         var ajax = req.query.ajax || false;
 

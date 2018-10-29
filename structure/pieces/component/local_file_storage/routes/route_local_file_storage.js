@@ -6,6 +6,7 @@ var models = require('../models/');
 var attributes = require('../models/attributes/COMPONENT_NAME_LOWER');
 var options = require('../models/options/COMPONENT_NAME_LOWER');
 var model_builder = require('../utils/model_builder');
+var entity_helper = require('../utils/entity_helper');
 
 var multer = require('multer');
 var fs = require('fs');
@@ -14,20 +15,6 @@ var moment = require("moment");
 var upload = multer().single('file');
 
 var config = require('../config/global');
-
-function error500(err, req, res) {
-    console.error(err);
-    var data = {};
-    data.error = 500;
-    if (req.query.ajax)
-        res.status(500).send(data.error);
-    else
-        res.render('common/error', data);
-}
-
-function capitalizeFirstLetter(word) {
-    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
-}
 
 router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
 
@@ -77,7 +64,7 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 
         res.redirect(redirect);
     }).catch(function(err){
-        error500(err, req, res);
+        entity_helper.error(err, req, res);
     });
 });
 
@@ -135,7 +122,7 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
             try {
                 fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
             } catch(e) {
-                return error500(e, req, res);
+                return entity_helper.error(e, req, res);
             }
             models.COMPONENT_NAME.destroy({
                 where: {
@@ -148,7 +135,7 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
                 }];
                 res.redirect('/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.idEntity+'#COMPONENT_NAME_LOWER');
             }).catch(function(err){
-                error500(err, req, res);
+                entity_helper.error(err, req, res);
             });
         }else{
             req.session.toastr = [{

@@ -20,45 +20,6 @@ var fs = require('fs-extra');
 // Winston logger
 var logger = require('../utils/logger');
 
-function error500(err, req, res, redirect) {
-    var isKnownError = false;
-    try {
-
-        // Sequelize validation error
-        if (err.name == "SequelizeValidationError") {
-            req.session.toastr.push({
-                level: 'error',
-                message: err.errors[0].message
-            });
-            isKnownError = true;
-        }
-
-        // Unique value constraint error
-        if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-            req.session.toastr.push({
-                level: 'error',
-                message: err.errors[0].message
-            });
-            isKnownError = true;
-        }
-
-    } finally {
-        if (isKnownError)
-            return res.redirect(redirect || '/');
-        else
-            console.error(err);
-        logger.debug(err);
-        var data = {};
-        data.code = 500;
-        data.message = err.message || null;
-        res.render('common/error', data);
-    }
-}
-
-function capitalizeFirstLetter(word) {
-    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
-}
-
 router.get('/list', block_access.actionAccessMiddleware("inline_help", "read"), function(req, res) {
     var data = {
         "menu": "e_inline_help",
@@ -108,7 +69,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inli
         }
 
         // Get all associations
-        e_inline_help['get' + capitalizeFirstLetter(alias)]().then(function(aliasEntities) {
+        e_inline_help['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function(aliasEntities) {
             // Remove entity from association array
             for (var i = 0; i < aliasEntities.length; i++)
                 if (aliasEntities[i].id == idToRemove) {
@@ -117,12 +78,12 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inli
                 }
 
                 // Set back associations without removed entity
-            e_inline_help['set' + capitalizeFirstLetter(alias)](aliasEntities).then(function() {
+            e_inline_help['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function() {
                 res.sendStatus(200).end();
             });
         });
     }).catch(function(err) {
-        error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -151,11 +112,11 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("inline_
             return res.redirect('/inline_help/show?id=' + idEntity + "#" + alias);
         }
 
-        e_inline_help['add' + capitalizeFirstLetter(alias)](toAdd).then(function() {
+        e_inline_help['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/inline_help/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function(err) {
-        error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -194,7 +155,7 @@ router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), 
         data.e_inline_help = e_inline_help;
         res.render('e_inline_help/show', data);
     }).catch(function(err) {
-        error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -261,7 +222,7 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "creat
 
         res.redirect(redirect);
     }).catch(function(err) {
-        error500(err, req, res, '/inline_help/create_form');
+        entity_helper.error(err, req, res, '/inline_help/create_form');
     });
 });
 
@@ -290,7 +251,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("inline_help", 'u
 
         res.render('e_inline_help/update', data);
     }).catch(function(err) {
-        error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -336,10 +297,10 @@ router.post('/update', block_access.actionAccessMiddleware("inline_help", 'updat
 
             res.redirect(redirect);
         }).catch(function(err) {
-            error500(err, req, res, '/inline_help/update_form?id=' + id_e_inline_help);
+            entity_helper.error(err, req, res, '/inline_help/update_form?id=' + id_e_inline_help);
         });
     }).catch(function(err) {
-        error500(err, req, res, '/inline_help/update_form?id=' + id_e_inline_help);
+        entity_helper.error(err, req, res, '/inline_help/update_form?id=' + id_e_inline_help);
     });
 });
 
@@ -367,10 +328,10 @@ router.post('/delete', block_access.actionAccessMiddleware("inline_help", "delet
             res.redirect(redirect);
             entity_helper.remove_files("e_inline_help", deleteObject, attributes);
         }).catch(function(err) {
-            error500(err, req, res, '/inline_help/list');
+            entity_helper.error(err, req, res, '/inline_help/list');
         });
     }).catch(function(err) {
-        error500(err, req, res, '/inline_help/list');
+        entity_helper.error(err, req, res, '/inline_help/list');
     });
 });
 
