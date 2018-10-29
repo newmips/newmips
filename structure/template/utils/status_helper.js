@@ -105,7 +105,6 @@ module.exports = {
 
             includes.push(include);
         }
-        console.log(includes)
         return includes;
     },
     // Build array of user target for media_notification insertion <select>
@@ -134,20 +133,21 @@ module.exports = {
         var options = [];
         function dive(obj, codename, parent, parentTraduction = "") {
             var traduction;
+            // Component address have a different traduction naming policy. If obj is a address component, adapt traductions fetched
+            var isAddress = obj.alias == "c_address";
             // Top level. Entity traduction Ex: 'Ticket'
             if (!parent)
-                traduction = __('entity.'+obj.entity+'.label_entity');
+                traduction = isAddress ? __('component.'+obj.entity+'.label_component') : __('entity.'+obj.entity+'.label_entity');
             // Child level. Parent traduction with child entity alias Ex: 'Ticket > Participants' OR 'Ticket > Participants > Adresse'
             else
-                traduction = parentTraduction + separator + __('entity.'+parent.entity+'.'+obj.alias);
+                traduction = parentTraduction + separator + (isAddress ? __('component.'+obj.entity+'.label_component') : __('entity.'+parent.entity+'.'+obj.alias));
 
             for (var j = 0; j < obj.fields.length; j++) {
                 if (obj.fields[j].indexOf('f_') != 0)
                     continue;
-                // traduction += separator + __('entity.'+obj.entity+'.'+obj.fields[j]);
                 options.push({
                     codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
-                    traduction: traduction + separator + __('entity.'+obj.entity+'.'+obj.fields[j]), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
+                    traduction: traduction + separator + (isAddress ? __('component.'+obj.entity+'.'+obj.fields[j]) : __('entity.'+obj.entity+'.'+obj.fields[j])), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
                     target: obj.entity,
                     isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
                     isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false
