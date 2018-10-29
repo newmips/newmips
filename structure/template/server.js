@@ -303,6 +303,12 @@ app.use(function(req, res, next) {
 	res.redirect = function(view) {
 		// If request comes from ajax call, no need to render show/list/etc.. pages, 200 status is enough
 		if (req.query.ajax) {
+			// Check role access error in toastr. Send 403 if found, {refresh: true} will force reload of the page (behavior comes from public/newmips/show.js)
+			for (var i = 0; i < req.session.toastr.length; i++) {
+				var toast = req.session.toastr[i];
+				if (toast.message && toast.message == "settings.auth_component.no_access_role")
+					return res.status(403).send({refresh: true});
+			}
 			req.session.toastr = [];
 			return res.sendStatus(200);
 		}
