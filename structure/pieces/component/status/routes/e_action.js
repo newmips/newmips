@@ -77,10 +77,10 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
             status_helper.translate(e_action, attributes, req.session.lang_user);
             res.render('e_action/show', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -164,11 +164,11 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
             Promise.all(promises).then(function() {
                 res.redirect(redirect);
             }).catch(function(err){
-                entity_helper.error500(err, req, res, '/action/create_form');
+                entity_helper.error(err, req, res, '/action/create_form');
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/action/create_form');
+        entity_helper.error(err, req, res, '/action/create_form');
     });
 });
 
@@ -204,10 +204,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("action", "update
             else
                 res.render('e_action/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -246,10 +246,10 @@ router.post('/update', block_access.actionAccessMiddleware("action", "update"), 
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/action/update_form?id=' + id_e_action);
+            entity_helper.error(err, req, res, '/action/update_form?id=' + id_e_action);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/action/update_form?id=' + id_e_action);
+        entity_helper.error(err, req, res, '/action/update_form?id=' + id_e_action);
     });
 });
 
@@ -374,7 +374,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
     status_helper.setStatus('e_action', req.params.id_action, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
         res.redirect('/action/show?id=' + req.params.id_action)
     }).catch((err)=> {
-        entity_helper.error500(err, req, res, '/action/show?id=' + req.params.id_action);
+        entity_helper.error(err, req, res, '/action/show?id=' + req.params.id_action);
     });
 });
 
@@ -450,11 +450,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("acti
             e_action['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -480,10 +480,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("action"
         e_action['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/action/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -507,10 +507,10 @@ router.post('/delete', block_access.actionAccessMiddleware("action", "delete"), 
             res.redirect(redirect);
             entity_helper.remove_files("e_action", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/action/list');
+            entity_helper.error(err, req, res, '/action/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/action/list');
+        entity_helper.error(err, req, res, '/action/list');
     });
 });
 

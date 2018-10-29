@@ -84,7 +84,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -111,7 +111,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VAL
             res.redirect('/URL_VALUE_CONTACT/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -164,7 +164,7 @@ router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
         });
 
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -192,7 +192,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
         req.session.toastr = [];
         res.render('CODE_VALUE_CONTACT/create', data);
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -238,7 +238,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
                             CODE_VALUE_CONTACT.destroy();
                             var err = new Error();
                             err.message = "Association not found."
-                            return entity_helper.error500(err, req, res, "/");
+                            return entity_helper.error(err, req, res, "/");
                         }
 
                         var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -257,10 +257,10 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
                 model_builder.setAssocationManyValues(CODE_VALUE_CONTACT, req.body, createObject, options);
                 res.redirect(redirect);
             }).catch(function (err) {
-                entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/create_form');
+                entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/create_form');
             });
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/create_form');
+            entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/create_form');
         });
     });
 });
@@ -285,10 +285,10 @@ router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
             res.redirect(redirect);
             entity_helper.remove_files("CODE_VALUE_CONTACT",deleteObject,attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/list');
+            entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/list');
+        entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/list');
     });
 });
 
@@ -347,10 +347,10 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
             req.session.toastr = [];
             res.render('CODE_VALUE_CONTACT/settings', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -387,10 +387,10 @@ router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS
 
             res.redirect(redirect);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
+            entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
+        entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
     });
 });
 

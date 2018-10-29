@@ -128,12 +128,12 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
                 status_helper.translate(e_media, attributes, req.session.lang_user);
                 res.render('e_media/show', data);
             }).catch(function (err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
        });
 
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -161,7 +161,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
         data.icon_list = icon_list;
         res.render('e_media/create', data);
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -184,7 +184,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
                     e_media.destroy();
                     var err = new Error();
                     err.message = "Association not found."
-                    return entity_helper.error500(err, req, res, "/");
+                    return entity_helper.error(err, req, res, "/");
                 }
 
                 var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -204,7 +204,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 
         res.redirect(redirect);
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/create_form');
+        entity_helper.error(err, req, res, '/media/create_form');
     });
 });
 
@@ -259,10 +259,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
             data.icon_list = icon_list;
             res.render('e_media/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -301,10 +301,10 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 
             res.redirect(redirect);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media);
+            entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media);
+        entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media);
     });
 });
 
@@ -312,7 +312,7 @@ router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAc
     status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
         res.redirect('/media/show?id=' + req.params.id_media);
     }).catch((err)=> {
-        entity_helper.error500(err, req, res, '/media/show?id=' + req.params.id_media);
+        entity_helper.error(err, req, res, '/media/show?id=' + req.params.id_media);
     });
 });
 
@@ -341,7 +341,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -418,7 +418,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media",
             res.redirect('/media/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -442,10 +442,10 @@ router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), f
             res.redirect(redirect);
             entity_helper.remove_files("e_media", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media/list');
+            entity_helper.error(err, req, res, '/media/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/list');
+        entity_helper.error(err, req, res, '/media/list');
     });
 });
 

@@ -83,7 +83,7 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
         res.render('e_document_template/show', data);
 
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -110,7 +110,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
         data.document_template_entities = document_template_helper.get_entities(models);
         res.render('e_document_template/create', data);
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -132,7 +132,7 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
         }];
         res.redirect(redirect);
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, '/document_template/create_form');
+        entity_helper.error(err, req, res, '/document_template/create_form');
     });
 });
 
@@ -208,10 +208,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
 
             res.render('e_document_template/update', data);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -261,10 +261,10 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
                 res.redirect(redirect);
             });
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
+            entity_helper.error(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
+        entity_helper.error(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
     });
 });
 
@@ -272,7 +272,7 @@ router.get('/set_status/:id_document_template/:status/:id_new_status', block_acc
     status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
         res.redirect('/document_template/show?id=' + req.params.id_document_template);
     }).catch((err)=> {
-        entity_helper.error500(err, req, res, '/document_template/show?id=' + req.params.id_document_template);
+        entity_helper.error(err, req, res, '/document_template/show?id=' + req.params.id_document_template);
     });
 });
 
@@ -307,7 +307,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -340,7 +340,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("documen
             res.redirect('/document_template/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -368,10 +368,10 @@ router.post('/delete', block_access.actionAccessMiddleware("document_template", 
             res.redirect(redirect);
             entity_helper.remove_files("e_document_template", deleteObject, attributes);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, '/document_template/list');
+            entity_helper.error(err, req, res, '/document_template/list');
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, '/document_template/list');
+        entity_helper.error(err, req, res, '/document_template/list');
     });
 });
 
