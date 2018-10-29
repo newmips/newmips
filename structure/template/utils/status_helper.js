@@ -286,13 +286,13 @@ module.exports = {
                                 model: models.E_media,
                                 as: 'r_media',
                                 include: [{
-                                    model: getModels().E_media_mail,
+                                    model: models.E_media_mail,
                                     as: 'r_media_mail'
                                 }, {
-                                    model: getModels().E_media_notification,
+                                    model: models.E_media_notification,
                                     as: 'r_media_notification'
                                 }, {
-                                    model: getModels().E_media_sms,
+                                    model: models.E_media_sms,
                                     as: 'r_media_sms'
                                 }]
                             }]
