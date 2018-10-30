@@ -130,7 +130,7 @@ function execute(req, instruction) {
                 if (err) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
-                    console.log("ERROR : ", msgErr);
+                    console.log(err);
                     reject(msgErr);
                 } else {
 
@@ -875,7 +875,6 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             });
             return;
         }
-
         execute(req, recurInstructions[idx]).then(function(){
             pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
             recursiveExecute(recurInstructions, ++idx);

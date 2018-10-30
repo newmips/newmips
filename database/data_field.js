@@ -79,14 +79,12 @@ exports.createNewDataField = function(attr, callback) {
 exports.createNewForeignKey = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
-        var err = new Error();
-        err.message = "database.field.error.selectOrCreateBefore";
+        var err = new Error("database.field.error.selectOrCreateBefore");
         return callback(err, null);
     }
 
     var name = attr.options.showForeignKey;
     var codeName = attr.options.foreignKey;
-
     models.DataEntity.findOne({
         where: {
             codeName: attr.options.source
@@ -101,13 +99,13 @@ exports.createNewForeignKey = function(attr, callback) {
                 }
             }]
         }]
-    }).then(function(dataEntity) {
+    }).then(function(entity) {
         models.DataField.create({
             name: name,
             codeName: codeName,
             type: "INTEGER",
             version: 1,
-            id_data_entity: dataEntity.id
+            id_data_entity: entity.id
         }).then(function(createdForeignKey) {
             var info = {};
             info.insertId = createdForeignKey.id;
@@ -203,8 +201,7 @@ exports.getFieldByCodeName = function(params, callback) {
         }
     }).then(function(field) {
         if (!field) {
-            var err = new Error();
-            err.message = "database.field.notFound.withThisName";
+            var err = new Error("database.field.notFound.withThisName");
             err.messageParams = [params.showValue, params.showEntity];
             return callback(err, null);
         }
@@ -218,8 +215,7 @@ exports.getFieldByCodeName = function(params, callback) {
 exports.deleteDataField = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
-        var err = new Error();
-        err.message = "database.field.error.selectOrCreateBefore";
+        var err = new Error("database.field.error.selectOrCreateBefore");
         return callback(err, null);
     }
 
