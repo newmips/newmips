@@ -405,14 +405,17 @@ models.sequelize.sync({logging: false, hooks: false}).then(function() {
         models.E_user.findAll().then(function(users) {
             if (!users || users.length == 0) {
                 models.E_group.create({
+                	id: 1,
                     version: 0,
                     f_label: 'admin'
                 }).then(function() {
                     models.E_role.create({
+                    	id: 1,
                         version: 0,
                         f_label: 'admin'
                     }).then(function() {
                         models.E_user.create({
+                        	id: 1,
                             f_login: 'admin',
                             f_password: null,
                             f_enabled: 0,
