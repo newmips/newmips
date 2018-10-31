@@ -63,7 +63,13 @@ function reloadTab(tab) {
 }
 
 function select2_fieldset(select, data) {
-    var searchField = data.option.usingField || ['id'];
+    var searchField = [];
+    if (data.option.usingField && data.option.usingField.length)
+        for (var i = 0; i < data.option.usingField.length; i++)
+            searchField.push(data.option.usingField[i].value);
+    if (searchField.length == 0)
+        searchField.push('id');
+
     select.select2({
         ajax: {
             url: '/'+data.option.target.substring(2)+'/search',

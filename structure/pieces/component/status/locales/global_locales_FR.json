@@ -29,6 +29,7 @@
             "f_field": "Champ",
             "f_name": "Nom",
             "f_color": "Couleur",
+            "f_comment": "Commentaire",
             "modal_title": "Commentaire",
             "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tout le monde)",
             "f_default": "Est le statut par défaut",

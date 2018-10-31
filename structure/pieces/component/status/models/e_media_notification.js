@@ -151,7 +151,10 @@ module.exports = (sequelize, DataTypes) => {
             try {
                 try {
                     // Build show url of targeted entity
-                    entityUrl = dataInstance.constructor.getTableName().substring(4);
+                    var tableName = dataInstance.constructor.getTableName();
+                    var prefixIdx = tableName.indexOf('_e_')+('_e_'.length);
+                    // Remove table ID and prefix: 10_e_user -> user
+                    entityUrl = tableName.substring(prefixIdx);
                     entityUrl = '/' + entityUrl + '/show?id=' + dataInstance.id;
                 } catch(e) {
                     console.log(e);
