@@ -42,77 +42,69 @@ router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), fu
     /* Looking for include to get all associated related to data for the datalist ajax loading */
     var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("E_user", req.body, include).then(function (data) {
+        // Replace data enum value by translated value for datalist
+        var enumsTranslation = enums_radios.translated("e_user", req.session.lang_user, options);
+        var todo = [];
+        for (var i = 0; i < data.data.length; i++) {
+            for (var field in data.data[i].dataValues) {
+                // Look for enum translation
+                for (var enumEntity in enumsTranslation)
+                    for (var enumField in enumsTranslation[enumEntity])
+                        if (enumField == field)
+                            for (var j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
+                                if (enumsTranslation[enumEntity][enumField][j].value == data.data[i].dataValues[field]) {
+                                    data.data[i].dataValues[field] = enumsTranslation[enumEntity][enumField][j].translation;
+                                    break;
+                                }
 
-        var statusPromises = [];
-        if (status_helper.statusFieldList(attributes).length > 0)
-            for (var i = 0; i < data.data.length; i++)
-                statusPromises.push(status_helper.currentStatus("e_user", data.data[i], attributes, req.session.lang_user));
-
-        Promise.all(statusPromises).then(function() {
-            // Replace data enum value by translated value for datalist
-            var enumsTranslation = enums_radios.translated("e_user", req.session.lang_user, options);
-            var todo = [];
-            for (var i = 0; i < data.data.length; i++) {
-                for (var field in data.data[i].dataValues) {
-                    // Look for enum translation
-                    for (var enumEntity in enumsTranslation)
-                        for (var enumField in enumsTranslation[enumEntity])
-                            if (enumField == field)
-                                for (var j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
-                                    if (enumsTranslation[enumEntity][enumField][j].value == data.data[i].dataValues[field]) {
-                                        data.data[i].dataValues[field] = enumsTranslation[enumEntity][enumField][j].translation;
-                                        break;
-                                    }
-
-                    //get attribute value
-                    var value = data.data[i].dataValues[field];
-                    //for type picture, get thumbnail picture
-                    if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
-                        var partOfFile = value.split('-');
-                        if (partOfFile.length > 1) {
-                            //if field value have valide picture name, add new task in todo list
-                            //we will use todo list to get all pictures binary
-                            var thumbnailFolder = globalConfig.thumbnail.folder;
-                            var filePath = thumbnailFolder + 'e_user/' + partOfFile[0] + '/' + value;
-                            todo.push({
-                                value: value,
-                                file: filePath,
-                                field: field,
-                                dataIndex: i
-                            });
-                        }
+                //get attribute value
+                var value = data.data[i].dataValues[field];
+                //for type picture, get thumbnail picture
+                if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
+                    var partOfFile = value.split('-');
+                    if (partOfFile.length > 1) {
+                        //if field value have valide picture name, add new task in todo list
+                        //we will use todo list to get all pictures binary
+                        var thumbnailFolder = globalConfig.thumbnail.folder;
+                        var filePath = thumbnailFolder + 'e_user/' + partOfFile[0] + '/' + value;
+                        todo.push({
+                            value: value,
+                            file: filePath,
+                            field: field,
+                            dataIndex: i
+                        });
                     }
                 }
             }
+        }
 
-            // Delete users sensitive informations
-            for (var i = 0; i < data.data.length; i++) {
-                var user = data.data[i];
-                user.f_password = undefined;
-                user.f_token_password_reset = undefined;
-                user.f_enabled = undefined;
+        // Delete users sensitive informations
+        for (var i = 0; i < data.data.length; i++) {
+            var user = data.data[i];
+            user.f_password = undefined;
+            user.f_token_password_reset = undefined;
+            user.f_enabled = undefined;
+        }
+
+        //check if we have to get some picture buffer before send data
+        if (todo.length) {
+            var counter=0;
+            for (var i = 0; i < todo.length; i++) {
+                (function (task) {
+                    file_helper.getFileBuffer64(task.file, function (success, buffer) {
+                        counter++;
+                        data.data[task.dataIndex].dataValues[task.field] = {
+                            value: task.value,
+                            buffer: buffer
+                        };
+                        if (counter === todo.length)
+                            res.send(data).end();
+
+                    });
+                }(todo[i]));
             }
-
-            //check if we have to get some picture buffer before send data
-            if (todo.length) {
-                var counter=0;
-                for (var i = 0; i < todo.length; i++) {
-                    (function (task) {
-                        file_helper.getFileBuffer64(task.file, function (success, buffer) {
-                            counter++;
-                            data.data[task.dataIndex].dataValues[task.field] = {
-                                value: task.value,
-                                buffer: buffer
-                            };
-                            if (counter === todo.length)
-                                res.send(data).end();
-
-                        });
-                    }(todo[i]));
-                }
-            } else
-                res.send(data).end();
-        });
+        } else
+            res.send(data).end();
     }).catch(function (err) {
         console.log(err);
         logger.debug(err);
