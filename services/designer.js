@@ -1467,8 +1467,33 @@ exports.createNewHasManyPreset = function (attr, callback) {
     db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
         if (err)
             return callback(err, null);
-
         attr.id_data_entity = IDdataEntitySource;
+
+        var allUsingExist = true;
+        // If a using field or fields has been asked, we have to check if those fields exist in the entity
+        if (typeof attr.options.usingField !== "undefined") {
+            var attributesPath = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.options.target.toLowerCase()
+            delete require.cache[require.resolve(attributesPath)];
+            var attributeTarget = require(attributesPath);
+            for (var i = 0; i < attr.options.usingField.length; i++) {
+                if (typeof attributeTarget[attr.options.usingField[i]] === "undefined") {
+                    allUsingExist = false;
+                    var missingField = attr.options.showUsingField[i];
+                } else {
+                    attr.options.usingField[i] = {
+                        value: attr.options.usingField[i],
+                        type: attributeTarget[attr.options.usingField[i]].newmipsType
+                    }
+                }
+            }
+        }
+        // If a asked using field doesn't exist in the target entity we send an error
+        if (!allUsingExist) {
+            var err = new Error();
+            err.message = "structure.association.relatedTo.missingField";
+            err.messageParams = [missingField, attr.options.showTarget];
+            return callback(err, null);
+        }
 
         // With preset instruction with already know the source of the related to
         // "entity (.*) has many preset (.*)"

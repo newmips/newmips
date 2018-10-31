@@ -1,4 +1,4 @@
-<div id="chat" class="box box-primary direct-chat direct-chat-primary direct-chat-contacts-open collapsed-box" style="z-index: 10;position: fixed; bottom: 0; right: 15px;max-width: 500px;">
+<div id="chat" class="box box-primary direct-chat direct-chat-primary direct-chat-contacts-open collapsed-box" style="z-index: 1000;position: fixed; bottom: 0; right: 15px;max-width: 500px;">
     <div class="box-header with-border">
         <h3 class="box-title" style="cursor:pointer;">Discussion</h3>
         <div class="box-tools pull-right">

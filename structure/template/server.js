@@ -135,7 +135,7 @@ if (startedFromGenerator) {
 		// Do not remove this comment
 		if(url.indexOf("/inline_help/") != -1 || url.indexOf('/loadtab/') != -1 || req.query.ajax)
 			return next();
-		if (url.indexOf('/show') == -1 && url.indexOf('/list') == -1 && url.indexOf('/create') == -1 && url.indexOf('/update') == -1)
+		if (url.indexOf('/show') == -1 && url.indexOf('/list') == -1 && url.indexOf('/create') == -1 && url.indexOf('/update') == -1 && url.indexOf('/default/home') == -1)
 			return next();
 		console.log("IFRAME_URL::"+url);
 		next();
