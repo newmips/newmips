@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>{@__ key="app.name"/}</title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+		{! Bootstrap 3.0.2 !}
+		<link href="/css/Bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css">
+		{! Font Awesome !}
+		<link href="/css/fonts/font-awesome.min.css" rel="stylesheet" type="text/css">
+		{! Ionicons !}
+		<link href="/css/ionicons.min.css" rel="stylesheet" type="text/css">
+		{! Demo style for icons !}
+		<link href="/css/AdminLTE/icons.css" rel="stylesheet" type="text/css">
+		{! Theme style !}
+		<link href="/css/AdminLTE/AdminLTE.css" rel="stylesheet" type="text/css">
+		{! Toastr !}
+		<link href="/css/toastr/toastr.min.css" rel="stylesheet" type="text/css">
+		{! Select2 !}
+		<link href="/css/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+		{! iCheck !}
+		<link href="/css/iCheck/flat/blue.css" rel="stylesheet" type="text/css">
+		{! Animated CSS !}
+		<link href="/css/animated.css" rel="stylesheet" type="text/css">
+		{! Newmips CSS !}
+		<link href="/css/newmips.css" rel="stylesheet" type="text/css">
+		{! Navigation !}
+		<script src="/js/Newmips/navigation.js" type="text/javascript"></script>
+		{! Favicon !}
+		<link href="/FAVICON-COULEUR-01.png" rel="icon" type="image/png">
+		{+custom_css /}
+	</head>
+	<body class="skin-blue">
+		{! Give the user_lang the client !}
+		<script type="text/javascript">var user_lang = '{user_lang}';</script>
+		<header class="header">
+			<div class="liner"></div>
+		</header>
+		<aside class="right-side">
+			<section class="content-header">
+				<div class="row">
+					<div class="col-header col-xs-12 col-sm-6 col-lg-8">
+						<h1>
+							<a href="/">
+								<img src="/img/FAVICON-GRAND-01.png" alt="Newmips Logo" class="newmipsLogo" />
+							</a>
+							{+title /}
+						</h1>
+					</div>
+					<div class="col-xs-12 col-sm-6  col-lg-4">
+						<div class="btn-group pull-right" role="group">
+							<a class="btn btn-default" href="/default/home">
+								<i class="fa fa-home" style="margin-right:5px;"></i>{@__ key="menu.home"/}
+							</a>
+							<a class="btn btn-default" href="/account">
+								<i class="fa fa-user" style="margin-right:5px;"></i>{@__ key="menu.account"/}
+							</a>
+							<a class="btn btn-default pull-right" href="/logout">
+								<i class="fa fa-sign-out fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.disconnect"/}</span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="content">
+				{+content /}
+			</section>
+		</aside>
+		{?version}
+		<div class="newmipsVersion">
+			<div class="pull-right">Newmips GPL V3 | {version}</div>
+		</div>
+		{/version}
+		{+message-modal /}
+		{! jQuery 3.2.1 !}
+		<script src="/js/jQuery/jquery.min.js"></script>
+		{! Bootstrap !}
+		<script src="/js/Bootstrap/bootstrap.min.js" type="text/javascript"></script>
+		{! Toastr !}
+		<script src="/js/plugins/toastr/toastr.min.js" type="text/javascript"></script>
+		{! Select2 !}
+		<script src="/js/plugins/select2/dist/js/select2.full.min.js" type="text/javascript"></script>
+		<script>
+            var toastrArray = [];
+        </script>
+        {#toastr}
+            <script>
+                toastrArray.push({
+                    message: '{@__ key=message/}',
+                    level: "{level}"
+                });
+            </script>
+        {/toastr}
+		<script>
+			$(document).ready(function() {
+				try {
+					toastr.options = {
+						"closeButton": false,
+						"debug": false,
+						"newestOnTop": false,
+						"progressBar": true,
+						"positionClass": "toast-bottom-left",
+						"preventDuplicates": true,
+						"onclick": null,
+						"showDuration": "400",
+						"hideDuration": "1000",
+						"timeOut": "5000",
+						"extendedTimeOut": "1000",
+						"showEasing": "swing",
+						"hideEasing": "linear",
+						"showMethod": "fadeIn",
+						"hideMethod": "fadeOut"
+					};
+					for (var i = 0; i < toastrArray.length; i++) {
+						setTimeout(function(toast) {
+							switch (toast.level) {
+								case "info":
+									toastr.info(toast.message);
+									break;
+								case "success":
+									toastr.success(toast.message);
+									break;
+								case "warning":
+									toastr.warning(toast.message);
+									break;
+								case "error":
+									toastr.error(toast.message);
+									break;
+							}
+						}(toastrArray[i]), (1000 * i));
+					}
+				} catch (e) {
+					console.log(e);
+					toastr = {
+						success: function() {
+							return true;
+						},
+						info: function() {
+							return true;
+						},
+						error: function() {
+							return true;
+						},
+						warning: function() {
+							return true;
+						}
+					};
+				}
+			});
+		</script>
+		{+custom_js /}
+	</body>
+</html>
