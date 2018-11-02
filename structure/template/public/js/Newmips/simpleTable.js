@@ -2,7 +2,7 @@ var str_language;
 if (lang_user == "fr-FR") {
 	str_language = {
 		"processing":     "Traitement en cours...",
-		"search":         "Rechercher&nbsp;:",
+		"search":         "Rechercher&nbsp;:&nbsp;",
 		"lengthMenu":     "Afficher _MENU_ &eacute;l&eacute;ments",
 		"info":           "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
 		"infoEmpty":      "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
@@ -25,7 +25,7 @@ if (lang_user == "fr-FR") {
 } else {
 	str_language = {
 		"processing":     "Processing...",
-		"search":         "Search&nbsp;:",
+		"search":         "Search&nbsp;:&nbsp;",
 		"lengthMenu":     "Display _MENU_ records",
 		"info":           "Displaying records _START_ to _END_ on _TOTAL_ records",
 		"infoEmpty":      "No record to display",
