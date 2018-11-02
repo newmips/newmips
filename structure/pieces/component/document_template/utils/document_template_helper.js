@@ -4,7 +4,9 @@ var fs = require('fs');
 var dust = require('dustjs-linkedin');
 var pdf = require('html-pdf');
 var enums_radios = require('../locales/enum_radio');
-
+var JSZip = require('jszip');
+var Docxtemplater = require('docxtemplater');
+var pdfFiller = require('fill-pdf');
 var langMessage = require('../locales/document_template_locales');
 var lang = "fr-FR";
 
@@ -21,7 +23,7 @@ module.exports = {
         {name: 'g_login', description: 'Current user login', type: 'string'},
         {name: 'g_email', description: 'Current user email', type: 'email'}
     ],
-    get_entities: function(models) {
+    get_entities: function (models) {
         /**Get all models**/
         var entities = models.sequelize.models;
         var document_template_entities = [];
@@ -39,7 +41,7 @@ module.exports = {
         }
         return document_template_entities;
     },
-    rework: function(object, entityName, reworkOptions, userLang, fileType) {
+    rework: function (object, entityName, reworkOptions, userLang, fileType) {
         try {
             var result = {};
             var options = typeof reworkOptions === 'undefined' ? {} : reworkOptions;
@@ -59,7 +61,7 @@ module.exports = {
             this.cleanData(result, entityModelData, userLang, fileType);
 
             var that = this;
-            function cleanIncludeLevels(relationsOptions, obj){
+            function cleanIncludeLevels(relationsOptions, obj) {
                 for (var i = 0; i < relationsOptions.length; i++) {
                     var relation = relationsOptions[i];
                     if (obj[relation.as]) {
@@ -101,7 +103,7 @@ module.exports = {
             return {};
         }
     },
-    cleanData: function(object, entityModelData, userLang, fileType) {
+    cleanData: function (object, entityModelData, userLang, fileType) {
         var attributes = entityModelData.attributes;
         var reworkOptions = entityModelData.options;
         var entityName = entityModelData.entityName;
@@ -160,7 +162,7 @@ module.exports = {
             }
         }
     },
-    getRelations: function(entity) {
+    getRelations: function (entity) {
         var result = [];
         var options = require('../models/options/e_' + entity.toLowerCase() + '.json');
         for (var i = 0; i < options.length; i++) {
@@ -174,7 +176,7 @@ module.exports = {
         }
         return result;
     },
-    getDateFormatUsingLang: function(userLang, type) {
+    getDateFormatUsingLang: function (userLang, type) {
         var l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
         switch (type) {
             case 'datetime':
@@ -187,21 +189,21 @@ module.exports = {
                 return l === 'fr-FR' ? 'DD/MM/YYYY' : 'YYYY-MM-DD';
         }
     },
-    getSubEntitiesHelp: function(userLang) {
+    getSubEntitiesHelp: function (userLang) {
         var l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
         return langMessage[l].subEntities.help;
     },
-    getAttributes: function(attributes) {
+    getAttributes: function (attributes) {
         var result = [];
         if (attributes)
             for (var item in attributes)
                 result.push(item);
         return result;
     },
-    getReadmeMessages: function(userLang) {
+    getReadmeMessages: function (userLang) {
         return langMessage[userLang || lang].readme;
     },
-    build_help: function(entityRoot, userLang) {
+    build_help: function (entityRoot, userLang) {
         var result = [];
         var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
         var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
@@ -224,30 +226,30 @@ module.exports = {
                     message = "";
                 else if (relation.relation === "belongsToMany" || relation.relation === "hasMany")
                     message = langMessage[userLang || lang].useVariable +
-                    "<p> " + langMessage[userLang || lang].example + ":<br>" +
-                    "<pre>{#" + relation.as + "}<br>" +
-                    "    {variable}<br>" +
-                    "{/" + relation.as + "}" +
-                    "</p></pre><hr>" +
-                    "<i class='fa fa-exclamation-circle' style='color:orange'></i> " + langMessage[userLang || lang].whereIsNL + ": <br>" +
-                    " <pre>" +
-                    "{<br>" +
-                    langMessage[userLang || lang].one + ": [{" + langMessage[userLang || lang].name + ": 'New'}]<br>" +
-                    langMessage[userLang || lang].two + ": [{" + langMessage[userLang || lang].name + ": 'Mips'}]<br>" +
-                    "}</pre><br>" +
-                    langMessage[userLang || lang].output + ": " +
-                    " <pre>" +
-                    "NL<br>" +
-                    "  <b>New</b> <br>" +
-                    "NL <br>" +
-                    "NL <br>" +
-                    "  <b>Mips</b> <br>" +
-                    "NL<br>" +
-                    "</pre><br>" +
-                    "<b> " + langMessage[userLang || lang].nl + "</b> <br>" +
-                    langMessage[userLang || lang].empty + ": <br>" +
-                    "<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
-                    "{/" + relation.as + "}</pre><br><br>";
+                            "<p> " + langMessage[userLang || lang].example + ":<br>" +
+                            "<pre>{#" + relation.as + "}<br>" +
+                            "    {variable}<br>" +
+                            "{/" + relation.as + "}" +
+                            "</p></pre><hr>" +
+                            "<i class='fa fa-exclamation-circle' style='color:orange'></i> " + langMessage[userLang || lang].whereIsNL + ": <br>" +
+                            " <pre>" +
+                            "{<br>" +
+                            langMessage[userLang || lang].one + ": [{" + langMessage[userLang || lang].name + ": 'New'}]<br>" +
+                            langMessage[userLang || lang].two + ": [{" + langMessage[userLang || lang].name + ": 'Mips'}]<br>" +
+                            "}</pre><br>" +
+                            langMessage[userLang || lang].output + ": " +
+                            " <pre>" +
+                            "NL<br>" +
+                            "  <b>New</b> <br>" +
+                            "NL <br>" +
+                            "NL <br>" +
+                            "  <b>Mips</b> <br>" +
+                            "NL<br>" +
+                            "</pre><br>" +
+                            "<b> " + langMessage[userLang || lang].nl + "</b> <br>" +
+                            langMessage[userLang || lang].empty + ": <br>" +
+                            "<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
+                            "{/" + relation.as + "}</pre><br><br>";
                 var entity = relation.target.replace('e_', '');
                 result.push({
                     id: i + 1,
@@ -262,7 +264,7 @@ module.exports = {
         }
         return result;
     },
-    buildInclude: function(entity, f_exclude_relations, models) {
+    buildInclude: function (entity, f_exclude_relations, models) {
         var result = [];
         var options = require('../models/options/' + entity.toLowerCase() + '.json');
         f_exclude_relations = (f_exclude_relations || '').split(',');
@@ -281,9 +283,9 @@ module.exports = {
         }
         return result;
     },
-    buildHTMLHelpEntitiesAjax: function(entities, userLang) {
+    buildHTMLHelpEntitiesAjax: function (entities, userLang) {
         var html = '';
-        entities.forEach(function(entity) {
+        entities.forEach(function (entity) {
             html += '<div class="panel box" style="border-top-color:' + entity.color + '">';
             html += '   <div class="box-header with-border">';
             html += '             <h4 class="box-title">';
@@ -306,7 +308,7 @@ module.exports = {
             html += '                         </tr>';
             html += '                    </thead>';
             html += '                    <tbody>';
-            entity.attributes.forEach(function(attribute) {
+            entity.attributes.forEach(function (attribute) {
                 html += '            <tr>';
                 html += '            <td><span class="badge bg-red">' + entity.entity + '</span></td>';
                 html += '            <td><span>' + attribute + '</span></td>';
@@ -335,7 +337,7 @@ module.exports = {
         });
         return html;
     },
-    buildHTMLGlobalVariables: function(userLang) {
+    buildHTMLGlobalVariables: function (userLang) {
         var html = '';
         var l = userLang || lang;
         var formatDate = 'DD/MM/YYYY';
@@ -356,7 +358,7 @@ module.exports = {
         html += '                         </tr>';
         html += '                    </thead>';
         html += '                    <tbody>';
-        this.globalVariables.forEach(function(g) {
+        this.globalVariables.forEach(function (g) {
             html += '<tr>';
             html += '<td>' + g.name + '</td>';
             html += '<td>{' + g.name + '}</td>';
@@ -366,15 +368,15 @@ module.exports = {
         });
         return html;
     },
-    randomColor: function(size) {
+    randomColor: function (size) {
         var text = "";
         var possible = "abcdef0123456789";
         for (var i = 0; i < size; i++)
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         return text;
     },
-    generateDoc: function(options) {
-        return new Promise(function(resolve, reject) {
+    generateDoc: function (options) {
+        return new Promise(function (resolve, reject) {
             switch (options.mimeType) {
                 case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
                     resolve(generateDocxDoc(options));
@@ -394,22 +396,22 @@ module.exports = {
     }
 };
 function generateHtmlToPDF(options) {
-    return new Promise(function(resolve, reject) {
-        options.data.staticImagePath = __dirname+'/../doc/images';
+    return new Promise(function (resolve, reject) {
+        options.data.staticImagePath = __dirname + '/../doc/images';
 
         var dustSrc = fs.readFileSync(options.file, 'utf8');
-        dust.renderSource(dustSrc, options.data, function(err, html) {
+        dust.renderSource(dustSrc, options.data, function (err, html) {
             if (err)
                 return reject(err);
 
-            var tmpFileName = __dirname+'/../'+new Date().getTime()+''+(Math.floor(Math.random() * Math.floor(100)))+'.pdf';
+            var tmpFileName = __dirname + '/../' + new Date().getTime() + '' + (Math.floor(Math.random() * Math.floor(100))) + '.pdf';
 
             var headerStartIdx = html.indexOf('<!--HEADER-->');
-            var headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx+('<!--HEADER-->'.length))+('<!--HEADER-->'.length);
+            var headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx + ('<!--HEADER-->'.length)) + ('<!--HEADER-->'.length);
             var header = html.substring(headerStartIdx, headerEndIdx);
 
             var footerStartIdx = html.indexOf('<!--FOOTER-->');
-            var footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx+('<!--FOOTER-->'.length))+('<!--FOOTER-->'.length);
+            var footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx + ('<!--FOOTER-->'.length)) + ('<!--FOOTER-->'.length);
             var footer = html.substring(footerStartIdx, footerEndIdx);
 
             pdf.create(html, {
@@ -427,11 +429,11 @@ function generateHtmlToPDF(options) {
                 footer: {
                     contents: footer
                 }
-            }).toFile(tmpFileName, function(err, data) {
+            }).toFile(tmpFileName, function (err, data) {
                 if (err)
                     return reject(err);
 
-                fs.readFile(tmpFileName, function(err, data) {
+                fs.readFile(tmpFileName, function (err, data) {
                     if (!err)
                         resolve({
                             buffer: data,
@@ -439,8 +441,8 @@ function generateHtmlToPDF(options) {
                             ext: '.pdf'
                         });
 
-                    fs.unlinkSync(tmpFileName, function(err) {
-                        console.error('Unable to delete file '+tmpFileName+' after pdf generation');
+                    fs.unlinkSync(tmpFileName, function (err) {
+                        console.error('Unable to delete file ' + tmpFileName + ' after pdf generation');
                     });
                     return reject(err);
                 });
@@ -448,17 +450,15 @@ function generateHtmlToPDF(options) {
         });
     });
 }
-var generateDocxDoc = function(options) {
-    return new Promise(function(resolve, reject) {
-        require('fs').readFile(options.file, function(err, content) {
+var generateDocxDoc = function (options) {
+    return new Promise(function (resolve, reject) {
+        fs.readFile(options.file, function (err, content) {
             if (!err) {
-                var JSZip = require('jszip');
-                var Docxtemplater = require('docxtemplater');
                 try {
                     var zip = new JSZip(content);
                     var doc = new Docxtemplater();
                     var templateOptions = {
-                        nullGetter: function(part, scope) {
+                        nullGetter: function (part, scope) {
                             if (part && part.value) {
                                 var parts = part.value.split('.');
                                 if (parts.length)
@@ -474,10 +474,10 @@ var generateDocxDoc = function(options) {
                     try {
                         doc.render();
                         var buf = doc.getZip()
-                            .generate({
-                                type: 'nodebuffer',
-                                compression: "DEFLATE"
-                            });
+                                .generate({
+                                    type: 'nodebuffer',
+                                    compression: "DEFLATE"
+                                });
                         resolve({
                             buffer: buf,
                             contentType: "application/msword",
@@ -496,12 +496,11 @@ var generateDocxDoc = function(options) {
         });
     });
 };
-var generatePDFDoc = function(options) {
-    return new Promise(function(resolve, reject) {
-        var pdfFiller = require('fill-pdf');
+var generatePDFDoc = function (options) {
+    return new Promise(function (resolve, reject) {
         var sourcePDF = options.file;
         var pdfData = buildPDFJSON(options.entity, options.data);
-        pdfFiller.generatePdf(pdfData, sourcePDF, ["flatten"], function(err, out) {
+        pdfFiller.generatePdf(pdfData, sourcePDF, ["flatten"], function (err, out) {
             if (err)
                 reject({
                     message: langMessage[options.lang || lang].failToFillPDF
@@ -516,7 +515,7 @@ var generatePDFDoc = function(options) {
         });
     });
 };
-var buildPDFJSON = function(entityRoot, data) {
+var buildPDFJSON = function (entityRoot, data) {
     var result = {};
     var relationsOptions = require('../models/options/' + entityRoot.toLowerCase() + '.json');
     for (var item in data) {
@@ -536,14 +535,14 @@ var buildPDFJSON = function(entityRoot, data) {
 };
 
 // Get value in json object
-var getValue = function(itemPath /*array*/ , data, scope /*where value is expected*/ ) {
+var getValue = function (itemPath /*array*/, data, scope /*where value is expected*/) {
     try {
         var i = 0;
         var key = itemPath[i];
         if (scope && scope.scopePath &&
-            scope.scopePathItem &&
-            scope.scopePath.length &&
-            scope.scopePath.length === scope.scopePathItem.length) {
+                scope.scopePathItem &&
+                scope.scopePath.length &&
+                scope.scopePath.length === scope.scopePathItem.length) {
             //Go to data scope  before search value
             for (var j = 0; j < scope.scopePath.length; j++)
                 data = data[scope.scopePath[j]][scope.scopePathItem[j]];
@@ -561,7 +560,7 @@ var getValue = function(itemPath /*array*/ , data, scope /*where value is expect
 
         // Formatting date directly in the output, usefull for 3 and more level include data
         // TODO: FR / EN Differenciation
-        if(typeof data === "object" && moment(new Date(data)).isValid()){
+        if (typeof data === "object" && moment(new Date(data)).isValid()) {
             data = moment(new Date(data)).format("DD/MM/YYYY");
         }
 
@@ -572,7 +571,7 @@ var getValue = function(itemPath /*array*/ , data, scope /*where value is expect
     }
 };
 
-var format_tel = function(tel, separator) {
+var format_tel = function (tel, separator) {
     var formats = {
         "0": [2, 2, 2, 2, 2, 2],
         "33": [3, 1, 2, 2, 2, 2],
@@ -591,7 +590,7 @@ var format_tel = function(tel, separator) {
     if (str.startsWith("00"))
         format = formats["0033"];
     if (format.length) {
-        format.forEach(function(jump) {
+        format.forEach(function (jump) {
             newstr.push(str.substring(i, jump + i));
             i += jump;
         });
@@ -600,7 +599,7 @@ var format_tel = function(tel, separator) {
         return str;
 };
 
-var setEnumValue = function(object, enumItem, entityName, fileType, userLang) {
+var setEnumValue = function (object, enumItem, entityName, fileType, userLang) {
     var values = enums_radios[entityName][enumItem];
     if (typeof values !== "undefined") {
         for (var i = 0; i < values.length; i++) {
@@ -618,7 +617,7 @@ var setEnumValue = function(object, enumItem, entityName, fileType, userLang) {
     }
 };
 
-var setCreatedAtAndUpdatedAtValues = function(resultToReturn, object, userLang) {
+var setCreatedAtAndUpdatedAtValues = function (resultToReturn, object, userLang) {
     var defaultDateFormat = userLang === 'fr-FR' ? 'DD/MM/YYYY HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
     if (object.createdAt)
         resultToReturn.createdAt = moment(new Date(object.createdAt)).format(defaultDateFormat);
