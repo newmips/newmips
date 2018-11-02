@@ -109,6 +109,11 @@
 						<a class="btn btn-app" href="/import">
 							<i class="fa fa-hdd-o"></i>{@__ key="home.directlinks.import"/}
 						</a>
+						{@isAdmin}
+							<a class="btn btn-app" href="/users">
+								<i class="fa fa-users"></i>{@__ key="menu.users"/}
+							</a>
+						{/isAdmin}
 						<a class="btn btn-app" href="/settings">
 							<i class="fa fa-cog"></i>{@__ key="menu.settings"/}
 						</a>

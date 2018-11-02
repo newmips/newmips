@@ -53,7 +53,7 @@ app.use(morgan('dev', {
     skip: function(req, res) {
         // Empeche l'apparition de certain log polluant.
         var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/"];
-        var currentURL = req.url;
+        var currentURL = req.originalUrl;
         if (currentURL.indexOf("?") != -1) {
             // Remove params from URL
             currentURL = currentURL.split("?")[0];
@@ -164,11 +164,13 @@ app.use(function(req, res, next) {
         else
             return false;
     }
+    dust.helpers.isAdmin = function(chunk, context, bodies, params) {
+        if(req.session.passport.user.id_role == 1)
+            return true;
+        return false;
+    }
     dust.filters.stringify = function(value) {
         return JSON.stringify(value);
-    };
-    dust.filters.parse = function(value) {
-        return JSON.parse(value);
     };
 
     res.locals.globalConf = globalConf;

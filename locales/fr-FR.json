@@ -41,7 +41,8 @@
         "users": "Users",
         "logs": "Logs",
         "account": "Mon compte",
-        "themes": "Mes thèmes"
+        "themes": "Mes thèmes",
+        "users": "Utilisateurs"
     },
     "button": {
         "generate": "Générer",
@@ -451,5 +452,15 @@
         "add-theme": "Déposer un thème",
         "wrongExt": "Seul les .zip sont accepté.",
         "default": "Thème par défaut"
+    },
+    "users":{
+        "title": "Utilisateur",
+        "login": "Identifiant",
+        "email": "Email",
+        "role": "Rôle",
+        "applications": "Applications",
+        "enabled": "Activé",
+        "last_name": "Nom",
+        "phone": "Téléphone"
     }
 }

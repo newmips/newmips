@@ -51,8 +51,7 @@ passport.use(new LocalStrategy({
                     level: "error"
                 }];
                 return done(null, false);
-            }
-            else{
+            } else {
                 return done(null, user);
             }
         });
