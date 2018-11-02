@@ -871,8 +871,14 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
         if (recurInstructions.length == idx) {
             structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
                 docBuilder.build(req.session.id_application);
-                res.redirect('/application/preview?id_application=' + req.session.id_application);
-            });
+                models.Application.findByPk(req.session.id_application).then(createdApp => {
+                    // If connected is admin, then add only him. If not, add admin and current user
+                    let userToAdd = req.session.passport.user.id == 1 ? 1 : [req.session.passport.user.id, 1];
+                    createdApp.addUser(userToAdd).then(() => {
+                        res.redirect('/application/preview?id_application=' + req.session.id_application);
+                    })
+                })
+            })
             return;
         }
 

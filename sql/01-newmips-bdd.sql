@@ -179,6 +179,21 @@ CREATE TABLE IF NOT EXISTS `component_data_entity` (
   KEY `id_entity` (`id_entity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `application_user`
+--
+
+CREATE TABLE `application_user` (
+  `id_application` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `application_user`
+  ADD PRIMARY KEY (`id_application`,`id_user`),
+  ADD KEY `id_user` (`id_user`);
+
 --
 -- Constraints for dumped tables
 --
@@ -226,6 +241,10 @@ ALTER TABLE `component`
 ALTER TABLE `component_data_entity`
   ADD CONSTRAINT `fk_component_data_entity_component` FOREIGN KEY (`id_component`) REFERENCES `component` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_component_data_entity_data_entity` FOREIGN KEY (`id_entity`) REFERENCES `data_entity` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `application_user`
+  ADD CONSTRAINT `application_user_ibfk_1` FOREIGN KEY (`id_application`) REFERENCES `application` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `application_user_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

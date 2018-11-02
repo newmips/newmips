@@ -1,0 +1,160 @@
+{>"main_layout"/}
+{<title}
+	{@__ key="menu.application"/}<small>{@__ key="menu.module"/}</small>
+{/title}
+{<custom_css}
+	<link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+{/custom_css}
+{<content}
+	<legend>{@__ key="listApplication.legend"/}</legend>
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box-body">
+				<br>
+				{#projects}
+					<div class="col-lg-offset-2 col-lg-8">
+						<div class="box box-solid box-default">
+							<div class="box-header bg-primary">
+								<h3 class="box-title" style="color: #fff;">
+									{@__ key="project.label"/}: {displayName}
+								</h3>
+							</div>
+							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;">
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="table-responsive">
+											<table class="table no-margin">
+												<thead>
+													<tr>
+														<th>{@__ key="listApplication.id"/}</th>
+														<th>{@__ key="listApplication.name"/}</th>
+														<th>{@__ key="listApplication.nbModules"/}</th>
+														<th>URL</th>
+														<th colspan="2" class="text-center">{@__ key="listApplication.action"/}</th>
+													</tr>
+												</thead>
+												<tbody>
+													{#Applications}
+														<tr>
+															<td>{id}</td>
+															<td>{displayName}</td>
+															<td>{Modules.length}</td>
+															<td>{dataValues.url}</td>
+															<td class="text-center">
+																<a class="btn btn-info" href="/application/preview?id_application={id}">
+																	<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+																	<span>{@__ key="button.preview"/}</span>
+																</a>
+															</td>
+															<td class="text-center">
+																<form class="deleteAppForm">
+																	<button class="btn btn-danger">
+																		<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+																		<span>{@__ key="button.delete"/}</span>
+																	</button>
+																	<input type="hidden" name="instruction" value="delete application {id}" />
+																</form>
+															</td>
+														</tr>
+													{/Applications}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="box-footer">
+								<form class="deleteProjectForm">
+									<button class="btn btn-danger">
+										<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+										<span>{@__ key="button.delete"/}</span>
+									</button>
+									<input type="hidden" name="instruction" value="delete project {id}" />
+								</form>
+							</div>
+						</div>
+					</div>
+				{/projects}
+			</div>
+		</div>
+	</div>
+{/content}
+
+{<custom_js}
+	<script type="text/javascript">
+		function deleteApplication(formArray, index) {
+			return new Promise(function(resolve, reject) {
+				(function(arr, idx){
+					$(document.body).css({cursor: 'wait'});
+					var tr = $(arr[idx]).parents('tr');
+					$.ajax({
+						url: '/application/execute',
+						method: 'post',
+						data: {instruction: $(arr[idx]).find('input[name="instruction"]').val()},
+						success: function() {
+							$(tr).remove();
+							$(".deleteProjectForm").children("button").prop("disabled", false);
+							$(".deleteAppForm").children("button").prop("disabled", false);
+						},
+						complete: function() {
+							$(document.body).css({cursor: 'default'});
+							if (arr.length == 1) {
+								toastr.success("{__('listApplication.appDelete')}");
+								return resolve();
+							}
+							return (arr[++idx]) ? resolve(deleteApplication(arr, idx)) : resolve();
+						}
+					});
+				})(formArray, index);
+			});
+		}
+
+		let sureToDelete = '{@__ key="listApplication.sureToDelete"/}';
+		let loading = '{@__ key="listApplication.loading"/}';
+		let projectDelete = '{@__ key="listApplication.projectDelete"/}';
+		$(function() {
+			/* Delete Project */
+			$(".deleteProjectForm").submit(function() {
+				var confirm = window.confirm(sureToDelete);
+				if(confirm){
+					var self = this;
+					/* Get all application delete form */
+					var appForms = $(self).parents('.box').find("tbody tr form");
+					$(this).children("button").html(loading);
+
+					/* Disabled all button to prevent mutli click that may cause issue */
+					$(".deleteProjectForm").children("button").prop("disabled", true);
+					$(".deleteAppForm").children("button").prop("disabled", true);
+
+					$(document.body).css({cursor: 'wait'});
+					$.ajax({
+						url: '/application/execute',
+						method: 'post',
+						data: {instruction: $(self).find("input[name='instruction']").val()},
+						success: function() {
+							toastr.success(projectDelete);
+							$(self).parents('.col-lg-8').remove();
+							$(document.body).css({cursor: 'default'});
+							$(".deleteProjectForm").children("button").prop("disabled", false);
+							$(".deleteAppForm").children("button").prop("disabled", false);
+						}
+					});
+
+					return false;
+				}
+			});
+
+			/* Delete application */
+			$(".deleteAppForm").submit(function(){
+				var confirm = window.confirm("{__('listApplication.sureToDelete')}");
+				if(confirm){
+					$(this).children("button").html("{__('listApplication.loading')}");
+					$(".deleteProjectForm").children("button").prop("disabled", true);
+					$(".deleteAppForm").children("button").prop("disabled", true);
+					deleteApplication([$(this)], 0);
+					return false;
+				}
+			});
+		});
+	</script>
+{/custom_js}

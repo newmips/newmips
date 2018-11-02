@@ -207,10 +207,21 @@ router.get('/reset_password', block_access.loginAccess, function(req, res) {
 
 // Reset password - Generate token, insert into DB, send email
 router.post('/reset_password', block_access.loginAccess, function(req, res) {
-    var login_user = req.body.login;
-    var given_mail = req.body.mail;
+    // Check if user with login + email exist in DB
+    models.User.findOne({
+        where: {
+            login: req.body.login,
+            email: req.body.mail
+        }
+    }).then(function(user){
+        if(!user){
+            req.session.toastr = [{
+                message: "login.first_connection.userNotExist",
+                level: "error"
+            }];
+            return res.render('login/reset_password');
+        }
 
-    function resetPasswordProcess(idUser, email) {
         // Create unique token and insert into user
         var token = crypto.randomBytes(64).toString('hex');
 
@@ -218,15 +229,14 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             token_password_reset: token
         }, {
             where: {
-                id: idUser
+                id: user.id
             }
         }).then(function(){
             // Send email with generated token
             mail.sendMail_Reset_Password({
-                mail_user: email,
+                mail_user: user.email,
                 token: token
             }).then(function(success) {
-
                 req.session.toastr = [{
                     message: "login.emailResetSent",
                     level: "success"
@@ -238,7 +248,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                     token_password_reset: null
                 }, {
                     where: {
-                        id: idUser
+                        id: user.id
                     }
                 }).then(function(){
                     req.session.toastr = [{
@@ -255,32 +265,14 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             }];
             res.render('login/reset_password');
         });
-    }
-
-    models.User.findOne({
-        where: {
-            login: login_user,
-            email: given_mail
-        }
-    }).then(function(user){
-        if(user){
-            resetPasswordProcess(user.id, user.email);
-        }
-        else{
-            req.session.toastr = [{
-                message: "login.first_connection.userNotExist",
-                level: "error"
-            }];
-            res.render('login/reset_password');
-        }
     }).catch(function(err){
         req.session.toastr = [{
             message: err.message,
             level: "error"
         }];
         res.render('login/reset_password');
-    });
-});
+    })
+})
 
 router.get('/reset_password_form/:token', block_access.loginAccess, function(req, res) {
 
@@ -398,15 +390,7 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
 });
 
 router.get('/login', block_access.loginAccess, function(req, res) {
-
-    var redirect = req.params.redirect;
-    if (typeof redirect === 'undefined') {
-        redirect = "/default/home";
-    }
-
-    res.render('login/login', {
-        redirect: redirect
-    });
+    res.render('login/login');
 });
 
 // Process the login form

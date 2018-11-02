@@ -17,20 +17,6 @@ var re = /(?:\.([^.]+))?$/;
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
-router.get('/:id_application', block_access.isLoggedIn, function(req, res) {
-    var data = {};
-    var id_application = req.params.id_application;
-    var workspacePath = __dirname + "/../workspace/" + id_application + "/";
-    var folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
-    /* Sort folder first, file after */
-    folder = helpers.sortEditorFolder(folder);
-    data.workspaceFolder = folder;
-    data.idApplication = id_application;
-    if(typeof req.session.id_application === "undefined")
-    	req.session.id_application = id_application;
-    res.render("front/editor", data);
-});
-
 router.post('/load_file', block_access.isLoggedIn, function(req, res) {
 	var data = {};
 	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");

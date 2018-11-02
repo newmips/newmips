@@ -43,13 +43,16 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
                     data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
 
                 res.render('front/home', data);
-            });
+            }).catch(function(err){
+                res.render('common/error', {code: 500});
+            })
         }).catch(function(err){
-            data.code = 500;
-            res.render('common/error', data);
-        });
-    });
-});
+            res.render('common/error', {code: 500});
+        })
+    }).catch(function(err){
+        res.render('common/error', {code: 500});
+    })
+})
 
 // AJAX loading applications from a choosen project ( To fill select in home )
 router.post('/get_applications_by_project', block_access.isLoggedIn, function(req, res){
