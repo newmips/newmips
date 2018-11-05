@@ -271,16 +271,17 @@ module.exports = {
         for (var i = 0; i < options.length; i++) {
             var found = false;
             var target = options[i].target.toLowerCase();
-            var subEntity = target.charAt(0).toUpperCase() + target.slice(1);
             for (var j = 0; j < parts_of_exclude_relations.length; j++) {
-                if ((options[i].target === 'e_' + parts_of_exclude_relations[j].toLowerCase()) || (options[i].target === 'c_' + parts_of_exclude_relations[j].toLowerCase()))
+                if (parts_of_exclude_relations[j] && options[i].target === parts_of_exclude_relations[j].toLowerCase())
                     found = true;
             }
-            if (!found)
+            if (!found) {
+                var subEntity = target.charAt(0).toUpperCase() + target.slice(1);
                 result.push({
                     model: models[subEntity],
                     as: options[i].as
                 });
+            }
         }
         return result;
     },
