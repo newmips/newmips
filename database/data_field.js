@@ -127,6 +127,7 @@ exports.listDataField = function(attr, callback) {
         order: [["id", "DESC"]],
         include: [{
             model: models.DataEntity,
+            required: true,
             include: [{
                 model: models.Module,
                 required: true,
@@ -138,17 +139,17 @@ exports.listDataField = function(attr, callback) {
                 }]
             }]
         }]
-    }).then(function(dataFields) {
+    }).then(function(fields) {
 
         var info = {};
         info.message = "<br><ul>";
-        if (!dataFields)
+        if (!fields)
             info.message = info.message + "-\n";
         else
-            for (var i = 0; i < dataFields.length; i++)
-                info.message += "<li>" + dataFields[i].DataEntity.Module.name + " | " + dataFields[i].DataEntity.name + " | " + dataFields[i].name + "(" + dataFields[i].id + ")</li>";
+            for (var i = 0; i < fields.length; i++)
+                info.message += "<li>" + fields[i].DataEntity.Module.name + " | " + fields[i].DataEntity.name + " | " + fields[i].name + "(" + fields[i].id + ")</li>";
         info.message += "</ul>";
-        info.rows = dataFields;
+        info.rows = fields;
         callback(null, info);
     }).catch(function(err) {
         callback(err, null);
