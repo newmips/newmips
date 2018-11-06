@@ -318,15 +318,16 @@ exports.newContactForm = function (attr, callback) {
     delete require.cache[require.resolve(mailConfigPath)];
     var mailConfig = require(mailConfigPath);
 
+    let isSecure = mailConfig.transport.secure ? 1 : 0;
     var insertSettings = "INSERT INTO `" + idApp + "_" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
-            " VALUES(1,'" + mailConfig.transport.host + "'," +
-            "'" + mailConfig.transport.port + "'," +
-            mailConfig.transport.secure ? 1 : 0 + "," +
-            "'" + mailConfig.transport.auth.user + "'," +
-            "'" + mailConfig.transport.auth.pass + "'," +
-            "'" + mailConfig.administrateur + "'," +
-            "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "'," +
-            "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "');";
+        " VALUES(1,'" + mailConfig.transport.host + "'," +
+        "'" + mailConfig.transport.port + "'," +
+        isSecure + "," +
+        "'" + mailConfig.transport.auth.user + "'," +
+        "'" + mailConfig.transport.auth.pass + "'," +
+        "'" + mailConfig.administrateur + "'," +
+        "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "'," +
+        "'" + moment().format("YYYY-MM-DD HH:mm:ss") + "');";
 
     toSyncObject.queries.push(insertSettings);
     fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSyncObject, null, 4));
