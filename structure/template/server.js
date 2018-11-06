@@ -58,8 +58,13 @@ app.use(express.static(__dirname + '/public'));
 // Set up API documentation access
 app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
 
-// Log every request to the console
-app.use(morgan('dev'));
+// Log every request (not /) to the console
+app.use(morgan('dev', {
+    skip: function(req, res) {
+        if(req.url == "/")
+        	return true;
+    }
+}));
 
 // Read cookies (needed for auth)
 app.use(cookieParser());
