@@ -22,7 +22,7 @@
                             </a>
                         </li>
                         <li>
-                            <a data-toggle="tab" href="#applications">
+                            <a id="applications-click" data-toggle="tab" href="#applications">
                                 {@__ key="users.applications"/}
                             </a>
                         </li>
@@ -105,15 +105,19 @@
                                 </div>
                             </div>
                             <div id="applications" class="tab-pane fade in">
-                                <div class="col-xs-12">
-                                    <form action="/users/assign" method="POST">
-                                        <select name="app">
-                                            {#applications}
+                                <form action="/users/assign" method="POST">
+                                    <label>Donner l'accès aux applications:</label>
+                                    <div class="input-group">
+                                        <select required multiple name="app" class="form-control select" style="width: 300px;">
+                                            {#otherApp}
                                                 <option value="{id}">{id} - {displayName}</option>
-                                            {/applications}
+                                            {/otherApp}
                                         </select>
-                                    </form>
-                                </div>
+                                        <input type="hidden" name="id_user" value="{user.id}">
+                                        <button style="margin-left: 10px;" class="btn btn-primary" type="submit">Donner accès</button>
+                                    </div>
+                                </form>
+                                <br>
                                 <table id="table_applications" class="dataTable table table-bordered table-striped">
                                     <thead class="main">
                                         <tr class="fields">
@@ -123,7 +127,7 @@
                                             <th data-field="displayName" data-col="displayName" data-type="string">
                                                 {@__ key="application.label"/}
                                             </th>
-                                            <th>Action</th>
+                                            <th style="width:20%;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -132,12 +136,20 @@
                                                 <td data-field="id" data-type="string">{id}</td>
                                                 <td data-field="login" data-type="string">{displayName}</td>
                                                 <td>
-                                                    <a href="application/preview?id_application={id}" target="_blank">
+                                                    <a class="pull-left" href="/application/preview?id_application={id}" target="_blank">
                                                         <button class="btn btn-info">
                                                             <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
                                                             <span>{@__ key="button.show"/}</span>
                                                         </button>
-                                                    </a>
+                                                    </a>&nbsp;&nbsp;&nbsp;
+                                                    <form class="pull-left" action="/users/remove_access" method="POST" style="margin-left: 10px;">
+                                                        <input type="hidden" name="id_app" value="{id}">
+                                                        <input type="hidden" name="id_user" value="{user.id}">
+                                                        <button class="btn btn-danger">
+                                                            <i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
+                                                            <span>{@__ key="button.remove"/}</span>
+                                                        </button>
+                                                    </form>
                                                 </td>
                                             </tr>
                                         {/Applications}
@@ -187,6 +199,15 @@
             if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
                 window.location = $(this).find('td > a.btn-show:first').attr('href');
         });
+        $("select").each(function () {
+            $(this).select2();
+        });
     });
+    /* Check url to go on tabs */
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $("#" + url.split('#')[1] + "-click").trigger("click");
+        $("html, body").animate({ scrollTop: 0 }, "fast");
+    }
 </script>
 {/custom_js}

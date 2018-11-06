@@ -58,7 +58,7 @@ app.use(morgan('dev', {
             // Remove params from URL
             currentURL = currentURL.split("?")[0];
         }
-        if (skipArray.indexOf(currentURL) != -1) {
+        if (skipArray.indexOf("/"+currentURL.split("/")[currentURL.split("/").length -1]) != -1) {
             return true;
         }
     },

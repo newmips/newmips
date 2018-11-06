@@ -8,7 +8,7 @@ var dust = require('dustjs-linkedin');
 var moment = require("moment");
 var SELECT_PAGE_SIZE = 10;
 
-router.get('/', function (req, res) {
+router.get('/', (req, res) => {
     data = {};
     models.User.findAll({include: [{all: true}]}).then(users => {
         data.users = users;
@@ -16,28 +16,86 @@ router.get('/', function (req, res) {
     })
 })
 
-router.get('/show/:id', function(req, res) {
+router.get('/show/:id', (req, res) => {
     var user_id = req.params.id;
     models.User.findOne({
         where: {
-            id: req.params.id
+            id: user_id
         },
         include: [{all: true}]
     }).then(user => {
+        let idAppUser = [];
+        for (var i = 0; i < user.Applications.length; i++)
+            idAppUser.push(user.Applications[i].id)
         models.Application.findAll({
-            include: [{
-                model: models.User,
-                where: {
-                    $ne: {
-                        id: req.params.id
-                    }
+            where: {
+                id: {
+                    $notIn: idAppUser
                 }
-            }]
+            }
         }).then(applications => {
-            res.render('users/show', {user: user, applications: applications});
+            res.render('users/show', {user: user, otherApp: applications})
         })
     })
 })
+
+router.post('/assign', (req, res) => {
+    var app = req.body.app;
+    var userId = req.body.id_user;
+    models.User.findByPk(userId).then(user => {
+        if (!user) {
+            data.code = 404;
+            console.log("User not found");
+            return res.render('common/error', data);
+        }
+
+        user.addApplication(app).then(() => {
+            res.redirect('/users/show/'+userId+"#applications");
+        }).catch((err) => {
+            data.code = 500;
+            console.log(err);
+            return res.render('common/error', data);
+        })
+    }).catch((err) => {
+        data.code = 500;
+        console.log(err);
+        return res.render('common/error', data);
+    })
+})
+
+router.post('/remove_access', (req, res) => {
+    let appId = req.body.id_app;
+    let userId = req.body.id_user;
+    let data = {};
+    models.User.findByPk(userId).then(user => {
+        if (!user) {
+            data.code = 404;
+            console.log("User not found");
+            return res.render('common/error', data);
+        }
+
+        // Get all associations
+        user.getApplications().then(applications => {
+            // Remove entity from association array
+            for (var i = 0; i < applications.length; i++)
+                if (applications[i].id == appId) {
+                    applications.splice(i, 1);
+                    break;
+                }
+
+            // Set back associations without removed entity
+            user.setApplications(applications).then(() => {
+                res.redirect('/users/show/'+userId+"#applications");
+            })
+        })
+    }).catch((err) => {
+        data.code = 500;
+        console.log(err);
+        return res.render('common/error', data);
+    })
+})
+
+
 
 // router.get('/create_form', block_access.actionAccessMiddleware("user", "create"), function (req, res) {
 //     var data = {
@@ -63,8 +121,8 @@ router.get('/show/:id', function(req, res) {
 //         res.render(view, data);
 //     }).catch(function (err) {
 //         entity_helper.error(err, req, res, "/");
-//     });
-// });
+//     })
+// })
 
 // router.post('/create', block_access.actionAccessMiddleware("user", "create"), function (req, res) {
 
@@ -98,15 +156,15 @@ router.get('/show/:id', function(req, res) {
 //                     if (typeof association['add' + modelName] !== 'undefined'){
 //                         association['add' + modelName](e_user.id).then(resolve).catch(function(err){
 //                             reject(err);
-//                         });
+//                         })
 //                     } else {
 //                         var obj = {};
 //                         obj[req.body.associationForeignKey] = e_user.id;
 //                         association.update(obj).then(resolve).catch(function(err){
 //                             reject(err);
-//                         });
+//                         })
 //                     }
-//                 });
+//                 })
 //             }));
 //         }
 
@@ -117,12 +175,12 @@ router.get('/show/:id', function(req, res) {
 //                 res.redirect(redirect);
 //             }).catch(function(err){
 //                 entity_helper.error(err, req, res, '/user/create_form');
-//             });
-//         });
+//             })
+//         })
 //     }).catch(function (err) {
 //         entity_helper.error(err, req, res, '/user/create_form');
-//     });
-// });
+//     })
+// })
 
 // router.get('/update_form', block_access.actionAccessMiddleware("user", "update"), function (req, res) {
 //     var id_e_user = req.query.id;
@@ -178,11 +236,11 @@ router.get('/show/:id', function(req, res) {
 //                 res.render('e_user/update', data);
 //         }).catch(function (err) {
 //             entity_helper.error(err, req, res, "/");
-//         });
+//         })
 //     }).catch(function (err) {
 //         entity_helper.error(err, req, res, "/");
-//     });
-// });
+//     })
+// })
 
 // router.post('/update', block_access.actionAccessMiddleware("user", "update"), function (req, res) {
 //     var id_e_user = parseInt(req.body.id);
@@ -228,14 +286,14 @@ router.get('/show/:id', function(req, res) {
 //                 res.redirect(redirect);
 //             }).catch(function (err) {
 //                 entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
-//             });
+//             })
 //         }).catch(function (err) {
 //             entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
-//         });
+//         })
 //     }).catch(function (err) {
 //         entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
-//     });
-// });
+//     })
+// })
 
 // router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'read'), function (req, res) {
 //     var alias = req.params.alias;
@@ -293,7 +351,7 @@ router.get('/show/:id', function(req, res) {
 //                                     dustData[alias].getR_children().then(function (children) {
 //                                         dustData[alias].r_children = children;
 //                                         resolve();
-//                                     });
+//                                     })
 //                                 }));
 //                             })(subentityOptions[i].as);
 //                 }
@@ -363,54 +421,27 @@ router.get('/show/:id', function(req, res) {
 //                     data: idSubentity || {},
 //                     empty: empty,
 //                     option: option
-//                 });
-//             });
+//                 })
+//             })
 //         }).catch(function (err) {
 //             console.error(err);
 //             res.status(500).send(err);
-//         });
+//         })
 //     }).catch(function (err) {
 //         console.error(err);
 //         res.status(500).send(err);
-//     });
-// });
+//     })
+// })
 
 // router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
 //     status_helper.setStatus('e_user', req.params.id_user, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
 //         res.redirect('/user/show?id=' + req.params.id_user);
 //     }).catch((err)=> {
 //         entity_helper.error(err, req, res, '/user/show?id=' + req.params.id_user);
-//     });
-// });
+//     })
+// })
 
-// router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user", "delete"), function (req, res) {
-//     var alias = req.params.alias;
-//     var idToRemove = req.body.idRemove;
-//     var idEntity = req.body.idEntity;
-//     models.E_user.findOne({where: {id: idEntity}}).then(function (e_user) {
-//         if (!e_user) {
-//             var data = {error: 404};
-//             return res.render('common/error', data);
-//         }
 
-//         // Get all associations
-//         e_user['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
-//             // Remove entity from association array
-//             for (var i = 0; i < aliasEntities.length; i++)
-//                 if (aliasEntities[i].id == idToRemove) {
-//                     aliasEntities.splice(i, 1);
-//                     break;
-//                 }
-
-//             // Set back associations without removed entity
-//             e_user['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
-//                 res.sendStatus(200).end();
-//             });
-//         });
-//     }).catch(function (err) {
-//         entity_helper.error(err, req, res, "/");
-//     });
-// });
 
 // router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("user", "create"), function (req, res) {
 //     var alias = req.params.alias;
@@ -427,17 +458,17 @@ router.get('/show/:id', function(req, res) {
 //             req.session.toastr.push({
 //                 message: 'message.create.failure',
 //                 level: "error"
-//             });
+//             })
 //             return res.redirect('/user/show?id=' + idEntity + "#" + alias);
 //         }
 
 //         e_user['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
 //             res.redirect('/user/show?id=' + idEntity + "#" + alias);
-//         });
+//         })
 //     }).catch(function (err) {
 //         entity_helper.error(err, req, res, "/");
-//     });
-// });
+//     })
+// })
 
 // router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), function (req, res) {
 //     var id_e_user = parseInt(req.body.id);
@@ -460,11 +491,11 @@ router.get('/show/:id', function(req, res) {
 //             entity_helper.remove_files("e_user", deleteObject, attributes);
 //         }).catch(function (err) {
 //             entity_helper.error(err, req, res, '/user/list');
-//         });
+//         })
 //     }).catch(function (err) {
 //         entity_helper.error(err, req, res, '/user/list');
-//     });
-// });
+//     })
+// })
 
 // router.post('/search', block_access.actionAccessMiddleware('user', 'read'), function (req, res) {
 //     var search = '%' + (req.body.search || '') + '%';
@@ -507,7 +538,7 @@ router.get('/show/:id', function(req, res) {
 //     }).catch(function (e) {
 //         console.error(e);
 //         res.status(500).json(e);
-//     });
-// });
+//     })
+// })
 
 module.exports = router;

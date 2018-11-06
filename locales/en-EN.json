@@ -50,6 +50,7 @@
         "show": "Show",
         "update": "Modify",
         "delete": "Delete",
+        "remove": "Remove",
         "create": "Create",
         "list": "List",
         "save": "Save",

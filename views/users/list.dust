@@ -33,7 +33,7 @@
                                 {@__ key="users.role"/}
                             </th>
                             <th>{@__ key="users.applications"/}</th>
-                            <th>Action</th>
+                            <th style="width:20%;">Action</th>
                         </tr>
                     </thead>
                     <tbody>

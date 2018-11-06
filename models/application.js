@@ -30,7 +30,8 @@ module.exports = (sequelize, DataTypes) => {
         })
         Application.belongsToMany(models.User, {
             foreignKey: 'id_application',
-            through: "application_user"
+            through: "application_user",
+            as: "users"
         })
     }
 
