@@ -121,10 +121,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "ean13":
         case "upc":
         case "code39":
-        case "alpha39":
         case "code128":
             var inputType = 'number';
-            if (type === "code39" || type === "alpha39" || type === "code128")
+            if (type === "code39" || type === "code128")
                 inputType = 'text';
             str += "	<div class='input-group'>\n";
             str += "		<div class='input-group-addon'>\n";
@@ -694,7 +693,6 @@ exports.setupDataField = function (attr, callback) {
             typeForDatalist = "barcode";
             break;
         case "code39":
-        case "alpha39":
         case "code128":
             typeForModel = "TEXT";
             typeForDatalist = "barcode";
@@ -885,9 +883,9 @@ exports.setRequiredAttribute = function (attr, callback) {
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
         if ($("*[data-field='" + attr.options.value + "']").length > 0) {
             if (set)
-                $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
+                $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
             else
-                $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
+                $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
 
             $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
             $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
@@ -897,9 +895,9 @@ exports.setRequiredAttribute = function (attr, callback) {
                 // Update update_fields.dust file
                 domHelper.read(pathToViews + '/update_fields.dust').then(function ($) {
                     if (set)
-                        $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
+                        $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
                     else
-                        $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
+                        $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
                     $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
 
@@ -1610,6 +1608,68 @@ exports.deleteDataField = function (attr, callback) {
                 });
             });
         }));
+
+        let optionsPath = __dirname + '/../workspace/' + idApp + '/models/options/';
+        let otherViewsPath = __dirname + '/../workspace/' + idApp + '/views/';
+        let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "hasManyPreset"];
+        fieldsFiles.push("list_fields");
+        // Looking for association with using of the deleted field
+        fs.readdirSync(optionsPath).filter(function(file) {
+            return (file.indexOf('.json') != -1);
+        }).forEach(function(file) {
+            let currentOption = JSON.parse(fs.readFileSync(optionsPath+file, "utf8"));
+            let currentEntity = file.split(".json")[0];
+            let toSave = false;
+            for (var i = 0; i < currentOption.length; i++) {
+                // If the option match with our source entity
+                if(structureTypeWithUsing.indexOf(currentOption[i].structureType) != -1 &&
+                    currentOption[i].target == name_data_entity &&
+                    typeof currentOption[i].usingField !== "undefined"){
+                    // Check if our deleted field is in the using fields
+                    for (var j = 0; j < currentOption[i].usingField.length; j++) {
+                        if(currentOption[i].usingField[j].value == name_data_field){
+                            for (var k = 0; k < fieldsFiles.length; k++){
+                                // Clean file
+                                let content = fs.readFileSync(otherViewsPath + currentEntity + '/'+fieldsFiles[k]+'.dust', "utf8")
+                                content = content.replace(new RegExp(currentOption[i].as + "." + name_data_field, "g"), currentOption[i].as + ".id");
+                                content = content.replace(new RegExp(currentOption[i].target + "." + name_data_field, "g"), currentOption[i].target + ".id_entity");
+                                fs.writeFileSync(otherViewsPath + currentEntity + '/'+fieldsFiles[k]+'.dust', content);
+                                // Looking for select in create / update / show
+                                promises.push(new Promise(function (resolve, reject) {
+                                    (function(file, option, entity){
+                                        domHelper.read(otherViewsPath + entity + '/'+file+'.dust').then(function ($) {
+                                            let el = $("select[name='"+option.as+"'][data-source='"+option.target.substring(2)+"']");
+                                            if(el.length > 0){
+                                                let using = el.attr("data-using").split(",");
+                                                if(using.indexOf(name_data_field) != -1){
+                                                    // If using is alone, then replace with id, or keep just other using
+                                                    if(using.length == 1){
+                                                        el.attr("data-using", "id")
+                                                    } else {
+                                                        using.splice(using.indexOf(name_data_field), 1)
+                                                        el.attr("data-using", using.join())
+                                                    }
+                                                    el.html(el.html().replace(new RegExp(name_data_field, "g"), "id"))
+                                                }
+                                            }
+                                            domHelper.write(otherViewsPath + entity + '/'+file+'.dust', $).then(function () {
+                                                resolve();
+                                            })
+                                        })
+                                    })(fieldsFiles[k], currentOption[i], currentEntity)
+                                }))
+                            }
+                            // Clean using
+                            currentOption[i].usingField.splice(j, 1);
+                            toSave = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(toSave)
+                fs.writeFileSync(optionsPath+file, JSON.stringify(currentOption, null, 4), "utf8");
+        });
 
         // Wait for all promises execution
         Promise.all(promises).then(function () {

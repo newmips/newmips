@@ -420,6 +420,23 @@ router.post('/search', block_access.actionAccessMiddleware('action', 'read'), fu
 
     models.E_action.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        // Format value like date / datetime / etc...
+        for (var field in attributes) {
+            for (var i = 0; i < results.rows.length; i++) {
+                for (var fieldSelect in results.rows[i]) {
+                    if(fieldSelect == field){
+                        switch(attributes[field].newmipsType) {
+                            case "date":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                break;
+                            case "datetime":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         res.json(results);
     }).catch(function (e) {
         console.error(e);

@@ -248,6 +248,7 @@ sequelize.customAfterSync = function() {
                 function execQuery(queries, idx) {
                     if (!queries[idx])
                         return resolve();
+                    console.log(queries[idx])
                     sequelize.query(queries[idx]).then(function() {
                         toSyncProdObject.queries.push(queries[idx]);
                         execQuery(queries, idx+1);
