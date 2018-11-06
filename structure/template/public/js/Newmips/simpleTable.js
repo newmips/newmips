@@ -51,6 +51,7 @@ if (lang_user == "fr-FR") {
 var tables = [];
 
 function simpleTable(table) {
+	var dom = table.data('no-dom') ? '' : 'lBfrtip';
 	var options = {
 		"responsive": true,
 		"language": str_language,
@@ -58,7 +59,7 @@ function simpleTable(table) {
 		"iDisplayLength": 50,
 		"aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
 		"bAutoWidth": false,
-		"dom": 'lBfrtip',
+		"dom": dom,
 		"buttons": [
 			{
 				extend:    'print',

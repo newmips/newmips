@@ -341,7 +341,7 @@ module.exports = {
                         var createObject = {};
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                        createObject["fk_id_"+entityName,substring(2)+"_history_" + statusName.substring(2)] = entityId;
+                        createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
                         models[historyModel].create(createObject).then(()=> {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id);
                             resolve();
@@ -351,7 +351,7 @@ module.exports = {
                         var createObject = {};
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                        createObject["fk_id_"+entityName,substring(2)+"_history_" + statusName.substring(2)] = entityId;
+                        createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
                         models[historyModel].create(createObject).then(()=> {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id);
                             reject(err);

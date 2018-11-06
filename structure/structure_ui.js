@@ -417,8 +417,10 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var insertCode = '';
     insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
     insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
-    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+', order: [["id", "DESC"]]}).then(function(result){\n';
-    insertCode += "\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': result});\n';
+    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+', order: [["id", "DESC"]], raw: true}).then(function(result){\n';
+    insertCode += "\t\t\tentity_helper.prepareDatalistResult('"+attr.entity.codeName+"', {data:result}, req.session.lang_user).then(function(preparedData) {\n"
+    insertCode += "\t\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': preparedData.data});\n';
+    insertCode += "\t\t\t});\n";
     insertCode += "\t\t});\n";
     insertCode += "\t}));\n";
     insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
@@ -448,8 +450,9 @@ exports.createWidgetLastRecords = function(attr, callback) {
                     for (var i = 0; i < attr.columns.length; i++) {
                         var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('[data-field="'+field+'"]').data('type');
-                        thead += '<th data-type="'+type+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
-                        tbody += '<td data-type="'+type+'">{'+field+'}</td>';
+                        var col = $list('[data-field="'+field+'"]').data('col')
+                        thead += '<th data-type="'+type+'" data-col="'+col+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
+                        tbody += '<td data-type="'+type+'" data-col="'+col+'">{'+field+'}</td>';
                     }
                     thead += '</tr></thead>';
                     tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
