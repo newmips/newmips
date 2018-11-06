@@ -267,19 +267,21 @@ module.exports = {
     buildInclude: function (entity, f_exclude_relations, models) {
         var result = [];
         var options = require('../models/options/' + entity.toLowerCase() + '.json');
-        f_exclude_relations = (f_exclude_relations || '').split(',');
+        var parts_of_exclude_relations = (f_exclude_relations || '').split(',');
         for (var i = 0; i < options.length; i++) {
             var found = false;
-            var subEntity = 'E_' + options[i].target.toLowerCase().replace('e_', '');
-            for (var j = 0; j < f_exclude_relations.length; j++) {
-                if (options[i].target === 'e_' + f_exclude_relations[j].toLowerCase())
+            var target = options[i].target.toLowerCase();
+            for (var j = 0; j < parts_of_exclude_relations.length; j++) {
+                if (parts_of_exclude_relations[j] && options[i].target === parts_of_exclude_relations[j].toLowerCase())
                     found = true;
             }
-            if (!found)
+            if (!found) {
+                var subEntity = target.charAt(0).toUpperCase() + target.slice(1);
                 result.push({
                     model: models[subEntity],
                     as: options[i].as
                 });
+            }
         }
         return result;
     },
