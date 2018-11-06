@@ -306,7 +306,7 @@ function initForm(context) {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
-            if ($(this).attr('data-custom-type') === 'code39' || $(this).attr('data-custom-type') === 'alpha39') {
+            if ($(this).attr('data-custom-type') === 'code39') {
                 $(this).on('keyup', function () {
                     $(this).val($(this).val().toUpperCase());
                 });
@@ -315,7 +315,7 @@ function initForm(context) {
     });
 
     //input barcode
-    $("input[data-type='code39'],input[data-type='alpha39']", context).each(function () {
+    $("input[data-type='code39']", context).each(function () {
         $(this).on('keyup', function () {
             $(this).val($(this).val().toUpperCase());
         });
@@ -478,10 +478,14 @@ function initForm(context) {
         if(typeof input !== "undefined"){
             switch(input.attr("type")) {
                 case "checkbox":
-                    input.iCheck("toggle");
+                    if(!input.prop("disabled"))
+                        input.iCheck("toggle");
                     break;
                 default:
-                    input.focus();
+                    if(!input.prop("readonly"))
+                        input.focus();
+                    else
+                        input.select();
                     break;
             }
         }
@@ -831,9 +835,7 @@ function validateForm(form) {
                         if (error)
                             message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
                         break;
-                    case 'code39':
-                    case 'alpha39':
-                        //                             var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
+                    case 'code39':                         var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
                         if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
                             message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
                             error = true;
