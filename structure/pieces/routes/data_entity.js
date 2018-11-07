@@ -30,9 +30,7 @@ router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("MODEL_NAME", req.body, include).then(function(rawData) {
+    filterDataTable("MODEL_NAME", req.body).then(function(rawData) {
         entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(function(preparedData) {
             res.send(preparedData).end();
         }).catch(function(err) {
@@ -55,42 +53,20 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     var subentityAlias = req.query.subentityAlias;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
     var subentityOptions = JSON.parse(fs.readFileSync(__dirname+"/../models/options/"+req.query.subentityModel+".json"));
-    var subentityInclude = model_builder.getDatalistInclude(models, subentityOptions, req.body.columns);
     var doPagination = req.query.paginate;
 
-    var queryAttributes = [];
+    // Build array of fields needed
+    var toInclude = [];
     for (var i = 0; i < req.body.columns.length; i++)
         if (req.body.columns[i].searchable == 'true')
-            queryAttributes.push(req.body.columns[i].data);
+            toInclude.push(req.body.columns[i].data);
+    // Get sequelize include object
+    var subentityInclude = model_builder.getIncludeFromFields(models, req.query.subentityModel, toInclude);
 
-    /* ORDER BY */
-    var order;
-    var stringOrder = req.body.columns[req.body.order[0].column].data;
-    var arrayOrder = stringOrder.split(".");
-
-    /* If there are inclusions, seperate with dot */
-    if (arrayOrder.length > 1) {
-        order = [];
-        var orderContent = [];
-        for (var j = 0; j < arrayOrder.length; j++) {
-            if (j < arrayOrder.length - 1) {
-                var modelInclude = entity_helper.searchInInclude(subentityInclude, arrayOrder[j]);
-                orderContent.push({
-                    model: models[modelInclude.model.name],
-                    as: arrayOrder[j]
-                });
-            } else {
-                /* Add the field and the order */
-                orderContent.push(arrayOrder[j]);
-                orderContent.push(req.body.order[0].dir);
-            }
-        }
-        /* Create the new order for the Sequelize request */
-        order.push(orderContent);
-    } else {
-        // Defining a simple order by
-        order = [[req.body.columns[req.body.order[0].column].data, req.body.order[0].dir]];
-    }
+    // ORDER BY
+    var order, stringOrder = req.body.columns[req.body.order[0].column].data;
+    // If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
+    order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
     var include = {
         model: models[subentityModel],
@@ -122,9 +98,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
                 data: []
             };
             for (var i = 0; i < ENTITY_NAME[subentityAlias].length; i++)
-                rawData.data.push(ENTITY_NAME[subentityAlias][i].get({
-                    plain: true
-                }));
+                rawData.data.push(ENTITY_NAME[subentityAlias][i].get({plain: true}));
 
             entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
                 res.send(preparedData).end();

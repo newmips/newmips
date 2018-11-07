@@ -107,10 +107,7 @@ router.get('/list', block_access.actionAccessMiddleware("status", "read"), funct
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
-
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("E_status", req.body, include).then(function (rawData) {
+    filterDataTable("E_status", req.body).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_status', rawData, req.session.lang_user).then(function(preparedData) {
             res.send(preparedData).end();
         });

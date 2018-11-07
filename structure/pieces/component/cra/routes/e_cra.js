@@ -171,9 +171,6 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
 });
 
 router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-
     var where = {};
     if(req.isAdmin){
         var idTeamUsers = [];
@@ -191,7 +188,7 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
         }
     }
 
-    filterDataTable("E_cra", req.body, include, where).then(function (rawData) {
+    filterDataTable("E_cra", req.body, null, where).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_cra', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
