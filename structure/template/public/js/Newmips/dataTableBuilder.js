@@ -271,7 +271,7 @@ function init_datatable(tableID, isSubDataList, doPagination) {
     // Columns rendering
     // Server's object doesn't include DB table's prefix, we need to remove it
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
-    var columnDefs = [];
+    var columnDefs = [], columnsTypes = {};
     for (var i = 0; i < columns.length; i++) {
         var objColumnDefToPush = {};
         if(columns[i].hidden){
@@ -388,10 +388,15 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                 return cellValue;
             }
         };
+
         if(columns[i].type == "password"){
             objColumnDefToPush.searchable = false;
             objColumnDefToPush.orderable = false;
         }
+
+        // Build columnsTypes. This will be added to ajax call and used sever-side in case of global search
+        columnsTypes[columns[i].data] = columns[i].type || 'string';
+
         columnDefs.push(objColumnDefToPush);
     }
 
@@ -411,7 +416,12 @@ function init_datatable(tableID, isSubDataList, doPagination) {
         "serverSide": true,
         "ajax": {
             "url": $(tableID).data('url'),
-            "type": "POST"
+            "type": "POST",
+            data: function(e) {
+                // Used for global search
+                e.columnsTypes = columnsTypes;
+                return e;
+            }
         },
         "responsive": true,
         "columns": columns,

@@ -35,8 +35,7 @@ router.get('/list', block_access.actionAccessMiddleware("inline_help", "read"), 
 router.post('/datalist', block_access.actionAccessMiddleware("inline_help", "read"), function(req, res) {
     var language = require('../services/language')(req.session.lang_user);
 
-    var include = model_builder.getDatalistInclude(models, options);
-    filterDataTable("E_inline_help", req.body, include).then(function(data) {
+    filterDataTable("E_inline_help", req.body).then(function(data) {
         for (var i = 0; i < data.data.length; i++) {
             var row = data.data[i];
             var entityTrad = 'entity.' + row.f_entity + '.label_entity';
