@@ -31,13 +31,13 @@
                         {#user}
                             <div id="home" class="tab-pane fade in active">
                                 <div id="fields" class="row">
-                                    <div data-field="id" class="col-xs-12 col-sm-4">
+                                    <div data-field="id" class="col-xs-12">
                                         <div class="form-group">
                                             <label for="id">ID</label>
                                             <input type="text" name="sourceId" value="{id}" disabled="" class="form-control"/>
                                         </div>
                                     </div>
-                                    <div data-field="login" class="col-xs-12 col-sm-4">
+                                    <div data-field="login" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="login">
                                                 {@__ key="users.login"/}&nbsp;
@@ -45,7 +45,23 @@
                                             <input class="form-control input" placeholder='{@__ key="users.login" /}' value="{login}" type="text" maxlength="255" readonly="">
                                         </div>
                                     </div>
-                                    <div data-field="last_name" class="col-xs-12 col-sm-4">
+                                    <div data-field="role" class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="role">
+                                                {@__ key="users.role" /}
+                                            </label>
+                                            <input class="form-control input" placeholder='{@__ key="users.role" /}' value="{Role.name}" type="text" readonly="">
+                                        </div>
+                                    </div>
+                                    <div data-field="first_name" class="col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="first_name">
+                                                {@__ key="users.first_name"/}&nbsp;
+                                            </label>
+                                            <input class="form-control input" placeholder='{@__ key="users.first_name" /}' value="{first_name}" type="text" maxlength="255" readonly="">
+                                        </div>
+                                    </div>
+                                    <div data-field="last_name" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="last_name">
                                                 {@__ key="users.last_name"/}&nbsp;
@@ -53,14 +69,7 @@
                                             <input class="form-control input" placeholder='{@__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" readonly="">
                                         </div>
                                     </div>
-                                    <div data-field="role" class="col-xs-12 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="role">
-                                                {@__ key="users.role" /}
-                                            </label>
-                                            <input class="form-control input" placeholder='{@__ key="users.role" /}' value="{Role.displayName}" type="text" data-type="email" readonly="">
-                                        </div>
-                                    </div>
+                                    
                                     <div data-field="phone" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="phone">
@@ -97,7 +106,7 @@
                                             <a href="/users/create" class="btn btn-success">
                                                 <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
                                             </a>&nbsp;&nbsp;
-                                            <a href="/users/list" type="submit" class="btn btn-primary">
+                                            <a href="/users" type="submit" class="btn btn-primary">
                                                 <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.list"/}</span>
                                             </a>
                                         </div>

@@ -82,6 +82,11 @@
 
 {<custom_js}
 	<script type="text/javascript">
+		let sureToDelete = '{@__ key="listApplication.sureToDelete"/}';
+		let loading = '{@__ key="listApplication.loading"/}';
+		let projectDelete = '{@__ key="listApplication.projectDelete"/}';
+		let appDelete = '{@__ key="listApplication.appDelete"/}';
+
 		function deleteApplication(formArray, index) {
 			return new Promise(function(resolve, reject) {
 				(function(arr, idx){
@@ -99,7 +104,7 @@
 						complete: function() {
 							$(document.body).css({cursor: 'default'});
 							if (arr.length == 1) {
-								toastr.success("{__('listApplication.appDelete')}");
+								toastr.success(appDelete);
 								return resolve();
 							}
 							return (arr[++idx]) ? resolve(deleteApplication(arr, idx)) : resolve();
@@ -109,9 +114,6 @@
 			});
 		}
 
-		let sureToDelete = '{@__ key="listApplication.sureToDelete"/}';
-		let loading = '{@__ key="listApplication.loading"/}';
-		let projectDelete = '{@__ key="listApplication.projectDelete"/}';
 		$(function() {
 			/* Delete Project */
 			$(".deleteProjectForm").submit(function() {
@@ -131,12 +133,20 @@
 						url: '/application/execute',
 						method: 'post',
 						data: {instruction: $(self).find("input[name='instruction']").val()},
+						context: this,
 						success: function() {
 							toastr.success(projectDelete);
 							$(self).parents('.col-lg-8').remove();
 							$(document.body).css({cursor: 'default'});
 							$(".deleteProjectForm").children("button").prop("disabled", false);
 							$(".deleteAppForm").children("button").prop("disabled", false);
+						},
+						error: function(err){
+							toastr.error(err.responseText);
+							$(document.body).css({cursor: 'default'});
+							$(".deleteProjectForm").children("button").prop("disabled", false);
+							$(".deleteAppForm").children("button").prop("disabled", false);
+							$(this).children("button").remove();
 						}
 					});
 
@@ -146,9 +156,9 @@
 
 			/* Delete application */
 			$(".deleteAppForm").submit(function(){
-				var confirm = window.confirm("{__('listApplication.sureToDelete')}");
+				var confirm = window.confirm(sureToDelete);
 				if(confirm){
-					$(this).children("button").html("{__('listApplication.loading')}");
+					$(this).children("button").html(loading);
 					$(".deleteProjectForm").children("button").prop("disabled", true);
 					$(".deleteAppForm").children("button").prop("disabled", true);
 					deleteApplication([$(this)], 0);

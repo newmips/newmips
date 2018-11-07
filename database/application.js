@@ -107,10 +107,14 @@ exports.createNewApplication = function(attr, callback) {
                 message: "database.application.create.success",
                 messageParams: [createdApp.name, createdApp.id]
             }
-            callback(null, info);
+            // If connected is admin, then add only him. If not, add admin and current user
+            let userToAdd = attr.currentUser.id == 1 ? 1 : [attr.currentUser.id, 1];
+            createdApp.addUser(userToAdd).then(() => {
+                callback(null, info);
+            })
         }).catch(function(err){
             callback(err, null);
-        });
+        })
     }
 }
 
@@ -207,5 +211,26 @@ exports.getCodeNameApplicationById = function(idApp, callback) {
             return callback(err);
         }
         callback(null, application.codeName);
+    })
+}
+
+exports.checkAccess = function(attr, callback) {
+    return new Promise((resolve, reject) => {
+        models.User.findOne({
+            where: {
+                id: attr.currentUser.id
+            },
+            include: [{
+                model: models.Application,
+                required: true,
+                where: {
+                    id: attr.options.showValue
+                }
+            }]
+        }).then(user => {
+            if(!user)
+                return resolve(false)
+            resolve(true)
+        })
     })
 }

@@ -21,13 +21,39 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
 
     models.Project.findAll({
         include: [{
-            model: models.Application
+            model: models.Application,
+            required: true,
+            include: [{
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                }
+            }]
         }]
     }).then(function(projects) {
         // Count number of available Applications
         // Get application module
-        models.Application.findAll({order: [['id', 'DESC']], limit: 3}).then(function(lastThreeApp){
-            models.Application.count().then(function(nbApp){
+        models.Application.findAll({
+            order: [['id', 'DESC']],
+            limit: 3,
+            include: [{
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                }
+            }]
+        }).then(function(lastThreeApp){
+            models.Application.count({
+                include: [{
+                    model: models.User,
+                    as: "users",
+                    where: {
+                        id: req.session.passport.user.id
+                    }
+                }]
+            }).then(function(nbApp){
                 data.projects = projects;
                 data.lastThreeApp = lastThreeApp;
                 data.nb_application = nbApp;
@@ -60,14 +86,18 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
     models.Application.findAll({
         where: {
             id_project: req.body.idProject
-        }
-    }).then(function(applications){
+        },
+        include: [{
+            model: models.User,
+            as: "users",
+            where: {
+                id: req.session.passport.user.id
+            }
+        }]
+    }).then((applications) => {
         if(applications){
-            res.json({
-                applications: applications
-            });
-        }
-        else{
+            res.json({applications: applications});
+        } else {
             res.status(500).send("Oups, something's broken.");
         }
     });

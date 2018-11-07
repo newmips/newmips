@@ -186,7 +186,8 @@
         "create": "Create a new application",
         "selectExisting": "Select an existing application",
         "plural": "Applications",
-        "not_started": "There is no application running. Select one in the list."
+        "not_started": "There is no application running. Select one in the list.",
+        "no_access": "You have no access to this application."
     },
     "module": {
         "label": "Module"
@@ -462,7 +463,20 @@
         "role": "Role",
         "applications": "Applications",
         "enabled": "Enabled",
-        "last_name": "Name",
-        "phone": "Phone"
+        "last_name": "Lastname",
+        "first_name": "Firstname",
+        "phone": "Phone",
+        "not_delete_admin": "You cannot delete the main administrator.",
+        "not_remove_admin_role": "You cannot remove the admin role from the main administrator."
+    },
+    "action": {
+        "success": {
+            "create": "Create successful",
+            "update": "Update successful",
+            "destroy": "successfully deleted."
+        },
+        "choose": "--- Choose ---",
+        "missing_values": "Some values are missing, please fill them in.",
+        "no_access_admin": "You have to be an administrator to access this page."
     }
 }
