@@ -51,30 +51,31 @@
                             </td>
                             <td>
                                 <a href="/users/show/{id}">
-                                    <button class="btn btn-info">
+                                    <button class="pull-left btn btn-info">
                                         <i class="fa fa-eye fa-md">&nbsp;&nbsp;</i>
                                         <span>{@__ key="button.show"/}</span>
                                     </button>
-                                </a>&nbsp;&nbsp;&nbsp;
+                                </a>
                                 <a href="/users/update/{id}">
-                                    <button class="btn btn-warning">
+                                    <button class="pull-left btn btn-warning" style="margin-left: 10px;">
                                         <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
                                         <span>{@__ key="button.update"/}</span>
                                     </button>
-                                </a>&nbsp;&nbsp;&nbsp;
-                                <a href="/users/delete/{id}">
-                                    <button class="btn btn-danger">
-                                        <i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
+                                </a>
+                                <form class="pull-left" action="/users/delete" method="post">
+                                    <input type="hidden" name="id" value="{id}">
+                                    <button class="btn btn-danger btn-confirm" style="margin-left: 10px;">
+                                        <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                                         <span>{@__ key="button.delete"/}</span>
                                     </button>
-                                </a>
+                                </form>
                             </td>
                         </tr>
                         {/users}
                     </tbody>
                 </table>
                 <br>
-                <a href="/users/create_form">
+                <a href="/users/create">
                     <button class="btn btn-success">
                         <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
                         <span>{@__ key="button.create"/}</span>
