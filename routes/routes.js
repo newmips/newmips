@@ -494,19 +494,13 @@ router.post('/set_slack', block_access.isLoggedIn, function(req, res) {
         }).catch(function(err) {
             console.log(err);
             res.json({
-                ok: true,
-                data: {
-                    id: slackData.channel.id
-                }
+                ok: false
             });
         })
     } catch (err) {
         console.log(err);
         res.json({
-            ok: true,
-            data: {
-                id: slackData.channel.id
-            }
+            ok: false
         });
     }
 });
