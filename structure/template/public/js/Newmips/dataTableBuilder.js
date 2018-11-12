@@ -238,13 +238,15 @@ var delay = (function() {
     };
 })();
 
-function init_datatable(tableID, isSubDataList, doPagination) {
+function init_datatable(tableID, isSubDataList, doPagination, context) {
+    if(!context)
+        context = document;
     isSubDataList = typeof isSubDataList !== 'undefined' && isSubDataList == true ? true : false;
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
     // Fetch columns from html
     var columns = [];
-    $(tableID + " .main th").each(function () {
+    $(tableID + " .main th", context).each(function () {
         if (typeof $(this).data('col') !== 'undefined'){
             if($(this).data("hidden") == "1"){
                 columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true});
@@ -410,7 +412,7 @@ function init_datatable(tableID, isSubDataList, doPagination) {
     var tableOptions = {
         "serverSide": true,
         "ajax": {
-            "url": $(tableID).data('url'),
+            "url": $(tableID, context).data('url'),
             "type": "POST"
         },
         "responsive": true,
@@ -459,17 +461,17 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                 text: '<i class="fa fa-arrow-right"></i>',
                 titleAttr: 'Scroll right',
                 action: function ( e, dt, node, config ) {
-                    $(tableID).parents(".table-responsive").animate({scrollLeft: $(tableID).width()}, 800);
+                    $(tableID, context).parents(".table-responsive").animate({scrollLeft: $(tableID, context).width()}, 800);
                 }
             }
         ]
     }
     // Global search
     tableOptions.dom = isSubDataList ? 'lBrtip' : 'lBfrtip';
-    var table = $(tableID).DataTable(tableOptions);
+    var table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
-    $(tableID+' tbody').on('click', 'td img', function () {
+    $(tableID+' tbody', context).on('click', 'td img', function () {
         var colIdx = table.cell($(this).parent()).index().column;
         if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
             var entity = tableID.replace('#table_', '');
@@ -506,7 +508,7 @@ function init_datatable(tableID, isSubDataList, doPagination) {
     if (!isSubDataList) {
         var startFilterTimer = 0;
         // Bind search fields
-        $(tableID + ' .filters th').each(function (i) {
+        $(tableID + ' .filters th', context).each(function (i) {
             var title = $(this).text();
             var mainTh = $(this);
             // Custom

@@ -257,7 +257,7 @@ function initHasMany(tab, data) {
     table.data('url', tableUrl);
 
     // DataTable
-    init_datatable('#'+table.attr('id'), true, doPagination);
+    init_datatable('#'+table.attr('id'), true, doPagination, tab);
 }
 
 // HAS MANY PRESET

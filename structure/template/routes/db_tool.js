@@ -55,7 +55,7 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
         for (var i=0; i < currentFile.length; i++) {
             if(typeof currentFile[i].through !== "undefined" && through.indexOf(currentFile[i].through) == -1){
                 through.push(currentFile[i].through);
-                entities.push({tradKey: currentFile[i].through.substring(3), tableName: currentFile[i].through});
+                entities.push({tradKey: currentFile[i].through.substring(2), tableName: currentFile[i].through});
             }
         }
     })
