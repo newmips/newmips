@@ -1314,11 +1314,99 @@ exports.createNewHasMany = function (attr, callback) {
         var info = {};
         var toSync = true;
         var optionsObject;
-        function structureCreation(attr, callback) {
+
+        // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
+        let checkExistEntity = new Promise((resolve, reject) => {
+            db_entity.selectEntityTarget(attr, function (err, dataEntity) {
+                // Si l'entité target n'existe pas, on la crée
+                if (err) {
+                    //Si c'est bien l'error de data entity qui n'existe pas
+                    if (err.level == 0) {
+                        db_entity.createNewEntityTarget(attr, function (err, created_dataEntity) {
+                            if (err) {
+                                return reject(err);
+                            }
+                            // KEEP - On se dirige en sessions vers l'entité crée
+                            //info = created_dataEntity;
+
+                            // KEEP - Stay on the source entity, even if the target has been created
+                            info.insertId = attr.id_data_entity;
+
+                            info.message = "structure.association.hasMany.successSubEntity";
+                            info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
+
+                            db_module.getModuleById(attr.id_module, function (err, module) {
+                                if (err) {
+                                    return reject(err);
+                                }
+                                attr.show_name_module = module.name;
+                                attr.name_module = module.codeName;
+
+                                // Création de l'entité target dans le workspace
+                                structure_data_entity.setupDataEntity(attr, function (err, data) {
+                                    if (err) {
+                                        return reject(err);
+                                    }
+                                    var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+                                    optionsObject = JSON.parse(optionsFile);
+
+                                    console.log(" -- 1 -- ")
+                                    console.log(attr.options.target.toLowerCase())
+                                    console.log(optionsObject)
+
+                                    resolve(attr);
+                                });
+                            });
+                        });
+                    } else {
+                        reject(err);
+                    }
+                } else {
+                    // KEEP - Select the target if it already exist
+                    //info.insertId = dataEntity.id;
+                    var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+                    optionsObject = JSON.parse(optionsFile);
+                    console.log(" -- 2 -- ")
+                    console.log(attr.options.target.toLowerCase())
+                    console.log(optionsObject)
+
+                    var cptExistingHasMany = 0;
+
+                    // Check if there is no or just one belongsToMany to do
+                    for (var i = 0; i < optionsObject.length; i++) {
+                        if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+                            if (optionsObject[i].relation != "belongsToMany") {
+                                cptExistingHasMany++;
+                            }
+                        }
+                    }
+                    /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
+                    if (cptExistingHasMany > 1) {
+                        var err = new Error();
+                        err.message = "structure.association.error.tooMuchHasMany";
+                        return reject(err);
+                    }
+                    // KEEP - Stay on the source entity
+                    info.insertId = attr.id_data_entity;
+
+                    info.message = "structure.association.hasMany.successEntity";
+                    info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
+                    resolve(attr);
+                }
+            })
+        })
+
+        checkExistEntity.then(attr => {
             var doingBelongsToMany = false;
             // Vérification si une relation existe déjà de la target VERS la source
             for (var i = 0; i < optionsObject.length; i++) {
-                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+                console.log(optionsObject[i].target.toLowerCase())
+                console.log(attr.options.source.toLowerCase())
+                console.log(optionsObject[i].relation)
+                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase()
+                    && optionsObject[i].target.toLowerCase() != attr.options.target.toLowerCase()
+                    && optionsObject[i].relation != "belongsTo") {
+                    console.log("YEAH \n")
                     doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
                     belongsToMany(attr, optionsObject[i], "setupHasManyTab", exportsContext).then(function () {
@@ -1377,83 +1465,10 @@ exports.createNewHasMany = function (attr, callback) {
                     });
                 });
             }
-        }
-
-        // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
-            // Si l'entité target n'existe pas, on la crée
-            if (err) {
-                //Si c'est bien l'error de data entity qui n'existe pas
-                if (err.level == 0) {
-                    db_entity.createNewEntityTarget(attr, function (err, created_dataEntity) {
-                        if (err) {
-                            return callback(err, null);
-                        }
-                        // KEEP - On se dirige en sessions vers l'entité crée
-                        //info = created_dataEntity;
-
-                        // KEEP - Stay on the source entity, even if the target has been created
-                        info.insertId = attr.id_data_entity;
-
-                        info.message = "structure.association.hasMany.successSubEntity";
-                        info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
-
-                        db_module.getModuleById(attr.id_module, function (err, module) {
-                            if (err) {
-                                return callback(err, null);
-                            }
-                            attr.show_name_module = module.name;
-                            attr.name_module = module.codeName;
-
-                            // Création de l'entité target dans le workspace
-                            structure_data_entity.setupDataEntity(attr, function (err, data) {
-                                if (err) {
-                                    return callback(err, null);
-                                }
-                                var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
-                                optionsObject = JSON.parse(optionsFile);
-                                structureCreation(attr, callback);
-                            });
-                        });
-                    });
-                } else {
-                    callback(err, null);
-                }
-            } else {
-                // KEEP - Select the target if it already exist
-                //info.insertId = dataEntity.id;
-                var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
-                optionsObject = JSON.parse(optionsFile);
-
-                var cptExistingHasMany = 0;
-
-                // Check if there is no or just one belongsToMany to do
-                for (var i = 0; i < optionsObject.length; i++) {
-                    if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
-                        if (optionsObject[i].relation == "belongsToMany") {
-                            //var err = new Error();
-                            //err.message = "structure.association.error.alreadyBelongsToMany";
-                            //return callback(err, null);
-                        } else {
-                            cptExistingHasMany++;
-                        }
-                    }
-                }
-                /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
-                if (cptExistingHasMany > 1) {
-                    var err = new Error();
-                    err.message = "structure.association.error.tooMuchHasMany";
-                    return callback(err, null);
-                }
-                // KEEP - Stay on the source entity
-                info.insertId = attr.id_data_entity;
-
-                info.message = "structure.association.hasMany.successEntity";
-                info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
-                structureCreation(attr, callback);
-            }
-        });
-    });
+        }).catch(err => {
+            return callback(err, null);
+        })
+    })
 }
 
 // Create a tab with a select of existing object and a list associated to it
