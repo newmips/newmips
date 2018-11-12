@@ -853,7 +853,7 @@ exports.createNewComponentAddress = function (result) {
  */
 exports.createNewComponentAddressWithName = function (result) {
     var options = {
-        componentName: result[1].toLowerCase(),
+        componentName: result[1],
         instruction: result[0]
     };
     return checkAndCreateAttr("createNewComponentAddress", options, result[1]);
@@ -2401,10 +2401,11 @@ var training = {
         "ajouter un composant adresse nommé (.*)",
         "ajouter un composant adresse appelé (.*)",
         "ajouter composant adresse nommé (.*)",
-        "ajouter composant adresse appelé (.*)",
+        "ajouter composant adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
         "delete component address",
+        "supprimer composant adresse",
         "supprimer le composant adresse"
     ],
     "createComponentChat": [
