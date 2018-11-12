@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         while ((matches = regex.exec(this.f_targets)) != null) {
             var placeholderParts = matches[1].split('|');
             var userFieldPath = placeholderParts[placeholderParts.length-1];
-            valuesForInclude.push(userFieldPath);
+            valuesForInclude.push(userFieldPath+'.id');
         }
         return valuesForInclude;
     }
