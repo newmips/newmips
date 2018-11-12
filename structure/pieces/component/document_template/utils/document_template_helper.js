@@ -399,7 +399,7 @@ module.exports = {
 };
 function generateHtmlToPDF(options) {
     return new Promise(function (resolve, reject) {
-        options.data.staticImagePath = __dirname + '/../doc/images';
+        options.data.staticImagePath = __dirname + '/../public/img';
 
         var dustSrc = fs.readFileSync(options.file, 'utf8');
         dust.renderSource(dustSrc, options.data, function (err, html) {
