@@ -34,7 +34,7 @@
 						<div class="col-xs-12">
 							<h3>{@__ key="settings.tool_export" /}</h3>
 							<hr style="margin-top: 5px;">
-							<form action="/access_settings/export" method="GET" id="export_form">
+							<form action="/import_export/access_export" method="GET" id="export_form">
 								<button type="submit" class="btn btn-primary">{@__ key="settings.db_tool.export_action" /}</button>
 							</form>
 						</div>
@@ -45,10 +45,10 @@
 							<h3>{@__ key="settings.tool_import" /}</h3>
 							<hr style="margin-top: 5px;">
 							<b style="color:orange;">{@__ key="settings.tool_warning" /}</b>
-							<form action="/access_settings/import" method="POST" id="import_form">
+							<form action="/import_export/access_import" method="POST" id="import_form">
 								<div class="form-group">
 									<label for="import_file">
-										{@__ key="settings.db_tool.import_file"/}
+										{@__ key="settings.import_file_name"/}
 									</label>
 									<div class="dropzone dropzone-field" id="import_file_dropzone" data-entity="access_import"></div>
 									<input type="hidden" name="import_file" id="import_file_dropzone_hidden" required>

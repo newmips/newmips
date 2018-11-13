@@ -43,7 +43,7 @@
 						<div id="export" class="tab-pane fade in active">
 							<div class="row">
 								<div class="col-xs-12">
-									<form action="/db_tool/export" method="POST" id="export_form">
+									<form action="/import_export/db_export" method="POST" id="export_form">
 										<div class="col-xs-12">
 											<input type="checkbox" name="all_db" />&nbsp;&nbsp;{@__ key="settings.db_tool.all_db" /}<br>
 											<br>
@@ -62,7 +62,7 @@
 						<div id="import" class="tab-pane fade in">
 							<div class="row">
 								<div class="col-xs-12">
-									<form action="/db_tool/import" method="POST" id="import_form">
+									<form action="/import_export/db_import" method="POST" id="import_form">
 										<div class="col-xs-12">
 											<div class="form-group">
 											    <label for="import_file">
