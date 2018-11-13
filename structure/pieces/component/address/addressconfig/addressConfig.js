@@ -127,7 +127,11 @@ var config = {
             readonly: false,
             required: true,
             addInForm: true,
-            type: 'hidden',
+            type: {
+                create: 'hidden',
+                update: '',
+                show: ''
+            },
             max: '',
             apiField: '',
             defaultValue: '',
@@ -145,7 +149,11 @@ var config = {
             readonly: false,
             required: true,
             addInForm: true,
-            type: 'hidden',
+            type: {
+                create: 'hidden',
+                update: '',
+                show: ''
+            },
             max: '',
             apiField: '',
             defaultValue: '',

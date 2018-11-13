@@ -91,26 +91,41 @@ exports.generateFields = function (componentName, componentCodeName) {
 
             var pattern = (typeof attribute.pattern !== 'undefined' && attribute.pattern !== '') ? 'pattern="' + attribute.pattern + '"' : '';
             var defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
-            var type = typeof attribute.type !== 'undefined' ? attribute.type : 'text';
-            var display = 'block';
-            if (type === "hidden")
-                display = "none";
 
-            createHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n"
+            var type = 'text';
+            /*hide or display field on differente view,adapted for lon and lat field*/
+            var display_create = 'block', display_udpate = 'block', display_show = 'block';
+            if (typeof type !== 'undefined') {
+                if (typeof type === "object") {
+                    if (type.create === "hidden")
+                        display_create = 'none';
+                    if (type.update === "hidden")
+                        display_udpate = 'none';
+                    if (type.show === "hidden")
+                        display_show = 'none';
+                } else if (type === "hidden") {
+                    display_create = "none";
+                    display_udpate = "none";
+                    display_show = "none";
+                } else
+                    type = attribute.type;
+            }
+
+            createHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_create + "'>\n"
             createHtml += "            <div class='form-group'>\n";
             createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
             createHtml += "                <input class='input form-control c_address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + " " + defaultValue + "  type='" + type + "' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + " >\n";
             createHtml += "            </div>\n";
             createHtml += "        </div>\n";
             // Update
-            updateHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n"
+            updateHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_udpate + "'>\n"
             updateHtml += "            <div class='form-group'>\n";
             updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
             updateHtml += "                <input class='input form-control c_address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + "  type='" + type + "' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + ">\n";
             updateHtml += "            </div>\n";
             updateHtml += "        </div>\n";
             // Show
-            showFieldsHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display + "'>\n";
+            showFieldsHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_show + "'>\n";
             showFieldsHtml += "            <div class='form-group'>\n";
             showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
             showFieldsHtml += "                <input class='input form-control " + dbcolumn + " ' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
