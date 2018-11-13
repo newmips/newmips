@@ -93,7 +93,7 @@ exports.generateFields = function (componentName, componentCodeName) {
             var defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
 
             var type = 'text';
-            /*hide or display field on differente view,adapted for lon and lat field*/
+            /*Hide or display field on different views,adapted for lon and lat fields*/
             var display_create = 'block', display_udpate = 'block', display_show = 'block';
 
             if (typeof attribute.type !== 'undefined') {
