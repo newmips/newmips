@@ -15,6 +15,7 @@ var globalConfig = require('../config/global');
 var dbConfig = require('../config/database');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
+var globalConf = require('../config/global');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -25,7 +26,7 @@ var logger = require('../utils/logger');
 
 var exec = require('child_process');
 
-router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "read"), function(req, res) {
+router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "read"), function(req, res) {
     if(dbConfig.dialect != "mysql"){
         req.session.toastr = [{
             message: 'settings.db_tool.wrong_dialect',
@@ -55,22 +56,22 @@ router.get('/show', block_access.isLoggedIn, block_access.actionAccessMiddleware
         for (var i=0; i < currentFile.length; i++) {
             if(typeof currentFile[i].through !== "undefined" && through.indexOf(currentFile[i].through) == -1){
                 through.push(currentFile[i].through);
-                entities.push({tradKey: currentFile[i].through.substring(2), tableName: currentFile[i].through});
+                entities.push({tradKey: currentFile[i].through.substring(3), tableName: currentFile[i].through});
             }
         }
     })
 
     data.entities = entities;
-    res.render('db_tool/show', data);
+    res.render('import_export/db_show', data);
 })
 
-router.post('/export', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), function(req, res) {
+router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), function(req, res) {
     if(dbConfig.password != req.body.db_password){
         req.session.toastr = [{
             message: 'settings.db_tool.wrong_db_pwd',
             level: "error"
         }];
-        return res.redirect("/db_tool/show")
+        return res.redirect("/import_export/db_show")
     }
 
     var tables = [];
@@ -83,7 +84,7 @@ router.post('/export', block_access.isLoggedIn, block_access.actionAccessMiddlew
             message: 'settings.db_tool.no_choice',
             level: "error"
         }];
-        return res.redirect("/db_tool/show")
+        return res.redirect("/import_export/db_show")
     }
 
     var cmd = "mysqldump";
@@ -160,7 +161,7 @@ router.post('/export', block_access.isLoggedIn, block_access.actionAccessMiddlew
     })
 })
 
-router.post('/import', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), function(req, res) {
+router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), function(req, res) {
 
     var filename = req.body.import_file;
     if(filename == ""){
@@ -168,7 +169,7 @@ router.post('/import', block_access.isLoggedIn, block_access.actionAccessMiddlew
             message: 'settings.db_tool.file_needed',
             level: "error"
         }];
-        return res.redirect("/db_tool/show")
+        return res.redirect("/import_export/db_show")
     }
 
     var baseFile = filename.split('-')[0];
@@ -180,7 +181,7 @@ router.post('/import', block_access.isLoggedIn, block_access.actionAccessMiddlew
             level: "error"
         }];
         fs.unlinkSync(completeFilePath);
-        return res.redirect("/db_tool/show")
+        return res.redirect("/import_export/db_show")
     }
 
     var cmd = "mysql";
@@ -239,15 +240,55 @@ router.post('/import', block_access.isLoggedIn, block_access.actionAccessMiddlew
             message: 'settings.db_tool.import_success',
             level: "success"
         }];
-        res.redirect("/db_tool/show")
+        res.redirect("/import_export/db_show")
     }).catch(function(err){
         console.log(err);
         req.session.toastr = [{
             message: JSON.stringify(err),
             level: "error"
         }];
-        res.redirect("/db_tool/show")
+        res.redirect("/import_export/db_show")
     })
+})
+
+router.get('/access_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "read"), function(req, res) {
+    res.render('import_export/access_show');
+});
+
+router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), function(req, res) {
+    var dumpPath = __dirname + '/../config/access.json';
+    res.download(dumpPath, "access_conf_"+moment().format("YYYYMMDD-HHmmss")+".json", function (err) {
+        if (err){
+            console.log(err);
+            req.session.toastr.push({
+                message: err,
+                level: "error"
+            });
+            return res.redirect("/import_export/access_show");
+        }
+    })
+})
+
+router.post('/access_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), function(req, res) {
+    var src = req.body.import_file;
+    var partOfFilepath = src.split('-');
+    if (partOfFilepath.length > 1) {
+        var base = partOfFilepath[0];
+        var completeFilePath = globalConf.localstorage + 'access_import/' + base + '/' + src;
+        var newAccessJson = fs.readFileSync(completeFilePath);
+        fs.writeFileSync(__dirname + "/../config/access.json", newAccessJson);
+        req.session.toastr.push({
+            message: "settings.tool_success",
+            level: "success"
+        });
+        return res.redirect("/import_export/access_show");
+    } else {
+        req.session.toastr.push({
+            message: "An error occured.",
+            level: "error"
+        });
+        return res.redirect("/import_export/access_show");
+    }
 })
 
 module.exports = router;
