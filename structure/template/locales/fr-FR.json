@@ -35,10 +35,12 @@
     },
     "settings": {
         "title": "Gestion des accès",
-        "tool_menu": "Import / Export",
+        "tool_menu": "Fichier configuration des accès",
+        "tool_success": "Le fichier de configuration des accès a bien été importé.",
         "tool_title": "Importer / Exporter la configuration des accès",
-        "tool_export": "Exporter les accès",
-        "tool_import": "Importer les accès",
+        "tool_export": "Exporter la configuration des accès",
+        "tool_import": "Importer une configuration d'accès",
+        "import_file_name": "Fichier access.json:",
         "tool_warning": "Attention, le fichier doit etre de la même structure que le access.json actuel ! Sinon l'application ne sera plus utilisable.",
         "auth_component": {
             "access_managment": "Gestion des accès par groupe",
@@ -77,6 +79,9 @@
             "modal_password_content": "Merci de confirmer le mot de passe de la base de données:",
             "wrong_dialect": "Désolé, les outils de base de données ne fonctionne qu'avec MySQL pour le moment.",
             "no_choice": "Merci de choisir ce que vous souhaitez exporter."
+        },
+        "import_export": {
+            "title": "Import / Export"
         },
         "legend": "Modifier vos paramètres",
         "lang": "Langue",
@@ -183,7 +188,26 @@
             "action": "Imprimer"
         }
     },
-    "component": {},
+    "component": {
+        "c_db_tool": {
+            "label_component": "Outil BDD"
+        },
+        "c_access_tool": {
+            "label_component": "Fichier d'accès"
+        },
+        "c_import_export": {
+            "label_component": "Import / Export"
+        },
+        "c_access_settings_role": {
+            "label_component": "Accès des rôles"
+        },
+        "c_access_settings_group": {
+            "label_component": "Accès des groupes"
+        },
+        "c_access_settings_api": {
+            "label_component": "Accès à l'API"
+        }
+    },
     "defaults": {
         "widgets": {
             "lastrecords": {

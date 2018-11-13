@@ -335,26 +335,19 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
                                             // Manualy add settings and db_tool to access file because it's not a real entity
                                             var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
-                                            access.administration.entities.push({
-                                                name: 'access_settings',
-                                                groups: [],
-                                                actions: {
-                                                    read: [],
-                                                    create: [],
-                                                    update: [],
-                                                    delete: []
-                                                }
-                                            });
-                                            access.administration.entities.push({
-                                                name: 'db_tool',
-                                                groups: [],
-                                                actions: {
-                                                    read: [],
-                                                    create: [],
-                                                    update: [],
-                                                    delete: []
-                                                }
-                                            });
+                                            let arrayKey = ["access_settings", "db_tool", "import_export", "access_tool", "access_settings_role", "access_settings_group", "access_settings_api"]
+                                            for (var i = 0; i < arrayKey.length; i++) {
+                                                access.administration.entities.push({
+                                                    name: arrayKey[i],
+                                                    groups: [],
+                                                    actions: {
+                                                        read: [],
+                                                        create: [],
+                                                        update: [],
+                                                        delete: []
+                                                    }
+                                                });
+                                            }
                                             fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
                                             // Set role-group/user structureType to hasManyPreset to be used by ajax
@@ -369,54 +362,80 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
                                             domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
                                                 var li = '';
-                                                li += '{@entityAccess entity="db_tool"}\n';
-                                                li += '     {@actionAccess entity="db_tool" action="read"}\n';
-                                                li += '         <li id="db_tool_menu_item">\n';
-                                                li += '             <a href="/db_tool/show">\n';
-                                                li += '                 <i class="fa fa-database"></i>\n';
-                                                li += '                 <span>{@__ key="settings.db_tool.title" /}</span>\n';
-                                                li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
-                                                li += '             </a>\n';
-                                                li += '         </li>\n';
-                                                li += '     {/actionAccess}\n';
+                                                // li += '{@entityAccess entity="db_tool"}\n';
+                                                // li += '     {@actionAccess entity="db_tool" action="read"}\n';
+                                                // li += '         <li id="db_tool_menu_item">\n';
+                                                // li += '             <a href="/db_tool/show">\n';
+                                                // li += '                 <i class="fa fa-database"></i>\n';
+                                                // li += '                 <span>{@__ key="settings.db_tool.title" /}</span>\n';
+                                                // li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
+                                                // li += '             </a>\n';
+                                                // li += '         </li>\n';
+                                                // li += '     {/actionAccess}\n';
+                                                // li += '{/entityAccess}\n';
+
+                                                li += '{@entityAccess entity="import_export"}\n';
+                                                li += '     <li id="import_export_menu_item" class="treeview">\n';
+                                                li += '         <a href="#">\n';
+                                                li += '             <i class="fa fa-arrows-v"></i>\n';
+                                                li += '             <span>{@__ key="settings.import_export.title" /}</span>\n';
+                                                li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+                                                li += '         </a>\n';
+                                                li += '         <ul class="treeview-menu">\n';
+                                                li += '             {@actionAccess entity="db_tool" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/import_export/db_show">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="settings.db_tool.title" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '             {@actionAccess entity="access_tool" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/import_export/access_show">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="settings.tool_menu" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '         </ul>\n';
+                                                li += '     </li>\n';
                                                 li += '{/entityAccess}\n';
 
                                                 li += '{@entityAccess entity="access_settings"}\n';
-                                                li += '     {@actionAccess entity="access_settings" action="read"}\n';
-                                                li += '         <li id="access_settings_menu_item" class="treeview">\n';
-                                                li += '             <a href="#">\n';
-                                                li += '                 <i class="fa fa-cog"></i>\n';
-                                                li += '                 <span>{@__ key="settings.title" /}</span>\n';
-                                                li += '                 <i class="fa fa-angle-left pull-right"></i>\n';
-                                                li += '             </a>\n';
-                                                li += '             <ul class="treeview-menu">\n';
-                                                li += '                 <li>\n';
-                                                li += '                     <a href="/access_settings/show_role">\n';
-                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {@__ key="entity.e_role.label_entity" /}\n';
-                                                li += '                     </a>\n';
-                                                li += '                 </li>\n';
-                                                li += '                 <li>\n';
-                                                li += '                     <a href="/access_settings/show_group">\n';
-                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {@__ key="entity.e_group.label_entity" /}\n';
-                                                li += '                     </a>\n';
-                                                li += '                 </li>\n';
-                                                li += '                 <li>\n';
-                                                li += '                     <a href="/access_settings/show_api">\n';
-                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         API\n';
-                                                li += '                     </a>\n';
-                                                li += '                 </li>\n';
-                                                li += '                 <li>\n';
-                                                li += '                     <a href="/access_settings/tool">\n';
-                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {@__ key="settings.tool_menu" /}\n';
-                                                li += '                     </a>\n';
-                                                li += '                 </li>\n';
-                                                li += '             </ul>\n';
-                                                li += '         </li>\n';
-                                                li += '     {/actionAccess}\n';
+                                                li += '     <li id="access_settings_menu_item" class="treeview">\n';
+                                                li += '         <a href="#">\n';
+                                                li += '             <i class="fa fa-cog"></i>\n';
+                                                li += '             <span>{@__ key="settings.title" /}</span>\n';
+                                                li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+                                                li += '         </a>\n';
+                                                li += '         <ul class="treeview-menu">\n';
+                                                li += '             {@actionAccess entity="access_settings_role" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/access_settings/show_role">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="entity.e_role.label_entity" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '             {@actionAccess entity="access_settings_group" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/access_settings/show_group">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="entity.e_group.label_entity" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '             {@actionAccess entity="access_settings_api" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/access_settings/show_api">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     API\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '         </ul>\n';
+                                                li += '     </li>\n';
                                                 li += '{/entityAccess}\n';
 
                                                 $("#sortable").append(li);

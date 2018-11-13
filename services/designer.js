@@ -1349,11 +1349,6 @@ exports.createNewHasMany = function (attr, callback) {
                                     }
                                     var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
                                     optionsObject = JSON.parse(optionsFile);
-
-                                    console.log(" -- 1 -- ")
-                                    console.log(attr.options.target.toLowerCase())
-                                    console.log(optionsObject)
-
                                     resolve(attr);
                                 });
                             });
@@ -1366,10 +1361,6 @@ exports.createNewHasMany = function (attr, callback) {
                     //info.insertId = dataEntity.id;
                     var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
                     optionsObject = JSON.parse(optionsFile);
-                    console.log(" -- 2 -- ")
-                    console.log(attr.options.target.toLowerCase())
-                    console.log(optionsObject)
-
                     var cptExistingHasMany = 0;
 
                     // Check if there is no or just one belongsToMany to do
@@ -1400,13 +1391,9 @@ exports.createNewHasMany = function (attr, callback) {
             var doingBelongsToMany = false;
             // Vérification si une relation existe déjà de la target VERS la source
             for (var i = 0; i < optionsObject.length; i++) {
-                console.log(optionsObject[i].target.toLowerCase())
-                console.log(attr.options.source.toLowerCase())
-                console.log(optionsObject[i].relation)
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase()
                     && optionsObject[i].target.toLowerCase() != attr.options.target.toLowerCase()
                     && optionsObject[i].relation != "belongsTo") {
-                    console.log("YEAH \n")
                     doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
                     belongsToMany(attr, optionsObject[i], "setupHasManyTab", exportsContext).then(function () {
@@ -1843,17 +1830,6 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                         err.messageParams = [attr.options.through];
                         return callback(err, null);
                     }
-                    //BelongsToMany
-                    //doingBelongsToMany = true;
-                    /* Then lets create the belongs to many association */
-                    // belongsToMany(attr, optionsObject[i], "setupRelatedToMultipleField", exportsContext).then(function(){
-                    //     info.message = "structure.association.relatedToMultiple.success";
-                    //     info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource, attr.options.showAs, attr.options.showAs];
-                    //     callback(null, info);
-                    // }).catch(function(err){
-                    //     console.log(err);
-                    //     return callback(err, null);
-                    // });
                 } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
                         && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")) {
 
