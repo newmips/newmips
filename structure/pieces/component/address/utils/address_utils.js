@@ -5,17 +5,23 @@
  */
 var addressConf = require('../addressconfig/addressConfig');
 
-exports.generateFields = function(componentName, componentCodeName) {
+exports.generateFields = function (componentName, componentCodeName) {
     var result = {
-        db_fields: {}
+        db_fields: {
+            f_c_address_label: {
+                type: 'STRING'
+            }
+        }
     };
     var createHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br><br>\n' +
-        "    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields '>\n";
+            "    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields '>\n";
     var updateHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br>' +
-        "<br>\n    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields'>\n";
+            "<br>\n    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields'>\n";
     var showFieldsHtml = '';
     var headers = '';
     var tds = '';
+    var singleHeader = '';
+    var singleTD = '';
 
     // For default
     if (addressConf.endpoint.enable) {
@@ -111,11 +117,22 @@ exports.generateFields = function(componentName, componentCodeName) {
             showFieldsHtml += "            </div>\n";
             showFieldsHtml += "        </div>\n";
             // Headers
-            headers += '<th data-field="c_address.' + dbcolumn + '" data-col="c_address.' + dbcolumn + '">\n';
-            headers += '    {@__ key="component.' + componentCodeName + '.' + dbcolumn + '"/}\n';
-            headers += '</th>\n';
+
+            var header = '<th data-field="c_address.' + dbcolumn + '" data-col="c_address.' + dbcolumn + '">\n';
+            header += '    {@__ key="component.' + componentCodeName + '.' + dbcolumn + '"/}\n';
+            header += '</th>\n';
+            var td = '\t\t<td data-field="c_address.' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
+
+            headers += header;
             // tds
-            tds += '\t\t<td data-field="c_address.' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
+            tds += td;
+            //build fields for parent table 
+            if (attributeKey === 'label') {
+                singleHeader = '<th data-field="c_address" data-col="c_address.' + dbcolumn + '" data-type="string">'
+                        + '{@__ key="component.' + componentCodeName + '.label_component"/}'
+                        + '</th>';
+                singleTD = '<td data-field="c_address">' + '{c_address.' + dbcolumn + '}</td>\n';
+            }
         }
     }
     createHtml += "    </section>\n";
@@ -124,7 +141,10 @@ exports.generateFields = function(componentName, componentCodeName) {
     result.createHtml = createHtml;
     result.updateHtml = updateHtml;
     result.showFieldsHtml = showFieldsHtml;
-
+    result.singleAddressTableDFields = {
+        header: singleHeader,
+        body: singleTD
+    };
     result.headers = headers;
     result.tds = tds;
     result.locales = locales;
