@@ -1033,7 +1033,7 @@ exports.setColumnVisibility = function (attr, callback) {
 exports.createNewHasOne = function (attr, callback) {
 
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeName(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeName(attr.id_module, attr.options.source, function (err, idEntitySource) {
         if (err) {
             return callback(err, null);
         }
@@ -1041,7 +1041,7 @@ exports.createNewHasOne = function (attr, callback) {
         var info = {};
         var toSync = true;
         // For the newmips generator BDD, needed for db_field.createNewForeignKey
-        attr.id_data_entity = IDdataEntitySource;
+        attr.id_data_entity = idEntitySource;
 
         function structureCreation(attr, callback) {
 
@@ -1287,11 +1287,11 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
 exports.createNewHasMany = function (attr, callback) {
     var exportsContext = this;
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, idEntitySource) {
         if (err)
             return callback(err, null);
 
-        attr.id_data_entity = IDdataEntitySource;
+        attr.id_data_entity = idEntitySource;
 
         var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
         var optionsSourceObject = JSON.parse(optionsSourceFile);
@@ -1466,10 +1466,10 @@ exports.createNewHasManyPreset = function (attr, callback) {
     //     if (err && typeof attr.options.source === "undefined")
     //         return callback(err, null);
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, idEntitySource) {
         if (err)
             return callback(err, null);
-        attr.id_data_entity = IDdataEntitySource;
+        attr.id_data_entity = idEntitySource;
 
         var allUsingExist = true;
         // If a using field or fields has been asked, we have to check if those fields exist in the entity
@@ -1506,7 +1506,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
         }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, entityTarget) {
             // Si l'entité target n'existe pas ou autre
             if (err)
                 return callback(err, null);
@@ -1529,6 +1529,14 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         return callback(err, null);
                     }
                 }
+            }
+
+            attr.options.through = attr.id_application + "_" + idEntitySource + "_" + entityTarget.id + "_" + attr.options.as.substring(2);
+            if (attr.options.through.length > 55) {
+                var err = new Error();
+                err.message = "error.valueTooLong";
+                err.messageParams = [attr.options.through];
+                return callback(err, null);
             }
 
             var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
@@ -1596,8 +1604,8 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         foreignKey: attr.options.foreignKey,
                         as: attr.options.as,
                         showAs: attr.options.showAs,
-                        relation: "hasMany",
-                        through: null,
+                        relation: "belongsToMany",
+                        through: attr.options.through,
                         toSync: toSync,
                         usingField: attr.options.usingField || undefined,
                         type: "hasManyPreset"
@@ -1606,7 +1614,6 @@ exports.createNewHasManyPreset = function (attr, callback) {
                     structure_data_entity.setupAssociation(associationOption, function () {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupHasManyPresetTab(attr, function () {
-
                             var info = {};
                             info.insertId = attr.id_data_entity;
                             info.message = "structure.association.hasManyExisting.success";
