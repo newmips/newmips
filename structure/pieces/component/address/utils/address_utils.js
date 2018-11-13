@@ -95,15 +95,16 @@ exports.generateFields = function (componentName, componentCodeName) {
             var type = 'text';
             /*hide or display field on differente view,adapted for lon and lat field*/
             var display_create = 'block', display_udpate = 'block', display_show = 'block';
-            if (typeof type !== 'undefined') {
-                if (typeof type === "object") {
-                    if (type.create === "hidden")
+
+            if (typeof attribute.type !== 'undefined') {
+                if (typeof attribute.type === "object") {
+                    if (attribute.type.create === "hidden")
                         display_create = 'none';
-                    if (type.update === "hidden")
+                    if (attribute.type.update === "hidden")
                         display_udpate = 'none';
-                    if (type.show === "hidden")
+                    if (attribute.type.show === "hidden")
                         display_show = 'none';
-                } else if (type === "hidden") {
+                } else if (attribute.type === "hidden") {
                     display_create = "none";
                     display_udpate = "none";
                     display_show = "none";

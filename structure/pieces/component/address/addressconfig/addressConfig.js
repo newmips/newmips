@@ -125,12 +125,12 @@ var config = {
         },
         lat: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
             type: {
                 create: 'hidden',
                 update: '',
-                show: ''
+                show: 'hidden'
             },
             max: '',
             apiField: '',
@@ -147,12 +147,12 @@ var config = {
         },
         lon: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
             type: {
                 create: 'hidden',
                 update: '',
-                show: ''
+                show: 'hidden'
             },
             max: '',
             apiField: '',
@@ -169,7 +169,7 @@ var config = {
         },
         label: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
             type: 'hidden',
             max: '',
