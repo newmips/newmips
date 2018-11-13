@@ -159,6 +159,24 @@ var config = {
                 en: 'Longitude'
             }
         },
+        label: {
+            readonly: false,
+            required: true,
+            addInForm: true,
+            type: 'hidden',
+            max: '',
+            apiField: 'label',
+            defaultValue: '',
+            sql: {
+                type: 'STRING',
+                newmipsType: "STRING",
+                defaultValue: null
+            },
+            lang: {
+                fr: 'Libellé',
+                en: 'Label'
+            }
+        },
         //house type
         place: {
             readonly: false,
