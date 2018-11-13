@@ -123,27 +123,55 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
     var length = parseInt(req.body.length || 10);
 
     var sourceId = req.query.sourceId;
-    var subentityAlias = req.query.subentityAlias;
+    var subentityAlias = req.query.subentityAlias, subentityName = req.query.subentityModel;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
     var doPagination = req.query.paginate;
 
-    var queryAttributes = [];
+    // Build array of fields for include and search object
+    var isGlobalSearch = req.body.search.value == "" ? false : true;
+    var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+    search[searchTerm] = [];
+    var toInclude = [];
+    // Loop over columns array
+    for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+        if (columns[i].searchable == 'false')
+            continue;
+
+        // Push column's field into toInclude. toInclude will be used to build the sequelize include. Ex: toInclude = ['r_alias.r_other_alias.f_field', 'f_name']
+        toInclude.push(columns[i].data);
+
+        // Add column own search
+        if (columns[i].search.value != "") {
+            var {type, value} = JSON.parse(columns[i].search.value);
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
+        }
+        // Add column global search
+        if (isGlobalSearch)
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
+    }
     for (var i = 0; i < req.body.columns.length; i++)
         if (req.body.columns[i].searchable == 'true')
-            queryAttributes.push(req.body.columns[i].data);
+            toInclude.push(req.body.columns[i].data);
+    // Get sequelize include object
+    var subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
+
+    // ORDER BY
+    var order, stringOrder = req.body.columns[req.body.order[0].column].data;
+    // If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
+    order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
     var include = {
         model: models[subentityModel],
         as: subentityAlias,
-        include: {
-            all: true
-        }
+        order: order,
+        where: search,
+        include: subentityInclude
     }
+
     if (doPagination == "true") {
         include.limit = length;
         include.offset = start;
     }
-
     models.E_status.findOne({
         where: {
             id: parseInt(sourceId)

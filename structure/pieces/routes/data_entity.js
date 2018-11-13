@@ -50,18 +50,37 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     var length = parseInt(req.body.length || 10);
 
     var sourceId = req.query.sourceId;
-    var subentityAlias = req.query.subentityAlias;
+    var subentityAlias = req.query.subentityAlias, subentityName = req.query.subentityModel;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
-    var subentityOptions = JSON.parse(fs.readFileSync(__dirname+"/../models/options/"+req.query.subentityModel+".json"));
     var doPagination = req.query.paginate;
 
-    // Build array of fields needed
+    // Build array of fields for include and search object
+    var isGlobalSearch = req.body.search.value == "" ? false : true;
+    var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+    search[searchTerm] = [];
     var toInclude = [];
+    // Loop over columns array
+    for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+        if (columns[i].searchable == 'false')
+            continue;
+
+        // Push column's field into toInclude. toInclude will be used to build the sequelize include. Ex: toInclude = ['r_alias.r_other_alias.f_field', 'f_name']
+        toInclude.push(columns[i].data);
+
+        // Add column own search
+        if (columns[i].search.value != "") {
+            var {type, value} = JSON.parse(columns[i].search.value);
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
+        }
+        // Add column global search
+        if (isGlobalSearch)
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
+    }
     for (var i = 0; i < req.body.columns.length; i++)
         if (req.body.columns[i].searchable == 'true')
             toInclude.push(req.body.columns[i].data);
     // Get sequelize include object
-    var subentityInclude = model_builder.getIncludeFromFields(models, req.query.subentityModel, toInclude);
+    var subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
     // ORDER BY
     var order, stringOrder = req.body.columns[req.body.order[0].column].data;
@@ -72,6 +91,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
         model: models[subentityModel],
         as: subentityAlias,
         order: order,
+        where: search,
         include: subentityInclude
     }
 
@@ -565,10 +585,10 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
     models.MODEL_NAME.findAndCountAll(where).then(function(results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         // Format value like date / datetime / etc...
-        for (var field in attributes) {
-            for (var i = 0; i < results.rows.length; i++) {
-                for (var fieldSelect in results.rows[i]) {
-                    if(fieldSelect == field){
+        for (var field in attributes)
+            for (var i = 0; i < results.rows.length; i++)
+                for (var fieldSelect in results.rows[i])
+                    if(fieldSelect == field)
                         switch(attributes[field].newmipsType) {
                             case "date":
                                 results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
@@ -577,10 +597,7 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
                                 results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
                                 break;
                         }
-                    }
-                }
-            }
-        }
+
         res.json(results);
     }).catch(function(e) {
         console.error(e);

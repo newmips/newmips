@@ -2,36 +2,6 @@ var models = require('../models/');
 var entity_helper = require('./entity_helper');
 var model_builder = require('./model_builder');
 
-function formatSearch(column, searchValue, type) {
-    var formatedSearch = {};
-
-    if (type == 'datetime') {
-        if (searchValue.indexOf(' ') != -1)
-            formatedSearch['$between'] = [searchValue, searchValue];
-        else
-            formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59']
-    } else if (type == 'date') {
-        formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59']
-    } else if (type == 'boolean') {
-        formatedSearch = searchValue;
-    } else if (type == 'currency') {
-        formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
-            like: `${searchValue}%`
-        });
-    } else {
-        formatedSearch = {
-            $like: '%' + searchValue + '%'
-        };
-    }
-
-    var field = column, searchLine = {};
-    if (field.indexOf('.') != -1)
-        field = `$${field}$`;
-
-    searchLine[field] = formatedSearch;
-    return searchLine;
-}
-
 // Prototype:
 //  - modelName: 'E_user'
 //  - params: {columnsTypes:[], columns:[], search:{}} - body from datatables (req.body)
@@ -59,11 +29,11 @@ module.exports = function (modelName, params, speInclude, speWhere) {
             // Add column own search
             if (columns[i].search.value != "") {
                 var {type, value} = JSON.parse(columns[i].search.value);
-                search[searchTerm].push(formatSearch(columns[i].data, value, type));
+                search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
             }
             // Add column global search
             if (isGlobalSearch)
-                search[searchTerm].push(formatSearch(columns[i].data, params.search.value, params.columnsTypes[columns[i].data]));
+                search[searchTerm].push(model_builder.formatSearch(columns[i].data, params.search.value, params.columnsTypes[columns[i].data]));
         }
 
         // ORDER BY Managment
