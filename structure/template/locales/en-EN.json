@@ -35,10 +35,12 @@
     },
     "settings": {
         "title": "Access managment",
-        "tool_menu": "Import / Export",
+        "tool_menu": "Access configuration file",
+        "tool_success": "The access configuration file has been imported.",
         "tool_title": "Import / Export access configuration",
         "tool_export": "Export access configuration",
         "tool_import": "Import access configuration",
+        "import_file_name": "access.json file:",
         "tool_warning": "Warning, the file has to be the same structure of the current access.json file !",
         "auth_component": {
             "access_managment": "Access managment per group",
@@ -77,6 +79,9 @@
             "modal_password_content": "Please confirm the database password:",
             "wrong_dialect": "Sorry, DB tools only work with MySQL for now.",
             "no_choice": "Please choose what you want to export."
+        },
+        "import_export": {
+            "title": "Import / Export"
         },
         "legend": "Change your user settings",
         "lang": "Language",
@@ -182,7 +187,26 @@
             "action": "Print"
         }
     },
-    "component": {},
+    "component": {
+        "c_db_tool": {
+            "label_component": "DB Tool"
+        },
+        "c_access_tool": {
+            "label_component": "Access file"
+        },
+        "c_import_export": {
+            "label_component": "Import / Export"
+        },
+        "c_access_settings_role": {
+            "label_component": "Role access"
+        },
+        "c_access_settings_group": {
+            "label_component": "Group access"
+        },
+        "c_access_settings_api": {
+            "label_component": "API access"
+        }
+    },
     "defaults": {
         "widgets": {
             "lastrecords": {
