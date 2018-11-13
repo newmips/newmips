@@ -1171,8 +1171,8 @@ function initComponentAddress(context) {
                                         $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
                                 }
                                 /** Set Lat and Long value **/
-                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[0]);
-                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[1]);
+                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[1]);
+                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[0]);
                                 if ((!_address.street || typeof _address.street === "undefined") && _address.name)
                                     $("#f_c_address_street").val(_address.name);
 
@@ -1256,7 +1256,7 @@ function initMapsIfComponentAddressExists(context) {
                 var mapnik = new OpenLayers.Layer.OSM();
                 var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
                 var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-                var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
+                var position = new OpenLayers.LonLat(lon,lat).transform(fromProjection, toProjection);
                 var zoom = 15;
                 var markers = new OpenLayers.Layer.Markers("Markers");
 
