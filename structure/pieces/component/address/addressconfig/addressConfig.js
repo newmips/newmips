@@ -125,9 +125,13 @@ var config = {
         },
         lat: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
-            type: 'hidden',
+            type: {
+                create: 'hidden',
+                update: '',
+                show: 'hidden'
+            },
             max: '',
             apiField: '',
             defaultValue: '',
@@ -143,9 +147,13 @@ var config = {
         },
         lon: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
-            type: 'hidden',
+            type: {
+                create: 'hidden',
+                update: '',
+                show: 'hidden'
+            },
             max: '',
             apiField: '',
             defaultValue: '',
@@ -157,6 +165,24 @@ var config = {
             lang: {
                 fr: 'Longitude',
                 en: 'Longitude'
+            }
+        },
+        label: {
+            readonly: false,
+            required: false,
+            addInForm: true,
+            type: 'hidden',
+            max: '',
+            apiField: 'label',
+            defaultValue: '',
+            sql: {
+                type: 'STRING',
+                newmipsType: "STRING",
+                defaultValue: null
+            },
+            lang: {
+                fr: 'Libellé',
+                en: 'Label'
             }
         },
         //house type
