@@ -1,0 +1,82 @@
+/*!
+* Newmips v2.8
+* Copyright 2016
+* Licensed under GPLV3.0 https://www.gnu.org/licenses/gpl.html
+*/
+.content-header .newmipsLogo {
+	width:44px;
+	display:inline;
+	margin-left:15px;
+	margin-right:15px;
+}
+#newmipsMainLogo{
+	width:200px;
+	display:block;
+	margin:auto;
+	margin-bottom: 25px;
+}
+.newmipsVersion {
+	position: fixed;
+	bottom: 0;
+	padding:15px;
+	width: 100%;
+	color:grey;
+	font-size:12px;
+}
+#loadingIframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 764px;
+	background-color: rgba(0, 0, 0, 0.25);
+	display:none;
+}
+#loadingIframe img{
+	display:block;
+	margin: auto;
+	margin-top:300px;
+	width:200px;
+}
+.dynamic-writing {
+	display: none;
+}
+#ui_editor_apply_all{
+	margin:0;
+	vertical-align: bottom;
+	position: relative;
+	top: -1px;
+	overflow: hidden;
+	margin-right:5px;
+	display:none;
+}
+#logs-content{
+	white-space: pre-line;
+	height: 700px;
+	overflow:auto;
+	background:black;
+	color:#FFF;
+}
+#createScriptTextarea{
+	float:left;
+	display: none;
+}
+.defaultThemeInput{
+	margin:0;
+	vertical-align: bottom;
+	position: relative;
+	top: -1px;
+	overflow: hidden;
+}
+.labelForTheme{
+	display: block;
+	padding-left: 15px;
+	text-indent: -15px;
+	cursor:pointer;
+}
+.theme-box-body{
+	height: 20px;
+	width: 20px;
+	border-radius: 2px;
+	margin: 10px 10px 10px 0px;
+}

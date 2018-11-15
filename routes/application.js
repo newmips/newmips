@@ -191,7 +191,7 @@ function execute(req, instruction) {
 }
 
 // Preview Get
-router.get('/preview', block_access.isLoggedIn, function(req, res) {
+router.get('/preview', block_access.hasAccessApplication, function(req, res) {
 
     var id_application = req.query.id_application;
     var timeoutServer = 30000;
@@ -335,7 +335,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
 });
 
 // AJAX Preview Post
-router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
+router.post('/fastpreview', block_access.hasAccessApplication, function(req, res) {
 
     var math = require('math');
     var port = math.add(9000, req.session.id_application);
@@ -582,7 +582,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 });
 
 // Dropzone FIELD ajax upload file
-router.post('/set_logo', block_access.isLoggedIn, function (req, res) {
+router.post('/set_logo', block_access.hasAccessApplication, function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
             if (req.body.storageType == 'local') {
@@ -654,11 +654,18 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     models.Project.findAll({
         include: [{
             model: models.Application,
+            required: true,
             include: [{
                 model: models.Module,
                 include: [{
                     model: models.DataEntity
                 }]
+            }, {
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                }
             }]
         }],
         order: [
@@ -872,7 +879,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
                 docBuilder.build(req.session.id_application);
                 res.redirect('/application/preview?id_application=' + req.session.id_application);
-            });
+            })
             return;
         }
         execute(req, recurInstructions[idx]).then(function(){

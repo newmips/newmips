@@ -1,0 +1,409 @@
+{>"main_layout"/}
+{<title}
+	{@__ key="menu.preview"/}<small>{@__ key="menu.module"/}</small>
+{/title}
+{<custom_css}
+	{! Dropzone !}
+	<link href="/css/dropzone/dropzone.min.css" rel="stylesheet" type="text/css" />
+	{! CodeMirror !}
+	<link href="/css/codemirror/codemirror.css" rel="stylesheet" type="text/css" />
+	<link href="/css/codemirror/customcodemirror.css" rel="stylesheet" type="text/css" />
+	{! Addons CSS !}
+	<link href="/js/plugins/grid-editor/dist/grideditor.css" rel="stylesheet" type="text/css" />
+	<link href="/js/plugins/grid-editor/dist/grideditor-font-awesome.css" rel="stylesheet" type="text/css" />
+	<link href="/js/plugins/codemirror/addon/dialog.css" rel="stylesheet" type="text/css" />
+	<link href="/js/plugins/codemirror/addon/fullscreen.css" rel="stylesheet" type="text/css" />
+	<link href="/js/plugins/codemirror/addon/foldgutter.css" rel="stylesheet" type="text/css" />
+	{! Slack chat !}
+	<link rel="stylesheet" href="/css/slack/slack-chat.css" />
+	<link rel="stylesheet" href="/css/slack/skin-chat.css" />
+	{! Animated CSS !}
+	<link rel="stylesheet" href="/css/animated.css" />
+{/custom_css}
+{<content}
+	<div class="nav-tabs-custom" id="tabs" style="margin-bottom:0px;">
+		<ul class="nav nav-tabs" id="primary-navtabs" role="tablist">
+			<li class="active">
+				<a role="primaryTab" data-toggle="tab" href="#preview">{@__ key="preview.title"/}</a>
+			</li>
+			<li>
+				<a role="primaryTab" data-toggle="tab" href="#ui-editor">{@__ key="menu.ui_editor"/}</a>
+			</li>
+			<li>
+				<a id="start-editor" role="primaryTab" data-toggle="tab" href="#editor">{@__ key="menu.editor"/}</a>
+			</li>
+			<li>
+				<a id="start-logs" role="primaryTab" data-toggle="tab" href="#logs">{@__ key="menu.logs"/}</a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane fade in active" id="preview">
+				<div class="row">
+					<div class="col-xs-12 col-md-8 col-lg-9">
+						<form id="previewForm" action="/application/preview" method="post">
+							<div class="input-group ui-widget" style="margin-bottom:7px;">
+								<div class="input-group-btn">
+									<a class="btn btn-default" href="#" id="btn-speech" alt="Enregistrer une instruction">
+										<i class="fa fa-microphone fa-md"></i>
+									</a>
+								</div>
+								<input class="form-control" id="instruction" name="instruction" type="text" autocomplete="off" autofocus="autofocus" required="required" x-webkit-speech="x-webkit-speech" placeholder='{@__ key="preview.execute"/}' />
+								<input class="form-control input" id="iframe_url" name="iframe_url" type="hidden" value="{iframe_url}" />
+								<input class="form-control input" id="chat" name="chat" type="hidden" value="{chat|stringify}" />
+								<div class="input-group-btn">
+									<button class="btn btn-success" id="execute_instruction">{@__ key="button.execute"/}</button>
+								</div>
+							</div>
+						</form>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box-body">
+									<div class="responsive-iframe">
+										{@ne key=iframe_url value=-1}
+											<iframe id="iframe" height="764px" width="600px" src="{iframe_url}" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen" style="height:764px;border: 1px solid grey;border-radius: 3px;"></iframe>
+										{/ne}
+
+										<div id="loadingIframe">
+											<img class="animated pulse infinite" src="/img/LOGO-PNG-01-min.png" alt="Loading" />
+										</div>
+										<br>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-4 col-lg-3">
+						<!-- Chat box-->
+						<div class="box box-solid" style="margin-bottom:10px;">
+							<div class="box-header">
+								<h4 class="box-title"><i class="fa fa-comments-o"></i> Instructions</h4>
+							</div><br>
+							<div class="box-body chat" id="chat-box" style="height:450px;max-height:450px;overflow-y:scroll;">
+								<!--each msg in chat.items-->
+								{#chat.items}
+									<div class="item">
+										{@eq key=user value="Mipsy"}
+											<img src="/img/avatar.png" alt="user image" />
+										{:else}
+											<img src="/img/user.png" alt="user image" />
+										{/eq}
+										<p class="message">
+											<a class="name" href="#"><small class="text-muted pull-right">{dateEmission}</small>
+												{@eq key=user value="Mipsy"}
+													Mipsy
+												{:else}
+													{profile.login}
+												{/eq}
+											</a>
+											{@eq key=content value="chat.welcome"}
+												<span class="dynamic-writing">{@__ key=content filters="|s"/}</span>
+											{:else}
+												{@ifTrue key=isError}
+													<span class="standard-writing" style="color:#e33939;">
+														<i class='fa fa-exclamation-circle'></i> {@__ key=content params=params filters="|s"/}
+													</span>
+												{:else}
+													<span class="standard-writing">{@__ key=content params=params filters="|s"/}</span>
+												{/ifTrue}
+											{/eq}
+										</p>
+										<hr>
+									</div>
+								{/chat.items}
+							</div>
+						</div>
+						<!-- Session-->
+						<div class="box box-solid" style="margin-bottom:0px;">
+							<div class="box-header">
+								<h4 class="box-title"><i class="fa fa-gear"></i> Session</h4>
+							</div>
+							<div class="box-body">
+								<div class="callout callout-warning">
+									{#session}
+										{?project.id_project}
+											{@__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{project.id_project} - {project.name_project}</b>
+										{:else}
+											{@__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{@__ key="preview.session.noProject"/}</b>
+										{/project.id_project}
+										<br>
+										{?application.id_application}
+											{@__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{application.id_application} - {application.name_application}</b>
+										{:else}
+											{@__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{@__ key="preview.session.noApplication"/}</b>
+										{/application.id_application}
+										<br>
+										{?module.id_module}
+											{@__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{module.id_module} - {module.name_module}</b>
+										{:else}
+											{@__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{@__ key="preview.session.noModule"/}</b>
+										{/module.id_module}
+										<br>
+										{?data_entity.id_data_entity}
+											{@__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{data_entity.id_data_entity} - {data_entity.name_data_entity}</b>
+										{:else}
+											{@__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{@__ key="preview.session.noEntity"/}</b>
+										{/data_entity.id_data_entity}
+									{/session}
+								</div>
+							</div>
+							<div class="box-footer">
+								<div class="text-center">
+									<a class="btn btn-app" id="restart-server" href="#">
+										<i class="fa fa-refresh"></i>{@__ key="preview.reload"/}
+									</a>
+									{@ne key=globalConf.env value="cloud"}
+										<a class="btn btn-app" target="_blank" href="https://github.com/newmips/newmips/issues/new">
+											<i class="fa fa-github"></i>{@__ key="preview.issue-button"/}
+										</a>
+									{/ne}
+									{@in key=globalConf.env value="cloud,cloud_recette"}
+										<div class="btn btn-app" id="message-box" title="" data-toggle="tooltip" data-original-title="Talk bubble">
+											<i class="fa fa-comment"></i>
+											<div class="badge badge-danger slack-message-count" style="display: none;"></div>
+											{@__ key="preview.help-button"/}
+										</div>
+									{/in}
+									<a class="btn btn-app" target="_blank" href="http://docs.newmips.com">
+										<i class="fa fa-book"></i>{@__ key="button.documentation"/}
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade in" id="ui-editor" style="min-height:750px;">
+				<div class="row">
+					<div class="col-xs-12 col-sm-2 sidebar">
+						<h4>{@__ key="entity.label"/} :</h4>
+						<select id="entitySelect" name="entitySelect">
+							<option default="true" value="">{@__ key="ui_editor.select_entity"/}</option>
+							{#entities}
+								<option value="{codeName}">{name}</option>
+							{/entities}
+						</select><br>
+						<ul class="sidebar-menu" id="pages" style="display:none;">
+							<li class="ui-state-default treeview" style="display:block;">
+								<a class="ui_editor_page" href="#" data-entity="" data-page="create">
+									<i class="fa fa-file"></i>{@__ key="ui_editor.create_page"/}
+								</a>
+							</li>
+							<li class="ui-state-default treeview" style="display:block;">
+								<a class="ui_editor_page" href="#" data-entity="" data-page="update">
+									<i class="fa fa-file"></i>{@__ key="ui_editor.update_page"/}
+								</a>
+							</li>
+							<li class="ui-state-default treeview" style="display:block;">
+								<a class="ui_editor_page" href="#" data-entity="" data-page="show">
+									<i class="fa fa-file"></i>{@__ key="ui_editor.show_page"/}
+								</a>
+							</li>
+							<li class="ui-state-default treeview" style="display:block;">
+								<a class="ui_editor_page" href="#" data-entity="" data-page="print">
+									<i class="fa fa-file"></i>{@__ key="ui_editor.print_page"/}
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<div id="ui_editor"></div>
+						<i id="ui_editor_tips" style="display:none;">{@__ key="ui_editor.tips"/}</i>
+						<br><br>
+						<input id="ui_editor_apply_all" type="checkbox" />
+						<span id="ui_editor_apply_all_span" style="display:none;">{@__ key="ui_editor.applyAll"/}</span>
+						<br><br>
+						<button class="btn btn-primary" id="ui_editor_save" style="display:none;">{@__ key="button.save"/}</button>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade in" id="editor">
+				<div class="row">
+					<div class="col-xs-12 col-sm-2 sidebar" id="codemirror-menu">
+						<h4>{@__ key="editor.folders"/} :</h4>
+						<ul class="sidebar-menu" id="sortable">
+						</ul>
+					</div>
+					<div class="col-xs-12 col-sm-10" id="codemirror-editor">
+						<h4>{@__ key="editor.legend"/} :</h4>
+						<div class="nav-tabs-custom" id="tabs-editor" style="margin-bottom:0px;">
+							<ul class="nav nav-tabs" id="editor-navtabs" role="filelist"></ul>
+						</div>
+						<div id="loadingEditorIframe" style="position: absolute;top: 0;left: 0;width: 100%;height: 764px;background-color: transparent;display:block;"><img class="animated pulse infinite" src="/img/FAVICON-GRAND-01.png" alt="Loading" style="display:block;margin: auto;margin-top:250px;width:125px;" /></div>
+					</div>
+				</div><br>
+				<div class="row">
+					<div class="col-xs-5 col-sm-offset-2">
+						<button class="btn btn-primary" id="update-file" disabled="true">{@__ key="button.save"/}</button>
+					</div>
+					<div class="col-xs-5"><span class="pull-right" style="margin-right:50px;"><b>{@__ key="editor.change_theme"/} :</b></span><br>
+						<select class="pull-right" id="select-theme">
+							<option value="default">default</option>
+							<option value="3024-day">3024-day</option>
+							<option value="3024-night">3024-night</option>
+							<option value="abcdef">abcdef</option>
+							<option value="ambiance-mobile">ambiance-mobile</option>
+							<option value="ambiance">ambiance</option>
+							<option value="base16-dark">base16-dark</option>
+							<option value="base16-light">base16-light</option>
+							<option value="bespin">bespin</option>
+							<option value="blackboard">blackboard</option>
+							<option value="cobalt">cobalt</option>
+							<option value="colorforth">colorforth</option>
+							<option value="dracula">dracula</option>
+							<option value="duotone-dark">duotone-dark</option>
+							<option value="duotone-light">duotone-light</option>
+							<option value="eclipse">eclipse</option>
+							<option value="elegant">elegant</option>
+							<option value="erlang-dark">erlang-dark</option>
+							<option value="hopscotch">hopscotch</option>
+							<option value="icecoder">icecoder</option>
+							<option value="isotope">isotope</option>
+							<option value="lesser-dark">lesser-dark</option>
+							<option value="liquibyte">liquibyte</option>
+							<option value="material">material</option>
+							<option value="mbo">mbo</option>
+							<option value="mdn-like">mdn-like</option>
+							<option value="midnight">midnight</option>
+							<option value="monokai">monokai</option>
+							<option value="neat">neat</option>
+							<option value="neo">neo</option>
+							<option value="night">night</option>
+							<option value="panda-syntax">panda-syntax</option>
+							<option value="paraiso-dark">paraiso-dark</option>
+							<option value="paraiso-light">paraiso-light</option>
+							<option value="pastel-on-dark">pastel-on-dark</option>
+							<option value="railscasts">railscasts</option>
+							<option value="rubyblue">rubyblue</option>
+							<option value="seti">seti</option>
+							<option value="solarized">solarized</option>
+							<option value="the-matrix">the-matrix</option>
+							<option value="tomorrow-night-bright">tomorrow-night-bright</option>
+							<option value="tomorrow-night-eighties">tomorrow-night-eighties</option>
+							<option value="ttcn">ttcn</option>
+							<option value="twilight">twilight</option>
+							<option value="vibrant-ink">vibrant-ink</option>
+							<option value="xq-dark">xq-dark</option>
+							<option value="xq-light">xq-light</option>
+							<option value="yeti">yeti</option>
+							<option value="zenburn">zenburn</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade in" id="logs">
+				<div class="form-group">
+					<div class="form-control" id="logs-content" name="answers"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="modalsetlogo" tabindex="-1" role="dialog" aria-labelledby="Set logo">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+					<h4 class="modal-title">{@__ key="preview.logo.title"/}</h4>
+				</div>
+				<div class="modal-body">
+					<p class="text-center">
+						<img src="/img/avatar.png" alt="Mipsy" style="display:block;margin:auto;width: 150px;" />
+						<br>{@__ key="preview.logo.text"/}
+						<br><br>
+						<div class="col-xs-12" data-field="set_logo">
+							<div class="form-group">
+								<label for="set_logo">Logo</label>
+								<div class="dropzone dropzone-field" id="set_logo_dropzone" data-storage="local" data-type="picture" data-entity="logo"></div>
+								<input id="set_logo_dropzone_hidden" type="hidden" name="set_logo" />
+							</div>
+						</div>
+						<br><br>
+						<div class="col-xs-12 text-center">
+							<button class="btn btn-success" id="addLogo">{@__ key="button.add"/}</button>
+						</div>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" type="button" data-dismiss="modal">{@__ key="button.close"/} </button>
+				</div>
+			</div>
+		</div>
+	</div>
+{/content}
+
+{<custom_js}
+	<script src="/js/UI/jquery-ui-1.12.1.js" type="text/javascript"></script>
+	<script src="/js/Newmips/newmips.grideditor.js" type="text/javascript"></script>
+	<script src="/js/Newmips/speechRecognition.js" type="text/javascript"></script>
+	<script src="/js/plugins/jquery.slimscroll.min.js" type="text/javascript"></script>
+	<script src="/js/AdminLTE/sidebar.js" type="text/javascript"></script>
+	<script src="/js/plugins/dropzone/dropzone.min.js" type="text/javascript"></script>
+	<script type="text/javascript">var idApp = "{idApp}";</script>
+	<script src="/js/Newmips/logo-instruction.js" type="text/javascript"></script>
+	<script src="/js/Newmips/dynamic-writing.js" type="text/javascript"></script>
+	{@ifTrue key=isSlackChatEnabled}
+		<script src="/js/plugins/moment.js" type="text/javascript"></script>
+		<script src="/js/plugins/slack/slack-chat.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			/***************** Slack chat ******************/
+			/* ID des user de Slack à inviter dans la channel crée */
+			var usersToInvite = ["U1GLD90GK", "U28GY8LLW", "U1GARP962", "U1GCYEKPX", "U1HD3C60L", "U6X4BDYM6"];
+			var userId = localStorage.getItem("newmips_slack_id_user");
+
+			if(userId == null){
+				localStorage.setItem("newmips_slack_id_user", Math.random()*1000000)
+				userId = localStorage.getItem("newmips_slack_id_user");
+			}
+
+			var userUrlName = window.location.href.replace(/(^\w+:|^)\/\/*, ''); */
+			var slackChatOptions = {
+				apiToken: '#{slackApiToken}', 	/*#Slack Auth token. Required.*/
+				channelId: '',      			/*#Slack channel ID. Required.*/
+				user: 'Newmips User',           /*name of the user. Required.*/
+				userLink: '',       			/*link to the user in the application - shown in #Slack*/
+				userImg: '',        			/*image of the user*/
+				userId: userId,         		/*id of the user in the application*/
+				defaultSysImg: 'img/logo/newLogo.png',		/*image to show when the support team replies*/
+				defaultSysUser: 'Newmips',                	/*Required*/
+				queryInterval: 3000,
+				chatBoxHeader: "Need help? Talk to our support team right here",
+				slackColor: "#36a64f",
+				messageFetchCount: 100,
+				botUser: userUrlName, /*username to post to #Slack. Required.*/
+				sendOnEnter: true,
+				disableIfAway: false,
+				elementToDisable: null,
+				heightOffset: 75,
+				debug: false,
+				webCache: false,
+				privateChannel: true,
+				serverApiGateway: '/set_slack',
+				useUserDetails: true,
+				defaultInvitedUsers: usersToInvite
+			}
+
+			$("#message-box").slackChat(slackChatOptions);
+		</script>
+	{:else}
+		<script type="text/javascript">
+			$("#message-box").click(function() {
+				var chatDisabledMsg = '{@__ key="preview.help-disabled"/}';
+				toastr.info(chatDisabledMsg);
+			});
+		</script>
+	{/ifTrue}
+	<script type="text/javascript">
+		var intro2 = '{@__ key="editor.intro"/}' + "\n";
+		intro2 += '{@__ key="editor.intro2"/}' + "\n";
+		intro2 += '{@__ key="editor.intro3"/}';
+		var savingButtonText = '{@__ key="button.save"/}';
+		var loadingButtonText = '{@__ key="button.loading"/}';
+	</script>
+	{! Preview JS !}
+	<script type="text/javascript">var workspaceFolder = [];</script>
+	{#workspaceFolder}
+		<script type="text/javascript">
+			workspaceFolder.push({@contextDump /});
+		</script>
+	{/workspaceFolder}
+	<script src="/js/Newmips/preview.js" type="text/javascript"></script>
+{/custom_js}

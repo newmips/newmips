@@ -53,12 +53,12 @@ app.use(morgan('dev', {
     skip: function(req, res) {
         // Empeche l'apparition de certain log polluant.
         var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/"];
-        var currentURL = req.url;
+        var currentURL = req.originalUrl;
         if (currentURL.indexOf("?") != -1) {
             // Remove params from URL
             currentURL = currentURL.split("?")[0];
         }
-        if (skipArray.indexOf(currentURL) != -1) {
+        if (skipArray.indexOf("/"+currentURL.split("/")[currentURL.split("/").length -1]) != -1) {
             return true;
         }
     },
@@ -84,9 +84,14 @@ app.use(bodyParser.json({
 }));
 
 // Template rendering
+//------------------------------ DUST.JS ------------------------------ //
+var dust = require('dustjs-linkedin');
+var cons = require('consolidate');
+
 app.set('views', path.join(__dirname, 'views'));
-// Set up PUG for templating
-app.set('view engine', 'pug');
+app.engine('dust', cons.dust);
+cons.dust.debugLevel = "DEBUG";
+app.set('view engine', 'dust');
 
 // Required for passport
 var options = {
@@ -124,7 +129,6 @@ app.use(flash());
 // Locals ======================================================================
 app.locals.moment = require('moment');
 
-// Language ======================================================================
 app.use(function(req, res, next) {
     // Applications created with newmips only have fr-FR.
     // To avoid cookie conflict between newmips and this app, set fr-FR by default
@@ -135,8 +139,40 @@ app.use(function(req, res, next) {
         else
             req.session.lang_user = lang;
     }
-    // Pass translate function to pug templates
-    res.locals = extend(res.locals, language(lang));
+
+    res.locals.user_lang = lang;
+    // Create dust helper
+    dust.helpers.__ = function(ch, con, bo, params) {
+        return language(lang).__(params.key, params.params);
+    }
+    dust.helpers.M_ = function(ch, con, bo, params) {
+        return language(lang).M_(params.key, params.params);
+    }
+    dust.helpers.ifTrue = function(chunk, context, bodies, params) {
+        var value = params.key;
+
+        if(value == true || value == "true" || value == 1){
+            return true;
+        } else{
+            return false;
+        }
+    }
+    dust.helpers.in = function(chunk, context, bodies, params) {
+        let paramsArray = params.value.split(",");
+        if(paramsArray.indexOf(params.key) != -1)
+            return true;
+        else
+            return false;
+    }
+    dust.helpers.isAdmin = function(chunk, context, bodies, params) {
+        if(req.session.passport.user.id_role == 1)
+            return true;
+        return false;
+    }
+    dust.filters.stringify = function(value) {
+        return JSON.stringify(value);
+    };
+
     res.locals.globalConf = globalConf;
     next();
 });
@@ -190,22 +226,28 @@ models.sequelize.sync({
                 name: 'admin',
                 version: 1
             }).then(function() {
-                models.User.create({
-                    id: 1,
-                    email: null,
-                    enabled: 0,
-                    first_name: "admin",
-                    last_name: "NEWMIPS",
-                    login: "admin",
-                    password: null,
-                    phone: null,
+                models.Role.create({
+                    id: 2,
+                    name: 'user',
                     version: 1
-                }).then(function(user) {
-                    user.setRole(1);
-                });
-            });
+                }).then(function() {
+                    models.User.create({
+                        id: 1,
+                        email: null,
+                        enabled: 0,
+                        first_name: "admin",
+                        last_name: "NEWMIPS",
+                        login: "admin",
+                        password: null,
+                        phone: null,
+                        version: 1
+                    }).then(function(user) {
+                        user.setRole(1);
+                    })
+                })
+            })
         }
-    });
+    })
     if (protocol == 'https') {
         var server = https.createServer(globalConf.ssl, app);
         server.listen(port);
