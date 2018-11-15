@@ -1,5 +1,5 @@
 var str_language;
-if (lang_user == "fr-FR") {
+if (user_lang == "fr-FR") {
 	str_language = {
 		"processing":     "Traitement en cours...",
 		"search":         "Rechercher&nbsp;:&nbsp;",
@@ -25,7 +25,7 @@ if (lang_user == "fr-FR") {
 } else {
 	str_language = {
 		"processing":     "Processing...",
-		"search":         "Search&nbsp;:&nbsp;",
+		"search":         "Search&nbsp;:",
 		"lengthMenu":     "Display _MENU_ records",
 		"info":           "Displaying records _START_ to _END_ on _TOTAL_ records",
 		"infoEmpty":      "No record to display",
@@ -51,7 +51,6 @@ if (lang_user == "fr-FR") {
 var tables = [];
 
 function simpleTable(table) {
-	var dom = table.data('no-dom') ? '' : 'lBfrtip';
 	var options = {
 		"responsive": true,
 		"language": str_language,
@@ -59,7 +58,7 @@ function simpleTable(table) {
 		"iDisplayLength": 50,
 		"aLengthMenu": [[50, 200, 500, -1], [50, 200, 500, "Tous"]],
 		"bAutoWidth": false,
-		"dom": dom,
+		"dom": 'lBfrtip',
 		"buttons": [
 			{
 				extend:    'print',
@@ -137,7 +136,7 @@ function simpleTable(table) {
     table.find("td[data-type='date']").each(function() {
         if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
             if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
-                if (lang_user == "fr-FR")
+                if (user_lang == "fr-FR")
                     $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
                 else
                     $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
@@ -150,7 +149,7 @@ function simpleTable(table) {
     table.find("td[data-type='datetime']").each(function() {
         if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
             if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
-                if (lang_user == "fr-FR")
+                if (user_lang == "fr-FR")
                     $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
                 else
                     $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));

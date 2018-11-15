@@ -41,7 +41,8 @@
         "users": "Users",
         "logs": "Logs",
         "account": "Mon compte",
-        "themes": "Mes thèmes"
+        "themes": "Mes thèmes",
+        "users": "Utilisateurs"
     },
     "button": {
         "generate": "Générer",
@@ -49,6 +50,7 @@
         "show": "Afficher",
         "update": "Modifier",
         "delete": "Supprimer",
+        "remove": "Retirer",
         "create": "Créer",
         "list": "Lister",
         "save": "Sauvegarder",
@@ -74,7 +76,7 @@
         "accessbuttonyt": "C'est parti !",
         "lastthreeapp": "Vos 3 dernières applications",
         "directlinks": {
-            "title": "Gestion des Applications",
+            "title": "Gestion des applications",
             "script": "Script",
             "theme": "Thèmes",
             "live": "Direct",
@@ -183,7 +185,8 @@
         "create": "Créer une nouvelle application",
         "selectExisting": "Sélectionner une application existante",
         "plural": "Applications",
-        "not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste."
+        "not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste.",
+        "no_access": "Vous n'avez pas accès à cette application."
     },
     "module": {
         "label": "Module"
@@ -445,11 +448,34 @@
         "applicationavailable": "L'application est disponible ici : <br> <a href='%s' target='_blank'>%s</a>",
         "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
     },
-    "themes":{
+    "themes": {
         "download-default": "Télécharger le modèle de thème",
         "generating": "Génération en cours...",
         "add-theme": "Déposer un thème",
         "wrongExt": "Seul les .zip sont accepté.",
         "default": "Thème par défaut"
+    },
+    "users": {
+        "title": "Utilisateur",
+        "login": "Identifiant",
+        "email": "Email",
+        "role": "Rôle",
+        "applications": "Applications",
+        "enabled": "Activé",
+        "last_name": "Nom",
+        "first_name": "Prénom",
+        "phone": "Téléphone",
+        "not_delete_admin": "Vous ne pouvez pas supprimer l'administrateur principal.",
+        "not_remove_admin_role": "Vous ne pouvez pas enlever le rôle admin à l'administrateur principal."
+    },
+    "action": {
+        "success": {
+            "create": "Création réussie.",
+            "update": "Mise à jour réussie.",
+            "destroy": "La suppression a bien été prise en compte."
+        },
+        "choose": "--- Choisir ---",
+        "missing_values": "Des valeurs sont manquantes, merci de les renseigner.",
+        "no_access_admin": "Vous devez être administrateur pour accèder à cette page."
     }
 }

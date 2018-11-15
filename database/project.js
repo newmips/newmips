@@ -173,3 +173,33 @@ exports.getProjectApplications = function(project, callback){
         callback(err, null);
     });
 }
+
+// Check if current user has all the application access in the project
+exports.checkAccessAllApplication = function(attr, callback){
+    return new Promise((resolve, reject) => {
+        models.Project.findOne({
+            where: {
+                id: attr.options.showValue
+            },
+            include: [{
+                model: models.Application,
+                include: [{
+                    model: models.User,
+                    as: "users"
+                }]
+            }]
+        }).then(project => {
+            let hasAccess;
+            for (var i = 0; i < project.Applications.length; i++) {
+                hasAccess = false;
+                for (var j = 0; j < project.Applications[i].users.length; j++) {
+                    if(project.Applications[i].users[j].id == attr.currentUser.id)
+                        hasAccess = true;
+                }
+                if(!hasAccess)
+                    return resolve(false)
+            }
+            resolve(true);
+        })
+    });
+}

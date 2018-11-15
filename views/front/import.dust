@@ -1,0 +1,120 @@
+{>"main_layout"/}
+{<title}
+	{@__ key="menu.import"/}<small>{@__ key="menu.module"/}</small>
+{/title}
+{<content}
+<div class="row">
+	<div class="col-xs-12">
+		<section class="col-xs-12 col-lg-offset-2 col-lg-8">
+			<div class="box box-solid box-default">
+				<div class="box-header bg-primary">
+					<h3 class="box-title" style="color: #fff;">{@__ key="import.legend"/}</h3>
+				</div>
+				<div class="box-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<form id="importForm" method="post" enctype="multipart/form-data">
+								<div class="form-group">
+									<label for="AppID">{@__ key="application.selectExisting"/}</label>
+									<select class="form-control select" name="appID" style="width: 100%;" required="required">
+										{#applications}
+											<option value="{id}">{id} - {name}</option>
+										{/applications}
+									</select>
+								</div>
+								<div class="form-group">
+									<label for="configFile">{@__ key="import.confFile"/}</label>
+									<input id="configFile" name="configFile" type="file" required="required" />
+								</div>
+								<div class="form-group">
+									<label for="contentFile">{@__ key="import.fileType"/}</label>
+									<input id="contentFile" name="contentFile" type="file" required="required" />
+								</div><br>
+								<div class="form-group">
+									<button class="btn btn-primary" id="importSubmit">{@__ key="import.action"/}</button>
+								</div>
+							</form>
+							<div class="progress sm progress-striped active" id="progressImportOne" style="display:none;">
+								<div class="progress-bar progress-bar-success" id="progressImportTwo" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;"></div>
+							</div>
+							<div class="form-group">
+								<a class="btn btn-info" id="downloadSQLFile" style="display:none;">
+									{@__ key="import.downloadsqlfile"/}
+								</a>
+							</div>
+						</div>
+					</div><br>
+					<div class="row">
+						<div class="col-xs-12">
+							<div id="infoImport"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
+{/content}
+{<custom_js}
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("form#importForm").submit(function(){
+
+				var formData = new FormData($(this)[0]);
+				var doCheck = true;
+				$("#importSubmit").hide();
+				$("#progressImportOne").show();
+
+				function checkImport(doCheck){
+					if(doCheck){
+						$.ajax({
+							url: '/import/get_import_status',
+							method: 'GET',
+							success: function(answer) {
+								console.log(answer.percentProgress);
+								$("#progressImportTwo").attr("aria-valuenow", answer.percentProgress);
+								$("#progressImportTwo").css("width", answer.percentProgress+"%");
+
+								for(var i=0; i<answer.errors.length; i++){
+									$("#infoImport").append("<p><b>ERROR:</b><br><u>REQUEST:</u>&nbsp;&nbsp;"+answer.errors[i].request+"<br><u>ERROR:</u>&nbsp;&nbsp;"+answer.errors[i].error+"</p><br>");
+								}
+							}
+						});
+					}
+				};
+
+				$.ajax({
+					url: '/import/execute',
+					method: 'POST',
+					contentType: false,
+					processData: false,
+					data: formData,
+					timeout: 600000,
+					success: function(answer){
+						checkImport(doCheck);
+						doCheck = false;
+						$("#downloadSQLFile").attr("href", "/import/download_file/"+answer.sqlFilename);
+						$("#downloadSQLFile").show();
+						$("#progressImportOne").hide();
+						if(answer.success){
+							toastr.success(answer.message);
+						} else {
+							toastr.error(answer.message);
+						}
+					},
+					error: function(err){
+						console.log(err.responseText);
+						toastr.error(err.responseText);
+					}
+				});
+
+				/* Check status */
+				setInterval(function(){
+					checkImport(doCheck);
+				}, 500);
+
+				return false;
+			});
+		});
+	</script>
+{/custom_js}
