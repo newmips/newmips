@@ -238,10 +238,9 @@ var delay = (function() {
     };
 })();
 
-function init_datatable(tableID, isSubDataList, doPagination, context) {
+function init_datatable(tableID, doPagination, context) {
     if(!context)
         context = document;
-    isSubDataList = typeof isSubDataList !== 'undefined' && isSubDataList == true ? true : false;
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
     // Fetch columns from html
@@ -273,7 +272,7 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
     // Columns rendering
     // Server's object doesn't include DB table's prefix, we need to remove it
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
-    var columnDefs = [];
+    var columnDefs = [], columnsTypes = {};
     for (var i = 0; i < columns.length; i++) {
         var objColumnDefToPush = {};
         if(columns[i].hidden){
@@ -390,10 +389,15 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
                 return cellValue;
             }
         };
+
         if(columns[i].type == "password"){
             objColumnDefToPush.searchable = false;
             objColumnDefToPush.orderable = false;
         }
+
+        // Build columnsTypes. This will be added to ajax call and used sever-side in case of global search
+        columnsTypes[columns[i].data] = columns[i].type || 'string';
+
         columnDefs.push(objColumnDefToPush);
     }
 
@@ -413,13 +417,19 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
         "serverSide": true,
         "ajax": {
             "url": $(tableID, context).data('url'),
-            "type": "POST"
+            "type": "POST",
+            data: function(e) {
+                // Used for global search
+                e.columnsTypes = columnsTypes;
+                return e;
+            }
         },
         "responsive": true,
         "columns": columns,
         "columnDefs": columnDefs,
         "language": STR_LANGUAGE,
         "paging": doPagination,
+        "dom": 'lBfrtip',
         "bLengthChange": true,
         "iDisplayLength": 25,
         "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],
@@ -467,7 +477,6 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
         ]
     }
     // Global search
-    tableOptions.dom = isSubDataList ? 'lBrtip' : 'lBfrtip';
     var table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
@@ -505,99 +514,101 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
         }
     });
 
-    if (!isSubDataList) {
-        var startFilterTimer = 0;
-        // Bind search fields
-        $(tableID + ' .filters th', context).each(function (i) {
-            var title = $(this).text();
-            var mainTh = $(this);
-            // Custom
-            var currentField = mainTh.data('field');
-            var val = getFilterSave(tableID.substring(1), currentField);
-            var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
-            function searchInDatalist(searchValue) {
-                var valueObject = {type: '', value: ''};
-                // Special data types re-formating for search
+    var startFilterTimer = 0;
+    // Bind search fields
+    $(tableID + ' .filters th', context).each(function (i) {
+        var title = $(this).text();
+        var mainTh = $(this);
+        // Custom
+        var currentField = mainTh.data('field');
+        var val = getFilterSave(tableID.substring(1), currentField);
+        var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
+        function searchInDatalist(searchValue) {
+            var valueObject = {type: '', value: ''};
+            // Special data types re-formating for search
+            if (typeof mainTh.data('type') !== 'undefined') {
+                // Date
+                if (mainTh.data('type') == 'date') {
+                    valueObject.type = 'date';
+                    searchValue = lang_user == 'fr-FR' ? formatDateFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateEN(mainTh.find("input").inputmask('unmaskedvalue'));
+                }
+                // Time
+                else if (mainTh.data('type') == 'time') {
+                    valueObject.type = 'time';
+                    searchValue = formatTime(mainTh.find("input").inputmask('unmaskedvalue'));
+                }
+                // DateTime
+                else if (mainTh.data('type') == 'datetime') {
+                    valueObject.type = 'datetime';
+                    searchValue = lang_user == 'fr-FR' ? formatDateTimeFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateTimeEN(mainTh.find("input").inputmask('unmaskedvalue'));
+                }
+                // Currency
+                else if (mainTh.data('type') == 'currency')
+                    valueObject.type = 'currency';
+            }
+            valueObject.value = searchValue;
+            table.columns(i).search(JSON.stringify(valueObject)).draw();
+        }
+        // If it's not an action button
+        if (title != '') {
+            if($(this).data("hidden") != 1){
+                $(this).html('');
+                $(search).appendTo(this).keyup(function () {
+                    var searchValue = this.value;
+                    saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
+
+                    // If search is empty, clear previous search and draw
+                    if (searchValue == "")
+                        return table.columns(i).search('').draw();
+
+                    delay(function(){
+                        searchInDatalist(searchValue);
+                    }, 300);
+                });
+                // Initialize masks on filters inputs
                 if (typeof mainTh.data('type') !== 'undefined') {
-                    // Date
-                    if (mainTh.data('type') == 'date') {
-                        valueObject.type = 'date';
-                        searchValue = lang_user == 'fr-FR' ? formatDateFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateEN(mainTh.find("input").inputmask('unmaskedvalue'));
-                    }
-                    // Time
-                    else if (mainTh.data('type') == 'time') {
-                        valueObject.type = 'time';
-                        searchValue = formatTime(mainTh.find("input").inputmask('unmaskedvalue'));
-                    }
-                    // DateTime
-                    else if (mainTh.data('type') == 'datetime') {
-                        valueObject.type = 'datetime';
-                        searchValue = lang_user == 'fr-FR' ? formatDateTimeFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateTimeEN(mainTh.find("input").inputmask('unmaskedvalue'));
-                    }
-                    // Currency
-                    else if (mainTh.data('type') == 'currency') {
-                        valueObject.type = 'currency';
-                    }
-                }
-                valueObject.value = searchValue;
-                table.columns(i).search(JSON.stringify(valueObject)).draw();
-            }
-            // If it's not an action button
-            if (title != '') {
-                if($(this).data("hidden") != 1){
-                    $(this).html('');
-                    $(search).appendTo(this).keyup(function () {
-                        var searchValue = this.value;
-                        saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
-                        delay(function(){
-                            searchInDatalist(searchValue);
-                        }, 500);
-                    });
-                    // Initialize masks on filters inputs
-                    if (typeof mainTh.data('type') !== 'undefined') {
-                        if (lang_user == 'fr-FR') {
-                            if (mainTh.data('type') == 'datetime')
-                                $(this).find("input").inputmask({
-                                    mask: "d/m/y h:s:s",
-                                    placeholder: "dd/mm/yyyy hh:mm:ss",
-                                    alias: "datetime",
-                                    timeseparator: ":",
-                                    hourFormat: "24"
-                                });
-                            if (mainTh.data('type') == 'date')
-                                $(this).find("input").inputmask({"alias": "dd/mm/yyyy"});
-                        } else if (lang_user == 'en-EN') {
-                            if (mainTh.data('type') == 'datetime')
-                                $(this).find("input").inputmask({
-                                    mask: "y-m-d h:s:s",
-                                    placeholder: "yyyy-mm-dd hh:mm:ss",
-                                    alias: "datetime",
-                                    timeseparator: ":",
-                                    hourFormat: "24"
-                                });
-                            if (mainTh.data('type') == 'date')
-                                $(this).find("input").inputmask({"alias": "yyyy-mm-dd"});
-                        }
-                        if (mainTh.data('type') == 'time')
+                    if (lang_user == 'fr-FR') {
+                        if (mainTh.data('type') == 'datetime')
                             $(this).find("input").inputmask({
-                                mask: "h:s:s",
-                                placeholder: "hh:mm:ss",
-                                separator: "-"
+                                mask: "d/m/y h:s:s",
+                                placeholder: "dd/mm/yyyy hh:mm:ss",
+                                alias: "datetime",
+                                timeseparator: ":",
+                                hourFormat: "24"
                             });
+                        if (mainTh.data('type') == 'date')
+                            $(this).find("input").inputmask({"alias": "dd/mm/yyyy"});
+                    } else if (lang_user == 'en-EN') {
+                        if (mainTh.data('type') == 'datetime')
+                            $(this).find("input").inputmask({
+                                mask: "y-m-d h:s:s",
+                                placeholder: "yyyy-mm-dd hh:mm:ss",
+                                alias: "datetime",
+                                timeseparator: ":",
+                                hourFormat: "24"
+                            });
+                        if (mainTh.data('type') == 'date')
+                            $(this).find("input").inputmask({"alias": "yyyy-mm-dd"});
                     }
-                } else {
-                    $(this).hide();
+                    if (mainTh.data('type') == 'time')
+                        $(this).find("input").inputmask({
+                            mask: "h:s:s",
+                            placeholder: "hh:mm:ss",
+                            separator: "-"
+                        });
                 }
+            } else {
+                $(this).hide();
             }
-            if (val != "") {
-                // Delay each save filter triggering in order to work properly
-                startFilterTimer += 500;
-                setTimeout(function(){
-                    searchInDatalist(val);
-                }, startFilterTimer);
-            }
-        });
-    }
+        }
+        if (val != "") {
+            // Delay each save filter triggering in order to work properly
+            startFilterTimer += 500;
+            setTimeout(function(){
+                searchInDatalist(val);
+            }, startFilterTimer);
+        }
+    });
 }
 
 $(function () {

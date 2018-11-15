@@ -222,7 +222,6 @@ function initHasMany(tab, data) {
     var doPagination = data.option.relation == 'belongsToMany' ? false : true;
 
     var table = tab.find('table');
-    table.find('.filters').remove();
     if (!data.option.noCreateBtn) {
         var newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
@@ -257,7 +256,7 @@ function initHasMany(tab, data) {
     table.data('url', tableUrl);
 
     // DataTable
-    init_datatable('#'+table.attr('id'), true, doPagination, tab);
+    init_datatable('#'+table.attr('id'), doPagination, tab);
 }
 
 // HAS MANY PRESET
