@@ -17,12 +17,23 @@ exports.setupAssociation = function (associationOption, callback) {
     var through = associationOption.through;
     var toSync = associationOption.toSync;
     var type = associationOption.type;
+    var constraints = associationOption.constraints;
     var targetType = associationOption.targetType;
 
     // SETUP MODEL OPTIONS FILE
     var optionsFileName = __dirname+'/../workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
     var optionsFile = fs.readFileSync(optionsFileName);
     var optionsObject = JSON.parse(optionsFile);
+
+    // If we are generating automatically a key and the alias is already used, then cancel
+    for (var i = 0; i < optionsObject.length; i++)
+        if(type == "auto_generate" && optionsObject[i].as == as)
+            return callback();
+
+    // Check for other auto_generate keys with same alias, if exist, remove it
+    for (var i = 0; i < optionsObject.length; i++)
+        if(optionsObject[i].as == as && optionsObject[i].type == "auto_generate")
+            optionsObject.splice(i, 1);
 
     var baseOptions = {target: target.toLowerCase(), relation: relation};
     baseOptions.foreignKey = foreignKey;
@@ -42,6 +53,9 @@ exports.setupAssociation = function (associationOption, callback) {
         baseOptions.structureType = type;
     else
         baseOptions.structureType = "";
+
+    if (constraints != null && !constraints)
+        baseOptions.constraints = constraints;
 
     // Save using field in related to and related to many fields
     if (typeof associationOption.usingField !== "undefined")
