@@ -173,6 +173,9 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
             }
             options.allowNull = true;
 
+            if(association.constraints != null)
+                options.constraints = association.constraints;
+
             models[selfModel][association['relation']](models[target], options);
         }
     }
