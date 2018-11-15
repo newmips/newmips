@@ -171,9 +171,6 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
 });
 
 router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-
     var where = {};
     if(req.isAdmin){
         var idTeamUsers = [];
@@ -191,7 +188,7 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
         }
     }
 
-    filterDataTable("E_cra", req.body, include, where).then(function (rawData) {
+    filterDataTable("E_cra", req.body, null, where).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_cra', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
@@ -858,34 +855,6 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                 }];
                 res.redirect(req.headers.referer);
             });
-            // dust.renderSource(dustSrc, {
-            //     activities: activities,
-            //     daysAndLabels: daysAndLabels,
-            //     workedDays: workedDays,
-            //     cra: cra,
-            //     user: user,
-            //     team: team
-            // }, function(err, html) {
-            //     if (err)
-            //         return entity_helper.error(err, req, res);
-
-            //     var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
-            //     var myfileName = "CRA_"+user.f_login+"_"+cra.f_year+'_'+cra.f_month+'.pdf';
-
-            //     pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
-            //         if (err)
-            //             return entity_helper.error(err, req, res);
-            //         fs.readFile(fileName, function(err, data) {
-            //             if (err)
-            //                 return entity_helper.error(err, req, res);
-            //             res.writeHead(200, {'Content-disposition': 'attachment; filename='+myfileName, "Content-Type": "application/pdf"});
-            //             res.write(data);
-            //             res.end();
-
-            //             fs.unlinkSync(fileName);
-            //         });
-            //     });
-            // });
         });
     });
 });

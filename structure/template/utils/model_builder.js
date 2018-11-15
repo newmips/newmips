@@ -60,6 +60,37 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
     return globalInclude;
 }
 
+// Used by filter_datatable and `/subdatalist` to build search query object
+exports.formatSearch = function (column, searchValue, type) {
+    var formatedSearch = {};
+
+    if (type == 'datetime') {
+        if (searchValue.indexOf(' ') != -1)
+            formatedSearch['$between'] = [searchValue, searchValue];
+        else
+            formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59']
+    } else if (type == 'date') {
+        formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59']
+    } else if (type == 'boolean') {
+        formatedSearch = searchValue;
+    } else if (type == 'currency') {
+        formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
+            like: `${searchValue}%`
+        });
+    } else {
+        formatedSearch = {
+            $like: '%' + searchValue + '%'
+        };
+    }
+
+    var field = column, searchLine = {};
+    if (field.indexOf('.') != -1)
+        field = `$${field}$`;
+
+    searchLine[field] = formatedSearch;
+    return searchLine;
+}
+
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
 exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) {
@@ -258,35 +289,6 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
             reject(err);
         })
     })
-}
-
-exports.getDatalistInclude = function getDatalistInclude(models, options, columns) {
-    var structureDatalist = [];
-
-    /* Then get attributes from other entity associated to main entity */
-    for (var i = 0; i < options.length; i++) {
-        if (options[i].relation.toLowerCase() == "hasone" || options[i].relation.toLowerCase() == "belongsto") {
-            var target = capitalizeFirstLetter(options[i].target.toLowerCase());
-
-            var include = {
-                model: models[target],
-                as: options[i].as
-            };
-            // Add include's attributes for performance
-            var attributes = [];
-            for (var j = 0; j < columns.length; j++) {
-                if (columns[j].data.indexOf('.') == -1)
-                    continue;
-                var parts = columns[j].data.split('.');
-                if (parts[0] == options[i].as)
-                    attributes.push(parts[1]);
-            }
-            if (attributes.length && target != "E_status")
-                include.attributes = attributes;
-            structureDatalist.push(include);
-        }
-    }
-    return structureDatalist;
 }
 
 exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) {
