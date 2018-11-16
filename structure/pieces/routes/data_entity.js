@@ -91,14 +91,18 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
         model: models[subentityModel],
         as: subentityAlias,
         order: order,
-        where: search,
         include: subentityInclude
     }
+
+    if (search[searchTerm].length > 0)
+        include.where = search;
 
     if (doPagination == "true") {
         include.limit = length;
         include.offset = start;
     }
+
+    include.required = false;
 
     models.MODEL_NAME.findOne({
         where: {
