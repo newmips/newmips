@@ -17,7 +17,7 @@ var re = /(?:\.([^.]+))?$/;
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
 
-router.post('/load_file', block_access.isLoggedIn, function(req, res) {
+router.post('/load_file', block_access.hasAccessApplication, function(req, res) {
 	var data = {};
 	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
 	splitPath = splitPath[1].split("/");
@@ -31,7 +31,7 @@ router.post('/load_file', block_access.isLoggedIn, function(req, res) {
 	}
 });
 
-router.post('/update_file', block_access.isLoggedIn, function(req, res) {
+router.post('/update_file', block_access.hasAccessApplication, function(req, res) {
 	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
 	splitPath = splitPath[1].split("/");
 	if(excludeFolder.indexOf(splitPath[0]) != -1){

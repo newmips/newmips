@@ -91,7 +91,7 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
     });
 }
 
-router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
+router.get('/getPage/:entity/:page', block_access.hasAccessApplication, function(req, res) {
     var page = req.params.page;
     var generatorLanguage = language(req.session.lang_user);
 
@@ -129,7 +129,7 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
     });
 });
 
-router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
+router.post('/setPage/:entity/:page', block_access.hasAccessApplication, function(req, res) {
     var page = req.params.page;
     var generatorLanguage = language(req.session.lang_user);
 
