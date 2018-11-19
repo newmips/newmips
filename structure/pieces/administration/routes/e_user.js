@@ -331,13 +331,21 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
             return res.render('common/error', data);
         }
         component_helper.updateAddressIfComponentExist(e_user, options, req.body);
+
+        var redirect = '/user/show?id=' + id_e_user;
+        // If we are in user settings,then he cannot modify sensible data, and we redirect differently
+        if(req.body.is_settings){
+            delete updateObject.f_login;
+            delete updateObject.r_role;
+            delete updateObject.r_group;
+            redirect = '/user/settings';
+        }
+
         e_user.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
             model_builder.setAssocationManyValues(e_user, req.body, updateObject, options).then(function() {
-
-                var redirect = '/user/show?id=' + id_e_user;
                 if (typeof req.body.associationFlag !== 'undefined')
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
@@ -676,6 +684,78 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
         });
     }).catch(function(err) {
         entity_helper.error(err, req, res, '/user/list');
+    });
+});
+
+router.get('/settings', block_access.isLoggedIn, function(req, res) {
+    var id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
+    var data = {
+        menu: "e_user",
+        sub_menu: "list_e_user",
+        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
+    };
+
+    if (typeof req.query.associationFlag !== 'undefined') {
+        data.associationFlag = req.query.associationFlag;
+        data.associationSource = req.query.associationSource;
+        data.associationForeignKey = req.query.associationForeignKey;
+        data.associationAlias = req.query.associationAlias;
+        data.associationUrl = req.query.associationUrl;
+    }
+
+    var associationsFinder = model_builder.associationsFinder(models, options);
+
+    Promise.all(associationsFinder).then(function(found) {
+        models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function(e_user) {
+            if (!e_user) {
+                data.error = 404;
+                return res.render('common/error', data);
+            }
+
+            data.e_user = e_user;
+            var name_global_list = "";
+
+            for (var i = 0; i < found.length; i++) {
+                var model = found[i].model;
+                var rows = found[i].rows;
+                data[model] = rows;
+
+                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
+                // So in the context Personne we can found adresse.findAll through {#adresse_global_list}{/adresse_global_list}
+                name_global_list = model + "_global_list";
+                data.e_user[name_global_list] = rows;
+
+                if (rows.length > 1)
+                    for(var j = 0; j < data[model].length; j++)
+                        if(e_user[model] != null)
+                            for (var k = 0; k < e_user[model].length; k++)
+                                if (data[model][j].id == e_user[model][k].id)
+                                    data[model][j].dataValues.associated = true;
+            }
+
+            data.toastr = req.session.toastr;
+            req.session.toastr = [];
+
+            // Used to hide role/group inputs
+            data.isSettings = true;
+            req.session.formSettings = true;
+            res.render('e_user/settings', data);
+        }).catch(function(err){
+            entity_helper.error(err, res);
+        });
+    }).catch(function(err){
+        var isKnownError = false;
+        try {
+            // Unique value constraint
+            if (err.parent.errno == 1062 || err.parent.code == 23505) {
+                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                isKnownError = true;
+            }
+        } finally {
+            if (isKnownError)
+                return res.render('e_user/settings', data);
+            entity_helper.error(err, res);
+        }
     });
 });
 
