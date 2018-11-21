@@ -338,7 +338,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "        <!--{/eq}-->\n";
                 str += "    <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
             } else if (file != "create") {
-                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
                 str += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
@@ -349,7 +349,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    </select>\n";
             } else if (value != "") {
-                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
                 str += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <!--{@eq key=\"" + value + "\" value=\"{.value}\" }-->\n";
@@ -360,7 +360,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    </select>\n";
             } else {
-                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
                 str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <option value=\"{.value}\"> {.translation} </option>\n";
@@ -1255,7 +1255,7 @@ exports.setupRelatedToField = function (attr, callback) {
     select += '             <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
     select += '         <!--{/inline_help}-->\n';
     select += '     </label>\n';
-    select += '     <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '">\n';
+    select += '     <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
     select += '         <option value="">\n';
     select += '             {@__ key="select.default" /}\n';
     select += '         </option>\n';
@@ -1383,7 +1383,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         select += '      <br><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
         select += '  <!--{/' + alias + '_all}-->\n';
     } else {
-        select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" style="width:100%;">\n';
+        select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
         select += '         <option value="">{@__ key="select.default" /}</option>\n';
         select += '         <!--{#' + alias + '}-->\n';
         select += '             <option value="{id}">' + usingOption.join(' - ') + '</option>\n';
@@ -1421,7 +1421,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                 select += '     <!--{/existInContextById}-->\n';
                 select += '  <!--{/' + alias + '_all}-->\n';
             } else {
-                select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" style="width: 100%;">\n';
+                select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
                 select += '         <!--{#' + alias + '}-->\n';
                 select += '            <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n';
                 select += '         <!--{/' + alias + '}-->\n';
@@ -1440,7 +1440,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
 
                         select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
                         select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-                        select += '     <select multiple disabled readonly class="regular-select form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '">\n';
+                        select += '     <select multiple disabled readonly class="regular-select form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
                         select += '         <!--{#' + alias + '}-->\n';
                         select += '            <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n';
                         select += '         <!--{/' + alias + '}-->\n';

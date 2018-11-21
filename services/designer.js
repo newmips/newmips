@@ -1972,7 +1972,6 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 exports.createNewComponentStatus = function (attr, callback) {
     var self = this;
 
-
     db_entity.getDataEntityById(attr.id_data_entity, function (err, source_entity) {
         if (err)
             return callback(err, null);
@@ -1994,8 +1993,9 @@ exports.createNewComponentStatus = function (attr, callback) {
 
             // These instructions create a has many with a new entity history_status
             // It also does a hasMany relation with e_status
+            var historyLanguage = attr.lang_user == 'fr-FR' ? 'Historique' : 'History';
             var instructions = [
-                "entity " + source_entity.name + ' has many ' + attr.history_table_db_name + ' called History ' + attr.options.showValue,
+                "entity " + source_entity.name + ' has many ' + attr.history_table_db_name + ' called '+historyLanguage+' ' + attr.options.showValue,
                 "select entity " + attr.history_table_db_name,
                 "add field " + attr.options.showValue + " related to Status using name, color",
                 "add field Comment with type text",
