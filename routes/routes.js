@@ -6,9 +6,8 @@ var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
 var slack_conf = require('../config/slack');
-var Curl = require('node-libcurl').Curl;
-var slack = require('slack');
-var querystring = require('querystring');
+var Slack = require('slack');
+var slackbot = new Slack({token: slack_conf.SLACK_API_USER_TOKEN})
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -16,7 +15,6 @@ var logger = require('../utils/logger');
 // Gitlab
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.js');
-
 try{
     if(gitlabConf.doGit){
         // Gitlab connection
@@ -33,7 +31,6 @@ try{
 //Sequelize
 var models = require('../models/');
 
-/* GET home page. */
 router.get('/', block_access.loginAccess, function(req, res) {
     res.redirect('/login');
 });
@@ -63,7 +60,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             where: {
                 login: login_user,
                 $or: [{password: ""}, {password: null}],
-                enabled: 0
+                enabled: false
             }
         }).then(function(user){
             if(user){
@@ -188,6 +185,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                 res.redirect('/login');
             }
         }).catch(function(err){
+            console.log(err);
             req.session.toastr = [{
                 message: err.message,
                 level: "error"
@@ -203,13 +201,11 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
     }
 });
 
-// Affichage de la page reset_password
 router.get('/reset_password', block_access.loginAccess, function(req, res) {
     res.render('login/reset_password');
 });
 
-// Reset password
-// Generate token, insert into DB, send email
+// Reset password - Generate token, insert into DB, send email
 router.post('/reset_password', block_access.loginAccess, function(req, res) {
     var login_user = req.body.login;
     var given_mail = req.body.mail;
@@ -286,7 +282,6 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
     });
 });
 
-// Trigger password reset
 router.get('/reset_password_form/:token', block_access.loginAccess, function(req, res) {
 
     models.User.findOne({
@@ -324,7 +319,6 @@ router.get('/reset_password_form/:token', block_access.loginAccess, function(req
     });
 });
 
-// Trigger password reset
 router.post('/reset_password_form', block_access.loginAccess, function(req, res) {
 
     var login_user = req.body.login_user;
@@ -470,103 +464,44 @@ router.get('/logout', function(req, res) {
     res.redirect('/login');
 });
 
-/****
- * Code for creating a channel when private channels are used in SlackChat.
- * The API Token used must be that of a user with Create permissions.
- */
-router.post('/set_slack', block_access.isLoggedIn, function (req, res) {
-
-    var curl = new Curl(),
-        close = curl.close.bind(curl);
-
-    var channelName = req.body.channelName;
-    var invitedUsers = [];
-
-    if (req.body.invitedUsers != null) {
-        invitedUsers = JSON.parse(req.body.invitedUsers);
-    }
-
-    /* Define the payload to be sent to Slack to create the channel */
-    var payLoad = {
-        "token": slack_conf.SLACK_API_USER_TOKEN,
-        "name": channelName
-    };
-
-    /* The return array to be sent to slackChat client */
-    var returnArr = {
-        "ok": false,
-        "data": "",
-        "err": ""
-    };
-
-    var cpt = 0;
-
-    function done() {
-        cpt++;
-        if (cpt == invitedUsers.length + 1) {
-            res.json(returnArr);
-        }
-    }
-
-    payLoad = querystring.stringify(payLoad);
-
+router.post('/set_slack', block_access.isLoggedIn, function(req, res) {
     try {
-        /* Send the request to Slack API */
-        curl.setOpt(Curl.option.URL, slack_conf.SLACK_API_URL);
-        curl.setOpt(Curl.option.HEADER, "0");
-        curl.setOpt(Curl.option.POSTFIELDS, payLoad);
-        curl.setOpt(Curl.option.SSL_VERIFYPEER, false);
-
-        curl.perform();
-
-        curl.on('end', function (statusCode, slackData) {
-            slackData = JSON.parse(slackData);
-            if (slackData.ok == true) {
-                console.log("Channel Slack created : " + slackData.channel.name);
-                /* Channel created or joined. Return the channel ID */
-                returnArr.data = {"id": slackData.channel.id};
-
-                var user;
-                /* Invite users to join the #Slack channel created */
-                for (var i = 0; i < invitedUsers.length; i++) {
-                    user = invitedUsers[i];
-
-                    var payLoadInvite = {
-                        "token": slack_conf.SLACK_API_USER_TOKEN,
-                        "channel": slackData.channel.id,
-                        "user": user
-                    };
-
-                    payLoadInvite = querystring.stringify(payLoadInvite);
-
-                    var curl = new Curl(),
-                            close = curl.close.bind(curl);
-
-                    curl.setOpt(Curl.option.URL, slack_conf.SLACK_API_INVITE_URL);
-                    curl.setOpt(Curl.option.HEADER, "0");
-                    curl.setOpt(Curl.option.POSTFIELDS, payLoadInvite);
-                    curl.setOpt(Curl.option.SSL_VERIFYPEER, false);
-
-                    curl.perform();
-
-                    curl.on('end', function (statusCode, slackDataInvite) {
-                        slackDataInvite = JSON.parse(slackDataInvite);
-                        if (!slackDataInvite.ok) {
-                            console.log("Failed to invite user: " + user);
-                            console.log(slackDataInvite);
-                        }
-                        this.close();
-                        done();
-                    });
-                }
-                returnArr.ok = true;
-                this.close();
+        var slackData = {};
+        var invitedUsers = [];
+        if (req.body.invitedUsers != null) {
+            invitedUsers = JSON.parse(req.body.invitedUsers);
+        }
+        async function doSlackInvite() {
+            slackData = await slackbot.channels.join({
+                name: req.body.channelName
+            });
+            /* Invite users to join the #Slack channel created */
+            for (var i = 0; i < invitedUsers.length; i++) {
+                await slackbot.channels.invite({
+                    channel: slackData.channel.id,
+                    user: invitedUsers[i]
+                });
             }
-            done();
+        }
+
+        doSlackInvite().then(function() {
+            res.json({
+                ok: true,
+                data: {
+                    id: slackData.channel.id
+                }
+            });
+        }).catch(function(err) {
+            console.log(err);
+            res.json({
+                ok: false
+            });
+        })
+    } catch (err) {
+        console.log(err);
+        res.json({
+            ok: false
         });
-    } catch (e) {
-        console.log(e);
-        res.json(returnArr);
     }
 });
 

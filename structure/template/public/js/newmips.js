@@ -1,14 +1,13 @@
-
 var maskMoneyPrecision = 2;
 var dropzonesFieldArray = [];
 var dropzonesComponentArray = [];
 Dropzone.autoDiscover = false;
 
-function select2_ajaxsearch(select) {
+function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
     var searchField = select.data('using').split(',');
 
     // Use custom url on select or build default url
-    var url = select.data('href') ? select.data('href') : '/' + select.data('source') + '/search';
+    var url = select.data('href') ? select.data('href') : select.data('url') ? select.data('url') : '/' + select.data('source') + '/search';
     select.select2({
         ajax: {
             url: url,
@@ -22,6 +21,15 @@ function select2_ajaxsearch(select) {
                     page: params.page || 1,
                     searchField: searchField
                 };
+                // customwhere example: data-customwhere='{"myField": "myValue"}'
+                // Do not work for related to many fields if the field is a foreignKey !
+                if (select.data('customwhere') !== undefined){
+                    // Handle this syntax: {'myField': 'myValue'}, JSON.stringify need "", no ''
+                    if(typeof select.data('customwhere') === "object")
+                        ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
+                    else
+                        ajaxdata.customwhere = JSON.stringify(JSON.parse(select.data('customwhere').replace(/'/g, '"')));
+                }
                 return JSON.stringify(ajaxdata);
             },
             processResults: function (answer, params) {
@@ -58,7 +66,7 @@ function select2_ajaxsearch(select) {
         templateResult: function (data) {
             return data.text;
         },
-        placeholder: SELECT_DEFAULT_TEXT
+        placeholder: placeholder
     });
 }
 
@@ -68,9 +76,15 @@ function initForm(context) {
         context = document;
 
     $("select.ajax", context).each(function () {
-        select2_ajaxsearch($(this));
+        // Avoid new instanciation if already in select2
+        // Fix width css glitch when switching tabs
+        if(typeof $(this).data("select2") === "undefined")
+            select2_ajaxsearch($(this));
     });
-    $("select:not(.ajax):not(.regular-select)", context).select2();
+    $("select:not(.ajax):not(.regular-select)", context).each(function () {
+        if(typeof $(this).data("select2") === "undefined")
+            $(this).select2();
+    });
 
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
     $("input[type='checkbox'], input[type='radio']", context).iCheck({
@@ -80,9 +94,21 @@ function initForm(context) {
     });
 
     /* --------------- Initialisation des Textarea --------------- */
-    $("textarea:not(.regular-textarea)", context).each(function () {
+    // `.note-codable` is a summernote hidden textarea. Filter out to avoid textarea inception
+    $("textarea:not(.regular-textarea):not(.note-codable)", context).each(function () {
         $(this).summernote({
-            height: 200
+            height: 200,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+                ['custom', ['stt']]
+            ]
         });
     });
 
@@ -280,7 +306,7 @@ function initForm(context) {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
         } else {
-            if ($(this).attr('data-custom-type') === 'code39' || $(this).attr('data-custom-type') === 'alpha39') {
+            if ($(this).attr('data-custom-type') === 'code39') {
                 $(this).on('keyup', function () {
                     $(this).val($(this).val().toUpperCase());
                 });
@@ -289,7 +315,7 @@ function initForm(context) {
     });
 
     //input barcode
-    $("input[data-type='code39'],input[data-type='alpha39']", context).each(function () {
+    $("input[data-type='code39']", context).each(function () {
         $(this).on('keyup', function () {
             $(this).val($(this).val().toUpperCase());
         });
@@ -316,6 +342,21 @@ function initForm(context) {
         }).maskMoney('mask');
     });
 
+    /* Add http:// by default if missing on given url */
+    $("input[type='url']", context).each(function () {
+        $(this).blur(function(){
+            var currentUrl = $(this).val();
+            if (currentUrl.indexOf("http://") == -1 && currentUrl.indexOf("https://") == -1) {
+                if(currentUrl.indexOf("://") != -1){
+                    var toKeep = currentUrl.split("://")[1];
+                    $(this).val("http://"+toKeep);
+                } else {
+                    $(this).val("http://"+currentUrl);
+                }
+            }
+        })
+    });
+
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
     $('.dropzone-field', context).each(function (index) {
         var that = $(this);
@@ -329,6 +370,7 @@ function initForm(context) {
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
             dictCancelUpload: "Annuler",
+            dictInvalidFileType: "Vous ne pouvez pas uploader un fichier de ce type.",
             autoDiscover: false,
             thumbnailWidth: 500,
             thumbnailHeight: 500,
@@ -395,7 +437,7 @@ function initForm(context) {
             }
         });
         if (type == 'picture')
-            dropzoneInit.options.acceptedFiles = 'image/*';
+            dropzoneInit.options.acceptedFiles = 'image/gif, image/png, image/jpeg';
         else if (type === "docx/pdf")
             dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         var dropzoneId = $(this).attr('id') + '';
@@ -421,6 +463,41 @@ function initForm(context) {
     // Input group addons click
     $(document).on("click", ".input-group-addon", function () {
         $(this).next("input").focus();
+    });
+
+    // Label click trigger concerned input
+    $(document).on("click", "div:not([data-field='']) .form-group label", function () {
+        let htmlType = ["input", "textarea", "select"]
+        let input;
+        for (var i=0; i < htmlType.length; i++) {
+            if($(this).parent().find(htmlType[i]+"[name='"+$(this).attr("for")+"']").length != 0){
+                input = $(this).parent().find(htmlType[i]+"[name='"+$(this).attr("for")+"']");
+                break;
+            }
+        }
+        if(typeof input !== "undefined"){
+            switch(input.attr("type")) {
+                case "checkbox":
+                    if(!input.prop("disabled"))
+                        input.iCheck("toggle");
+                    break;
+                default:
+                    if(!input.prop("readonly"))
+                        input.focus();
+                    else
+                        input.select();
+                    break;
+            }
+        }
+    });
+
+    $(document).on("click", ".copy-button", function(){
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(this).prev("a").text()).select();
+        document.execCommand("copy");
+        toastr.success('<i class="fa fa-copy"></i> : '+$(this).prev("a").text()+'</i>')
+        $temp.remove();
     });
 }
 
@@ -594,16 +671,38 @@ function validateForm(form) {
     var isValid = true;
 
     function isFileProcessing() {
-        for (var i = 0; i < dropzonesFieldArray.length; i++)
-            if (dropzonesFieldArray[i].files.length == 1)
-                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
+        for (var i = 0; i < dropzonesFieldArray.length; i++){
+            if (dropzonesFieldArray[i].files.length == 1){
+                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)){
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    function isFileRequired() {
+        for (var i = 0; i < dropzonesFieldArray.length; i++){
+            if($("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).prop("required") && $("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).val() == ""){
+                return true;
+            }
+        }
+        for(let item in dropzonesComponentArray){
+            if($("input#"+$(dropzonesComponentArray[item][0].element).attr("id")+"_hidden", form).prop("required") && $("input#"+$(dropzonesComponentArray[item][0].element).attr("id")+"_hidden", form).val() == ""){
+                return true;
+            }
+        }
         return false;
     }
     // If there are files to upload, block submition until files are uploaded
     if (isFileProcessing()) {
         toastr.warning(WAIT_UPLOAD_TEXT);
+        return false;
+    }
+
+    // Check if input required and input file is empty to pop client side rejection toastr
+    if (isFileRequired()) {
+        toastr.error(REQUIRED_FILE_TEXT);
         return false;
     }
 
@@ -616,12 +715,13 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                var newDate = date[2] + "-" + date[1] + "-" + date[0];
+                if(date.length > 1){
+                    var newDate = date[2] + "-" + date[1] + "-" + date[0];
 
-                // Remove mask to enable to transform the date
-                $(this).inputmask('remove');
-
-                $(this).val(newDate);
+                    // Remove mask to enable to transform the date
+                    $(this).inputmask('remove');
+                    $(this).val(newDate);
+                }
             }
         });
 
@@ -632,13 +732,15 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                var yearDate = date[2].split(" ");
-                var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
+                if(date.length > 1){
+                    var yearDate = date[2].split(" ");
+                    var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
 
-                // Remove mask to enable to transform the date
-                $(this).inputmask('remove');
+                    // Remove mask to enable to transform the date
+                    $(this).inputmask('remove');
 
-                $(this).val(newDate);
+                    $(this).val(newDate);
+                }
             }
         });
     }
@@ -662,12 +764,22 @@ function validateForm(form) {
 
     /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
     form.find("input[type='checkbox']").each(function () {
-        if ($(this).prop("checked")) {
-            $(this).val(true);
+        if(!$(this).hasClass("no-formatage")){
+            if ($(this).prop("checked")) {
+                $(this).val(true);
+            } else {
+                /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
+                $(this).prop("checked", true);
+                $(this).val(false);
+            }
         } else {
-            /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
-            $(this).prop("checked", true);
-            $(this).val(false);
+            // If it's a multiple checkbox, we have to set an empty value in the req.body if no checkbox are checked
+            if($("input[type='checkbox'][name='"+$(this).attr("name")+"']").length > 0){
+                if($("input[type='checkbox'][name='"+$(this).attr("name")+"']:enabled:checked").length == 0){
+                    var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
+                    form.append($(input));
+                }
+            }
         }
     });
 
@@ -723,9 +835,7 @@ function validateForm(form) {
                         if (error)
                             message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
                         break;
-                    case 'code39':
-                    case 'alpha39':
-                        //                             var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
+                    case 'code39':                         var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
                         if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
                             message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
                             error = true;
@@ -768,10 +878,32 @@ function validateForm(form) {
     return isValid;
 }
 
+/* --------------- Status comment modal --------------- */
+function bindStatusComment(context = document) {
+    $(".status", context).click(function() {
+        var url = $(this).data('href');
+
+        // No comment for this status
+        if ($(this).data('comment') != true)
+            return location.href = url;
+
+        // Comment required
+        // Set hidden fields values
+        var hrefParts = $(this).data('href').split('/');
+        $("#statusComment input[name=parentName]").val(hrefParts[hrefParts.length-5]);
+        $("#statusComment input[name=parentId]").val(hrefParts[hrefParts.length-3]);
+        $("#statusComment input[name=field]").val(hrefParts[hrefParts.length-2]);
+        $("#statusComment input[name=statusId]").val(hrefParts[hrefParts.length-1]);
+
+        $("#statusComment").modal('show');
+    });
+}
+
 // DOM READY LOADING
 $(document).ready(function () {
 
     initForm();
+    bindStatusComment();
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function () {
@@ -787,6 +919,13 @@ $(document).ready(function () {
         localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
     });
 
+    $(document).on("click", ".btn-confirm", function () {
+        if(confirm(DEL_CONFIRM_TEXT))
+            return true;
+        return false;
+    });
+
+    // Validate any form before submit
     $('form').submit(function (e) {
         if (!validateForm($(this)))
             return false;
@@ -856,9 +995,9 @@ $(document).ready(function () {
             "newestOnTop": false,
             "progressBar": true,
             "positionClass": "toast-bottom-left",
-            "preventDuplicates": false,
+            "preventDuplicates": true,
             "onclick": null,
-            "showDuration": "300",
+            "showDuration": "400",
             "hideDuration": "1000",
             "timeOut": "5000",
             "extendedTimeOut": "1000",
@@ -948,7 +1087,8 @@ $(document).ready(function () {
                 } else {
                     if (i == dropzonesComponentArray[$(this).attr("data-component")].length - 1) {
                         filesComponentProceeded = false;
-                        toastr.error("You should add a file.");
+                        toastr.error(REQUIRED_FILE_TEXT);
+                        return false;
                     }
                 }
             }
@@ -960,38 +1100,6 @@ $(document).ready(function () {
     /* ---------------------- Composants ---------------------- */
     /** Do not remove **/
     /** Do not remove **/
-    $("#component_document_template").each(function () {
-        $(this).select2({
-            ajax: {
-                url: '/document_template/search',
-                dataType: 'json',
-                method: 'POST',
-                delay: 250,
-                contentType: "application/json",
-                context: this,
-                data: function (params) {
-                    var ajaxdata = {
-                        search: params.term,
-                        entity: $(this).attr('entity')
-                    };
-                    return JSON.stringify(ajaxdata);
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 1,
-            escapeMarkup: function (markup) {
-                return markup;
-            },
-            templateResult: function (data) {
-                return data.text;
-            }
-        });
-    });
 
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
@@ -1063,8 +1171,8 @@ function initComponentAddress(context) {
                                         $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
                                 }
                                 /** Set Lat and Long value **/
-                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[0]);
-                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[1]);
+                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[1]);
+                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[0]);
                                 if ((!_address.street || typeof _address.street === "undefined") && _address.name)
                                     $("#f_c_address_street").val(_address.name);
 
@@ -1148,7 +1256,7 @@ function initMapsIfComponentAddressExists(context) {
                 var mapnik = new OpenLayers.Layer.OSM();
                 var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
                 var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-                var position = new OpenLayers.LonLat(lat, lon).transform(fromProjection, toProjection);
+                var position = new OpenLayers.LonLat(lon,lat).transform(fromProjection, toProjection);
                 var zoom = 15;
                 var markers = new OpenLayers.Layer.Markers("Markers");
 

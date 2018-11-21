@@ -19,6 +19,47 @@ exports.addHooks = function (Model, model_name, attributes) {
     }
 }
 
+// PARAMETERS:
+//  models: require('models/')
+//  headEntity: The entity on which include will be used.
+//              Ex: 'e_user'
+//  fieldsArray: An array of the fields that will be used and need to be included.
+//              Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
+// RETURNS:
+//  Returns a sequelize valid include object.
+//              Ex: [{model: E_project, as:'r_project'}, {model: E_user, as:'r_user', include: [{model: E_user, as:'r_children'}]}}]
+exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
+    var globalInclude = [];
+    function buildInclude(currentEntity, includeObject, depths, idx = 0) {
+        if (depths.length-1 == idx)
+            return ;
+        var entityOptions = require('../models/options/'+currentEntity);
+
+        for (var j = 0; j < entityOptions.length; j++) {
+            if (entityOptions[j].as == depths[idx]) {
+                // If include for current depth exists, fill the same object
+                for (var i = 0; i < includeObject.length; i++)
+                    if (includeObject[i].as == depths[idx])
+                        return buildInclude(entityOptions[j].target, includeObject[i].include, depths, ++idx);
+
+                // If include fur current depth doesn't exists, create it and send include array to recursive buildInclude
+                var depthInclude = {
+                    model: models['E_'+entityOptions[j].target.slice(2)],
+                    as: depths[idx],
+                    include: []
+                }
+                buildInclude(entityOptions[j].target, depthInclude.include, depths, ++idx);
+                return includeObject.push(depthInclude)
+            }
+        }
+    }
+
+    for (var field = 0; field < fieldsArray.length; field++)
+        buildInclude(headEntity, globalInclude, fieldsArray[field].split('.'));
+
+    return globalInclude;
+}
+
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
 exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) {
@@ -176,39 +217,47 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
         if(unusedValueFromReqBody.length == 0)
             return resolve();
 
-        var promises = [];
-        // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
-        for (var i=0; i<options.length; i++) {
-            // Loop on the unused (for now) values in body
-            for (var j=0; j<unusedValueFromReqBody.length; j++) {
-                promises.push(new Promise(function(resolveBis, rejectBis){
-                    // if the alias match between the option and the body
+        async function setAssociationMany(){
+            // Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
+            for (var i=0; i<options.length; i++) {
+                // Loop on the unused (for now) values in body
+                for (var j=0; j<unusedValueFromReqBody.length; j++) {
+                    // If the alias match between the option and the body
                     if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
                         // BelongsTo association have been already done before
                         if(options[i].relation != "belongsTo"){
                             var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
                             var value = [];
 
-                            if(body[unusedValueFromReqBody[j]].length > 0)
-                                value = body[unusedValueFromReqBody[j]];
-
-                            model['set' + target](value).then(function(){
-                                resolveBis();
-                            });
-                        } else {
-                            resolveBis();
+                            // Empty string is not accepted by postgres, clean array to avoid error
+                            if(body[unusedValueFromReqBody[j]].length > 0){
+                                // If just one value in select2, then it give a string, not an array
+                                if(typeof body[unusedValueFromReqBody[j]] == "string"){
+                                    if(body[unusedValueFromReqBody[j]] != "")
+                                        value.push(parseInt(body[unusedValueFromReqBody[j]]))
+                                } else if(typeof body[unusedValueFromReqBody[j]] == "object") {
+                                    for(var val in body[unusedValueFromReqBody[j]])
+                                        if(body[unusedValueFromReqBody[j]][val] != "")
+                                            value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
+                                }
+                            }
+                            try {
+                                await model['set' + target](value)
+                            } catch(err){
+                                throw err
+                            }
                         }
-                    } else {
-                        resolveBis();
                     }
-                }));
+                }
             }
         }
 
-        Promise.all(promises).then(function(){
+        setAssociationMany().then(function(){
             resolve();
-        });
-    });
+        }).catch(function(err){
+            reject(err);
+        })
+    })
 }
 
 exports.getDatalistInclude = function getDatalistInclude(models, options, columns) {

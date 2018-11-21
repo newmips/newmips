@@ -60,3 +60,17 @@
         </div>
     </div>
 {/content}
+{<custom_js}
+<script type="text/javascript">
+    $(function() {
+        /* Apply focus on first row's form element */
+        function firstElementFocus(idx = 0) {
+            var element = $(".form-group:eq("+idx+") label:eq(0)").next().focus();
+            if ((element && (!element.is(":visible") || element.prop('disabled') == true || element.prop('readonly') == true))
+            && ($(".form-group").length > 0 && idx <= $(".form-group").length))
+                firstElementFocus(idx+1);
+        }
+        firstElementFocus();
+    });
+</script>
+{/custom_js}

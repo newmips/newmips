@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
 var models = require('../models/');
@@ -11,6 +11,7 @@ var options = require('../models/options/e_translation');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -73,9 +74,9 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
         data.e_translation = e_translation;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_translation, "e_translation").then(function() {
-            entity_helper.status.translate(e_translation, attributes, req.session.lang_user);
+            status_helper.translate(e_translation, attributes, req.session.lang_user);
             // Check if entity has Status component defined and get the possible next status
-            entity_helper.status.nextStatus(models, "e_translation", e_translation.id, attributes).then(function(nextStatus) {
+            status_helper.nextStatus(models, "e_translation", e_translation.id, attributes).then(function(nextStatus) {
                 if (nextStatus)
                     data.next_status = nextStatus;
 
@@ -96,10 +97,10 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
                 res.render('e_translation/show', data);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -175,11 +176,11 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
             Promise.all(promises).then(function() {
                 res.redirect(redirect);
             }).catch(function(err){
-                entity_helper.error500(err, req, res, '/translation/create_form');
+                entity_helper.error(err, req, res, '/translation/create_form');
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/translation/create_form');
+        entity_helper.error(err, req, res, '/translation/create_form');
     });
 });
 
@@ -215,10 +216,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("translation", "u
             else
                 res.render('e_translation/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -257,10 +258,10 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "updat
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/translation/update_form?id=' + id_e_translation);
+            entity_helper.error(err, req, res, '/translation/update_form?id=' + id_e_translation);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/translation/update_form?id=' + id_e_translation);
+        entity_helper.error(err, req, res, '/translation/update_form?id=' + id_e_translation);
     });
 });
 
@@ -388,14 +389,14 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 
     var errorRedirect = '/translation/show?id='+req.params.id_translation;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_translation');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_translation');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({
         model: models[historyModel],
         as: historyAlias,
         limit: 1,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         include: [{
             model: models.E_status,
             as: statusAlias
@@ -419,7 +420,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
                     include: [{
                     model: models.E_action,
                     as: 'r_actions',
-                    order: 'f_position ASC',
+                    order: ["f_position", "ASC"],
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
@@ -476,7 +477,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -507,15 +508,38 @@ router.post('/search', block_access.actionAccessMiddleware('translation', 'read'
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;
 
     models.E_translation.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        // Format value like date / datetime / etc...
+        for (var field in attributes) {
+            for (var i = 0; i < results.rows.length; i++) {
+                for (var fieldSelect in results.rows[i]) {
+                    if(fieldSelect == field){
+                        switch(attributes[field].newmipsType) {
+                            case "date":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                break;
+                            case "datetime":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         res.json(results);
     }).catch(function (e) {
         console.error(e);
@@ -547,11 +571,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("tran
             e_translation['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -577,10 +601,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("transla
         e_translation['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/translation/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -604,10 +628,10 @@ router.post('/delete', block_access.actionAccessMiddleware("translation", "delet
             res.redirect(redirect);
             entity_helper.remove_files("e_translation", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/translation/list');
+            entity_helper.error(err, req, res, '/translation/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/translation/list');
+        entity_helper.error(err, req, res, '/translation/list');
     });
 });
 

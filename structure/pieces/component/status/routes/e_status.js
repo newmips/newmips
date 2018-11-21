@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
 var models = require('../models/');
@@ -11,6 +11,7 @@ var options = require('../models/options/e_status');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -42,7 +43,7 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
         include: [{
             model: models.E_action,
             as: 'r_actions',
-            order: 'f_position ASC',
+            order: ["f_position", "ASC"],
             include: [{
                 model: models.E_media,
                 as: 'r_media',
@@ -87,10 +88,10 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
                 // Bulk create history for updated entities
                 models[historyModel].bulkCreate(historyCreateObj).then(function() {
                     res.redirect('/status/show?id='+status.id);
-                }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
-            }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
-        }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
-    }).catch(function(err) {entity_helper.error500(err, req, res, "/");});
+                }).catch(function(err) {entity_helper.error(err, req, res, "/");});
+            }).catch(function(err) {entity_helper.error(err, req, res, "/");});
+        }).catch(function(err) {entity_helper.error(err, req, res, "/");});
+    }).catch(function(err) {entity_helper.error(err, req, res, "/");});
 });
 
 router.get('/list', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
@@ -117,6 +118,65 @@ router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), 
         console.log(err);
         logger.debug(err);
         res.end();
+    });
+});
+
+router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"), function(req, res) {
+    var start = parseInt(req.body.start || 0);
+    var length = parseInt(req.body.length || 10);
+
+    var sourceId = req.query.sourceId;
+    var subentityAlias = req.query.subentityAlias;
+    var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
+    var doPagination = req.query.paginate;
+
+    var queryAttributes = [];
+    for (var i = 0; i < req.body.columns.length; i++)
+        if (req.body.columns[i].searchable == 'true')
+            queryAttributes.push(req.body.columns[i].data);
+
+    var include = {
+        model: models[subentityModel],
+        as: subentityAlias,
+        include: {
+            all: true
+        }
+    }
+    if (doPagination == "true") {
+        include.limit = length;
+        include.offset = start;
+    }
+
+    models.E_status.findOne({
+        where: {
+            id: parseInt(sourceId)
+        },
+        include: include
+    }).then(function(e_status) {
+        if (!e_status['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
+            console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
+            return res.status(500).end();
+        }
+
+        e_status['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+            var rawData = {
+                recordsTotal: count,
+                recordsFiltered: count,
+                data: []
+            };
+            for (var i = 0; i < e_status[subentityAlias].length; i++)
+                rawData.data.push(e_status[subentityAlias][i].get({
+                    plain: true
+                }));
+
+            entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
+                res.send(preparedData).end();
+            }).catch(function(err) {
+                console.log(err);
+                logger.debug(err);
+                res.end();
+            });
+        });
     });
 });
 
@@ -175,12 +235,12 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
             e_status.f_field = 'entity.'+e_status.f_entity+'.'+e_status.f_field;
             e_status.f_entity = entityTradKey;
 
-            entity_helper.status.translate(e_status, attributes, req.session.lang_user);
+            status_helper.translate(e_status, attributes, req.session.lang_user);
             data.e_status = e_status;
             res.render('e_status/show', data);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -191,7 +251,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "create
         enum_radio: enums_radios.translated("e_status", req.session.lang_user, options)
     };
 
-    data.entities = entity_helper.status.entityStatusFieldList();
+    data.entities = status_helper.entityStatusFieldList();
 
     if (typeof req.query.associationFlag !== 'undefined') {
         data.associationFlag = req.query.associationFlag;
@@ -269,11 +329,11 @@ router.post('/create', block_access.actionAccessMiddleware("status", "create"), 
                 else
                     res.redirect(redirect);
             }).catch(function(err){
-                entity_helper.error500(err, req, res, '/status/create_form');
+                entity_helper.error(err, req, res, '/status/create_form');
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/status/create_form');
+        entity_helper.error(err, req, res, '/status/create_form');
     });
 });
 
@@ -309,10 +369,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("status", "update
             else
                 res.render('e_status/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -360,10 +420,10 @@ router.post('/update', block_access.actionAccessMiddleware("status", "update"), 
                     res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/status/update_form?id=' + id_e_status);
+            entity_helper.error(err, req, res, '/status/update_form?id=' + id_e_status);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/status/update_form?id=' + id_e_status);
+        entity_helper.error(err, req, res, '/status/update_form?id=' + id_e_status);
     });
 });
 
@@ -491,14 +551,14 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 
     var errorRedirect = '/status/show?id='+req.params.id_status;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_status');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_status');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({
         model: models[historyModel],
         as: historyAlias,
         limit: 1,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         include: [{
             model: models.E_status,
             as: statusAlias
@@ -522,7 +582,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
                     include: [{
                     model: models.E_action,
                     as: 'r_actions',
-                    order: 'f_position ASC',
+                    order: ["f_position", "ASC"],
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
@@ -579,7 +639,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -610,15 +670,38 @@ router.post('/search', block_access.actionAccessMiddleware('status', 'read'), fu
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;
 
     models.E_status.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        // Format value like date / datetime / etc...
+        for (var field in attributes) {
+            for (var i = 0; i < results.rows.length; i++) {
+                for (var fieldSelect in results.rows[i]) {
+                    if(fieldSelect == field){
+                        switch(attributes[field].newmipsType) {
+                            case "date":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                break;
+                            case "datetime":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         res.json(results);
     }).catch(function (e) {
         console.error(e);
@@ -650,11 +733,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("stat
             e_status['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -680,10 +763,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("status"
         e_status['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/status/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -707,10 +790,10 @@ router.post('/delete', block_access.actionAccessMiddleware("status", "delete"), 
             res.redirect(redirect);
             entity_helper.remove_files("e_status", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/status/list');
+            entity_helper.error(err, req, res, '/status/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/status/list');
+        entity_helper.error(err, req, res, '/status/list');
     });
 });
 

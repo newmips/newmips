@@ -34,4 +34,3 @@ $(function() {
     //Initialize WYSIHTML5 - text editor
     $("#email_message").wysihtml5();
 });
-

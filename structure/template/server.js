@@ -3,10 +3,20 @@ process.env.TZ = 'UTC';
 // Set up ======================================================================
 // Get all the tools we need
 var path = require('path');
-var express  = require('express');
-var session  = require('express-session');
-var SessionStore = require('express-mysql-session');
-var dbconfig = require('./config/database');
+var express = require('express');
+var session = require('express-session');
+var dbConfig = require('./config/database');
+
+// MySql
+if(dbConfig.dialect == "mysql")
+    var SessionStore = require('express-mysql-session');
+
+// Postgres
+if(dbConfig.dialect == "postgres"){
+    var pg = require('pg');
+    var SessionStore = require('connect-pg-simple')(session);
+}
+
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
@@ -15,7 +25,7 @@ var globalConf = require('./config/global');
 var protocol = globalConf.protocol;
 var port = globalConf.port;
 var passport = require('passport');
-var flash    = require('connect-flash');
+var flash = require('connect-flash');
 var block_access = require('./utils/block_access');
 var models = require('./models/');
 var moment = require('moment');
@@ -27,7 +37,7 @@ var languageConfig = require('./config/language');
 var extend = require('util')._extend;
 var https = require('https');
 var http = require('http');
-var fs = require('fs');
+var fs = require('fs-extra');
 
 // Winston logger
 var logger = require('./utils/logger');
@@ -39,7 +49,7 @@ var cons = require('consolidate');
 // Configuration ===============================================================
 
 // Pass passport for configuration
-require('./utils/authStrategies');
+require('./utils/auth_strategies');
 
 // Set up public files access (js/css...)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -48,13 +58,20 @@ app.use(express.static(__dirname + '/public'));
 // Set up API documentation access
 app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
 
-// Log every request to the console
-app.use(morgan('dev'));
+// Log every request (not /) to the console
+app.use(morgan('dev', {
+    skip: function(req, res) {
+        if(req.url == "/")
+        	return true;
+    }
+}));
 
 // Read cookies (needed for auth)
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
-	extended: true
+	extended: true,
+	limit: '50mb',
+	parameterLimit: 1000000
 }));
 app.use(bodyParser.json());
 app.set('views', path.join(__dirname, 'views'));
@@ -66,13 +83,22 @@ app.set('view engine', 'dust');
 
 // Required for passport
 var options = {
-	host: dbconfig.connection.host,
-	port: dbconfig.connection.port,
-	user: dbconfig.connection.user,
-	password: dbconfig.connection.password,
-	database: dbconfig.connection.database
+	host: dbConfig.host,
+	port: dbConfig.port,
+	user: dbConfig.user,
+	password: dbConfig.password,
+	database: dbConfig.database
 };
-var sessionStore = new SessionStore(options);
+
+if(dbConfig.dialect == "mysql")
+    var sessionStore = new SessionStore(options);
+
+if(dbConfig.dialect == "postgres"){
+    var pgPool = new pg.Pool(options);
+    var sessionStore = new SessionStore({
+        pool: pgPool
+    });
+}
 
 var sessionInstance = session({
 	store: sessionStore,
@@ -81,8 +107,7 @@ var sessionInstance = session({
 	resave: true,
 	saveUninitialized: false,
 	maxAge: 360*5,
-	// We concat port for a workspace specific session, instead of generator specific
-	key: 'workspaceCookie'+port
+	key: 'workspaceCookie'+port // We concat port for a workspace specific session, instead of generator specific
 });
 var socketSession = require('express-socket.io-session');
 
@@ -115,7 +140,7 @@ if (startedFromGenerator) {
 		// Do not remove this comment
 		if(url.indexOf("/inline_help/") != -1 || url.indexOf('/loadtab/') != -1 || req.query.ajax)
 			return next();
-		if (url.indexOf('/show') == -1 && url.indexOf('/list') == -1 && url.indexOf('/create') == -1 && url.indexOf('/update') == -1)
+		if (url.indexOf('/show') == -1 && url.indexOf('/list') == -1 && url.indexOf('/create') == -1 && url.indexOf('/update') == -1 && url.indexOf('/default/home') == -1)
 			return next();
 		console.log("IFRAME_URL::"+url);
 		next();
@@ -160,6 +185,24 @@ app.use(function(req, res, next) {
 			var entityName = params.entity;
 			var action = params.action;
 			return block_access.actionAccess(userRoles, entityName, action);
+		}
+		dust.helpers.checkStatusPermission = function(chunk, context, bodies, params) {
+			var status = params.status;
+			var acceptedGroup = status.r_accepted_group || [];
+			var currentUserGroupIds = [];
+
+	        for(var i=0; i<req.session.passport.user.r_group.length; i++)
+	            currentUserGroupIds.push(req.session.passport.user.r_group[i].id);
+
+	        // If no role given in status, then accepted for everyone
+	        if(acceptedGroup.length == 0)
+	            return true;
+	        else
+	            for(var j=0; j<acceptedGroup.length; j++)
+	                if(currentUserGroupIds.indexOf(acceptedGroup[j].id) != -1)
+	                    return true;
+
+	        return false;
 		}
 	}
 
@@ -250,6 +293,13 @@ app.use(function(req, res, next) {
         }
 		return value;
 	};
+
+	dust.filters.filename = function(value) {
+		// Remove datetime part from filename display
+		if (value != "" && value.length > 16)
+			return value.substring(16);
+		return value;
+	};
     next();
 });
 
@@ -258,6 +308,12 @@ app.use(function(req, res, next) {
 	res.redirect = function(view) {
 		// If request comes from ajax call, no need to render show/list/etc.. pages, 200 status is enough
 		if (req.query.ajax) {
+			// Check role access error in toastr. Send 403 if found, {refresh: true} will force reload of the page (behavior comes from public/newmips/show.js)
+			for (var i = 0; i < req.session.toastr.length; i++) {
+				var toast = req.session.toastr[i];
+				if (toast.message && toast.message == "settings.auth_component.no_access_role")
+					return res.status(403).send({refresh: true});
+			}
 			req.session.toastr = [];
 			return res.sendStatus(200);
 		}
@@ -288,7 +344,7 @@ app.use(function(req, res, next) {
         		where: {id: userId}
         	}],
         	subQuery: false,
-        	order: 'createdAt DESC',
+        	order: [["createdAt", "DESC"]],
         	offset: 0,
         	limit: 10
         }).then(function(notifications) {
@@ -348,88 +404,60 @@ app.use(function(req, res) {
 });
 
 // Launch ======================================================================
-if (protocol == 'https') {
-	models.sequelize.sync({ logging: false, hooks: false }).then(function() {
-		models.sequelize.customAfterSync().then(function(){
-			models.E_user.findAll().then(function(users) {
-				if (!users || users.length == 0) {
-                    models.E_group.create({f_label: 'admin'}).then(function(){
-                        models.E_role.create({f_label: 'admin'}).then(function(){
-                            models.E_user.create({
-                                f_login: 'admin',
-                                f_password: null,
-                                f_enabled: 0
-                            }).then(function(user) {
-                            	user.setR_role(1);
-                            	user.setR_group(1);
-                            });
+
+models.sequelize.sync({logging: false, hooks: false}).then(function() {
+    models.sequelize.customAfterSync().then(function() {
+        models.E_user.findAll().then(function(users) {
+            if (!users || users.length == 0) {
+                models.E_group.create({
+                	id: 1,
+                    version: 0,
+                    f_label: 'admin'
+                }).then(function() {
+                    models.E_role.create({
+                    	id: 1,
+                        version: 0,
+                        f_label: 'admin'
+                    }).then(function() {
+                        models.E_user.create({
+                        	id: 1,
+                            f_login: 'admin',
+                            f_password: null,
+                            f_enabled: 0,
+                            version: 0
+                        }).then(function(user) {
+                            user.setR_role(1);
+                            user.setR_group(1);
                         });
                     });
-                }
-			});
-			var server = https.createServer(globalConf.ssl, app);
+                });
+            }
+        });
+        var server;
+        if (protocol == 'https')
+            server = https.createServer(globalConf.ssl, app);
+        else
+            server = http.createServer(app);
 
-			if (globalConf.socket.enabled) {
-				io = require('socket.io')(server);
-				// Provide shared express session to sockets
-				io.use(socketSession(sessionInstance));
-				require('./services/socket')(io);
-			}
+        if (globalConf.socket.enabled) {
+            io = require('socket.io')(server);
+            // Provide shared express session to sockets
+            io.use(socketSession(sessionInstance));
+            require('./services/socket')(io);
+        }
 
-			server.listen(port);
-			console.log("Started https on "+port);
-		}).catch(function(err){
-			console.log("ERROR - SYNC");
-			logger.silly(err);
-			console.log(err);
-		});
-	}).catch(function(err){
-		console.log("ERROR - SYNC");
-		logger.silly(err);
-		console.log(err);
-	});
-}
-else {
-	models.sequelize.sync({ logging: false, hooks: false }).then(function() {
-		models.sequelize.customAfterSync().then(function(){
-			models.E_user.findAll().then(function(users) {
-				if (!users || users.length == 0) {
-                    models.E_group.create({version:0, f_label: 'admin'}).then(function(){
-                        models.E_role.create({version:0, f_label: 'admin'}).then(function(){
-                            models.E_user.create({
-                                f_login: 'admin',
-                                f_password: null,
-                                f_enabled: 0,
-                                version: 0
-                            }).then(function(user) {
-                            	user.setR_role(1);
-                            	user.setR_group(1);
-                            });
-                        });
-                    });
-                }
-			});
-			var server = http.createServer(app);
+		// Handle access.json file for various situation
+		block_access.accessFileManagment();
 
-			if (globalConf.socket.enabled) {
-				io = require('socket.io')(server);
-				// Provide shared express session to sockets
-				io.use(socketSession(sessionInstance));
-				require('./services/socket')(io);
-			}
-
-			server.listen(port);
-			console.log("Started on "+port);
-		}).catch(function(err){
-			console.log("ERROR - SYNC");
-			logger.silly(err);
-			console.log(err);
-		});
-	}).catch(function(err){
-		console.log("ERROR - SYNC");
-		logger.silly(err);
-		console.log(err);
-	});
-}
+		server.listen(port);
+		console.log("Started " + protocol + " on " + port + " !");
+    }).catch(function(err) {
+        console.log(err);
+        logger.silly(err);
+    })
+}).catch(function(err) {
+    console.log(err);
+    logger.silly(err);
+})
 
 module.exports = app;

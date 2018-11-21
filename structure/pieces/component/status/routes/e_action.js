@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
 var models = require('../models/');
@@ -11,6 +11,7 @@ var options = require('../models/options/e_action');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -73,13 +74,13 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
         data.e_action = e_action;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_action, "e_action").then(function() {
-            entity_helper.status.translate(e_action, attributes, req.session.lang_user);
+            status_helper.translate(e_action, attributes, req.session.lang_user);
             res.render('e_action/show', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -105,10 +106,11 @@ router.get('/create_form', block_access.actionAccessMiddleware("action", "create
                 where: {
                     fk_id_status_actions: status.id
                 },
-                order: 'f_order DESC',
+                order: [["f_order", "DESC"]],
                 limit: 1
             }).then(function(actionMax) {
                 data.max = (actionMax && actionMax[0] && actionMax[0].f_order) ? actionMax[0].f_order+1 : 1;
+                data.status_target = status.f_entity;
                 res.render(view, data);
             });
         });
@@ -162,11 +164,11 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
             Promise.all(promises).then(function() {
                 res.redirect(redirect);
             }).catch(function(err){
-                entity_helper.error500(err, req, res, '/action/create_form');
+                entity_helper.error(err, req, res, '/action/create_form');
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/action/create_form');
+        entity_helper.error(err, req, res, '/action/create_form');
     });
 });
 
@@ -202,10 +204,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("action", "update
             else
                 res.render('e_action/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -244,10 +246,10 @@ router.post('/update', block_access.actionAccessMiddleware("action", "update"), 
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/action/update_form?id=' + id_e_action);
+            entity_helper.error(err, req, res, '/action/update_form?id=' + id_e_action);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/action/update_form?id=' + id_e_action);
+        entity_helper.error(err, req, res, '/action/update_form?id=' + id_e_action);
     });
 });
 
@@ -369,101 +371,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 });
 
 router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionAccessMiddleware("action", "update"), function(req, res) {
-    var historyModel = 'E_history_e_action_'+req.params.status;
-    var historyAlias = 'r_history_'+req.params.status.substring(2);
-    var statusAlias = 'r_'+req.params.status.substring(2);
-
-    var errorRedirect = '/action/show?id='+req.params.id_action;
-
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_action');
-
-    // Find target entity instance and include its child to be able to replace variables in media
-    includeTree.push({
-        model: models[historyModel],
-        as: historyAlias,
-        limit: 1,
-        order: 'createdAt DESC',
-        include: [{
-            model: models.E_status,
-            as: statusAlias
-        }]
-    });
-    models.E_action.findOne({
-        where: {id: req.params.id_action},
-        include: includeTree
-    }).then(function(e_action) {
-        if (!e_action || !e_action[historyAlias] || !e_action[historyAlias][0][statusAlias]){
-            logger.debug("Not found - Set status");
-            return res.render('common/error', {error: 404});
-        }
-
-        // Find the children of the current status
-        models.E_status.findOne({
-            where: {id: e_action[historyAlias][0][statusAlias].id},
-            include: [{
-                model: models.E_status,
-                as: 'r_children',
-                    include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: 'f_position ASC',
-                    include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: {all: true, nested: true}
-                    }]
-                }]
-            }]
-        }).then(function(current_status) {
-            if (!current_status || !current_status.r_children){
-                logger.debug("Not found - Set status");
-                return res.render('common/error', {error: 404});
-            }
-
-            // Check if new status is actualy the current status's children
-            var children = current_status.r_children;
-            var nextStatus = false;
-            for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status)
-                    {nextStatus = children[i]; break;}
-            }
-            // Unautorized
-            if (nextStatus === false){
-                req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
-                return res.redirect(errorRedirect);
-            }
-
-            // Execute newStatus actions
-            nextStatus.executeActions(e_action).then(function() {
-                // Create history record for this status field
-                // Beeing the most recent history for action it will now be its current status
-                var createObject = {}
-                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_action_history_"+req.params.status.substring(2)] = req.params.id_action;
-                models[historyModel].create(createObject).then(function() {
-                    e_action['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/action/show?id='+req.params.id_action)
-                });
-            }).catch(function(err) {
-                console.error(err);
-                req.session.toastr = [{
-                    level: 'warning',
-                    message: 'component.status.error.action_error'
-                }]
-                var createObject = {}
-                createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-                createObject["fk_id_action_history_"+req.params.status.substring(2)] = req.params.id_action;
-                models[historyModel].create(createObject).then(function() {
-                    e_action['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                    res.redirect('/action/show?id='+req.params.id_action)
-                });
-            });
-        });
-    }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+    status_helper.setStatus('e_action', req.params.id_action, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+        res.redirect('/action/show?id=' + req.params.id_action)
+    }).catch((err)=> {
+        entity_helper.error(err, req, res, '/action/show?id=' + req.params.id_action);
     });
 });
 
@@ -494,22 +405,44 @@ router.post('/search', block_access.actionAccessMiddleware('action', 'read'), fu
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;
 
     models.E_action.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        // Format value like date / datetime / etc...
+        for (var field in attributes) {
+            for (var i = 0; i < results.rows.length; i++) {
+                for (var fieldSelect in results.rows[i]) {
+                    if(fieldSelect == field){
+                        switch(attributes[field].newmipsType) {
+                            case "date":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                break;
+                            case "datetime":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         res.json(results);
     }).catch(function (e) {
         console.error(e);
         res.status(500).json(e);
     });
 });
-
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("action", "delete"), function (req, res) {
     var alias = req.params.alias;
@@ -534,11 +467,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("acti
             e_action['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -564,10 +497,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("action"
         e_action['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/action/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -591,10 +524,10 @@ router.post('/delete', block_access.actionAccessMiddleware("action", "delete"), 
             res.redirect(redirect);
             entity_helper.remove_files("e_action", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/action/list');
+            entity_helper.error(err, req, res, '/action/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/action/list');
+        entity_helper.error(err, req, res, '/action/list');
     });
 });
 

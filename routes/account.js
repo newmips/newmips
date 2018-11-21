@@ -10,11 +10,6 @@ var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
 
-// ===========================================
-// Redirection Account =====================
-// ===========================================
-
-// Index
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
     // Récupération des toastr en session

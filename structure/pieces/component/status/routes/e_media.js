@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
 var models = require('../models/');
@@ -11,6 +11,7 @@ var options = require('../models/options/e_media');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConf = require('../config/global');
 var fs = require('fs-extra');
 
@@ -34,8 +35,21 @@ fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
 });
 
 router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
-    var entityTree = entity_helper.status.entityFieldForSelect(req.params.entity, req.session.lang_user);
-    res.json(entityTree).end();
+    var entityTree = status_helper.entityFieldTree(req.params.entity);
+    var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
+    res.json(entityTreeSelect).end();
+});
+
+router.get('/entity_full_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
+    var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
+    var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
+    res.json(entityTreeSelect).end();
+});
+
+router.get('/user_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
+    var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
+    var userTree = status_helper.getUserTargetList(entityTree, req.session.lang_user);
+    res.json(userTree).end();
 });
 
 router.get('/list', block_access.actionAccessMiddleware("media", "read"), function (req, res) {
@@ -101,7 +115,7 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
         var associationsFinder = model_builder.associationsFinder(models, options);
         associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_notification')));
         associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_mail')));
-        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_function')));
+        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_sms')));
 
         Promise.all(associationsFinder).then(function (found) {
             for (var i = 0; i < found.length; i++) {
@@ -111,15 +125,15 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
 
             // Update some data before show, e.g get picture binary
             entity_helper.getPicturesBuffers(e_media, "e_media").then(function() {
-                entity_helper.status.translate(e_media, attributes, req.session.lang_user);
+                status_helper.translate(e_media, attributes, req.session.lang_user);
                 res.render('e_media/show', data);
             }).catch(function (err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
        });
 
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -138,10 +152,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var notifOptions = require('../models/options/e_media_notification');
     var associationsFinder = model_builder.associationsFinder(models, options);
-    associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, notifOptions));
-
     Promise.all(associationsFinder).then(function (found) {
         for (var i = 0; i < found.length; i++)
             data[found[i].model] = found[i].rows;
@@ -150,7 +161,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
         data.icon_list = icon_list;
         res.render('e_media/create', data);
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -173,7 +184,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
                     e_media.destroy();
                     var err = new Error();
                     err.message = "Association not found."
-                    return entity_helper.error500(err, req, res, "/");
+                    return entity_helper.error(err, req, res, "/");
                 }
 
                 var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -193,7 +204,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 
         res.redirect(redirect);
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/create_form');
+        entity_helper.error(err, req, res, '/media/create_form');
     });
 });
 
@@ -213,9 +224,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
         data.associationUrl = req.query.associationUrl;
     }
 
-    var notifOptions = require('../models/options/e_media_notification');
     var associationsFinder = model_builder.associationsFinder(models, options);
-    associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, notifOptions));
 
     Promise.all(associationsFinder).then(function (found) {
         models.E_media.findOne({where: {id: id_e_media}, include: [{all: true, nested: true}]}).then(function (e_media) {
@@ -250,10 +259,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
             data.icon_list = icon_list;
             res.render('e_media/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -292,92 +301,18 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 
             res.redirect(redirect);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media);
+            entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/update_form?id=' + id_e_media);
+        entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media);
     });
 });
 
-router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAccessMiddleware("media", "create"), function(req, res) {
-    var historyModel = 'E_history_e_media_'+req.params.status;
-    var historyAlias = 'r_history_'+req.params.status.substring(2);
-    var statusAlias = 'r_'+req.params.status.substring(2);
-
-    var errorRedirect = '/media/show?id='+req.params.id_media;
-    // Find target entity instance
-    models.E_media.findOne({
-        where: {id: req.params.id_media},
-        include: [{
-            model: models[historyModel],
-            as: historyAlias,
-            limit: 1,
-            order: 'createdAt DESC',
-            include: [{
-                model: models.E_status,
-                as: statusAlias
-            }]
-        }]
-    }).then(function(e_media) {
-        if (!e_media || !e_media[historyAlias] || !e_media[historyAlias][0][statusAlias]){
-            logger.debug("Not found - Set status");
-            return res.render('common/error', {error: 404});
-        }
-
-        // Find the children of the current status
-        models.E_status.findOne({
-            where: {id: e_media[historyAlias][0][statusAlias].id},
-            include: [{
-                model: models.E_status,
-                as: 'r_children',
-                    include: [{
-                    model: models.E_action,
-                    as: 'r_actions',
-                    order: 'f_position ASC',
-                    include: [{
-                        model: models.E_media,
-                        as: 'r_media',
-                        include: [{all: true}]
-                    }]
-                }]
-            }]
-        }).then(function(current_status) {
-            if (!current_status || !current_status.r_children){
-                logger.debug("Not found - Set status");
-                return res.render('common/error', {error: 404});
-            }
-
-            // Check if new status is actualy the current status's children
-            var children = current_status.r_children;
-            var nextStatus = false;
-            for (var i = 0; i < children.length; i++) {
-                if (children[i].id == req.params.id_new_status)
-                    {nextStatus = children[i]; break;}
-            }
-            // Unautorized
-            if (nextStatus === false){
-                req.session.toastr = [{
-                    level: 'error',
-                    message: 'component.status.error.illegal_status'
-                }]
-                return res.redirect(errorRedirect);
-            }
-
-            // Execute newStatus actions
-            nextStatus.executeActions(e_media);
-
-            // Create history record for this status field
-            // Beeing the most recent history for media it will now be its current status
-            var createObject = {}
-            createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-            createObject["fk_id_media_history_"+req.params.status.substring(2)] = req.params.id_media;
-            models[historyModel].create(createObject).then(function() {
-                e_media['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-                res.redirect('/media/show?id='+req.params.id_media)
-            }).catch(function(err) {
-                entity_helper.error500(err, req, res, errorRedirect);
-            });
-        });
+router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAccessMiddleware("media", "update"), function(req, res) {
+    status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+        res.redirect('/media/show?id=' + req.params.id_media);
+    }).catch((err)=> {
+        entity_helper.error(err, req, res, '/media/show?id=' + req.params.id_media);
     });
 });
 
@@ -406,7 +341,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -437,15 +372,38 @@ router.post('/search', block_access.actionAccessMiddleware('media', 'read'), fun
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;
 
     models.E_media.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        // Format value like date / datetime / etc...
+        for (var field in attributes) {
+            for (var i = 0; i < results.rows.length; i++) {
+                for (var fieldSelect in results.rows[i]) {
+                    if(fieldSelect == field){
+                        switch(attributes[field].newmipsType) {
+                            case "date":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                break;
+                            case "datetime":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         res.json(results);
     }).catch(function (e) {
         console.error(e);
@@ -477,7 +435,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media",
             res.redirect('/media/show?id=' + idEntity + "#" + alias);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -501,10 +459,10 @@ router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), f
             res.redirect(redirect);
             entity_helper.remove_files("e_media", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/media/list');
+            entity_helper.error(err, req, res, '/media/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/media/list');
+        entity_helper.error(err, req, res, '/media/list');
     });
 });
 

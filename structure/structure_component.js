@@ -56,141 +56,6 @@ function setupComponentRoute(idApplication, folderComponent, componentName, urlS
     });
 }
 
-function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, valueCategory, callback) {
-
-    var valueAgendaModel = valueAgenda.charAt(0).toUpperCase() + valueAgenda.toLowerCase().slice(1);
-    var valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.toLowerCase().slice(1);
-    var valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.toLowerCase().slice(1);
-
-    var urlRouteAgenda = valueAgenda.substring(2).toLowerCase();
-
-    // CREATE ROUTE FILE
-    var routeTemplate = fs.readFileSync('./structure/pieces/component/agenda/routes/route_agenda.js', 'utf8');
-
-    routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, valueAgenda);
-    routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRouteAgenda);
-
-    routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_MODEL/g, valueEventModel);
-    routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_URL/g, valueEvent.substring(2));
-
-    routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_MODEL/g, valueCategoryModel);
-    routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_URL/g, valueCategory.substring(2));
-
-    var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/routes/' + valueAgenda + '.js');
-    writeStream.write(routeTemplate);
-    writeStream.end();
-    writeStream.on('finish', function () {
-        callback();
-    });
-}
-
-function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, moduleName, callback) {
-
-    // Calendar View
-    var codeName = valueComponent.toLowerCase();
-
-    var componentViewFolder = __dirname + '/pieces/component/agenda/views';
-    var viewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + codeName;
-    fs.copySync(componentViewFolder, viewsFolder);
-
-    var viewPiece = __dirname + '/../workspace/' + idApplication + '/views/agenda/view_agenda.dust';
-    var viewFile = __dirname + '/../workspace/' + idApplication + '/views/' + codeName + '/view_agenda.dust';
-
-    var viewTemplate = fs.readFileSync(viewFile, 'utf8');
-    viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
-    viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-    viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
-    viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
-    viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
-
-    var writeStream = fs.createWriteStream(viewFile);
-    writeStream.write(viewTemplate);
-    writeStream.end();
-    writeStream.on('finish', function () {
-
-        // Copy the event view folder
-        var componentEventViewFolder = __dirname + '/pieces/component/agenda/views_event';
-        var eventViewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent;
-
-        fs.copySync(componentEventViewFolder, eventViewsFolder);
-
-        // Replace variable in each files
-        var fileToReplace = ["show_fields", "create_fields", "update_fields"];
-        var urlEvent = valueEvent.toLowerCase().substring(2);
-
-        for (var i = 0; i < fileToReplace.length; i++) {
-            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
-            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
-
-            eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-            eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
-
-            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-        }
-
-        // Inject custom_js
-        var fileToInject = ["create", "update"];
-
-        for (var i = 0; i < fileToInject.length; i++) {
-            var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
-            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
-
-            eventTemplate += "\n\n" +
-                    "{<custom_js}\n" +
-                    "    <script type='text/javascript'>\n" +
-                    "        var format;\n" +
-                    "        if (lang_user == 'fr-FR')\n" +
-                    "            format = 'DD/MM/YYYY HH:mm';\n" +
-                    "        else\n" +
-                    "            format = 'YYYY-MM-DD HH:mm';\n" +
-                    "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
-                    "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    toastr.error(\"Error: Start date is after end date.\");\n" +
-                    "                    return false;\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    toastr.error(\"Error: End date is before start date.\");\n" +
-                    "                    return false;\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "            return true;" +
-                    "        });\n" +
-                    "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
-                    "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                    "                var start = moment($(this).val(), format);\n" +
-                    "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    $(this).val('');\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "        });\n" +
-                    "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
-                    "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                    "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                    "                var end = moment($(this).val(), format);\n" +
-                    "                if(end.diff(start) < 0){\n" +
-                    "                    $(this).val('');\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "        });\n" +
-                    "    </script>\n" +
-                    "{/custom_js}\n";
-
-            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-        }
-
-
-        callback();
-    });
-}
-
 function addTab(attr, file, newLi, newTabContent) {
     return new Promise(function (resolve, reject) {
         var source = attr.options.source.toLowerCase();
@@ -234,6 +99,7 @@ function addTab(attr, file, newLi, newTabContent) {
 function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
     // Write new data entity to access.json file, within module's context
     var accessPath = __dirname + '/../workspace/' + idApplication + '/config/access.json';
+    var accessLockPath = __dirname + '/../workspace/' + idApplication + '/config/access.lock.json';
     var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
     accessObject[urlModule.toLowerCase()].entities.push({
         name: urlComponent,
@@ -245,14 +111,15 @@ function addAccessManagment(idApplication, urlComponent, urlModule, callback) {
             delete: []
         }
     });
-    fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-        callback();
-    });
+    fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+    fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+    callback();
 }
 
 function deleteAccessManagment(idApplication, urlComponent, urlModule, callback) {
     // Write new data entity to access.json file, within module's context
     var accessPath = __dirname + '/../workspace/' + idApplication + '/config/access.json';
+    var accessLockPath = __dirname + '/../workspace/' + idApplication + '/config/access.lock.json';
     var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
     if (accessObject[urlModule.toLowerCase()] && accessObject[urlModule.toLowerCase()].entities) {
         var entities = accessObject[urlModule.toLowerCase()].entities;
@@ -265,9 +132,9 @@ function deleteAccessManagment(idApplication, urlComponent, urlModule, callback)
         }
         if (dataIndexToRemove !== -1)
             entities.splice(dataIndexToRemove, 1);
-        fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-            callback();
-        });
+        fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+        fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+        callback();
     } else
         callback();
 }
@@ -451,10 +318,11 @@ exports.newContactForm = function (attr, callback) {
     delete require.cache[require.resolve(mailConfigPath)];
     var mailConfig = require(mailConfigPath);
 
+    let isSecure = mailConfig.transport.secure ? 1 : 0;
     var insertSettings = "INSERT INTO `" + idApp + "_" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
             " VALUES(1,'" + mailConfig.transport.host + "'," +
             "'" + mailConfig.transport.port + "'," +
-            mailConfig.transport.secure + "," +
+            isSecure + "," +
             "'" + mailConfig.transport.auth.user + "'," +
             "'" + mailConfig.transport.auth.pass + "'," +
             "'" + mailConfig.administrateur + "'," +
@@ -617,6 +485,141 @@ exports.newContactForm = function (attr, callback) {
 
 exports.newAgenda = function (attr, callback) {
 
+    function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, valueCategory, callback) {
+
+        var valueAgendaModel = valueAgenda.charAt(0).toUpperCase() + valueAgenda.toLowerCase().slice(1);
+        var valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.toLowerCase().slice(1);
+        var valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.toLowerCase().slice(1);
+
+        var urlRouteAgenda = valueAgenda.substring(2).toLowerCase();
+
+        // CREATE ROUTE FILE
+        var routeTemplate = fs.readFileSync('./structure/pieces/component/agenda/routes/route_agenda.js', 'utf8');
+
+        routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, valueAgenda);
+        routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRouteAgenda);
+
+        routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_MODEL/g, valueEventModel);
+        routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_URL/g, valueEvent.substring(2));
+
+        routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_MODEL/g, valueCategoryModel);
+        routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_URL/g, valueCategory.substring(2));
+
+        var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/routes/' + valueAgenda + '.js');
+        writeStream.write(routeTemplate);
+        writeStream.end();
+        writeStream.on('finish', function () {
+            callback();
+        });
+    }
+
+    function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, moduleName, callback) {
+
+        // Calendar View
+        var codeName = valueComponent.toLowerCase();
+
+        var componentViewFolder = __dirname + '/pieces/component/agenda/views';
+        var viewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + codeName;
+        fs.copySync(componentViewFolder, viewsFolder);
+
+        var viewPiece = __dirname + '/../workspace/' + idApplication + '/views/agenda/view_agenda.dust';
+        var viewFile = __dirname + '/../workspace/' + idApplication + '/views/' + codeName + '/view_agenda.dust';
+
+        var viewTemplate = fs.readFileSync(viewFile, 'utf8');
+        viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
+        viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+        viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
+        viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
+        viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
+
+        var writeStream = fs.createWriteStream(viewFile);
+        writeStream.write(viewTemplate);
+        writeStream.end();
+        writeStream.on('finish', function () {
+
+            // Copy the event view folder
+            var componentEventViewFolder = __dirname + '/pieces/component/agenda/views_event';
+            var eventViewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent;
+
+            fs.copySync(componentEventViewFolder, eventViewsFolder);
+
+            // Replace variable in each files
+            var fileToReplace = ["show_fields", "create_fields", "update_fields"];
+            var urlEvent = valueEvent.toLowerCase().substring(2);
+
+            for (var i = 0; i < fileToReplace.length; i++) {
+                var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
+                var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+                eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+                eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
+
+                fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+            }
+
+            // Inject custom_js
+            var fileToInject = ["create", "update"];
+
+            for (var i = 0; i < fileToInject.length; i++) {
+                var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
+                var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+
+                eventTemplate += "\n\n" +
+                        "{<custom_js}\n" +
+                        "    <script type='text/javascript'>\n" +
+                        "        var format;\n" +
+                        "        if (lang_user == 'fr-FR')\n" +
+                        "            format = 'DD/MM/YYYY HH:mm';\n" +
+                        "        else\n" +
+                        "            format = 'YYYY-MM-DD HH:mm';\n" +
+                        "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
+                        "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    toastr.error(\"Error: Start date is after end date.\");\n" +
+                        "                    return false;\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    toastr.error(\"Error: End date is before start date.\");\n" +
+                        "                    return false;\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "            return true;" +
+                        "        });\n" +
+                        "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
+                        "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+                        "                var start = moment($(this).val(), format);\n" +
+                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    $(this).val('');\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "        });\n" +
+                        "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
+                        "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+                        "                var end = moment($(this).val(), format);\n" +
+                        "                if(end.diff(start) < 0){\n" +
+                        "                    $(this).val('');\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "        });\n" +
+                        "    </script>\n" +
+                        "{/custom_js}\n";
+
+                fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+            }
+
+
+            callback();
+        });
+    }
+
     var idApplication = attr.id_application;
 
     var valueComponent = attr.options.value;
@@ -634,20 +637,20 @@ exports.newAgenda = function (attr, callback) {
     var urlCategory = valueCategory.substring(2);
 
     // Update the event options.json to add an belongsToMany relation between event and user
-    var eventOptionsPath = './workspace/' + idApplication + '/models/options/' + valueEvent.toLowerCase() + '.json';
-    var eventOptionFile = fs.readFileSync(eventOptionsPath);
-    var eventOptionObj = JSON.parse(eventOptionFile);
+    // var eventOptionsPath = './workspace/' + idApplication + '/models/options/' + valueEvent.toLowerCase() + '.json';
+    // var eventOptionFile = fs.readFileSync(eventOptionsPath);
+    // var eventOptionObj = JSON.parse(eventOptionFile);
 
-    eventOptionObj.push({
-        "target": "e_user",
-        "relation": "belongsToMany",
-        "through": idApplication + "_" + urlComponent + "_event_user",
-        "as": "r_users",
-        "foreignKey": "event_id",
-        "otherKey": "user_id"
-    });
+    // eventOptionObj.push({
+    //     "target": "e_user",
+    //     "relation": "belongsToMany",
+    //     "through": idApplication + "_" + urlComponent + "_event_user",
+    //     "as": "r_users",
+    //     "foreignKey": "event_id",
+    //     "otherKey": "user_id"
+    // });
 
-    fs.writeFileSync(eventOptionsPath, JSON.stringify(eventOptionObj, null, 4));
+    // fs.writeFileSync(eventOptionsPath, JSON.stringify(eventOptionObj, null, 4));
 
     // Agenda Route
     setupComponentRouteForAgenda(idApplication, valueComponent, valueEvent, valueCategory, function () {
@@ -881,6 +884,7 @@ exports.newStatus = function (attr, callback) {
                 access[module].entities[i].name = attr.history_table;
 
     fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
     // Change target of source entity to match history MODEL name (instead of TABLE name)
     var optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + attr.source + '.json'));
@@ -903,11 +907,17 @@ exports.newStatus = function (attr, callback) {
     // Remove useless options in toSync
     var toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
     for (var prop in toSync) {
-        if (prop.indexOf('_e_status') > 0)
-            toSync[prop] = undefined;
+        if (prop.indexOf('_e_status') > 0) {
+            for (var i = 0; i < toSync[prop].options.length; i++) {
+                if (toSync[prop].options[i].target.indexOf("e_history_") != -1) {
+                    toSync[prop].options.splice(i, 1);
+                }
+            }
+        }
         if (prop.indexOf('_e_history_') > 0)
             toSync[prop].options = undefined;
     }
+
     fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
     // Remove useless history tab from Status views
@@ -939,7 +949,7 @@ exports.newStatus = function (attr, callback) {
                 newTh += '    {@__ key="defaults.createdAt"/}\n';
                 newTh += '</th>\n';
                 $(".fields").each(function () {
-                    $(this).find("th:eq(2)").after(newTh);
+                    $(this).find("th:eq(0)").before(newTh);
                 });
                 $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
                 // Remove delete button
@@ -980,13 +990,15 @@ exports.newStatus = function (attr, callback) {
                     // Display status as a badge instead of an input
                     // Also add next status buttons after status field
                     domHelper.read(workspacePath + '/views/' + attr.source + '/show_fields.dust').then(function ($) {
-                        var statusBadgeHtml = '<br><span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
+                        var statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
                         var nextStatusHtml = '';
-                        nextStatusHtml += '<div class="form-group">';
-                        nextStatusHtml += '{#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}';
-                        nextStatusHtml += '<a href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" class="btn btn-info" style="margin-right: 5px;">{f_name}</a>';
-                        nextStatusHtml += '{/' + statusAlias + '.r_children}';
-                        nextStatusHtml += '</div>';
+                        nextStatusHtml += '<div class="form-group">\n';
+                        nextStatusHtml += '     {#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}\n';
+                        nextStatusHtml += '         {@checkStatusPermission status=.}\n';
+                        nextStatusHtml += '             <a data-href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;">{f_name}</a>\n';
+                        nextStatusHtml += '         {/checkStatusPermission}\n';
+                        nextStatusHtml += '     {/' + statusAlias + '.r_children}\n';
+                        nextStatusHtml += '</div>\n';
                         $("div[data-field='" + statusAliasHTML + "']").find('input').replaceWith(statusBadgeHtml);
                         $("div[data-field='" + statusAliasHTML + "']").append(nextStatusHtml);
                         // Input used for default ordering
@@ -1196,100 +1208,103 @@ exports.addNewComponentAddress = function (attr, callback) {
                             domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
                                 domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
                                     domHelper.write(printFieldsFile, $printFieldsFile).then(function () {
-                                        //update locales
-                                        var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-                                        var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                        langFR.component[componentCodeName] = fields.locales.fr;
-                                        langEN.component[componentCodeName] = fields.locales.en;
+                                        var parentBaseFile = application_path + 'views/' + attr.entityCodeName;
+                                        require('./structure_data_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body, function () {
+                                            //update locales
+                                            var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
+                                            var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+                                            langFR.component[componentCodeName] = fields.locales.fr;
+                                            langEN.component[componentCodeName] = fields.locales.en;
 
-                                        setupComponentModel(attr.id_application, 'address', componentCodeName, 'address', function () {
-                                            //Check if component config exist, if not we create it
-                                            var address_settings_config;
-                                            var p = new Promise(function (resolve, reject) {
-                                                fs.readFile(application_path + 'config/' + c_address_settings + '.json', function (err, config) {
-                                                    if (err) {
-                                                        //files doesn't exist
-                                                        address_settings_config = {entities: {}};
-                                                        //add settings locales
-                                                        langFR.component[c_address_settings] = {
-                                                            "label_component": "Configuration adresse",
-                                                            "position": "Position de la maps",
-                                                            "top": "Au dessus",
-                                                            "right": "A droite",
-                                                            "bottom": "En dessous",
-                                                            "left": "A gauche",
-                                                            "distance": "Afficher la distance",
-                                                            "settings": "Configurer",
-                                                            "enableMaps": "Activer la maps",
-                                                            "entity": "Entité",
-                                                            "zoomBar": "Afficher panneau de zoom",
-                                                            "navigation": "Activer la navigation",
-                                                            "mousePosition": "Afficher les coordonnées de la souris",
-                                                            "addressNotValid": "Adresse non valide",
-                                                            "info_c_address_maps": "Pour avoir une maps valide, veuillez utiliser le champ en dessous pour saisir l'adresse"
-                                                        };
-                                                        langEN.component[c_address_settings] = {
-                                                            "label_component": "Addresses settings",
-                                                            "position": "Maps position",
-                                                            "top": "Top",
-                                                            "right": "Right",
-                                                            "bottom": "Bottom",
-                                                            "left": "Left",
-                                                            "distance": "Display distance",
-                                                            "settings": "Settings",
-                                                            "enableMaps": "Enable Maps",
-                                                            "entity": "Entity",
-                                                            "zoomBar": "Display zoom bar",
-                                                            "navigation": "Enable navigation",
-                                                            "mousePosition": "Display mouse coordinate",
-                                                            "addressNotValid": "Not valid address",
-                                                            "info_c_address_maps": "To have a valid maps, please use the field below to enter the address"
-                                                        };
-                                                        //add component address files
-                                                        fs.mkdirpSync(application_path + 'views/' + c_address_settings);
-                                                        fs.copySync(c_address_path + 'views/config.dust', application_path + 'views/' + c_address_settings + '/config.dust');
-                                                        fs.copySync(c_address_path + 'views/config_fields.dust', application_path + 'views/' + c_address_settings + '/config_fields.dust');
-                                                        fs.copySync(c_address_path + 'route/' + c_address_settings + '.js', application_path + 'routes/' + c_address_settings + '.js');
-                                                        addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
-                                                            if (!err) {
-                                                                //add new menu in administration for address settings
-                                                                addMenuComponentAddressSettings(attr, c_address_settings, function (err) {
-                                                                    if (!err)
-                                                                        resolve();
-                                                                    else
-                                                                        reject(err);
-                                                                });
-                                                            } else
-                                                                reject(err);
-                                                        });
-                                                    } else {
-                                                        address_settings_config = JSON.parse(config);
-                                                        resolve();
-                                                    }
+                                            setupComponentModel(attr.id_application, 'address', componentCodeName, 'address', function () {
+                                                //Check if component config exist, if not we create it
+                                                var address_settings_config;
+                                                var p = new Promise(function (resolve, reject) {
+                                                    fs.readFile(application_path + 'config/' + c_address_settings + '.json', function (err, config) {
+                                                        if (err) {
+                                                            //files doesn't exist
+                                                            address_settings_config = {entities: {}};
+                                                            //add settings locales
+                                                            langFR.component[c_address_settings] = {
+                                                                "label_component": "Configuration adresse",
+                                                                "position": "Position de la maps",
+                                                                "top": "Au dessus",
+                                                                "right": "A droite",
+                                                                "bottom": "En dessous",
+                                                                "left": "A gauche",
+                                                                "distance": "Afficher la distance",
+                                                                "settings": "Configurer",
+                                                                "enableMaps": "Activer la maps",
+                                                                "entity": "Entité",
+                                                                "zoomBar": "Afficher panneau de zoom",
+                                                                "navigation": "Activer la navigation",
+                                                                "mousePosition": "Afficher les coordonnées de la souris",
+                                                                "addressNotValid": "Adresse non valide",
+                                                                "info_c_address_maps": "Pour avoir une map valide, veuillez utiliser le champ ci-dessous pour saisir l'adresse"
+                                                            };
+                                                            langEN.component[c_address_settings] = {
+                                                                "label_component": "Addresses settings",
+                                                                "position": "Maps position",
+                                                                "top": "Top",
+                                                                "right": "Right",
+                                                                "bottom": "Bottom",
+                                                                "left": "Left",
+                                                                "distance": "Display distance",
+                                                                "settings": "Settings",
+                                                                "enableMaps": "Enable Maps",
+                                                                "entity": "Entity",
+                                                                "zoomBar": "Display zoom bar",
+                                                                "navigation": "Enable navigation",
+                                                                "mousePosition": "Display mouse coordinate",
+                                                                "addressNotValid": "Not valid address",
+                                                                "info_c_address_maps": "To have a valid map, please use the field below to enter the address"
+                                                            };
+                                                            //add component address files
+                                                            fs.mkdirpSync(application_path + 'views/' + c_address_settings);
+                                                            fs.copySync(c_address_path + 'views/config.dust', application_path + 'views/' + c_address_settings + '/config.dust');
+                                                            fs.copySync(c_address_path + 'views/config_fields.dust', application_path + 'views/' + c_address_settings + '/config_fields.dust');
+                                                            fs.copySync(c_address_path + 'route/' + c_address_settings + '.js', application_path + 'routes/' + c_address_settings + '.js');
+                                                            addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
+                                                                if (!err) {
+                                                                    //add new menu in administration for address settings
+                                                                    addMenuComponentAddressSettings(attr, c_address_settings, function (err) {
+                                                                        if (!err)
+                                                                            resolve();
+                                                                        else
+                                                                            reject(err);
+                                                                    });
+                                                                } else
+                                                                    reject(err);
+                                                            });
+                                                        } else {
+                                                            address_settings_config = JSON.parse(config);
+                                                            resolve();
+                                                        }
+                                                    });
                                                 });
-                                            });
-                                            p.then(function () {
-                                                address_settings_config.entities[attr.entityCodeName] = {
-                                                    "enableMaps": false,
-                                                    "mapsPosition": {
-                                                        "top": false,
-                                                        "right": true,
-                                                        "bottom": false,
-                                                        "left": false
-                                                    },
-                                                    "estimateDistance": false,
-                                                    "zoomBar": false,
-                                                    "navigation": true,
-                                                    "mousePosition": false
-                                                };
-                                                //set locales
-                                                fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                                                fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-                                                //update or create address settings
-                                                fs.writeFileSync(application_path + 'config/' + c_address_settings + '.json', JSON.stringify(address_settings_config, null, 4));
-                                                callback(null);
-                                            }).catch(function (e) {
-                                                return callback(e);
+                                                p.then(function () {
+                                                    address_settings_config.entities[attr.entityCodeName] = {
+                                                        "enableMaps": false,
+                                                        "mapsPosition": {
+                                                            "top": false,
+                                                            "right": true,
+                                                            "bottom": false,
+                                                            "left": false
+                                                        },
+                                                        "estimateDistance": false,
+                                                        "zoomBar": false,
+                                                        "navigation": true,
+                                                        "mousePosition": false
+                                                    };
+                                                    //set locales
+                                                    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                                                    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+                                                    //update or create address settings
+                                                    fs.writeFileSync(application_path + 'config/' + c_address_settings + '.json', JSON.stringify(address_settings_config, null, 4));
+                                                    callback(null);
+                                                }).catch(function (e) {
+                                                    return callback(e);
+                                                });
                                             });
                                         });
                                     });
@@ -1340,45 +1355,57 @@ exports.deleteComponentAddress = function (attr, callback) {
                     domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
                         domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
                             domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
-                                //update locales
-                                var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-                                var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                delete langFR.component[componentName];
-                                delete langEN.component[componentName];
-                                //update address settings file
-                                var address_settings = JSON.parse(fs.readFileSync(application_path + 'config/c_address_settings.json'));
-                                for (var item in address_settings.entities) {
-                                    if (item === attr.entityName)
-                                        delete address_settings.entities[item];
-                                }
-                                var p = new Promise(function (resolve, reject) {
-                                    if (Object.keys(address_settings.entities).length === 0) {
-                                        fs.remove(application_path + 'views/' + c_address_settings);
-                                        fs.remove(application_path + 'routes/' + c_address_settings + '.js');
-                                        fs.remove(application_path + 'config/' + c_address_settings + '.json');
-                                        delete langFR.component[c_address_settings];
-                                        delete langEN.component[c_address_settings];
-                                        deleteAccessManagment(attr.id_application, "address_settings", "administration", function () {
-                                            require('./structure_module').removeMenuEntry(attr, "administration", c_address_settings, function (err) {
-                                                if (err)
-                                                    reject(err);
-                                                else
-                                                    resolve();
-                                            });
-                                        });
-                                    } else {
-                                        fs.writeFileSync(application_path + 'config/c_address_settings.json', JSON.stringify(address_settings, null, 4), 'utf8');
-                                        resolve();
+                                removeFieldInParentListField(application_path + 'views/' + attr.entityName + '/list_fields.dust', 'c_address', function () {
+                                    //update locales
+                                    var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
+                                    var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+                                    delete langFR.component[componentName];
+                                    delete langEN.component[componentName];
+                                    //update address settings file
+                                    var address_settings = JSON.parse(fs.readFileSync(application_path + 'config/c_address_settings.json'));
+                                    for (var item in address_settings.entities) {
+                                        if (item === attr.entityName)
+                                            delete address_settings.entities[item];
                                     }
-                                });
-                                p.then(function () {
-                                    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                                    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-                                    callback(null);
-                                }).catch(function (e) {
-                                    callback(e);
+                                    var p = new Promise(function (resolve, reject) {
+                                        if (Object.keys(address_settings.entities).length === 0) {
+                                            fs.remove(application_path + 'views/' + c_address_settings);
+                                            fs.remove(application_path + 'routes/' + c_address_settings + '.js');
+                                            fs.remove(application_path + 'config/' + c_address_settings + '.json');
+                                            delete langFR.component[c_address_settings];
+                                            delete langEN.component[c_address_settings];
+                                            deleteAccessManagment(attr.id_application, "address_settings", "administration", function () {
+                                                require('./structure_module').removeMenuEntry(attr, "administration", c_address_settings, function (err) {
+                                                    if (err)
+                                                        reject(err);
+                                                    else
+                                                        resolve();
+                                                });
+                                            });
+                                        } else {
+                                            fs.writeFileSync(application_path + 'config/c_address_settings.json', JSON.stringify(address_settings, null, 4), 'utf8');
+                                            resolve();
+                                        }
+                                    });
+                                    p.then(function () {
+                                        fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                                        fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+                                        callback(null);
+                                    }).catch(function (e) {
+                                        callback(e);
+                                    });
                                 });
 
+
+                                function removeFieldInParentListField(viewsPath, name_data_field, callback) {
+                                    domHelper.read(viewsPath).then(function ($) {
+                                        $("th[data-field='" + name_data_field + "']").remove();
+                                        $("td[data-field='" + name_data_field + "']").remove();
+                                        domHelper.write(viewsPath, $).then(function () {
+                                            callback();
+                                        });
+                                    });
+                                }
                             });
                         });
                     });
@@ -1422,6 +1449,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
             //copy helper
             fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');
+            fs.copySync(entity_path + 'locales/document_template_locales.js', application_path + 'locales/document_template_locales.js');
             //copy route file
             fs.copySync(entity_path + 'routes/e_document_template.js', application_path + 'routes/e_document_template.js');
 
@@ -1431,25 +1459,25 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                 addNewTabComponentDocumentTemplate(attr, entity_name, function () {
                     //Set traduction
                     var lang_fr = {
-                        "label_entity": "Modèle de document",
-                        "name_entity": "Modèle de document",
-                        "plural_entity": "Modèle de documents",
-                        "id_entity": "ID",
-                        "f_name": "Nom du fichier",
-                        "f_file": "Fichier",
-                        "f_entity": "Entité",
-                        "f_exclude_relations": "Sous entités"
+                        label_entity: "Modèle de document",
+                        name_entity: "Modèle de document",
+                        plural_entity: "Modèle de documents",
+                        id_entity: "ID",
+                        f_name: "Nom du fichier",
+                        f_file: "Fichier",
+                        f_entity: "Entité",
+                        f_exclude_relations: "Sous entités"
                     };
                     lang_fr[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Modèle de document";
                     var lang_en = {
-                        "label_entity": "Document template",
-                        "name_entity": "Document template",
-                        "plural_entity": "Document templates",
-                        "id_entity": "ID",
-                        "f_name": "Filename",
-                        "f_file": "File",
-                        "f_entity": "Entity",
-                        "f_exclude_relations": "Sub entities"
+                        label_entity: "Document template",
+                        name_entity: "Document template",
+                        plural_entity: "Document templates",
+                        id_entity: "ID",
+                        f_name: "Filename",
+                        f_file: "File",
+                        f_entity: "Entity",
+                        f_exclude_relations: "Sub entities"
                     };
                     lang_en[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
                     //update locales
@@ -1531,6 +1559,9 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     //new entry for source relation view
     var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
+    var sourceDoc = source.substring(2);
+    sourceDoc = sourceDoc.charAt(0).toUpperCase() + sourceDoc.slice(1);
+    newTabContent = newTabContent.replace(/ENTITY_DOC/g, sourceDoc);
     newTabContent = newTabContent.replace(/ENTITY/g, source);
     addTab(attr, relationEntityShowFieldsFile, newLi, newTabContent).then(function () {
         callback(null);

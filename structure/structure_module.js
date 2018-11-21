@@ -30,7 +30,7 @@ exports.setupModule = function (attr, callback) {
         str += '                data[prop] = results[i][prop];\n';
         str += '        res.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
         str += '    });\n';
-        str += '});\n';
+        str += '});';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
         fs.writeFile(file, result, 'utf8', function (err) {
@@ -102,11 +102,12 @@ exports.setupModule = function (attr, callback) {
                                 // Wait for all the layouts to be modified before calling `callback()`
                                 Promise.all(promises).then(function () {
                                     var accessPath = __dirname + '/../workspace/' + idApp + '/config/access.json';
+                                    var accessLockPath = __dirname + '/../workspace/' + idApp + '/config/access.lock.json';
                                     var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
                                     accessObject[url_name_module.toLowerCase()] = {groups: [], entities: []};
-                                    fs.writeFile(accessPath, JSON.stringify(accessObject, null, 4), function (err) {
-                                        callback();
-                                    });
+                                    fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+                                    fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+                                    callback();
                                 }).catch(function (err) {
                                     callback(err, null);
                                 });
@@ -140,6 +141,7 @@ exports.deleteModule = function (attr, callback) {
             delete access[module];
     }
     fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/config/access.json', JSON.stringify(access, null, 4));
+    fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/config/access.lock.json', JSON.stringify(access, null, 4));
 
     function done(cpt, lenght) {
         if (cpt == lenght) {

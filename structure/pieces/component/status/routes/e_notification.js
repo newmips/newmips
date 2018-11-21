@@ -19,7 +19,7 @@ router.get('/load/:offset', function(req, res) {
             where: {id: req.session.passport.user.id}
         }],
         subQuery: false,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         limit: 10,
         offset: offset
     }).then(function(notifications) {
@@ -35,7 +35,7 @@ router.get('/read/:id', function (req, res) {
     var id_e_notification = parseInt(req.params.id);
 
     models.E_notification.findOne({where: {id: id_e_notification}}).then(function (notification) {
-        var redirect = notification.f_url;
+        var redirect = notification.f_url != "#" ? notification.f_url : req.headers.referer;
 
         models.E_user.findById(req.session.passport.user.id).then(function(user){
             user.removeR_notification(notification.id).then(function(){

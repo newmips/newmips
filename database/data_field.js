@@ -1,8 +1,8 @@
 // **** Database Generator Field ****
 var models = require('../models/');
 
-// Create new Data Field in Data Entity
-exports.createNewDataField = function (attr, callback) {
+// Create new field in entity
+exports.createNewDataField = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
         var err = new Error();
@@ -28,9 +28,13 @@ exports.createNewDataField = function (attr, callback) {
             models.DataField.findOne({
                 where: {
                     id_data_entity: id_data_entity,
-                    $or: [{name: showNameField}, {codeName: name_field}]
+                    $or: [{
+                        name: showNameField
+                    }, {
+                        codeName: name_field
+                    }]
                 }
-            }).then(function (dataField) {
+            }).then(function(dataField) {
                 if (dataField) {
                     var err = new Error();
                     err.message = "database.field.error.alreadyExist";
@@ -44,8 +48,8 @@ exports.createNewDataField = function (attr, callback) {
                     type: type_field,
                     id_data_entity: id_data_entity,
                     version: version
-                }).then(function (dataField) {
-                    models.DataEntity.findById(id_data_entity).then(function(dataEntity){
+                }).then(function(dataField) {
+                    models.DataEntity.findById(id_data_entity).then(function(dataEntity) {
                         var info = {
                             insertId: dataField.id,
                             message: "database.field.create.created",
@@ -53,10 +57,10 @@ exports.createNewDataField = function (attr, callback) {
                         };
                         callback(null, info);
                     });
-                }).catch(function (err) {
+                }).catch(function(err) {
                     callback(err, null);
                 });
-            }).catch(function (err) {
+            }).catch(function(err) {
                 callback(err, null);
             });
         } else {
@@ -71,8 +75,8 @@ exports.createNewDataField = function (attr, callback) {
     }
 }
 
-//Create a foreign key in an Entity
-exports.createNewForeignKey = function (attr, callback) {
+// Create a foreign key in an entity
+exports.createNewForeignKey = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
         var err = new Error();
@@ -89,6 +93,7 @@ exports.createNewForeignKey = function (attr, callback) {
         },
         include: [{
             model: models.Module,
+            required: true,
             include: [{
                 model: models.Application,
                 where: {
@@ -96,29 +101,122 @@ exports.createNewForeignKey = function (attr, callback) {
                 }
             }]
         }]
-    }).then(function (dataEntity) {
+    }).then(function(dataEntity) {
         models.DataField.create({
             name: name,
             codeName: codeName,
             type: "INTEGER",
             version: 1,
             id_data_entity: dataEntity.id
-        }).then(function (createdForeignKey) {
+        }).then(function(createdForeignKey) {
             var info = {};
             info.insertId = createdForeignKey.id;
             info.message = "database.field.create.foreignKeyCreated";
             info.messageParams = [createdForeignKey.id, createdForeignKey.name];
             callback(null, info);
-        }).catch(function (err) {
+        }).catch(function(err) {
             callback(err, null);
         });
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
-// Delete
-exports.deleteDataField = function (attr, callback) {
+exports.listDataField = function(attr, callback) {
+    models.DataField.findAll({
+        order: [["id", "DESC"]],
+        include: [{
+            model: models.DataEntity,
+            required: true,
+            include: [{
+                model: models.Module,
+                required: true,
+                include: [{
+                    model: models.Application,
+                    where: {
+                        id: attr.id_application
+                    }
+                }]
+            }]
+        }]
+    }).then(function(fields) {
+
+        var info = {};
+        info.message = "<br><ul>";
+        if (!fields)
+            info.message = info.message + "-\n";
+        else
+            for (var i = 0; i < fields.length; i++)
+                info.message += "<li>" + fields[i].DataEntity.Module.name + " | " + fields[i].DataEntity.name + " | " + fields[i].name + "(" + fields[i].id + ")</li>";
+        info.message += "</ul>";
+        info.rows = fields;
+        callback(null, info);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+exports.getNameDataFieldById = function(idField, callback) {
+
+    models.DataField.findOne({
+        where: {
+            id: idField
+        }
+    }).then(function(dataField) {
+        if (!dataField) {
+            var err = new Error();
+            err.message = "database.field.notFound.withThisID";
+            err.message = [idField];
+            return callback(err, null);
+        }
+
+        callback(null, dataField);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+exports.getCodeNameByNameArray = function(names, idEntity, callback) {
+    var columns = [];
+    for (var i = 0; i < names.length; i++)
+        columns.push({
+            name: names[i].toLowerCase()
+        });
+    models.DataField.findAll({
+        attributes: ['codeName', 'name'],
+        where: {
+            $or: columns,
+            id_data_entity: idEntity
+        },
+        raw: true
+    }).then(function(results) {
+        callback(null, results);
+    }).catch(function(err) {
+        callback(err);
+    });
+}
+
+exports.getFieldByCodeName = function(params, callback) {
+    models.DataField.findOne({
+        where: {
+            codeName: params.codeName,
+            id_data_entity: params.idEntity
+        }
+    }).then(function(field) {
+        if (!field) {
+            var err = new Error();
+            err.message = "database.field.notFound.withThisName";
+            err.messageParams = [params.showValue, params.showEntity];
+            return callback(err, null);
+        }
+
+        callback(null, field);
+    }).catch(function(err) {
+        callback(err, null);
+    });
+}
+
+exports.deleteDataField = function(attr, callback) {
 
     if (attr.id_data_entity == null) {
         var err = new Error();
@@ -134,118 +232,39 @@ exports.deleteDataField = function (attr, callback) {
             codeName: nameField,
             id_data_entity: idEntity
         }
-    }).then(function () {
+    }).then(function() {
         var info = {};
         info.message = "database.field.delete.deleted";
         info.messageParams = [attr.options.showValue];
         callback(null, info);
-    }).catch(function (err) {
+    }).catch(function(err) {
         callback(err, null);
     });
 }
 
-exports.deleteDataFieldById = function (id, callback) {
+exports.deleteDataFieldById = function(id, callback) {
     models.DataField.destroy({
         where: {
             id: id
         }
-    }).then(function () {
+    }).then(function() {
         callback(null, true);
-    }).catch(function (err) {
-        callback(err, null);
-    });
-}
-
-// List
-exports.listDataField = function (attr, callback) {
-
-    models.DataField.findAll({
-        order: 'id DESC',
-        include: [{
-            model: models.DataEntity,
-            include: [{
-                model: models.Module,
-                include: [{
-                    model: models.Application,
-                    where: {
-                        id: attr.id_application
-                    }
-                }]
-            }]
-        }]
-    }).then(function (dataFields) {
-
-        var info = {};
-        info.message = "<br><ul>";
-        if (!dataFields)
-            info.message = info.message + "-\n";
-        else
-            for (var i = 0; i < dataFields.length; i++)
-                info.message += "<li>" + dataFields[i].DataEntity.Module.name + " | " + dataFields[i].DataEntity.name + " | " + dataFields[i].name + "("+dataFields[i].id+")</li>";
-        info.message += "</ul>";
-        info.rows = dataFields;
-        callback(null, info);
-    }).catch(function (err) {
-        callback(err, null);
-    });
-}
-
-// GetById
-exports.getNameDataFieldById = function (idField, callback) {
-
-    models.DataField.findOne({
-        where: {
-            id: idField
-        }
-    }).then(function (dataField) {
-        if (!dataField) {
-            var err = new Error();
-            err.message = "database.field.notFound.withThisID";
-            err.message = [idField];
-            return callback(err, null);
-        }
-
-        callback(null, dataField);
-    }).catch(function (err) {
-        callback(err, null);
-    });
-}
-
-exports.getCodeNameByNameArray = function(names, idEntity, callback) {
-    var columns = [];
-    for (var i = 0; i < names.length; i++)
-        columns.push({name: names[i].toLowerCase()});
-    models.DataField.findAll({
-        attributes: ['codeName', 'name'],
-        where: {
-            $or: columns,
-            id_data_entity: idEntity
-        },
-        raw: true
-    }).then(function(results) {
-        callback(null, results);
     }).catch(function(err) {
-        callback(err);
+        callback(err, null);
     });
 }
 
-exports.getFieldByCodeName = function (params, callback) {
-
-    models.DataField.findOne({
-        where: {
-            codeName: params.codeName,
-            id_data_entity: params.idEntity
-        }
-    }).then(function (field) {
-        if (!field) {
-            var err = new Error();
-            err.message = "database.field.notFound.withThisName";
-            err.messageParams = [params.showValue, params.showEntity];
-            return callback(err, null);
-        }
-
-        callback(null, field);
-    }).catch(function (err) {
-        callback(err, null);
-    });
+// Get real SQL type in DB, not sequelize datatype
+// Params:
+// {
+//     table: yourTableName,
+//     column: yourColumnName
+// }
+exports.getDatabaseSQLType = function(params, callback) {
+    var request = "SELECT DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+params.table+"' AND COLUMN_NAME = '"+params.column+"';"
+    models.sequelize.query(request, {type: models.sequelize.QueryTypes.SELECT}).then(function(result){
+        if(result.length > 0)
+            return callback(result[0].DATA_TYPE, result[0].CHARACTER_MAXIMUM_LENGTH);
+        callback(false, false)
+    })
 }

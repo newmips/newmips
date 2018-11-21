@@ -17,9 +17,9 @@
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="entity.e_status.f_color"/}
             </th>
-            <th data-field="f_position" data-col="f_position" data-type="integer">
+            {! <th data-field="f_position" data-col="f_position" data-type="integer">
                 {@__ key="entity.e_status.f_position"/}
-            </th>
+            </th> !}
             <th data-field="f_default" data-col="f_default" data-type="boolean">
                 {@__ key="entity.e_status.f_default"/}
             </th>
@@ -46,9 +46,9 @@
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {@__ key="entity.e_status.f_color"/}
             </th>
-            <th data-field="f_position" data-col="f_position" data-type="integer">
+            {! <th data-field="f_position" data-col="f_position" data-type="integer">
                 {@__ key="entity.e_status.f_position"/}
-            </th>
+            </th> !}
             <th data-field="f_default" data-col="f_default" data-type="boolean">
                 {@__ key="entity.e_status.f_default"/}
             </th>
@@ -71,7 +71,7 @@
                 {@eq key=for value="fieldset"}
                 <form class="fieldsetform">
                     <input type="hidden" value="{id}" name="idRemove">
-                    <button type="submit" class="btn btn-danger"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
+                    <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.remove" /}</span></button>
                 </form>
                 {/eq}
                 {@eq key=for value="hasMany"}
@@ -86,7 +86,7 @@
             <td>
                 {@eq key=for value="hasMany"}
                 <form action="/status/delete" method="post">
-                    <button onclick="return confirm('Etes-vous sûr de vouloir supprimer cet enregistrement ?');" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
 			                <span>{@__ key="button.delete" /}</span>
 			                <input name="id" value="{id}" type="hidden">
 			                <input name="associationAlias" value="{associationAlias}" type="hidden">

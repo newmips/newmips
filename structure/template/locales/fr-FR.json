@@ -34,12 +34,19 @@
         "submit": "Soumettre"
     },
     "settings": {
-        "title": "Paramètres",
+        "title": "Gestion des accès",
+        "tool_menu": "Fichier configuration des accès",
+        "tool_success": "Le fichier de configuration des accès a bien été importé.",
+        "tool_title": "Importer / Exporter la configuration des accès",
+        "tool_export": "Exporter la configuration des accès",
+        "tool_import": "Importer une configuration d'accès",
+        "import_file_name": "Fichier access.json:",
+        "tool_warning": "Attention, le fichier doit etre de la même structure que le access.json actuel ! Sinon l'application ne sera plus utilisable.",
         "auth_component": {
             "access_managment": "Gestion des accès par groupe",
             "action_managment": "Gestion des actions par rôle",
-            "moduleList": "Les modules",
-            "entityList": "Les entités",
+            "moduleList": "Modules",
+            "entityList": "Entités",
             "grouplist": "Groupes:",
             "rolelist": "Rôles:",
             "entitylist": "Entités:",
@@ -52,7 +59,29 @@
                 "create": "Créer",
                 "update": "Modifier",
                 "delete": "Supprimer"
-            }
+            },
+            "no_access_group_module": "Votre groupe n'a pas accès à ce module.",
+            "no_access_group_entity": "Votre groupe n'a pas accès à cette entité.",
+            "no_access_role": "Votre rôle n'a pas accès à cette action sur cette entité."
+        },
+        "db_tool": {
+            "title": "Outil BDD",
+            "export_title": "Export",
+            "import_title": "Import",
+            "export_action": "Exporter",
+            "all_db": "Toute la base de donnée",
+            "import_action": "Importer",
+            "import_file": "Fichier SQL",
+            "import_success": "L'import a bien été effectué.",
+            "file_needed": "Merci d'ajouter le fichier d'import.",
+            "wrong_db_pwd": "Mot de passe incorrect.",
+            "modal_password_title": "Confirmation du mot de passe",
+            "modal_password_content": "Merci de confirmer le mot de passe de la base de données:",
+            "wrong_dialect": "Désolé, les outils de base de données ne fonctionne qu'avec MySQL pour le moment.",
+            "no_choice": "Merci de choisir ce que vous souhaitez exporter."
+        },
+        "import_export": {
+            "title": "Import / Export"
         },
         "legend": "Modifier vos paramètres",
         "lang": "Langue",
@@ -137,7 +166,8 @@
     "global_component": {
         "local_file_storage": {
             "filename": "Nom du fichier",
-            "wait_upload": "Des images sont en téléchargement, veuillez patienter un instant et sauvegardez de nouveau"
+            "wait_upload": "Des fichiers sont en cours de téléchargement, merci de bien vouloir patienter.",
+            "required_file": "Des champs fichiers / images sont obligatoires, merci de les renseigner."
         },
         "contact_form": {
             "firstname": "Prénom",
@@ -158,7 +188,26 @@
             "action": "Imprimer"
         }
     },
-    "component": {},
+    "component": {
+        "c_db_tool": {
+            "label_component": "Outil BDD"
+        },
+        "c_access_tool": {
+            "label_component": "Fichier d'accès"
+        },
+        "c_import_export": {
+            "label_component": "Import / Export"
+        },
+        "c_access_settings_role": {
+            "label_component": "Accès des rôles"
+        },
+        "c_access_settings_group": {
+            "label_component": "Accès des groupes"
+        },
+        "c_access_settings_api": {
+            "label_component": "Accès à l'API"
+        }
+    },
     "defaults": {
         "widgets": {
             "lastrecords": {

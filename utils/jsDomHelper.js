@@ -1,5 +1,5 @@
 var fs = require("fs-extra");
-var jsdom = require('jsdom');
+var jsdom = require("jsdom/lib/old-api.js");
 var html = require('html');
 var jquery = fs.readFileSync(__dirname + "/../public/js/jQuery/jquery.min.js", "utf-8");
 var helpers = require("./helpers");
@@ -24,6 +24,7 @@ function read(fileName) {
 					resolve(window.$);
 				}
 			});
+
 		} else {
 			var err = new Error();
 			err.message = "Unable to read the file: " + fileName.split("/workspace/").pop();

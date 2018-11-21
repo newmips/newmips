@@ -583,6 +583,39 @@ exports.createFieldRelatedToMultipleUsing = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
+exports.createFieldRelatedToMultipleCheckbox = function (result) {
+
+    var as = result[1];
+    var target = result[2];
+
+    // Preparing Options
+    var options = {
+        target: target,
+        isCheckbox: true,
+        as: as,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
+};
+
+exports.createFieldRelatedToMultipleCheckboxUsing = function (result) {
+
+    var as = result[1];
+    var target = result[2];
+    var usingField = result[3];
+
+    var options = {
+        target: target,
+        as: as,
+        usingField: usingField,
+        isCheckbox: true,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
+};
+
 // --------- One to Many ---------
 // Tabs in show
 exports.relationshipHasMany = function (result) {
@@ -820,7 +853,7 @@ exports.createNewComponentAddress = function (result) {
  */
 exports.createNewComponentAddressWithName = function (result) {
     var options = {
-        componentName: result[1].toLowerCase(),
+        componentName: result[1],
         instruction: result[0]
     };
     return checkAndCreateAttr("createNewComponentAddress", options, result[1]);
@@ -1045,8 +1078,6 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
-    console.log(result);
-    console.log(result.length);
     // Current entity as target
     if (result.length == 3) {
         attr.limit = result[1];
@@ -1186,7 +1217,6 @@ var training = {
         "git commit"
     ],
     "gitStatus": [
-        "status",
         "git status"
     ],
     "selectProject": [
@@ -1298,26 +1328,20 @@ var training = {
     ],
     "createNewDataFieldWithTypeEnum": [
         "create field (.*) with type enum and values (.*)",
-        "create data field (.*) with type enum and values (.*)",
         "add field (.*) with type enum and values (.*)",
-        "add data field (.*) with type enum and values (.*)",
+        "create field (.*) with type enum with values (.*)",
+        "add field (.*) with type enum with values (.*)",
         "créer champ (.*) de type enum avec les valeurs (.*)",
         "créer un champ (.*) de type enum avec les valeurs (.*)",
         "ajouter champ (.*) de type enum avec les valeurs (.*)",
         "ajouter un champ (.*) de type enum avec les valeurs (.*)",
         "ajouter le champ (.*) de type enum avec les valeurs (.*)",
         "create field (.*) with type enum and values (.*) and default value (.*)",
-        "create data field (.*) with type enum and values (.*) and default value (.*)",
         "add field (.*) with type enum and values (.*) and default value (.*)",
-        "add data field (.*) with type enum and values (.*) and default value (.*)",
         "create field (.*) with type enum with values (.*) and default value (.*)",
-        "create data field (.*) with type enum with values (.*) and default value (.*)",
         "add field (.*) with type enum with values (.*) and default value (.*)",
-        "add data field (.*) with type enum with values (.*) and default value (.*)",
         "create field (.*) with type enum and values (.*) with default value (.*)",
-        "create data field (.*) with type enum and values (.*) with default value (.*)",
         "add field (.*) with type enum and values (.*) with default value (.*)",
-        "add data field (.*) with type enum and values (.*) with default value (.*)",
         "créer champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
         "créer un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
         "créer le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
@@ -1327,9 +1351,9 @@ var training = {
     ],
     "createNewDataFieldWithTypeRadio": [
         "create field (.*) with type radio and values (.*)",
-        "create data field (.*) with type radio and values (.*)",
         "add field (.*) with type radio and values (.*)",
-        "add data field (.*) with type radio and values (.*)",
+        "create field (.*) with type radio with values (.*)",
+        "add field (.*) with type radio with values (.*)",
         "créer champ (.*) de type radio avec les valeurs (.*)",
         "créer un champ (.*) de type radio avec les valeurs (.*)",
         "créer le champ (.*) de type radio avec les valeurs (.*)",
@@ -1337,17 +1361,11 @@ var training = {
         "ajouter un champ (.*) de type radio avec les valeurs (.*)",
         "ajouter le champ (.*) de type radio avec les valeurs (.*)",
         "create field (.*) with type radio with values (.*) and default value (.*)",
-        "create data field (.*) with type radio with values (.*) and default value (.*)",
         "add field (.*) with type radio with values (.*) and default value (.*)",
-        "add data field (.*) with type radio with values (.*) and default value (.*)",
         "create field (.*) with type radio and values (.*) with default value (.*)",
-        "create data field (.*) with type radio and values (.*) with default value (.*)",
         "add field (.*) with type radio and values (.*) with default value (.*)",
-        "add data field (.*) with type radio and values (.*) with default value (.*)",
         "create field (.*) with type radio and values (.*) and default value (.*)",
-        "create data field (.*) with type radio and values (.*) and default value (.*)",
         "add field (.*) with type radio and values (.*) and default value (.*)",
-        "add data field (.*) with type radio and values (.*) and default value (.*)",
         "créer champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
         "créer un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
         "créer le champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
@@ -1357,18 +1375,14 @@ var training = {
     ],
     "createNewDataFieldWithType": [
         "create field (.*) with type (.*)",
-        "create data field (.*) with type (.*)",
         "add field (.*) with type (.*)",
-        "add data field (.*) with type (.*)",
         "créer champ (.*) de type (.*)",
         "créer un champ (.*) de type (.*)",
         "ajouter champ (.*) de type (.*)",
         "ajouter un champ (.*) de type (.*)",
         "ajouter le champ (.*) de type (.*)",
         "create field (.*) with type (.*) and default value (.*)",
-        "create data field (.*) with type (.*) and default value (.*)",
         "add field (.*) with type (.*) and default value (.*)",
-        "add data field (.*) with type (.*) and default value (.*)",
         "créer champ (.*) de type (.*) avec la valeur par défaut (.*)",
         "créer un champ (.*) de type (.*) avec la valeur par défaut (.*)",
         "créer le champ (.*) de type (.*) avec la valeur par défaut (.*)",
@@ -1378,9 +1392,7 @@ var training = {
     ],
     "createNewDataField": [
         "create field ?(.*)",
-        "create data field (.*)",
         "add field (.*)",
-        "add data field (.*)",
         "créer champ (.*)",
         "créer un champ (.*)",
         "créer le champ (.*)",
@@ -1388,13 +1400,9 @@ var training = {
         "ajouter un champ (.*)",
         "ajouter le champ (.*)",
         "create field ?(.*) and default value (.*)",
-        "create data field (.*) and default value (.*)",
         "add field (.*) and default value (.*)",
-        "add data field (.*) and default value (.*)",
         "create field ?(.*) with default value (.*)",
-        "create data field (.*) with default value (.*)",
         "add field (.*) with default value (.*)",
-        "add data field (.*) with default value (.*)",
         "créer champ (.*) avec la valeur par défaut (.*)",
         "créer un champ (.*) avec la valeur par défaut (.*)",
         "créer le champ (.*) avec la valeur par défaut (.*)",
@@ -1437,9 +1445,6 @@ var training = {
         "delete field (.*)",
         "drop field (.*)",
         "remove field (.*)",
-        "delete data field (.*)",
-        "drop data field (.*)",
-        "remove data field (.*)",
         "supprimer champ (.*)",
         "supprimer le champ (.*)"
     ],
@@ -1481,8 +1486,6 @@ var training = {
         "lister les entités"
     ],
     "listDataField": [
-        "list data field",
-        "list data fields",
         "list field",
         "list fields",
         "lister champ",
@@ -1520,8 +1523,6 @@ var training = {
     "createFieldRelatedTo": [
         "create field (.*) related to (.*)",
         "add field (.*) related to (.*)",
-        "create data field (.*) related to (.*)",
-        "add data field (.*) related to (.*)",
         "créer un champ (.*) relié à (.*)",
         "ajouter un champ (.*) relié à (.*)",
         "créer champ (.*) relié à (.*)",
@@ -1530,8 +1531,6 @@ var training = {
     "createFieldRelatedToUsing": [
         "create field (.*) related to (.*) using (.*)",
         "add field (.*) related to (.*) using (.*)",
-        "create data field (.*) related to (.*) using (.*)",
-        "add data field (.*) related to (.*) using (.*)",
         "créer un champ (.*) relié à (.*) en utilisant (.*)",
         "créer champ (.*) relié à (.*) en utilisant (.*)",
         "créer un champ (.*) relié à (.*) en affichant (.*)",
@@ -1933,15 +1932,35 @@ var training = {
         "entité (.*) possède plusieurs (.*) prédéfini en affichant le champ (.*) appelées (.*)",
         "entité (.*) possède plusieurs (.*) existant en affichant le champ (.*) appelées (.*)"
     ],
+    "createFieldRelatedToMultipleCheckbox": [
+        "create field (.*) related to multiple (.*) with type checkbox",
+        "add field (.*) related to multiple (.*) with type checkbox",
+        "create field (.*) related to many (.*) with type checkbox",
+        "add field (.*) related to many (.*) with type checkbox",
+        "créer un champ (.*) relié à plusieurs (.*) avec le type case à cocher",
+        "ajouter un champ (.*) relié à plusieurs (.*) avec le type case à cocher",
+        "créer champ (.*) relié à plusieurs (.*) avec le type case à cocher",
+        "ajouter champ (.*) relié à plusieurs (.*) avec le type case à cocher"
+    ],
+    "createFieldRelatedToMultipleCheckboxUsing": [
+        "create field (.*) related to multiple (.*) with type checkbox using (.*)",
+        "add field (.*) related to multiple (.*) with type checkbox using (.*)",
+        "create field (.*) related to many (.*) with type checkbox using (.*)",
+        "add field (.*) related to many (.*) with type checkbox using (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "créer un champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)",
+        "créer champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "ajouter un champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) avec le type case à cocher en utilisant (.*)",
+        "ajouter champ (.*) relié à plusieurs (.*) avec le type case à cocher en affichant (.*)"
+    ],
     "createFieldRelatedToMultiple": [
         "create field (.*) related to multiple (.*)",
         "add field (.*) related to multiple (.*)",
-        "create data field (.*) related to multiple (.*)",
-        "add data field (.*) related to multiple (.*)",
         "create field (.*) related to many (.*)",
         "add field (.*) related to many (.*)",
-        "create data field (.*) related to many (.*)",
-        "add data field (.*) related to many (.*)",
         "créer un champ (.*) relié à plusieurs (.*)",
         "ajouter un champ (.*) relié à plusieurs (.*)",
         "créer champ (.*) relié à plusieurs (.*)",
@@ -1950,12 +1969,8 @@ var training = {
     "createFieldRelatedToMultipleUsing": [
         "create field (.*) related to multiple (.*) using (.*)",
         "add field (.*) related to multiple (.*) using (.*)",
-        "create data field (.*) related to multiple (.*) using (.*)",
-        "add data field (.*) related to multiple (.*) using (.*)",
         "create field (.*) related to many (.*) using (.*)",
         "add field (.*) related to many (.*) using (.*)",
-        "create data field (.*) related to many (.*) using (.*)",
-        "add data field (.*) related to many (.*) using (.*)",
         "créer un champ (.*) relié à plusieurs (.*) en utilisant (.*)",
         "créer champ (.*) relié à plusieurs (.*) en utilisant (.*)",
         "créer un champ (.*) relié à plusieurs (.*) en affichant (.*)",
@@ -2386,10 +2401,11 @@ var training = {
         "ajouter un composant adresse nommé (.*)",
         "ajouter un composant adresse appelé (.*)",
         "ajouter composant adresse nommé (.*)",
-        "ajouter composant adresse appelé (.*)",
+        "ajouter composant adresse appelé (.*)"
     ],
     "deleteComponentAddress": [
         "delete component address",
+        "supprimer composant adresse",
         "supprimer le composant adresse"
     ],
     "createComponentChat": [
@@ -2698,7 +2714,9 @@ exports.complete = function (instruction) {
                     // Add list of types to answer
                     answers.push("string");
                     answers.push("text");
+                    answers.push("regular text");
                     answers.push("number");
+                    answers.push("big number");
                     answers.push("decimal");
                     answers.push("date");
                     answers.push("datetime");
@@ -2714,7 +2732,6 @@ exports.complete = function (instruction) {
                     answers.push("ean13");
                     answers.push("upc");
                     answers.push("code39");
-                    answers.push("alpha39");
                     answers.push("code128");
                     answers.push("url");
                     answers.push("password");

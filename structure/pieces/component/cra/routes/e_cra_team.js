@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
 var models = require('../models/');
@@ -11,6 +11,7 @@ var options = require('../models/options/e_cra_team');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
@@ -38,7 +39,7 @@ router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team"
     }, function(err, holidays) {
         if (err) {
             console.log(err);
-            return entity_helper.error500(err, req, res);
+            return entity_helper.error(err, req, res);
         }
 
         var bulkCreate = [];
@@ -68,10 +69,14 @@ router.get('/list', block_access.actionAccessMiddleware("cra_team", "read"), fun
 router.post('/datalist', block_access.actionAccessMiddleware("cra_team", "read"), function (req, res) {
 
     /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options);
+    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
     filterDataTable("E_cra_team", req.body, include).then(function (rawData) {
-        entity_helper.prepareDatalistResult('e_cra_team', rawData, req.session.lang_user).then(function(preparedData) {
+        entity_helper.prepareDatalistResult('e_cra_team', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
+        }).catch(function (err) {
+            console.log(err);
+            logger.debug(err);
+            res.end();
         });
     }).catch(function (err) {
         console.log(err);
@@ -105,13 +110,13 @@ router.get('/show', block_access.actionAccessMiddleware("cra_team", "read"), fun
         data.e_cra_team = e_cra_team;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_cra_team, "e_cra_team").then(function() {
-            entity_helper.status.translate(e_cra_team, attributes, req.session.lang_user);
+            status_helper.translate(e_cra_team, attributes, req.session.lang_user);
             res.render('e_cra_team/show', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -166,7 +171,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "create")
                         e_cra_team.destroy();
                         var err = new Error();
                         err.message = "Association not found."
-                        return error500(err, req, res, "/");
+                        return entity_helper.error(err, req, res, "/");
                     }
 
                     var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
@@ -186,7 +191,7 @@ router.post('/create', block_access.actionAccessMiddleware("cra_team", "create")
 
             res.redirect(redirect);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/cra_team/create_form');
+            entity_helper.error(err, req, res, '/cra_team/create_form');
         });
     });
 });
@@ -231,10 +236,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra_team", "upda
             else
                 res.render('e_cra_team/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -273,10 +278,10 @@ router.post('/update', block_access.actionAccessMiddleware("cra_team", "update")
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
+            entity_helper.error(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
+        entity_helper.error(err, req, res, '/cra_team/update_form?id=' + id_e_cra_team);
     });
 });
 
@@ -404,14 +409,14 @@ router.get('/set_status/:id_cra_team/:status/:id_new_status', block_access.actio
 
     var errorRedirect = '/cra_team/show?id='+req.params.id_cra_team;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_cra_team');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_cra_team');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({
         model: models[historyModel],
         as: historyAlias,
         limit: 1,
-        order: 'createdAt DESC',
+        order: [["createdAt", "DESC"]],
         include: [{
             model: models.E_status,
             as: statusAlias
@@ -435,7 +440,7 @@ router.get('/set_status/:id_cra_team/:status/:id_new_status', block_access.actio
                     include: [{
                     model: models.E_action,
                     as: 'r_actions',
-                    order: 'f_position ASC',
+                    order: ["f_position", "ASC"],
                     include: [{
                         model: models.E_media,
                         as: 'r_media',
@@ -492,7 +497,7 @@ router.get('/set_status/:id_cra_team/:status/:id_new_status', block_access.actio
             });
         });
     }).catch(function(err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -523,15 +528,38 @@ router.post('/search', block_access.actionAccessMiddleware('cra_team', 'read'), 
     }
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customWhere !== "undefined")
-        for (var param in req.body.customWhere)
-            where.where[param] = req.body.customWhere[param];
+    if (typeof req.body.customwhere !== "undefined") {
+        var customwhere = {};
+        try {
+            customwhere = JSON.parse(req.body.customwhere);
+        } catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
+        for (var param in customwhere)
+            where.where[param] = customwhere[param];
+    }
+
 
     where.offset = offset;
     where.limit = limit;
 
     models.E_cra_team.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        // Format value like date / datetime / etc...
+        for (var field in attributes) {
+            for (var i = 0; i < results.rows.length; i++) {
+                for (var fieldSelect in results.rows[i]) {
+                    if(fieldSelect == field){
+                        switch(attributes[field].newmipsType) {
+                            case "date":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                break;
+                            case "datetime":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         res.json(results);
     }).catch(function (e) {
         console.error(e);
@@ -563,11 +591,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("cra_
             e_cra_team['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function(err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -632,7 +660,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("cra_tea
         });
 
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -656,10 +684,10 @@ router.post('/delete', block_access.actionAccessMiddleware("cra_team", "delete")
             res.redirect(redirect);
             entity_helper.remove_files("e_cra_team", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/cra_team/list');
+            entity_helper.error(err, req, res, '/cra_team/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/cra_team/list');
+        entity_helper.error(err, req, res, '/cra_team/list');
     });
 });
 

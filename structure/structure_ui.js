@@ -64,6 +64,7 @@ exports.setColumnVisibility = function (attr, callback) {
 exports.setLogo = function(attr, callback) {
     var idApplication = attr.id_application;
     var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
+    attr.options.value = attr.options.value.trim();
 
     //Check if logo exist
     if (!fs.existsSync(__dirname + '/../workspace/' + idApplication + '/public/img/logo/'+attr.options.value)) {
@@ -72,21 +73,42 @@ exports.setLogo = function(attr, callback) {
         return callback(err, null);
     }
 
+    // Login Layout
+    var loginPath = __dirname + '/../workspace/' + idApplication + '/views/login/';
+    var loginFiles = ["login.dust", "first_connection.dust", "reset_password.dust"];
+    for(var i=0; i<loginFiles.length; i++){
+        (function(ibis){
+            domHelper.read(loginPath+loginFiles[i]).then(function($) {
+                if($("form .body center img").length > 0)
+                    $("form .body center img").remove();
+                $("form .body center").prepend("<img src='/img/logo/"+attr.options.value+"' alt='Login logo' width=\"50%\" height=\"50%\">");
+                domHelper.write(loginPath+loginFiles[ibis], $).catch(function(err){
+                    return callback(err, null);
+                })
+            }).catch(function(err){
+                return callback(err, null);
+            })
+        })(i)
+    }
+
+    // Main Layout
     domHelper.read(mainLayoutPath).then(function($) {
         if($(".main-sidebar .sidebar .user-panel .image img").length > 0)
             $(".main-sidebar .sidebar .user-panel .image img").remove();
         $("body link[rel='icon']").remove();
         $("head link[rel='icon']").remove();
-        $(".main-sidebar .sidebar .user-panel .image").prepend("<img src='/img/logo/"+attr.options.value+"' alt='Logo' >");
+        $(".main-sidebar .sidebar .user-panel .image").prepend("<a href='/'><img src='/img/logo/"+attr.options.value+"' alt='Logo' ></a>");
         $("head").append("<link href='/img/logo/thumbnail/"+attr.options.value+"' rel=\"icon\" >");
         domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
             var info = {};
             info.message = "preview.logo.add";
             callback(null, info);
-        });
+        }).catch(function(err){
+            callback(err, null);
+        })
     }).catch(function(err){
         callback(err, null);
-    });
+    })
 }
 
 exports.removeLogo = function(attr, callback) {
@@ -94,6 +116,25 @@ exports.removeLogo = function(attr, callback) {
     var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
     var info = {};
 
+    // Login Layout
+    var loginPath = __dirname + '/../workspace/' + idApplication + '/views/login/';
+    var loginFiles = ["login.dust", "first_connection.dust", "reset_password.dust"];
+    for(var i=0; i<loginFiles.length; i++){
+        (function(ibis){
+            domHelper.read(loginPath+loginFiles[i]).then(function($) {
+                if($("form .body center img").length > 0)
+                    $("form .body center img").remove();
+                $("form .body center").prepend("<img src='/img/logo_newmips.png' alt='Login logo' width=\"50%\" height=\"50%\">");
+                domHelper.write(loginPath+loginFiles[ibis], $).catch(function(err){
+                    return callback(err, null);
+                })
+            }).catch(function(err){
+                return callback(err, null);
+            })
+        })(i)
+    }
+
+    // Main Layout
     domHelper.read(mainLayoutPath).then(function($) {
         if($(".main-sidebar .sidebar .user-panel .image img").length > 0){
             $(".main-sidebar .sidebar .user-panel .image img").remove();
@@ -106,10 +147,12 @@ exports.removeLogo = function(attr, callback) {
             info.message = "preview.logo.noLogo";
         domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
             callback(null, info);
-        });
+        }).catch(function(err){
+            callback(err, null);
+        })
     }).catch(function(err){
         callback(err, null);
-    });
+    })
 }
 
 exports.setLayout = function(attr, callback) {
@@ -374,8 +417,10 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var insertCode = '';
     insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
     insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
-    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+', order: "id DESC"}).then(function(result){\n';
-    insertCode += "\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': result});\n';
+    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+', order: [["id", "DESC"]], raw: true}).then(function(result){\n';
+    insertCode += "\t\t\tentity_helper.prepareDatalistResult('"+attr.entity.codeName+"', {data:result}, req.session.lang_user).then(function(preparedData) {\n"
+    insertCode += "\t\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': preparedData.data});\n';
+    insertCode += "\t\t\t});\n";
     insertCode += "\t\t});\n";
     insertCode += "\t}));\n";
     insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
@@ -405,8 +450,9 @@ exports.createWidgetLastRecords = function(attr, callback) {
                     for (var i = 0; i < attr.columns.length; i++) {
                         var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('[data-field="'+field+'"]').data('type');
-                        thead += '<th data-type="'+type+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
-                        tbody += '<td data-type="'+type+'">{'+field+'}</td>';
+                        var col = $list('[data-field="'+field+'"]').data('col')
+                        thead += '<th data-type="'+type+'" data-col="'+col+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
+                        tbody += '<td data-type="'+type+'" data-col="'+col+'">{'+field+'}</td>';
                     }
                     thead += '</tr></thead>';
                     tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';

@@ -1,12 +1,20 @@
 {>"layout_m_home"/}
 {<header}
-<h1>{@__ key="settings.title"/}</h1>
-<ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-dashboard"></i>Accueil</a></li>
-    <li class="active">Paramètres</li>
-</ol>
-{/header}
-{<content}
+    <h1>{@__ key="module.m_home"/}<small>{@__ key="module.module"/}</small></h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/">
+                <i class="fa fa-home"></i>
+                {@__ key="module.home"/}
+            </a>
+        </li>
+        <!-- SUB MODULE - DO NOT REMOVE -->
+        <li class="active">
+            {@__ key="settings.legend"/}
+        </li>
+    </ol>
+    {/header}
+    {<content}
     <div class="row">
         <div class="col-xs-12 connectedSortable">
             <div class="box">
@@ -31,45 +39,108 @@
                     <br>
                     <div class="form-group">
                         <form action="/user/update" method="post">
+                            <input type="hidden" name="is_settings" value="true">
                             {#e_user}
-                                {>"e_user/update_fields" settings="true"/}
-                            {/e_user}
-                            <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
-                            <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>
-                        </form>
+                            <div id="fields" class="row">
+                                <div data-field="f_login" class="fieldLineHeight col-xs-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label for="f_login">
+                                            {@__ key="entity.e_user.f_login"/}&nbsp;
+                                            {@inline_help field="f_login"}
+                                            <i data-field="f_login" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                                            {/inline_help}
+                                        </label>
+                                        <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' value="{f_login}" type="text" maxlength="255" disabled="" readonly="">
+                                    </div>
+                                </div>
+                                <div data-field="f_email" class="fieldLineHeight col-xs-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label for="f_email">
+                                            {@__ key="entity.e_user.f_email"/}&nbsp;
+                                            {@inline_help field="f_email"}
+                                            <i data-field="f_email" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                                            {/inline_help}
+                                        </label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-envelope"></i>
+                                            </div>
+                                            <input class="form-control input" placeholder='{@__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div data-field="f_role" class="fieldLineHeight col-xs-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label for="f_role">
+                                            {@__ key="entity.e_user.r_role" /}
+                                            {@inline_help field="r_role"}
+                                            <i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                                            {/inline_help}
+                                        </label>
+                                            <select multiple="" class="ajax form-control" data-source="role" data-using="f_label" disabled="" readonly="">
+                                                <option value="">
+                                                    {@__ key="select.default" /}
+                                                </option>
+                                                {#r_role}
+                                                    <option value="{id}" selected="">{f_label|string}</option>
+                                                {/r_role}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div data-field="f_group" class="fieldLineHeight col-xs-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="f_group">
+                                                {@__ key="entity.e_user.r_group" /}
+                                                {@inline_help field="r_group"}
+                                                <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                                                {/inline_help}
+                                            </label>
+                                            <select multiple="" class="ajax form-control" data-source="group" data-using="f_label" disabled="" readonly="">
+                                                <option value="">
+                                                    {@__ key="select.default" /}
+                                                </option>
+                                                {#r_group}
+                                                    <option value="{id}" selected="">{f_label|string}</option>
+                                                {/r_group}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/e_user}
+                                <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                                <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-{/content}
-{<custom_js}
-<script>
-$(document).ready(function() {
-
-    $(document).on("click", ".chooseLanguage", function(){
-        var lang = $(this).attr("data-lang");
-        var ajaxdata = {
-            lang: lang
-        };
-
-        $.ajax({
-            url : '/default/change_language',
-            type : 'POST',
-            data : JSON.stringify(ajaxdata),
-            dataType : 'json',
-            contentType: "application/json",
-            context: this,
-            success: function (data) {
-                if(data.success){
-                    location.reload();
-                }
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        });
-    });
-});
-</script>
-{/custom_js}
+        {/content}
+        {<custom_js}
+        <script>
+            $(document).ready(function() {
+                $(document).on("click", ".chooseLanguage", function(){
+                    var lang = $(this).attr("data-lang");
+                    var ajaxdata = {
+                        lang: lang
+                    };
+                    $.ajax({
+                        url : '/default/change_language',
+                        type : 'POST',
+                        data : JSON.stringify(ajaxdata),
+                        dataType : 'json',
+                        contentType: "application/json",
+                        context: this,
+                        success: function (data) {
+                            if(data.success){
+                                location.reload();
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
+                });
+            });
+        </script>
+        {/custom_js}

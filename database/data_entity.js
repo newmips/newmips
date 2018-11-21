@@ -13,73 +13,64 @@ exports.selectEntity = function(attr, callback) {
 
     // Check if only space
     if (!options.value.replace(/\s/g, '').length) {
-        // string only contained whitespace (ie. spaces, tabs or line breaks)
+        // String only contained whitespace (ie. spaces, tabs or line breaks)
         options.value = "";
     }
 
-    if (options.value != "") {
-        // If params is a string, look for information_system with specific Name
-        // Else if param is a number, look for information_system with its ID
-        var where = {};
-        if (!isNaN(options.value)) {
-            where = {
-                where: {
-                    id: options.value
-                },
-                include: [{
-                    model: models.Module,
-                    include: [{
-                        model: models.Application,
-                        where: {
-                            id: attr.id_application
-                        }
-                    }]
-                }]
-            };
-            optionType = "ID";
-        } else {
-            where = {
-                where: {
-                    name: options.value
-                },
-                include: [{
-                    model: models.Module,
-                    include: [{
-                        model: models.Application,
-                        where: {
-                            id: attr.id_application
-                        }
-                    }]
-                }]
-            };
-            optionType = "Name";
-        }
-
-        models.DataEntity.findOne(where).then(function(entity) {
-            if (!entity) {
-                var err = new Error();
-                err.message = "database.entity.notFound.withThis" + optionType;
-                err.messageParams = [options.value];
-                return callback(err, null);
-            }
-
-            var info = {
-                insertId: entity.id,
-                moduleId: entity.Module.id,
-                urlEntity: entity.codeName.substring(2),
-                message: "database.entity.select.selected",
-                messageParams: [entity.name, entity.id]
-            };
-
-            callback(null, info);
-        }).catch(function(err) {
-            callback(err, null);
-        });
-    } else {
+    if (options.value == "") {
         var err = new Error();
         err.message = "database.entity.select.valid";
-        callback(err, null);
+        return callback(err, null);
     }
+
+    // If params is a string, look for information_system with specific Name
+    // Else if param is a number, look for information_system with its ID
+    var where = {};
+    if (!isNaN(options.value)) {
+        optionType = "ID";
+        where.where = {
+            id: options.value
+        };
+    } else {
+        optionType = "Name";
+        where.where = {
+            name: options.value
+        };
+    }
+
+    where.include = [{
+        model: models.Module,
+        attributes: ["id"],
+        required: true,
+        include: [{
+            model: models.Application,
+            attributes: ["id"],
+            where: {
+                id: attr.id_application
+            }
+        }]
+    }];
+
+    models.DataEntity.findOne(where).then(function(entity) {
+        if (!entity) {
+            var err = new Error();
+            err.message = "database.entity.notFound.withThis" + optionType;
+            err.messageParams = [options.value];
+            return callback(err, null);
+        }
+
+        var info = {
+            insertId: entity.id,
+            moduleId: entity.Module.id,
+            urlEntity: entity.codeName.substring(2),
+            message: "database.entity.select.selected",
+            messageParams: [entity.name, entity.id]
+        };
+
+        callback(null, info);
+    }).catch(function(err) {
+        callback(err, null);
+    });
 }
 
 // DataEntity with just a name
@@ -91,6 +82,7 @@ exports.selectEntityTarget = function(attr, callback) {
         },
         include: [{
             model: models.Module,
+            required: true,
             include: [{
                 model: models.Application,
                 where: {
@@ -98,14 +90,14 @@ exports.selectEntityTarget = function(attr, callback) {
                 }
             }]
         }]
-    }).then(function(dataEntity) {
-        if (!dataEntity) {
+    }).then(function(entity) {
+        if (!entity) {
             var err = new Error();
             err.level = 0;
             err.message = "database.entity.notFound.targetNoExist";
             return callback(err, null);
         }
-        callback(null, dataEntity);
+        callback(null, entity);
     }).catch(function(err) {
         callback(err, null);
     });
@@ -115,14 +107,10 @@ exports.createNewEntity = function(attr, callback) {
 
     // Set id_information_system of future data_entity according to session value transmitted in attributes
     var id_module = attr.id_module;
-
-    // Set options variable using the attribute array
-    var options = attr.options;
-
     // Value is the value used in the code
-    var name_entity = options.value;
+    var name_entity = attr.options.value;
     // showValue is the value without cleaning function
-    var show_name_entity = options.showValue;
+    var show_name_entity = attr.options.showValue;
 
     models.DataEntity.findOne({
         where: {
@@ -134,6 +122,7 @@ exports.createNewEntity = function(attr, callback) {
         },
         include: [{
             model: models.Module,
+            required: true,
             include: [{
                 model: models.Application,
                 where: {
@@ -180,6 +169,7 @@ exports.createNewEntityTarget = function(attr, callback) {
         },
         include: [{
             model: models.Module,
+            required: true,
             include: [{
                 model: models.Application,
                 where: {
@@ -219,9 +209,10 @@ exports.createNewEntityTarget = function(attr, callback) {
 exports.listDataEntity = function(attr, callback) {
 
     models.DataEntity.findAll({
-        order: 'id DESC',
+        order: [["id", "DESC"]],
         include: [{
             model: models.Module,
+            required: true,
             include: [{
                 model: models.Application,
                 where: {
@@ -254,6 +245,7 @@ exports.listDataEntityNameByApplicationId = function(id_application, callback) {
         },
         include: [{
             model: models.Module,
+            required: true,
             include: models.DataEntity
         }]
     }).then(function(app) {
@@ -384,6 +376,7 @@ exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) 
         },
         include: [{
             model: models.Module,
+            required: true,
             include: [{
                 model: models.Application,
                 where: {

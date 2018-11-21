@@ -13,7 +13,7 @@
                 <i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <select multiple="" style="width:100%;" class="ajax form-control" name="r_role" data-source="role" data-using="f_label">
+            <select multiple="" class="ajax form-control" name="r_role" data-source="role" data-using="f_label">
                 <option value="">
                     {@__ key="select.default" /}
                 </option>
@@ -31,7 +31,7 @@
                 <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <select multiple="" style="width:100%;" class="ajax form-control" name="r_group" data-source="group" data-using="f_label">
+            <select multiple="" class="ajax form-control" name="r_group" data-source="group" data-using="f_label">
                 <option value="">
                     {@__ key="select.default" /}
                 </option>

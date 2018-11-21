@@ -10,13 +10,20 @@ Core: General style
 .dt-buttons: {
     margin-left: 20px;
 }
+select.form-control{
+    width: 100% !important;
+}
+.select2-dropdown .select2-search__field:focus, .select2-search--inline .select2-search__field:focus {
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+}
+.hover:hover,
+.inline-help:hover,
+input[type=color]:hover,
+.insert:hover {
+    cursor: pointer;
+}
 
-.hover:hover {
-    cursor: pointer;
-}
-.inline-help:hover {
-    cursor: pointer;
-}
 .icon-wrap {
     margin-bottom: 20px;
 }
@@ -165,6 +172,11 @@ div.dataTables_length select {
     color: #ffffff;
     border-bottom: 0 solid transparent;
 }
+.user-panel > .image > a > img {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+}
 .content-header {
     background: transparent;
 }
@@ -219,4 +231,31 @@ div.dataTables_length select {
 
 .input-group-addon{
     cursor: pointer;
+}
+
+.copy-button {
+    /*padding: 6px 12px;*/
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1;
+    color: #555;
+    text-align: center;
+    background-color: transparent;
+    border: "none";
+    border-radius: 4px;
+    width: 40px;
+    cursor: pointer;
+    display: table-cell;
+}
+
+.copy-button:hover {
+    background-color: #eee;
+}
+
+.icon-wrap{
+    cursor: pointer;
+}
+
+.icon-wrap:hover{
+    background: #3c8dbc;
 }

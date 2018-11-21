@@ -27,7 +27,6 @@ try {
 
 //Sequelize
 var models = require('../models/');
-
 var exec = require('child_process').exec;
 
 function installAppModules() {
@@ -59,7 +58,7 @@ function installAppModules() {
             } else {
                 // We need to reinstall node modules properly
                 console.log("Workspaces node modules initialization...");
-                var cmd = 'cp ' + dir + '/../structure/template/package.json ' + dir + '/../workspace/';
+                var cmd = 'cp ' + dir + '/../structure/template/package.json ' + dir + '/../workspace/ || copy ' + dir + '\\..\\structure\\template\\package.json ' + dir + '\\..\\workspace\\';
 
                 exec(cmd, {
                     cwd: process.cwd()
@@ -244,6 +243,8 @@ function initializeWorkflow(id_application, name_application) {
         fs.copySync(piecesPath + '/views/e_media_mail/', workspacePath + '/views/e_media_mail/');
         // media notification
         fs.copySync(piecesPath + '/views/e_media_notification/', workspacePath + '/views/e_media_notification/');
+        // // media sms
+        fs.copySync(piecesPath + '/views/e_media_sms/', workspacePath + '/views/e_media_sms/');
         // translation
         fs.copySync(piecesPath + '/views/e_translation/', workspacePath + '/views/e_translation/');
         // action
@@ -268,6 +269,10 @@ function initializeWorkflow(id_application, name_application) {
                 modelMedia = fs.readFileSync(piecesPath + '/models/e_media_notification.js', 'utf8');
                 modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
                 fs.writeFileSync(workspacePath + '/models/e_media_notification.js', modelMedia, 'utf8');
+                // Media sms
+                modelMedia = fs.readFileSync(piecesPath + '/models/e_media_sms.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath + '/models/e_media_sms.js', modelMedia, 'utf8');
                 // Write new locales trees
                 var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
@@ -298,12 +303,10 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                         $("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
                         $("#r_notification-click").parents('li').remove();
                         $("#r_notification").remove();
-
                         domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function() {
                             // Clean user create fields
                             domHelper.read(workspacePath + '/views/e_user/create_fields.dust').then(function($) {
                                 $("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-
                                 domHelper.write(workspacePath + '/views/e_user/create_fields.dust', $).then(function() {
                                     // Clean user update fields
                                     domHelper.read(workspacePath + '/views/e_user/update_fields.dust').then(function($) {
@@ -330,41 +333,106 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                             uniqueField('e_role', 'f_label');
                                             uniqueField('e_group', 'f_label');
 
-                                            // Manualy add settings to access file because it's not a real entity
+                                            // Manualy add settings and db_tool to access file because it's not a real entity
                                             var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
-                                            access.administration.entities.push({
-                                                name: 'access_settings',
-                                                groups: [],
-                                                actions: {
-                                                    read: [],
-                                                    create: [],
-                                                    update: [],
-                                                    delete: []
-                                                }
-                                            });
+                                            let arrayKey = [
+                                                "access_settings",
+                                                "db_tool",
+                                                "import_export",
+                                                "access_tool",
+                                                "access_settings_role",
+                                                "access_settings_group",
+                                                "access_settings_api"
+                                            ];
+                                            for (var i = 0; i < arrayKey.length; i++) {
+                                                access.administration.entities.push({
+                                                    name: arrayKey[i],
+                                                    groups: [],
+                                                    actions: {
+                                                        read: [],
+                                                        create: [],
+                                                        update: [],
+                                                        delete: []
+                                                    }
+                                                });
+                                            }
                                             fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
 
                                             // Set role-group/user structureType to hasManyPreset to be used by ajax
                                             var opts = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_role.json', 'utf8'));
                                             opts[0].structureType = "hasManyPreset";
+                                            opts[0].usingField = [{value: 'f_login', type: 'string'}];
                                             fs.writeFileSync(workspacePath+'/models/options/e_role.json', JSON.stringify(opts, null, 4), 'utf8');
-                                            // Set role-group/user structureType to hasManyPreset to be used by ajax
                                             var opts = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_group.json', 'utf8'));
                                             opts[0].structureType = "hasManyPreset";
+                                            opts[0].usingField = [{value: 'f_login', type: 'string'}];
                                             fs.writeFileSync(workspacePath+'/models/options/e_group.json', JSON.stringify(opts, null, 4), 'utf8');
 
                                             domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
                                                 var li = '';
+
+                                                li += '{@entityAccess entity="import_export"}\n';
+                                                li += '     <li id="import_export_menu_item" class="treeview">\n';
+                                                li += '         <a href="#">\n';
+                                                li += '             <i class="fa fa-arrows-v"></i>\n';
+                                                li += '             <span>{@__ key="settings.import_export.title" /}</span>\n';
+                                                li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+                                                li += '         </a>\n';
+                                                li += '         <ul class="treeview-menu">\n';
+                                                li += '             {@actionAccess entity="db_tool" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/import_export/db_show">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="settings.db_tool.title" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '             {@actionAccess entity="access_tool" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/import_export/access_show">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="settings.tool_menu" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '         </ul>\n';
+                                                li += '     </li>\n';
+                                                li += '{/entityAccess}\n';
+
                                                 li += '{@entityAccess entity="access_settings"}\n';
-                                                li += '     {@actionAccess entity="access_settings" action="read"}\n';
-                                                li += '         <li>\n';
-                                                li += '             <a href="/access_settings/show">\n';
-                                                li += '                 <i class="fa fa-cog"></i>\n';
-                                                li += '                 <span>{@__ key="settings.title" /}</span>\n';
-                                                li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
-                                                li += '             </a>\n';
-                                                li += '         </li>\n';
-                                                li += '     {/actionAccess}\n';
+                                                li += '     <li id="access_settings_menu_item" class="treeview">\n';
+                                                li += '         <a href="#">\n';
+                                                li += '             <i class="fa fa-cog"></i>\n';
+                                                li += '             <span>{@__ key="settings.title" /}</span>\n';
+                                                li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+                                                li += '         </a>\n';
+                                                li += '         <ul class="treeview-menu">\n';
+                                                li += '             {@actionAccess entity="access_settings_role" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/access_settings/show_role">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="entity.e_role.label_entity" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '             {@actionAccess entity="access_settings_group" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/access_settings/show_group">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     {@__ key="entity.e_group.label_entity" /}\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '             {@actionAccess entity="access_settings_api" action="read"}\n';
+                                                li += '             <li>\n';
+                                                li += '                 <a href="/access_settings/show_api">\n';
+                                                li += '                     <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                     API\n';
+                                                li += '                 </a>\n';
+                                                li += '             </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '         </ul>\n';
+                                                li += '     </li>\n';
                                                 li += '{/entityAccess}\n';
 
                                                 $("#sortable").append(li);
@@ -374,7 +442,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                     // Copy routes settings pieces
                                                     fs.copySync(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js');
                                                     // Copy view settings pieces
-                                                    fs.copySync(piecesPath + '/administration/views/e_access_settings/show.dust', workspacePath + '/views/e_access_settings/show.dust');
+                                                    fs.copySync(piecesPath + '/administration/views/e_access_settings', workspacePath + '/views/e_access_settings');
                                                     // Copy route e_api_credentials piece
                                                     fs.copySync(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js');
                                                     // Copy api e_user piece

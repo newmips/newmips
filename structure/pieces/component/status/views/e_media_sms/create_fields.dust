@@ -1,0 +1,42 @@
+<div id="fields" class="row">
+    <div data-field="f_message" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label class="mosaic-label" style="height: 60px;" for="f_message">
+                {@__ key="entity.e_media_sms.f_message"/}<br>
+                {@inline_help field="f_message"}
+                <i data-field="f_message" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="field">{@__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
+            <textarea class="form-control textarea" placeholder='{@__ key="entity.e_media_sms.f_message" /}' name="f_message" id="f_message_textareaid" type="text">{f_message|s}</textarea>
+        </div>
+    </div>
+    <div data-field="f_phone_numbers" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label class="mosaic-label" style="float:left;height: 60px;" for="f_phone_numbers">
+                {@__ key="entity.e_media_sms.f_phone_numbers"/}<br>
+                {@inline_help field="f_phone_numbers"}
+                <i data-field="f_phone_numbers" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>&nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="phone_field">{@__ key="component.status.choose_from_phone_field" /}</a></li>
+                        <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
+                        <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
+                    </ul>
+                </div>
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_sms.f_phone_numbers" /}' name="f_phone_numbers" value="" type="text" maxlength="255">
+        </div>
+    </div>
+</div>
