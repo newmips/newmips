@@ -949,7 +949,7 @@ exports.newStatus = function (attr, callback) {
                 newTh += '    {@__ key="defaults.createdAt"/}\n';
                 newTh += '</th>\n';
                 $(".fields").each(function () {
-                    $(this).find("th:eq(2)").after(newTh);
+                    $(this).find("th:eq(0)").before(newTh);
                 });
                 $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
                 // Remove delete button

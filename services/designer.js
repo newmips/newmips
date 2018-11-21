@@ -1910,7 +1910,6 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 exports.createNewComponentStatus = function (attr, callback) {
     var self = this;
 
-
     db_entity.getDataEntityById(attr.id_data_entity, function (err, source_entity) {
         if (err)
             return callback(err, null);
