@@ -6,6 +6,11 @@
 Core: General style
 ----------------------------
 */
+
+input[type=file]: {
+    height: auto;
+}
+
 /* DataTables buttons*/
 .dt-buttons: {
     margin-left: 20px;
