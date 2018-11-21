@@ -11,7 +11,7 @@ Core: General style
     margin-left: 20px;
 }
 select.form-control{
-    width: 100%;
+    width: 100% !important;
 }
 .select2-dropdown .select2-search__field:focus, .select2-search--inline .select2-search__field:focus {
     border: 1px solid lightgrey;
