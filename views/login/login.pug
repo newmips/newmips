@@ -1,0 +1,24 @@
+extends ../login_layout
+block content
+    .header #{__("login.authentication")}
+    form(action='/login', method='post')
+        .body.bg-white
+            center
+                img(src='/img/newLogo.png', width='50%', height='50%')
+        .body.bg-gray
+            .form-group
+                label(for='login_user') #{__("login.login")}
+                input.form-control(required, type='text', name='login_user', placeholder=__("login.login"))
+            .form-group
+                label(for='password_user') #{__("login.password")}
+                input.form-control(required, type='password', name='password_user', placeholder=__("login.password"))
+            .form-group
+                input(type='checkbox', name='remember_me' value='yes')
+                | &nbsp; #{__("login.remember_me")}
+                input(id='redirect', name='redirect', type='hidden', value=redirect)
+        .footer
+            button.btn.btn-primary.btn-block(type='submit') #{__("login.submit")}
+            p
+                a(href='/reset_password') #{__("login.reset_password")}
+            p
+                a(href='/first_connection') #{__("login.first_connection.title")}

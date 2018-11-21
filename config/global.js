@@ -1,7 +1,7 @@
 // Global configuration file
 var fs = require('fs');
-
 var env = 'develop';
+
 var config = {
 	'develop': {
 		env: 'develop',
@@ -18,8 +18,8 @@ var config = {
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
+			key: /*fs.readFileSync('./cacerts/private.key')*/"fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
 		slack_chat_enabled: false
@@ -31,19 +31,10 @@ var config = {
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
+			key: /*fs.readFileSync('./cacerts/private.key')*/"fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
-		slack_chat_enabled: false
-	},
-	'cloud': {
-		env: 'cloud',
-		protocol: 'http',
-		protocol_iframe: 'https',
-		host: process.env.HOSTNAME,
-		dns: '.newmips.cloud',
-		port: process.env.PORT || 1337,
 		slack_chat_enabled: false
 	}
 }

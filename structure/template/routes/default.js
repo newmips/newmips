@@ -27,49 +27,6 @@ router.get('/status', function(req, res) {
 
 // *** Dynamic Module | Do not remove ***
 
-// m_administration
-router.get('/administration', block_access.isLoggedIn, block_access.moduleAccessMiddleware("administration"), function(req, res) {
-    var widgetPromises = [];
-    // *** Widget module m_administration | Do not remove ***
-    Promise.all(widgetPromises).then(function(results) {
-        var data = {};
-        for (var i = 0; i < results.length; i++)
-            for (var prop in results[i])
-                data[prop] = results[i][prop];
-        res.render('default/m_administration', data);
-    });
-});
-
-
-// m_home
-router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function(req, res) {
-    var widgetPromises = [];
-    // *** Widget module m_home | Do not remove ***
-    Promise.all(widgetPromises).then(function(results) {
-        var data = {};
-        for (var i = 0; i < results.length; i++)
-            for (var prop in results[i])
-                data[prop] = results[i][prop];
-        res.render('default/m_home', data);
-    });
-});
-
-
-// m_authentication
-router.get('/authentication', block_access.isLoggedIn, block_access.moduleAccessMiddleware("authentication"), function (req, res) {
-    var widgetPromises = [];
-
-    // *** Widget module m_authentication | Do not remove ***
-
-    Promise.all(widgetPromises).then(function (results) {
-        var data = {};
-        for (var i = 0; i < results.length; i++)
-            for (var prop in results[i])
-                data[prop] = results[i][prop];
-        res.render('default/m_authentication', data);
-    });
-});
-
 router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
     var source = req.params.source;
     var id = req.params.id;
@@ -214,13 +171,18 @@ router.get('/get_file', block_access.isLoggedIn, function (req, res) {
 router.get('/download', block_access.isLoggedIn, function (req, res) {
     var entity = req.query.entity;
     var filepath = req.query.f;
+    // Filename without date and hours prefix
+    var filename = filepath.substring(16);
     var p = new Promise(function (resolve, reject) {
         if (!!entity && !!filepath) {
             var partOfFilepath = filepath.split('-');
             if (partOfFilepath.length > 1) {
                 var base = partOfFilepath[0];
-                var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filepath;
-                res.download(completeFilePath, filepath, function (err) {
+                // Taking dirname from globalConf cause a bug on filename param for res.download
+                // So we take again __dirname here and remove it from globalConf
+                var dir = __dirname;
+                var completeFilePath = dir + globalConf.localstorage.substring(dir.length) + entity + '/' + base + '/' + filepath;
+                res.download(completeFilePath, filename, function (err) {
                     if (err)
                         reject(err);
                     else
@@ -233,7 +195,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
             reject();
     });
     p.then(function () {
-        console.log("The file "+filepath+" was successfully downloaded !");
+        console.log("The file "+filename+" was successfully downloaded !");
     }).catch(function (err) {
         console.log(err);
         req.session.toastr.push({level: 'error', message: "File not found"});

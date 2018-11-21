@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filterDataTable');
+var filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
 var models = require('../models/');
@@ -11,6 +11,7 @@ var options = require('../models/options/e_api_credentials');
 var model_builder = require('../utils/model_builder');
 var entity_helper = require('../utils/entity_helper');
 var file_helper = require('../utils/file_helper');
+var status_helper = require('../utils/status_helper');
 var component_helper = require('../utils/component_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
@@ -134,14 +135,14 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
         data.e_api_credentials = e_api_credentials;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials").then(function () {
-            entity_helper.status.translate(e_api_credentials, attributes, req.session.lang_user);
+            status_helper.translate(e_api_credentials, attributes, req.session.lang_user);
             data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("e_api_credentials");
             res.render('e_api_credentials/show', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -214,11 +215,11 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
                     res.redirect(redirect);
                 });
             }).catch(function (err) {
-                entity_helper.error500(err, req, res, '/api_credentials/create_form');
+                entity_helper.error(err, req, res, '/api_credentials/create_form');
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/api_credentials/create_form');
+        entity_helper.error(err, req, res, '/api_credentials/create_form');
     });
 });
 
@@ -253,10 +254,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("api_credentials"
             } else
                 res.render('e_api_credentials/update', data);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -295,10 +296,10 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials);
+            entity_helper.error(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials);
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials);
+        entity_helper.error(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials);
     });
 });
 
@@ -447,7 +448,7 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 
     var errorRedirect = '/api_credentials/show?id=' + req.params.id_api_credentials;
 
-    var includeTree = entity_helper.status.generateEntityInclude(models, 'e_api_credentials');
+    var includeTree = status_helper.generateEntityInclude(models, 'e_api_credentials');
 
     // Find target entity instance and include its child to be able to replace variables in media
     includeTree.push({
@@ -544,7 +545,7 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect);
     });
 });
 
@@ -592,6 +593,23 @@ router.post('/search', block_access.actionAccessMiddleware('api_credentials', 'r
 
     models.E_api_credentials.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+        // Format value like date / datetime / etc...
+        for (var field in attributes) {
+            for (var i = 0; i < results.rows.length; i++) {
+                for (var fieldSelect in results.rows[i]) {
+                    if(fieldSelect == field){
+                        switch(attributes[field].newmipsType) {
+                            case "date":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                break;
+                            case "datetime":
+                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                break;
+                        }
+                    }
+                }
+            }
+        }
         res.json(results);
     }).catch(function (e) {
         console.error(e);
@@ -622,11 +640,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("api_
             e_api_credentials['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function (err) {
-                entity_helper.error500(err, req, res, "/");
+                entity_helper.error(err, req, res, "/");
             });
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -652,10 +670,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("api_cre
         e_api_credentials['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/api_credentials/show?id=' + idEntity + "#" + alias);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, "/");
+            entity_helper.error(err, req, res, "/");
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, "/");
+        entity_helper.error(err, req, res, "/");
     });
 });
 
@@ -679,10 +697,10 @@ router.post('/delete', block_access.actionAccessMiddleware("api_credentials", "d
             res.redirect(redirect);
             entity_helper.remove_files("e_api_credentials", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error500(err, req, res, '/api_credentials/list');
+            entity_helper.error(err, req, res, '/api_credentials/list');
         });
     }).catch(function (err) {
-        entity_helper.error500(err, req, res, '/api_credentials/list');
+        entity_helper.error(err, req, res, '/api_credentials/list');
     });
 });
 

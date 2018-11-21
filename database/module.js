@@ -142,7 +142,7 @@ exports.listModule = function(attr, callback) {
     }
 
     models.Module.findAll({
-        order: "id DESC",
+        order: [["id", "DESC"]],
         include: [{
             model: models.Application,
             where: {
@@ -180,7 +180,7 @@ exports.listModuleByApplication = function(attr, callback) {
             where: {
                 id_application: id_application
             },
-            order: "id ASC"
+            order: [["id", "ASC"]]
         }).then(function(modules) {
             if (!modules) {
                 var err = new Error();

@@ -1,21 +1,31 @@
 // server.js
 process.env.TZ = 'UTC';
-// set up ======================================================================
-// get all the tools we need
+// Set up ======================================================================
+// Get all the tools we need
 var path = require('path');
-var express  = require('express');
-var session  = require('express-session');
-var SessionStore = require('express-mysql-session');
-var dbconfig = require('./config/database');
+var express = require('express');
+var session = require('express-session');
+var dbConfig = require('./config/database');
+
+// MySql
+if(dbConfig.dialect == "mysql")
+    var SessionStore = require('express-mysql-session');
+
+// Postgres
+if(dbConfig.dialect == "postgres"){
+    var pg = require('pg');
+    var SessionStore = require('connect-pg-simple')(session);
+}
+
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
-var app      = express();
+var app = express();
 var globalConf = require('./config/global');
 var protocol = globalConf.protocol;
 var port = globalConf.port;
 var passport = require('passport');
-var flash    = require('connect-flash');
+var flash = require('connect-flash');
 var language = require('./services/language');
 var extend = require('util')._extend;
 var https = require('https');
@@ -26,161 +36,189 @@ var split = require('split');
 var AnsiToHTML = require('ansi-to-html');
 var ansiToHtml = new AnsiToHTML();
 var moment = require('moment');
+var models = require('./models/');
 
-// pass passport for configuration
+// Passport for configuration
 require('./utils/authStrategies');
 
 // set up our express application
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
 
-var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {flags: 'a'});
+var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {
+    flags: 'a'
+});
 
 app.use(morgan('dev', {
-	skip: function (req, res) {
-		// Empeche l'apparition de certain log polluant.
-		var skipArray = ["/update_logs", "/get_pourcent_generation", "/update_instruction_cpt", "/status", "/completion", "/"];
-		var currentURL = req.url;
-		if(currentURL.indexOf("?") != -1){
-			// Remove params from URL
-			currentURL = currentURL.split("?")[0];
-		}
-		if(skipArray.indexOf(currentURL) != -1){
-			return true;
-		}
-	},
-	stream: split().on('data', function (line) {
-		if(allLogStream.bytesWritten < 5000){
-			allLogStream.write(moment().format("YY-MM-DD HH:mm:ss") + ": "+ansiToHtml.toHtml(line)+"\n");
-			process.stdout.write(line+"\n");
-		} else{
-			/* Clear all.log if too much bytes are written */
-			fs.writeFileSync(path.join(__dirname, 'all.log'), '');
-			allLogStream.bytesWritten = 0;
-		}
-	})
+    skip: function(req, res) {
+        // Empeche l'apparition de certain log polluant.
+        var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/"];
+        var currentURL = req.url;
+        if (currentURL.indexOf("?") != -1) {
+            // Remove params from URL
+            currentURL = currentURL.split("?")[0];
+        }
+        if (skipArray.indexOf(currentURL) != -1) {
+            return true;
+        }
+    },
+    stream: split().on('data', function(line) {
+        if (allLogStream.bytesWritten < 5000) {
+            allLogStream.write(moment().format("YY-MM-DD HH:mm:ss") + ": " + ansiToHtml.toHtml(line) + "\n");
+            process.stdout.write(line + "\n");
+        } else {
+            /* Clear all.log if too much bytes are written */
+            fs.writeFileSync(path.join(__dirname, 'all.log'), '');
+            allLogStream.bytesWritten = 0;
+        }
+    })
 }));
 
-app.use(cookieParser()); // read cookies (needed for auth)
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({
-	extended: true,
-	limit: "50mb"
+    extended: true,
+    limit: "50mb"
 }));
-app.use(bodyParser.json({limit: '50mb'}));
-//app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade'); // set up jade for templating
+app.use(bodyParser.json({
+    limit: '50mb'
+}));
 
-// required for passport
+// Template rendering
+app.set('views', path.join(__dirname, 'views'));
+// Set up PUG for templating
+app.set('view engine', 'pug');
+
+// Required for passport
 var options = {
-	host: dbconfig.connection.host,
-	port: dbconfig.connection.port,
-	user: dbconfig.connection.user,
-	password: dbconfig.connection.password,
-	database: dbconfig.connection.database
+    host: dbConfig.host,
+    port: dbConfig.port,
+    user: dbConfig.user,
+    password: dbConfig.password,
+    database: dbConfig.database
 };
 
-var sessionStore = new SessionStore(options);
+if(dbConfig.dialect == "mysql")
+    var sessionStore = new SessionStore(options);
+
+if(dbConfig.dialect == "postgres"){
+    var pgPool = new pg.Pool(options);
+    var sessionStore = new SessionStore({
+        pool: pgPool
+    });
+}
 
 app.use(session({
-	store: sessionStore,
-	cookieName: 'newmipsCookie',
-	secret: 'newmipsmakeyourlifebetter',
-	resave: true,
-	saveUninitialized: false,
-	maxAge: 360*5,
-	key: 'newmipsCookie'
- } )); // session secret
- app.use(passport.initialize());
- app.use(passport.session()); // persistent login sessions
- app.use(flash()); // use connect-flash for flash messages stored in session
+    store: sessionStore,
+    cookieName: 'newmipsCookie',
+    secret: 'newmipsmakeyourlifebetter',
+    resave: true,
+    saveUninitialized: false,
+    maxAge: 360 * 5,
+    key: 'newmipsCookie'
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 
 // Locals ======================================================================
 app.locals.moment = require('moment');
 
 // Language ======================================================================
 app.use(function(req, res, next) {
-	// Applications created with newmips only have fr-FR.
-	// To avoid cookie conflict between newmips and this app, set fr-FR by default
-	var lang = 'fr-FR';
-	if (req.isAuthenticated()){
-		if (req.session.lang_user)
-	        lang = req.session.lang_user;
-	    else
-	    	req.session.lang_user = lang;
-	}
-	// Pass translate function to jade templates
-	res.locals = extend(res.locals, language(lang));
-	next();
-});
-
-// Give access to globalConf through locals
-app.use(function(req, res, next) {
-	res.locals.globalConf = globalConf;
-	next();
+    // Applications created with newmips only have fr-FR.
+    // To avoid cookie conflict between newmips and this app, set fr-FR by default
+    var lang = 'fr-FR';
+    if (req.isAuthenticated()) {
+        if (req.session.lang_user)
+            lang = req.session.lang_user;
+        else
+            req.session.lang_user = lang;
+    }
+    // Pass translate function to pug templates
+    res.locals = extend(res.locals, language(lang));
+    res.locals.globalConf = globalConf;
+    next();
 });
 
 // Overload res.render to always get and reset toastr
 app.use(function(req, res, next) {
     var render = res.render;
     res.render = function(view, locals, cb) {
-    	if(typeof locals === "undefined")
-    		locals = {};
-    	if (req.session.toastr && req.session.toastr.length > 0) {
-    		locals.toastr = [];
-    		for (var i = 0; i < req.session.toastr.length; i++) {
-    			var toast = req.session.toastr[i];
-    			var traductedToast = {message: language(req.session.lang_user).__(toast.message), level: toast.level};
-    			locals.toastr.push(traductedToast);
-    		}
-	        req.session.toastr = [];
+        if (typeof locals === "undefined")
+            locals = {};
+        if (req.session.toastr && req.session.toastr.length > 0) {
+            locals.toastr = [];
+            for (var i = 0; i < req.session.toastr.length; i++) {
+                var toast = req.session.toastr[i];
+                var traductedToast = {
+                    message: language(req.session.lang_user).__(toast.message),
+                    level: toast.level
+                };
+                locals.toastr.push(traductedToast);
+            }
+            req.session.toastr = [];
         }
         if (locals.isSlackChatEnabled = globalConf.slack_chat_enabled) {
-        	var slackConf = require('./config/slack');
-        	locals.slackApiToken = slackConf.SLACK_API_TOKEN;
+            var slackConf = require('./config/slack');
+            locals.slackApiToken = slackConf.SLACK_API_TOKEN;
         }
-        helper.getNbInstruction(function(totalInstruction){
-        	// Get nbInstruction
-            locals.cptInstruction = totalInstruction;
-            // Get limit instruction
-            //locals.limitInstruction = globalConf.limitInstruction;
-            // Pourcent for progress bar
-            locals.pourcentInstruction = (locals.cptInstruction*100)/300;
-			render.call(res, view, locals, cb);
-		});
+        render.call(res, view, locals, cb);
     };
     next();
 });
 
-// routes =======================================================================
-app.use('/', require('./routes/routes.js'));
-app.use('/default', require('./routes/default'));
-app.use('/application', require('./routes/application'));
-app.use('/live', require('./routes/live'));
-app.use('/settings', require('./routes/settings'));
-app.use('/account', require('./routes/account'));
-app.use('/users', require('./routes/users'));
-app.use('/instruction_script', require('./routes/instruction_script'));
-app.use('/import', require('./routes/import'));
-app.use('/editor', require('./routes/editor'));
-app.use('/themes', require('./routes/themes'));
-app.use('/ui_editor', require('./routes/ui_editor'));
+// Routes ======================================================================
+require('./routes/')(app);
 
 // Handle 404
 app.use(function(req, res) {
-	res.status(404);
-	res.render('common/404');
+    res.status(404);
+    res.render('common/404');
 });
 
-// launch ======================================================================
-if (protocol == 'https') {
-	var server = https.createServer(globalConf.ssl, app);
-	server.listen(port);
-	console.log("Started https on "+port);
-}
-else {
-	app.listen(port);
-	console.log("Started on "+port);
-}
+// Launch ======================================================================
+
+models.sequelize.sync({
+    logging: false,
+    hooks: false
+}).then(function() {
+    models.User.findAll().then(function(users) {
+        if (!users || users.length == 0) {
+            models.Role.create({
+                id: 1,
+                name: 'admin',
+                version: 1
+            }).then(function() {
+                models.User.create({
+                    id: 1,
+                    email: null,
+                    enabled: 0,
+                    first_name: "admin",
+                    last_name: "NEWMIPS",
+                    login: "admin",
+                    password: null,
+                    phone: null,
+                    version: 1
+                }).then(function(user) {
+                    user.setRole(1);
+                });
+            });
+        }
+    });
+    if (protocol == 'https') {
+        var server = https.createServer(globalConf.ssl, app);
+        server.listen(port);
+        console.log("Started https on " + port);
+    } else {
+
+        app.listen(port);
+        console.log("Started on " + port);
+    }
+}).catch(function(err) {
+    console.log("ERROR - SYNC");
+    logger.silly(err);
+    console.log(err);
+});
 
 module.exports = app;

@@ -1,11 +1,11 @@
 <div id="fields" class="row">
     <div data-field="f_media" class="fieldLineHeight col-xs-12">
         <div class="form-group">
-            <label for="r_media">{@__ key="entity.e_action.r_media" /}</label>
-            <select style="width:100%;" class="ajax form-control" name="r_media" data-source="media" data-using="f_name">
+            <label for="r_media" class="required">{@__ key="entity.e_action.r_media" /}</label>
+            <select class="ajax form-control" required="" data-customwhere='{"f_target_entity": "{status_target}"}' name="r_media" data-source="media" data-using="f_name,f_type">
                 <option value="">{@__ key="select.default" /}</option>
                 {#r_media}
-                <option value="{id}" selected="">{f_name|string}</option>
+                <option value="{id}" selected="">{f_name|string} - {</option>
                 {/r_media}
             </select>
         </div>
@@ -19,7 +19,7 @@
     <div data-field="f_execution" class="col-xs-12">
         <div class="form-group">
             <label for="f_execution"> {@__ key="entity.e_action.f_execution"/} {@inline_help field="f_execution"}&nbsp;<i data-field="f_execution" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <select style="width:100%;" class="form-control select" name="f_execution">
+            <select class="form-control select" name="f_execution">
                 <option value="">{@__ key="select.default" /}</option>
                 {#enum_radio.e_action.f_execution}
                 {@eq key="Immediate" value="{.value}" }

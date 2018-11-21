@@ -4,10 +4,10 @@
  * Licensed under GPLV3.0 https://www.gnu.org/licenses/gpl.html
  */
 
-function navigate(){
-  var url = window.document.getElementById('dynamic_select').value; // get selected value
-  if (url) { // require a URL
-    window.location = url; // redirect
-  }
-  return false;
+function navigate() {
+    var url = window.document.getElementById('dynamic_select').value;
+    if (url) {
+        window.location = url;
+    }
+    return false;
 }

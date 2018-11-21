@@ -2,7 +2,7 @@ var moment = require('moment');
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
-var auth = require('../utils/authStrategies');
+var auth = require('../utils/auth_strategies');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mailer = require('../utils/mailer');
@@ -19,22 +19,22 @@ router.get('/', function(req, res) {
     res.redirect('/login');
 });
 
+// Route used to redirect to set_status when submitting comment modal
+router.post('/status_comment', block_access.isLoggedIn, function(req, res) {
+    res.redirect('/'+req.body.parentName+'/set_status/'+req.body.parentId+'/'+req.body.field+'/'+req.body.statusId+'?comment='+encodeURIComponent(req.body.comment));
+});
+
 // =====================================
 // LOGIN ===============================
 // =====================================
-
 router.get('/login', block_access.loginAccess, function(req, res) {
-    var redirect = req.params.redirect;
-    if (typeof redirect === 'undefined')
-        redirect = "/default/home";
 
     var msg = "";
     if(typeof req.session.flash !== "undefined")
         msg = req.flash('loginMessage');
 
     res.render('login/login', {
-        message: msg,
-        redirect: redirect
+        message: msg
     });
 });
 
@@ -45,11 +45,6 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     else
         req.session.cookie.expires = false;
 
-    /*if (req.session.rejectedUrl) {
-        var url = req.session.rejectedUrl;
-        req.session.rejectedUrl = undefined;
-        return res.redirect(url);
-    }*/
     res.redirect("/default/home");
 });
 

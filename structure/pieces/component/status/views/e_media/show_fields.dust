@@ -48,13 +48,13 @@
                         {/r_media_notification}
                     </div>
                 {/eq}
-                {@eq key=f_type value="function"}
-                    <div id="r_media_function" class="col-xs-12">
-                        {#r_media_function}
-                        {>"e_media_function/show_fields" hideTab="true"/}
+                {@eq key=f_type value="sms"}
+                    <div id="r_media_sms" class="col-xs-12">
+                        {#r_media_sms}
+                        {>"e_media_sms/show_fields" hideTab="true"/}
                         {:else}
                         {@__ key="message.empty" /}<br><br>
-                        {/r_media_function}
+                        {/r_media_sms}
                     </div>
                 {/eq}
             </div>

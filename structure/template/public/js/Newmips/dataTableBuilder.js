@@ -238,13 +238,15 @@ var delay = (function() {
     };
 })();
 
-function init_datatable(tableID, isSubDataList, doPagination) {
+function init_datatable(tableID, isSubDataList, doPagination, context) {
+    if(!context)
+        context = document;
     isSubDataList = typeof isSubDataList !== 'undefined' && isSubDataList == true ? true : false;
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
     // Fetch columns from html
     var columns = [];
-    $(tableID + " .main th").each(function () {
+    $(tableID + " .main th", context).each(function () {
         if (typeof $(this).data('col') !== 'undefined'){
             if($(this).data("hidden") == "1"){
                 columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true});
@@ -290,15 +292,12 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                 if (columns[meta.col].data.indexOf('.') != -1) {
                     var entityRelation = columns[meta.col].data.split(".")[0];
                     var attributeRelation = columns[meta.col].data.split(".")[1];
-                    //Gestion des relation hasMAny dans un datalist
                     if (row[entityRelation] != null && typeof row[entityRelation] === "object") {
                         var valueFromArray = "";
                         for (var attr in row[entityRelation]) {
+                            // In case of hasMany or belongsToMany value
                             if (row[entityRelation][attr] != null && typeof row[entityRelation][attr] === "object") {
-                                for (var attr2 in row[entityRelation][attr]) {
-                                    if (attr == entityRelation && attr2 == attributeRelation)
-                                        valueFromArray += "- " + row[entityRelation][attr][attr2] + "<br>";
-                                }
+                                valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
                             } else {
                                 var parts = columns[meta.col].data.split('.');
                                 valueFromArray = getValue(parts, row);
@@ -345,7 +344,7 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                         } else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
-                        cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"></i>' : '<i class="fa fa-square-o fa-lg"></i>';
+                        cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"><span style="visibility: hidden;">1</span></i>' : '<i class="fa fa-square-o fa-lg"><span style="visibility: hidden;">0</span></i>';
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'status'){
@@ -367,6 +366,15 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                         else
                             cellValue = '';
                     }
+                    else if (columns[meta.col].type == 'file') {
+                        if(cellValue != "" && cellValue != null){
+                            // Get current entity by splitting current table id
+                            var currentEntity = tableID.split("#table_")[1];
+                            var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
+                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+cellValue+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
+                        } else
+                            cellValue = '';
+                    }
                     else if (columns[meta.col].type == 'url' && cellValue!=null)
                         cellValue = '<a target="_blank" href="'+cellValue+'">'+cellValue+'</a>';
                     else if (columns[meta.col].type == 'time' && cellValue != null){
@@ -374,6 +382,9 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                             cellValue = cellValue.substring(0, cellValue.length - 3);
                     } else if (columns[meta.col].type == 'password'){
                         cellValue = '●●●●●●●●●';
+                    } else if(columns[meta.col].type == 'text'){
+                        if(cellValue && cellValue.length > 75)
+                            cellValue = cellValue.slice(0, 75) + "...";
                     }
                 }
                 return cellValue;
@@ -401,7 +412,7 @@ function init_datatable(tableID, isSubDataList, doPagination) {
     var tableOptions = {
         "serverSide": true,
         "ajax": {
-            "url": $(tableID).data('url'),
+            "url": $(tableID, context).data('url'),
             "type": "POST"
         },
         "responsive": true,
@@ -450,17 +461,17 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                 text: '<i class="fa fa-arrow-right"></i>',
                 titleAttr: 'Scroll right',
                 action: function ( e, dt, node, config ) {
-                    $(tableID).parents(".table-responsive").animate({scrollLeft: $(tableID).width()}, 800);
+                    $(tableID, context).parents(".table-responsive").animate({scrollLeft: $(tableID, context).width()}, 800);
                 }
             }
         ]
     }
     // Global search
     tableOptions.dom = isSubDataList ? 'lBrtip' : 'lBfrtip';
-    var table = $(tableID).DataTable(tableOptions);
+    var table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
-    $(tableID+' tbody').on('click', 'td img', function () {
+    $(tableID+' tbody', context).on('click', 'td img', function () {
         var colIdx = table.cell($(this).parent()).index().column;
         if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
             var entity = tableID.replace('#table_', '');
@@ -495,8 +506,9 @@ function init_datatable(tableID, isSubDataList, doPagination) {
     });
 
     if (!isSubDataList) {
+        var startFilterTimer = 0;
         // Bind search fields
-        $(tableID + ' .filters th').each(function (i) {
+        $(tableID + ' .filters th', context).each(function (i) {
             var title = $(this).text();
             var mainTh = $(this);
             // Custom
@@ -578,7 +590,11 @@ function init_datatable(tableID, isSubDataList, doPagination) {
                 }
             }
             if (val != "") {
-                searchInDatalist(val);
+                // Delay each save filter triggering in order to work properly
+                startFilterTimer += 500;
+                setTimeout(function(){
+                    searchInDatalist(val);
+                }, startFilterTimer);
             }
         });
     }

@@ -1,20 +1,13 @@
-// router/routes.js
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
 var language = require('../services/language');
 var extend = require('util')._extend;
-// Sequelize
 var models = require('../models/');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
 
-// ===========================================
-// Redirection Settings =====================
-// ===========================================
-
-// Index
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
     // Récupération des toastr en session
@@ -29,7 +22,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-/* Fonction de changement du language */
+// Fonction de changement du language
 router.post('/change_language', block_access.isLoggedIn, function(req, res) {
     if (typeof req.body !== 'undefined' && typeof req.body.lang !== 'undefined') {
         req.session.lang_user = req.body.lang;
@@ -59,8 +52,7 @@ router.post('/activate_translation', block_access.isLoggedIn, function(req, res)
     }
 });
 
-// Reset password
-// Generate token, insert into DB, send email
+// Reset password - Generate token, insert into DB, send email
 router.post('/reset_password', block_access.isLoggedIn, function(req, res) {
     var login_user = req.body.login;
     var given_mail = req.body.mail;

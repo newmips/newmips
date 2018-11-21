@@ -1,0 +1,58 @@
+<div id="fields" class="row">
+    <div data-field="f_message" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_message">
+                {@__ key="entity.e_media_sms.f_message"/}&nbsp;
+                {@inline_help field="f_message"}
+                <i data-field="f_message" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <div class="show-textarea">{f_message|s}</div>
+        </div>
+    </div>
+    <div data-field="f_phone_numbers" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_phone_numbers">
+                {@__ key="entity.e_media_sms.f_phone_numbers"/}&nbsp;
+                {@inline_help field="f_phone_numbers"}
+                <i data-field="f_phone_numbers" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{@__ key="entity.e_media_sms.f_phone_numbers" /}' name="f_phone_numbers" value="{f_phone_numbers}" type="text" maxlength="255" readonly="">
+        </div>
+    </div>
+</div>
+<div class="actions">
+    <form action="/media/delete" method="post">
+        <div class="quicklinks">
+            <a class="btn btn-default" href="javascript:history.back();">
+                <i class="fa fa-arrow-left"></i>&nbsp;&nbsp;
+                {@__ key="button.return"/}
+            </a>
+            {@actionAccess entity="media_sms" action="delete"}
+            <button class="btn btn-danger btn-confirm">
+            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+            <span>{@__ key="button.delete"/}</span>
+            </button>
+            <input name="id" type="hidden" value="{r_media_sms.id}" class="form-control">
+            {/actionAccess}
+            {@actionAccess entity="media_sms" action="update"}
+            <a href="/media/update_form?id={r_media_sms.id}" class="btn btn-warning">
+                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>
+            </a>
+            {/actionAccess}
+            {^hideButton}
+            {@actionAccess entity="media_sms" action="create"}
+            <a href="/media/create_form" class="btn btn-success">
+                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+            </a>
+            {/actionAccess}
+            {@actionAccess entity="media_sms" action="read"}
+            <a href="/media/list" type="submit" class="btn btn-primary">
+                <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.list"/}</span>
+            </a>
+            {/actionAccess}
+            {/hideButton}
+        </div>
+    </form>
+</div>

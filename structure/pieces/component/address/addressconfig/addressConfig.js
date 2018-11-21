@@ -5,21 +5,21 @@ var config = {
     endpoint: {
         url: "https://api-adresse.data.gouv.fr/search/",
         query_parm: 'q',
-        type: 'get', //HTTP request type
-        arraydata: 'features', //objet name which contain list of result, if equal '.' whe take response as list, 
-        whereisdata: 'properties', //objet name which contain attributes or '.' , 
-        autocomplete_field: 'label', //field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
-        enable: true//If  enable, do query and get data, else data should be to set manually by user
+        type: 'get', // HTTP request type
+        arraydata: 'features', // Objet name which contain list of result, if equal '.' whe take response as list,
+        whereisdata: 'properties', //Oobjet name which contain attributes or '.' ,
+        autocomplete_field: 'label', // Field of properties, we use this field to select proposition. We can use ',' as separator to display in autocomplete more than one field value,
+        enable: true // If enable, do query and get data, else data should be to set manually by user
     },
     attributes: {
-        //set attribute in order
+        // Set attribute in order
         housenumber: {
-            readonly: false, //if true readonly
-            required: false, //if true set field required on create or update
-            addInForm: true, //if true add it in form
-            type: 'number', //type of field,  must be html type, default text,
+            readonly: false, // If true readonly
+            required: false, // If true set field required on create or update
+            addInForm: true, // If true add it in form
+            type: 'number', // Type of field, must be html type, default text,
             maxLength: '',
-            apiField: 'housenumber', //attribute name in data, means this attribute must exist in data, whe use it for db column name
+            apiField: 'housenumber', // Attribute name in data, means this attribute must exist in data, whe use it for db column name
             defaultValue: '',
             sql: {
                 type: 'INTEGER',
@@ -33,7 +33,7 @@ var config = {
         },
         street: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
             type: 'text', //
             maxLength: '',
@@ -69,12 +69,12 @@ var config = {
         },
         postcode: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
-            type: 'text', //
+            type: 'text',
             maxLength: '5',
             minLength: '',
-            pattern:"[0-9]{5}",
+            pattern: "[0-9]{5}",
             apiField: 'postcode',
             defaultValue: '',
             sql: {
@@ -89,9 +89,9 @@ var config = {
         },
         city: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
-            type: 'text', //
+            type: 'text',
             max: '',
             apiField: 'city',
             defaultValue: '',
@@ -107,9 +107,9 @@ var config = {
         },
         country: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
-            type: 'text', //
+            type: 'text',
             max: '',
             apiField: 'country',
             defaultValue: 'FRANCE',
@@ -125,9 +125,13 @@ var config = {
         },
         lat: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
-            type: 'hidden', //
+            type: {
+                create: 'hidden',
+                update: '',
+                show: 'hidden'
+            },
             max: '',
             apiField: '',
             defaultValue: '',
@@ -143,9 +147,13 @@ var config = {
         },
         lon: {
             readonly: false,
-            required: true,
+            required: false,
             addInForm: true,
-            type: 'hidden', //
+            type: {
+                create: 'hidden',
+                update: '',
+                show: 'hidden'
+            },
             max: '',
             apiField: '',
             defaultValue: '',
@@ -159,12 +167,30 @@ var config = {
                 en: 'Longitude'
             }
         },
+        label: {
+            readonly: false,
+            required: false,
+            addInForm: true,
+            type: 'hidden',
+            max: '',
+            apiField: 'label',
+            defaultValue: '',
+            sql: {
+                type: 'STRING',
+                newmipsType: "STRING",
+                defaultValue: null
+            },
+            lang: {
+                fr: 'Libellé',
+                en: 'Label'
+            }
+        },
         //house type
         place: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'hidden', //
+            type: 'hidden',
             max: '',
             apiField: 'place',
             defaultValue: '',
@@ -180,47 +206,44 @@ var config = {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'text', //
+            type: 'text',
             max: ''
         },
         complement3: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'text', //
+            type: 'text',
             max: ''
         },
         state: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'text', //
+            type: 'text',
             max: '',
         },
         type: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'text', //
+            type: 'text',
             max: ''
-        }, //
+        },
         village: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'text', //
+            type: 'text',
             max: ''
-        }, //village
+        },
         description: {
             readonly: false,
             required: false,
             addInForm: false,
-            type: 'textarea', //
+            type: 'textarea',
             max: ''
         }
-        
-
     }
-
 };
 module.exports = config;

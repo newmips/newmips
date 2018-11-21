@@ -1,24 +1,6 @@
 var fs = require('fs');
 var crypto = require("crypto");
-//Sequelize
 var models = require('../models/');
-
-function getNbInstruction(callback) {
-    models.Project.count().then(function (projects) {
-        models.Application.count().then(function (applications) {
-            models.Module.count().then(function (modules) {
-                models.DataEntity.count().then(function (dataEntities) {
-                    models.Component.count().then(function (components) {
-                        models.DataField.count().then(function (dataFields) {
-                            var totalInstruction = projects + applications + modules + dataEntities + components + dataFields;
-                            callback(totalInstruction);
-                        });
-                    });
-                });
-            });
-        });
-    });
-}
 
 function rmdirSyncRecursive(path) {
     if (fs.existsSync(path)) {
@@ -51,6 +33,8 @@ function sortEditorFolder(workspaceFolder) {
     var fileArray = [];
     var answer = [];
 
+    if (!workspaceFolder)
+        return [];
     workspaceFolder.forEach(function (file, index) {
         if (typeof file.under !== "undefined") {
             file.under = sortEditorFolder(file.under);
@@ -188,6 +172,5 @@ module.exports = {
     },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,
-    getNbInstruction: getNbInstruction,
     sortEditorFolder: sortEditorFolder
 }

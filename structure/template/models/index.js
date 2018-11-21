@@ -4,23 +4,65 @@ var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
-var config = require('../config/database');
+var dbConfig = require('../config/database');
 var globalConf = require('../config/global');
+var moment = require('moment');
+var moment_timezone = require('moment-timezone');
 var db = {};
 
-var moment_timezone = require('moment-timezone');
+const Op = Sequelize.Op;
+const operatorsAliases = {
+    $eq: Op.eq,
+    $ne: Op.ne,
+    $gte: Op.gte,
+    $gt: Op.gt,
+    $lte: Op.lte,
+    $lt: Op.lt,
+    $not: Op.not,
+    $in: Op.in,
+    $notIn: Op.notIn,
+    $is: Op.is,
+    $like: Op.like,
+    $notLike: Op.notLike,
+    $iLike: Op.iLike,
+    $notILike: Op.notILike,
+    $regexp: Op.regexp,
+    $notRegexp: Op.notRegexp,
+    $iRegexp: Op.iRegexp,
+    $notIRegexp: Op.notIRegexp,
+    $between: Op.between,
+    $notBetween: Op.notBetween,
+    $overlap: Op.overlap,
+    $contains: Op.contains,
+    $contained: Op.contained,
+    $adjacent: Op.adjacent,
+    $strictLeft: Op.strictLeft,
+    $strictRight: Op.strictRight,
+    $noExtendRight: Op.noExtendRight,
+    $noExtendLeft: Op.noExtendLeft,
+    $and: Op.and,
+    $or: Op.or,
+    $any: Op.any,
+    $all: Op.all,
+    $values: Op.values,
+    $col: Op.col
+};
 
-var sequelize = new Sequelize(config.connection.database, config.connection.user, config.connection.password, {
-    host: config.connection.host,
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
+    host: dbConfig.host,
     logging: false,
-    port: config.connection.port,
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
     dialectOptions: {
         multipleStatements: true
     },
     define: {
         timestamps: false
     },
-    timezone: moment_timezone.tz.guess()
+    charset: 'utf8',
+    collate: 'utf8_general_ci',
+    timezone: moment_timezone.tz.guess(),
+    operatorsAliases
 });
 
 sequelize.customAfterSync = function() {
@@ -30,14 +72,17 @@ sequelize.customAfterSync = function() {
         var promises = [];
 
         /* ----------------- Récupération du toSync.json -----------------*/
-        var toSyncFileName = globalConf.env == 'cloud' || globalConf.env == 'cloud_recette' ? __dirname + '/toSyncProd.lock.json' : __dirname + '/toSync.json';
+        var toSyncFileName = __dirname + '/toSync.json';
         var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+
+        var dialect = sequelize.options.dialect;
 
         for (var entity in toSyncObject) {
             // Sync attributes
             if (toSyncObject[entity].attributes)
                 for (var attribute in toSyncObject[entity].attributes) {
                     var type;
+                    var request = "";
                     switch (toSyncObject[entity].attributes[attribute].type) {
                         case "STRING":
                             type = "VARCHAR(255)";
@@ -49,19 +94,35 @@ sequelize.customAfterSync = function() {
                             type = "BIGINT";
                             break;
                         case "DATE":
-                            type = "DATETIME";
+                            if(dialect == "postgres")
+                                type = "timestamp with time zone";
+                            else
+                                type = "DATETIME";
                             break;
                         case "DECIMAL":
                             type = "DECIMAL(10,3)";
                             break;
                         case "ENUM":
-                            type = "ENUM(";
-                            for(var i=0; i<toSyncObject[entity].attributes[attribute].values.length; i++){
-                                type += "'"+toSyncObject[entity].attributes[attribute].values[i]+"'";
-                                if(i != toSyncObject[entity].attributes[attribute].values.length-1)
-                                    type += ",";
+                            if(dialect == "postgres"){
+                                var postgresEnumType = attribute+"_enum_"+moment();
+                                request += "CREATE TYPE "+postgresEnumType+" as ENUM (";
+                                for(var i=0; i<toSyncObject[entity].attributes[attribute].values.length; i++){
+                                    request += "'"+toSyncObject[entity].attributes[attribute].values[i]+"'";
+                                    if(i != toSyncObject[entity].attributes[attribute].values.length-1)
+                                        request += ",";
+                                }
+                                request += ");"
+                                type = postgresEnumType;
                             }
-                            type += ")";
+                            else {
+                                type = "ENUM(";
+                                for(var i=0; i<toSyncObject[entity].attributes[attribute].values.length; i++){
+                                    type += "'"+toSyncObject[entity].attributes[attribute].values[i]+"'";
+                                    if(i != toSyncObject[entity].attributes[attribute].values.length-1)
+                                        type += ",";
+                                }
+                                type += ")";
+                            }
                             break;
                         case "TEXT":
                         case "BOOLEAN":
@@ -81,9 +142,14 @@ sequelize.customAfterSync = function() {
                     if(toSyncObject[entity].attributes[attribute].defaultValue != null)
                         toSyncObject[entity].attributes[attribute].defaultValue = "'" + toSyncObject[entity].attributes[attribute].defaultValue + "'";
 
-                    var request = "ALTER TABLE ";
-                    request += entity;
-                    request += " ADD COLUMN `" + attribute + "` " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
+                    request += "ALTER TABLE ";
+                    if(dialect == "mysql"){
+                        request += entity;
+                        request += " ADD COLUMN `" + attribute + "` " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
+                    } else if(dialect == "postgres"){
+                        request += '"'+entity+'"';
+                        request += " ADD COLUMN " + attribute + " " + type + " DEFAULT "+toSyncObject[entity].attributes[attribute].defaultValue+";";
+                    }
 
                     (function(query, entityB, attributeB) {
                         promises.push(new Promise(function(resolve0, reject0) {
@@ -92,7 +158,7 @@ sequelize.customAfterSync = function() {
                                 resolve0();
                             }).catch(function(err) {
                                 if(typeof err.parent !== "undefined"){
-                                    if(err.parent.errno == 1060){
+                                    if(err.parent.errno == 1060 || err.parent.code == 42701){
                                         console.log("WARNING - Duplicate column attempt in BDD - Request: "+ query);
                                         resolve0();
                                     } else{
@@ -130,15 +196,29 @@ sequelize.customAfterSync = function() {
                                 var request;
                                 if (option.relation == "belongsTo") {
                                     request = "ALTER TABLE ";
-                                    request += sourceName;
-                                    request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
-                                    request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                    if(dialect == "mysql"){
+                                        request += sourceName;
+                                        request += " ADD COLUMN `" +option.foreignKey+ "` INT DEFAULT NULL;";
+                                        request += "ALTER TABLE `" +sourceName+ "` ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES `" +targetName+ "` (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                    } else if(dialect == "postgres"){
+                                        request += '"'+sourceName+'"';
+                                        request += " ADD COLUMN " +option.foreignKey+ " INT DEFAULT NULL;";
+                                        request += "ALTER TABLE \"" +sourceName+ "\" ADD FOREIGN KEY (" +option.foreignKey+ ") REFERENCES \"" +targetName+ "\" (id) ON DELETE SET NULL ON UPDATE CASCADE;";
+                                    }
                                 }
                                 else if (option.relation == 'hasMany') {
-                                    request = "ALTER TABLE ";
-                                    request += targetName;
-                                    request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
-                                    request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
+                                    if(dialect == "mysql"){
+                                        request = "ALTER TABLE ";
+                                        request += targetName;
+                                        request += " ADD COLUMN `"+option.foreignKey+"` INT DEFAULT NULL;";
+                                        request += "ALTER TABLE `"+targetName+"` ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES `"+sourceName+"` (id);";
+                                    } else if(dialect == "postgres"){
+                                        request = "ALTER TABLE ";
+                                        request += '"'+targetName+'"';
+                                        request += " ADD COLUMN "+option.foreignKey+" INT DEFAULT NULL;";
+                                        request += "ALTER TABLE \""+targetName+"\" ADD FOREIGN KEY ("+option.foreignKey+") REFERENCES \""+sourceName+"\" (id);";
+
+                                    }
                                 }
 
                                 sequelize.query(request).then(function() {
@@ -146,7 +226,7 @@ sequelize.customAfterSync = function() {
                                     resolve0();
                                 }).catch(function(err) {
                                     if(typeof err.parent !== "undefined"){
-                                        if(err.parent.errno == 1060){
+                                        if(err.parent.errno == 1060 || err.parent.code == 42701){
                                             console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
                                             resolve0();
                                         } else{
@@ -168,6 +248,7 @@ sequelize.customAfterSync = function() {
                 function execQuery(queries, idx) {
                     if (!queries[idx])
                         return resolve();
+                    console.log(queries[idx])
                     sequelize.query(queries[idx]).then(function() {
                         toSyncProdObject.queries.push(queries[idx]);
                         execQuery(queries, idx+1);

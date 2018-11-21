@@ -5,8 +5,15 @@ function fetchText(key, params, lang) {
 	if(typeof lang === "undefined")
 		lang = "fr-FR";
 
-	if(typeof key !== "string")
-		return "Sorry, I can't handle the error message.";
+	if(typeof key !== "string"){
+		try{
+			console.log(key);
+			return key.toString();
+		} catch(err) {
+			console.log(err)
+			return "Sorry, I can't handle the error message.";
+		}
+	}
 
 	var keys = key.split('.');
 	if (typeof languages[lang] === 'undefined') {

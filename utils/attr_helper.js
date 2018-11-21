@@ -7,6 +7,8 @@ function clearString(string){
 
     // Remove space before and after
     string = string.trim();
+    // Remove multipe spaces
+    string = string.replace(/\s\s+/g, ' ');
     string = string.replace(/é/g, "e");
     string = string.replace(/è/g, "e");
     string = string.replace(/\ê/g, "e");
@@ -200,6 +202,8 @@ module.exports = {
 
                 /* Keep the value for the trad file */
                 attr.options.showValue = attr.options.value.trim();
+                // Remove multipe spaces
+                attr.options.showValue = attr.options.showValue.replace(/\s\s+/g, ' ');
                 /* Clean the name of the value */
                 attr.options.value = clearString(attr.options.value);
 

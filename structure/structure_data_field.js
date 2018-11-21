@@ -69,8 +69,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     str += "    <div class='form-group'>\n";
     str += "        <label for='" + dataField + "'>\n";
     str += "                <!--{@__ key=\"entity." + dataEntity + "." + dataField + "\"/}-->&nbsp;\n";
-    str += '                <!--{@inline_help field="'+dataField+'"}-->\n';
-    str += '                    <i data-field="'+dataField+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    str += '                <!--{@inline_help field="' + dataField + '"}-->\n';
+    str += '                    <i data-field="' + dataField + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
     str += '                <!--{/inline_help}-->\n'
     str += "            </label>\n"
     // Check type of field
@@ -82,7 +82,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "color" :
         case "colour":
         case "couleur":
-            if(value == "")
+            if (value == "")
                 value = "#000000";
             str += "    <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
             break;
@@ -121,27 +121,31 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "ean13":
         case "upc":
         case "code39":
-        case "alpha39":
         case "code128":
             var inputType = 'number';
-            if (type === "code39" || type === "alpha39" || type === "code128")
+            if (type === "code39" || type === "code128")
                 inputType = 'text';
             str += "	<div class='input-group'>\n";
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-barcode'></i>\n";
             str += "		</div>\n";
             if (file == "show")
-                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' type='text' data-type='barcode' " + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='" + type + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' type='text' data-type='barcode' " + readOnly + "/>\n";
             else
-                str += "	<input class='form-control input' data-custom-type='"+type+"' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='" + type + "' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
         case "lien" :
         case "link" :
-            if (file == 'show')
-                str += "    <br><a href='"+value+"' target='_blank' type='url' data-type='url'>"+value+"</a>\n";
-            else{
+            if (file == 'show') {
+                str += "    <br><a href='" + value + "' target='_blank' type='url' data-type='url' style='display: table-cell;padding-right: 5px;'>" + value + "</a>\n";
+                str += "    {?" + value2 + "}"
+                str += "    <div class='copy-button'>\n";
+                str += "        <i class='fa fa-copy'></i>\n";
+                str += "    </div>\n";
+                str += "    {/" + value2 + "}"
+            } else {
                 str += "    <div class='input-group'>\n";
                 str += "        <div class='input-group-addon'>\n";
                 str += "            <i class='fa fa-link'></i>\n";
@@ -182,7 +186,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<input class='form-control input datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
             } else if (file == "update") {
                 str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
-            } else if (file == "create"){
+            } else if (file == "create") {
                 str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' " + value + " type='text' " + readOnly + "/>\n";
             }
             str += "    </div>\n";
@@ -211,8 +215,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "			<input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' value='{" + value2 + "|time}' type='text' " + readOnly + "/>\n";
                 str += "		</div>\n";
                 str += "	</div>\n";
-            }
-            else {
+            } else {
                 str += "	<div class='bootstrap-timepicker'>\n";
                 str += "		<div class='input-group'>\n";
                 str += "			<div class='input-group-addon'>\n";
@@ -262,8 +265,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' checked />\n";
                 else
                     str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' />\n";
-            }
-            else {
+            } else {
                 str += "	{@ifTrue key=" + dataField + "}";
                 str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
                 str += "	{:else}";
@@ -278,45 +280,50 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             for (var i = 0; i < values.length; i++)
                 clearValues[i] = attrHelper.clearString(values[i]);
 
-            if(typeof defaultValue !== "undefined" && defaultValue != "" && defaultValue != null)
+            if (typeof defaultValue !== "undefined" && defaultValue != "" && defaultValue != null)
                 clearDefaultValue = attrHelper.clearString(defaultValue);
 
             if (file == "create") {
-                if(clearDefaultValue != ""){
+                if (clearDefaultValue != "") {
                     str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                     str += "    &nbsp;\n<br>\n";
+                    str += "    <label>";
                     str += "    {@eq key=\"" + clearDefaultValue + "\" value=\"{.value}\" }\n";
                     str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    {:else}\n";
                     str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    {/eq}\n";
+                    str += "    </label>";
                     str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
-                }
-                else {
+                } else {
                     str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                     str += "    &nbsp;\n<br>\n";
+                    str += "    <label>";
                     str += "    <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "    </label>";
                     str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
                 }
-            }
-            else if(file == "show") {
+            } else if (file == "show") {
                 str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "    &nbsp;\n<br>\n";
+                str += "    <label>";
                 str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {:else}\n";
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {/eq}\n";
+                str += "    </label>";
                 str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
-            }
-            else {
+            } else {
                 str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "    &nbsp;\n<br>\n";
+                str += "    <label>";
                 str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {:else}\n";
                 str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {/eq}\n";
+                str += "    </label>";
                 str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
             }
             break;
@@ -330,9 +337,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "            <input class='form-control input' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='{.translation}' type='text' " + readOnly + "/>\n";
                 str += "        <!--{/eq}-->\n";
                 str += "    <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
-            }
-            else if (file != "create") {
-                str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+            } else if (file != "create") {
+                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
                 str += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
@@ -342,9 +348,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "            <!--{/eq}-->\n";
                 str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    </select>\n";
-            }
-            else if (value != "") {
-                str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+            } else if (value != "") {
+                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
                 str += "        <option value=''>{@__ key=\"select.default\" /}</option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <!--{@eq key=\"" + value + "\" value=\"{.value}\" }-->\n";
@@ -354,9 +359,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "            <!--{/eq}-->\n";
                 str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    </select>\n";
-            }
-            else {
-                str += "    <select style='width:100%;' class='form-control select' name='" + dataField + "' " + disabled + ">\n";
+            } else {
+                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
                 str += "        <option value='' selected>{@__ key=\"select.default\" /}</option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <option value=\"{.value}\"> {.translation} </option>\n";
@@ -368,7 +372,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "texte" :
             value = "{" + dataField + "|s}";
             if (file == 'show')
-                str += "    <div class='show-textarea'>"+value+"</div>\n";
+                str += "    <div class='show-textarea'>" + value + "</div>\n";
             else
                 str += "    <textarea class='form-control textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
             break;
@@ -376,7 +380,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "texte standard" :
             value = "{" + dataField + "|s}";
             if (file == 'show')
-                str += "    <div class='show-textarea'>"+value+"</div>\n";
+                str += "    <div class='show-textarea'>" + value + "</div>\n";
             else
                 str += "    <textarea class='form-control textarea regular-textarea' placeholder='{@__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
             break;
@@ -386,13 +390,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             if (file != 'show') {
                 str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
                 str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
-            }
-            else {
+            } else {
                 str += "	<div class='input-group'>\n";
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-download'></i>\n";
                 str += "		</div>\n";
-                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">" + value + "</a>\n";
+                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">{" + value2 + "|filename}</a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -402,9 +405,8 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "photo":
             if (file != 'show') {
                 str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{"+value2+".buffer}\"/>\n";
-            }
-            else {
+                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{" + value2 + ".buffer}\"/>\n";
+            } else {
                 str += "	<div class='input-group'>\n";
                 str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='400' width='400' /></a>\n";
                 str += "	</div>\n";
@@ -441,7 +443,9 @@ function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
     if (type == "text")
         str += '{' + dataField + '|s}';
     else if (type == 'picture')
-        str += '<img src="data:image/;base64,{'+dataField+'.buffer}" class="img img-responsive" data-type="picture" name="'+dataField+'" readonly="">';
+        str += '<img src="data:image/;base64,{' + dataField + '.buffer}" class="img img-responsive" data-type="picture" name="' + dataField + '" readonly="">';
+    else if (type == 'file')
+        str += '<a href="/default/download?entity=' + dataEntity + '&amp;f={' + dataField + '}" name="' + dataField + '">{' + dataField + '}</a>';
     else
         str += '{' + dataField + '}';
     str += '</td>';
@@ -526,7 +530,7 @@ exports.setupDataField = function (attr, callback) {
             if (sameResults_sorted[i + 1] == sameResults_sorted[i])
                 sameResults.push(sameResults_sorted[i]);
 
-        if(sameResults.length > 0){
+        if (sameResults.length > 0) {
             var err = new Error();
             err.message = "structure.field.attributes.sameValue";
             return callback(err, null);
@@ -536,11 +540,11 @@ exports.setupDataField = function (attr, callback) {
     /* ----------------- 2 - Update the entity model, add the attribute ----------------- */
 
     // attributes.json
-    var attributesFileName = './workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
+    var attributesFileName = __dirname + '/../workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
     var attributesFile = fs.readFileSync(attributesFileName);
     var attributesObject = JSON.parse(attributesFile);
     // toSync.json
-    var toSyncFileName = './workspace/' + id_application + '/models/toSync.json';
+    var toSyncFileName = __dirname + '/../workspace/' + id_application + '/models/toSync.json';
     var toSyncFile = fs.readFileSync(toSyncFileName);
     var toSyncObject = JSON.parse(toSyncFile);
     if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] === "undefined")
@@ -682,7 +686,6 @@ exports.setupDataField = function (attr, callback) {
             typeForDatalist = "barcode";
             break;
         case "code39":
-        case "alpha39":
         case "code128":
             typeForModel = "TEXT";
             typeForDatalist = "barcode";
@@ -696,23 +699,23 @@ exports.setupDataField = function (attr, callback) {
     }
 
     // Default value managment
-    if (typeof options.defaultValue !== "undefined" && options.defaultValue != null){
-        if(typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM")
+    if (typeof options.defaultValue !== "undefined" && options.defaultValue != null) {
+        if (typeForModel == "STRING" || typeForModel == "TEXT" || typeForModel == "ENUM")
             defaultValueForOption = options.defaultValue;
-        else if(typeForModel == "INTEGER" && !isNaN(options.defaultValue))
+        else if (typeForModel == "INTEGER" && !isNaN(options.defaultValue))
             defaultValueForOption = options.defaultValue;
-        else if(typeForModel == "BOOLEAN"){
+        else if (typeForModel == "BOOLEAN") {
             if (["true", "vrai", "1", "checked", "coché", "à coché"].indexOf(defaultValue.toLowerCase()) != -1)
-                defaultValueForOption = 1;
+                defaultValueForOption = true;
             else if (["false", "faux", "0", "unchecked", "non coché", "à non coché"].indexOf(defaultValue.toLowerCase()) != -1)
-                defaultValueForOption = 0;
+                defaultValueForOption = false;
         }
     }
 
     if (type_data_field == "enum") {
         // Remove all special caractere for all enum values
         var cleanEnumValues = [];
-        if(typeof values_data_field === "undefined"){
+        if (typeof values_data_field === "undefined") {
             var err = new Error();
             err.message = "structure.field.attributes.missingValues";
             return callback(err, null);
@@ -730,13 +733,13 @@ exports.setupDataField = function (attr, callback) {
             "values": cleanEnumValues,
             "defaultValue": defaultValueForOption
         };
-    } else if(type_data_field == "radio"){
+    } else if (type_data_field == "radio") {
         // Remove all special caractere for all enum values
         var cleanRadioValues = [];
-        if(typeof values_data_field === "undefined"){
+        if (typeof values_data_field === "undefined") {
             var err = new Error();
             err.message = "structure.field.attributes.missingValues";
-            return callback(err,null);
+            return callback(err, null);
         }
         for (var i = 0; i < values_data_field.length; i++)
             cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
@@ -852,6 +855,7 @@ exports.setRequiredAttribute = function (attr, callback) {
 
     var possibilityRequired = ["mandatory", "required", "obligatoire"];
     var possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
+    var entityCodeName = attr.name_data_entity.toLowerCase();
 
     var attribute = attr.options.word.toLowerCase();
     var set = null;
@@ -866,15 +870,15 @@ exports.setRequiredAttribute = function (attr, callback) {
         return callback(err);
     }
 
-    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity.toLowerCase();
+    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + entityCodeName;
 
     // Update create_fields.dust file
     domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
         if ($("*[data-field='" + attr.options.value + "']").length > 0) {
             if (set)
-                $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
+                $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
             else
-                $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
+                $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
 
             $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
             $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
@@ -884,28 +888,94 @@ exports.setRequiredAttribute = function (attr, callback) {
                 // Update update_fields.dust file
                 domHelper.read(pathToViews + '/update_fields.dust').then(function ($) {
                     if (set)
-                        $("*[data-field='" + attr.options.value + "']").find('label').addClass('required');
+                        $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
                     else
-                        $("*[data-field='" + attr.options.value + "']").find('label').removeClass('required');
+                        $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
                     $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
 
                     domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
 
                         // Update the Sequelize attributes.json to set allowNull
-                        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.name_data_entity.toLowerCase() + ".json";
-                        var attributesObj = require(pathToAttributesJson);
+                        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + entityCodeName + ".json";
+                        var attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
 
                         if (attributesObj[attr.options.value]) {
-                            attributesObj[attr.options.value].allowNull = set ? false : true;
-                            if(!attributesObj[attr.options.value].allowNull && attributesObj[attr.options.value].defaultValue == null)
-                                attributesObj[attr.options.value].defaultValue = "";
+                            // TODO: Handle allowNull: false field in user, role, group to avoid error during autogeneration
+                            // In script you can set required a field in user, role or group but it crash the user admin autogeneration
+                            // becaude the required field is not given during the creation
+                            if (entityCodeName != "e_user" && entityCodeName != "e_role" && entityCodeName != "e_group")
+                                attributesObj[attr.options.value].allowNull = set ? false : true;
+                            // Alter column to set default value in DB if models already exist
+                            var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
+                            var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+                            if (typeof toSync.queries === "undefined")
+                                toSync.queries = [];
+
+                            var defaultValue = null;
+                            var tableName = attr.id_application + "_" + entityCodeName;
+                            var length = "";
+                            if (attr.sqlDataType == "varchar")
+                                length = "(" + attr.sqlDataTypeLength + ")";
+                            if (set) {
+                                switch (attributesObj[attr.options.value].type) {
+                                    case "STRING":
+                                    case "ENUM":
+                                    case "TEXT":
+                                        defaultValue = "";
+                                        break;
+                                    case "INTEGER":
+                                    case "BIGINT":
+                                    case "DECIMAL":
+                                    case "BOOLEAN":
+                                    case "FLOAT":
+                                    case "DOUBLE":
+                                        defaultValue = 0;
+                                        break;
+                                    case "DATE":
+                                        defaultValue = "1900-01-01 00:00:00.000";
+                                        break;
+                                    case "TIME":
+                                        defaultValue = "00:00:00.0000000";
+                                        break;
+                                    default:
+                                        defaultValue = "";
+                                        break;
+                                }
+                                attributesObj[attr.options.value].defaultValue = defaultValue;
+                                // TODO postgres
+                                if (attr.sqlDataType && attr.dialect == "mysql") {
+                                    // Update all NULL value before set not null
+                                    toSync.queries.push("UPDATE `" + tableName + "` SET `" + attr.options.value + "`='" + defaultValue + "' WHERE `" + attr.options.value + "` IS NULL;");
+                                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NOT NULL");
+                                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT '" + defaultValue + "';");
+                                }
+                            } else {
+                                attributesObj[attr.options.value].defaultValue = null;
+                                // TODO postgres
+                                if (attr.sqlDataType && attr.dialect == "mysql") {
+                                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NULL");
+                                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT NULL;");
+                                }
+                            }
+                            fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
                             fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+                        } else {
+                            // If not in attributes, maybe in options
+                            var pathToOptionJson = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + entityCodeName + ".json";
+                            var optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
+                            var aliasValue = "r_" + attr.options.value.substring(2);
+                            for (var i = 0; i < optionsObj.length; i++)
+                                if (optionsObj[i].as == aliasValue)
+                                    optionsObj[i].allowNull = set ? false : true;
+
+                            // Set option allowNull
+                            fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
                         }
                         callback();
                     });
                 });
-            }).catch(function(e) {
+            }).catch(function (e) {
                 var err = new Error();
                 err.message = "structure.field.attributes.fieldNoFound";
                 err.messageParams = [attr.options.showValue];
@@ -949,7 +1019,7 @@ exports.setUniqueField = function (attr, callback) {
     var attributesObj = JSON.parse(attributesContent);
 
     // If the current field is an fk field then we won't find it in attributes.json
-    if(typeof attributesObj[attr.options.value] !== "undefined")
+    if (typeof attributesObj[attr.options.value] !== "undefined")
         attributesObj[attr.options.value].unique = set ? true : false;
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
@@ -984,7 +1054,7 @@ exports.setFieldAttribute = function (attr, callback) {
                         callback();
                     });
                 });
-            }).catch(function(e) {
+            }).catch(function (e) {
                 var err = new Error();
                 err.message = "structure.field.attributes.fieldNoFound";
                 err.messageParams = [attr.options.showValue];
@@ -1023,14 +1093,13 @@ function addTab(attr, file, newLi, newTabContent, target) {
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
-            }
-            else
+            } else
                 context = $("#tabs");
 
             // Append created elements to `context` to handle presence of tab or not
-            newLi = '<!--{@entityAccess entity="'+target.substring(2)+'"}-->\n'+newLi+'\n<!--{/entityAccess}-->';
+            newLi = '<!--{@entityAccess entity="' + target.substring(2) + '"}-->\n' + newLi + '\n<!--{/entityAccess}-->';
             $(".nav-tabs", context).append(newLi);
-            $(".tab-content", context).append('<!--{^hideTab}-->\n\t\t\t<!--{@entityAccess entity="'+target.substring(2)+'"}-->');
+            $(".tab-content", context).append('<!--{^hideTab}-->\n\t\t\t<!--{@entityAccess entity="' + target.substring(2) + '"}-->');
             $(".tab-content", context).append(newTabContent);
             $(".tab-content", context).append('<!--{/entityAccess}-->\n\t\t\t<!--{/hideTab}-->');
 
@@ -1060,8 +1129,8 @@ exports.setupHasManyTab = function (attr, callback) {
     var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
     var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
-    dataFR.entity[target]["as_" + alias] = showAlias;
-    dataEN.entity[target]["as_" + alias] = showAlias;
+    dataFR.entity[source][alias] = showAlias;
+    dataEN.entity[source][alias] = showAlias;
 
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -1080,12 +1149,12 @@ exports.setupHasManyTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content sub-tab-table"></div></div>';
+            var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
-            printHelper.addHasMany(fileBase, target, alias).then(function(){
+            printHelper.addHasMany(fileBase, target, alias).then(function () {
                 addTab(attr, file, newLi, newTab, target).then(callback);
             });
         });
@@ -1110,8 +1179,8 @@ exports.setupHasManyPresetTab = function (attr, callback) {
     var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
     var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
-    dataFR.entity[target]["as_" + alias] = showAlias;
-    dataEN.entity[target]["as_" + alias] = showAlias;
+    dataFR.entity[source][alias] = showAlias;
+    dataEN.entity[source][alias] = showAlias;
 
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -1127,26 +1196,26 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
 
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</a></li>';
 
-            var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content sub-tab-table"></div></div>';
+            var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
-            printHelper.addHasMany(fileBase, target, alias).then(function(){
+            printHelper.addHasMany(fileBase, target, alias).then(function () {
                 addTab(attr, file, newLi, newTabContent, target).then(callback);
             });
         });
     });
 }
 
-exports.saveHasManyData = function (attr, data, foreignKey, callback){
+exports.saveHasManyData = function (attr, data, foreignKey, callback) {
     var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
     var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
     toSync.queries = [];
-    var firstKey = "fk_id_"+attr.options.source;
-    var secondKey = "fk_id_"+attr.options.target;
+    var firstKey = "fk_id_" + attr.options.source;
+    var secondKey = "fk_id_" + attr.options.target;
     /* Insert value in toSync queries array to add values of the old has many in the belongs to many */
-    for(var i=0; i<data.length; i++)
-        toSync.queries.push("INSERT INTO "+attr.options.through+"("+firstKey+", "+secondKey+") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
+    for (var i = 0; i < data.length; i++)
+        toSync.queries.push("INSERT INTO " + attr.options.through + "(" + firstKey + ", " + secondKey + ") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
     callback();
 }
@@ -1164,7 +1233,7 @@ exports.setupRelatedToField = function (attr, callback) {
     var urlAs = attr.options.urlAs.toLowerCase();
 
     // Check if field is used in select, default to id
-    var usingField = [{value:"id", type:"string"}];
+    var usingField = [{value: "id", type: "string"}];
     var showUsingField = ["ID"];
 
     if (typeof attr.options.usingField !== "undefined")
@@ -1173,25 +1242,25 @@ exports.setupRelatedToField = function (attr, callback) {
         showUsingField = attr.options.showUsingField;
 
     var usingList = [], usingOption = [];
-    for(var i=0; i<usingField.length; i++) {
+    for (var i = 0; i < usingField.length; i++) {
         usingList.push(usingField[i].value);
-        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
     }
     // Setup association field for create_fields
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="' + alias + '">\n';
     select += '         {@__ key="entity.' + source + '.' + alias + '" /}&nbsp;\n'
-    select += '         <!--{@inline_help field="'+alias+'"}-->\n';
-    select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    select += '         <!--{@inline_help field="' + alias + '"}-->\n';
+    select += '             <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
     select += '         <!--{/inline_help}-->\n';
     select += '     </label>\n';
-    select += '     <select style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+    select += '     <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
     select += '         <option value="">\n';
     select += '             {@__ key="select.default" /}\n';
     select += '         </option>\n';
     select += '         <!--{#' + alias + '}-->\n';
-    select += '         <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
+    select += '         <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n';
     select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
@@ -1213,9 +1282,9 @@ exports.setupRelatedToField = function (attr, callback) {
                 str = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
                 str += "    <label for='" + alias + "'> {@__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
                 str += "    <input class='form-control input' placeholder='{@__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='";
-                for(var i=0; i<usingField.length; i++){
-                    str += "{" + alias + "." + usingField[i].value + "|" +usingField[i].type+"}";
-                    if(i != usingField.length - 1)
+                for (var i = 0; i < usingField.length; i++) {
+                    str += "{" + alias + "." + usingField[i].value + "|" + usingField[i].type + "}";
+                    if (i != usingField.length - 1)
                         str += " - ";
                 }
                 str += "' ";
@@ -1229,13 +1298,13 @@ exports.setupRelatedToField = function (attr, callback) {
                     domHelper.read(file).then(function ($) {
                         $("#fields").append(str);
                         domHelper.write(file, $).then(function () {
-                            function done(){
+                            function done() {
                                 translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
                                     callback(null, "Field related to successfully created");
                                 });
                             }
-                            function writeDatalist(cpt){
-                                if(cpt >= usingField.length){
+                            function writeDatalist(cpt) {
+                                if (cpt >= usingField.length) {
                                     done();
                                     return true;
                                 }
@@ -1247,7 +1316,7 @@ exports.setupRelatedToField = function (attr, callback) {
                                 /* ------------- Add new FIELD in headers ------------- */
                                 var str = '<th data-field="' + alias + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
                                 //var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
-                                str += ' data-type="'+usingField[cpt].type+'"';
+                                str += ' data-type="' + usingField[cpt].type + '"';
                                 str += '>\n';
                                 str += '{@__ key="entity.' + source + '.' + alias + '"/}&nbsp;-&nbsp;{@__ key="entity.' + target + '.' + targetField + '"/}\n';
                                 str += '</th>\n';
@@ -1256,7 +1325,7 @@ exports.setupRelatedToField = function (attr, callback) {
                                 /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
                                 //str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
                                 str = '<td data-field="' + alias + '"';
-                                str += ' data-type="'+usingField[cpt].type+'"';
+                                str += ' data-type="' + usingField[cpt].type + '"';
                                 str += ' >{' + alias + '.' + usingField[cpt].value + '}</td>';
                                 toAddInList.body = str;
 
@@ -1286,7 +1355,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     var urlAs = attr.options.urlAs.toLowerCase();
 
     // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
-    var usingField = [{value:"id", type:"string"}];
+    var usingField = [{value: "id", type: "string"}];
     var showUsingField = ["ID"];
 
     if (typeof attr.options.usingField !== "undefined")
@@ -1295,53 +1364,75 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         showUsingField = attr.options.showUsingField;
 
     var usingList = [], usingOption = [];
-    for(var i=0; i<usingField.length; i++) {
+    for (var i = 0; i < usingField.length; i++) {
         usingList.push(usingField[i].value);
-        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type +'}');
+        usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
     }
     // Setup association field for create_fields
+    var head = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
+    head += '     <label for="f_' + urlAs + '">\n';
+    head += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
+    head += '         <!--{@inline_help field="' + alias + '"}-->\n';
+    head += '             <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
+    head += '         <!--{/inline_help}-->\n';
+    head += '     </label>\n';
+
     var select = '';
-    select += '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-    select += '     <label for="f_' + urlAs + '">\n';
-    select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
-    select += '         <!--{@inline_help field="'+alias+'"}-->\n';
-    select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
-    select += '         <!--{/inline_help}-->\n';
-    select += '     </label>\n';
-    select += '     <select multiple style="width:100%;" class="ajax form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
-    select += '         <option value="">{@__ key="select.default" /}</option>\n';
-    select += '         <!--{#' + alias + '}-->\n';
-    select += '             <option value="{id}" selected>'+usingOption.join(' - ')+'</option>\n';
-    select += '         <!--{/' + alias + '}-->\n';
-    select += '     </select>\n';
+    if (attr.options.isCheckbox) {
+        select += '  <!--{#' + alias + '_all}-->\n';
+        select += '      <br><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+        select += '  <!--{/' + alias + '_all}-->\n';
+    } else {
+        select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
+        select += '         <option value="">{@__ key="select.default" /}</option>\n';
+        select += '         <!--{#' + alias + '}-->\n';
+        select += '             <option value="{id}">' + usingOption.join(' - ') + '</option>\n';
+        select += '         <!--{/' + alias + '}-->\n';
+        select += '     </select>\n';
+    }
     select += '</div>\n</div>\n';
 
     // Update create_fields file
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
-    updateFile(fileBase, file, select, function () {
+    updateFile(fileBase, file, head + select, function () {
+        if (attr.options.isCheckbox) {
+            select = '  <!--{#' + alias + '_all}-->\n';
+            select += '     <br>\n';
+            select += '     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+            select += '         <input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+            select += '     <!--{:else}-->\n';
+            select += '         <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+            select += '     <!--{/existInContextById}-->\n';
+            select += '  <!--{/' + alias + '_all}-->\n';
+        } else
+            select = select.replace(/<option value="{id}">/, '<option value="{id}" selected>');
         file = 'update_fields';
         // Update update_fields file
-        updateFile(fileBase, file, select, function () {
-
-            select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-            select += '     <label for="f_' + urlAs + '">\n';
-            select += '         {@__ key="entity.' + source + '.' + alias + '" /}\n';
-            select += '         <!--{@inline_help field="'+alias+'"}-->\n';
-            select += '             <i data-field="'+alias+'" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
-            select += '         <!--{/inline_help}-->\n';
-            select += '     </label>\n';
-            select += '     <select multiple disabled readonly style="width:100%;" class="form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
-            select += '         <!--{#' + alias + '}-->\n';
-            select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
-            select += '         <!--{/' + alias + '}-->\n';
-            select += '     </select>\n';
+        updateFile(fileBase, file, head + select, function () {
+            select = '';
+            if (attr.options.isCheckbox) {
+                select += '  <!--{#' + alias + '_all}-->\n';
+                select += '     <br>\n';
+                select += '     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+                select += '         <input type="checkbox" disabled checked name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+                select += '     <!--{:else}-->\n';
+                select += '         <input type="checkbox" disabled name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+                select += '     <!--{/existInContextById}-->\n';
+                select += '  <!--{/' + alias + '_all}-->\n';
+            } else {
+                select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
+                select += '         <!--{#' + alias + '}-->\n';
+                select += '            <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n';
+                select += '         <!--{/' + alias + '}-->\n';
+                select += '     </select>\n';
+            }
             select += '</div>\n</div>\n';
 
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
             domHelper.read(file).then(function ($) {
-                $("#fields").append(select);
+                $("#fields").append(head + select);
                 domHelper.write(file, $).then(function () {
                     // Add the related to many field in the entity print template
                     file = fileBase + '/print_fields.dust';
@@ -1349,9 +1440,9 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
 
                         select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
                         select += '     <label for="f_' + urlAs + '">{@__ key="entity.' + source + '.' + alias + '" /}</label>\n';
-                        select += '     <select multiple disabled readonly style="width:100%;" class="regular-select form-control" name="' + alias + '" data-source="'+urlTarget+'" data-using="'+usingList.join(',')+'">\n';
+                        select += '     <select multiple disabled readonly class="regular-select form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
                         select += '         <!--{#' + alias + '}-->\n';
-                        select += '            <option value="'+usingOption.join(' - ')+'" selected>'+usingOption.join(' - ')+'</option>\n';
+                        select += '            <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n';
                         select += '         <!--{/' + alias + '}-->\n';
                         select += '     </select>\n';
                         select += '</div>\n</div>\n';
@@ -1387,8 +1478,8 @@ exports.setupHasOneTab = function (attr, callback) {
     var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
     var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
-    dataFR.entity[target]["as_" + alias] = showAlias;
-    dataEN.entity[target]["as_" + alias] = showAlias;
+    dataFR.entity[source][alias] = showAlias;
+    dataEN.entity[source][alias] = showAlias;
 
     var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
@@ -1407,12 +1498,12 @@ exports.setupHasOneTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{@__ key="entity.' + target + '.as_' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{@__ key="entity.' + source + '.' + alias + '" /}</a></li>';
 
             // Create new tab content
-            var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="'+alias+'" data-asso-foreignkey="'+foreignKey+'" data-asso-flag="{id}" data-asso-source="'+source+'" data-asso-url="'+urlSource+'"><div class="ajax-content"></div></div>';
+            var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content"></div></div>';
 
-            printHelper.addHasOne(fileBase, target, alias).then(function(){
+            printHelper.addHasOne(fileBase, target, alias).then(function () {
                 addTab(attr, file, newLi, newTab, target).then(callback);
             });
         });
@@ -1450,10 +1541,10 @@ exports.deleteDataField = function (attr, callback) {
             info.isConstraint = true;
 
             // Related To Multiple
-            if(dataToWrite[i].structureType == "relatedToMultiple"){
+            if (dataToWrite[i].structureType == "relatedToMultiple") {
                 info.isMultipleConstraint = true;
                 info.target = dataToWrite[i].target;
-                info.fieldToDrop = dataToWrite[i].foreignKey+"_"+url_value;
+                info.fieldToDrop = dataToWrite[i].foreignKey + "_" + url_value;
             }
 
             dataToWrite.splice(i, 1);
@@ -1509,6 +1600,68 @@ exports.deleteDataField = function (attr, callback) {
                 });
             });
         }));
+
+        let optionsPath = __dirname + '/../workspace/' + idApp + '/models/options/';
+        let otherViewsPath = __dirname + '/../workspace/' + idApp + '/views/';
+        let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "hasManyPreset"];
+        fieldsFiles.push("list_fields");
+        // Looking for association with using of the deleted field
+        fs.readdirSync(optionsPath).filter(function (file) {
+            return (file.indexOf('.json') != -1);
+        }).forEach(function (file) {
+            let currentOption = JSON.parse(fs.readFileSync(optionsPath + file, "utf8"));
+            let currentEntity = file.split(".json")[0];
+            let toSave = false;
+            for (var i = 0; i < currentOption.length; i++) {
+                // If the option match with our source entity
+                if (structureTypeWithUsing.indexOf(currentOption[i].structureType) != -1 &&
+                        currentOption[i].target == name_data_entity &&
+                        typeof currentOption[i].usingField !== "undefined") {
+                    // Check if our deleted field is in the using fields
+                    for (var j = 0; j < currentOption[i].usingField.length; j++) {
+                        if (currentOption[i].usingField[j].value == name_data_field) {
+                            for (var k = 0; k < fieldsFiles.length; k++) {
+                                // Clean file
+                                let content = fs.readFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', "utf8")
+                                content = content.replace(new RegExp(currentOption[i].as + "." + name_data_field, "g"), currentOption[i].as + ".id");
+                                content = content.replace(new RegExp(currentOption[i].target + "." + name_data_field, "g"), currentOption[i].target + ".id_entity");
+                                fs.writeFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', content);
+                                // Looking for select in create / update / show
+                                promises.push(new Promise(function (resolve, reject) {
+                                    (function (file, option, entity) {
+                                        domHelper.read(otherViewsPath + entity + '/' + file + '.dust').then(function ($) {
+                                            let el = $("select[name='" + option.as + "'][data-source='" + option.target.substring(2) + "']");
+                                            if (el.length > 0) {
+                                                let using = el.attr("data-using").split(",");
+                                                if (using.indexOf(name_data_field) != -1) {
+                                                    // If using is alone, then replace with id, or keep just other using
+                                                    if (using.length == 1) {
+                                                        el.attr("data-using", "id")
+                                                    } else {
+                                                        using.splice(using.indexOf(name_data_field), 1)
+                                                        el.attr("data-using", using.join())
+                                                    }
+                                                    el.html(el.html().replace(new RegExp(name_data_field, "g"), "id"))
+                                                }
+                                            }
+                                            domHelper.write(otherViewsPath + entity + '/' + file + '.dust', $).then(function () {
+                                                resolve();
+                                            })
+                                        })
+                                    })(fieldsFiles[k], currentOption[i], currentEntity)
+                                }))
+                            }
+                            // Clean using
+                            currentOption[i].usingField.splice(j, 1);
+                            toSave = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (toSave)
+                fs.writeFileSync(optionsPath + file, JSON.stringify(currentOption, null, 4), "utf8");
+        });
 
         // Wait for all promises execution
         Promise.all(promises).then(function () {
@@ -1600,14 +1753,16 @@ exports.deleteTab = function (attr, callback) {
     });
 }
 
-exports.selectEntity = function(id_application, moduleCodeName, entityName, callback) {
-    var layout_path = __dirname+'/../workspace/'+id_application+'/views/layout_'+moduleCodeName+'.dust';
-    domHelper.read(layout_path).then(function($) {
-        if ($('#'+entityName+'_menu_item')[0].style.display === 'block')
+exports.selectEntity = function (id_application, moduleCodeName, entityName, callback) {
+    var layout_path = __dirname + '/../workspace/' + id_application + '/views/layout_' + moduleCodeName + '.dust';
+    domHelper.read(layout_path).then(function ($) {
+        if (typeof $('#' + entityName + '_menu_item')[0] !== "undefined" && $('#' + entityName + '_menu_item')[0].style.display === 'block')
             return callback(null, true);
         callback(null, false);
-    }).catch(function(err) {
+    }).catch(function (err) {
         console.log(err);
         callback(err);
     });
-}
+};
+
+exports.updateListFile = updateListFile;

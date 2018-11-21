@@ -76,7 +76,6 @@ module.exports = {
 
                     if(!gitlabConf.useSSH){
                         repoUrl = gitlab.protocol+"://"+gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
-                        //repoUrl = gitlabConf.protocol+"://"+usernameGitlab+":"+passwordUser+"@"+gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
                     } else{
                         repoUrl = gitlabConf.sshUrl+":"+usernameGitlab+"/"+nameRepo+".git";
                     }
@@ -101,9 +100,8 @@ module.exports = {
                             .addRemote(originName, repoUrl)
                             .push(['-u', originName, 'master'], function(err, answer){
                                 gitProcesses[originName] = false;
-                                if(err){
+                                if(err)
                                     console.log(err);
-                                }
                                 console.log(answer);
                                 writeAllLogs("Git first commit / push", answer, err);
                             });
@@ -116,12 +114,11 @@ module.exports = {
                         console.log("GIT: Git commit after new instruction.");
                         console.log(repoUrl);
 
-                        var commitMsg = "New commit: Function:"+attr.function+" Project:"+attr.id_project+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
+                        var commitMsg = "New commit: Function:"+attr.function+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
                         simpleGit.add('.')
                         .commit(commitMsg, function(err, answer){
-                            if(err){
+                            if(err)
                                 console.log(err);
-                            }
                             console.log(answer);
                             writeAllLogs("Git commit", answer, err);
                         });
@@ -191,10 +188,8 @@ module.exports = {
                                 gitProcesses[originName] = false;
                                 console.log(answer);
                                 writeAllLogs("Git push", answer, err);
-                                if(err){
-                                    console.log(err);
+                                if(err)
                                     return callback(err, null);
-                                }
                                 callback(null, answer);
                             });
                         } else{
@@ -214,10 +209,8 @@ module.exports = {
                                 gitProcesses[originName] = false;
                                 console.log(answer);
                                 writeAllLogs("Git push", answer, err);
-                                if(err){
-                                    console.log(err);
+                                if(err)
                                     return callback(err, null);
-                                }
                                 callback(null, answer);
                             });
                         } else{
@@ -269,10 +262,8 @@ module.exports = {
                         gitProcesses[originName] = false;
                         console.log(answer);
                         writeAllLogs("Git pull", answer, err);
-                        if(err){
-                            console.log(err);
+                        if(err)
                             return callback(err, null);
-                        }
                         callback(null, answer);
                     });
                 } else{
@@ -314,16 +305,14 @@ module.exports = {
                 if(!gitProcesses[originName]){
                     // Set gitProcesses to prevent any other git command during this process
                     gitProcesses[originName] = true;
-                    var commitMsg = "New commit: Function:"+attr.function+" Project:"+attr.id_project+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
+                    var commitMsg = "New commit: Function:"+attr.function+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
                     simpleGit.add('.')
                     .commit(commitMsg, function(err, answer){
                         gitProcesses[originName] = false;
                         console.log(answer);
                         writeAllLogs("Git commit", answer, err);
-                        if(err){
-                            console.log(err);
+                        if(err)
                             return callback(err, null);
-                        }
                         callback(null, answer);
                     });
                 } else{
@@ -369,10 +358,8 @@ module.exports = {
                         gitProcesses[originName] = false;
                         console.log(answer);
                         writeAllLogs("Git push", answer, err);
-                        if(err){
-                            console.log(err);
+                        if(err)
                             return callback(err, null);
-                        }
                         callback(null, answer);
                     });
                 } else{

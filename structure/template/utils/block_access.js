@@ -39,12 +39,19 @@ exports.loginAccess = function(req, res, next) {
     res.redirect('/default/home');
 };
 
+var LOAD_ACCESS_FILE = true;
+exports.reloadAccess = function(reload = true) {
+    LOAD_ACCESS_FILE = reload;
+}
+var ACCESS;
 function getAccess() {
-    var access;
-    try {
-        access = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
-    } catch(e) {console.error(e);return {};}
-    return access;
+    if (LOAD_ACCESS_FILE || !ACCESS) {
+        try {
+            ACCESS = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
+        } catch(e) {console.error(e);return {};}
+        LOAD_ACCESS_FILE = false;
+    }
+    return ACCESS;
 }
 
 function isInBothArray(stringArray, objectArray) {
@@ -68,6 +75,8 @@ function isInBothArray(stringArray, objectArray) {
 // Check if user's group have access to module
 function moduleAccess(userGroups, moduleName) {
     try {
+        if(userGroups.length == 0)
+            return false;
         var access = getAccess();
         for (var module in access)
             if (module == moduleName)
@@ -84,18 +93,22 @@ exports.moduleAccessMiddleware = function(moduleName) {
     return function(req, res, next) {
         if (!req.isAuthenticated())
             return res.redirect('/login');
-        if (moduleAccess(req.session.passport.user.r_group, moduleName))
+        let userGroups = req.session.passport.user.r_group;
+        if (userGroups.length > 0 && moduleAccess(userGroups, moduleName))
             return next();
         req.session.toastr = [{
             level: 'error',
-            'message': "Your Group(s) doesn't have access to this module"
+            message: "settings.auth_component.no_access_group_module"
         }];
+        return res.redirect('/');
     }
 }
 
 // Check if user's group have access to entity
 function entityAccess(userGroups, entityName) {
     try {
+        if(userGroups.length == 0)
+            return false;
         var access = getAccess();
         for (var module in access) {
             var moduleEntities = access[module].entities;
@@ -118,19 +131,21 @@ exports.entityAccess = entityAccess;
 exports.entityAccessMiddleware = function(entityName) {
     return function(req, res, next) {
         var userGroups = req.session.passport.user.r_group;
-        if (entityAccess(userGroups, entityName))
+        if (userGroups.length > 0 && entityAccess(userGroups, entityName))
             return next();
         req.session.toastr = [{
             level: 'error',
-            'message': "Your Group(s) doesn't have access to this entity"
+            message: "settings.auth_component.no_access_group_entity"
         }];
-        res.redirect('/default/home');
+        return res.redirect('/');
     }
 }
 
 // Check if user's role can do `action` on entity
 function actionAccess(userRoles, entityName, action) {
     try {
+        if(userRoles.length == 0)
+            return false;
         var access = getAccess();
         for (var module in access) {
             var moduleEntities = access[module].entities;
@@ -148,13 +163,13 @@ exports.actionAccess = actionAccess;
 exports.actionAccessMiddleware = function(entityName, action) {
     return function(req, res, next) {
         var userRoles = req.session.passport.user.r_role;
-        if (actionAccess(userRoles, entityName, action))
+        if (userRoles.length > 0 && actionAccess(userRoles, entityName, action))
             return next();
         req.session.toastr = [{
             level: 'error',
-            'message': "Your Role(s) doesn't have access to action " + action + ' on entity ' + entityName
+            message: "settings.auth_component.no_access_role"
         }];
-        res.redirect('/default/home');
+        return res.redirect('/');
     }
 }
 
@@ -175,4 +190,69 @@ exports.apiAuthentication = function(req, res, next) {
 
         next();
     });
+}
+
+exports.accessFileManagment = function(){
+    if (!fs.existsSync(__dirname +'/../config/access.lock.json') && !fs.existsSync(__dirname +'/../config/access.json'))
+        throw new Error("Missing access.json and access.lock.json file.")
+
+    // Generate access.json file
+    if (!fs.existsSync(__dirname +'/../config/access.json'))
+        fs.copySync(__dirname +'/../config/access.lock.json', __dirname +'/../config/access.json');
+
+    // Generate access.lock.json file
+    if (!fs.existsSync(__dirname +'/../config/access.lock.json'))
+        fs.copySync(__dirname +'/../config/access.json', __dirname +'/../config/access.lock.json');
+    else {
+        // access.lock.json exist, check if new keys to add in access.json
+        let access = JSON.parse(fs.readFileSync(__dirname +'/../config/access.json'))
+        let accessLock = JSON.parse(fs.readFileSync(__dirname +'/../config/access.lock.json'))
+
+        let emptyModuleContent = {
+            "groups": [],
+            "entities": []
+        }
+
+        let emptyEntityContent = {
+            "name": "",
+            "groups": [],
+            "actions": {
+                "read": [],
+                "create": [],
+                "delete": [],
+                "update": []
+            }
+        }
+
+        // Add missing things in access.json
+        for (let moduleLock in accessLock) {
+            // Generate new module with entities and groups if needed
+            if(!access[moduleLock]){
+                console.log("access.json: NEW MODULE: "+moduleLock);
+                access[moduleLock] = emptyModuleContent;
+                access[moduleLock].entities = accessLock[moduleLock].entities;
+                access[moduleLock].groups = accessLock[moduleLock].groups;
+                break;
+            }
+
+            // Loop on entities to add missing ones
+            let lockEntities = accessLock[moduleLock].entities;
+            let accessEntities = access[moduleLock].entities;
+            for (let i = 0; i < lockEntities.length; i++){
+                let found = false;
+                for (let j = 0; j < accessEntities.length; j++)
+                    {if(lockEntities[i].name == accessEntities[j].name){found=true;break;}
+                }
+                if(!found){
+                    // Add new entity to access
+                    emptyEntityContent.name = lockEntities[i].name;
+                    accessEntities.push(Object.assign({}, emptyEntityContent));
+                    console.log("access.json : NEW ENTITY "+lockEntities[i].name+" IN MODULE "+moduleLock);
+                }
+            }
+        }
+
+        // Write access.json with new entries
+        fs.writeFileSync(__dirname +'/../config/access.json', JSON.stringify(access, null, 4), "utf8");
+    }
 }

@@ -1,4 +1,3 @@
-// router/routes.js
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
@@ -8,20 +7,12 @@ var readline = require('readline');
 var fs = require('fs');
 var docBuilder = require('../utils/api_doc_builder');
 var moment = require('moment');
-
-// Parser
 var designer = require('../services/designer.js');
 var structure_application = require('../structure/structure_application');
 var fs = require("fs");
-
-// Session
 var session_manager = require('../services/session.js');
-
 var parser = require('../services/bot.js');
-
 var scriptData = [];
-
-// Attr helper needed to format value in instuction
 var attrHelper = require('../utils/attr_helper');
 
 function execute(req, instruction) {
@@ -55,7 +46,6 @@ function execute(req, instruction) {
                 throw new Error(attr.error);
 
             return designer[attr.function](attr, function(err, info) {
-
                 if (err) {
                     // Error handling code goes here
                     scriptData[userId].answers.unshift({
@@ -91,6 +81,7 @@ var mandatoryInstructions = [
     "create module Administration",
     "create entity User",
     "add field login",
+    "set field login required",
     "add field password",
     "add field email with type email",
     "add field token_password_reset",
@@ -98,9 +89,11 @@ var mandatoryInstructions = [
     "set icon user",
     "create entity Role",
     "add field label",
+    "set field label required",
     "set icon asterisk",
     "create entity Group",
     "add field label",
+    "set field label required",
     "set icon users",
     "select entity User",
     "add field Role related to many Role using label",
@@ -115,7 +108,7 @@ var mandatoryInstructions = [
     "add field Client Secret",
     "add field Token",
     "add field Token timeout TMSP",
-    "set icon unlink",
+    "set icon key",
     "add field role related to many Role using label",
     "add field group related to many Group using label",
     "add widget stat on entity User",
@@ -125,16 +118,18 @@ var mandatoryInstructions = [
     "add field Field",
     "add field Name",
     "add field Color with type color",
+    "add field Accepted group related to many Group using Label",
     "add field Position with type number",
     "add field Default with type boolean",
+    "add field Comment with type boolean",
     "entity Status has many Status called Children",
-    "entity status has many Translation called Translations",
+    "entity Status has many Translation called Translations",
     "select entity translation",
     "add field Language",
     "add field Value",
     "create entity Media",
     "set icon envelope",
-    "add field Type with type enum and values Mail, Notification, Function",
+    "add field Type with type enum and values Mail, Notification, SMS",
     "add field Name",
     "set field Name required",
     "add field Target entity",
@@ -145,7 +140,7 @@ var mandatoryInstructions = [
     "add field Execution with type enum and values Immédiate, Différée with default value Immédiate",
     "entity Media has one Media Mail",
     "entity Media has one Media Notification",
-    "entity Media has one Media Function",
+    "entity Media has one Media SMS",
     "select entity media mail",
     "add field To",
     "add field Cc",
@@ -158,17 +153,16 @@ var mandatoryInstructions = [
     "add field Description",
     "add field Icon",
     "add field Color with type color",
-    "add field Target Groups related to many group",
-    "add field Target Users related to many user",
+    "add field targets",
     "add entity Notification",
     "add field Title",
     "add field Description",
     "add field URL",
     "add field Color with type color",
     "add field Icon",
-    "select entity media function",
-    "add field Title",
-    "add field Function with type text",
+    "select entity media SMS",
+    "add field Message with type text",
+    "add field Phone numbers",
     "add entity Inline Help",
     "set icon question-circle-o",
     "add field Entity",
@@ -438,12 +432,15 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
                 var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
+                var tableName = "TABLE_NAME";
+                if(workspaceSequelize.sequelize.options.dialect == "postgres")
+                    tableName = "table_name";
                 // Looking for already exisiting table in workspace BDD
-                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
+                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
                     var workspaceTables = [];
                     for(var i=0; i<result.length; i++){
-                        if(result[i].TABLE_NAME.substring(0, result[i].TABLE_NAME.indexOf("_")+1) == idApplication+"_"){
-                            workspaceTables.push(result[i].TABLE_NAME);
+                        if(result[i][tableName].substring(0, result[i][tableName].indexOf("_")+1) == idApplication+"_"){
+                            workspaceTables.push(result[i][tableName]);
                         }
                     }
 
@@ -669,12 +666,15 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                 var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
                 var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
+                var tableName = "TABLE_NAME";
+                if(workspaceSequelize.sequelize.options.dialect == "postgres")
+                    tableName = "table_name";
                 // Looking for already exisiting table in workspace BDD
-                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
+                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
                     var workspaceTables = [];
                     for(var i=0; i<result.length; i++){
-                        if(result[i].TABLE_NAME.substring(0, result[i].TABLE_NAME.indexOf("_")+1) == idApplication+"_"){
-                            workspaceTables.push(result[i].TABLE_NAME);
+                        if(result[i][tableName].substring(0, result[i][tableName].indexOf("_")+1) == idApplication+"_"){
+                            workspaceTables.push(result[i][tableName]);
                         }
                     }
 
@@ -721,6 +721,8 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     } else {
                         scriptData[userId].over = true;
                     }
+                }).catch(function(err) {
+                    console.log(err);
                 });
             }).catch(function(err) {
                 console.log(err);

@@ -1,0 +1,152 @@
+{>"layout_m_administration" /}
+{<header}
+    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/">
+                <i class="fa fa-home"></i>
+                {@__ key="module.home"/}
+            </a>
+        </li>
+        <li>
+            <a class='sub-module-arianne' href='/default/administration'>
+                {@__ key="module.m_administration"/}
+            </a>
+        </li>
+        <li class="active">
+            {@__ key="settings.db_tool.title" /}
+        </li>
+    </ol>
+{/header}
+{<content}
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">{@__ key="settings.db_tool.title" /}</h3>
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+					<i class="fa fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="box-body">
+				<div class="nav-tabs-custom" id="tabs">
+					<ul class="nav nav-tabs nav-justified">
+						<li class="active">
+							<a data-toggle="tab" href="#export">{@__ key="settings.db_tool.export_title" /}</a>
+						</li>
+						<li>
+							<a data-toggle="tab" href="#import">{@__ key="settings.db_tool.import_title" /}</a>
+						</li>
+					</ul>
+					<div class="tab-content" style="min-height:275px;">
+						<div id="export" class="tab-pane fade in active">
+							<div class="row">
+								<div class="col-xs-12">
+									<form action="/import_export/db_export" method="POST" id="export_form">
+										<div class="col-xs-12">
+											<input type="checkbox" name="all_db" />&nbsp;&nbsp;{@__ key="settings.db_tool.all_db" /}<br>
+											<br>
+											<span id="checkbox-entities" style="margin-bottom: 15px;">
+												{#entities}
+												<input type="checkbox" name="{tableName}" />&nbsp;&nbsp;{@__ key=tradKey /}<br>
+												{/entities}
+											</span>
+											<br>
+											<button data-toggle="modal" data-target="#db_password" class="btn btn-primary btn-modal">{@__ key="settings.db_tool.export_action" /}</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+						<div id="import" class="tab-pane fade in">
+							<div class="row">
+								<div class="col-xs-12">
+									<form action="/import_export/db_import" method="POST" id="import_form">
+										<div class="col-xs-12">
+											<div class="form-group">
+											    <label for="import_file">
+											        {@__ key="settings.db_tool.import_file"/}
+											    </label>
+											    <div class="dropzone dropzone-field" id="import_file_dropzone" data-entity="db_import"></div>
+											    <input type="hidden" name="import_file" id="import_file_dropzone_hidden" required>
+											</div>
+											<br>
+											<button data-toggle="modal" data-target="#db_password" class="btn btn-primary btn-modal">{@__ key="settings.db_tool.import_action" /}</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="db_password" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{@__ key="settings.db_tool.modal_password_title" /}</h4>
+            </div>
+            <div class="modal-body">
+            	<label>{@__ key="settings.db_tool.modal_password_content" /}</label>
+            	<input type="password" name="db_password" class="form-control input">
+            </div>
+            <div class="modal-footer">
+            	<button type="button" class="btn btn-primary" id="execute_button"></button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{@__ key="button.close" /}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{/content}
+
+{<custom_js}
+<script>
+$(document).ready(function() {
+
+	$(document).on("ifChecked", "input[name='all_db']", function(){
+		$("#checkbox-entities").hide("fast");
+		$("input:not([name='all_db'])").iCheck("uncheck");
+	});
+
+	$(document).on("ifUnchecked", "input[name='all_db']", function(){
+		$("#checkbox-entities").show("fast");
+		$("input:not([name='all_db'])").iCheck("uncheck");
+	});
+
+	$(document).on("ifClicked", "input:not([name='all_db'])", function(){
+		$("input[name='all_db']").iCheck("uncheck");
+	});
+
+	$(document).on("click", "button[data-target='#db_password']", function(){
+		$("#execute_button").attr("data-form", $(this).parents("form").attr("id"));
+		$("#execute_button").text($(this).text() + " !");
+		$("#execute_button").prop("disabled", false);
+		$("input[name='db_password']").val("");
+		setTimeout(function(){
+			$("input[name='db_password']").focus();
+		}, 300);
+	});
+
+	$(document).on("click", "#execute_button", function(){
+		$(this).html("<i class=\"fa fa-spinner fa-spin\" style=\"font-size:24px\"></i>");
+		$(this).prop("disabled", true);
+		$("form#"+$(this).attr("data-form")).append($("input[name='db_password']").clone().hide());
+		$("form#"+$(this).attr("data-form")).submit();
+		if($(this).attr("data-form") == "export_form"){
+			$(document).find("form#"+$(this).attr("data-form")+" input[name='db_password']").remove();
+			setTimeout(function(){
+				$("#db_password").modal("hide");
+				$("#export_form input[type='checkbox']").each(function(){
+					$(this).iCheck('uncheck')
+				});
+			}, 2000);
+		}
+	});
+});
+</script>
+{/custom_js}

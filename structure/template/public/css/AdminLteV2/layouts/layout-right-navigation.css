@@ -18,6 +18,10 @@
 	margin-right: 50px !important;
 }
 
+.main-header .sidebar-toggle {
+	float: right;
+}
+
 /*
  * Component: Sidebar Mini
  */

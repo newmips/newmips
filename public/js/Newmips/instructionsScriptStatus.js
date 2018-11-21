@@ -4,26 +4,11 @@
  * Licensed under GPLV3.0 https://www.gnu.org/licenses/gpl.html
  */
 
-function updateInstructionCount(){
-    $.ajax({
-        url: '/default/update_instruction_cpt',
-        method: 'get',
-        success: function(data) {
-            $("#cptInstructionBar").attr("aria-valuenow", data.pourcentInstruction);
-            $("#cptInstructionBar").css("width", data.pourcentInstruction+"%");
-            if(data.cptInstruction > 300)
-                data.cptInstruction = "300+";
-            $("#cptInstructionNumber").html("<b>"+data.cptInstruction+"</b>");
-        }
-    });
-}
-
 function fetchStatus() {
     $.ajax({
         url: '/instruction_script/status',
         success: function(data) {
             try {
-                updateInstructionCount();
 
                 $("#instructionCount").text('Instructions : ' + data.doneInstruction + ' / ' + data.totalInstruction);
 

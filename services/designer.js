@@ -184,6 +184,7 @@ exports.deleteProject = function (attr, callback) {
     db_project.getProjectApplications(attr.options.showValue, function (err, applications) {
         if (err)
             return callback(err, null);
+
         var appIds = [];
         for (var i = 0; i < applications.length; i++)
             appIds.push(applications[i].id);
@@ -269,7 +270,14 @@ function deleteApplication(attr, callback) {
         structure_application.deleteApplication(id_application, function (err, infoStructure) {
             if (err)
                 return callback(err, null);
-            sequelize.query("SHOW TABLES LIKE '" + id_application + "_%'").spread(function (results, metada) {
+
+            var request = "";
+            if(sequelize.options.dialect == "mysql")
+                request = "SHOW TABLES LIKE '" + id_application + "_%';";
+            else if(sequelize.options.dialect == "postgres")
+                request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + id_application + "_%'";
+
+            sequelize.query(request).spread(function (results, metada) {
                 db_application.deleteApplication(id_application, function (err, infoDB) {
                     if (err)
                         return callback(err, null);
@@ -283,25 +291,34 @@ function deleteApplication(attr, callback) {
                     }
 
                     /* Function when all query are done */
-                    function done(currentCpt) {
-                        if (currentCpt == resultLength) {
-                            callback(null, infoDB);
-                        }
-                    }
-
-                    var cpt = 0;
+                    var request = "";
+                    if(sequelize.options.dialect == "mysql")
+                        request += "SET FOREIGN_KEY_CHECKS=0;";
                     for (var i = 0; i < results.length; i++) {
                         for (var prop in results[i]) {
-                            // For each request disable foreign key checks, drop table. Foreign key check
-                            // last only for the time of the request
-                            sequelize.query("SET FOREIGN_KEY_CHECKS=0; DROP TABLE " + results[i][prop] + ";SET FOREIGN_KEY_CHECKS=1;").then(function () {
-                                done(++cpt);
-                            });
+                            // Postgres additionnal check
+                            if(typeof results[i][prop] == "string" && results[i][prop].indexOf(id_application + "_") != -1){
+                                // For each request disable foreign key checks, drop table. Foreign key check
+                                // last only for the time of the request
+                                if(sequelize.options.dialect == "mysql")
+                                    request += "DROP TABLE " + results[i][prop] + ";";
+                                if(sequelize.options.dialect == "postgres")
+                                    request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
+                            }
                         }
                     }
-                });
-            });
-        });
+                    if(sequelize.options.dialect == "mysql")
+                        request += "SET FOREIGN_KEY_CHECKS=1;";
+                    sequelize.query(request).then(function () {
+                        callback(null, infoDB);
+                    }).catch(function(err){
+                        console.log("ERROR ERR: "+err.message);
+                        console.log("ERROR SQL: "+err.original.sql);
+                        callback(null, infoDB);
+                    })
+                })
+            })
+        })
     }
     if (isNaN(attr.options.showValue))
         db_application.getIdApplicationByCodeName(attr.options.value, attr.options.showValue, function (err, id_application) {
@@ -865,7 +882,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
         db_field.getFieldByCodeName(checkFieldParams, function (err, fieldExist) {
             if (err) {
                 // Not found as a simple field, look for related to field
-                var optionsArray = JSON.parse(helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + dataEntity.codeName + '.json'));
+                var optionsArray = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + dataEntity.codeName + '.json'));
                 var founded = false;
                 for (var i = 0; i < optionsArray.length; i++) {
                     if (optionsArray[i].showAs == attr.options.showValue) {
@@ -892,15 +909,24 @@ exports.setFieldKnownAttribute = function (attr, callback) {
 
             // Check the attribute asked in the instruction
             if (requiredAttribute.indexOf(wordParam) != -1) {
-                structure_data_field.setRequiredAttribute(attr, function (err) {
-                    if (err)
-                        return callback(err, null);
+                // Get DB SQL type needed to Alter Column
+                db_field.getDatabaseSQLType({
+                    table: attr.id_application+"_"+attr.name_data_entity.toLowerCase(),
+                    column: attr.options.value
+                }, function(sqlDataType, sqlDataTypeLength){
+                    attr.sqlDataType = sqlDataType;
+                    attr.sqlDataTypeLength = sqlDataTypeLength;
+                    attr.dialect = sequelize.options.dialect;
+                    structure_data_field.setRequiredAttribute(attr, function (err) {
+                        if (err)
+                            return callback(err, null);
 
-                    callback(null, {
-                        message: "structure.field.attributes.successKnownAttribute",
-                        messageParams: [attr.options.showValue, attr.options.word]
-                    });
-                });
+                        callback(null, {
+                            message: "structure.field.attributes.successKnownAttribute",
+                            messageParams: [attr.options.showValue, attr.options.word]
+                        })
+                    })
+                })
             } else if (uniqueAttribute.indexOf(wordParam) != -1) {
 
                 var sourceEntity = attr.id_application + "_" + attr.name_data_entity;
@@ -913,10 +939,18 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                 var request = "";
 
                 // Add or remove the unique constraint ?
-                if (possibilityUnique.indexOf(attribute) != -1) {
-                    request = "ALTER TABLE `" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + attr.options.value + "`);";
-                } else if (possibilityNotUnique.indexOf(attribute) != -1) {
-                    request = "ALTER TABLE `" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
+                if(sequelize.options.dialect == "mysql"){
+                    if (possibilityUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE `" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + attr.options.value + "`);";
+                    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE `" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
+                    }
+                } else if (sequelize.options.dialect == "postgres"){
+                    if (possibilityUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE \"" + sourceEntity + "\" ADD CONSTRAINT \"" + constraintName + "\" UNIQUE (" + attr.options.value + ");";
+                    } else if (possibilityNotUnique.indexOf(attribute) != -1) {
+                        request = "ALTER TABLE \"" + sourceEntity + "\" DROP INDEX \"" + constraintName + "\";";
+                    }
                 }
 
                 sequelize.query(request).then(function () {
@@ -930,7 +964,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                         });
                     });
                 }).catch(function (err) {
-                    if (typeof err.parent !== "undefined" && err.parent.errno == 1062) {
+                    if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
                         var err = new Error();
                         err.message = "structure.field.attributes.duplicateUnique";
                     }
@@ -999,7 +1033,7 @@ exports.setColumnVisibility = function (attr, callback) {
 exports.createNewHasOne = function (attr, callback) {
 
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeName(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeName(attr.id_module, attr.options.source, function (err, idEntitySource) {
         if (err) {
             return callback(err, null);
         }
@@ -1007,12 +1041,12 @@ exports.createNewHasOne = function (attr, callback) {
         var info = {};
         var toSync = true;
         // For the newmips generator BDD, needed for db_field.createNewForeignKey
-        attr.id_data_entity = IDdataEntitySource;
+        attr.id_data_entity = idEntitySource;
 
         function structureCreation(attr, callback) {
 
             // Vérification si une relation existe déjà de la source VERS la target
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
@@ -1029,7 +1063,7 @@ exports.createNewHasOne = function (attr, callback) {
             }
 
             // Vérification si une relation existe déjà de la target VERS la source
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var targetOptionsObject = JSON.parse(optionsFile);
             for (var i = 0; i < targetOptionsObject.length; i++) {
                 if (targetOptionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && targetOptionsObject[i].relation != "hasMany" && targetOptionsObject[i].relation != "belongsToMany") {
@@ -1143,8 +1177,13 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                     "select entity " + attr.options.showTarget
                 ];
 
+                var setRequired = false;
+
                 if (optionObj.structureType == "relatedToMultiple") {
                     instructions.push("delete field " + optionObj.as.substring(2));
+                    // If related to is required, then rebuilt it required
+                    if(optionObj.allowNull === false)
+                        setRequired = true;
                 } else {
                     instructions.push("delete tab " + optionObj.as.substring(2));
                 }
@@ -1222,7 +1261,15 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     if (typeof optionObj.usingField !== "undefined")
                                         reversedAttr.options.usingField = optionObj.usingField;
                                     structure_data_field.setupRelatedToMultipleField(reversedAttr, function () {
-                                        resolve();
+                                        if(setRequired){
+                                            reversedAttr.name_data_entity = reversedAttr.options.source;
+                                            reversedAttr.options.value = "f_"+reversedAttr.options.urlAs;
+                                            reversedAttr.options.word = "required";
+                                            structure_data_field.setRequiredAttribute(reversedAttr, function () {
+                                                resolve();
+                                            });
+                                        } else
+                                            resolve();
                                     });
                                 } else {
                                     reject("Error: Unknown target type for belongsToMany generation.")
@@ -1240,13 +1287,13 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
 exports.createNewHasMany = function (attr, callback) {
     var exportsContext = this;
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, idEntitySource) {
         if (err)
             return callback(err, null);
 
-        attr.id_data_entity = IDdataEntitySource;
+        attr.id_data_entity = idEntitySource;
 
-        var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+        var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
         var optionsSourceObject = JSON.parse(optionsSourceFile);
 
         // Vérification si une relation existe déjà de la source VERS la target
@@ -1267,11 +1314,86 @@ exports.createNewHasMany = function (attr, callback) {
         var info = {};
         var toSync = true;
         var optionsObject;
-        function structureCreation(attr, callback) {
+
+        // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
+        let checkExistEntity = new Promise((resolve, reject) => {
+            db_entity.selectEntityTarget(attr, function (err, dataEntity) {
+                // Si l'entité target n'existe pas, on la crée
+                if (err) {
+                    //Si c'est bien l'error de data entity qui n'existe pas
+                    if (err.level == 0) {
+                        db_entity.createNewEntityTarget(attr, function (err, created_dataEntity) {
+                            if (err) {
+                                return reject(err);
+                            }
+                            // KEEP - On se dirige en sessions vers l'entité crée
+                            //info = created_dataEntity;
+
+                            // KEEP - Stay on the source entity, even if the target has been created
+                            info.insertId = attr.id_data_entity;
+
+                            info.message = "structure.association.hasMany.successSubEntity";
+                            info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
+
+                            db_module.getModuleById(attr.id_module, function (err, module) {
+                                if (err) {
+                                    return reject(err);
+                                }
+                                attr.show_name_module = module.name;
+                                attr.name_module = module.codeName;
+
+                                // Création de l'entité target dans le workspace
+                                structure_data_entity.setupDataEntity(attr, function (err, data) {
+                                    if (err) {
+                                        return reject(err);
+                                    }
+                                    var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+                                    optionsObject = JSON.parse(optionsFile);
+                                    resolve(attr);
+                                });
+                            });
+                        });
+                    } else {
+                        reject(err);
+                    }
+                } else {
+                    // KEEP - Select the target if it already exist
+                    //info.insertId = dataEntity.id;
+                    var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+                    optionsObject = JSON.parse(optionsFile);
+                    var cptExistingHasMany = 0;
+
+                    // Check if there is no or just one belongsToMany to do
+                    for (var i = 0; i < optionsObject.length; i++) {
+                        if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+                            if (optionsObject[i].relation != "belongsToMany") {
+                                cptExistingHasMany++;
+                            }
+                        }
+                    }
+                    /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
+                    if (cptExistingHasMany > 1) {
+                        var err = new Error();
+                        err.message = "structure.association.error.tooMuchHasMany";
+                        return reject(err);
+                    }
+                    // KEEP - Stay on the source entity
+                    info.insertId = attr.id_data_entity;
+
+                    info.message = "structure.association.hasMany.successEntity";
+                    info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
+                    resolve(attr);
+                }
+            })
+        })
+
+        checkExistEntity.then(attr => {
             var doingBelongsToMany = false;
             // Vérification si une relation existe déjà de la target VERS la source
             for (var i = 0; i < optionsObject.length; i++) {
-                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase()
+                    && optionsObject[i].target.toLowerCase() != attr.options.target.toLowerCase()
+                    && optionsObject[i].relation != "belongsTo") {
                     doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
                     belongsToMany(attr, optionsObject[i], "setupHasManyTab", exportsContext).then(function () {
@@ -1330,83 +1452,10 @@ exports.createNewHasMany = function (attr, callback) {
                     });
                 });
             }
-        }
-
-        // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
-            // Si l'entité target n'existe pas, on la crée
-            if (err) {
-                //Si c'est bien l'error de data entity qui n'existe pas
-                if (err.level == 0) {
-                    db_entity.createNewEntityTarget(attr, function (err, created_dataEntity) {
-                        if (err) {
-                            return callback(err, null);
-                        }
-                        // KEEP - On se dirige en sessions vers l'entité crée
-                        //info = created_dataEntity;
-
-                        // KEEP - Stay on the source entity, even if the target has been created
-                        info.insertId = attr.id_data_entity;
-
-                        info.message = "structure.association.hasMany.successSubEntity";
-                        info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
-
-                        db_module.getModuleById(attr.id_module, function (err, module) {
-                            if (err) {
-                                return callback(err, null);
-                            }
-                            attr.show_name_module = module.name;
-                            attr.name_module = module.codeName;
-
-                            // Création de l'entité target dans le workspace
-                            structure_data_entity.setupDataEntity(attr, function (err, data) {
-                                if (err) {
-                                    return callback(err, null);
-                                }
-                                var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
-                                optionsObject = JSON.parse(optionsFile);
-                                structureCreation(attr, callback);
-                            });
-                        });
-                    });
-                } else {
-                    callback(err, null);
-                }
-            } else {
-                // KEEP - Select the target if it already exist
-                //info.insertId = dataEntity.id;
-                var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
-                optionsObject = JSON.parse(optionsFile);
-
-                var cptExistingHasMany = 0;
-
-                // Check if there is no or just one belongsToMany to do
-                for (var i = 0; i < optionsObject.length; i++) {
-                    if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
-                        if (optionsObject[i].relation == "belongsToMany") {
-                            //var err = new Error();
-                            //err.message = "structure.association.error.alreadyBelongsToMany";
-                            //return callback(err, null);
-                        } else {
-                            cptExistingHasMany++;
-                        }
-                    }
-                }
-                /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
-                if (cptExistingHasMany > 1) {
-                    var err = new Error();
-                    err.message = "structure.association.error.tooMuchHasMany";
-                    return callback(err, null);
-                }
-                // KEEP - Stay on the source entity
-                info.insertId = attr.id_data_entity;
-
-                info.message = "structure.association.hasMany.successEntity";
-                info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
-                structureCreation(attr, callback);
-            }
-        });
-    });
+        }).catch(err => {
+            return callback(err, null);
+        })
+    })
 }
 
 // Create a tab with a select of existing object and a list associated to it
@@ -1417,11 +1466,36 @@ exports.createNewHasManyPreset = function (attr, callback) {
     //     if (err && typeof attr.options.source === "undefined")
     //         return callback(err, null);
     /* Check if entity source exist before doing anything */
-    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, IDdataEntitySource) {
+    db_entity.getIdDataEntityByCodeNameWithoutModuleCheck(attr.id_module, attr.options.source, function (err, idEntitySource) {
         if (err)
             return callback(err, null);
+        attr.id_data_entity = idEntitySource;
 
-        attr.id_data_entity = IDdataEntitySource;
+        var allUsingExist = true;
+        // If a using field or fields has been asked, we have to check if those fields exist in the entity
+        if (typeof attr.options.usingField !== "undefined") {
+            var attributesPath = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + attr.options.target.toLowerCase()
+            delete require.cache[require.resolve(attributesPath)];
+            var attributeTarget = require(attributesPath);
+            for (var i = 0; i < attr.options.usingField.length; i++) {
+                if (typeof attributeTarget[attr.options.usingField[i]] === "undefined") {
+                    allUsingExist = false;
+                    var missingField = attr.options.showUsingField[i];
+                } else {
+                    attr.options.usingField[i] = {
+                        value: attr.options.usingField[i],
+                        type: attributeTarget[attr.options.usingField[i]].newmipsType
+                    }
+                }
+            }
+        }
+        // If a asked using field doesn't exist in the target entity we send an error
+        if (!allUsingExist) {
+            var err = new Error();
+            err.message = "structure.association.relatedTo.missingField";
+            err.messageParams = [missingField, attr.options.showTarget];
+            return callback(err, null);
+        }
 
         // With preset instruction with already know the source of the related to
         // "entity (.*) has many preset (.*)"
@@ -1432,12 +1506,12 @@ exports.createNewHasManyPreset = function (attr, callback) {
         }
 
         // Vérifie que la target existe bien avant de creer la source et la clé étrangère (foreign key)
-        db_entity.selectEntityTarget(attr, function (err, dataEntity) {
+        db_entity.selectEntityTarget(attr, function (err, entityTarget) {
             // Si l'entité target n'existe pas ou autre
             if (err)
                 return callback(err, null);
 
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
             var toSync = true;
@@ -1445,8 +1519,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
             // Vérification si une relation existe déjà de la source VERS la target
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
-
-                    if (optionsSourceObject[i].relation == "belongsTo") {
+                    if (optionsSourceObject[i].relation == "belongsTo" && attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadyHasOne";
                         return callback(err, null);
@@ -1458,7 +1531,15 @@ exports.createNewHasManyPreset = function (attr, callback) {
                 }
             }
 
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            attr.options.through = attr.id_application + "_" + idEntitySource + "_" + entityTarget.id + "_" + attr.options.as.substring(2);
+            if (attr.options.through.length > 55) {
+                var err = new Error();
+                err.message = "error.valueTooLong";
+                err.messageParams = [attr.options.through];
+                return callback(err, null);
+            }
+
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
 
             var cptExistingHasMany = 0;
@@ -1523,8 +1604,8 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         foreignKey: attr.options.foreignKey,
                         as: attr.options.as,
                         showAs: attr.options.showAs,
-                        relation: "hasMany",
-                        through: null,
+                        relation: "belongsToMany",
+                        through: attr.options.through,
                         toSync: toSync,
                         usingField: attr.options.usingField || undefined,
                         type: "hasManyPreset"
@@ -1533,7 +1614,6 @@ exports.createNewHasManyPreset = function (attr, callback) {
                     structure_data_entity.setupAssociation(associationOption, function () {
                         // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                         structure_data_field.setupHasManyPresetTab(attr, function () {
-
                             var info = {};
                             info.insertId = attr.id_data_entity;
                             info.message = "structure.association.hasManyExisting.success";
@@ -1591,7 +1671,7 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 return callback(err, null);
             }
             // Check if an association already exists from source to target
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
             var toSync = true;
             for (var i = 0; i < optionsSourceObject.length; i++) {
@@ -1608,10 +1688,10 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 }
             }
             // Check if an association already exists from target to source
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
             for (var i = 0; i < optionsObject.length; i++) {
-                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany") {
+                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "hasMany" && optionsObject[i].relation != "belongsToMany") {
                     var err = new Error();
                     err.message = "structure.association.error.circularBelongsTo";
                     return callback(err, null);
@@ -1714,7 +1794,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             }
 
             // Check if an association already exists from source to target
-            var optionsSourceFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
+            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
             var optionsSourceObject = JSON.parse(optionsSourceFile);
 
             var toSync = true;
@@ -1723,9 +1803,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             // Check already exisiting association from source to target entity
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
-                    if (optionsSourceObject[i].relation == "belongsTo") {
-                        //console.log("WARNING: Source entity already has a related to association with the target.");
-                    } else if (attr.options.as == optionsSourceObject[i].as) {
+                    if (attr.options.as == optionsSourceObject[i].as) {
                         var err = new Error();
                         err.message = "structure.association.error.alreadySameAlias";
                         return callback(err, null);
@@ -1747,7 +1825,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
             }
 
             // Check if an association already exists from target to source
-            var optionsFile = helpers.readFileSyncWithCatch('./workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
             var optionsObject = JSON.parse(optionsFile);
 
             for (var i = 0; i < optionsObject.length; i++) {
@@ -1759,17 +1837,6 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                         err.messageParams = [attr.options.through];
                         return callback(err, null);
                     }
-                    //BelongsToMany
-                    //doingBelongsToMany = true;
-                    /* Then lets create the belongs to many association */
-                    // belongsToMany(attr, optionsObject[i], "setupRelatedToMultipleField", exportsContext).then(function(){
-                    //     info.message = "structure.association.relatedToMultiple.success";
-                    //     info.messageParams = [attr.options.showAs, attr.options.showTarget, attr.options.showSource, attr.options.showAs, attr.options.showAs];
-                    //     callback(null, info);
-                    // }).catch(function(err){
-                    //     console.log(err);
-                    //     return callback(err, null);
-                    // });
                 } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
                         && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")) {
 
@@ -1819,6 +1886,10 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                 if (typeof attr.options.usingField !== "undefined") {
                     associationOption.usingField = attr.options.usingField;
                 }
+                if (typeof attr.options.isCheckbox !== "undefined" && attr.options.isCheckbox) {
+                    // If it's a checkbox presentation style, we need to load association directly in the route, not in ajax
+                    associationOption.loadOnStart = true;
+                }
                 structure_data_entity.setupAssociation(associationOption, function () {
                     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
                     structure_data_field.setupRelatedToMultipleField(attr, function () {
@@ -1838,7 +1909,6 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
 /* --------------------------------------------------------------- */
 exports.createNewComponentStatus = function (attr, callback) {
     var self = this;
-
 
     db_entity.getDataEntityById(attr.id_data_entity, function (err, source_entity) {
         if (err)
@@ -1861,8 +1931,9 @@ exports.createNewComponentStatus = function (attr, callback) {
 
             // These instructions create a has many with a new entity history_status
             // It also does a hasMany relation with e_status
+            var historyLanguage = attr.lang_user == 'fr-FR' ? 'Historique' : 'History';
             var instructions = [
-                "entity " + source_entity.name + ' has many ' + attr.history_table_db_name + ' called History ' + attr.options.showValue,
+                "entity " + source_entity.name + ' has many ' + attr.history_table_db_name + ' called '+historyLanguage+' ' + attr.options.showValue,
                 "select entity " + attr.history_table_db_name,
                 "add field " + attr.options.showValue + " related to Status using name, color",
                 "add field Comment with type text",
@@ -2141,6 +2212,7 @@ exports.createNewComponentAgenda = function (attr, callback) {
                 "add field End date with type datetime",
                 "add field All day with type boolean",
                 "add field Category related to " + showValueCategory + " using Label",
+                "add field Users related to many user using login, email",
                 "set field Title required",
                 "set field Start date required"
             ];
@@ -2150,13 +2222,6 @@ exports.createNewComponentAgenda = function (attr, callback) {
                 if (err)
                     return callback(err, null);
 
-                // Clear toSync.json because all fields will be created with the entity creation
-                // var toSyncFileName = './workspace/'+attr.id_application+'/models/toSync.json';
-                // var writeStream = fs.createWriteStream(toSyncFileName);
-                // var toSyncObject = {};
-                // writeStream.write(JSON.stringify(toSyncObject, null, 4));
-                // writeStream.end();
-                // writeStream.on('finish', function() {
                 // Create the component in newmips database
                 db_component.createNewComponentOnModule(attr, function (err, info) {
                     if (err)
@@ -2182,7 +2247,6 @@ exports.createNewComponentAgenda = function (attr, callback) {
                         });
                     });
                 });
-                // });
             });
         }
     });
@@ -2419,7 +2483,6 @@ exports.deleteComponentPrint = function (attr, callback) {
              structure_component.newPrint(attr, function(err){
              if(err)
              return callback(err, null);
-             
              callback(null, info);
              });
              });
@@ -2427,7 +2490,7 @@ exports.deleteComponentPrint = function (attr, callback) {
              return callback(err, null);
              }
              });
-             });*/
+         });*/
         } else {
             var err = new Error();
             err.message = "structure.component.error.notExisting";
@@ -2894,10 +2957,6 @@ exports.createWidgetLastRecords = function (attr, callback) {
                 if (err)
                     return callback(err);
 
-                console.log("COLUMNS FOUND FOR ENTITY ID : " + entity.id);
-                console.log(columns);
-                console.log("COLUMNS PROVIDED IN INSTRUCTION :");
-                console.log(attr.columns);
                 // Check for not found fields and build error message
                 if (attr.columns.length != columns.length) {
                     var notFound = [];

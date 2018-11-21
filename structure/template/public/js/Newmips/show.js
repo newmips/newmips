@@ -1,20 +1,47 @@
 //
 // UTILS
 //
+
+// Check if a string has a valid JSON syntax to parse it
+function isValidJSON(string) {
+    if (/^[\],:{}\s]*$/.test(string.replace(/\\["\\\/bfnrtu]/g, '@')
+            .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+            .replace(/(?:^|:|,)(?:\s*\[)+/g, '')))
+        return true;
+    else
+        return false;
+}
+
+// Server side you can:
+// Show an error message like this: return res.status(500).send("My Error Message");
+// Show multiple message like this: return res.status(500).send([message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
+// You can also force the page to refresh like this: return res.status(500).send({refresh: true});
 function handleError(error, par2, par3) {
     try {
-        if(typeof error.responseText === "string")
-            return toastr.error(error.responseText);
-        var toastrAr = JSON.parse(error.responseText);
-        if (toastrAr instanceof Array) {
-            for (var i = 0; i < toastrAr.length; i++)
-                toastr[toastrAr[i].level](toastrAr[i].message);
+        if(isValidJSON(error.responseText)){
+            var errorObj = JSON.parse(error.responseText);
+            if(errorObj.refresh)
+                return location.reload();
+            if (errorObj instanceof Array) {
+                for (var i = 0; i < errorObj.length; i++)
+                    toastr[errorObj[i].level](errorObj[i].message);
+            }
+            else
+                toastr.error(error.responseText);
+        } else {
+            if(typeof error.responseText === "string")
+                return toastr.error(error.responseText);
         }
-        else
-            toastr.error(error.responseText);
     } catch(e) {
         console.error(error, par2, par3);
     }
+}
+
+function firstElementFocus(tab, idx = 0) {
+    var element = $(".form-group:eq("+idx+") label:eq(0)", tab).next().focus();
+    if ((element && (element.prop('disabled') == true || element.prop('readonly') == true))
+    && ($(".form-group", tab).length > 0 && idx <= $(".form-group", tab).length))
+        firstElementFocus(idx+1);
 }
 
 function buildAssociationHref(tab) {
@@ -36,7 +63,13 @@ function reloadTab(tab) {
 }
 
 function select2_fieldset(select, data) {
-    var searchField = data.option.usingField || ['id'];
+    var searchField = [];
+    if (data.option.usingField && data.option.usingField.length)
+        for (var i = 0; i < data.option.usingField.length; i++)
+            searchField.push(data.option.usingField[i].value);
+    if (searchField.length == 0)
+        searchField.push('id');
+
     select.select2({
         ajax: {
             url: '/'+data.option.target.substring(2)+'/search',
@@ -45,13 +78,13 @@ function select2_fieldset(select, data) {
             delay: 250,
             contentType: "application/json",
             data: function (params) {
-                var customWhere = {};
-                customWhere[data.option.foreignKey] = null;
+                var customwhere = {};
+                customwhere[data.option.foreignKey] = null;
                 var ajaxdata = {
                     search: params.term,
                     page: params.page || 1,
                     searchField: searchField,
-                    customWhere: customWhere
+                    customwhere: customwhere
                 };
                 return JSON.stringify(ajaxdata);
             },
@@ -161,8 +194,8 @@ function initHasOne(tab, data) {
     }
     // NOT EMPTY: Set content, add update/delete button
     else {
-        tab.find('a').each(function() {
-            if ($(this).attr('href').indexOf('/set_status/') != -1)
+        tab.find('a:not(.status)').each(function() {
+            if (typeof $(this).data('href') !== "undefined" && $(this).data('href').indexOf('/set_status/') != -1)
                 $(this).addClass('ajax');
         });
         var updBtn = $(UPDATE_BUTTON);
@@ -209,7 +242,7 @@ function initHasMany(tab, data) {
             render: function(data2, type, row) {
                 var form = '\
                 <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                    <button onclick="return confirm(\''+DEL_CONFIRM_TEXT+'\'");" class="btn btn-danger"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                         <span>'+DELETE_TEXT+'</span>\
                         <input name="id" value="'+row['id']+'" type="hidden"/>\
                     </button>\
@@ -224,7 +257,7 @@ function initHasMany(tab, data) {
     table.data('url', tableUrl);
 
     // DataTable
-    init_datatable('#'+table.attr('id'), true, doPagination);
+    init_datatable('#'+table.attr('id'), true, doPagination, tab);
 }
 
 // HAS MANY PRESET
@@ -311,8 +344,10 @@ $(function() {
                 tab.data('target', data.option.target);
 
                 // Build tab content
-                if (data.option.structureType == 'hasOne')
+                if (data.option.structureType == 'hasOne') {
                     initHasOne(tab, data);
+                    bindStatusComment(tab);
+                }
                 else if (data.option.structureType == 'hasMany')
                     initHasMany(tab, data);
                 else if (data.option.structureType == 'hasManyPreset')
@@ -378,6 +413,7 @@ $(function() {
                 tab.find('.ajax-form').slideDown();
                 initForm(tab);
                 ajaxForm(formWrapper.find('form'), tab);
+                firstElementFocus(tab.find('.ajax-form'));
             },
             error: handleError
         });
