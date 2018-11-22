@@ -924,6 +924,10 @@ $(document).ready(function () {
 
     // Validate any form before submit
     $('form').submit(function (e) {
+        // Prevent multiple submittion (double click)
+        if ($(this).data('submitting') === true)
+            return e.preventDefault();
+        $(this).data('submitting', true);
         if (!validateForm($(this)))
             return false;
         return true;

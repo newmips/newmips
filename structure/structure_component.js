@@ -849,7 +849,7 @@ exports.newCra = function (attr, callback) {
 exports.newStatus = function (attr, callback) {
     var workspacePath = __dirname + '/../workspace/' + attr.id_application;
     var piecesPath = __dirname + '/../structure/pieces/component/status';
-
+console.log(attr);
     // Rename history model, options, attributes files and view folder
     fs.renameSync(workspacePath + '/models/e_' + attr.history_table_db_name + '.js', workspacePath + '/models/e_' + attr.history_table + '.js');
     fs.renameSync(workspacePath + '/models/attributes/e_' + attr.history_table_db_name + '.json', workspacePath + '/models/attributes/e_' + attr.history_table + '.json');
@@ -878,10 +878,10 @@ exports.newStatus = function (attr, callback) {
 
     // Replace history table name with history model name in access file
     var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
-    for (var module in access)
-        for (var i = 0; i < access[module].entities.length; i++)
-            if (access[module].entities[i].name == attr.history_table_db_name)
-                access[module].entities[i].name = attr.history_table;
+    for (var npsModule in access)
+        for (var i = 0; i < access[npsModule].entities.length; i++)
+            if (access[npsModule].entities[i].name == attr.history_table_db_name)
+                access[npsModule].entities[i].name = attr.history_table;
 
     fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
     fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
@@ -968,6 +968,8 @@ exports.newStatus = function (attr, callback) {
                 // Rename traduction key to use history MODEL value, delete old traduction key
                 localesFR.entity['e_' + attr.history_table] = localesFR.entity['e_' + attr.history_table_db_name];
                 localesFR.entity['e_' + attr.history_table_db_name] = undefined;
+                // Change entity's status tab name for FR (Historique instead of History)
+                localesFR.entity[attr.source]['r_history_'+attr.options.urlValue] = "Historique "+attr.options.showValue;
                 fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
 
                 var localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
