@@ -244,13 +244,18 @@ function init_datatable(tableID, doPagination, context) {
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
     // Fetch columns from html
-    var columns = [];
-    $(tableID + " .main th", context).each(function () {
+    var columns = [], defaultOrder = {idx: 0, direction: 'DESC'};
+    $(tableID + " .main th", context).each(function (idx) {
         if (typeof $(this).data('col') !== 'undefined'){
-            if($(this).data("hidden") == "1"){
+            if($(this).data("hidden") == "1")
                 columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true});
-            } else {
+            else
                 columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: false});
+
+            // Look for default order on field. Presence of `data-default-order` gives the index, value gives direction. Ex: <th data-default-order="ASC">
+            if ($(this).data('default-order')) {
+                defaultOrder.idx = idx;
+                defaultOrder.direction = $(this).data('default-order');
             }
         }
     });
@@ -434,7 +439,7 @@ function init_datatable(tableID, doPagination, context) {
         "iDisplayLength": 25,
         "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],
         "bAutoWidth": false,
-        "order": [ 0, 'desc' ],
+        "order": [ defaultOrder.idx, defaultOrder.direction ],
         "buttons": [
             {
                 extend: 'print',

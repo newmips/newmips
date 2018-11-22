@@ -52,9 +52,9 @@
     <body class="skin-blue-light layout-default sidebar-mini">
         <script>
             /* Set sidebar preference */
-            var sidebarPref = localStorage.getItem("newmips_mini_sidebar_preference");
             var d = document.body;
             if (d.className.indexOf("layout-top-navigation") == -1) {
+                var sidebarPref = localStorage.getItem("newmips_mini_sidebar_preference");
                 if (sidebarPref == "close" && d.className.indexOf("sidebar-collapse") == -1) {
                     d.className += " sidebar-collapse";
                 }
