@@ -907,16 +907,13 @@ $(document).ready(function () {
 
     /* Save mini sidebar preference */
     $(document).on("click", ".sidebar-toggle", function () {
-        if (typeof sidebarPref !== "undefined" && sidebarPref != "null" && sidebarPref != null) {
-            if (sidebarPref == "close")
-                sidebarPref = "open";
-            else if (sidebarPref == "open")
-                sidebarPref = "close";
-        } else {
-            sidebarPref = "close";
-        }
+        var sidebarNewState = "open";
+        if ($("body").hasClass('sidebar-open'))
+            sidebarNewState = "close";
+        else if ($("body").hasClass('sidebar-collapse'))
+            sidebarNewState = "open";
 
-        localStorage.setItem("newmips_mini_sidebar_preference", sidebarPref);
+        localStorage.setItem("newmips_mini_sidebar_preference", sidebarNewState);
     });
 
     $(document).on("click", ".btn-confirm", function () {
