@@ -928,8 +928,10 @@ $(document).ready(function () {
         if ($(this).data('submitting') === true)
             return e.preventDefault();
         $(this).data('submitting', true);
-        if (!validateForm($(this)))
+        if (!validateForm($(this))) {
+            $(this).data('submitting', false);
             return false;
+        }
         return true;
     });
 
