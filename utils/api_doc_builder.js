@@ -204,7 +204,7 @@ function build(id_application) {
 					var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].codeName+'.json', 'utf8'));
 					documentation += entityDocumentation(entities[i], attributes, options);
 				} catch (e) {
-					console.log('WARNING - API documentation builder: Couldn\'t load '+entities[i].codeName+' attributes and options');
+					; // Status history models can't be loaded
 				}
 			}
 
