@@ -194,7 +194,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("user", "create")
         var view = req.query.ajax ? 'e_user/create_fields' : 'e_user/create';
         res.render(view, data);
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/bb/create_form');
+        entity_helper.error(err, req, res, '/user/create_form');
     })
 });
 
