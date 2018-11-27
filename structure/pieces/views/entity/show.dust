@@ -80,7 +80,7 @@
                 var component = $(this).attr("data-component");
                 var url = '/'+component+'/delete';
                 var data = $(this).serialize();
-                data += '&idEntity={custom_data_entity.id}&ajax=true';
+                data += '&ajax=true';
                 var form = this;
                 $.ajax({
                     url: url,
