@@ -78,9 +78,9 @@ function moduleAccess(userGroups, moduleName) {
         if(userGroups.length == 0)
             return false;
         var access = getAccess();
-        for (var module in access)
-            if (module == moduleName)
-                if (!isInBothArray(access[module].groups, userGroups))
+        for (var npsModule in access)
+            if (npsModule == moduleName)
+                if (!isInBothArray(access[npsModule].groups, userGroups))
                     return true;
         return false;
     } catch (e) {
@@ -110,13 +110,13 @@ function entityAccess(userGroups, entityName) {
         if(userGroups.length == 0)
             return false;
         var access = getAccess();
-        for (var module in access) {
-            var moduleEntities = access[module].entities;
+        for (var npsModule in access) {
+            var moduleEntities = access[npsModule].entities;
             for (var i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName) {
                     // Check if group can access entity AND module to which the entity belongs
                     if (!isInBothArray(moduleEntities[i].groups, userGroups)
-                    && !isInBothArray(access[module].groups, userGroups)) {
+                    && !isInBothArray(access[npsModule].groups, userGroups)) {
                         return true;
                     }
                 }
@@ -130,9 +130,17 @@ exports.entityAccess = entityAccess;
 
 exports.entityAccessMiddleware = function(entityName) {
     return function(req, res, next) {
-        var userGroups = req.session.passport.user.r_group;
-        if (userGroups.length > 0 && entityAccess(userGroups, entityName))
-            return next();
+        // Exception for `/search` routes. We only check for 'read' action access.
+        // Bypass module/entity access check
+        if (req.originalUrl == `/${entityName}/search`) {
+            if (actionAccess(req.session.passport.user.r_role, entityName, 'read'))
+                return next()
+        }
+        else {
+            var userGroups = req.session.passport.user.r_group;
+            if (userGroups.length > 0 && entityAccess(userGroups, entityName))
+                return next();
+        }
         req.session.toastr = [{
             level: 'error',
             message: "settings.auth_component.no_access_group_entity"
@@ -147,8 +155,8 @@ function actionAccess(userRoles, entityName, action) {
         if(userRoles.length == 0)
             return false;
         var access = getAccess();
-        for (var module in access) {
-            var moduleEntities = access[module].entities;
+        for (var npsModule in access) {
+            var moduleEntities = access[npsModule].entities;
             for (var i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName)
                     return !isInBothArray(moduleEntities[i].actions[action], userRoles)

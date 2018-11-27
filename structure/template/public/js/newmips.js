@@ -1141,9 +1141,7 @@ function initComponentAddress(context) {
                     minLength: 1,
                     source: function (req, res) {
                         var val = $('#c_address_search_area').val();
-                        var data = {
-                            limit: 10
-                        };
+                        var data = {limit: 10};
                         data[componentAddressConf.query_parm] = val;
                         $.ajax({
                             url: componentAddressConf.url,
