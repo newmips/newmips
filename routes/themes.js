@@ -103,108 +103,127 @@ router.post('/upload_theme', multer({
             fs.createReadStream('./' + req.file.path)
                 .pipe(unzip.Parse())
                 .on('entry', function(entry) {
-                    if (entry.path.indexOf('infos.json') != -1) {
+                    if (entry.path.indexOf('/infos.json') != -1) {
                         checkTheme.info = true;
-                        entry.pipe(through.obj(function(contents) {
-                            var infoData = JSON.parse(contents);
-                            // Create new theme folder
-                            //var themeCodeName = req.file.originalname.split(".zip")[0].replace(/ /g, "-") + Date.now();
-                            var themeCodeName = attrHelper.clearString(infoData.name);
+                        try{
+                            entry.pipe(through.obj(function(contents) {
+                                try{
+                                    var infoData = JSON.parse(contents);
+                                    // Create new theme folder
+                                    //var themeCodeName = req.file.originalname.split(".zip")[0].replace(/ /g, "-") + Date.now();
+                                    var themeCodeName = attrHelper.clearString(infoData.name);
 
-                            if (!fs.existsSync(__dirname + "/../structure/template/public/themes/"+themeCodeName)) {
-                                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName);
-                                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css");
-                                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js");
-                                fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img");
+                                    if (!fs.existsSync(__dirname + "/../structure/template/public/themes/"+themeCodeName)) {
+                                        fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName);
+                                        fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css");
+                                        fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js");
+                                        fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img");
 
-                                // Unzip
-                                fs.createReadStream('./' + req.file.path)
-                                    .pipe(unzip.Parse())
-                                    .on('entry', function(entry) {
-                                        var filePath = entry.path;
-                                        var type = entry.type;
-                                        var size = entry.size;
+                                        // Unzip
+                                        fs.createReadStream('./' + req.file.path)
+                                            .pipe(unzip.Parse())
+                                            .on('entry', function(entry) {
+                                                try{
+                                                    var filePath = entry.path;
+                                                    var type = entry.type;
+                                                    var size = entry.size;
 
-                                        function notHandlingFile(file){
-                                            console.log("Not handling this file: "+file);
-                                            entry.autodrain();
-                                        }
+                                                    function notHandlingFile(file){
+                                                        console.log("Not handling this file: "+file);
+                                                        entry.autodrain();
+                                                    }
 
-                                        if(type == "File"){
-                                            var fileName = entry.path.split("/").pop();
-                                            var fileExt = fileName.split(".").pop().toLowerCase();
-                                            var writeStream;
-                                            if(filePath.indexOf("/css/") != -1){
-                                                if(fileExt == "css"){
-                                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css/"+fileName);
-                                                    checkTheme.css = true;
-                                                    entry.pipe(writeStream);
-                                                } else {
-                                                    notHandlingFile(filePath);
+                                                    if(type == "File"){
+                                                        var fileName = entry.path.split("/").pop();
+                                                        var fileExt = fileName.split(".").pop().toLowerCase();
+                                                        var writeStream;
+                                                        if(filePath.indexOf("/css/") != -1){
+                                                            if(fileExt == "css"){
+                                                                writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css/"+fileName);
+                                                                checkTheme.css = true;
+                                                                entry.pipe(writeStream);
+                                                            } else {
+                                                                notHandlingFile(filePath);
+                                                            }
+                                                        } else if(filePath.indexOf("/js/") != -1){
+                                                            if(fileExt == "js"){
+                                                                writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js/"+fileName);
+                                                                entry.pipe(writeStream);
+                                                            } else {
+                                                                notHandlingFile(filePath);
+                                                            }
+                                                        } else if(filePath.indexOf("/img/") != -1){
+                                                            if(fileExt == "jpg" || fileExt == "jpeg" || fileExt == "png"){
+                                                                writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img/"+fileName);
+                                                                entry.pipe(writeStream);
+                                                            } else {
+                                                                notHandlingFile(filePath);
+                                                            }
+                                                        } else if(filePath.indexOf("/infos.json") != -1){
+                                                            if(fileExt == "json"){
+                                                                writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
+                                                                checkTheme.info = true;
+                                                                entry.pipe(writeStream);
+                                                            } else {
+                                                                notHandlingFile(filePath);
+                                                            }
+                                                        } else if(filePath.indexOf("/screenshot.png") != -1){
+                                                            if(fileExt == "png"){
+                                                                writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
+                                                                checkTheme.screenshot = true;
+                                                                entry.pipe(writeStream);
+                                                            } else {
+                                                                notHandlingFile(filePath);
+                                                            }
+                                                        } else {
+                                                            notHandlingFile(filePath);
+                                                        }
+                                                    }
+                                                } catch(err){
+                                                    console.log(err);
+                                                    entry.autodrain();
                                                 }
-                                            } else if(filePath.indexOf("/js/") != -1){
-                                                if(fileExt == "js"){
-                                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js/"+fileName);
-                                                    entry.pipe(writeStream);
+                                            }).on('error', function(err) {
+                                                console.log(err);
+                                                req.session.toastr = [{level: 'error', message: "Sorry, an internal error occured."}];
+                                                res.redirect("/themes");
+                                            }).on('close', function(){
+                                                if(checkTheme.css && checkTheme.info && checkTheme.screenshot){
+                                                    req.session.toastr = [{level: 'success', message: "structure.ui.theme.successUpload"}];
+                                                    res.redirect("/themes");
                                                 } else {
-                                                    notHandlingFile(filePath);
+                                                    helper.rmdirSyncRecursive(__dirname + "/../structure/template/public/themes/"+themeCodeName);
+                                                    var message = "";
+                                                    if(!checkTheme.css)
+                                                        message = "structure.ui.theme.missingCss"
+                                                    if(!checkTheme.info)
+                                                        message = "structure.ui.theme.missingInfo"
+                                                    if(!checkTheme.screenshot)
+                                                        message = "structure.ui.theme.missingScreenshot"
+                                                    req.session.toastr = [{level: 'error', message: message}];
+                                                    res.redirect("/themes");
                                                 }
-                                            } else if(filePath.indexOf("/img/") != -1){
-                                                if(fileExt == "jpg" || fileExt == "jpeg" || fileExt == "png"){
-                                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img/"+fileName);
-                                                    entry.pipe(writeStream);
-                                                } else {
-                                                    notHandlingFile(filePath);
-                                                }
-                                            } else if(filePath.indexOf("infos.json") != -1){
-                                                if(fileExt == "json"){
-                                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
-                                                    checkTheme.info = true;
-                                                    entry.pipe(writeStream);
-                                                } else {
-                                                    notHandlingFile(filePath);
-                                                }
-                                            } else if(filePath.indexOf("screenshot.png") != -1){
-                                                if(fileExt == "png"){
-                                                    writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/"+fileName);
-                                                    checkTheme.screenshot = true;
-                                                    entry.pipe(writeStream);
-                                                } else {
-                                                    notHandlingFile(filePath);
-                                                }
-                                            } else {
-                                                notHandlingFile(filePath);
-                                            }
-                                        }
-                                    }).on('error', function(err) {
-                                        console.log(err);
-                                        req.session.toastr = [{level: 'error', message: "Sorry, an internal error occured."}];
+                                            });
+                                    } else {
+                                        req.session.toastr = [{level: 'error', message: "structure.ui.theme.alreadyExist"}];
                                         res.redirect("/themes");
-                                    }).on('close', function(){
-                                        if(checkTheme.css && checkTheme.info && checkTheme.screenshot){
-                                            req.session.toastr = [{level: 'success', message: "structure.ui.theme.successUpload"}];
-                                            res.redirect("/themes");
-                                        } else {
-                                            helper.rmdirSyncRecursive(__dirname + "/../structure/template/public/themes/"+themeCodeName);
-                                            var message = "";
-                                            if(!checkTheme.css)
-                                                message = "structure.ui.theme.missingCss"
-                                            if(!checkTheme.info)
-                                                message = "structure.ui.theme.missingInfo"
-                                            if(!checkTheme.screenshot)
-                                                message = "structure.ui.theme.missingScreenshot"
-                                            req.session.toastr = [{level: 'error', message: message}];
-                                            res.redirect("/themes");
-                                        }
-                                    });
-                            } else {
-                                req.session.toastr = [{level: 'error', message: "structure.ui.theme.alreadyExist"}];
-                                res.redirect("/themes");
-                            }
-                        }))
+                                    }
+                                } catch(err){
+                                    console.log(err);
+                                    entry.autodrain();
+                                }
+                            }))
+                        } catch(err){
+                            console.log(err);
+                            entry.autodrain();
+                        }
                     } else {
                         entry.autodrain();
                     }
+                }).on('error', function(err) {
+                    console.log(err);
+                    req.session.toastr = [{level: 'error', message: "Sorry, an internal error occured."}];
+                    res.redirect("/themes");
                 }).on('close', function(){
                     if(!checkTheme.info){
                         var message = "structure.ui.theme.missingInfo"

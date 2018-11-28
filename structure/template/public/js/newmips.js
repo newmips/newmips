@@ -540,6 +540,9 @@ function initDropZone(context) {
                     this.removeFile(this.files[1]);
                     toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                 });
+                this.on("success", function (file, message) {
+                    $("#" + that.attr("id") + "_hidden_name").parents("form")[0].submit();
+                });
                 this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
