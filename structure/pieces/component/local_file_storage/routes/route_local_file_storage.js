@@ -80,9 +80,6 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
                 error: "An error occured."
             });
         }
-        /* ---------------------------------------------------------- */
-        /* ------------- Local Storage in upload folder ------------- */
-        /* ---------------------------------------------------------- */
         fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
         var uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
         var byte;
@@ -99,13 +96,10 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
 
 /* COMPONENT ajax download file */
 router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
-    /* ---------------------------------------------------------- */
-    /* ----------------- Download a local file ----------------- */
-    /* ---------------------------------------------------------- */
     var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
     var fileName = req.body.originalname;
-
     res.download(downloadPath, fileName, function(err) {
+        if(err){console.log(err);}
     });
 });
 
@@ -118,7 +112,6 @@ router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
         }
     }).then(function(toRemoveComponent){
         if(toRemoveComponent){
-
             try {
                 fs.unlinkSync(config.localstorage+"SOURCE_ENTITY_LOWER/"+req.body.idEntity+"/"+req.body.dataComponent+"/"+toRemoveComponent.f_filename);
             } catch(e) {

@@ -87,8 +87,6 @@ router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
 router.post('/change_language', block_access.isLoggedIn, function (req, res) {
     req.session.lang_user = req.body.lang;
     res.locals.lang_user = req.body.lang;
-    languageConfig.lang = req.body.lang;
-    fs.writeFileSync(__dirname + "/../config/language.json", JSON.stringify(languageConfig, null, 2));
     res.json({
         success: true
     });
