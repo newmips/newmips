@@ -849,7 +849,7 @@ exports.newCra = function (attr, callback) {
 exports.newStatus = function (attr, callback) {
     var workspacePath = __dirname + '/../workspace/' + attr.id_application;
     var piecesPath = __dirname + '/../structure/pieces/component/status';
-console.log(attr);
+
     // Rename history model, options, attributes files and view folder
     fs.renameSync(workspacePath + '/models/e_' + attr.history_table_db_name + '.js', workspacePath + '/models/e_' + attr.history_table + '.js');
     fs.renameSync(workspacePath + '/models/attributes/e_' + attr.history_table_db_name + '.json', workspacePath + '/models/attributes/e_' + attr.history_table + '.json');
