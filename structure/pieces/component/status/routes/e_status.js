@@ -813,7 +813,7 @@ router.post('/delete', block_access.actionAccessMiddleware("status", "delete"), 
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_status", deleteObject, attributes);
+            entity_helper.removeFiles("e_status", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/status/list');
         });

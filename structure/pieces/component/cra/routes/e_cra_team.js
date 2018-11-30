@@ -679,7 +679,7 @@ router.post('/delete', block_access.actionAccessMiddleware("cra_team", "delete")
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_cra_team", deleteObject, attributes);
+            entity_helper.removeFiles("e_cra_team", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/cra_team/list');
         });

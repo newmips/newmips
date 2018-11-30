@@ -340,7 +340,7 @@ router.post('/delete', block_access.actionAccessMiddleware("media_notification",
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_media_notification", deleteObject, attributes);
+            entity_helper.removeFiles("e_media_notification", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/media_notification/list');
         });

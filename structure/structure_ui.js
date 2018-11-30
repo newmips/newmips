@@ -355,21 +355,17 @@ exports.createWidget = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
 
-    // Add widget's query to routes/default controller
-    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
-    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1);
-    var insertCode = '';
-    insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
-    insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
-    insertCode += "\t\tmodels."+modelName+'.count().then(function(result){\n';
-    insertCode += "\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': result});\n';
-    insertCode += "\t\t});\n";
-    insertCode += "\t}));\n";
-    insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
-    insertCode += "\t// *** Widget module "+attr.module.codeName+" | Do not remove ***\n";
-
-    insertCode = defaultFile.replace("// *** Widget module "+attr.module.codeName+" | Do not remove ***", insertCode);
-    fs.writeFileSync(workspacePath+'/routes/default.js', insertCode);
+    // Add widget to widgets config
+    var widgets = JSON.parse(fs.readFileSync(workspacePath+'/config/widgets.json', 'utf8'));
+    var newWidget = {
+        dustIdentifier: attr.entity.codeName+'_'+attr.widgetType,
+        type: attr.widgetType,
+        entity: attr.entity.codeName
+    }
+    if (!widgets[attr.module.codeName])
+        widgets[attr.module.codeName] = [];
+    widgets[attr.module.codeName].push(newWidget);
+    fs.writeFileSync(workspacePath+'/config/widgets.json', JSON.stringify(widgets, null, 4), 'utf8');
 
     var layout_filename = 'layout_'+attr.module.codeName+'.dust';
     // Get entity's icon
@@ -411,23 +407,30 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
 
-    // Add widget's query to routes/default controller
-    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
-    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
-    var insertCode = '';
-    insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
-    insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
-    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+', order: [["id", "DESC"]], raw: true}).then(function(result){\n';
-    insertCode += "\t\t\tentity_helper.prepareDatalistResult('"+attr.entity.codeName+"', {data:result}, req.session.lang_user).then(function(preparedData) {\n"
-    insertCode += "\t\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': preparedData.data});\n';
-    insertCode += "\t\t\t});\n";
-    insertCode += "\t\t});\n";
-    insertCode += "\t}));\n";
-    insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
-    insertCode += "\t// *** Widget module "+attr.module.codeName+" | Do not remove ***\n";
+    var newWidget = {
+        dustIdentifier: attr.entity.codeName+'_lastrecords',
+        type: attr.widgetType,
+        entity: attr.entity.codeName,
+        limit: attr.limit,
+        fields: []
+    }
 
-    insertCode = defaultFile.replace("// *** Widget module "+attr.module.codeName+" | Do not remove ***", insertCode);
-    fs.writeFileSync(workspacePath+'/routes/default.js', insertCode);
+    // Look for related to fields in entity's options
+    var definitlyNotFound = [];
+    var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+attr.entity.codeName+'.json', 'utf8'));
+    for (var i = 0; i < attr.columns.length; i++) {
+        if (attr.columns[i].found == true)
+            continue;
+        for (var j = 0; j < options.length; j++)
+            if (attr.columns[i].name.toLowerCase() == options[j].showAs.toLowerCase()) {
+                attr.columns[i] = {name: options[j].showAs, codeName: options[j].as, found: true};
+                break;
+            }
+        if (!attr.columns[i].found)
+            definitlyNotFound.push(attr.columns[i].name);
+    }
+    if (definitlyNotFound.length > 0)
+        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [definitlyNotFound.join(', ')]});
 
     var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
     domHelper.read(layout_view_filename).then(function($) {
@@ -449,10 +452,13 @@ exports.createWidgetLastRecords = function(attr, callback) {
                     var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr class="widget-row hover" data-href="/'+attr.entity.codeName.substring(2)+'/show?id={id}">';
                     for (var i = 0; i < attr.columns.length; i++) {
                         var field = attr.columns[i].codeName.toLowerCase();
-                        var type = $list('[data-field="'+field+'"]').data('type');
-                        var col = $list('[data-field="'+field+'"]').data('col')
-                        thead += '<th data-type="'+type+'" data-col="'+col+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
-                        tbody += '<td data-type="'+type+'" data-col="'+col+'">{'+field+'}</td>';
+                        var type = $list('th[data-field="'+field+'"]').data('type');
+                        var col = $list('th[data-field="'+field+'"]').data('col');
+                        thead += '<th data-field="'+field+'" data-type="'+type+'" data-col="'+col+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
+                        tbody += '<td data-type="'+type+'" data-col="'+col+'">{'+col+'}</td>';
+
+                        // Push field to widget config
+                        newWidget.fields.push(col);
                     }
                     thead += '</tr></thead>';
                     tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
@@ -460,6 +466,14 @@ exports.createWidgetLastRecords = function(attr, callback) {
                     $("#"+attr.entity.codeName.substring(2)+'_lastrecords').html(thead+tbody);
                     $("#"+attr.entity.codeName.substring(2)+'_lastrecords').attr('data-entity', attr.entity.codeName);
                     domHelper.write(layout_view_filename, $).then(function() {
+
+                        // Add new widget conf to config/widgets.json
+                        var widgetsConf = JSON.parse(fs.readFileSync(workspacePath+'/config/widgets.json', 'utf8'));
+                        if (!widgetsConf[attr.module.codeName])
+                            widgetsConf[attr.module.codeName] = [];
+                        widgetsConf[attr.module.codeName].push(newWidget);
+                        fs.writeFileSync(workspacePath+'/config/widgets.json', JSON.stringify(widgetsConf, null, 4), 'utf8');
+
                         callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
                     });
                 } catch(e) {

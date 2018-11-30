@@ -695,7 +695,7 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("ENTITY_NAME", deleteObject, attributes);
+            entity_helper.removeFiles("ENTITY_NAME", deleteObject, attributes);
         }).catch(function(err) {
             entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list');
         });
