@@ -25,25 +25,33 @@ var funcs = {
                 dataPromises.push((currentWidget=> {
                     return new Promise((resolve, reject)=> {
                         var modelName = 'E_'+currentWidget.entity.substring(2);
-                        // LAST RECORDS
-                        if (currentWidget.type == 'lastrecords') {
-                            var fields = [];
-                            // Build include from fields
-                            var include = model_builder.getIncludeFromFields(models, currentWidget.entity, currentWidget.fields);
-                            models[modelName].findAll({
-                                include: include,
-                                limit: currentWidget.limit
-                            }).then(widgetData=> {
-                                data[currentWidget.dustIdentifier] = widgetData;
-                                resolve();
-                            }).catch(resolve);
-                        }
-                        // INFO / STATS
-                        else if (currentWidget.type == 'info' || currentWidget.type == 'stats') {
-                            models[modelName].count().then(widgetData=> {
-                                data[currentWidget.dustIdentifier] = widgetData;
-                                resolve();
-                            }).catch(resolve);
+                        switch (currentWidget.type) {
+                            // LAST RECORDS
+                            case 'lastrecords':
+                                var fields = [];
+                                // Build include from fields
+                                var include = model_builder.getIncludeFromFields(models, currentWidget.entity, currentWidget.fields);
+                                models[modelName].findAll({
+                                    include: include,
+                                    limit: currentWidget.limit
+                                }).then(widgetData=> {
+                                    data[currentWidget.dustIdentifier] = widgetData;
+                                    resolve();
+                                }).catch(resolve);
+                            break;
+
+                            // INFO / STATS
+                            case 'info':
+                            case 'stats':
+                                models[modelName].count().then(widgetData=> {
+                                    data[currentWidget.dustIdentifier] = widgetData;
+                                    resolve();
+                                }).catch(resolve);
+                            break;
+
+                            case 'piechart':
+
+                            break;
                         }
                     })
                 })(widget));
