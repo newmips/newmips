@@ -605,7 +605,7 @@ router.post('/delete', block_access.actionAccessMiddleware("media_sms", "delete"
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_media_sms", deleteObject, attributes);
+            entity_helper.removeFiles("e_media_sms", deleteObject, attributes);
         }).catch(function(err) {
             entity_helper.error(err, req, res, '/media_sms/list');
         });

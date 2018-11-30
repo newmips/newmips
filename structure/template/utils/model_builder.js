@@ -56,7 +56,7 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
         }
     }
 
-    for (var field = 0; field < fieldsArray.length; field++)
+    for (var field = 0; fieldsArray[field] && field < fieldsArray.length; field++)
         buildInclude(headEntity, globalInclude, fieldsArray[field].split('.'));
 
     return globalInclude;

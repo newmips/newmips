@@ -364,7 +364,7 @@ router.post('/delete', block_access.actionAccessMiddleware("document_template", 
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_document_template", deleteObject, attributes);
+            entity_helper.removeFiles("e_document_template", deleteObject, attributes);
         }).catch(function(err) {
             entity_helper.error(err, req, res, '/document_template/list');
         });
