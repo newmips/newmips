@@ -2603,48 +2603,39 @@ exports.createNewComponentAddress = function(attr, callback) {
 
 exports.deleteComponentAddress = function (attr, callback) {
     var componentName = 'c_address_' + attr.id_data_entity;
-    if (attr.id_data_entity) {
-        db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
-            if (!err) {
-                if (componentExist) {
-                    db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
-                        if (!err) {
-                            database.dropDataEntity(attr.id_application, componentName, function (err) {
-                                db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                                    if (!err) {
-                                        attr.entityName = entity.codeName;
-                                        attr.moduleName = module.codeName;
-                                        structure_component.deleteComponentAddress(attr, function (err) {
-                                            if (err)
-                                                return callback(err);
-                                            else {
-                                                attr.name_data_entity = attr.entityName;
-                                                attr.fieldToDrop = 'fk_id_c_address';
-                                                database.dropFKDataField(attr, function (err) {
-                                                    callback(err, {message: 'database.component.delete.success'});
-                                                });
-                                            }
-                                        });
-                                    } else
-                                        return callback(err);
-                                });
-                            });
-                        } else
-                            return callback(err);
-                    });
-                } else {
-                    var err = new Error("database.component.notFound.notFoundedInModule");
-                    return callback(err, null);
-                }
-            } else
-                return callback(err);
-
-        });
-    } else {
+    if (!attr.id_data_entity){
         var err = new Error("database.field.error.selectOrCreateBefore");
         return callback(err, null);
     }
-
+    db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
+        if (err)
+            return callback(err);
+        if (!componentExist) {
+            var err = new Error("database.component.notFound.notFoundedInModule");
+            return callback(err, null)
+        }
+        db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
+            if (err)
+                return callback(err);
+            database.dropDataEntity(attr.id_application, componentName, function (err) {
+                db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+                    if (err)
+                        return callback(err);
+                    attr.entityName = entity.codeName;
+                    attr.moduleName = module.codeName;
+                    structure_component.deleteComponentAddress(attr, function (err) {
+                        if (err)
+                            return callback(err);
+                        attr.name_data_entity = attr.entityName;
+                        attr.fieldToDrop = 'fk_id_c_address';
+                        database.dropFKDataField(attr, function (err) {
+                            callback(err, {message: 'database.component.delete.success'});
+                        });
+                    });
+                });
+            });
+        });
+    });
 }
 /************************Create Component Template document***********************/
 /**
@@ -2974,26 +2965,21 @@ exports.createWidgetLastRecords = function (attr, callback) {
             db_field.getCodeNameByNameArray(attr.columns, entity.id, function (err, columns) {
                 if (err)
                     return callback(err);
-
                 // Check for not found fields and build error message
-                if (attr.columns.length != columns.length) {
-                    var notFound = [];
-                    for (var k = 0; k < attr.columns.length; k++) {
-                        var kFound = false;
-                        for (var i = 0; i < columns.length; i++) {
-                            if (attr.columns[k].toLowerCase() == columns[i].name.toLowerCase()) {
-                                kFound = true;
-                                break;
-                            }
+                for (var k = 0; k < attr.columns.length; k++) {
+                    var kFound = false;
+                    for (var i = 0; i < columns.length; i++) {
+                        if (columns[i].codeName.indexOf('s_') == 0)
+                            columns[i].codeName = 'r_'+columns[i].codeName.substring(2);
+                        if (attr.columns[k].toLowerCase() == columns[i].name.toLowerCase()) {
+                            attr.columns[k] = {codeName: columns[i].codeName, name: columns[i].name, found: true};
+                            kFound = true;
+                            break;
                         }
-                        if (!kFound)
-                            notFound.push(attr.columns[k]);
                     }
-                    if (notFound.length > 0)
-                        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [notFound.join(', ')]});
+                    if (!kFound)
+                        attr.columns[k] = {name: attr.columns[k], found: false};
                 }
-
-                attr.columns = columns;
                 structure_ui.createWidgetLastRecords(attr, function (err, info) {
                     if (err)
                         return callback(err);

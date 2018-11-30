@@ -3,17 +3,56 @@
  */
 var file_helper = require('./file_helper');
 var status_helper = require('./status_helper');
+var model_builder = require('./model_builder');
 var logger = require('./logger');
 var fs = require('fs-extra');
 var language = require('../services/language');
 var models = require('../models/');
 var enums_radios = require('../utils/enum_radio.js');
+var widgets = require('../config/widgets');
 var globalConfig = require('../config/global');
 
 // Winston logger
 var logger = require('./logger');
 
 var funcs = {
+    widgetsData: function (moduleName) {
+        return new Promise((mainResolve, mainReject)=> {
+            var data = {}, dataPromises = [];
+            // Each widget for moduleName
+            for (var i = 0; widgets[moduleName] && i < widgets[moduleName].length; i++) {
+                var widget = widgets[moduleName][i];
+                dataPromises.push((currentWidget=> {
+                    return new Promise((resolve, reject)=> {
+                        var modelName = 'E_'+currentWidget.entity.substring(2);
+                        // LAST RECORDS
+                        if (currentWidget.type == 'lastrecords') {
+                            var fields = [];
+                            // Build include from fields
+                            var include = model_builder.getIncludeFromFields(models, currentWidget.entity, currentWidget.fields);
+                            models[modelName].findAll({
+                                include: include,
+                                limit: currentWidget.limit
+                            }).then(widgetData=> {
+                                data[currentWidget.dustIdentifier] = widgetData;
+                                resolve();
+                            }).catch(resolve);
+                        }
+                        // INFO / STATS
+                        else if (currentWidget.type == 'info' || currentWidget.type == 'stats') {
+                            models[modelName].count().then(widgetData=> {
+                                data[currentWidget.dustIdentifier] = widgetData;
+                                resolve();
+                            }).catch(resolve);
+                        }
+                    })
+                })(widget));
+            }
+            Promise.all(dataPromises).then(_=> {
+                mainResolve(data);
+            }).catch(mainReject);
+        });
+    },
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
@@ -224,7 +263,7 @@ var funcs = {
             });
         });
     },
-    remove_files: function(entityName, entity, attributes) {
+    removeFiles: function(entityName, entity, attributes) {
         for (var key in entity.dataValues) {
             for (var attribute in attributes) {
                 if ((attributes[attribute].newmipsType === 'file' ||
@@ -245,7 +284,7 @@ var funcs = {
             }
         }
     },
-    find_include: function(includes, searchType, toFind) {
+    findInclude: function(includes, searchType, toFind) {
         var type = '';
         switch (searchType) {
             case "model":
@@ -263,16 +302,6 @@ var funcs = {
             var name = (type == 'model' ? include[type].name : include.as);
             if (name == toFind) {
                 return include;
-            }
-        }
-    },
-    searchInInclude: function (include, searchAs) {
-        /* Return the include that has the as */
-        for (var x = 0; x < include.length; x++) {
-            if (searchAs == include[x].as) {
-                return include[x];
-            } else if (typeof include[x].include !== "undefined") {
-                return searchInInclude(include[x].include, searchAs);
             }
         }
     }

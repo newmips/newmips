@@ -21,15 +21,9 @@ exports.setupModule = function (attr, callback) {
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
         str += 'router.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("' + url_name_module + '"), function(req, res) {\n';
-        str += '    var widgetPromises = [];\n'
-        str += '    // *** Widget module ' + name_module.toLowerCase() + ' | Do not remove ***\n';
-        str += '    Promise.all(widgetPromises).then(function(results) {\n';
-        str += '        var data = {};\n';
-        str += '        for (var i = 0; i < results.length; i++)\n';
-        str += '            for (var prop in results[i])\n';
-        str += '                data[prop] = results[i][prop];\n';
+        str += '    entity_helper.widgetsData("'+name_module+'").then((data)=> {\n';
         str += '        res.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
-        str += '    });\n';
+        str += '    });\n'
         str += '});';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
