@@ -1,4 +1,4 @@
-<div class="small-box bg-aqua">
+<div class="ajax-widget small-box bg-aqua">
     <div class="inner">
         <h3>{ENTITY_NAME_stats}</h3>
 

@@ -21,9 +21,7 @@ exports.setupModule = function (attr, callback) {
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
         str += 'router.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("' + url_name_module + '"), function(req, res) {\n';
-        str += '    entity_helper.widgetsData("'+name_module+'").then((data)=> {\n';
-        str += '        res.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
-        str += '    });\n'
+        str += '    res.render(\'default/' + name_module.toLowerCase() + '\');\n';
         str += '});';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 

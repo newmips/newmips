@@ -25,6 +25,69 @@ router.get('/status', function(req, res) {
     res.sendStatus(200);
 });
 
+router.post('/widgets', block_access.isLoggedIn, function(req, res) {
+    var user = req.session.passport.user;
+    var widgetsInfo = req.body.widgets;
+    var widgetsPromises = [];
+    var data = {};
+
+    for (var i = 0; i < widgetsInfo.length; i++) {
+        var currentWidget = widgetsInfo[i];
+        var modelName = 'E_'+currentWidget.entity.substring(2);
+
+        // Check group and role access to widget's entity
+
+        widgetsPromises.push(((widget, model)=>{
+            return new Promise((resolve, reject)=> {
+                var widgetRes = {type: widget.type};
+                switch (widget.type) {
+                    case 'info':
+                    case 'stats':
+                        models[model].count().then(widgetData=> {
+                            widgetRes.data = widgetData;
+                            data[widget.widgetID] = widgetRes;
+                            resolve();
+                        }).catch(reject);
+                    break;
+
+                    case 'piechart_status':
+                        var statusAlias = 'r_'+widget.field;
+                        models[model].findAll({
+                            attributes: [statusAlias+'.f_name', statusAlias+'.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
+                            group: [statusAlias+'.f_name'],
+                            include: {model: models.E_status, as: statusAlias},
+                            raw: true
+                        }).then((piechartData)=> {
+                            var dataSet = {labels: [], backgroundColor: [], data: []};
+                            for (var i = 0; i < piechartData.length; i++) {
+                                dataSet.labels.push(piechartData[i].f_name);
+                                dataSet.backgroundColor.push(piechartData[i].f_color);
+                                dataSet.data.push(piechartData[i].count);
+                            }
+                            widgetRes.data = dataSet;
+                            data[widget.widgetID] = widgetRes;
+                            resolve();
+                        }).catch(reject);
+                    break;
+
+                    case 'piechart':
+
+                    break;
+
+                    default:
+                        resolve();
+                }
+            })
+        })(currentWidget, modelName));
+    }
+
+    Promise.all(widgetsPromises).then(function() {
+        res.json(data);
+    }).catch(function(err) {
+        console.error(err);
+    });
+});
+
 // *** Dynamic Module | Do not remove ***
 
 router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
