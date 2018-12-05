@@ -8,7 +8,7 @@
 	</div>
 
 	<div class="box-body" style="display: block;">
-		<table id="ENTITY_URL_NAME_lastrecords" data-no-dom="true" class="dataTable table table-striped"></table>
+		<table id="ENTITY_URL_NAME_lastrecords" data-entity="ENTITY_NAME" data-limit="" class="widget-lastrecords dataTable table table-striped"></table>
 		<a class="btn btn-success" href="/ENTITY_URL_NAME/create_form" style="margin-top:10px;">{@__ key="button.create" /}</a>
 	</div>
 </div>

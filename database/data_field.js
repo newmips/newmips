@@ -181,7 +181,7 @@ exports.getCodeNameByNameArray = function(names, idEntity, callback) {
             name: names[i].toLowerCase()
         });
     models.DataField.findAll({
-        attributes: ['codeName', 'name'],
+        attributes: ['codeName', 'name', 'type'],
         where: {
             $or: columns,
             id_data_entity: idEntity

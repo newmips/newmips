@@ -1,5 +1,17 @@
 var locales = require('../locales/enum_radio.json');
 
+exports.translateFieldValue = function(entity, field, value, lang) {
+    try {
+        for (var i = 0; i < locales[entity][field].length; i++)
+            if (locales[entity][field][i].value == value)
+                return locales[entity][field][i].translations[lang];
+    } catch(e) {
+        console.error("Something wrong in enum_radio.js - translateFieldValue");
+        console.error(e);
+    }
+    return value;
+}
+
 exports.translated = function (entity, lang, options) {
     var data = {};
     data[entity] = {};
