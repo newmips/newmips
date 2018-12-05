@@ -391,6 +391,41 @@ exports.createWidget = function(attr, callback) {
     });
 }
 
+exports.createWidgetPiechart = function(attr, callback) {
+    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+    var piecesPath = __dirname+'/pieces/';
+
+    // Add widget to module's layout
+    var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
+    domHelper.read(layout_view_filename).then(function($) {
+        domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
+            var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_'+attr.field.codeName+'_widget';
+            // Widget box title traduction
+            $2(".box-title").text('{@__ key="defaults.widgets.piechart.'+widgetElemId+'" /}');
+            // Create widget's html
+            var newHtml = "";
+            newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-field-type='"+attr.field.type+"' data-field='"+attr.field.codeName+"' data-legend='"+attr.legend+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-4 col-xs-12'>\n";
+            newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml +=      $2("body")[0].innerHTML+"\n";
+            newHtml += '<!--{/entityAccess}-->';
+            newHtml += "</div>";
+            $("#widgets").append(newHtml);
+            domHelper.write(layout_view_filename, $).then(function() {
+
+                // Add widget box traduction
+                var tradFR = JSON.parse(fs.readFileSync(workspacePath+'/locales/fr-FR.json', 'utf8'));
+                tradFR.defaults.widgets.piechart[widgetElemId] = 'Répartition '+attr.entity.name+' par '+attr.field.name;
+                fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(tradFR, null, 4), 'utf8');
+                var tradEN = JSON.parse(fs.readFileSync(workspacePath+'/locales/en-EN.json', 'utf8'));
+                tradEN.defaults.widgets.piechart[widgetElemId] = attr.entity.name+' grouped by '+attr.field.name;
+                fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(tradEN, null, 4), 'utf8');
+
+                callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
+            });
+        });
+    });
+}
+
 exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';

@@ -2939,8 +2939,47 @@ exports.setIconToEntity = function (attr, callback) {
     });
 }
 
-exports.createWidgetLastRecords = function (attr, callback) {
+exports.createWidgetPiechart = function (attr, callback) {
     var entityDbFunction = '', param = '';
+    if (attr.entityTarget) {
+        db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
+            if (err)
+                return callback(err);
+            withDataEntity(entity);
+        });
+    } else {
+        db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+            if (err)
+                return callback(err);
+            withDataEntity(entity);
+        });
+    }
+
+    function withDataEntity(entity) {
+        db_module.getModuleById(entity.id_module, function (err, module) {
+            if (err)
+                return callback(err);
+            attr.entity = entity;
+            attr.module = module;
+
+            db_field.getCodeNameByNameArray([attr.field], entity.id, function (err, field) {
+                if (err)
+                    return callback(err);
+                if (field.length != 1)
+                    return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [attr.field]})
+                attr.field = field[0];
+                structure_ui.createWidgetPiechart(attr, function (err, info) {
+                    if (err)
+                        return callback(err);
+                    callback(null, info);
+                });
+            });
+
+        });
+    }
+}
+
+exports.createWidgetLastRecords = function (attr, callback) {
     if (attr.entityTarget) {
         db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
             if (err)

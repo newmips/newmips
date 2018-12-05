@@ -36,6 +36,8 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
         var modelName = 'E_'+currentWidget.entity.substring(2);
 
         // Check group and role access to widget's entity
+        if (!block_access.entityAccess(user.r_group, currentWidget.entity.substring(2)) || !block_access.actionAccess(user.r_role, currentWidget.entity.substring(2), 'read'))
+            continue;
 
         widgetsPromises.push(((widget, model)=>{
             return new Promise((resolve, reject)=> {
@@ -50,31 +52,52 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                         }).catch(reject);
                     break;
 
-                    case 'piechart_status':
-                        var statusAlias = 'r_'+widget.field;
-                        models[model].findAll({
-                            attributes: [statusAlias+'.f_name', statusAlias+'.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
-                            group: [statusAlias+'.f_name'],
-                            include: {model: models.E_status, as: statusAlias},
-                            raw: true
-                        }).then((piechartData)=> {
-                            var dataSet = {labels: [], backgroundColor: [], data: []};
-                            for (var i = 0; i < piechartData.length; i++) {
-                                dataSet.labels.push(piechartData[i].f_name);
-                                dataSet.backgroundColor.push(piechartData[i].f_color);
-                                dataSet.data.push(piechartData[i].count);
-                            }
-                            widgetRes.data = dataSet;
-                            data[widget.widgetID] = widgetRes;
-                            resolve();
-                        }).catch(reject);
-                    break;
-
                     case 'piechart':
+                        // Status Piechart
+                        if (widget.field.indexOf('s_') == 0) {
+                            var statusAlias = 'r_'+widget.field.substring(2);
+                            models[model].findAll({
+                                attributes: [statusAlias+'.f_name', statusAlias+'.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
+                                group: [statusAlias+'.f_name'],
+                                include: {model: models.E_status, as: statusAlias},
+                                raw: true
+                            }).then((piechartData)=> {
+                                var dataSet = {labels: [], backgroundColor: [], data: []};
+                                for (var i = 0; i < piechartData.length; i++) {
+                                    dataSet.labels.push(piechartData[i].f_name);
+                                    dataSet.backgroundColor.push(piechartData[i].f_color);
+                                    dataSet.data.push(piechartData[i].count);
+                                }
+                                widgetRes.data = dataSet;
+                                data[widget.widgetID] = widgetRes;
+                                resolve();
+                            }).catch(reject);
+                        }
+                        // Field Piechart
+                        else {
+                            models[model].findAll({
+                                attributes: [widget.field, [models.sequelize.fn('COUNT', 'id'), 'count']],
+                                group: [widget.field],
+                                raw: true
+                            }).then((piechartData)=> {
+                                var dataSet = {labels: [], data: []};
+                                for (var i = 0; i < piechartData.length; i++) {
+                                    var label = piechartData[i][widget.field];
+                                    if (widget.fieldType == 'enum')
+                                        label = enums_radios.translateFieldValue(widget.entity, widget.field, label, req.session.lang_user);
+                                    dataSet.labels.push(label);
+                                    dataSet.data.push(piechartData[i].count);
+                                }
+                                widgetRes.data = dataSet;
+                                data[widget.widgetID] = widgetRes;
+                                resolve();
+                            }).catch(reject);
 
+                        }
                     break;
 
                     default:
+                        console.log("Not found widget type "+widget.type);
                         resolve();
                 }
             })

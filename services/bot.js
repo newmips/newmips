@@ -1067,9 +1067,44 @@ function getRightWidgetType(originalType) {
         case "derniersenregistrements":
             return "lastrecords";
 
+        case "piechart":
+            return "piechart";
+
         default:
             return -1;
     }
+}
+
+function buildAttrForPiechart(result) {
+    var attr = {
+        function: 'createWidgetPiechart',
+        widgetType: 'piechart',
+        widgetInputType: 'Piechart'
+    }
+    // Current entity as target
+    if (result.length == 2)
+        attr.field = result[1];
+    // Defined target entity
+    else if (result.length == 3) {
+        attr.entityTarget = result[1].trim();
+        attr.field = result[2].trim();
+    }
+
+    return attr;
+}
+
+exports.createWidgetPiechart = function (result) {
+    var attr = buildAttrForPiechart(result);
+    attr.legend = true;
+
+    return attr;
+}
+
+exports.createWidgetPiechartWithoutLegend = function (result) {
+    var attr = buildAttrForPiechart(result);
+    attr.legend = false;
+
+    return attr;
 }
 
 exports.createWidgetLastRecordsWithLimit = function (result) {
@@ -2500,6 +2535,24 @@ var training = {
         "mettre icone (.*)",
         "mettre une icône (.*)",
         "mettre une icone (.*)"
+    ],
+    "createWidgetPiechart": [
+        "add widget piechart on entity (.*) for field (.*)",
+        "add widget piechart on entity (.*) for (.*)",
+        "add widget piechart for field (.*)",
+        "add widget piechart for (.*)",
+        "ajouter widget piechart sur l\’entité (.*) pour le champ (.*)",
+        "ajouter widget piechart sur entité (.*) pour le champ (.*)",
+        "ajouter widget piechart pour le champ (.*)"
+    ],
+    "createWidgetPiechartWithoutLegend": [
+        "add widget piechart on entity (.*) for field (.*) without legend",
+        "add widget piechart on entity (.*) for (.*) without legend",
+        "add widget piechart for field (.*) without legend",
+        "add widget piechart for (.*) without legend",
+        "ajouter widget piechart pour le champ (.*) sans légende",
+        "ajouter widget piechart sur l\’entité (.*) pour le champ (.*) sans légende",
+        "ajouter widget piechart sur entité (.*) pour le champ (.*) sans légende"
     ],
     "createWidgetLastRecordsWithLimit": [
         "add widget last records limited to (.*) records with columns (.*)",
