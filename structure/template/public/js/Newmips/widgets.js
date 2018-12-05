@@ -219,8 +219,31 @@ function widgetDataTable(table) {
     table.DataTable(tableOptions);
 }
 
-function buildPieChart(data) {
-    console.log('build piechart here');
+function buildPieChart(widgetID, widget) {
+    var widgetCanvas = $("#"+widgetID+" .piechart")[0];
+    var legend = $("#"+widgetID).data('legend');
+
+    // No data, show default text
+    if (widget.data.data.length == 0)
+        return $(widgetCanvas).prev().show();
+    // Status have their own color. Generate color palette for regular fields
+    var colors = widget.data.backgroundColor || palette('tol-rainbow', widget.data.labels.length).map(function(el){return '#'+el;});
+    new Chart(widgetCanvas, {
+        type: 'doughnut',
+        options: {
+            legend: {
+                display: legend,
+                position: 'right'
+            }
+        },
+        data: {
+            labels: widget.data.labels,
+            datasets: [{
+                data: widget.data.data,
+                backgroundColor: colors
+            }]
+        }
+    });
 }
 
 function initWidgets() {
@@ -230,12 +253,15 @@ function initWidgets() {
 
     var widgetsInfo = [];
     $(".ajax-widget").each(function() {
-        var widget = {};
-        widget.entity = $(this).data('entity');
-        widget.type = $(this).data('widget-type');
-        widget.widgetID = $(this).attr('id');
-        if (widget.type && widget.type.indexOf('piechart_') == 0)
+        var widget = {
+            entity: $(this).data('entity'),
+            type: $(this).data('widget-type'),
+            widgetID: $(this).attr('id')
+        };
+        if (widget.type && widget.type == 'piechart') {
+            widget.fieldType = $(this).data('field-type');
             widget.field = $(this).data('field');
+        }
         widgetsInfo.push(widget);
     });
 
@@ -251,8 +277,8 @@ function initWidgets() {
                         $('#'+widgetID).find('.info-box-number').text(widget.data);
                     else if (widget.type == 'stats')
                         $('#'+widgetID).find('h3').text(widget.data);
-                    else if (widget.type == 'piechart_status')
-                        buildPieChart(widget);
+                    else if (widget.type == 'piechart')
+                        buildPieChart(widgetID, widget);
                 }
             }
         });
