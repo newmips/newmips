@@ -9,58 +9,12 @@ var fs = require('fs-extra');
 var language = require('../services/language');
 var models = require('../models/');
 var enums_radios = require('../utils/enum_radio.js');
-var widgets = require('../config/widgets');
 var globalConfig = require('../config/global');
 
 // Winston logger
 var logger = require('./logger');
 
 var funcs = {
-    widgetsData: function (moduleName) {
-        return new Promise((mainResolve, mainReject)=> {
-            var data = {}, dataPromises = [];
-            // Each widget for moduleName
-            for (var i = 0; widgets[moduleName] && i < widgets[moduleName].length; i++) {
-                var widget = widgets[moduleName][i];
-                dataPromises.push((currentWidget=> {
-                    return new Promise((resolve, reject)=> {
-                        var modelName = 'E_'+currentWidget.entity.substring(2);
-                        switch (currentWidget.type) {
-                            // LAST RECORDS
-                            case 'lastrecords':
-                                var fields = [];
-                                // Build include from fields
-                                var include = model_builder.getIncludeFromFields(models, currentWidget.entity, currentWidget.fields);
-                                models[modelName].findAll({
-                                    include: include,
-                                    limit: currentWidget.limit
-                                }).then(widgetData=> {
-                                    data[currentWidget.dustIdentifier] = widgetData;
-                                    resolve();
-                                }).catch(resolve);
-                            break;
-
-                            // INFO / STATS
-                            case 'info':
-                            case 'stats':
-                                models[modelName].count().then(widgetData=> {
-                                    data[currentWidget.dustIdentifier] = widgetData;
-                                    resolve();
-                                }).catch(resolve);
-                            break;
-
-                            case 'piechart':
-
-                            break;
-                        }
-                    })
-                })(widget));
-            }
-            Promise.all(dataPromises).then(_=> {
-                mainResolve(data);
-            }).catch(mainReject);
-        });
-    },
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },

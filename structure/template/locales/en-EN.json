@@ -214,7 +214,8 @@
             },
             "stats": {
                 "more_info": "More info"
-            }
+            },
+            "piechart": {}
         },
         "createdAt": "Creation date"
     },
