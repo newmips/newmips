@@ -92,7 +92,6 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                                 data[widget.widgetID] = widgetRes;
                                 resolve();
                             }).catch(reject);
-
                         }
                     break;
 

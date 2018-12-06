@@ -368,11 +368,11 @@ exports.createWidget = function(attr, callback) {
 
                 // Create widget's html
                 var newHtml = "";
-                newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-3 col-xs-12'>\n";
                 newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+                newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-3 col-xs-12'>\n";
                 newHtml +=      $2("body")[0].innerHTML+"\n";
-                newHtml += '<!--{/entityAccess}-->';
                 newHtml += "</div>";
+                newHtml += '<!--{/entityAccess}-->';
                 newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
                 newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
                 $("#widgets").append(newHtml);
@@ -404,11 +404,11 @@ exports.createWidgetPiechart = function(attr, callback) {
             $2(".box-title").text('{@__ key="defaults.widgets.piechart.'+widgetElemId+'" /}');
             // Create widget's html
             var newHtml = "";
-            newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-field-type='"+attr.field.type+"' data-field='"+attr.field.codeName+"' data-legend='"+attr.legend+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-4 col-xs-12'>\n";
             newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-field-type='"+attr.field.type+"' data-field='"+attr.field.codeName+"' data-legend='"+attr.legend+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-4 col-xs-12'>\n";
             newHtml +=      $2("body")[0].innerHTML+"\n";
-            newHtml += '<!--{/entityAccess}-->';
             newHtml += "</div>";
+            newHtml += '<!--{/entityAccess}-->';
             $("#widgets").append(newHtml);
             domHelper.write(layout_view_filename, $).then(function() {
 
@@ -452,11 +452,11 @@ exports.createWidgetLastRecords = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
             newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
             newHtml +=      $template("body")[0].innerHTML+"\n";
-            newHtml += '<!--{/entityAccess}-->';
             newHtml += "</div>";
+            newHtml += '<!--{/entityAccess}-->';
             newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
             newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
             $("#widgets").append(newHtml);
