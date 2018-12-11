@@ -925,6 +925,16 @@ $(document).ready(function () {
         return false;
     });
 
+    // Avoid double clicking on dynamic button
+    $(document).on("click", ".btn", function () {
+        $(this).prop("disabled", true);
+        $(this).css("pointer-events", "none");
+        setTimeout(() => {
+            $(this).prop("disabled", false);
+            $(this).css("pointer-events", "auto");
+        }, 1000);
+    });
+
     // Validate any form before submit
     $('form').submit(function (e) {
         // Prevent multiple submittion (double click)
