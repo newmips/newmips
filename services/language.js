@@ -33,6 +33,11 @@ function fetchText(key, params, lang) {
 		}
 	}
 
+	if(typeof depth !== "string"){
+		console.log("WARNING: Key found for translation is not a valid locales key: ", key)
+		return key;
+	}
+
 	var nbParamsFound = (depth.match(/%s/g) || []).length;
 
 	if(nbParamsFound > 0 && nbParamsFound == params.length){
