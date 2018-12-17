@@ -927,10 +927,10 @@ $(document).ready(function () {
 
     // Avoid double clicking on dynamic button
     $(document).on("click", ".btn", function () {
-        $(this).prop("disabled", true);
+        $(this).prop("readOnly", true);
         $(this).css("pointer-events", "none");
         setTimeout(() => {
-            $(this).prop("disabled", false);
+            $(this).prop("readOnly", false);
             $(this).css("pointer-events", "auto");
         }, 1000);
     });
