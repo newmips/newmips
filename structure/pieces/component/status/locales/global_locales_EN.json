@@ -5,6 +5,9 @@
 				"illegal_status": "This status is not valid.",
 				"action_error": "One or more actions couldn't be executed. Verify that notifications are enabled or that you have a correct mail configuration."
 			},
+			"diagram": "Diagram",
+			"diagram_description": "Drag statuses below to the diagram on the right. Drop a status on top of another to append it.",
+			"select_status": "Select a status",
 			"next_status": "Next status",
 			"available_status": "Available status",
 			"children": "Next statuses",

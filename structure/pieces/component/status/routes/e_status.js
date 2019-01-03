@@ -22,6 +22,45 @@ var enums_radios = require('../utils/enum_radio.js');
 // Winston logger
 var logger = require('../utils/logger');
 
+router.get('/diagram', block_access.actionAccessMiddleware("status", "read"), (req, res)=> {
+    res.render('e_status/diagram', {statuses: status_helper.entityStatusFieldList()});
+});
+
+router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"), (req, res)=> {
+    models.E_status.findAll({where: {f_entity: req.body.f_entity, f_field: req.body.f_field}, include: {model: models.E_action, as: 'r_actions'}}).then((statuses)=> {
+        if (statuses.length == 0)
+            return res.json({statuses: [], connections: []});
+        var tableName = statuses[0].constructor.tableName;
+        var tableAppNumber = tableName.substr(0, tableName.indexOf('_'));
+        models.sequelize.query(`select * from ${tableAppNumber}_status_children`, { type: models.sequelize.QueryTypes.SELECT}).then((connections)=> {
+            res.json({statuses, connections});
+        });
+    });
+});
+
+router.post('/set_children_diagram', block_access.actionAccessMiddleware("status", "update"), (req, res)=> {
+    models.E_status.findOne({where: {id: req.body.parent}}).then(parent => {
+        parent.addR_children(req.body.child).then(_=> {
+            res.sendStatus(200);
+        });
+    });
+});
+
+router.post('/remove_children_diagram', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
+    models.E_status.findOne({where: {id: req.body.id}}).then(status=> {
+        if (!status)
+            return res.sendStatus(500);
+        var tableName = status.constructor.tableName;
+        var tableAppNumber = tableName.substr(0, tableName.indexOf('_'));
+        models.sequelize.query(
+            `DELETE FROM ${tableAppNumber}_status_children WHERE fk_id_parent_status = ? || fk_id_child_status = ?`,
+            {replacements: [status.id, status.id], type: models.sequelize.QueryTypes.DELETE})
+        .then(function(){
+            res.sendStatus(200);
+        })
+    })
+});
+
 router.post('/set_children', block_access.actionAccessMiddleware("status", "read"), function(req, res) {
     var statuses = req.body.next_status || [];
     var id_status = req.body.id_status;
