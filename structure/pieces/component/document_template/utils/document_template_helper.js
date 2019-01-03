@@ -139,12 +139,16 @@ module.exports = {
                         object[item] = format_tel(object[item], ' ');
                     }
                     if (attribute.type === "ENUM") {
-
                         setEnumValue(object, item, entityName, fileType, userLang);
                     }
                     break;
                     // if (attribute.newmipsType === "picture" && attr === item && object[item].split('-').length > 1) {
-                    //     object[item] = "data:image/*;base64," + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
+                    //     try{
+                    //         object[item] = "data:image/*;base64, " + fs.readFileSync(globalConfig.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
+                    //     } catch(err){
+                    //         console.log("IMG NOT FOUND: ", object[item]);
+                    //         object[item] = "NOT FOUND";
+                    //     }
                     //     break;
                     // }
                 }
