@@ -165,7 +165,7 @@ app.use(function(req, res, next) {
             return false;
     }
     dust.helpers.isAdmin = function(chunk, context, bodies, params) {
-        if(req.session.passport.user.id_role == 1)
+        if(req.isAuthenticated() && req.session.passport && req.session.passport.user.id_role == 1)
             return true;
         return false;
     }
