@@ -225,7 +225,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
     var associationsFinder = model_builder.associationsFinder(models, options);
 
     Promise.all(associationsFinder).then(function (found) {
-        models.E_media.findOne({where: {id: id_e_media}, include: [{all: true, nested: true}]}).then(function (e_media) {
+        models.E_media.findOne({where: {id: id_e_media}, include: [{all: true}]}).then(function (e_media) {
             if (!e_media) {
                 data.error = 404;
                 return res.render('common/error', data);
