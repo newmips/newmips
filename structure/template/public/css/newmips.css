@@ -25,7 +25,8 @@ select.form-control{
 .hover:hover,
 .inline-help:hover,
 input[type=color]:hover,
-.insert:hover {
+.insert:hover,
+table > tbody > tr:hover {
     cursor: pointer;
 }
 

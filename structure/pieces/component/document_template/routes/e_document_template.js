@@ -267,7 +267,7 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 });
 
 router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "update"), function(req, res) {
-    status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+    status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect('/document_template/show?id=' + req.params.id_document_template);
     }).catch((err)=> {
         entity_helper.error(err, req, res, '/document_template/show?id=' + req.params.id_document_template);
