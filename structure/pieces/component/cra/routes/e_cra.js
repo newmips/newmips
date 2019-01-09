@@ -898,18 +898,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra", "read"), function
         }
         /* Update local e_cra data before show */
         data.e_cra = e_cra;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.e_cra[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
-            res.render('e_cra/show', data);
-        });
+        res.render('e_cra/show', data);
 
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
@@ -931,17 +920,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "create"),
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-        data.toastr = req.session.toastr;
-        req.session.toastr = [];
-        res.render('e_cra/create', data);
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
-    });
+    res.render('e_cra/create', data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
@@ -1003,47 +982,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", 'update'),
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
+    models.E_cra.findOne({where: {id: id_e_cra}, include: [{all: true}]}).then(function (e_cra) {
+        if (!e_cra) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.E_cra.findOne({where: {id: id_e_cra}, include: [{all: true}]}).then(function (e_cra) {
-            if (!e_cra) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
-
-            data.e_cra = e_cra;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can found adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.e_cra[name_global_list] = rows;
-
-                if (rows.length > 1) {
-                    for (var j = 0; j < data[model].length; j++) {
-                        if (e_cra[model] != null) {
-                            for (var k = 0; k < e_cra[model].length; k++) {
-                                if (data[model][j].id == e_cra[model][k].id) {
-                                    data[model][j].dataValues.associated = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
-            res.render('e_cra/update', data);
-        }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
-        });
+        data.e_cra = e_cra;
+        res.render('e_cra/update', data);
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });

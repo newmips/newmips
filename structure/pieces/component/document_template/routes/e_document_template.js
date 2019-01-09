@@ -100,16 +100,8 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function(found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-        data.document_template_entities = document_template_helper.get_entities(models);
-        res.render('e_document_template/create', data);
-    }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
-    });
+    data.document_template_entities = document_template_helper.get_entities(models);
+    res.render('e_document_template/create', data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
@@ -150,64 +142,36 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
+    models.E_document_template.findOne({
+        where: {
+            id: id_e_document_template
+        },
+        include: [{
+            all: true
+        }]
+    }).then(function(e_document_template) {
+        if (!e_document_template) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function(found) {
-        models.E_document_template.findOne({
-            where: {
-                id: id_e_document_template
-            },
-            include: [{
-                all: true
-            }]
-        }).then(function(e_document_template) {
-            if (!e_document_template) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
+        data.e_document_template = e_document_template;
+        data.document_template_entities = document_template_helper.get_entities(models);
 
-            data.e_document_template = e_document_template;
-            var name_global_list = "";
+        var relations = document_template_helper.getRelations(e_document_template.f_entity);
+        var reworkRelations = [];
+        var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
+        for (var i = 0; i < relations.length; i++) {
+            reworkRelations[i] = {
+                item: relations[i],
+                value: relations[i]
+            };
+            if (f_exclude_relations.indexOf(relations[i]) < 0)
+                reworkRelations[i].isSelected = true;
+        }
+        data.e_document_template.document_template_relations = reworkRelations;
 
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can find adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.e_document_template[name_global_list] = rows;
-
-                // Set associated property to item that are related to be able to make them selected client side
-                if (rows.length > 1)
-                    for (var j = 0; j < data[model].length; j++)
-                        if (e_document_template[model] != null)
-                            for (var k = 0; k < e_document_template[model].length; k++)
-                                if (data[model][j].id == e_document_template[model][k].id)
-                                    data[model][j].dataValues.associated = true;
-            }
-
-            req.session.toastr = [];
-            data.document_template_entities = document_template_helper.get_entities(models);
-
-            var relations = document_template_helper.getRelations(e_document_template.f_entity);
-            var reworkRelations = [];
-            var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
-            for (var i = 0; i < relations.length; i++) {
-                reworkRelations[i] = {
-                    item: relations[i],
-                    value: relations[i]
-                };
-                if (f_exclude_relations.indexOf(relations[i]) < 0)
-                    reworkRelations[i].isSelected = true;
-            }
-            data.e_document_template.document_template_relations = reworkRelations;
-
-            res.render('e_document_template/update', data);
-        }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
-        });
+        res.render('e_document_template/update', data);
     }).catch(function(err) {
         entity_helper.error(err, req, res, "/");
     });

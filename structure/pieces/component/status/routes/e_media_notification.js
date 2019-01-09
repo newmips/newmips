@@ -98,42 +98,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, require('../models/e_media_notification'));
+    models.E_media_notification.findOne({where: {id: id_e_media_notification}, include: [{all: true}]}).then(function (e_media_notification) {
+        if (!e_media_notification) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.E_media_notification.findOne({where: {id: id_e_media_notification}, include: [{all: true}]}).then(function (e_media_notification) {
-            if (!e_media_notification) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
-
-            data.e_media_notification = e_media_notification;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can find adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.e_media_notification[name_global_list] = rows;
-
-                // Set associated property to item that are related to be able to make them selected client side
-                if (rows.length > 1)
-                    for (var j = 0; j < data[model].length; j++)
-                        if (e_media_notification[model] != null)
-                            for (var k = 0; k < e_media_notification[model].length; k++)
-                                if (data[model][j].id == e_media_notification[model][k].id)
-                                    data[model][j].dataValues.associated = true;
-            }
-
-            req.session.toastr = [];
-            res.render('e_media/update', data);
-        }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
-        });
+        data.e_media_notification = e_media_notification;
+        res.render('e_media/update', data);
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });
