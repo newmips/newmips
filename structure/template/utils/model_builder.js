@@ -44,7 +44,7 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 
                 // Uppercase target's first letter to build model name. This is necessary because of component `C`_adresse
                 var modelPrefix = entityOptions[j].target.charAt(0).toUpperCase()+'_';
-                // If include fur current depth doesn't exists, create it and send include array to recursive buildInclude
+                // If include for current depth doesn't exists, create it and send include array to recursive buildInclude
                 var depthInclude = {
                     model: models[modelPrefix+entityOptions[j].target.slice(2)],
                     as: depths[idx],

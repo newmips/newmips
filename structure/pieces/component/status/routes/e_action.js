@@ -368,7 +368,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 });
 
 router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionAccessMiddleware("action", "update"), function(req, res) {
-    status_helper.setStatus('e_action', req.params.id_action, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+    status_helper.setStatus('e_action', req.params.id_action, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect('/action/show?id=' + req.params.id_action)
     }).catch((err)=> {
         entity_helper.error(err, req, res, '/action/show?id=' + req.params.id_action);
