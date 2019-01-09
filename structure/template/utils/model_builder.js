@@ -183,53 +183,6 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
     }
 }
 
-// Find list of associations to display into list on create_form and update_form
-exports.associationsFinder = function associationsFinder(models, options, attributes) {
-    var foundAssociations = [];
-
-    /* Example limitAttr, set just the needed fields instead of load them all
-    var limitAttr = {
-        r_collectivite: ["id", "f_code_gestion", "f_nom"],
-        r_dechetteries_a_visiter: ["id", "f_code_gestion", "f_nom"],
-        r_intervenant_ecodds: ["id", "f_email"]
-    };*/
-
-    var limitAttr = [];
-    if(typeof attributes !== "undefined")
-        limitAttr = attributes;
-
-    for (var i = 0; i < options.length; i++) {
-        foundAssociations.push(new Promise(function (resolve, reject) {
-            var asso = options[i];
-            (function (option) {
-                var modelName = option.target.charAt(0).toUpperCase() + option.target.slice(1).toLowerCase();
-                var target = option.target;
-
-                if (typeof option.as != "undefined") {
-                    target = option.as.toLowerCase();
-                }
-
-                if(typeof limitAttr[target] !== "undefined"){
-                    models[modelName].findAll({
-                        attributes: limitAttr[target]
-                    }).then(function (entities) {
-                        resolve({model: target, rows: entities || []});
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-                } else {
-                    models[modelName].findAll().then(function (entities) {
-                        resolve({model: target, rows: entities || []});
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-                }
-            })(asso);
-        }));
-    }
-    return foundAssociations;
-}
-
 // Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
 exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
     return new Promise(function(resolve, reject) {

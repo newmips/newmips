@@ -703,59 +703,18 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function(found) {
-        models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function(e_user) {
-            if (!e_user) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
-
-            data.e_user = e_user;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can found adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.e_user[name_global_list] = rows;
-
-                if (rows.length > 1)
-                    for(var j = 0; j < data[model].length; j++)
-                        if(e_user[model] != null)
-                            for (var k = 0; k < e_user[model].length; k++)
-                                if (data[model][j].id == e_user[model][k].id)
-                                    data[model][j].dataValues.associated = true;
-            }
-
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
-
-            // Used to hide role/group inputs
-            data.isSettings = true;
-            req.session.formSettings = true;
-            res.render('e_user/settings', data);
-        }).catch(function(err){
-            entity_helper.error(err, res);
-        });
-    }).catch(function(err){
-        var isKnownError = false;
-        try {
-            // Unique value constraint
-            if (err.parent.errno == 1062 || err.parent.code == 23505) {
-                req.session.toastr.push({level: 'error', message: err.errors[0].message});
-                isKnownError = true;
-            }
-        } finally {
-            if (isKnownError)
-                return res.render('e_user/settings', data);
-            entity_helper.error(err, res);
+    models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function(e_user) {
+        if (!e_user) {
+            data.error = 404;
+            return res.render('common/error', data);
         }
+
+        // Used to hide role/group inputs
+        data.isSettings = true;
+        req.session.formSettings = true;
+        res.render('e_user/settings', data);
+    }).catch(function(err){
+        entity_helper.error(err, res);
     });
 });
 
