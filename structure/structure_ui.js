@@ -351,6 +351,47 @@ exports.setIcon = function(attr, callback) {
     });
 }
 
+exports.addTitle = function (attr, callback) {
+
+    let entityCodeName = attr.entityCodeName.toLowerCase();
+    let pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + entityCodeName;
+    let viewsToProcess = ["create_fields", "update_fields", "show_fields"];
+    let processPromises = [];
+
+    let title = "<div class='col-xs-12 text-center'><div class='form-group form-title'><h3>"+attr.options.value+"</h3></div></div>";
+
+    for (var i = 0; i < viewsToProcess.length; i++) {
+        processPromises.push(new Promise((resolve, reject) => {
+            let currentView = viewsToProcess[i];
+            domHelper.read(pathToViews + '/'+currentView+'.dust').then(function ($) {
+                if(attr.options.afterField){
+                    $("div[data-field="+attr.fieldCodeName+"]").after(title);
+                } else {
+                    $("#fields").append(title);
+                }
+                domHelper.write(pathToViews + '/'+currentView+'.dust', $).then(function () {
+                    resolve();
+                }).catch(e => {
+                    var err = new Error();
+                    err.message = "structure.field.attributes.fieldNoFound";
+                    err.messageParams = [attr.options.showValue];
+                    reject(err);
+                });
+            }).catch(err => {
+                reject(err);
+            });
+        }))
+    }
+
+    Promise.all(processPromises).then(() => {
+        callback(null, {
+            message: "structure.ui.title.success"
+        })
+    }).catch(err => {
+        callback(err);
+    })
+}
+
 exports.createWidget = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';

@@ -2940,10 +2940,70 @@ exports.setIconToEntity = function (attr, callback) {
     });
 }
 
+exports.addTitle = function (attr, callback) {
+    // Get selected entity
+    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
+        if (err)
+            return callback(err, null);
+
+        attr.entityCodeName = entity.codeName;
+
+        let checkField = new Promise((resolve, reject) => {
+            if(!attr.options.afterField)
+                return resolve();
+
+            attr.fieldCodeName = "f_"+attrHelper.clearString(attr.options.afterField);
+
+            var checkFieldParams = {
+                codeName: attr.fieldCodeName,
+                showValue: attr.options.afterField,
+                idEntity: attr.id_data_entity,
+                showEntity: entity.name
+            };
+
+            db_field.getFieldByCodeName(checkFieldParams, function (err, fieldExist) {
+                if (err) {
+                    // Not found as a simple field, look for related to field
+                    var optionsArray = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + entity.codeName + '.json'));
+                    var founded = false;
+                    for (var i = 0; i < optionsArray.length; i++) {
+                        if (optionsArray[i].showAs == attr.options.afterField) {
+                            if (optionsArray[i].structureType == "relatedTo" || optionsArray[i].structureType == "relatedToMultiple") {
+                                founded = true;
+                                return resolve();
+                            }
+                            break;
+                        }
+                    }
+                    if (!founded){
+                        let err = new Error();
+                        err.message = "structure.ui.title.missingField";
+                        err.messageParams = [attr.options.afterField];
+                        return reject(err);
+                    }
+                } else {
+                    resolve();
+                }
+            })
+        })
+
+        checkField.then(() => {
+            structure_ui.addTitle(attr, function (err, answer) {
+                if (err)
+                    return callback(err, null);
+
+                callback(null, answer);
+            })
+        }).catch(err => {
+            return callback(err, null);
+        })
+    })
+}
+
 exports.createWidgetPiechart = function (attr, callback) {
     var entityDbFunction = '', param = '';
     if (attr.entityTarget) {
-        db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
+        db_entity.getentityByName(attr.entityTarget, attr.id_module, function (err, entity) {
             if (err)
                 return callback(err);
             withDataEntity(entity);
@@ -3094,4 +3154,5 @@ function deleteEntityWidgets(attr, callback) {
     });
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;
+
 return designer;

@@ -30,3 +30,12 @@
 .sidebar-menu > li.active > a {
   border-left-color: #ffffff;
 }
+.form-title{
+    background-color: #f9fafc;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+}
+.form-title h3{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
