@@ -263,8 +263,9 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
                 var base = partOfFilepath[0];
                 // Taking dirname from globalConf cause a bug on filename param for res.download
                 // So we take again __dirname here and remove it from globalConf
-                var dir = __dirname;
-                var completeFilePath = dir + globalConf.localstorage.substring(dir.length) + entity + '/' + base + '/' + filepath;
+                // var dir = __dirname;
+                // var completeFilePath = dir + globalConf.localstorage.substring(dir.length) + entity + '/' + base + '/' + filepath;
+                let completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filepath;
                 res.download(completeFilePath, filename, function (err) {
                     if (err)
                         reject(err);
