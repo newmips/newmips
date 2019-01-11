@@ -441,6 +441,10 @@
                 "delete": "Widget %s successfully deleted",
                 "all_deleted": "All widget of %s have been removed",
                 "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s"
+            },
+            "title": {
+                "success": "The title has been successfully added !",
+                "missingField": "The field %s do not exist in this entity."
             }
         }
     },

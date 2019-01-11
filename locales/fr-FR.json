@@ -440,6 +440,10 @@
                 "delete": "Widget %s supprimé avec succès",
                 "all_deleted": "Tous les widgets de %s ont été supprimés",
                 "unknown_fields": "Impossible d'ajouter le widget car les champs suivants sont inconnus :<br>%s"
+            },
+            "title": {
+                "success": "Le titre a bien été ajouté !",
+                "missingField": "Le champ %s n'existe pas dans cette entité."
             }
         }
     },

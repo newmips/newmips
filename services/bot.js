@@ -1001,7 +1001,6 @@ exports.listLayout = function (result) {
     return attr;
 };
 
-
 exports.setTheme = function (result) {
 
     var value = result[1];
@@ -1193,6 +1192,20 @@ exports.deleteEntityWidgets = function (result) {
         function: 'deleteEntityWidgets',
         entityTarget: result[1]
     }
+}
+
+exports.addTitle = function (result) {
+    let value = result[1];
+    let afterField = null;
+    if (typeof result[2] !== "undefined")
+        afterField = result[2];
+    return {
+        function: "addTitle",
+        options: {
+            value: value,
+            afterField: afterField
+        }
+    };
 }
 
 var training = {
@@ -2641,6 +2654,17 @@ var training = {
         "ajouter composant modèle de document appelé (.*)",
         "ajouter composant modèle de document nommé (.*)",
         "ajouter le composant modèle de document appelé (.*)"
+    ],
+    "addTitle": [
+        "add title (.*)",
+        "add title (.*) after (.*)",
+        "add title (.*) after field (.*)",
+
+        "ajouter titre (.*)",
+        "ajouter titre (.*) après (.*)",
+        "ajouter un titre (.*)",
+        "ajouter un titre (.*) après (.*)",
+        "ajouter un titre (.*) après le champ (.*)"
     ]
 };
 // ******* Parse *******
