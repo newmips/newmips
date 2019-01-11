@@ -287,7 +287,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 if (clearDefaultValue != "") {
                     str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                     str += "    &nbsp;\n<br>\n";
-                    str += "    <label>";
+                    str += "    <label class='no-weight'>";
                     str += "    {@eq key=\"" + clearDefaultValue + "\" value=\"{.value}\" }\n";
                     str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    {:else}\n";
@@ -298,7 +298,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 } else {
                     str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                     str += "    &nbsp;\n<br>\n";
-                    str += "    <label>";
+                    str += "    <label class='no-weight'>";
                     str += "    <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    </label>";
                     str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
@@ -306,7 +306,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             } else if (file == "show") {
                 str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "    &nbsp;\n<br>\n";
-                str += "    <label>";
+                str += "    <label class='no-weight'>";
                 str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {:else}\n";
@@ -317,7 +317,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             } else {
                 str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
                 str += "    &nbsp;\n<br>\n";
-                str += "    <label>";
+                str += "    <label class='no-weight'>";
                 str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
                 str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    {:else}\n";

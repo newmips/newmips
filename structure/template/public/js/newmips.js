@@ -95,20 +95,26 @@ function initForm(context) {
 
     /* --------------- Initialisation des Textarea --------------- */
     // `.note-codable` is a summernote hidden textarea. Filter out to avoid textarea inception
+    // Add class regular-textarea to remove summernote plugin
+    // Add class no-toolbar to remove summernote toolbar
     $("textarea:not(.regular-textarea):not(.note-codable)", context).each(function () {
+        let toolbar = [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']],
+            ['custom', ['stt']]
+        ];
+        if($(this).hasClass("no-toolbar")){
+            toolbar = [];
+        }
         $(this).summernote({
             height: 200,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['fontname', ['fontname']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']],
-                ['custom', ['stt']]
-            ]
+            toolbar: toolbar
         });
     });
 

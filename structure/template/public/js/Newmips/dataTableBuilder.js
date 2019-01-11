@@ -44,6 +44,8 @@ if (lang_user == "fr-FR") {
         "loadingRecords": "Chargement en cours...",
         "zeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
         "emptyTable": "Aucune donn&eacute;e disponible dans le tableau",
+        "reset_filter": "Réinitialiser les filtres",
+        "scroll_right": "Défilement à droite",
         "paginate": {
             "first": "Premier",
             "previous": "Pr&eacute;c&eacute;dent",
@@ -67,6 +69,8 @@ if (lang_user == "fr-FR") {
         "loadingRecords": "Loading...",
         "zeroRecords": "No record to display",
         "emptyTable": "No data available in this array",
+        "reset_filter": "Reset all filters",
+        "scroll_right": "Scroll right",
         "paginate": {
             "first": "First",
             "previous": "Previous",
@@ -472,9 +476,18 @@ function init_datatable(tableID, doPagination, context) {
                 exportOptions: {
                     columns: ':visible'
                 }
-            }, {
+            },
+            {
+                text: '<i class="fa fa-refresh"></i>',
+                titleAttr: STR_LANGUAGE.reset_filter,
+                action: function ( e, dt, node, config ) {
+                    localStorage.setItem("newmips_filter_save_" + tableID.substring(1), null);
+                    location.reload();
+                }
+            },
+            {
                 text: '<i class="fa fa-arrow-right"></i>',
-                titleAttr: 'Scroll right',
+                titleAttr: STR_LANGUAGE.scroll_right,
                 action: function ( e, dt, node, config ) {
                     $(tableID, context).parents(".table-responsive").animate({scrollLeft: $(tableID, context).width()}, 800);
                 }
