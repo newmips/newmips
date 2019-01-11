@@ -298,25 +298,27 @@ function init_datatable(tableID, doPagination, context) {
                 var cellValue;
                 // Associated field. Go down object to find the right value
                 if (columns[meta.col].data.indexOf('.') != -1) {
-                    var entityRelation = columns[meta.col].data.split(".")[0];
-                    var attributeRelation = columns[meta.col].data.split(".")[1];
-                    if (row[entityRelation] != null && typeof row[entityRelation] === "object") {
-                        var valueFromArray = "";
-                        for (var attr in row[entityRelation]) {
-                            // In case of hasMany or belongsToMany value
-                            if (row[entityRelation][attr] != null && typeof row[entityRelation][attr] === "object") {
+                    let entityRelation = columns[meta.col].data.split(".")[0];
+                    let attributeRelation = columns[meta.col].data.split(".")[1];
+                    let valueFromArray = "";
+                    if (row[entityRelation] != null) {
+                        if(Array.isArray(row[entityRelation])){
+                            // In case of related to many / has many values, it's an array
+                            for (let attr in row[entityRelation]) {
                                 valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
-                            } else {
-                                var parts = columns[meta.col].data.split('.');
+                            }
+                        } else if(typeof row[entityRelation] === "object") {
+                            // In this case it'sa belongsTo
+                            for (let attr in row[entityRelation]) {
+                                let parts = columns[meta.col].data.split('.');
                                 valueFromArray = getValue(parts, row);
                             }
-
+                        } else {
+                            // Has one sur une sous entité
+                            let parts = columns[meta.col].data.split('.');
+                            valueFromArray = getValue(parts, row);
                         }
                         cellValue = valueFromArray;
-                    } else {
-                        // Has one sur une sous entité
-                        var parts = columns[meta.col].data.split('.');
-                        cellValue = getValue(parts, row);
                     }
                 }
                 // Regular value
