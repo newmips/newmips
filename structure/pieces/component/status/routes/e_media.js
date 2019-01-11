@@ -110,25 +110,13 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
 
         /* Update local e_media data before show */
         data.e_media = e_media;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_notification')));
-        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_mail')));
-        associationsFinder = associationsFinder.concat(model_builder.associationsFinder(models, require(__dirname+'/../models/options/e_media_sms')));
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.e_media[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            // Update some data before show, e.g get picture binary
-            entity_helper.getPicturesBuffers(e_media, "e_media").then(function() {
-                status_helper.translate(e_media, attributes, req.session.lang_user);
-                res.render('e_media/show', data);
-            }).catch(function (err) {
-                entity_helper.error(err, req, res, "/");
-            });
-       });
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(e_media, "e_media").then(function() {
+            status_helper.translate(e_media, attributes, req.session.lang_user);
+            res.render('e_media/show', data);
+        }).catch(function (err) {
+            entity_helper.error(err, req, res, "/");
+        });
 
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
@@ -150,17 +138,9 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-
-        data.target_entities = targetEntities;
-        data.icon_list = icon_list;
-        res.render('e_media/create', data);
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
-    });
+    data.target_entities = targetEntities;
+    data.icon_list = icon_list;
+    res.render('e_media/create', data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
@@ -222,43 +202,17 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
+    models.E_media.findOne({where: {id: id_e_media}, include: [{all: true}]}).then(function (e_media) {
+        if (!e_media) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.E_media.findOne({where: {id: id_e_media}, include: [{all: true}]}).then(function (e_media) {
-            if (!e_media) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
+        data.e_media = e_media;
 
-            data.e_media = e_media;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can find adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.e_media[name_global_list] = rows;
-
-                // Set associated property to item that are related to be able to make them selected client side
-                if (rows.length > 1)
-                    for (var j = 0; j < data[model].length; j++)
-                        if (e_media[model] != null)
-                            for (var k = 0; k < e_media[model].length; k++)
-                                if (data[model][j].id == e_media[model][k].id)
-                                    data[model][j].dataValues.associated = true;
-            }
-
-            data.target_entities = targetEntities;
-            data.icon_list = icon_list;
-            res.render('e_media/update', data);
-        }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
-        });
+        data.target_entities = targetEntities;
+        data.icon_list = icon_list;
+        res.render('e_media/update', data);
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });
@@ -307,7 +261,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 });
 
 router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAccessMiddleware("media", "update"), function(req, res) {
-    status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+    status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect('/media/show?id=' + req.params.id_media);
     }).catch((err)=> {
         entity_helper.error(err, req, res, '/media/show?id=' + req.params.id_media);

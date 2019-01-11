@@ -79,7 +79,8 @@ function widgetDataTable(table) {
     });
 
     // Columns rendering
-    var columnDefs = [], columnsTypes = {};
+    var columnsTypes = {};
+    var columnDefs = [];
     for (var i = 0; i < columns.length; i++) {
         var objColumnDefToPush = {};
         objColumnDefToPush = {
@@ -216,7 +217,14 @@ function widgetDataTable(table) {
         "bAutoWidth": false,
         "order": [ defaultOrder.idx, defaultOrder.direction ]
     }
-    table.DataTable(tableOptions);
+    var dataTable = table.DataTable(tableOptions);
+
+    // Make row redirect to show on click
+    var entityName = table.data('entity').substring(2);
+    $(table).on('click', 'tr', function() {
+        var rowId = parseInt(dataTable.row(this).data().id);
+        location.href = '/'+entityName+'/show?id='+rowId;
+    });
 }
 
 function buildPieChart(widgetID, widget) {
