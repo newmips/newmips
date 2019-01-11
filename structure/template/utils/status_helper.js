@@ -262,7 +262,7 @@ module.exports = {
             }
         }
     },
-    setStatus: function(entityName, entityId, statusName, statusId, comment = "") {
+    setStatus: function(entityName, entityId, statusName, statusId, userId = null, comment = "") {
         var self = this;
         return new Promise((resolve, reject)=> {
             var historyModel = 'E_history_'+entityName+'_' + statusName;
@@ -342,8 +342,10 @@ module.exports = {
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
-                        models[historyModel].create(createObject).then(()=> {
+                        models[historyModel].create(createObject).then(history=> {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id);
+                            if (userId)
+                                history['setR_modified_by'](userId);
                             resolve();
                         });
                     }).catch((err)=> {
@@ -352,8 +354,10 @@ module.exports = {
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
-                        models[historyModel].create(createObject).then(()=> {
+                        models[historyModel].create(createObject).then(history=> {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id);
+                            if (userId)
+                                history['setR_modified_by'](userId);
                             reject(err);
                         });
                     });

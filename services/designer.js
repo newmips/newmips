@@ -1998,6 +1998,7 @@ exports.createNewComponentStatus = function (attr, callback) {
                 "select entity " + attr.history_table_db_name,
                 "add field " + attr.options.showValue + " related to Status using name, color",
                 "add field Comment with type text",
+                "add field Modified by related to user using login",
                 "entity status has many " + attr.history_table_db_name,
                 "select entity " + source_entity.name,
                 "add field " + attr.options.showValue + " related to Status using name"

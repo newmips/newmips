@@ -129,6 +129,8 @@ function addPrefix(string, instructionFunction){
         case 'setFieldAttribute':
         case 'setFieldKnownAttribute':
         case 'setColumnVisibility':
+            if (string == 'id')
+                return string;
             return "f_"+string;
             break;
         case 'foreignKey':
