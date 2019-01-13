@@ -3,12 +3,12 @@ var globalConf = require('./global');
 var mailConf = {
     develop: {
         transport: {
-            host: 'ssl0.ovh.net',
+            host: 'mail',
             port: 465,
             secure: true,
             auth: {
-                user: 'stephane.bourdier@newmips.com',
-                pass: '*C16abo33/'
+                user: '',
+                pass: ''
             }
         },
         expediteur: 'NoReply <no-reply@newmips.com>',
