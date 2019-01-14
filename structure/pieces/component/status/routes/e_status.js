@@ -15,6 +15,7 @@ var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
+var language = require('../services/language');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
@@ -109,6 +110,12 @@ router.get('/list', block_access.actionAccessMiddleware("status", "read"), funct
 router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
     filterDataTable("E_status", req.body).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_status', rawData, req.session.lang_user).then(function(preparedData) {
+            for (var i = 0; i < preparedData.data.length; i++) {
+                var entity = preparedData.data[i].f_entity;
+                var field = preparedData.data[i].f_field;
+                preparedData.data[i].f_entity = language(req.session.lang_user).__('entity.'+entity+'.label_entity');
+                preparedData.data[i].f_field = language(req.session.lang_user).__('entity.'+entity+'.'+field);
+            }
             res.send(preparedData).end();
         });
     }).catch(function (err) {
