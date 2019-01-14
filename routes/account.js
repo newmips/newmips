@@ -17,7 +17,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     // Nettoyage de la session
     req.session.toastr = [];
     data.user = req.session.passport.user;
-    models.Role.findById(data.user.id_role).then(function(userRole){
+    models.Role.findByPk(data.user.id_role).then(function(userRole){
         data.user.role = userRole;
         res.render('front/account', data);
     });
