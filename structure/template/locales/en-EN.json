@@ -20,6 +20,7 @@
         "first_connection": {
             "title": "First connection",
             "success": "Update done, you can now log in with your credentials.",
+            "success2": "Update done, you are now log in !",
             "userNotExist": "Error, this user does not exist or has already been activated.",
             "alreadyHavePassword": "Operation is not possible, this user already has a password.",
             "passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 4 characters."

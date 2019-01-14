@@ -20,6 +20,7 @@
         "first_connection": {
             "title": "Première connexion",
             "success": "Mise à jour effectuée, vous pouvez désormais vous connecter avec vos identifiants.",
+            "success2": "Mise à jour effectuée, vous êtes maintenant connecté(e) !",
             "userNotExist": "Erreur, cet utilisateur n'existe pas ou a déjà été activé.",
             "alreadyHavePassword": "Opération impossible, cet utilisateur possède déjà un mot de passe.",
             "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 4 caractères."
