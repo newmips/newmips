@@ -174,7 +174,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
 
 router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
 
-    models.MODEL_VALUE_SETTINGS.findById(1).then(function(settings){
+    models.MODEL_VALUE_SETTINGS.findByPk(1).then(function(settings){
         var from = req.body.f_name+" <"+req.body.f_sender+">";
         var mailOptions = {
             from: from,
