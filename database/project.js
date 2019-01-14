@@ -135,7 +135,7 @@ exports.deleteProject = function(value, callback) {
 // GetById
 exports.getNameProjectById = function(idProject, callback) {
 
-    models.Project.findById(idProject).then(function(project){
+    models.Project.findByPk(idProject).then(function(project){
         if(!project){
             var err = new Error();
             err.message = "database.project.notFound.withThisID";

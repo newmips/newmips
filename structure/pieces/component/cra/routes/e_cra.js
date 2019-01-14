@@ -305,7 +305,7 @@ router.get('/admin', teamAdminMiddleware, block_access.actionAccessMiddleware("c
 router.get('/admin/validate/:id', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", 'create'), function(req, res) {
     var id_cra = req.params.id;
 
-    models.E_cra.findById(id_cra).then(function(cra) {
+    models.E_cra.findByPk(id_cra).then(function(cra) {
         if (!cra)
             return res.status(404).send("Couldn't find CRA");
         if (!cra.f_user_validated)
