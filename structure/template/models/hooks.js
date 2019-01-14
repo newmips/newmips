@@ -78,7 +78,7 @@ module.exports = function(model_name, attributes) {
 							            // Create history object with initial status related to new entity
 				                        var historyObject = {
 				                            version:1,
-				                            f_comment: 'Creation'
+				                            f_comment: ''
 				                        };
 				                        historyObject["fk_id_status_"+fieldIn.substring(2)] = status.id;
 				                        historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = modelWithRelations.id;
