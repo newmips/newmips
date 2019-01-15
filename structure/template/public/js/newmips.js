@@ -15,6 +15,8 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
             method: 'POST',
             delay: 250,
             contentType: "application/json",
+            allowClear: true,
+            placeholder: placeholder,
             data: function (params) {
                 var ajaxdata = {
                     search: params.term,
@@ -36,7 +38,7 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
                 var dataResults = answer.rows;
                 if (!dataResults)
                     return {results: []};
-                var results = [];
+                var results = [{id: "", text: placeholder}];
                 for (var i = 0; i < dataResults.length; i++) {
                     var text = [];
                     for (var field in dataResults[i]) {
@@ -65,8 +67,7 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
         },
         templateResult: function (data) {
             return data.text;
-        },
-        placeholder: placeholder
+        }
     });
 }
 

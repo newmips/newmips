@@ -782,10 +782,12 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create entity Role");
     instructions.push("add field label");
     instructions.push("set field label required");
+    instructions.push("set field label unique");
     instructions.push("set icon asterisk");
     instructions.push("create entity Group");
     instructions.push("add field label");
     instructions.push("set field label required");
+    instructions.push("set field label unique");
     instructions.push("set icon users");
     instructions.push("select entity User");
     instructions.push("add field Role related to many Role using label");
