@@ -357,6 +357,7 @@
             "attributes": {
                 "success": "Le champ %s est désormais %s = %s.",
                 "successKnownAttribute": "Le champ %s est désormais %s.",
+                "successKnownAttributeWarning": "Le champ %s est désormais %s. !ATTENTION! La contrainte en base n'a pas pu être appliquée, la table correspondante n'existe pas au moment de l'instruction.",
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",

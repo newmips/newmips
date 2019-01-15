@@ -87,7 +87,7 @@ function initForm(context) {
     });
 
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
-    $("input[type='checkbox'], input[type='radio']", context).iCheck({
+    $("input[type='checkbox'], input[type='radio']", context).icheck({
         checkboxClass: 'icheckbox_flat-blue',
         radioClass: 'iradio_flat-blue',
         disabledClass: ''
@@ -485,7 +485,7 @@ function initForm(context) {
             switch(input.attr("type")) {
                 case "checkbox":
                     if(!input.prop("disabled"))
-                        input.iCheck("toggle");
+                        input.icheck("toggle");
                     break;
                 default:
                     if(!input.prop("readonly"))

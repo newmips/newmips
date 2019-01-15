@@ -773,6 +773,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create entity User");
     instructions.push("add field login");
     instructions.push("set field login required");
+    instructions.push("set field login unique");
     instructions.push("add field password");
     instructions.push("add field email with type email");
     instructions.push("add field token_password_reset");
