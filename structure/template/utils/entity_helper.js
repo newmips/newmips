@@ -147,7 +147,7 @@ var funcs = {
             }).catch(reject)
         });
     },
-    error: function(err, req, res, redirect) {
+    error: function(err, req, res, redirect, entity) {
         var isKnownError = false;
         var ajax = req.query.ajax || false;
 
@@ -166,7 +166,7 @@ var funcs = {
 
             // Unique value constraint error
             if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-                var message = __('message.unique') + " " + err.errors[0].path;
+                var message = __('message.unique') + " " + __("entity."+entity+"."+err.errors[0].path);
                 req.session.toastr.push({level: 'error', message: message});
                 isKnownError = true;
             }

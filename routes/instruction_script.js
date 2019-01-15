@@ -91,10 +91,12 @@ var mandatoryInstructions = [
     "create entity Role",
     "add field label",
     "set field label required",
+    "set field label unique",
     "set icon asterisk",
     "create entity Group",
     "add field label",
     "set field label required",
+    "set field label unique",
     "set icon users",
     "select entity User",
     "add field Role related to many Role using label",
@@ -393,8 +395,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
 
-            if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
-                exception.setFieldUnique.value += 1;
+            // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
+            //     exception.setFieldUnique.value += 1;
             fileLines.push(line);
         }
     });
@@ -626,8 +628,8 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
 
-            if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
-                exception.setFieldUnique.value += 1;
+            // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
+            //     exception.setFieldUnique.value += 1;
 
             fileLines.push(line);
         }

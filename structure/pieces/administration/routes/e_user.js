@@ -167,13 +167,13 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('e_user/show', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "e_user");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -195,7 +195,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("user", "create")
         var view = req.query.ajax ? 'e_user/create_fields' : 'e_user/create';
         res.render(view, data);
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/create_form');
+        entity_helper.error(err, req, res, '/user/create_form', "e_user");
     })
 });
 
@@ -255,11 +255,11 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
                     res.redirect(redirect);
                 });
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/user/create_form');
+                entity_helper.error(err, req, res, '/user/create_form', "e_user");
             });
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/create_form');
+        entity_helper.error(err, req, res, '/user/create_form', "e_user");
     });
 });
 
@@ -297,13 +297,13 @@ router.get('/update_form', block_access.actionAccessMiddleware("user", "update")
                 } else
                     res.render('e_user/update', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "e_user");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         })
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     })
 });
 
@@ -357,13 +357,13 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 
                 res.redirect(redirect);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
+                entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user, "e_user");
             });
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
+            entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user, "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
+        entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user, "e_user");
     });
 });
 
@@ -521,7 +521,7 @@ router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAcc
     status_helper.setStatus('e_user', req.params.id_user, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect(req.headers.referer);
     }).catch((err)=> {
-        entity_helper.error(err, req, res, '/user/show?id=' + req.params.id_user);
+        entity_helper.error(err, req, res, '/user/show?id=' + req.params.id_user, "e_user");
     });
 });
 
@@ -615,10 +615,10 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user
         e_user['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(function(aliasEntities) {
             res.sendStatus(200).end();
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -650,10 +650,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("user", 
         e_user['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/user/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -681,10 +681,10 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
             res.redirect(redirect);
             entity_helper.removeFiles("e_user", deleteObject, attributes);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/user/list');
+            entity_helper.error(err, req, res, '/user/list', "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/list');
+        entity_helper.error(err, req, res, '/user/list', "e_user");
     });
 });
 
@@ -718,7 +718,7 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
 
         res.render('e_user/settings', data);
     }).catch(function(err) {
-        entity_helper.error(err, res);
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 })
 
