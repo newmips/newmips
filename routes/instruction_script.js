@@ -82,6 +82,7 @@ var mandatoryInstructions = [
     "create entity User",
     "add field login",
     "set field login required",
+    "set field login unique",
     "add field password",
     "add field email with type email",
     "add field token_password_reset",

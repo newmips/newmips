@@ -157,9 +157,9 @@ $(document).ready(function() {
             if (calEvent.end == null)
                 calEvent.end = moment.utc(calEvent.start).add(4, "h");
             if (calEvent.allDay) {
-                $('#updateEventAllDayCheckbox').iCheck('check');
+                $('#updateEventAllDayCheckbox').icheck('check');
             } else {
-                $('#updateEventAllDayCheckbox').iCheck('uncheck');
+                $('#updateEventAllDayCheckbox').icheck('uncheck');
                 $("#modalUpdateStartTime").val(moment(calEvent.start).format("HH:mm"));
                 $("#modalUpdateEndTime").val(moment(calEvent.end).format("HH:mm"));
             }
@@ -181,9 +181,9 @@ $(document).ready(function() {
 
             if ($("#modalCreateStartTime").val() == "00:00") {
                 /* If start date is 00:00 then we considered that the event is all day, so check allDay checkbox */
-                $('#createEventAllDayCheckbox').iCheck('check');
+                $('#createEventAllDayCheckbox').icheck('check');
             } else {
-                $('#createEventAllDayCheckbox').iCheck('uncheck');
+                $('#createEventAllDayCheckbox').icheck('uncheck');
             }
             $("#modalCreateTitle").val("");
             $("#modalCreateCategory").val("").trigger("change");
@@ -197,7 +197,7 @@ $(document).ready(function() {
     /* Create event modal, all day checkbox managment */
     $(document).on("ifChanged", "#createEventAllDayCheckbox", function() {
         /* Disable start & end timepicker depend allDay checkbox state */
-        if ($(this).iCheck('update')[0].checked) {
+        if ($(this).icheck('update')[0].checked) {
             $("#modalCreateStartTime").prop("disabled", true);
             $("#modalCreateEndTime").prop("disabled", true);
         } else {
@@ -209,7 +209,7 @@ $(document).ready(function() {
     /* Update event modal, all day checkbox managment */
     $(document).on("ifChanged", "#updateEventAllDayCheckbox", function() {
         /* Disable start & end timepicker depend allDay checkbox state */
-        if ($(this).iCheck('update')[0].checked) {
+        if ($(this).icheck('update')[0].checked) {
             $("#modalUpdateStartTime").prop("disabled", true);
             $("#modalUpdateEndTime").prop("disabled", true);
         } else {
@@ -247,7 +247,7 @@ $(document).ready(function() {
         var newTitle = $("#modalUpdateTitle").val();
         var newCategory = $("#modalUpdateCategory").val();
         var newCategoryColor = $("#modalUpdateCategory").find("option:selected").data("backgroundcolor");
-        var allDay = $("#updateEventAllDayCheckbox").iCheck('update')[0].checked ? true : false;
+        var allDay = $("#updateEventAllDayCheckbox").icheck('update')[0].checked ? true : false;
 
         var eventObj = $("#calendar").fullCalendar('clientEvents', idEventCalendarToDelete);
 
@@ -299,7 +299,7 @@ $(document).ready(function() {
         var newTitle = $("#modalCreateTitle").val();
         var newCategory = $("#modalCreateCategory").val();
         var newCategoryColor = $("#modalCreateCategory").find("option:selected").data("backgroundcolor");
-        var allDay = $("#createEventAllDayCheckbox").iCheck('update')[0].checked ? true : false;
+        var allDay = $("#createEventAllDayCheckbox").icheck('update')[0].checked ? true : false;
 
         var startDate = moment($("#modalCreateStartDate").val()).format("YYYY-MM-DD HH:mm:ss").split(" ");
         var chosenTimeStart = moment($("#modalCreateStartTime").val(), "HH:mm").format("HH:mm");

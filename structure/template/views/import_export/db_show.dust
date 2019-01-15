@@ -110,16 +110,16 @@ $(document).ready(function() {
 
 	$(document).on("ifChecked", "input[name='all_db']", function(){
 		$("#checkbox-entities").hide("fast");
-		$("input:not([name='all_db'])").iCheck("uncheck");
+		$("input:not([name='all_db'])").icheck("uncheck");
 	});
 
 	$(document).on("ifUnchecked", "input[name='all_db']", function(){
 		$("#checkbox-entities").show("fast");
-		$("input:not([name='all_db'])").iCheck("uncheck");
+		$("input:not([name='all_db'])").icheck("uncheck");
 	});
 
 	$(document).on("ifClicked", "input:not([name='all_db'])", function(){
-		$("input[name='all_db']").iCheck("uncheck");
+		$("input[name='all_db']").icheck("uncheck");
 	});
 
 	$(document).on("click", "button[data-target='#db_password']", function(){
@@ -142,7 +142,7 @@ $(document).ready(function() {
 			setTimeout(function(){
 				$("#db_password").modal("hide");
 				$("#export_form input[type='checkbox']").each(function(){
-					$(this).iCheck('uncheck')
+					$(this).icheck('uncheck')
 				});
 			}, 2000);
 		}

@@ -975,9 +975,22 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                     });
                 }).catch(function (err) {
                     if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-                        var err = new Error("structure.field.attributes.duplicateUnique");
+                        let err = new Error("structure.field.attributes.duplicateUnique");
+                    } else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01")){
+                        // Table do not exist - In case of script it's totally normal,juste generate a warning
+                        console.log("WARNING - The database unique constraint could not be applied, the corresponding table does not exist at the time of the instruction.")
+                        structure_data_field.setUniqueField(attr, function (err) {
+                            if (err)
+                                return callback(err, null);
+
+                            callback(null, {
+                                message: "structure.field.attributes.successKnownAttributeWarning",
+                                messageParams: [attr.options.showValue, attr.options.word]
+                            });
+                        });
+                    } else {
+                        callback(err, null);
                     }
-                    callback(err, null);
                 });
             } else {
                 var err = new Error("structure.field.attributes.notUnderstandGiveAvailable");
