@@ -90,7 +90,15 @@
         "email": "Email",
         "firstname": "Firstname",
         "lastname": "Lastname",
-        "phone": "Phone"
+        "phone": "Phone",
+        "old_password": "Your old password",
+        "new_password_1": "New password",
+        "new_password_2": "Confirm new password",
+        "error1": "You have to fill a new password in order to change it.",
+        "error2": "The two passwords do not match.",
+        "error3": "Your new password must be at least 4 characters long.",
+        "error4": "Your old password is not valid.",
+        "success": "Your profile has been updated."
     },
     "navbar": {
         "about": "About",

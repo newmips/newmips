@@ -90,7 +90,15 @@
         "email": "Email",
         "firstname": "Prénom",
         "lastname": "Nom",
-        "phone": "Téléphone"
+        "phone": "Téléphone",
+        "old_password": "Votre ancien mot de passe",
+        "new_password_1": "Nouveau mot de passe",
+        "new_password_2": "Confirmer nouveau mot de passe",
+        "error1": "Vous devez renseigner un nouveau mot de passe pour le changer.",
+        "error2": "Les deux mots de passe ne correspondent pas.",
+        "error3": "Votre nouveau mot de passe doit faire au moins 4 caractères.",
+        "error4": "Votre ancien mot de passe n'est pas valide.",
+        "success": "Votre profil a bien été mis à jour."
     },
     "navbar": {
         "about": "A propos",
