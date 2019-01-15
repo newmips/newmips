@@ -712,6 +712,10 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
         }
 
         data.e_user = e_user;
+        data.isLocal = false;
+        if(globalConfig.authStrategy && globalConfig.authStrategy.toLowerCase() == "local")
+            data.isLocal = true;
+
         res.render('e_user/settings', data);
     }).catch(function(err) {
         entity_helper.error(err, res);

@@ -102,30 +102,32 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="fieldLineHeight col-xs-12">
-                                    <div class="form-group">
-                                        <label for="old_password">
-                                            {@__ key="settings.old_password"/}
-                                        </label>
-                                        <input class="form-control input" placeholder='{@__ key="settings.old_password"/}' name="old_password" type="password">
+                                {@ifTrue key=isLocal}
+                                    <div class="fieldLineHeight col-xs-12">
+                                        <div class="form-group">
+                                            <label for="old_password">
+                                                {@__ key="settings.old_password"/}
+                                            </label>
+                                            <input class="form-control input" placeholder='{@__ key="settings.old_password"/}' name="old_password" type="password">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="fieldLineHeight col-xs-12">
-                                    <div class="form-group">
-                                        <label for="f_role">
-                                            {@__ key="settings.new_password_1"/}
-                                        </label>
-                                        <input class="form-control input" placeholder='{@__ key="settings.new_password_1"/}' name="new_password_1" type="password">
+                                    <div class="fieldLineHeight col-xs-12">
+                                        <div class="form-group">
+                                            <label for="f_role">
+                                                {@__ key="settings.new_password_1"/}
+                                            </label>
+                                            <input class="form-control input" placeholder='{@__ key="settings.new_password_1"/}' name="new_password_1" type="password">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="fieldLineHeight col-xs-12">
-                                    <div class="form-group">
-                                        <label for="f_group">
-                                            {@__ key="settings.new_password_2"/}
-                                        </label>
-                                        <input class="form-control input" placeholder='{@__ key="settings.new_password_2"/}' name="new_password_2" type="password">
+                                    <div class="fieldLineHeight col-xs-12">
+                                        <div class="form-group">
+                                            <label for="f_group">
+                                                {@__ key="settings.new_password_2"/}
+                                            </label>
+                                            <input class="form-control input" placeholder='{@__ key="settings.new_password_2"/}' name="new_password_2" type="password">
+                                        </div>
                                     </div>
-                                </div>
+                                {/ifTrue}
                             </div>
                             {/e_user}
                             <br>
