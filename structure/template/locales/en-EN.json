@@ -182,7 +182,8 @@
             "no_category": "No category",
             "pending_event": "Pending event(s)",
             "startHour": "Start hour",
-            "endHour": "End hour"
+            "endHour": "End hour",
+            "fill_title": "Please fill the title event input."
         },
         "print": {
             "action": "Print"
