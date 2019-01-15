@@ -17,6 +17,7 @@ var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
 var moment = require("moment");
+var bcrypt = require('bcrypt-nodejs');
 var SELECT_PAGE_SIZE = 10;
 
 // Enum and radio managment
@@ -688,34 +689,79 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
 });
 
 router.get('/settings', block_access.isLoggedIn, function(req, res) {
-    var id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
-    var data = {
-        menu: "e_user",
-        sub_menu: "list_e_user",
-        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
-    };
 
-    if (typeof req.query.associationFlag !== 'undefined') {
-        data.associationFlag = req.query.associationFlag;
-        data.associationSource = req.query.associationSource;
-        data.associationForeignKey = req.query.associationForeignKey;
-        data.associationAlias = req.query.associationAlias;
-        data.associationUrl = req.query.associationUrl;
-    }
+    let id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
+    let data = {};
 
-    models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function(e_user) {
+    models.E_user.findOne({
+        attributes: ["id", "f_login", "f_email"],
+        where: {
+            id: id_e_user
+        },
+        include: [{
+            model: models.E_group,
+            as: 'r_group'
+        }, {
+            model: models.E_role,
+            as: 'r_role'
+        }]
+    }).then(e_user => {
         if (!e_user) {
             data.error = 404;
             return res.render('common/error', data);
         }
 
-        // Used to hide role/group inputs
-        data.isSettings = true;
-        req.session.formSettings = true;
+        data.e_user = e_user;
         res.render('e_user/settings', data);
-    }).catch(function(err){
+    }).catch(function(err) {
         entity_helper.error(err, res);
     });
-});
+})
+
+router.post('/settings', block_access.isLoggedIn, function(req, res) {
+
+    let updateObject = {
+        f_email: req.body.f_email
+    };
+
+    models.E_user.findByPk(req.session.passport.user.id).then(user => {
+        let newPassword = new Promise((resolve, reject) => {
+            if(!req.body.old_password || req.body.old_password == "")
+                return resolve(updateObject);
+
+            if(req.body.new_password_1 == "" && req.body.new_password_2 == ""){
+                return reject("settings.error1");
+            } else if (req.body.new_password_1 != req.body.new_password_2){
+                return reject("settings.error2");
+            } else if(req.body.new_password_1.length < 4){
+                return reject("settings.error3");
+            } else {
+                bcrypt.compare(req.body.old_password, user.f_password, function(err, check) {
+                    if(!check){
+                        return reject("settings.error4");
+                    }
+                    updateObject.f_password = bcrypt.hashSync(req.body.new_password_1, null, null);
+                    resolve(updateObject);
+                })
+            }
+        })
+
+        newPassword.then(updateObject => {
+            user.update(updateObject).then(() => {
+                req.session.toastr = [{
+                    message: "settings.success",
+                    level: "success"
+                }];
+                res.redirect("/user/settings");
+            })
+        }).catch(err => {
+            req.session.toastr = [{
+                message: err,
+                level: "error"
+            }];
+            res.redirect("/user/settings");
+        })
+    })
+})
 
 module.exports = router;
