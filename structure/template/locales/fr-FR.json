@@ -183,7 +183,8 @@
             "no_category": "Pas de catégorie",
             "pending_event": "Événement(s) en attente",
             "startHour": "Heure de début",
-            "endHour": "Heure de fin"
+            "endHour": "Heure de fin",
+            "fill_title": "Merci de renseigner un titre d'événement."
         },
         "print": {
             "action": "Imprimer"
