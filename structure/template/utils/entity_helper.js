@@ -173,7 +173,7 @@ var funcs = {
 
         } finally {
             if (ajax){
-                console.log(err);
+                console.error(err);
                 return res.status(500).send(req.session.toastr);
             }
             if (isKnownError)

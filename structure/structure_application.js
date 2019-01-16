@@ -175,7 +175,7 @@ exports.setupApplication = function(attr, callback) {
             });
         });
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         var err = new Error();
         err.message = "An error occurred while initializing the node modules.";
         return callback(err, null);
@@ -291,7 +291,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
         fs.copy(piecesPath + '/administration/views/e_user/settings.dust', workspacePath + '/views/e_user/settings.dust', function(err) {
             if (err)
-                console.log(err);
+                console.error(err);
 
             // Clean user list fields
             domHelper.read(workspacePath + '/views/e_user/list_fields.dust').then(function($) {

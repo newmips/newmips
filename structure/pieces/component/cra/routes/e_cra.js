@@ -192,12 +192,12 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
         entity_helper.prepareDatalistResult('e_cra', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -386,7 +386,7 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
             });
         });
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).send("Unable to update your Activity report");
     });
 });
@@ -539,7 +539,7 @@ router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra
             return res.status(404).send("Couldn't find Timesheet with id "+id_cra);
         res.status(200).end();
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         return res.status(404).send("Couldn't update");
     });
 });
@@ -691,7 +691,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'updat
             cra.update({f_user_validated: false});
         });
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).send("Unable to update your Activity report");
     });
 });

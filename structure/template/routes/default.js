@@ -181,7 +181,7 @@ router.post('/change_language', block_access.isLoggedIn, function (req, res) {
 router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     upload(req, res, function (err) {
         if (err) {
-            console.log(err);
+            console.error(err);
             return res.status(500).end(err);
         }
         var folder = req.file.originalname.split('-');
@@ -190,7 +190,7 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
             var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
             fse.mkdirs(basePath, function (err) {
                 if (err) {
-                    console.log(err);
+                    console.error(err);
                     return res.status(500).end(err);
                 }
                 var uploadPath = basePath + req.file.originalname;
@@ -208,11 +208,11 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                     basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
                     fse.mkdirs(basePath, function (err) {
                         if (err)
-                            return console.log(err);
+                            return console.error(err);
 
                         Jimp.read(uploadPath, function (err, imgThumb) {
                             if (err)
-                                return console.log(err);
+                                return console.error(err);
 
                             imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
                                     .quality(globalConf.thumbnail.quality)
@@ -281,7 +281,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
     p.then(function () {
         console.log("The file "+filename+" was successfully downloaded !");
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         req.session.toastr.push({level: 'error', message: "File not found"});
         res.writeHead(303, {Location: req.headers.referer});
         res.end();
@@ -305,7 +305,7 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
                     res.json({result: 200, message: ''});
                     fs.unlink(completeThumbnailPath,function (err) {
                         if(err)
-                            console.log(err);
+                            console.error(err);
                     });
                 } else {
                     req.session.toastr.push({level: 'error', message: "Internal error"});

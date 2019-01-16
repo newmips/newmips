@@ -101,7 +101,7 @@
 		                success: function() {
 		                },
 		                error: function(err) {
-		                    console.log(err);
+		                    console.error(err);
 		                }
 		            });
 				}
@@ -123,7 +123,7 @@
 			                	$("#box-"+$(this).data("codename")).remove();
 			                },
 			                error: function(err) {
-			                    console.log(err);
+			                    console.error(err);
 			                }
 			            });
 					}

@@ -99,7 +99,7 @@ router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAM
     var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
     var fileName = req.body.originalname;
     res.download(downloadPath, fileName, function(err) {
-        if(err){console.log(err);}
+        if(err){console.error(err);}
     });
 });
 

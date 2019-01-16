@@ -87,7 +87,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                 }).then(function(user) {
                     req.login(user, (err) => {
                         if (err) {
-                            console.log(err);
+                            console.error(err);
                             req.flash('loginMessage', "login.first_connection.success");
                             return res.redirect('/login');
                         }

@@ -41,7 +41,7 @@ module.exports = {
                 simpleGit.addAnnotatedTag(tagName, 'Tagging '+tagName)
                 .pushTags(['-u', originName, 'master'], function(err) {
                     if (err) {
-                        console.log(err);
+                        console.error(err);
                         return reject(err);
                     }
                     resolve();
@@ -101,7 +101,7 @@ module.exports = {
                             .push(['-u', originName, 'master'], function(err, answer){
                                 gitProcesses[originName] = false;
                                 if(err)
-                                    console.log(err);
+                                    console.error(err);
                                 console.log(answer);
                                 writeAllLogs("Git first commit / push", answer, err);
                             });
@@ -118,7 +118,7 @@ module.exports = {
                         simpleGit.add('.')
                         .commit(commitMsg, function(err, answer){
                             if(err)
-                                console.log(err);
+                                console.error(err);
                             console.log(answer);
                             writeAllLogs("Git commit", answer, err);
                         });

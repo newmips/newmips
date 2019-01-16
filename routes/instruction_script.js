@@ -473,7 +473,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
                         process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
                             if(err)
-                                console.log(err);
+                                console.error(err);
 
                             // Preparation to start a new child server
                             var math = require('math');
@@ -492,7 +492,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     }
                 });
             }).catch(function(err) {
-                console.log(err);
+                console.error(err);
                 scriptData[userId].over = true;
             });
         }
@@ -707,7 +707,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
                         process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
                             if(err)
-                                console.log(err);
+                                console.error(err);
 
                             // Preparation to start a new child server
                             var math = require('math');
@@ -725,10 +725,10 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                         scriptData[userId].over = true;
                     }
                 }).catch(function(err) {
-                    console.log(err);
+                    console.error(err);
                 });
             }).catch(function(err) {
-                console.log(err);
+                console.error(err);
                 scriptData[userId].over = true;
             });
         }

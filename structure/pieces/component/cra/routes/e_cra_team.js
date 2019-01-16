@@ -38,7 +38,7 @@ router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team"
         end: yearEnd
     }, function(err, holidays) {
         if (err) {
-            console.log(err);
+            console.error(err);
             return entity_helper.error(err, req, res);
         }
 
@@ -71,12 +71,12 @@ router.post('/datalist', block_access.actionAccessMiddleware("cra_team", "read")
         entity_helper.prepareDatalistResult('e_cra_team', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });

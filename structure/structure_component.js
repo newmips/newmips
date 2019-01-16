@@ -90,7 +90,7 @@ function addTab(attr, file, newLi, newTabContent) {
                 resolve();
             });
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             reject(err);
         });
     });

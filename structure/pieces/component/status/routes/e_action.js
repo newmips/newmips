@@ -40,7 +40,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("action", "read"), 
             res.send(preparedData).end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });

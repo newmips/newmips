@@ -153,11 +153,11 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
     fullStdoutToFile(cmd, cmdArgs, dumpPath).then(function(){
         res.download(dumpPath, dumpName, function (err) {
             if (err)
-                console.log(err);
+                console.error(err);
             fs.unlinkSync(dumpPath);
         })
     }).catch(function(err){
-        console.log(err);
+        console.error(err);
     })
 })
 
@@ -242,7 +242,7 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
         }];
         res.redirect("/import_export/db_show")
     }).catch(function(err){
-        console.log(err);
+        console.error(err);
         req.session.toastr = [{
             message: JSON.stringify(err),
             level: "error"
@@ -259,7 +259,7 @@ router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessM
     var dumpPath = __dirname + '/../config/access.json';
     res.download(dumpPath, "access_conf_"+moment().format("YYYYMMDD-HHmmss")+".json", function (err) {
         if (err){
-            console.log(err);
+            console.error(err);
             req.session.toastr.push({
                 message: err,
                 level: "error"
