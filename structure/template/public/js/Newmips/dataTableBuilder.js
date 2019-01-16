@@ -55,7 +55,10 @@ if (lang_user == "fr-FR") {
         "aria": {
             "sortAscending": ": activer pour trier la colonne par ordre croissant",
             "sortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
-        }
+        },
+        "choose_columns": "Choix Colonnes",
+        "apply": "Appliquer",
+        "display": "Afficher"
     };
 } else {
     STR_LANGUAGE = {
@@ -80,7 +83,11 @@ if (lang_user == "fr-FR") {
         "aria": {
             "sortAscending": ": click to sort column by ascending order",
             "sortDescending": ": click to sort column by descending order"
-        }
+        },
+        "choose_columns": "Choose Columns",
+        "apply": "Apply",
+        "display": "Display"
+
     };
 }
 
@@ -242,19 +249,75 @@ var delay = (function() {
     };
 })();
 
+// Generate the column selector on datatable button click
+//   - append am absolute div to the datalist button
+//   - display a list of the columns available on page load with a checkbox to hide/show each
+function generateColumnSelector(tableID, columns) {
+    var columnsToHide = JSON.parse(localStorage.getItem("newmips_hidden_columns_save_" + tableID.substring(1))) || {columns: []};
+    var columnsSelectorDiv = $('<div id="columnSelector" style="position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+    // Loop over the <th> available on page load
+    for (var i = 0; i < columns.length; i++) {
+        (function (current) {
+            var element = current.element;
+            // Button's <th> doesn't have the .sorting class
+            if (!element.hasClass('sorting'))
+                return;
+            var columnDiv = $('<label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(current.hidden ? '':'checked')+'>&nbsp;'+element.text()+'</label><br>');
+            // On hide/show trigger
+            columnDiv.click(function() {
+                // Hide by pushing to columnsToHide
+                if (typeof current.element.attr('data-hidden') === 'undefined' || current.element.attr('data-hidden') == "0")
+                    columnsToHide.columns.push(current.element.data('col'));
+                // Show by removing col from columnsToHide
+                else
+                    columnsToHide.columns.splice(columnsToHide.columns.indexOf(current.element.data('col')), 1);
+            });
+            columnsSelectorDiv.append(columnDiv);
+        })(columns[i]);
+    }
+
+    // Initialize columns checkboxes
+    columnsSelectorDiv.find('input[type=checkbox]').iCheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
+
+    // Create Apply button and bind click
+    var applyBtn = $('<div style="text-align:center;margin-top:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
+    // Set new filters to localStorage and reload
+    applyBtn.click(function(){
+        localStorage.setItem("newmips_hidden_columns_save_" + tableID.substring(1), JSON.stringify(columnsToHide));
+        location.reload();
+    });
+
+    columnsSelectorDiv.append(applyBtn)
+    return columnsSelectorDiv;
+}
+// Close column selector when click event is triggered outside of it
+$(document).mouseup(function(e) {
+    // if the target of the click isn't the container nor a descendant of the container
+    if ($("#columnSelector") && !$("#columnSelector").is(e.target) && $("#columnSelector").has(e.target).length === 0)
+        $("#columnSelector").remove();
+});
+
 function init_datatable(tableID, doPagination, context) {
     if(!context)
         context = document;
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
+    var hiddenColumns = JSON.parse(localStorage.getItem("newmips_hidden_columns_save_" + tableID.substring(1))) || {};
+    for (var i = 0; hiddenColumns.columns && i < hiddenColumns.columns.length; i++)
+        $(tableID + " .main th, "+tableID+" .filters th", context).each(function() {
+            if (typeof $(this).data('col') !== 'undefined' && hiddenColumns.columns.indexOf($(this).data('col')) != -1)
+                $(this).attr('data-hidden', '1');
+        });
+
     // Fetch columns from html
     var columns = [], defaultOrder = {idx: 0, direction: 'DESC'};
+    // var savedHiddenColumns = JSON.parse(localStorage.getItem("newmips_hidden_columns_save_" + tableID.substring(1)) || '[]');
     $(tableID + " .main th", context).each(function (idx) {
         if (typeof $(this).data('col') !== 'undefined'){
-            if($(this).data("hidden") == "1")
-                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true});
+            if($(this).attr("data-hidden") == "1")
+                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true, element: $(this)});
             else
-                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: false});
+                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: false, element: $(this)});
 
             // Look for default order on field. Presence of `data-default-order` gives the index, value gives direction. Ex: <th data-default-order="ASC">
             if ($(this).data('default-order')) {
@@ -277,7 +340,6 @@ function init_datatable(tableID, doPagination, context) {
         } while (i < cellArrayKeyValue.length);
         return row;
     }
-
     // Columns rendering
     // Server's object doesn't include DB table's prefix, we need to remove it
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
@@ -424,6 +486,7 @@ function init_datatable(tableID, doPagination, context) {
     }
 
     // Init DataTable
+    var table, columnSelectionVisible = false;
     var tableOptions = {
         "serverSide": true,
         "ajax": {
@@ -447,6 +510,15 @@ function init_datatable(tableID, doPagination, context) {
         "bAutoWidth": false,
         "order": [ defaultOrder.idx, defaultOrder.direction ],
         "buttons": [
+            {
+                text: STR_LANGUAGE.choose_columns,
+                action: function(e,dt,node,config) {
+                    if ($("#columnSelector").length > 0)
+                        $(node).next().remove();
+                    else
+                        $(node).after(generateColumnSelector(tableID, columns));
+                }
+            },
             {
                 extend: 'print',
                 text: '<i class="fa fa-print"></i>',
@@ -497,7 +569,7 @@ function init_datatable(tableID, doPagination, context) {
         ]
     }
     // Global search
-    var table = $(tableID, context).DataTable(tableOptions);
+    table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
     $(tableID+' tbody', context).on('click', 'td img', function () {
@@ -536,9 +608,10 @@ function init_datatable(tableID, doPagination, context) {
 
     var startFilterTimer = 0;
     // Bind search fields
-    $(tableID + ' .filters th', context).each(function (i) {
-        var title = $(this).text();
+    $(tableID + ' .filters th', context).each(function (idx) {
         var mainTh = $(this);
+        var title = $(this).text();
+
         // Custom
         var currentField = mainTh.data('field');
         var val = getFilterSave(tableID.substring(1), currentField);
@@ -571,8 +644,10 @@ function init_datatable(tableID, doPagination, context) {
         }
         // If it's not an action button
         if (title != '') {
-            if($(this).data("hidden") != 1){
-                $(this).html('');
+            if($(this).attr("data-hidden") == "1")
+                $(this).hide();
+            else {
+                $(this).show().html('');
                 $(search).appendTo(this).keyup(function () {
                     var searchValue = this.value;
                     saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
@@ -617,8 +692,6 @@ function init_datatable(tableID, doPagination, context) {
                             separator: "-"
                         });
                 }
-            } else {
-                $(this).hide();
             }
         }
         if (val != "") {
