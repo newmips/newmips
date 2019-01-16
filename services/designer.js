@@ -978,7 +978,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                         let err = new Error("structure.field.attributes.duplicateUnique");
                     } else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01")){
                         // Table do not exist - In case of script it's totally normal,juste generate a warning
-                        console.log("WARNING - The database unique constraint could not be applied, the corresponding table does not exist at the time of the instruction.")
+                        console.log("WARNING - The database unique constraint on '"+attr.options.showValue+"' could not be applied, the corresponding table '"+sourceEntity+"' does not exist at the time of the instruction.")
                         structure_data_field.setUniqueField(attr, function (err) {
                             if (err)
                                 return callback(err, null);
