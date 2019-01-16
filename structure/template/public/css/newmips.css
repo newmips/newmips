@@ -38,6 +38,7 @@ table > tbody > tr:hover {
 }
 label.no-weight {
     font-weight: normal !important;
+    cursor: pointer;
 }
 /** Component Address**/
 .section_c_address_fields{
