@@ -15,6 +15,8 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
             method: 'POST',
             delay: 250,
             contentType: "application/json",
+            allowClear: true,
+            placeholder: placeholder,
             data: function (params) {
                 var ajaxdata = {
                     search: params.term,
@@ -36,7 +38,7 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
                 var dataResults = answer.rows;
                 if (!dataResults)
                     return {results: []};
-                var results = [];
+                var results = [{id: "", text: placeholder}];
                 for (var i = 0; i < dataResults.length; i++) {
                     var text = [];
                     for (var field in dataResults[i]) {
@@ -65,8 +67,7 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
         },
         templateResult: function (data) {
             return data.text;
-        },
-        placeholder: placeholder
+        }
     });
 }
 
@@ -87,7 +88,7 @@ function initForm(context) {
     });
 
     /* --------------- Initialisation des iCheck - Checkbox + RadioButton --------------- */
-    $("input[type='checkbox'], input[type='radio']", context).iCheck({
+    $("input[type='checkbox'], input[type='radio']", context).icheck({
         checkboxClass: 'icheckbox_flat-blue',
         radioClass: 'iradio_flat-blue',
         disabledClass: ''
@@ -485,7 +486,7 @@ function initForm(context) {
             switch(input.attr("type")) {
                 case "checkbox":
                     if(!input.prop("disabled"))
-                        input.iCheck("toggle");
+                        input.icheck("toggle");
                     break;
                 default:
                     if(!input.prop("readonly"))

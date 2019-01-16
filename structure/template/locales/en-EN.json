@@ -20,6 +20,7 @@
         "first_connection": {
             "title": "First connection",
             "success": "Update done, you can now log in with your credentials.",
+            "success2": "Update done, you are now log in !",
             "userNotExist": "Error, this user does not exist or has already been activated.",
             "alreadyHavePassword": "Operation is not possible, this user already has a password.",
             "passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 4 characters."
@@ -89,7 +90,15 @@
         "email": "Email",
         "firstname": "Firstname",
         "lastname": "Lastname",
-        "phone": "Phone"
+        "phone": "Phone",
+        "old_password": "Your old password",
+        "new_password_1": "New password",
+        "new_password_2": "Confirm new password",
+        "error1": "You have to fill a new password in order to change it.",
+        "error2": "The two passwords do not match.",
+        "error3": "Your new password must be at least 4 characters long.",
+        "error4": "Your old password is not valid.",
+        "success": "Your profile has been updated."
     },
     "navbar": {
         "about": "About",
@@ -181,7 +190,8 @@
             "no_category": "No category",
             "pending_event": "Pending event(s)",
             "startHour": "Start hour",
-            "endHour": "End hour"
+            "endHour": "End hour",
+            "fill_title": "Please fill the title event input."
         },
         "print": {
             "action": "Print"

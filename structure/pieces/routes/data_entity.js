@@ -166,13 +166,13 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('ENTITY_NAME/show', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "ENTITY_NAME");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     });
 });
 
@@ -194,7 +194,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
         res.render(view, data);
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form');
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
     })
 });
 
@@ -250,11 +250,11 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
                     res.redirect(redirect);
                 });
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form');
+                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
             });
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form');
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
     });
 });
 
@@ -292,13 +292,13 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
                 } else
                     res.render('ENTITY_NAME/update', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "ENTITY_NAME");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         })
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     })
 });
 
@@ -340,13 +340,13 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 
                 res.redirect(redirect);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
             });
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
     });
 });
 
@@ -504,7 +504,7 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect(req.headers.referer);
     }).catch((err)=> {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME);
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME, "ENTITY_NAME");
     });
 });
 
@@ -631,10 +631,10 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
         ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(function(aliasEntities) {
             res.sendStatus(200).end();
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     });
 });
 
@@ -666,10 +666,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
         ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     });
 });
 
@@ -697,10 +697,10 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             res.redirect(redirect);
             entity_helper.removeFiles("ENTITY_NAME", deleteObject, attributes);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list');
+            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list', "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list');
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list', "ENTITY_NAME");
     });
 });
 
