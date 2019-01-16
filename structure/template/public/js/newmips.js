@@ -213,7 +213,8 @@ function initForm(context) {
         });
 
         $(".datepicker", context).inputmask({
-            "alias": "dd/mm/yyyy"
+            alias: "dd/mm/yyyy",
+            placeholder: "jj/mm/aaaa"
         });
 
         $('.datetimepicker', context).datetimepicker({
@@ -223,7 +224,7 @@ function initForm(context) {
 
         $(".datetimepicker", context).inputmask({
             mask: "1/2/y h:s",
-            placeholder: "dd/mm/yyyy hh:mm",
+            placeholder: "jj/mm/aaaa hh:mm",
             alias: "datetime",
             timeseparator: ":",
             hourFormat: "24"
@@ -237,7 +238,7 @@ function initForm(context) {
         });
 
         $(".datepicker", context).inputmask({
-            "alias": "yyyy-mm-dd"
+            alias: "yyyy-mm-dd"
         });
 
         $('.datetimepicker', context).datetimepicker({
