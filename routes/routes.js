@@ -24,8 +24,8 @@ try{
         });
     }
 } catch(err){
-    console.log("Error connection Gitlab repository: "+err);
-    console.log("Please set doGit in config/gitlab.js to false");
+    console.error("Error connection Gitlab repository: "+err);
+    console.error("Please set doGit in config/gitlab.js to false");
 }
 
 //Sequelize
@@ -95,7 +95,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                                 }).then(function(connectedUser){
                                     req.login(connectedUser, function(err) {
                                         if (err) {
-                                            console.log(err);
+                                            console.error(err);
                                             res.redirect('/login');
                                         } else{
                                             req.session.showytpopup = true;
@@ -185,7 +185,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                 res.redirect('/login');
             }
         }).catch(function(err){
-            console.log(err);
+            console.error(err);
             req.session.toastr = [{
                 message: err.message,
                 level: "error"
@@ -343,7 +343,7 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
                         }).then(function(connectedUser){
                             req.login(connectedUser, function(err) {
                                 if (err) {
-                                    console.log(err);
+                                    console.error(err);
                                     req.session.toastr = [{
                                         message: err.message,
                                         level: "error"
@@ -476,13 +476,13 @@ router.post('/set_slack', block_access.isLoggedIn, function(req, res) {
                 }
             });
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             res.json({
                 ok: false
             });
         })
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.json({
             ok: false
         });

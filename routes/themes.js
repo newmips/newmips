@@ -32,7 +32,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
             if(err.errno == -2){
                 console.log("Missing infos.json or screenshot.png in theme "+themeListAvailable[i]+". It will be ignored. See documentation for more information about custom theme.");
             } else {
-                console.log(err);
+                console.error(err);
             }
         }
     }
@@ -62,7 +62,7 @@ router.get('/download_default', function(req, res) {
         console.log("Custom theme zip was successfully downloaded !");
         res.end();
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         req.session.toastr.push({
             level: 'error',
             message: "File not found"
@@ -79,7 +79,7 @@ router.post('/delete_theme', function(req, res) {
         helpers.rmdirSyncRecursive(__dirname + "/../structure/template/public/themes/"+req.body.theme);
         res.status(200).send(true);
     } catch(err){
-        console.log(err);
+        console.error(err);
         res.status(500).send(err);
     }
 });
@@ -180,11 +180,11 @@ router.post('/upload_theme', multer({
                                                         }
                                                     }
                                                 } catch(err){
-                                                    console.log(err);
+                                                    console.error(err);
                                                     entry.autodrain();
                                                 }
                                             }).on('error', function(err) {
-                                                console.log(err);
+                                                console.error(err);
                                                 req.session.toastr = [{level: 'error', message: "Sorry, an internal error occured."}];
                                                 res.redirect("/themes");
                                             }).on('close', function(){
@@ -209,19 +209,19 @@ router.post('/upload_theme', multer({
                                         res.redirect("/themes");
                                     }
                                 } catch(err){
-                                    console.log(err);
+                                    console.error(err);
                                     entry.autodrain();
                                 }
                             }))
                         } catch(err){
-                            console.log(err);
+                            console.error(err);
                             entry.autodrain();
                         }
                     } else {
                         entry.autodrain();
                     }
                 }).on('error', function(err) {
-                    console.log(err);
+                    console.error(err);
                     req.session.toastr = [{level: 'error', message: "Sorry, an internal error occured."}];
                     res.redirect("/themes");
                 }).on('close', function(){

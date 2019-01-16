@@ -124,7 +124,7 @@ router.get('/getPage/:entity/:page', block_access.hasAccessApplication, function
 
         res.status(200).send($("#fields")[0].outerHTML);
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
     });
 });
@@ -190,7 +190,7 @@ router.post('/setPage/:entity/:page', block_access.hasAccessApplication, functio
 
             gitHelper.gitCommit(attr, function(err, infoGit) {
                 if (err)
-                    console.log(err);
+                    console.error(err);
                 if (req.body.applyAll == "true")
                     res.status(200).send(generatorLanguage.__("ui_editor.page_saved_all"));
                 else

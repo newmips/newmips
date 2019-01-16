@@ -70,7 +70,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("media", "read"), f
             res.send(preparedData).end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });

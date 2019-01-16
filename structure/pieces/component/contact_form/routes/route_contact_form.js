@@ -45,12 +45,12 @@ router.post('/datalist', block_access.actionAccessMiddleware("URL_VALUE_CONTACT"
         entity_helper.prepareDatalistResult('CODE_VALUE_CONTACT', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });

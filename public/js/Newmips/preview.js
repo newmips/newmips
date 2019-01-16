@@ -16,7 +16,7 @@ $(document).ready(function() {
                 callback(answer.value);
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 callback(key);
             }
         });
@@ -74,7 +74,7 @@ $(document).ready(function() {
                     $("a#custom-grid-editor-print-layout").trigger("click");
             },
             error: function(err) {
-                console.log(err);
+                console.error(err);
                 toastr.error(err.responseText);
             }
         });
@@ -101,7 +101,7 @@ $(document).ready(function() {
                 $(this).prop("disabled", false);
             },
             error: function(err) {
-                console.log(err);
+                console.error(err);
                 toastr.error(err.responseText);
             }
         });
@@ -390,7 +390,7 @@ $(document).ready(function() {
                 });
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 toastr.error("Sorry, an error occured :/");
             }
         });
@@ -473,7 +473,7 @@ $(document).ready(function() {
                 setTimeout(updateLog, 1000);
             },
             error: function(err) {
-                console.log(err);
+                console.error(err);
             }
         });
     }

@@ -217,7 +217,7 @@ function build(id_application) {
 				cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
 			exec(cmd, function(error, stdout, stderr) {
 				if (error)
-					console.log(error);
+					console.error(error);
 				resolve();
 			});
 		}).catch(function(err) {

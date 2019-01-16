@@ -363,7 +363,7 @@ $(document).ready(function() {
                 myEditor.clearHistory();
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 toastr.error("Sorry, an error occured :/");
             }
         });
@@ -393,7 +393,7 @@ $(document).ready(function() {
                 $("#update-file").removeAttr("disabled");
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 toastr.error("Sorry, an error occured :/");
             }
         });

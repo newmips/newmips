@@ -43,12 +43,12 @@ router.post('/datalist', block_access.actionAccessMiddleware("api_credentials", 
         entity_helper.prepareDatalistResult('e_api_credentials', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -130,7 +130,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("api_credentials
             entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function (preparedData) {
                 res.send(preparedData).end();
             }).catch(function (err) {
-                console.log(err);
+                console.error(err);
                 logger.debug(err);
                 res.end();
             });

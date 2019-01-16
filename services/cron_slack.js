@@ -22,7 +22,7 @@ module.exports = function() {
                     }, function(err, archiveChannel) {
                         console.log("--ARCHIVE--");
                         if (err) {
-                            console.log(err);
+                            console.error(err);
                         }
                     });
                 }
@@ -48,7 +48,7 @@ module.exports = function() {
                     }, function(err, leaveChannel) {
                         console.log("--LEAVE--");
                         if (err) {
-                            console.log(err);
+                            console.error(err);
                         }
 
                         var cpt2 = 0;
@@ -68,7 +68,7 @@ module.exports = function() {
                             }, function(err, kickUser) {
                                 console.log("--KICK--");
                                 if (err) {
-                                    console.log(err);
+                                    console.error(err);
                                 }
                                 done2(listUser, listChannel);
                             });
