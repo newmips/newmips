@@ -11,6 +11,7 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: __dirname + "/../upload/",
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,
@@ -28,6 +29,7 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: "/var/data/localstorage/",
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,
@@ -50,6 +52,7 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: "/var/data/localstorage/",
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,

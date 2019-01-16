@@ -20,6 +20,7 @@
         "first_connection": {
             "title": "Première connexion",
             "success": "Mise à jour effectuée, vous pouvez désormais vous connecter avec vos identifiants.",
+            "success2": "Mise à jour effectuée, vous êtes maintenant connecté(e) !",
             "userNotExist": "Erreur, cet utilisateur n'existe pas ou a déjà été activé.",
             "alreadyHavePassword": "Opération impossible, cet utilisateur possède déjà un mot de passe.",
             "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 4 caractères."
@@ -89,7 +90,15 @@
         "email": "Email",
         "firstname": "Prénom",
         "lastname": "Nom",
-        "phone": "Téléphone"
+        "phone": "Téléphone",
+        "old_password": "Votre ancien mot de passe",
+        "new_password_1": "Nouveau mot de passe",
+        "new_password_2": "Confirmer nouveau mot de passe",
+        "error1": "Vous devez renseigner un nouveau mot de passe pour le changer.",
+        "error2": "Les deux mots de passe ne correspondent pas.",
+        "error3": "Votre nouveau mot de passe doit faire au moins 4 caractères.",
+        "error4": "Votre ancien mot de passe n'est pas valide.",
+        "success": "Votre profil a bien été mis à jour."
     },
     "navbar": {
         "about": "A propos",
@@ -182,7 +191,8 @@
             "no_category": "Pas de catégorie",
             "pending_event": "Événement(s) en attente",
             "startHour": "Heure de début",
-            "endHour": "Heure de fin"
+            "endHour": "Heure de fin",
+            "fill_title": "Merci de renseigner un titre d'événement."
         },
         "print": {
             "action": "Imprimer"

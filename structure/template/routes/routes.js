@@ -65,32 +65,46 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
         if(!user){
             req.flash('loginMessage', "login.first_connection.userNotExist");
             res.redirect('/login');
-        }
-        else if(user.f_password != "" && user.f_password != null){
+        } else if (user.f_password != "" && user.f_password != null){
             req.flash('loginMessage', "login.first_connection.alreadyHavePassword");
             res.redirect('/login');
-        }
-        else{
+        } else {
             var password = bcrypt.hashSync(req.body.password_user2, null, null);
 
-            models.E_user.update({
+            user.update({
                 f_password: password,
                 f_enabled: 1
-            }, {
-                where: {
-                    id: user.id
-                }
-            }).then(function(){
-                req.flash('loginMessage', "login.first_connection.success");
-                res.redirect('/login');
-            });
+            }).then(() => {
+                models.E_user.findOne({
+                    where: {id: user.id},
+                    include: [{
+                        model: models.E_group,
+                        as: 'r_group'
+                    }, {
+                        model: models.E_role,
+                        as: 'r_role'
+                    }]
+                }).then(function(user) {
+                    req.login(user, (err) => {
+                        if (err) {
+                            console.log(err);
+                            req.flash('loginMessage', "login.first_connection.success");
+                            return res.redirect('/login');
+                        }
+                        req.session.toastr = [{
+                            message: "login.first_connection.success2",
+                            level: "success"
+                        }];
+                        res.redirect('/default/home');
+                    })
+                })
+            })
         }
-
     }).catch(function(err){
         req.flash('loginMessage', err.message);
         res.redirect('/login');
-    });
-});
+    })
+})
 
 // Affichage de la page reset_password
 router.get('/reset_password', block_access.loginAccess, function(req, res) {

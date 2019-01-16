@@ -17,6 +17,7 @@ var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
 var moment = require("moment");
+var bcrypt = require('bcrypt-nodejs');
 var SELECT_PAGE_SIZE = 10;
 
 // Enum and radio managment
@@ -166,13 +167,13 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('e_user/show', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "e_user");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -194,7 +195,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("user", "create")
         var view = req.query.ajax ? 'e_user/create_fields' : 'e_user/create';
         res.render(view, data);
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/create_form');
+        entity_helper.error(err, req, res, '/user/create_form', "e_user");
     })
 });
 
@@ -254,11 +255,11 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
                     res.redirect(redirect);
                 });
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/user/create_form');
+                entity_helper.error(err, req, res, '/user/create_form', "e_user");
             });
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/create_form');
+        entity_helper.error(err, req, res, '/user/create_form', "e_user");
     });
 });
 
@@ -296,13 +297,13 @@ router.get('/update_form', block_access.actionAccessMiddleware("user", "update")
                 } else
                     res.render('e_user/update', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "e_user");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         })
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     })
 });
 
@@ -356,13 +357,13 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 
                 res.redirect(redirect);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
+                entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user, "e_user");
             });
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
+            entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user, "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user);
+        entity_helper.error(err, req, res, '/user/update_form?id=' + id_e_user, "e_user");
     });
 });
 
@@ -520,7 +521,7 @@ router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAcc
     status_helper.setStatus('e_user', req.params.id_user, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect(req.headers.referer);
     }).catch((err)=> {
-        entity_helper.error(err, req, res, '/user/show?id=' + req.params.id_user);
+        entity_helper.error(err, req, res, '/user/show?id=' + req.params.id_user, "e_user");
     });
 });
 
@@ -614,10 +615,10 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user
         e_user['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(function(aliasEntities) {
             res.sendStatus(200).end();
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -649,10 +650,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("user", 
         e_user['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/user/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -680,42 +681,91 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
             res.redirect(redirect);
             entity_helper.removeFiles("e_user", deleteObject, attributes);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/user/list');
+            entity_helper.error(err, req, res, '/user/list', "e_user");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/user/list');
+        entity_helper.error(err, req, res, '/user/list', "e_user");
     });
 });
 
 router.get('/settings', block_access.isLoggedIn, function(req, res) {
-    var id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
-    var data = {
-        menu: "e_user",
-        sub_menu: "list_e_user",
-        enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
-    };
 
-    if (typeof req.query.associationFlag !== 'undefined') {
-        data.associationFlag = req.query.associationFlag;
-        data.associationSource = req.query.associationSource;
-        data.associationForeignKey = req.query.associationForeignKey;
-        data.associationAlias = req.query.associationAlias;
-        data.associationUrl = req.query.associationUrl;
-    }
+    let id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
+    let data = {};
 
-    models.E_user.findOne({where: {id: id_e_user}, include: [{all: true}]}).then(function(e_user) {
+    models.E_user.findOne({
+        attributes: ["id", "f_login", "f_email"],
+        where: {
+            id: id_e_user
+        },
+        include: [{
+            model: models.E_group,
+            as: 'r_group'
+        }, {
+            model: models.E_role,
+            as: 'r_role'
+        }]
+    }).then(e_user => {
         if (!e_user) {
             data.error = 404;
             return res.render('common/error', data);
         }
 
-        // Used to hide role/group inputs
-        data.isSettings = true;
-        req.session.formSettings = true;
+        data.e_user = e_user;
+        data.isLocal = false;
+        if(globalConfig.authStrategy && globalConfig.authStrategy.toLowerCase() == "local")
+            data.isLocal = true;
+
         res.render('e_user/settings', data);
-    }).catch(function(err){
-        entity_helper.error(err, res);
+    }).catch(function(err) {
+        entity_helper.error(err, req, res, "/", "e_user");
     });
-});
+})
+
+router.post('/settings', block_access.isLoggedIn, function(req, res) {
+
+    let updateObject = {
+        f_email: req.body.f_email
+    };
+
+    models.E_user.findByPk(req.session.passport.user.id).then(user => {
+        let newPassword = new Promise((resolve, reject) => {
+            if(!req.body.old_password || req.body.old_password == "")
+                return resolve(updateObject);
+
+            if(req.body.new_password_1 == "" && req.body.new_password_2 == ""){
+                return reject("settings.error1");
+            } else if (req.body.new_password_1 != req.body.new_password_2){
+                return reject("settings.error2");
+            } else if(req.body.new_password_1.length < 4){
+                return reject("settings.error3");
+            } else {
+                bcrypt.compare(req.body.old_password, user.f_password, function(err, check) {
+                    if(!check){
+                        return reject("settings.error4");
+                    }
+                    updateObject.f_password = bcrypt.hashSync(req.body.new_password_1, null, null);
+                    resolve(updateObject);
+                })
+            }
+        })
+
+        newPassword.then(updateObject => {
+            user.update(updateObject).then(() => {
+                req.session.toastr = [{
+                    message: "settings.success",
+                    level: "success"
+                }];
+                res.redirect("/user/settings");
+            })
+        }).catch(err => {
+            req.session.toastr = [{
+                message: err,
+                level: "error"
+            }];
+            res.redirect("/user/settings");
+        })
+    })
+})
 
 module.exports = router;
