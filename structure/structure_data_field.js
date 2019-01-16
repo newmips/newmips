@@ -1367,11 +1367,31 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     head += '         <!--{/inline_help}-->\n';
     head += '     </label>\n';
 
+
     var select = '';
     if (attr.options.isCheckbox) {
-        select += '  <!--{#' + alias + '_all}-->\n';
-        select += '      <br><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-        select += '  <!--{/' + alias + '_all}-->\n';
+        select += '     <br>'
+        select += '     <!--{#' + alias + '_all}-->\n';
+        select += '         <!--{@eq key=$idx value="0" type="number"}-->\n';
+        select += '             <div class="col-xs-3">\n';
+        select += '         <!--{/eq}-->\n';
+        select += '         <!--{@math key=$idx method="mod" operand="3"}-->\n';
+        select += '             <!--{@eq value="0" type="number"}-->\n';
+        select += '                 <!--{@ne key=$idx value="0" type="number"}-->\n';
+        select += '                     </div>';
+        select += '                     <div class="col-xs-3">';
+        select += '                 <!--{/ne}-->\n';
+        select += '                 <br><label class="no-weight">';
+        select += '                     <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+        select += '                 </label>';
+        select += '             <!--{:else}-->\n';
+        select += '                 <br><label class="no-weight">\n';
+        select += '                     <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+        select += '                 </label>';
+        select += '             <!--{/eq}-->\n';
+        select += '         <!--{/math}-->\n';
+        select += '     <!--{/' + alias + '_all}-->\n';
+        select += '     <br><br>';
     } else {
         select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
         select += '         <option value="">{@__ key="select.default" /}</option>\n';
@@ -1387,14 +1407,38 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     var file = 'create_fields';
     updateFile(fileBase, file, head + select, function () {
         if (attr.options.isCheckbox) {
-            select = '  <!--{#' + alias + '_all}-->\n';
-            select += '     <br>\n';
-            select += '     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
-            select += '         <input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-            select += '     <!--{:else}-->\n';
-            select += '         <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-            select += '     <!--{/existInContextById}-->\n';
-            select += '  <!--{/' + alias + '_all}-->\n';
+
+            select = '     <br>'
+            select += '     <!--{#' + alias + '_all}-->\n';
+            select += '         <!--{@eq key=$idx value="0" type="number"}-->\n';
+            select += '             <div class="col-xs-3">\n';
+            select += '         <!--{/eq}-->\n';
+            select += '         <!--{@math key=$idx method="mod" operand="3"}-->\n';
+            select += '             <!--{@eq value="0" type="number"}-->\n';
+            select += '                 <!--{@ne key=$idx value="0" type="number"}-->\n';
+            select += '                     </div>';
+            select += '                     <div class="col-xs-3">';
+            select += '                 <!--{/ne}-->\n';
+            select += '                 <br><label class="no-weight">\n';
+            select += '                     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+            select += '                         <input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+            select += '                     <!--{:else}-->\n';
+            select += '                         <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+            select += '                     <!--{/existInContextById}-->\n';
+            select += '                 </label>';
+            select += '             <!--{:else}-->\n';
+            select += '                 <br><label class="no-weight">\n';
+            select += '                     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+            select += '                         <input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+            select += '                     <!--{:else}-->\n';
+            select += '                         <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+            select += '                     <!--{/existInContextById}-->\n';
+            select += '                 </label>';
+            select += '             <!--{/eq}-->\n';
+            select += '         <!--{/math}-->\n';
+            select += '     <!--{/' + alias + '_all}-->\n';
+            select += '     <br><br>';
+
         } else
             select = select.replace(/<option value="{id}">/, '<option value="{id}" selected>');
         file = 'update_fields';
@@ -1402,14 +1446,36 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         updateFile(fileBase, file, head + select, function () {
             select = '';
             if (attr.options.isCheckbox) {
-                select += '  <!--{#' + alias + '_all}-->\n';
-                select += '     <br>\n';
-                select += '     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
-                select += '         <input type="checkbox" disabled checked name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-                select += '     <!--{:else}-->\n';
-                select += '         <input type="checkbox" disabled name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-                select += '     <!--{/existInContextById}-->\n';
-                select += '  <!--{/' + alias + '_all}-->\n';
+
+                select = '     <br>'
+                select += '     <!--{#' + alias + '_all}-->\n';
+                select += '         <!--{@eq key=$idx value="0" type="number"}-->\n';
+                select += '             <div class="col-xs-3">\n';
+                select += '         <!--{/eq}-->\n';
+                select += '         <!--{@math key=$idx method="mod" operand="3"}-->\n';
+                select += '             <!--{@eq value="0" type="number"}-->\n';
+                select += '                 <!--{@ne key=$idx value="0" type="number"}-->\n';
+                select += '                     </div>';
+                select += '                     <div class="col-xs-3">';
+                select += '                 <!--{/ne}-->\n';
+                select += '                 <br>\n';
+                select += '                 <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+                select += '                     <input type="checkbox" disabled checked name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+                select += '                 <!--{:else}-->\n';
+                select += '                     <input type="checkbox" disabled name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+                select += '                 <!--{/existInContextById}-->\n';
+                select += '             <!--{:else}-->\n';
+                select += '                 <br>\n';
+                select += '                 <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
+                select += '                     <input type="checkbox" disabled checked name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+                select += '                 <!--{:else}-->\n';
+                select += '                     <input type="checkbox" disabled name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
+                select += '                 <!--{/existInContextById}-->\n';
+                select += '             <!--{/eq}-->\n';
+                select += '         <!--{/math}-->\n';
+                select += '     <!--{/' + alias + '_all}-->\n';
+                select += '     <br><br><br>';
+
             } else {
                 select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
                 select += '         <!--{#' + alias + '}-->\n';
