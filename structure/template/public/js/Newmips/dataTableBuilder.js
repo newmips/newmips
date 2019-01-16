@@ -277,14 +277,16 @@ function generateColumnSelector(tableID, columns) {
     }
 
     // Initialize columns checkboxes
-    columnsSelectorDiv.find('input[type=checkbox]').iCheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
+    columnsSelectorDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 
     // Create Apply button and bind click
     var applyBtn = $('<div style="text-align:center;margin-top:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
-    // Set new filters to localStorage and reload
     applyBtn.click(function(){
+        // Set new filters to localStorage and reload
         localStorage.setItem("newmips_hidden_columns_save_" + tableID.substring(1), JSON.stringify(columnsToHide));
-        location.reload();
+        setTimeout(function() {
+            location.reload();
+        }, 100);
     });
 
     columnsSelectorDiv.append(applyBtn)
@@ -302,11 +304,15 @@ function init_datatable(tableID, doPagination, context) {
         context = document;
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
+    // Use localStorage hidden columns definitions to set data-hidden on columns
     var hiddenColumns = JSON.parse(localStorage.getItem("newmips_hidden_columns_save_" + tableID.substring(1))) || {};
-    for (var i = 0; hiddenColumns.columns && i < hiddenColumns.columns.length; i++)
+    if (hiddenColumns.columns)
         $(tableID + " .main th, "+tableID+" .filters th", context).each(function() {
             if (typeof $(this).data('col') !== 'undefined' && hiddenColumns.columns.indexOf($(this).data('col')) != -1)
                 $(this).attr('data-hidden', '1');
+            // Column hidden by default in dust definition. Check if it has been shown volontarily through the saved hidden columns
+            else if ($(this).attr('data-hidden') == "1" && hiddenColumns.columns.indexOf($(this).data('col')) == -1)
+                $(this).attr('data-hidden', '0');
         });
 
     // Fetch columns from html
