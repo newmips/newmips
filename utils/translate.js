@@ -58,7 +58,7 @@ module.exports = {
             languagePromises.push(new Promise(function(resolve, reject) {
                 fs.writeFile(urlFile, JSON.stringify(dataLocales, null, 4), function(err) {
                     if (err){
-                        console.log(err);
+                        console.error(err);
                         reject();
                     }
                     else{
@@ -107,7 +107,7 @@ module.exports = {
                 Promise.all(languagePromises).then(function(){
                     callback();
                 }).catch(function(err){
-                    console.log(err);
+                    console.error(err);
                 });
             }
         }
@@ -211,7 +211,7 @@ module.exports = {
                             dataLocales = addLocales(type, translations.translatedText, dataLocales, workingLocales4Google);
                         }
                         else{
-                            console.log(err);
+                            console.error(err);
                             dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
                         }
                         pushLanguagePromise(urlFile, dataLocales, file);

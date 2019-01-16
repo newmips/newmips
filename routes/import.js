@@ -172,7 +172,7 @@ function executeImport(worksheet, ext, appID, configFile, idUser, callback) {
                                             }).catch(function(err){
                                                 cpt++;
                                                 done(cpt);
-                                                console.log(err);
+                                                console.error(err);
                                                 var error = {};
                                                 error.error = err.message;
                                                 error.request = findRequestBis;
@@ -473,7 +473,7 @@ router.post('/execute', timeout('1200s'), block_access.isLoggedIn, function(req,
                     res.redirect("/import");
                 }
             } else {
-                console.log(err);
+                console.error(err);
                 req.session.toastr = [{
                     message: "Une erreur est survenue: " + err,
                     level: "error"

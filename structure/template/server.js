@@ -66,6 +66,34 @@ app.use(morgan('dev', {
     }
 }));
 
+// Overide console.warn & console.error to file+line
+['warn', 'error'].forEach((methodName) => {
+    const originalMethod = console[methodName];
+    console[methodName] = (...args) => {
+        let initiator = 'unknown place';
+        try {
+            throw new Error();
+        } catch (e) {
+            if (typeof e.stack === 'string') {
+                let isFirst = true;
+                for (const line of e.stack.split('\n')) {
+                    const matches = line.match(/^\s+at\s+(.*)/);
+                    if (matches) {
+                        if (!isFirst) {
+                            // first line - current function
+                            // second line - caller (what we are looking for)
+                            initiator = matches[1];
+                            break;
+                        }
+                        isFirst = false;
+                    }
+                }
+            }
+        }
+        originalMethod.apply(console, [...args, '-', `${initiator.split(__dirname)[1]}`]);
+    };
+});
+
 // Read cookies (needed for auth)
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
@@ -322,11 +350,11 @@ models.sequelize.sync({logging: false, hooks: false}).then(function() {
 		server.listen(port);
 		console.log("Started " + protocol + " on " + port + " !");
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         logger.silly(err);
     })
 }).catch(function(err) {
-    console.log(err);
+    console.error(err);
     logger.silly(err);
 })
 

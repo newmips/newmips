@@ -45,7 +45,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("inline_help", "rea
         }
         res.send(data).end();
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });

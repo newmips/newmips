@@ -95,7 +95,7 @@ $(document).ready(function() {
                     $('#calendar').fullCalendar('updateEvent', event);
                 },
                 error: function(error) {
-                    console.log(error);
+                    console.error(error);
                 }
             });
         },
@@ -119,7 +119,7 @@ $(document).ready(function() {
                 contentType: "application/json",
                 context: this,
                 error: function(error) {
-                    console.log(error);
+                    console.error(error);
                 }
             });
         },
@@ -146,7 +146,7 @@ $(document).ready(function() {
                 contentType: "application/json",
                 context: this,
                 error: function(error) {
-                    console.log(error);
+                    console.error(error);
                 }
             });
         },
@@ -235,7 +235,7 @@ $(document).ready(function() {
                 $('#eventUpdateModal').modal('hide');
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
             }
         });
     });
@@ -289,7 +289,7 @@ $(document).ready(function() {
                 $('#eventUpdateModal').modal('hide');
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
             }
         });
     });
@@ -349,7 +349,7 @@ $(document).ready(function() {
                 $('#eventCreateModal').modal('hide');
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
             }
         });
     });

@@ -253,7 +253,7 @@ sequelize.customAfterSync = function() {
                         toSyncProdObject.queries.push(queries[idx]);
                         execQuery(queries, idx+1);
                     }).catch(function(err){
-                        console.log(err);
+                        console.error(err);
                         execQuery(queries, idx+1);
                     });
                 }

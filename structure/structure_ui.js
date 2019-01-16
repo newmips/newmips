@@ -424,7 +424,7 @@ exports.createWidget = function(attr, callback) {
                 domHelper.write(layout_view_filename, $).then(function() {
                     callback(null, {message: "structure.ui.widget.success", messageParams: [attr.widgetInputType, attr.module.name]});
                 }).catch(function(err) {
-                    console.log(err)
+                    console.error(err)
                     callback(err);
                 });
             });

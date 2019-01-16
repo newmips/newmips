@@ -256,7 +256,7 @@ exports.deleteComponentOnModule = function(codeNameComponent, idModule, callback
             return callback(err, null);
         }
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         callback(err, null);
     });
 }
