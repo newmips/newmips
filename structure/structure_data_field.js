@@ -1814,7 +1814,7 @@ exports.selectEntity = function (id_application, moduleCodeName, entityName, cal
             return callback(null, true);
         callback(null, false);
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         callback(err);
     });
 };

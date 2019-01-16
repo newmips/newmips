@@ -25,7 +25,7 @@ router.get('/load/:offset', function(req, res) {
     }).then(function(notifications) {
         res.json(notifications);
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         res.sendStatus(500);
     });
 });
@@ -42,12 +42,12 @@ router.get('/read/:id', function (req, res) {
                 res.redirect(redirect);
             });
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             logger.debug("No notification found.");
             return res.render('common/error', {error: 404});
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug("No notification found.");
         return res.render('common/error', {error: 404});
     });
@@ -60,7 +60,7 @@ router.get('/deleteAll', function(req, res) {
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug("No notification found.");
         return res.render('common/error', {error: 404});
     });

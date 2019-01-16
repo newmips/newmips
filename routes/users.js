@@ -152,12 +152,12 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
             res.redirect('/users/show/'+userId+"#applications");
         }).catch((err) => {
             data.code = 500;
-            console.log(err);
+            console.error(err);
             return res.render('common/error', data);
         })
     }).catch((err) => {
         data.code = 500;
-        console.log(err);
+        console.error(err);
         return res.render('common/error', data);
     })
 })
@@ -189,7 +189,7 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
         })
     }).catch((err) => {
         data.code = 500;
-        console.log(err);
+        console.error(err);
         return res.render('common/error', data);
     })
 })

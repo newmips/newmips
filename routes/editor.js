@@ -52,7 +52,7 @@ router.post('/update_file', block_access.hasAccessApplication, function(req, res
 
 			gitHelper.gitCommit(attr, function(err, infoGit){
 		        if(err)
-		        	console.log(err);
+		        	console.error(err);
 		        res.json(true);
 		    });
 		});

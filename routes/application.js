@@ -66,7 +66,7 @@ function initPreviewData(idApplication, data){
         Promise.all(innerPromises).then(function() {
             return resolve(data);
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             reject(err);
         });
     });
@@ -130,7 +130,7 @@ function execute(req, instruction) {
                 if (err) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
-                    console.log(err);
+                    console.error(err);
                     reject(msgErr);
                 } else {
 
@@ -257,7 +257,7 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
 
             session_manager.getSession(attr, req, function(err, info) {
                 docBuilder.build(req.session.id_application).catch(function(err){
-                    console.log(err);
+                    console.error(err);
                 });
 
                 data.session = info;
@@ -287,7 +287,7 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
 
                             //Check for right status code
                             if (response.statusCode !== 200) {
-                                console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
                                 return setTimeout(checkServer, 100);
                             }
 
@@ -324,11 +324,11 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
     }).catch(function(err) {
         initPreviewData(req.session.id_application, data).then(function(data) {
             data.code = 500;
-            console.log(err);
+            console.error(err);
             res.render('common/error', data);
         }).catch(function(err) {
             data.code = 500;
-            console.log(err);
+            console.error(err);
             res.render('common/error', data);
         });
     });
@@ -410,7 +410,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                 var toRestart = false;
                 if (err) {
                     // Error handling code goes here
-                    console.log(err);
+                    console.error(err);
 
                     if(typeof err.message === "undefined")
                         answer = err;
@@ -496,7 +496,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                         session_manager.getSession(newAttr, req, function(err, info) {
 
                             docBuilder.build(req.session.id_application).catch(function(err){
-                                console.log(err);
+                                console.error(err);
                             });
                             data.session = info;
 
@@ -529,7 +529,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
 
                                         // Check for right status code
                                         if (response.statusCode !== 200) {
-                                            console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                            console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
                                             return setTimeout(checkServer, 100);
                                         }
 
@@ -617,16 +617,16 @@ router.post('/set_logo', block_access.hasAccessApplication, function (req, res) 
                                                         .quality(configLogo.quality)  // set JPEG quality
                                                         .write(basePath + req.file.originalname);
                                             } else {
-                                                console.log(err);
+                                                console.error(err);
                                             }
                                         });
                                     } else {
-                                        console.log(err);
+                                        console.error(err);
                                     }
                                 });
                             }
                         } else{
-                            console.log(err);
+                            console.error(err);
                             res.status(500).end(err);
                         }
                     });
@@ -641,7 +641,7 @@ router.post('/set_logo', block_access.hasAccessApplication, function (req, res) 
                 res.status(500).end(err);
             }
         } else{
-            console.log(err);
+            console.error(err);
             res.status(500).end(err);
         }
     });
@@ -692,8 +692,8 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
         }
         data.projects = projects;
         res.render('front/application', data);
-    }).catch(function(error) {
-        console.log(error);
+    }).catch(function(err) {
+        console.error(err);
         data.code = 500;
         res.render('common/error', data);
     });
@@ -717,7 +717,7 @@ router.post('/execute', block_access.isLoggedIn, function(req, res) {
                 res.send(data);
             }
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.status(500).send(err);
@@ -735,7 +735,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     var select_project = req.body.selectProject || '';
 
     if(select_project == "" && (name_project == "" || name_application == "")){
-        console.log("Une erreur est survenue. Projet et/ou application non renseigné.");
+        console.error("Une erreur est survenue. Projet et/ou application non renseigné.");
         req.session.toastr = [{
             message: "Une erreur est survenue. Projet et/ou application non renseigné.",
             level: "error"
@@ -743,7 +743,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
         return res.redirect('/default/home');
     }
     else if(name_application == ""){
-        console.log("Une erreur est survenue. Nom d'application non renseigné.");
+        console.error("Une erreur est survenue. Nom d'application non renseigné.");
         req.session.toastr = [{
             message: "Une erreur est survenue. Nom d'application non renseigné.",
             level: "error"

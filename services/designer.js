@@ -42,7 +42,7 @@ exports.recursiveInstructionExecute = function (sessionAttr, instructions, idx, 
     // Create the attr obj
     var recursiveAttr = bot.parse(instructions[idx]);
     if (recursiveAttr.error) {
-        console.log(recursiveAttr.error);
+        console.error(recursiveAttr.error);
         return callback(recursiveAttr.error);
     }
 
@@ -322,8 +322,8 @@ function deleteApplication(attr, callback) {
                         sequelize.query(request).then(function () {
                             callback(null, infoDB);
                         }).catch(function(err){
-                            console.log("ERROR ERR: "+err.message);
-                            console.log("ERROR SQL: "+err.original.sql);
+                            console.error("ERROR ERR: "+err.message);
+                            console.error("ERROR SQL: "+err.original.sql);
                             callback(null, infoDB);
                         })
                     })
@@ -562,19 +562,19 @@ function deleteDataEntity(attr, callback) {
                                 if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
                                     deleteTab(tmpAttrIn, function (err) {
                                         if (err)
-                                            console.log(err);
+                                            console.error(err);
                                         clbk();
                                     });
                                 } else if (tmpAttrIn.structureType == "relatedToMultiple") {
                                     tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
                                     deleteDataField(tmpAttrIn, function (err) {
                                         if (err)
-                                            console.log(err);
+                                            console.error(err);
                                         clbk();
                                     });
                                 } else {
-                                    console.log("WARNING - Unknown option to delete !");
-                                    console.log(tmpAttrIn);
+                                    console.warn("WARNING - Unknown option to delete !");
+                                    console.warn(tmpAttrIn);
                                     clbk();
                                 }
                             }, arg: tmpAttr});
@@ -606,19 +606,19 @@ function deleteDataEntity(attr, callback) {
                                         if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
                                             deleteTab(tmpAttrIn, function (err) {
                                                 if (err)
-                                                    console.log(err);
+                                                    console.error(err);
                                                 clbk();
                                             });
                                         } else if (tmpAttrIn.structureType == "relatedToMultiple") {
                                             tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
                                             deleteDataField(tmpAttrIn, function (err) {
                                                 if (err)
-                                                    console.log(err);
+                                                    console.error(err);
                                                 clbk();
                                             });
                                         } else {
-                                            console.log("WARNING - Unknown option to delete !");
-                                            console.log(tmpAttrIn);
+                                            console.warn("WARNING - Unknown option to delete !");
+                                            console.warn(tmpAttrIn);
                                             clbk();
                                         }
                                     });
@@ -641,18 +641,18 @@ function deleteDataEntity(attr, callback) {
                                             tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
                                             deleteDataField(tmpAttrIn, function (err) {
                                                 if (err)
-                                                    console.log(err);
+                                                    console.error(err);
                                                 clbk();
                                             });
                                         } else if (tmpAttrIn.structureType == "hasOne") {
                                             deleteTab(tmpAttrIn, function (err) {
                                                 if (err)
-                                                    console.log(err);
+                                                    console.error(err);
                                                 clbk();
                                             });
                                         } else {
-                                            console.log("WARNING - Unknown option to delete !");
-                                            console.log(tmpAttrIn);
+                                            console.warn("WARNING - Unknown option to delete !");
+                                            console.warn(tmpAttrIn);
                                             clbk();
                                         }
                                     });
@@ -978,7 +978,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                         let err = new Error("structure.field.attributes.duplicateUnique");
                     } else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01")){
                         // Table do not exist - In case of script it's totally normal,juste generate a warning
-                        console.log("WARNING - The database unique constraint on '"+attr.options.showValue+"' could not be applied, the corresponding table '"+sourceEntity+"' does not exist at the time of the instruction.")
+                        console.warn("WARNING - The database unique constraint on '"+attr.options.showValue+"' could not be applied, the corresponding table '"+sourceEntity+"' does not exist at the time of the instruction.")
                         structure_data_field.setUniqueField(attr, function (err) {
                             if (err)
                                 return callback(err, null);
@@ -1452,7 +1452,7 @@ exports.createNewHasMany = function (attr, callback) {
                         info.messageParams = [attr.options.showAs, attr.options.showSource, attr.options.showSource, attr.options.showAs];
                         callback(null, info);
                     }).catch(function (err) {
-                        console.log(err);
+                        console.error(err);
                         return callback(err, null);
                     });
                 } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
@@ -1641,7 +1641,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         info.messageParams = [attr.options.showTarget, attr.options.showSource];
                         callback(null, info);
                     }).catch(function (err) {
-                        console.log(err);
+                        console.error(err);
                         return callback(err, null);
                     });
                 } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase()

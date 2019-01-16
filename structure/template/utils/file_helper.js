@@ -41,7 +41,7 @@ var deleteEntityLocalFile = function (options) {
                         var fileThumnailPath = globalConf.localstorage + globalConf.thumbnail.folder + options.entityName + '/' + partOfValue[0] + '/' + options.value;
                         fs.unlink(fileThumnailPath, function (err) {
                             if (err)
-                                console.log(err);
+                                console.error(err);
                         });
                     }
                 }
