@@ -33,6 +33,8 @@
         <link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' type='text/css'>
         {! Summernote textarea !}
         <link href='/js/plugins/summernote/summernote.css' rel='stylesheet' type='text/css'>
+        {! Animated CSS !}
+        <link href="/css/animated.css" rel="stylesheet" type="text/css">
         {! Newmips !}
         <link href='/css/newmips.css?v={config.version}' rel='stylesheet' type='text/css'>
 
