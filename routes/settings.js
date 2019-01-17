@@ -16,7 +16,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     req.session.toastr = [];
     data.toTranslate = req.session.toTranslate || false;
     data.user = req.session.passport.user;
-    models.Role.findByPk(data.user.id_role).then(function(userRole){
+    models.Role.findById(data.user.id_role).then(function(userRole){
         data.user.role = userRole;
         res.render('front/settings', data);
     });

@@ -37,7 +37,7 @@ router.get('/read/:id', function (req, res) {
     models.E_notification.findOne({where: {id: id_e_notification}}).then(function (notification) {
         var redirect = notification.f_url != "#" ? notification.f_url : req.headers.referer;
 
-        models.E_user.findByPk(req.session.passport.user.id).then(function(user){
+        models.E_user.findById(req.session.passport.user.id).then(function(user){
             user.removeR_notification(notification.id).then(function(){
                 res.redirect(redirect);
             });
@@ -55,7 +55,7 @@ router.get('/read/:id', function (req, res) {
 
 // Delete all user notifications
 router.get('/deleteAll', function(req, res) {
-    models.E_user.findByPk(req.session.passport.user.id).then(function(user){
+    models.E_user.findById(req.session.passport.user.id).then(function(user){
         user.setR_notification([]).then(function(){
             res.end();
         });

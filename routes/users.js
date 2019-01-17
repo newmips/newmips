@@ -141,7 +141,7 @@ router.post('/delete', block_access.isAdmin, (req, res) => {
 router.post('/assign', block_access.isAdmin, (req, res) => {
     var app = req.body.app;
     var userId = req.body.id_user;
-    models.User.findByPk(userId).then(user => {
+    models.User.findById(userId).then(user => {
         if (!user) {
             data.code = 404;
             console.log("User not found");
@@ -166,7 +166,7 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
     let appId = req.body.id_app;
     let userId = req.body.id_user;
     let data = {};
-    models.User.findByPk(userId).then(user => {
+    models.User.findById(userId).then(user => {
         if (!user) {
             data.code = 404;
             console.log("User not found");
