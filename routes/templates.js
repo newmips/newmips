@@ -5,18 +5,18 @@ var fs = require("fs-extra");
 var moment = require("moment");
 var helpers = require('../utils/helpers');
 var gitHelper = require('../utils/git_helper');
+var globalConf = require('../config/global.js');
 
 //Sequelize
 var models = require('../models/');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
-    let data = {
-        version: ""
-    };
+    let data = {};
+    let version;
 
-    if(fs.existsSync(__dirname+"/../public/version.txt"))
-        data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
-    else{
+    if(!globalConf.version){
+        version = globalConf.version;
+    } else {
         console.warn("Missing version.txt for templates.");
         req.session.toastr = [{
             message: "template.no_version",
@@ -48,7 +48,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                 }
 
                 console.log("TEMPLATE GIT CLONE DONE");
-                gitTemplate.checkout(data.version, (err, answer) => {
+                gitTemplate.checkout(version, (err, answer) => {
                     if(err){
                         req.session.toastr = [{
                             message: "template.no_checkout",
@@ -58,7 +58,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                         return res.redirect("/default/home");
                     }
 
-                    console.log("TEMPLATE GIT CHECKOUT VERSION "+data.version+" DONE");
+                    console.log("TEMPLATE GIT CHECKOUT VERSION "+version+" DONE");
                     resolve();
                  })
             })

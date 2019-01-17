@@ -1,8 +1,8 @@
 // Global configuration file
-var fs = require('fs');
-var env = 'develop';
+const fs = require('fs');
+let env = 'develop';
 
-var config = {
+let config = {
 	'develop': {
 		env: 'develop',
 		protocol: 'http',
@@ -42,4 +42,7 @@ var config = {
 	}
 }
 
-module.exports = config[env]
+let config = config[env];
+config.version = "2.8";
+
+module.exports = config;
