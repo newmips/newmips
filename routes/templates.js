@@ -38,7 +38,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 
     let gitPromise = new Promise((resolve, reject) => {
         if(initTemplate){
-            gitTemplate.clone("git@github.com:newmips/templates.git", ".", (err, answer) => {
+            gitTemplate.clone("https://github.com/newmips/templates.git", ".", (err, answer) => {
                 if(err){
                     req.session.toastr = [{
                         message: "template.no_clone",
