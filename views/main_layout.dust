@@ -88,7 +88,7 @@
         {#toastr}
             <script>
                 toastrArray.push({
-                    message: '{@__ key=message/}',
+                    message: '{message}',
                     level: "{level}"
                 });
             </script>

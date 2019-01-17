@@ -103,6 +103,9 @@
 						<a class="btn btn-app" href="/instruction_script/index">
 							<i class="fa fa-list-ol"></i>{@__ key="home.directlinks.script"/}
 						</a>
+						<a class="btn btn-app" href="/templates">
+							<i class="fa fa-cube"></i>{@__ key="home.directlinks.templates"/}
+						</a>
 						<a class="btn btn-app" href="/themes">
 							<i class="fa fa-window-maximize"></i>{@__ key="home.directlinks.theme"/}
 						</a>
