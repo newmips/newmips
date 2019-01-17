@@ -346,7 +346,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
     var timeoutServer = 30000;
 
     // Parse instruction and set results
-    models.Application.findByPk(req.session.id_application).then(function(application) {
+    models.Application.findById(req.session.id_application).then(function(application) {
 
         req.session.name_application = application.codeName.substring(2);
 

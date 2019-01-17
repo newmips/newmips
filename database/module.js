@@ -196,7 +196,7 @@ exports.listModuleByApplication = function(attr, callback) {
 
 exports.getNameModuleById = function(idModule, callback) {
 
-    models.Module.findByPk(idModule).then(function(foundModule) {
+    models.Module.findById(idModule).then(function(foundModule) {
         if (!foundModule) {
             var err = new Error();
             err.message = "database.module.notFound.withThisID";
@@ -211,7 +211,7 @@ exports.getNameModuleById = function(idModule, callback) {
 
 exports.getModuleById = function(id_module, callback) {
 
-    models.Module.findByPk(id_module).then(function(module) {
+    models.Module.findById(id_module).then(function(module) {
         if (!module) {
             var err = new Error();
             err.message = "database.module.notFound.withThisID";

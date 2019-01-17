@@ -195,7 +195,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				f_name: data.name,
 				f_type: data.type
 			}).then(function(channel) {
-				models.E_user.findByPk(user.id).then(function(userObj) {
+				models.E_user.findById(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
@@ -211,7 +211,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)}
 			}).then(function(channel) {
-				models.E_user.findByPk(user.id).then(function(userObj) {
+				models.E_user.findById(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
@@ -227,7 +227,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)}
 			}).then(function(channel) {
-				models.E_user.findByPk(parseInt(data.id_user)).then(function(userObj) {
+				models.E_user.findById(parseInt(data.id_user)).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);

@@ -478,7 +478,7 @@ exports.deleteApplication = function(id_application, callback) {
 
     if (gitlabConf.doGit) {
         // Async delete repo in our gitlab in cloud env
-        models.Application.findByPk(id_application).then(function(app) {
+        models.Application.findById(id_application).then(function(app) {
             try {
                 gitlab.projects.all(function(projects) {
 

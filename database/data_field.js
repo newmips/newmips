@@ -49,7 +49,7 @@ exports.createNewDataField = function(attr, callback) {
                     id_data_entity: id_data_entity,
                     version: version
                 }).then(function(dataField) {
-                    models.DataEntity.findByPk(id_data_entity).then(function(dataEntity) {
+                    models.DataEntity.findById(id_data_entity).then(function(dataEntity) {
                         var info = {
                             insertId: dataField.id,
                             message: "database.field.create.created",
