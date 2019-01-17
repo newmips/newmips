@@ -736,6 +736,18 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                         }
                     }
 
+                    // If there is data to add in template
+                    if (templateEntry && fs.existsSync(__dirname + '/../templates/' + templateEntry + "/data.json")){
+                        let dataSqlContent = JSON.parse(fs.readFileSync(__dirname + '/../templates/' + templateEntry + "/data.json", "utf8"), null, 4);
+                        if(dataSqlContent.length != 0 && !toSyncObject.queries)
+                            toSyncObject.queries = [];
+                        for (let i = 0; i < dataSqlContent.length; i++) {
+                            for (let j = 0; j < dataSqlContent[i].queries.length; j++) {
+                                toSyncObject.queries.push(dataSqlContent[i].queries[j].replace(dataSqlContent[i].table, idApplication+"_"+dataSqlContent[i].table))
+                            }
+                        }
+                    }
+
                     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
 
                     // Copy choosen template in generated workspace
