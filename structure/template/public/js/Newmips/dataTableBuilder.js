@@ -253,7 +253,7 @@ var delay = (function() {
 //   - append am absolute div to the datalist button
 //   - display a list of the columns available on page load with a checkbox to hide/show each
 function generateColumnSelector(tableID, columns) {
-    var columnsToHide = JSON.parse(localStorage.getItem("newmips_hidden_columns_save_" + tableID.substring(1))) || {columns: []};
+    var columnsToShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1))) || {columns: []};
     var columnsSelectorDiv = $('<div id="columnSelector" style="position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
     // Loop over the <th> available on page load
     for (var i = 0; i < columns.length; i++) {
@@ -262,29 +262,34 @@ function generateColumnSelector(tableID, columns) {
             // Button's <th> doesn't have the .sorting class
             if (!element.hasClass('sorting'))
                 return;
+            if (columnsToShow.columns.indexOf(element.data('col')) == -1 && !current.hidden)
+                columnsToShow.columns.push(element.data('col'));
+
             var columnDiv = $('<label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(current.hidden ? '':'checked')+'>&nbsp;'+element.text()+'</label><br>');
             // On hide/show trigger
             columnDiv.click(function() {
-                // Hide by pushing to columnsToHide
-                if (typeof current.element.attr('data-hidden') === 'undefined' || current.element.attr('data-hidden') == "0")
-                    columnsToHide.columns.push(current.element.data('col'));
-                // Show by removing col from columnsToHide
+                // Hide by removing col from columnsToShow
+                if (typeof current.element.attr('data-hidden') === 'undefined' || element.attr('data-hidden') == "0")
+                    columnsToShow.columns.splice(columnsToShow.columns.indexOf(element.data('col')), 1);
+                // Show by pushing to columnsToShow
                 else
-                    columnsToHide.columns.splice(columnsToHide.columns.indexOf(current.element.data('col')), 1);
+                    columnsToShow.columns.push(element.data('col'));
             });
             columnsSelectorDiv.append(columnDiv);
         })(columns[i]);
     }
 
     // Initialize columns checkboxes
-    columnsSelectorDiv.find('input[type=checkbox]').iCheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
+    columnsSelectorDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 
     // Create Apply button and bind click
     var applyBtn = $('<div style="text-align:center;margin-top:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
-    // Set new filters to localStorage and reload
     applyBtn.click(function(){
-        localStorage.setItem("newmips_hidden_columns_save_" + tableID.substring(1), JSON.stringify(columnsToHide));
-        location.reload();
+        // Set new filters to localStorage and reload
+        localStorage.setItem("newmips_shown_columns_save_" + tableID.substring(1), JSON.stringify(columnsToShow));
+        setTimeout(function() {
+            location.reload();
+        }, 100);
     });
 
     columnsSelectorDiv.append(applyBtn)
@@ -302,16 +307,28 @@ function init_datatable(tableID, doPagination, context) {
         context = document;
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
-    var hiddenColumns = JSON.parse(localStorage.getItem("newmips_hidden_columns_save_" + tableID.substring(1))) || {};
-    for (var i = 0; hiddenColumns.columns && i < hiddenColumns.columns.length; i++)
-        $(tableID + " .main th, "+tableID+" .filters th", context).each(function() {
-            if (typeof $(this).data('col') !== 'undefined' && hiddenColumns.columns.indexOf($(this).data('col')) != -1)
+    // Use localStorage shown columns definitions to set data-hidden on columns
+    var shownColumns = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1))) || {};
+    if (shownColumns.columns)
+        $(tableID + " .main th").each(function(idx) {
+            var col;
+            // Discard buttons <th>
+            if (!(col = $(this).data('col')))
+                return;
+            // Column set to be hidden in localStorage
+            if (shownColumns.columns.indexOf(col) == -1) {
                 $(this).attr('data-hidden', '1');
+                $(tableID+ ' .filters th').eq(idx).attr('data-hidden', '1');
+            }
+            // Column that default to data-hidden but set to be displayed in localStorage
+            else if (shownColumns.columns.indexOf(col) != -1 && $(this).attr('data-hidden') == "1") {
+                $(this).attr('data-hidden', "0");
+                $(tableID+ ' .filters th').eq(idx).attr('data-hidden', '0');
+            }
         });
 
     // Fetch columns from html
     var columns = [], defaultOrder = {idx: 0, direction: 'DESC'};
-    // var savedHiddenColumns = JSON.parse(localStorage.getItem("newmips_hidden_columns_save_" + tableID.substring(1)) || '[]');
     $(tableID + " .main th", context).each(function (idx) {
         if (typeof $(this).data('col') !== 'undefined'){
             if($(this).attr("data-hidden") == "1")
@@ -331,15 +348,16 @@ function init_datatable(tableID, doPagination, context) {
         var i = 0;
         var key = cellArrayKeyValue[i];
         do {
-            if (row != null && typeof row[key] !== 'undefined') {
+            if (row != null && typeof row[key] !== 'undefined')
                 row = row[key];
-            } else
+            else
                 return '-';
             i++;
             key = cellArrayKeyValue[i];
         } while (i < cellArrayKeyValue.length);
         return row;
     }
+
     // Columns rendering
     // Server's object doesn't include DB table's prefix, we need to remove it
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
@@ -702,6 +720,7 @@ function init_datatable(tableID, doPagination, context) {
             }, startFilterTimer);
         }
     });
+    $(tableID).show();
 }
 
 $(function () {
