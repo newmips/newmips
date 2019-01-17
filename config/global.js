@@ -42,7 +42,7 @@ let config = {
 	}
 }
 
-let config = config[env];
-config.version = "2.8";
+let fullConfig = config[env];
+fullConfig.version = "2.8";
 
-module.exports = config;
+module.exports = fullConfig;

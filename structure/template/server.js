@@ -303,10 +303,19 @@ app.use(function(req, res) {
 
 // Launch ======================================================================
 
-models.sequelize.sync({logging: false, hooks: false}).then(function() {
-    models.sequelize.customAfterSync().then(function() {
-        models.E_user.findAll().then(function(users) {
-            if (!users || users.length == 0) {
+models.sequelize.sync({logging: false, hooks: false}).then(() => {
+    models.sequelize.customAfterSync().then(() => {
+        models.E_user.findAll().then(users => {
+            let hasAdmin = false;
+
+            // Check if user admin is in already created users
+            for (var i = 0; i < users.length; i++) {
+                if(users[i].f_login == "admin"){
+                    hasAdmin = true
+                }
+            }
+
+            if (!users || users.length == 0 || !hasAdmin) {
                 models.E_group.create({
                 	id: 1,
                     version: 0,

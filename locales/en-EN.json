@@ -125,7 +125,7 @@
     },
     "template": {
         "label": "Template",
-        "no_version": "The version.txt file is missing in your generator, it is necessary to have one to retrieve the appropriate models.",
+        "no_version": "The version is missing in config/global in your generator, it is necessary to have one to retrieve the appropriate models.",
         "no_clone": "Unable to retrieve the list of newmips templates, please contact Newmips.",
         "no_checkout": "Unable to find templates compatible with the generator version.",
         "no_script": "Unable to find the .nps script corresponding to the template and your language."

@@ -124,7 +124,7 @@
     },
     "template": {
         "label": "Modèle",
-        "no_version": "Le fichier version.txt est manquant dans votre générateur, il est nécessaire d'en avoir un pour récupérer les modèles adaptés.",
+        "no_version": "La version est manquante dans la configuration de votre générateur, il est nécessaire d'en avoir un pour récupérer les modèles adaptés.",
         "no_clone": "Impossible de récupérer la liste des modèles newmips, merci de contacter Newmips.",
         "no_checkout": "Impossible de trouver des modèles compatibles avec la version du générateur.",
         "no_script": "Impossible de trouver le script .nps correspondant au template et à votre langue."

@@ -14,10 +14,10 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
     let data = {};
     let version;
 
-    if(!globalConf.version){
+    if(globalConf.version){
         version = globalConf.version;
     } else {
-        console.warn("Missing version.txt for templates.");
+        console.warn("Missing version for templates.");
         req.session.toastr = [{
             message: "template.no_version",
             level: "error"
