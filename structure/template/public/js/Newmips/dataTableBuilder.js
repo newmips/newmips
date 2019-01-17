@@ -720,6 +720,7 @@ function init_datatable(tableID, doPagination, context) {
             }, startFilterTimer);
         }
     });
+    $(tableID).show();
 }
 
 $(function () {
