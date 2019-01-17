@@ -5,6 +5,7 @@ var message = "";
 var multer = require('multer');
 var readline = require('readline');
 var fs = require('fs');
+var fse = require('fs-extra');
 var docBuilder = require('../utils/api_doc_builder');
 var moment = require('moment');
 var designer = require('../services/designer.js');
@@ -14,6 +15,7 @@ var session_manager = require('../services/session.js');
 var parser = require('../services/bot.js');
 var scriptData = [];
 var attrHelper = require('../utils/attr_helper');
+var path = require('path');
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
@@ -529,8 +531,45 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
     var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
     var tmpPath = __dirname+'/../upload/'+tmpFilename;
 
+    // Load template script and unzip master file if application is created using template
+    let templateEntry = req.body.template_entry;
+    let template = {};
+
     fs.openSync(tmpPath, 'w');
-    fs.writeFileSync(tmpPath, req.body.text);
+    if(templateEntry){
+        let templateLang;
+        switch(req.session.lang_user.toLowerCase()) {
+            case "fr-fr":
+                templateLang = "fr";
+                break;
+            case "en-en":
+                templateLang = "en";
+                break;
+            default:
+                templateLang = "fr";
+                break;
+        }
+
+        var files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
+        let found = false;
+        for (var i = 0; i < files.length; i++) {
+            var filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+            if (filename.indexOf("_"+templateLang+"_") != -1 && filename.indexOf(".nps") != -1) {
+                fs.writeFileSync(tmpPath, fs.readFileSync(filename));
+                found = true;
+                break;
+            };
+        };
+        if(!found){
+            req.session.toastr = [{
+                message: "template.no_script",
+                level: "error"
+            }]
+            return res.redirect("/templates");
+        }
+    } else {
+        fs.writeFileSync(tmpPath, req.body.text);
+    }
 
     // Open file descriptor
     var rl = readline.createInterface({
@@ -698,6 +737,11 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     }
 
                     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
+
+                    // Copy choosen template in generated workspace
+                    if (templateEntry) {
+                        fse.copySync(__dirname + '/../templates/' + templateEntry, __dirname + '/../workspace/' + idApplication);
+                    }
 
                     // Restart the application server is already running
                     var process_manager = require('../services/process_manager.js');

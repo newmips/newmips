@@ -80,6 +80,7 @@ $(function() {
         } else{
 
             var ajaxData = {
+                template_entry: $("#template_entry").val(),
                 text: $("#createScriptTextarea").val()
             };
             $.ajax({
