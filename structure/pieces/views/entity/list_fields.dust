@@ -1,4 +1,4 @@
-<table id="table_custom_data_entity" data-url="/custom_url_data_entity/datalist" class="dataTable table table-bordered table-striped">
+<table id="table_custom_data_entity" data-url="/custom_url_data_entity/datalist" class="dataTable table table-bordered table-striped animated fadeIn" style="display: none;">
     <thead class="main">
 		<tr class='fields'>
 			<th data-field="id" data-col="id">
