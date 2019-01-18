@@ -14,7 +14,7 @@
             </a>
         </li>
         <li class="active">
-            {@__ key="settings.auth_component.api_status" /}
+            {@__ key="settings.auth_component.action_managment" /}
         </li>
     </ol>
 {/header}
