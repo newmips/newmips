@@ -64,11 +64,11 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                  })
             })
         } else {
-            gitTemplate.pull((err, answer) => {
+            gitTemplate.pull("origin", version, "-f", (err, answer) => {
                 if(err){
                     console.error(err);
                     req.session.toastr = [{
-                        message: "templates.no_pull",
+                        message: "template.no_pull",
                         level: "warning"
                     }];
                 }
