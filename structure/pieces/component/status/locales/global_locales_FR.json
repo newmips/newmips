@@ -35,6 +35,12 @@
             "f_default": "Est le statut par défaut",
             "apply_default": "Appliquer ce statut aux entités sans statut"
 		},
+		"e_group": {
+			"r_user": "Utilisateurs"
+		},
+		"e_role": {
+			"r_user": "Utilisateurs"
+		},
 		"e_translation": {
 			"label_entity": "Traduction",
 			"name_entity": "Traduction",
@@ -72,10 +78,18 @@
             "f_color": "Couleur"
 		},
 		"e_media_mail": {
+            "label_entity": "Média Mail",
+            "name_entity": "Média Mail",
+            "plural_entity": "Média Mail",
 			"f_to": "Destinataire",
 			"f_from": "Expéditeur",
 			"f_subject": "Sujet",
 			"f_content": "Contenu"
+		},
+		"e_media_sms": {
+            "label_entity": "Média SMS",
+            "name_entity": "Média SMS",
+            "plural_entity": "Média SMS"
 		},
 		"e_media_notification": {
             "label_entity": "Média Notification",
