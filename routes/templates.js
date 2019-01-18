@@ -65,8 +65,13 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
             })
         } else {
             gitTemplate.pull((err, answer) => {
-                if(err)
+                if(err){
                     console.error(err);
+                    req.session.toastr = [{
+                        message: "templates.no_pull",
+                        level: "warning"
+                    }];
+                }
                 console.log("TEMPLATE GIT PULL DONE");
                 resolve();
             })
