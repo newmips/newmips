@@ -52,7 +52,7 @@
             "entitylist": "Entités:",
             "group": "Groupe",
             "role": "Rôle",
-            "api_status": "Status de l'API",
+            "api_status": "Statut de l'API",
             "api_doc": "Documentation de l'API",
             "action": {
                 "read": "Afficher",
