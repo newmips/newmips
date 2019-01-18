@@ -44,6 +44,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                         message: "template.no_clone",
                         level: "error"
                     }];
+                    helpers.rmdirSyncRecursive(templateDir);
                     return res.redirect("/default/home");
                 }
 
@@ -54,7 +55,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
                             message: "template.no_checkout",
                             level: "error"
                         }];
-                        helpers.rmdirSyncRecursive(templateDir)
+                        helpers.rmdirSyncRecursive(templateDir);
                         return res.redirect("/default/home");
                     }
 
