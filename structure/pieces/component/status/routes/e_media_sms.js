@@ -30,7 +30,7 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
 
     models.E_media_sms.create(createObject).then(function(e_media_sms) {
         models.E_media.create({
-            f_type: 'SMS',
+            f_type: 'sms',
             f_name: req.body.f_name,
             f_target_entity: req.body.f_target_entity,
             fk_id_media_sms: e_media_sms.id

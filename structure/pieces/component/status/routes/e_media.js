@@ -146,7 +146,6 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
-    //createObject = enums.values("e_media", createObject, req.body);
 
     models.E_media.create(createObject).then(function (e_media) {
         var redirect = '/media/show?id='+e_media.id;
