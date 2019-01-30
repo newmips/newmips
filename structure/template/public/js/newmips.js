@@ -39,7 +39,7 @@ function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
                 if (!dataResults)
                     return {results: []};
                 var results = [];
-                if(select.attr("multiple") != "multiple")
+                if(select.attr("multiple") != "multiple" && !params.page)
                     results.push({id: "", text: placeholder});
                 for (var i = 0; i < dataResults.length; i++) {
                     var text = [];
