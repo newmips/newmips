@@ -5,8 +5,6 @@
                 {@__ key="entity.e_inline_help.id_entity"/}&nbsp;
                 {@__ key="entity.e_inline_help.label_entity"/}
             </th>
-
-
             <th data-field="f_entity" data-col="f_entity" data-type="string">
                 {@__ key="entity.e_inline_help.f_entity"/}
             </th>
@@ -27,8 +25,6 @@
                 {@__ key="entity.e_inline_help.id_entity"/}&nbsp;
                 {@__ key="entity.e_inline_help.label_entity"/}
             </th>
-
-
             <th data-field="f_entity" data-col="f_entity" data-type="string">
                 {@__ key="entity.e_inline_help.f_entity"/}
             </th>
@@ -47,8 +43,6 @@
         {#e_inline_help}
         <tr id="bodyTR">
             <td data-field="id">{id}</td>
-
-
             <td data-field="f_entity" data-type="string">{f_entity}</td>
             <td data-field="f_field" data-type="string">{f_field}</td>
             <td data-field="f_content" data-type="text">{f_content|s}</td>
@@ -72,14 +66,14 @@
                 {@eq key=for value="hasMany"}
                 <form action="/inline_help/delete" method="post">
                     <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-		                <span>{@__ key="button.delete" /}</span>
-		                <input name="id" value="{id}" type="hidden">
-		                <input name="associationAlias" value="{associationAlias}" type="hidden">
-		                <input name="associationForeignKey" value="{associationForeignKey}" type="hidden">
-		                <input name="associationFlag" value="{associationFlag}" type="hidden">
-		                <input name="associationSource" value="{associationSource}" type="hidden">
-		                <input name="associationUrl" value="{associationUrl}" type="hidden">
-		            </button>
+                    <span>{@__ key="button.delete" /}</span>
+                    <input name="id" value="{id}" type="hidden">
+                    <input name="associationAlias" value="{associationAlias}" type="hidden">
+                    <input name="associationForeignKey" value="{associationForeignKey}" type="hidden">
+                    <input name="associationFlag" value="{associationFlag}" type="hidden">
+                    <input name="associationSource" value="{associationSource}" type="hidden">
+                    <input name="associationUrl" value="{associationUrl}" type="hidden">
+                    </button>
                 </form>
                 {/eq}
             </td>
