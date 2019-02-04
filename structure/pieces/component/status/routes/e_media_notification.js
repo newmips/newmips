@@ -26,7 +26,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 
     models.E_media_notification.create(createObject).then(function (e_media_notification) {
         models.E_media.create({
-            f_type: 'Notification',
+            f_type: 'notification',
             f_name: req.body.f_name,
             f_target_entity: req.body.f_target_entity,
             fk_id_media_notification: e_media_notification.id

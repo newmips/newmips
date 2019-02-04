@@ -72,13 +72,13 @@ exports.setupModule = function (attr, callback) {
                                             var fileName = __dirname + '/../workspace/' + idApp + '/views/layout_' + modules[ibis].codeName.toLowerCase() + '.dust';
                                             domHelper.read(fileName).then(function ($) {
                                                 $("#dynamic_select").empty();
-                                                option = "";
+                                                option = "\n";
                                                 for (var j = 0; j < modules.length; j++) {
-                                                    option += '{@moduleAccess module="' + attrHelper.removePrefix(modules[j].codeName, "module") + '"}';
-                                                    option += '<option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + attrHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>';
-                                                    option += '{@__ key="module.' + modules[j].codeName.toLowerCase() + '" /}';
-                                                    option += '</option>';
-                                                    option += '{/moduleAccess}';
+                                                    option += '{@moduleAccess module="' + attrHelper.removePrefix(modules[j].codeName, "module") + '"}\n';
+                                                    option += '     <option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + attrHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>\n';
+                                                    option += '         {@__ key="module.' + modules[j].codeName.toLowerCase() + '" /}\n';
+                                                    option += '     </option>\n';
+                                                    option += '{/moduleAccess}\n';
                                                 }
 
                                                 $("#dynamic_select").append(option);
