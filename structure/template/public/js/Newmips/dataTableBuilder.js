@@ -384,11 +384,15 @@ function init_datatable(tableID, doPagination, context) {
                     if (row[entityRelation] != null) {
                         if(Array.isArray(row[entityRelation])){
                             // In case of related to many / has many values, it's an array
-                            for (let attr in row[entityRelation]) {
-                                valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
+                            if(row[entityRelation].length == 1){
+                                valueFromArray = row[entityRelation][0][attributeRelation];
+                            } else {
+                                for (let attr in row[entityRelation]) {
+                                    valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
+                                }
                             }
                         } else if(typeof row[entityRelation] === "object") {
-                            // In this case it'sa belongsTo
+                            // In this case it's a belongsTo
                             for (let attr in row[entityRelation]) {
                                 let parts = columns[meta.col].data.split('.');
                                 valueFromArray = getValue(parts, row);
@@ -399,6 +403,8 @@ function init_datatable(tableID, doPagination, context) {
                             valueFromArray = getValue(parts, row);
                         }
                         cellValue = valueFromArray;
+                    } else {
+                        cellValue = "-";
                     }
                 }
                 // Regular value

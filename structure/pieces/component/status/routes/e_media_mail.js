@@ -28,7 +28,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 
     models.E_media_mail.create(createObject).then(function (e_media_mail) {
         models.E_media.create({
-            f_type: 'Mail',
+            f_type: 'mail',
             f_name: req.body.f_name,
             f_target_entity: req.body.f_target_entity,
             fk_id_media_mail: e_media_mail.id
