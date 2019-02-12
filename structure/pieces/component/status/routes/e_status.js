@@ -48,7 +48,16 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
             include: [{
                 model: models.E_media,
                 as: 'r_media',
-                include: {all: true, nested: true}
+                include: [{
+                    model: models.E_media_mail,
+                    as: 'r_media_mail'
+                }, {
+                    model: models.E_media_notification,
+                    as: 'r_media_notification'
+                }, {
+                    model: models.E_media_sms,
+                    as: 'r_media_sms'
+                }]
             }]
         }]
     }).then(function(status) {
