@@ -68,10 +68,10 @@
                 <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                 <span>{@__ key="button.delete"/}</span>
                 </button>
-                <input name="id" type="hidden" value="{r_media_notification.id}" class="form-control">
+                <input name="id" type="hidden" value="{e_media.id}" class="form-control">
             </span>
             <span>
-                <a href="/media/update_form?id={r_media_notification.id}" class="btn btn-warning">
+                <a href="/media/update_form?id={e_media.id}" class="btn btn-warning">
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
                     <span>{@__ key="button.update"/}</span>
                 </a>
