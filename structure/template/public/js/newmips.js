@@ -356,7 +356,7 @@ function initForm(context) {
     $("input[type='url']", context).each(function () {
         $(this).blur(function(){
             var currentUrl = $(this).val();
-            if (currentUrl.indexOf("http://") == -1 && currentUrl.indexOf("https://") == -1) {
+            if (currentUrl != "" && currentUrl.indexOf("http://") == -1 && currentUrl.indexOf("https://") == -1) {
                 if(currentUrl.indexOf("://") != -1){
                     var toKeep = currentUrl.split("://")[1];
                     $(this).val("http://"+toKeep);

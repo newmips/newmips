@@ -158,7 +158,10 @@
                 </select>
                 <br>
                 <input type="hidden" value="{e_status.id}" name="id_status">
-                <button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                    {@__ key="button.save" /}
+                </button>
             </form>
             <br>
             <a href="/status/create_form?associationAlias=r_children&amp;associationForeignKey=fk_id_status_children&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">

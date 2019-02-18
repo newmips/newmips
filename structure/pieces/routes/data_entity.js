@@ -597,10 +597,12 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
                     if(fieldSelect == field)
                         switch(attributes[field].newmipsType) {
                             case "date":
-                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
+                                    results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
                                 break;
                             case "datetime":
-                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
+                                    results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
                                 break;
                         }
 

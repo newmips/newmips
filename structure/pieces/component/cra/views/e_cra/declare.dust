@@ -66,7 +66,10 @@ thead{
                                 <br>
                                 <div id="save" class="craButtonGroup no-print" style="display: none;">
                                     <div class="col-xs-2">
-                                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                                            {@__ key="button.save"/}
+                                        </button>
                                     </div>
                                 </div>
                                 <div id="modifyValidate" class="craButtonGroup no-print" style="display: none;">
