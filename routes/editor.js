@@ -21,7 +21,7 @@ router.post('/load_file', block_access.hasAccessApplication, function(req, res) 
 	var data = {};
 	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
 	splitPath = splitPath[1].split("/");
-	if(excludeFolder.indexOf(splitPath[0]) != -1){
+	if(excludeFolder.indexOf(splitPath[0]) != -1 || excludeFile.indexOf(splitPath[splitPath.length - 1]) != -1){
 		res.status(403).send("You won't have the death star plans ! You rebel scum !");
 	} else {
 		data.html = helpers.readFileSyncWithCatch(req.body.path);
@@ -34,7 +34,7 @@ router.post('/load_file', block_access.hasAccessApplication, function(req, res) 
 router.post('/update_file', block_access.hasAccessApplication, function(req, res) {
 	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
 	splitPath = splitPath[1].split("/");
-	if(excludeFolder.indexOf(splitPath[0]) != -1){
+	if(excludeFolder.indexOf(splitPath[0]) != -1 || excludeFile.indexOf(splitPath[splitPath.length - 1]) != -1){
 		res.status(403).send("You won't update the death star plans ! You rebel scum !");
 	} else {
 		var writeStream = fs.createWriteStream(req.body.path);

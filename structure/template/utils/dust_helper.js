@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 module.exports = function(req, res, dust, language, lang, block_access) {
 	// ----------- Helper DUST ----------- //
     // Example {@myHelper}

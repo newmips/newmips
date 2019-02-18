@@ -96,5 +96,8 @@
             </table>
         </div>
     </div>
-    <button class="btn btn-info">{@__ key="button.save"/}</button>
+    <button class="btn btn-info">
+        <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+        {@__ key="button.save"/}
+    </button>
 </form>
