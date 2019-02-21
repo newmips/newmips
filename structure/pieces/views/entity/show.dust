@@ -47,6 +47,7 @@
     <script type="text/javascript">
         /* Static variables using dust, used in show.js */
         var EMPTY = '{@__ key="message.empty" /}';
+        var SHOW_TEXT = '{@__ key="button.show" /}';
         var CREATE_TEXT = '{@__ key="button.create"/}';
         var UPDATE_TEXT = '{@__ key="button.update"/}';
         var SAVE_TEXT = '{@__ key="button.save"/}';

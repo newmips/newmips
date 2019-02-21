@@ -145,28 +145,31 @@ function ajaxForm(form, tab) {
     });
 }
 
-function bindFieldsetForm(tab, data) {
-    tab.find('.fieldsetform').each(function() {
-        $(this).submit(function() {
-            var alias = $(this).parents('.tab-pane').attr('id');
-            var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
-            var reqData = $(this).serialize();
-            reqData += '&idEntity='+data.sourceId;
-            var form = this;
-            $.ajax({
-                url: url,
-                method: 'post',
-                data: reqData,
-                success:function() {
-                    /* tables is a global var comming from simpleTable.js */
-                    tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
-                },
-                error: handleError
-            });
-            return false;
-        });
-    });
-}
+// function bindFieldsetForm(tab, data) {
+//     tab.find('.fieldsetform').each(function() {
+//         $(this).submit(function() {
+//             var alias = $(this).parents('.tab-pane').attr('id');
+//             var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
+//             var reqData = $(this).serialize();
+//             reqData += '&idEntity='+data.sourceId;
+//             console.log(alias);
+//             console.log(url);
+//             console.log(reqData);
+//             alert('Fieldsetform');
+//             var form = this;
+//             $.ajax({
+//                 url: url,
+//                 method: 'post',
+//                 data: reqData,
+//                 success:function() {
+//                     reloadTab(tab);
+//                 },
+//                 error: handleError
+//             });
+//             return false;
+//         });
+//     });
+// }
 
 function currencyFormat(num) {
     if(num != null)
@@ -278,10 +281,35 @@ function initHasManyPreset(tab, data) {
     // Set subdatalist url and subentity to table
     var tableUrl = '/'+tab.data('asso-source').substring(2)+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
     table.data('url', tableUrl);
+    // Define update/delete button to be used by DataList plugin
+    DATALIST_BUTTONS = [{
+        render: function (data2, type, row) {
+            var aTag = '\
+                <a class="btn-show" href="/'+data.option.showAs+'/show?id='+row['id']+'">\
+                    <button class="btn btn-primary">\
+                        <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
+                        <span>'+SHOW_TEXT+'</span>\
+                    </button>\
+                </a>';
+            return aTag;
+        },
+        searchable: false
+    }, {
+        render: function(data2, type, row) {
+            var url = '/'+data.sourceName+'/fieldset/'+data.option.as+'/remove?ajax=true'
+            var form = '\
+                <form action="'+url+'" class="fieldsetform" method="post">\
+                    <input type="hidden" value="'+row['id']+'" name="idRemove">\
+                    <input type="hidden" value="'+data.sourceId+'" name="idEntity">\
+                    <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+REMOVE_TEXT+'</span></button>\
+                </form>';
+            return form;
+        }
+    }];
 
-    simpleTable(table);
+    init_datatable('#'+table.attr('id'), true, tab);
 
-    bindFieldsetForm(tab, data);
+    // bindFieldsetForm(tab, data);
 }
 
 // LOCAL FILE STORAGE
@@ -440,17 +468,16 @@ $(function() {
 
     $(document).delegate('.fieldsetform', 'submit', function() {
         var alias = $(this).parents('.tab-pane').attr('id');
-        var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
+        var tab = $(this).parents('.ajax-tab');
+        var url = $(this).attr('action');
         var reqData = $(this).serialize();
-        reqData += '&idEntity='+data.sourceId;
-        var form = this;
         $.ajax({
             url: url,
             method: 'post',
             data: reqData,
             success:function() {
-                /* tables is a global var comming from simpleTable.js */
-                tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
+                console.log("FIELDSET REMOVED");
+                reloadTab(tab);
             },
             error: handleError
         });
