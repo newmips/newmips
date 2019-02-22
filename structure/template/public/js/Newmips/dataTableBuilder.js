@@ -664,7 +664,7 @@ function init_datatable(tableID, doPagination, context) {
                     valueObject.type = 'currency';
             }
             valueObject.value = searchValue;
-            table.columns(i).search(JSON.stringify(valueObject)).draw();
+            table.columns(idx).search(JSON.stringify(valueObject)).draw();
         }
         // If it's not an action button
         if (title != '') {
@@ -678,7 +678,7 @@ function init_datatable(tableID, doPagination, context) {
 
                     // If search is empty, clear previous search and draw
                     if (searchValue == "")
-                        return table.columns(i).search('').draw();
+                        return table.columns(idx).search('').draw();
 
                     delay(function(){
                         searchInDatalist(searchValue);
