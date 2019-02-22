@@ -223,7 +223,7 @@
 						<ul class="sidebar-menu" id="sortable">
 						</ul>
 					</div>
-					<div class="col-xs-12 col-sm-10" id="codemirror-editor">
+					<div class="col-xs-12 col-sm-10" id="codemirror-editor" style="position:absolute;right:15px;">
 						<h4>{@__ key="editor.legend"/} :</h4>
 						<div class="nav-tabs-custom" id="tabs-editor" style="margin-bottom:0px;">
 							<ul class="nav nav-tabs" id="editor-navtabs" role="filelist"></ul>
