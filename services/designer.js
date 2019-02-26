@@ -100,7 +100,7 @@ exports.restart = function (attr, callback) {
 }
 
 exports.installNodePackage = function (attr, callback) {
-    structure_application.installAppModules().then(function () {
+    structure_application.installAppModules(attr).then(function () {
         var info = {
             message: "structure.global.npmInstall.success"
         };

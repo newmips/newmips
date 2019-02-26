@@ -29,7 +29,7 @@ try {
 var models = require('../models/');
 var exec = require('child_process').exec;
 
-function installAppModules() {
+function installAppModules(attr) {
     return new Promise(function(resolve, reject) {
         var dir = __dirname;
 
@@ -38,8 +38,18 @@ function installAppModules() {
             fs.mkdirSync(dir + '/../workspace');
 
         if (fs.existsSync(dir + '/../workspace/node_modules')) {
-            console.log("Everything's ok about workspaces node modules.");
-            resolve();
+            console.log("Everything's ok about global workspaces node modules.");
+            console.log("Installing node modules in current application("+attr.id_application+") ...");
+
+            exec("npm install", {
+                cwd: dir + '/../workspace/'+attr.id_application+'/'
+            }, function(error, stdout, stderr) {
+                if (error) {
+                    reject(error);
+                }
+                console.log('Application '+attr.id_application+' node modules successfully installed !');
+                resolve();
+            });
         } else {
             if (fs.existsSync(dir + '/../structure/template/node_modules')) {
                 // Node modules are already in structure/template, need to move them to workspace
