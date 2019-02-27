@@ -947,6 +947,7 @@ $(document).ready(function () {
 
     // Validate any form before submit
     $('form').submit(function (e) {
+        $(this).find("button[type='submit']").text(LOADING_TEXT).attr("disabled", true);
         // Prevent multiple submittion (double click)
         if ($(this).data('submitting') === true)
             return e.preventDefault();

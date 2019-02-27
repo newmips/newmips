@@ -13,8 +13,8 @@ function isValidJSON(string) {
 }
 
 // Server side you can:
-// Show an error message like this: return res.status(500).send("My Error Message");
-// Show multiple message like this: return res.status(500).send([message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
+// Show an error message: return res.status(500).send("My Error Message");
+// Show multiple message: return res.status(500).send([message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
 // You can also force the page to refresh like this: return res.status(500).send({refresh: true});
 function handleError(error, par2, par3) {
     try {
@@ -33,6 +33,9 @@ function handleError(error, par2, par3) {
                 return toastr.error(error.responseText);
         }
     } catch(e) {
+        if(error.statusText == "timeout"){
+            toastr.error("Server timedout");
+        }
         console.error(error, par2, par3);
     }
 }
@@ -128,8 +131,16 @@ function select2_fieldset(select, data) {
 // Handle form submition and tab reload
 function ajaxForm(form, tab) {
     form.on('submit', function(e) {
-        if (!validateForm(form))
+        form.find("button[type='submit']").text(LOADING_TEXT).attr("disabled", true);
+
+        // Prevent multiple submittion (double click)
+        if (form.data('submitting') === true)
+            return e.preventDefault();
+        form.data('submitting', true);
+        if (!validateForm(form)) {
+            form.data('submitting', false);
             return false;
+        }
         $.ajax({
             url: $(this).attr('action')+'?ajax=true',
             method: 'post',
@@ -139,7 +150,8 @@ function ajaxForm(form, tab) {
                 tab.find('.ajax-content').show();
                 reloadTab(tab);
             },
-            error: handleError
+            error: handleError,
+            timeout: 15000
         });
         return false;
     });
@@ -417,7 +429,7 @@ $(function() {
                 var isCreate = href.indexOf('update_form') != -1 ? false : true;
                 var action, idInput = '', button = '';
                 var cancel = '<button type="button" class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
-                var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
+                var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
                 if (isCreate)
                     action = '/'+target+'/create';
                 else if (!isCreate) {

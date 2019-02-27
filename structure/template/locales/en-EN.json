@@ -143,7 +143,9 @@
         "generate": "Generate",
         "help": "Help",
         "cancel": "Cancel",
-        "return": "Return"
+        "return": "Return",
+        "delete_confirm": "Are you sure you want to delete this record?",
+        "loading": "Loading..."
     },
     "operation": {
         "show": "Show",
