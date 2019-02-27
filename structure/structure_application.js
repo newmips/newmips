@@ -39,17 +39,23 @@ function installAppModules(attr) {
 
         if (fs.existsSync(dir + '/../workspace/node_modules')) {
             console.log("Everything's ok about global workspaces node modules.");
-            console.log("Installing node modules in current application("+attr.id_application+") ...");
 
-            exec("npm install", {
-                cwd: dir + '/../workspace/'+attr.id_application+'/'
-            }, function(error, stdout, stderr) {
-                if (error) {
-                    reject(error);
-                }
-                console.log('Application '+attr.id_application+' node modules successfully installed !');
+            if(typeof attr !== "undefined"){
+                /* When we are in the "npm install" instruction from preview */
+                console.log("Installing node modules in current application("+attr.id_application+") ...");
+
+                exec("npm install", {
+                    cwd: dir + '/../workspace/'+attr.id_application+'/'
+                }, function(error, stdout, stderr) {
+                    if (error) {
+                        reject(error);
+                    }
+                    console.log('Application '+attr.id_application+' node modules successfully installed !');
+                    resolve();
+                });
+            } else {
                 resolve();
-            });
+            }
         } else {
             if (fs.existsSync(dir + '/../structure/template/node_modules')) {
                 // Node modules are already in structure/template, need to move them to workspace

@@ -144,7 +144,8 @@
         "help":"Aide",
         "cancel": "Annuler",
         "return": "Retour",
-        "delete_confirm": "Etes-vous sûr de vouloir supprimer cet enregistrement ?"
+        "delete_confirm": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?",
+        "loading": "Chargement..."
     },
     "operation": {
         "show": "Afficher",

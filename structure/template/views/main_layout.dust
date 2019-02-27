@@ -74,6 +74,7 @@
                 var WAIT_UPLOAD_TEXT = '{@__ key="global_component.local_file_storage.wait_upload" /}';
                 var REQUIRED_FILE_TEXT = '{@__ key="global_component.local_file_storage.required_file" /}';
                 var DEL_CONFIRM_TEXT = '{@__ key="button.delete_confirm"/}';
+                var LOADING_TEXT = '{@__ key="button.loading"/}';
             </script>
             <header class="main-header">
                 <a href="/default/home" class="logo">
