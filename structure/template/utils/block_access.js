@@ -264,3 +264,42 @@ exports.accessFileManagment = function(){
         fs.writeFileSync(__dirname +'/../config/access.json', JSON.stringify(access, null, 4), "utf8");
     }
 }
+
+exports.statusGroupAccess = function(req, res, next) {
+
+    let idNewStatus = parseInt(req.params.id_new_status);
+    let userGroups = req.session.passport.user.r_group;
+
+    models.E_status.findOne({
+        where: {
+            id: idNewStatus
+        },
+        include: [{
+            model: models.E_group,
+            as: "r_accepted_group"
+        }]
+    }).then(newStatus => {
+        if(!newStatus){
+            return next();
+        }
+        if(!newStatus.r_accepted_group){
+            // Not groups defined, open for all
+            return next();
+        }
+        for (var i = 0; i < userGroups.length; i++) {
+            for (var j = 0; j < newStatus.r_accepted_group.length; j++) {
+                if(userGroups[i].id == newStatus.r_accepted_group[j].id){
+                    // You are in accepted groups, let's continue
+                    return next();
+                }
+            }
+        }
+
+        console.log("USER "+req.session.passport.user.f_login+" TRYNG TO SET STATUS "+idNewStatus+ " BUT IS NOT AUTHORIZED.");
+        req.session.toastr = [{
+            message: "settings.auth_component.no_access_change_status",
+            level: "error"
+        }]
+        return res.redirect("/");
+    })
+}
