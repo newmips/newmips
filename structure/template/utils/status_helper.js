@@ -302,7 +302,6 @@ module.exports = {
             }).then(entity => {
                 var current_status = entity[statusAlias];
                 if (!current_status || !current_status.r_children) {
-                    logger.debug("Not found - Set status");
                     return reject("Not found - Set status");
                 }
 
