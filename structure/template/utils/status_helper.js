@@ -342,10 +342,11 @@ module.exports = {
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
                         models[historyModel].create(createObject).then(history=> {
-                            entity['setR'+statusAlias.substring(1)](nextStatus.id);
-                            if (userId)
-                                history['setR_modified_by'](userId);
-                            resolve();
+                            entity['setR'+statusAlias.substring(1)](nextStatus.id).then(_ => {
+                                if (userId)
+                                    history['setR_modified_by'](userId);
+                                resolve();
+                            })
                         });
                     }).catch((err)=> {
                         console.error(err);
@@ -354,10 +355,11 @@ module.exports = {
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
                         models[historyModel].create(createObject).then(history=> {
-                            entity['setR'+statusAlias.substring(1)](nextStatus.id);
-                            if (userId)
-                                history['setR_modified_by'](userId);
-                            reject(err);
+                            entity['setR'+statusAlias.substring(1)](nextStatus.id).then(_ => {
+                                if (userId)
+                                    history['setR_modified_by'](userId);
+                                reject(err);
+                            });
                         });
                     });
                 });
