@@ -84,16 +84,17 @@ module.exports = function(model_name, attributes) {
 				                        historyObject["fk_id_"+model_urlvalue+"_history_"+fieldIn.substring(2)] = modelWithRelations.id;
 
 				                        getModels()[historyModel].create(historyObject).then(function() {
-											modelWithRelations['setR_'+fieldIn.substring(2)](status.id);
-											if (!created) {
-												status.executeActions(modelWithRelations).then(resolve).catch(function(err){
-													console.error("Unable to execute actions");
-													console.error(err);
+											modelWithRelations['setR_'+fieldIn.substring(2)](status.id).then(_ => {
+												if (!created) {
+													status.executeActions(modelWithRelations).then(resolve).catch(function(err){
+														console.error("Unable to execute actions");
+														console.error(err);
+														resolve();
+													});
+												}
+												else
 													resolve();
-												});
-											}
-											else
-				                            	resolve();
+											})
 				                        });
 			                       	});
 			                    }).catch(function(e){reject(e);});
