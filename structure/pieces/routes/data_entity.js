@@ -393,6 +393,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         var dustFile, idSubentity, promisesData = [];
         var subentityOptions = [];
 
+        // Default value
+        option.noCreateBtn = false;
+
         // Build tab specific variables
         switch (option.structureType) {
             case 'hasOne':
