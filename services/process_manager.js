@@ -3,7 +3,7 @@ var process_server_per_app = new Array();
 var spawn = require('cross-spawn');
 var psTree = require('ps-tree');
 var globalConf = require('../config/global.js');
-var fs = require("fs");
+var fs = require("fs-extra");
 var path = require('path');
 
 var AnsiToHTML = require('ansi-to-html');
@@ -14,14 +14,16 @@ var child_url = '';
 
 exports.process_server_per_app = process_server_per_app;
 
-exports.launchChildProcess = function(id_application, env) {
+exports.launchChildProcess = function(idApp, env) {
 
-    process_server = spawn('node', [__dirname + "/../workspace/" + id_application + "/server.js", 'autologin'], {
+    process_server = spawn('node', [__dirname + "/../workspace/" + idApp + "/server.js", 'autologin'], {
         CREATE_NO_WINDOW: true,
         env: env
     });
 
-    var allLogStream = fs.createWriteStream(path.join(__dirname + "/../", 'all.log'), {flags: 'a'});
+    /* Generate app logs in /workspace/logs folder */
+    fs.mkdirsSync(__dirname + "/../workspace/logs/");
+    var allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_'+idApp+'.log'), {flags: 'a'});
 
     process_server.stdout.on('data', function(data) {
         // Check for child process log specifying current url. child_url will then be used to redirect
@@ -56,7 +58,7 @@ exports.childUrl = function(req, instruction) {
     if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
         url += '-' +req.session.name_application + globalConf.dns + child_url;
     else
-        url += ':' + (9000+parseInt(req.session.id_application)) + child_url;
+        url += ':' + (9000+parseInt(req.session.idApp)) + child_url;
     return url;
 }
 

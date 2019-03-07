@@ -26,9 +26,9 @@ $(document).ready(function() {
     var chosenTheme = localStorage.getItem("newmips_editor_theme");
 
     if (chosenTheme == null) {
-        localStorage.setItem("newmips_editor_theme", "default");
-        chosenTheme = "default";
-    } else if (chosenTheme != "default") {
+        localStorage.setItem("newmips_editor_theme", "monokai");
+        chosenTheme = "monokai";
+    } else if (chosenTheme != "monokai") {
         $("#select-theme").val(chosenTheme);
         $('head').append("<link href='/css/codemirror/themes/" + chosenTheme + ".css' rel='stylesheet' type='text/css'>");
     }

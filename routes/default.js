@@ -103,10 +103,13 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
     });
 });
 
-router.get('/update_logs', function(req, res) {
-    try{
-        res.send(fs.readFileSync(__dirname + "/../all.log"));
-    } catch(e){
+router.post('/update_logs', block_access.isLoggedIn, function(req, res) {
+    try {
+        if(!isNaN(req.body.idApp))
+            res.status(200).send(fs.readFileSync(__dirname + "/../workspace/logs/app_"+req.body.idApp+".log"));
+        else
+            res.status(200).send(fs.readFileSync(__dirname + "/../all.log"));
+    } catch(e) {
         console.log(e);
         res.send(false);
     }

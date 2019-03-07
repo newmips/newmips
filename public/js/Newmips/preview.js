@@ -465,12 +465,25 @@ $(document).ready(function() {
     /////////
     // Logs
     /////////
+    var flagBottom = true;
+    var flagStopReload = false;
+    var logsInterval;
+    var objDiv = document.getElementById("logs-content");
     function updateLog() {
         $.ajax({
             url: '/default/update_logs',
+            method: "POST",
+            data: {
+                idApp: idApp
+            },
             success: function(data) {
-                $("#logs-content").html(data);
-                setTimeout(updateLog, 1000);
+                if(!flagStopReload){
+                    $("#logs-content").html(data);
+                    if(flagBottom){
+                        objDiv.scrollTop = objDiv.scrollHeight;
+                    }
+                    logsInterval = setTimeout(updateLog, 1000);
+                }
             },
             error: function(err) {
                 console.error(err);
@@ -487,6 +500,20 @@ $(document).ready(function() {
 			alwaysVisible: true,
 			color: '#FFF',
 			size: '10px'
+        }).bind('slimscrolling', function (e, pos) {
+            if($(this)[0].scrollHeight - pos <= 1000) {
+                flagBottom = true;
+            } else {
+                flagBottom = false;
+            }
         });
-    })
+    });
+
+    /* Stop logs from reloading for 10 seconds to enable user to copy/paste */
+    $(document).on('mousedown', '#logs-content', function() {
+        flagStopReload = true;
+    }).on('mouseup mouseleave', function() {
+        flagStopReload = false;
+        setTimeout(updateLog, 10000);
+    });
 })
