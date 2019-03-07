@@ -51,7 +51,7 @@ var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {
 
 app.use(morgan('dev', {
     skip: function(req, res) {
-        // Empeche l'apparition de certain log polluant.
+        // Remove spamming useless logs
         var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/"];
         var currentURL = req.originalUrl;
         if (currentURL.indexOf("?") != -1) {
