@@ -3,7 +3,10 @@ var dropzonesFieldArray = [];
 var dropzonesComponentArray = [];
 Dropzone.autoDiscover = false;
 
-function select2_ajaxsearch(select, placeholder = SELECT_DEFAULT_TEXT) {
+function select2_ajaxsearch(select, placeholder) {
+    if(!placeholder)
+        placeholder = SELECT_DEFAULT_TEXT;
+
     var searchField = select.data('using').split(',');
 
     // Use custom url on select or build default url
@@ -892,7 +895,9 @@ function validateForm(form) {
 }
 
 /* --------------- Status comment modal --------------- */
-function bindStatusComment(context = document) {
+function bindStatusComment(context) {
+    if(!context)
+        context = document;
     $(".status", context).click(function() {
         var url = $(this).data('href');
 
