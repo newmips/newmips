@@ -41,9 +41,9 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
     if (req.body.remember)
-        req.session.cookie.maxAge = 30 * 60 * 1000; // 30min
+        req.session.cookie.expires = false; // Unlimited
     else
-        req.session.cookie.expires = false;
+        req.session.cookie.expires = 120 * 60 * 1000; // 2h
 
     res.redirect("/default/home");
 });
