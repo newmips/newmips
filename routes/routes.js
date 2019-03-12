@@ -397,9 +397,9 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
     if (req.body.remember)
-        req.session.cookie.maxAge = 1000 * 60 * 3;
-    else
         req.session.cookie.expires = false;
+    else
+        req.session.cookie.expires = 120 * 60 * 1000;
 
     var email_user = req.session.passport.user.email;
 
