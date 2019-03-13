@@ -4,17 +4,17 @@
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
 {/custom_css_2}
 {<header}
-    <h1>{@__ key="module.custom_module"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.custom_module"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li>
             <a href="/">
                 <i class="fa fa-home"></i>
-                {@__ key="module.home"/}
+                {#__ key="module.home"/}
             </a>
         </li>
         <!-- SUB MODULE - DO NOT REMOVE -->
         <li class="active">
-            {@__ key="entity.custom_data_entity.name_entity"/}
+            {#__ key="entity.custom_data_entity.name_entity"/}
         </li>
     </ol>
 {/header}
@@ -23,7 +23,7 @@
         <div class="col-xs-12 connectedSortable">
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="operation.show"/} {@__ key="entity.custom_data_entity.name_entity" /}</h3>
+                    <h3 class="box-title">{#__ key="operation.show"/} {#__ key="entity.custom_data_entity.name_entity" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -32,7 +32,7 @@
                 <div class="box-body">
                     {#custom_data_entity}
                         <div class="form-group">
-                            <label for="id">{@__ key="entity.custom_data_entity.id_entity"/} {@__ key="entity.custom_data_entity.name_entity"/}</label>
+                            <label for="id">{#__ key="entity.custom_data_entity.id_entity"/} {#__ key="entity.custom_data_entity.name_entity"/}</label>
                             <input type="text" name="sourceId" value="{custom_data_entity.id}" disabled="" class="form-control"/>
                             <input type="text" name="sourceName" value="custom_data_entity" disabled="" class="form-control" style="display:none;" />
                         </div>
@@ -46,18 +46,18 @@
 {<custom_js}
     <script type="text/javascript">
         /* Static variables using dust, used in show.js */
-        var EMPTY = '{@__ key="message.empty" /}';
-        var SHOW_TEXT = '{@__ key="button.show" /}';
-        var CREATE_TEXT = '{@__ key="button.create"/}';
-        var UPDATE_TEXT = '{@__ key="button.update"/}';
-        var SAVE_TEXT = '{@__ key="button.save"/}';
-        var DELETE_TEXT = '{@__ key="button.delete"/}';
-        var CANCEL_TEXT = '{@__ key="button.cancel"/}';
-        var REMOVE_TEXT = '{@__ key="button.remove" /}';
+        var EMPTY = '{#__ key="message.empty" /}';
+        var SHOW_TEXT = '{#__ key="button.show" /}';
+        var CREATE_TEXT = '{#__ key="button.create"/}';
+        var UPDATE_TEXT = '{#__ key="button.update"/}';
+        var SAVE_TEXT = '{#__ key="button.save"/}';
+        var DELETE_TEXT = '{#__ key="button.delete"/}';
+        var CANCEL_TEXT = '{#__ key="button.cancel"/}';
+        var REMOVE_TEXT = '{#__ key="button.remove" /}';
         var CREATE_BUTTON = '<a href="#" data-href="" class="ajax btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>'+CREATE_TEXT+'</span></a>';
         var UPDATE_BUTTON = '<a style="margin-right:8px;" data-href="" href="#" class="ajax btn btn-warning"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>'+UPDATE_TEXT+'</span></a>';
-        var DELETE_FORM = '<form action="" class="ajax" method="post"><button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.delete" /}</span><input name="id" type="hidden"></button></form>';
-        var FIELDSET_SELECT = '<form action="" class="ajax" method="post" style="margin-bottom: 20px;"><select style="width:200px;" class="form-control regular-select" name="ids" required="" multiple=""></select><button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button><input type="hidden" value="{custom_data_entity.id}" name="idEntity"></form>';
+        var DELETE_FORM = '<form action="" class="ajax" method="post"><button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.delete" /}</span><input name="id" type="hidden"></button></form>';
+        var FIELDSET_SELECT = '<form action="" class="ajax" method="post" style="margin-bottom: 20px;"><select style="width:200px;" class="form-control regular-select" name="ids" required="" multiple=""></select><button style="margin-left:7px;" type="submit" class="btn btn-success">{#__ key="button.add"/}</button><input type="hidden" value="{custom_data_entity.id}" name="idEntity"></form>';
 
         var DATALIST_BUTTONS = [];
     </script>

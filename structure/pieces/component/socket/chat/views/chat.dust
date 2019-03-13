@@ -13,14 +13,14 @@
         <div id="channelUsers" style="max-height: 250px;overflow-y:auto;overflow-x: hidden;position:fixed;background-color: #F0F8FF;color:black;z-index:10;display:none;width: 500px;padding:15px;border-left: 1px solid lightgrey;border-bottom: 1px solid lightgrey;border-top: 1px solid lightgrey;">
             <div class="row">
                 <div class="col-xs-12">
-                    <button id="leaveChannel" class="btn btn-info"><i class="fa fa-sign-out"></i> {@__ key="component.chat.channel_leave" /}</button>
+                    <button id="leaveChannel" class="btn btn-info"><i class="fa fa-sign-out"></i> {#__ key="component.chat.channel_leave" /}</button>
                 </div>
             </div>
             <br>
             <div class="row">
                 <div class="col-xs-12">
                     <h4 class="contacts-list-name">
-                        {@__ key="component.chat.invite_users" /}
+                        {#__ key="component.chat.invite_users" /}
                     </h4>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     <select id="inviteUserChannel" style="width: 100%;" type="text" class="form-control"></select>
                 </div>
                 <div class="col-xs-4">
-                    <button id="doInviteChannel" class="btn btn-info">{@__ key="component.chat.invite" /}</button>
+                    <button id="doInviteChannel" class="btn btn-info">{#__ key="component.chat.invite" /}</button>
                 </div>
             </div>
             <br>
@@ -50,7 +50,7 @@
                 <div class="col-xs-12">
                     <div class="row">
                         <div class="col-xs-12">
-                            {@__ key="component.chat.channel_create" /}
+                            {#__ key="component.chat.channel_create" /}
                         </div>
                     </div>
                     <div class="row">
@@ -60,7 +60,7 @@
                         <div class="col-xs-4">
                             <div class="row">
                                 <div class="col-xs-7">
-                                    <label style="margin-right:10px;">{@__ key="component.chat.private" /}</label>
+                                    <label style="margin-right:10px;">{#__ key="component.chat.private" /}</label>
                                 </div>
                                 <div class="col-xs-3">
                                     <input type="radio" name="channelType" value="private">
@@ -68,7 +68,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-7">
-                                    <label style="margin-right:10px;">{@__ key="component.chat.public" /}</label>
+                                    <label style="margin-right:10px;">{#__ key="component.chat.public" /}</label>
                                 </div>
                                 <div class="col-xs-3">
                                     <input type="radio" name="channelType" value="public">
@@ -76,13 +76,13 @@
                             </div>
                         </div>
                         <div class="col-xs-3">
-                            <button id="doCreateChannel" class="btn btn-success" style="min-width: 40px;"><i class="fa fa-plus"></i>&nbsp;&nbsp;{@__ key="button.create" /}</button>
+                            <button id="doCreateChannel" class="btn btn-success" style="min-width: 40px;"><i class="fa fa-plus"></i>&nbsp;&nbsp;{#__ key="button.create" /}</button>
                         </div>
                     </div>
                     <br>
                     <div class="row">
                         <div class="col-xs-12">
-                            {@__ key="component.chat.channel_join" /}
+                            {#__ key="component.chat.channel_join" /}
                         </div>
                     </div>
                     <div class="row">
@@ -90,7 +90,7 @@
                             <select id="joinChannel" style="width: 100%;" data-choice-select2="0" class="form-control" required=""></select>
                         </div>
                         <div class="col-xs-4">
-                            <button id="doJoinChannel" class="btn btn-info" style="min-width: 40px;"><i class="fa fa-link"></i>&nbsp;&nbsp;{@__ key="component.chat.join" /}</button>
+                            <button id="doJoinChannel" class="btn btn-info" style="min-width: 40px;"><i class="fa fa-link"></i>&nbsp;&nbsp;{#__ key="component.chat.join" /}</button>
                         </div>
                     </div>
                 </div>
@@ -102,13 +102,13 @@
             <h4 class="contacts-list-name" style="padding-left:10px;">Discussion privée<i id="createChatBtn" class="fa fa-minus hover" style="margin-left:5px;"></i></h4>
             <div id="createChat" class="row" style="width:100%;padding-left:10px;">
                 <div class="col-xs-12">
-                    {@__ key="component.chat.chat_create" /}
+                    {#__ key="component.chat.chat_create" /}
                 </div>
                 <div class="col-xs-6">
                     <select id="createChatId" data-choice-select2="0" class="form-control" required=""></select>
                 </div>
                 <div class="col-xs-4">
-                    <button id="doCreateChat" class="btn btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;{@__ key="button.create" /}</button>
+                    <button id="doCreateChat" class="btn btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;{#__ key="button.create" /}</button>
                 </div>
             </div>
             <ul id="chatsList" class="contacts-list">
@@ -127,22 +127,22 @@
     {! Traducted messages for chat toastr !}
     <div style="display: none;">
         <div id="msg-user_invited">
-            {@__ key="component.chat.user_invited" /}
+            {#__ key="component.chat.user_invited" /}
         </div>
         <div id="msg-chat_created">
-            {@__ key="component.chat.chat_created" /}
+            {#__ key="component.chat.chat_created" /}
         </div>
         <div id="msg-channel_created">
-            {@__ key="component.chat.channel_created" /}
+            {#__ key="component.chat.channel_created" /}
         </div>
         <div id="msg-channel_joined">
-            {@__ key="component.chat.channel_joined" /}
+            {#__ key="component.chat.channel_joined" /}
         </div>
         <div id="msg-channel_members">
-            {@__ key="component.chat.channel_members" /}
+            {#__ key="component.chat.channel_members" /}
         </div>
         <div id="msg-channel_left">
-            {@__ key="component.chat.channel_left" /}
+            {#__ key="component.chat.channel_left" /}
         </div>
     </div>
 </div>

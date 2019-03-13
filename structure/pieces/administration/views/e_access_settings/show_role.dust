@@ -1,20 +1,20 @@
 {>"layout_m_administration" /}
 {<header}
-    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li>
             <a href="/">
                 <i class="fa fa-home"></i>
-                {@__ key="module.home"/}
+                {#__ key="module.home"/}
             </a>
         </li>
         <li>
             <a class='sub-module-arianne' href='/default/administration'>
-                {@__ key="module.m_administration"/}
+                {#__ key="module.m_administration"/}
             </a>
         </li>
         <li class="active">
-            {@__ key="settings.auth_component.action_managment" /}
+            {#__ key="settings.auth_component.action_managment" /}
         </li>
     </ol>
 {/header}
@@ -23,7 +23,7 @@
 		<div class="col-xs-12">
 			<div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="settings.auth_component.action_managment" /}</h3>
+                    <h3 class="box-title">{#__ key="settings.auth_component.action_managment" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -35,7 +35,7 @@
 							<thead>
 								<tr>
 									<th>
-										{@__ key="settings.auth_component.entityList"/}
+										{#__ key="settings.auth_component.entityList"/}
 									</th>
 									{#allRoles}
 										<th>{f_label}</th>
@@ -48,32 +48,32 @@
 										{@ne key=name value="access_settings"}
 											<tr>
 												<td>
-													{@__ key=tradKeyEntity /}
+													{#__ key=tradKeyEntity /}
 												</td>
 												{#allRoles currentEntity=.}
 													<td>
 														{@isActionChecked action="read" source=currentEntity target=f_label}
-															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox" checked> {@__ key="settings.auth_component.action.read"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox" checked> {#__ key="settings.auth_component.action.read"/}</label>
 														{:else}
-															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox"> {@__ key="settings.auth_component.action.read"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.read"><input name="{name}.{f_label}.read" type="checkbox"> {#__ key="settings.auth_component.action.read"/}</label>
 														{/isActionChecked}
 														<br>
 														{@isActionChecked action="create" source=currentEntity target=f_label}
-															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox" checked> {@__ key="settings.auth_component.action.create"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox" checked> {#__ key="settings.auth_component.action.create"/}</label>
 														{:else}
-															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox"> {@__ key="settings.auth_component.action.create"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.create"><input name="{name}.{f_label}.create" type="checkbox"> {#__ key="settings.auth_component.action.create"/}</label>
 														{/isActionChecked}
 														<br>
 														{@isActionChecked action="update" source=currentEntity target=f_label}
-															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox" checked> {@__ key="settings.auth_component.action.update"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox" checked> {#__ key="settings.auth_component.action.update"/}</label>
 														{:else}
-															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox"> {@__ key="settings.auth_component.action.update"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.update"><input name="{name}.{f_label}.update" type="checkbox"> {#__ key="settings.auth_component.action.update"/}</label>
 														{/isActionChecked}
 														<br>
 														{@isActionChecked action="delete" source=currentEntity target=f_label}
-															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox" checked> {@__ key="settings.auth_component.action.delete"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox" checked> {#__ key="settings.auth_component.action.delete"/}</label>
 														{:else}
-															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox"> {@__ key="settings.auth_component.action.delete"/}</label>
+															<label class="no-weight" for="{name}.{f_label}.delete"><input name="{name}.{f_label}.delete" type="checkbox"> {#__ key="settings.auth_component.action.delete"/}</label>
 														{/isActionChecked}
 													</td>
 												{/allRoles}
@@ -85,7 +85,7 @@
 						</table>
 						<button type="submit" class="btn btn-primary">
 							<i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
-                            {@__ key="button.save" /}
+                            {#__ key="button.save" /}
                        	</button>
 					</form>
 				</div>

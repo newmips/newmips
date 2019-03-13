@@ -8,7 +8,7 @@
     </div>
 
     <div class="box-body">
-		<em style="display: none;">{@__ key="message.empty" /}</em>
+		<em style="display: none;">{#__ key="message.empty" /}</em>
         <canvas class="piechart"></canvas>
     </div>
 </div>

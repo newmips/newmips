@@ -1,8 +1,10 @@
 const moment = require("moment");
 
-module.exports = function(req, res, dust, language, lang, block_access) {
+module.exports = function(req, res, dust, language, block_access) {
 	// ----------- Helper DUST ----------- //
-    // Example {@myHelper}
+    // Example:
+    // {@myHelper} for global helpers
+    // {#myHelper} for context helpers (such as authentication access)
 
     // When user is logged
     if (req.isAuthenticated() || AUTO_LOGIN) {
@@ -10,23 +12,23 @@ module.exports = function(req, res, dust, language, lang, block_access) {
         res.locals.session = req.session;
 
         // Access control
-        dust.helpers.moduleAccess = function(chunk, context, bodies, params) {
+        res.locals.moduleAccess = function(chunk, context, bodies, params) {
             var userGroups = req.session.passport.user.r_group;
             var moduleName = params.module;
             return block_access.moduleAccess(userGroups, moduleName);
         };
-        dust.helpers.entityAccess = function(chunk, context, bodies, params) {
+        res.locals.entityAccess = function(chunk, context, bodies, params) {
             var userGroups = req.session.passport.user.r_group;
             var entityName = params.entity;
             return block_access.entityAccess(userGroups, entityName);
         }
-        dust.helpers.actionAccess = function(chunk, context, bodies, params) {
+        res.locals.actionAccess = function(chunk, context, bodies, params) {
             var userRoles = req.session.passport.user.r_role;
             var entityName = params.entity;
             var action = params.action;
             return block_access.actionAccess(userRoles, entityName, action);
         }
-        dust.helpers.checkStatusPermission = function(chunk, context, bodies, params) {
+        res.locals.checkStatusPermission = function(chunk, context, bodies, params) {
             var status = params.status;
             var acceptedGroup = status.r_accepted_group || [];
             var currentUserGroupIds = [];
@@ -46,11 +48,11 @@ module.exports = function(req, res, dust, language, lang, block_access) {
         }
     }
 
-    dust.helpers.__ = function(ch, con, bo, params) {
-        return language(lang).__(params.key);
+    res.locals.__ = function(ch, con, bo, params) {
+        return ch.write(language.__(params.key));
     }
-    dust.helpers.M_ = function(ch, con, bo, params) {
-        return language(lang).M_(params.key);
+    res.locals.M_ = function(ch, con, bo, params) {
+        return ch.write(language.M_(params.key));
     }
     dust.helpers.findValueInGivenContext = function(chunk, context, bodies, params) {
         var obj = dust.helpers.tap(params.ofContext, chunk, context);

@@ -4,12 +4,12 @@
             <table class="table table-responsive">
                 <thead>
                     <tr>
-                        <th> {@__ key="component.c_address_settings.entity"/}</th>
-                        <th><i class="fa fa-map"></i> {@__ key="component.c_address_settings.enableMaps"/}</th>
-                        <th><i class="fa fa-expand"></i> {@__ key="component.c_address_settings.position"/}</th>
-                        <th>{@__ key="component.c_address_settings.navigation"/}</th>
-                        <th>{@__ key="component.c_address_settings.zoomBar"/}</th>
-                        <th>{@__ key="component.c_address_settings.mousePosition"/}</th>
+                        <th> {#__ key="component.c_address_settings.entity"/}</th>
+                        <th><i class="fa fa-map"></i> {#__ key="component.c_address_settings.enableMaps"/}</th>
+                        <th><i class="fa fa-expand"></i> {#__ key="component.c_address_settings.position"/}</th>
+                        <th>{#__ key="component.c_address_settings.navigation"/}</th>
+                        <th>{#__ key="component.c_address_settings.zoomBar"/}</th>
+                        <th>{#__ key="component.c_address_settings.mousePosition"/}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,45 +27,45 @@
                             {@ifTrue key=mapsPosition.top}
                             <label>
                                 <input type="radio" class="input" checked="" value="top" name="mapsPosition{entity}"/>
-                                &nbsp;{@__ key="component.c_address_settings.top" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.top" /}&nbsp;
                             </label>
                             {:else}
                             <label>
                                 <input type="radio" class="input"  value="top" name="mapsPosition{entity}" />
-                                &nbsp;{@__ key="component.c_address_settings.top" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.top" /}&nbsp;
                             </label>
                             {/ifTrue}
                             {@ifTrue key=mapsPosition.right}
                             <label>
                                 <input type="radio" class="input" checked="" value="right" name="mapsPosition{entity}"/>
-                                &nbsp;{@__ key="component.c_address_settings.right" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.right" /}&nbsp;
                             </label>
                             {:else}
                             <label>
                                 <input type="radio" class="input"  value="right" name="mapsPosition{entity}" />
-                                &nbsp;{@__ key="component.c_address_settings.right" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.right" /}&nbsp;
                             </label>
                             {/ifTrue}
                             {@ifTrue key=mapsPosition.bottom}
                             <label>
                                 <input type="radio" class="input" checked="" value="bottom" name="mapsPosition{entity}"/>
-                                &nbsp;{@__ key="component.c_address_settings.bottom" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.bottom" /}&nbsp;
                             </label>
                             {:else}
                             <label>
                                 <input type="radio" class="input"  value="bottom" name="mapsPosition{entity}" />
-                                &nbsp;{@__ key="component.c_address_settings.bottom" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.bottom" /}&nbsp;
                             </label>
                             {/ifTrue}
                             {@ifTrue key=mapsPosition.left}
                             <label>
                                 <input type="radio" class="input" checked="" value="left" name="mapsPosition{entity}"/>
-                                &nbsp;{@__ key="component.c_address_settings.left" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.left" /}&nbsp;
                             </label>
                             {:else}
                             <label>
                                 <input type="radio" class="input"  value="left" name="mapsPosition{entity}" />
-                                &nbsp;{@__ key="component.c_address_settings.left" /}&nbsp;
+                                &nbsp;{#__ key="component.c_address_settings.left" /}&nbsp;
                             </label>
                             {/ifTrue}
                         </td>
@@ -98,6 +98,6 @@
     </div>
     <button class="btn btn-info">
         <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
-        {@__ key="button.save"/}
+        {#__ key="button.save"/}
     </button>
 </form>

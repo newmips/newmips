@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{@__ key="app.name"/} | {@__ key="module.home"/}</title>
+        <title>{#__ key="app.name"/} | {#__ key="module.home"/}</title>
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         {! ---------------- CSS ----------------  !}
         {! Bootstrap 3.0.3 !}
@@ -49,7 +49,7 @@
             <header class="main-header">
                 <a href="/default/home" class="logo">
                     <span class="logo-mini"> - </span>
-                    <span class="logo-lg">{@__ key="app.name"/}</span>
+                    <span class="logo-lg">{#__ key="app.name"/}</span>
                 </a>
                 <nav class="navbar navbar-static-top">
                     {! Sidebar toggle button !}
@@ -65,7 +65,7 @@
                 <section class="sidebar">
                     {! Sidebar user panel !}
                     <div class="" style="margin: 5px">
-                        <label for="f_entity" class="required"> {@__ key="entity.e_document_template.f_entity"/} </label>
+                        <label for="f_entity" class="required"> {#__ key="entity.e_document_template.f_entity"/} </label>
                         <select name="f_entity" style="width: 100%" class="form-control" id="f_entity">
                             {#document_template_entities}
                             {@eq key=.value value=selectedEntity}

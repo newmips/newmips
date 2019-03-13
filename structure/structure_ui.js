@@ -409,7 +409,7 @@ exports.createWidget = function(attr, callback) {
 
                 // Create widget's html
                 var newHtml = "";
-                newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+                newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
                 newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-3 col-xs-12'>\n";
                 newHtml +=      $2("body")[0].innerHTML+"\n";
                 newHtml += "</div>";
@@ -442,10 +442,10 @@ exports.createWidgetPiechart = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_'+attr.field.codeName+'_widget';
             // Widget box title traduction
-            $2(".box-title").text('{@__ key="defaults.widgets.piechart.'+widgetElemId+'" /}');
+            $2(".box-title").text('{#__ key="defaults.widgets.piechart.'+widgetElemId+'" /}');
             // Create widget's html
             var newHtml = "";
-            newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
             newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-field-type='"+attr.field.type+"' data-field='"+attr.field.codeName+"' data-legend='"+attr.legend+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-4 col-xs-12'>\n";
             newHtml +=      $2("body")[0].innerHTML+"\n";
             newHtml += "</div>";
@@ -493,7 +493,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
-            newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
             newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
             newHtml +=      $template("body")[0].innerHTML+"\n";
             newHtml += "</div>";
@@ -509,7 +509,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
                         var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('th[data-field="'+field+'"]').data('type');
                         var col = $list('th[data-field="'+field+'"]').data('col');
-                        thead += '<th data-field="'+field+'" data-type="'+type+'" data-col="'+col+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
+                        thead += '<th data-field="'+field+'" data-type="'+type+'" data-col="'+col+'"><!--{#__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
                     }
                     thead += '</tr></thead>';
 
