@@ -2,7 +2,7 @@
 {<header}
     <h1>Document template</h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
     </ol>
     {/header}
     {<content}

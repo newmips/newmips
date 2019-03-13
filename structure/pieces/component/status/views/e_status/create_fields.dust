@@ -1,17 +1,17 @@
 <div id="fields" class="row">
     <div data-field="f_entity" class="col-xs-12 col-sm-6">
         <div class="form-group">
-            <label for="f_entity" class="required"> {@__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
+            <label for="f_entity" class="required"> {#__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
             {#f_entity}
                 <select disabled class="form-control">
-                    <option value="{f_entity}">{@__ key=entityTrad /}</option>
+                    <option value="{f_entity}">{#__ key=entityTrad /}</option>
                 </select>
                 <input type="hidden" name="f_entity" value="{f_entity}">
             {:else}
                 <select name="f_entity" required class="form-control" style="width:100%;">
-                    <option value="" selected>{@__ key="select.default" /}</option>
+                    <option value="" selected>{#__ key="select.default" /}</option>
                     {#entities}
-                        <option value="{entity}">{@__ key=entityTrad /}</option>
+                        <option value="{entity}">{#__ key=entityTrad /}</option>
                     {/entities}
                 </select>
             {/f_entity}
@@ -20,20 +20,20 @@
     <div data-field="f_field" class="col-xs-12 col-sm-6">
         {#f_field}
             <div class="form-group">
-                <label for="f_field" class="required">{@__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
+                <label for="f_field" class="required">{#__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
                 <select disabled class="form-control">
-                    <option value="{f_field}">{@__ key=fieldTrad /}</option>
+                    <option value="{f_field}">{#__ key=fieldTrad /}</option>
                 </select>
                 <input type="hidden" name="f_field" value="{f_field}">
             </div>
         {:else}
             {#entities}
                 <div id="{entity}.status" style="display: none;" class="form-group">
-                    <label for="f_field" class="required">{@__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
+                    <label for="f_field" class="required">{#__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
                     <select name="f_field" required disabled class="form-control" style="width:100%;">
-                        <option value="" selected>{@__ key="select.default" /}</option>
+                        <option value="" selected>{#__ key="select.default" /}</option>
                         {#statuses}
-                            <option value="{status}">{@__ key=statusTrad /}</option>
+                            <option value="{status}">{#__ key=statusTrad /}</option>
                         {/statuses}
                     </select>
                 </div>
@@ -42,27 +42,27 @@
     </div>
     <div data-field="f_name" class="col-xs-12">
         <div class="form-group">
-            <label for="f_name"> {@__ key="entity.e_status.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_status.f_name" /}' name="f_name" value="" type="text">
+            <label for="f_name"> {#__ key="entity.e_status.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_status.f_name" /}' name="f_name" value="" type="text">
         </div>
     </div>
     <div data-field="f_color" class="col-xs-12 col-sm-6">
         <div class="form-group">
-            <label for="f_color"> {@__ key="entity.e_status.f_color"/} {@inline_help field="f_color"}&nbsp;<i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_status.f_color" /}' name="f_color" value="#FFFFFF" type="color">
+            <label for="f_color"> {#__ key="entity.e_status.f_color"/} {@inline_help field="f_color"}&nbsp;<i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_status.f_color" /}' name="f_color" value="#FFFFFF" type="color">
         </div>
     </div>
     <div data-field="f_accepted_group" class="fieldLineHeight col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_accepted_group">
-                {@__ key="entity.e_status.r_accepted_group" /}
+                {#__ key="entity.e_status.r_accepted_group" /}
                 {@inline_help field="r_accepted_group"}
                 <i data-field="r_accepted_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
             <select multiple="" class="ajax form-control" name="r_accepted_group" data-source="group" data-using="f_label">
                 <option value="">
-                    {@__ key="select.default" /}
+                    {#__ key="select.default" /}
                 </option>
                 {#r_accepted_group}
                 <option value="{id}">{f_label|string}</option>
@@ -72,14 +72,14 @@
     </div>
     <div data-field="f_position" class="col-xs-12" style="display: none">
         <div class="form-group">
-            <label for="f_position"> {@__ key="entity.e_status.f_position"/} {@inline_help field="f_position"}&nbsp;<i data-field="f_position" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_status.f_position" /}' name="f_position" value="" type="number">
+            <label for="f_position"> {#__ key="entity.e_status.f_position"/} {@inline_help field="f_position"}&nbsp;<i data-field="f_position" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_status.f_position" /}' name="f_position" value="" type="number">
         </div>
     </div>
     <div data-field="f_comment" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_comment">
-                {@__ key="entity.e_status.f_comment"/}&nbsp;
+                {#__ key="entity.e_status.f_comment"/}&nbsp;
                 {@inline_help field="f_comment"}
                 <i data-field="f_comment" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
@@ -92,7 +92,7 @@
     {^f_entity}
         <div data-field="f_default" class="col-xs-12 col-sm-6">
             <div class="form-group">
-                <label for="f_default"> {@__ key="entity.e_status.f_default"/} {@inline_help field="f_default"}&nbsp;<i data-field="f_default" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label> &nbsp;
+                <label for="f_default"> {#__ key="entity.e_status.f_default"/} {@inline_help field="f_default"}&nbsp;<i data-field="f_default" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label> &nbsp;
                 <br>
                 <input class="form-control input" name="f_default" type="checkbox">
             </div>

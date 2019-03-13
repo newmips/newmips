@@ -1,8 +1,8 @@
 <div id="fields" class="row">
 	<div data-field="f_name" class="col-xs-12">
 	    <div class="form-group">
-	        <label for="f_name" class="required"> {@__ key="entity.e_cra_team.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-	        <input class="form-control input" placeholder='{@__ key="entity.e_cra_team.f_name" /}' name="f_name" value="{f_name}" type="text" required />
+	        <label for="f_name" class="required"> {#__ key="entity.e_cra_team.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+	        <input class="form-control input" placeholder='{#__ key="entity.e_cra_team.f_name" /}' name="f_name" value="{f_name}" type="text" required />
 	    </div>
 	</div>
 </div>

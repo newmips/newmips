@@ -1,9 +1,9 @@
 {>"layout_CODE_VALUE_MODULE"/}
 {<header}
-    <h1>{@__ key="module.CODE_VALUE_MODULE"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.CODE_VALUE_MODULE"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.CODE_VALUE_MODULE"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+        <li class="active">{#__ key="module.CODE_VALUE_MODULE"/}</li>
     </ol>
 {/header}
 {<content}
@@ -12,7 +12,7 @@
             <form action="/URL_VALUE_CONTACT/create" method="post">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">{@__ key="entity.CODE_VALUE_CONTACT.sendMail"/}</h3>
+                        <h3 class="box-title">{#__ key="entity.CODE_VALUE_CONTACT.sendMail"/}</h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                             <i class="fa fa-minus"></i></button>
@@ -26,7 +26,7 @@
                     </div>
 
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">{@__ key="button.send"/}&nbsp;&nbsp;<i class="fa fa-envelope-o" aria-hidden="true"></i></button>
+                        <button type="submit" class="btn btn-primary">{#__ key="button.send"/}&nbsp;&nbsp;<i class="fa fa-envelope-o" aria-hidden="true"></i></button>
                     </div>
 
                     {#associationFlag}

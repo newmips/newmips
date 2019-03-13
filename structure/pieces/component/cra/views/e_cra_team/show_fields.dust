@@ -2,33 +2,33 @@
     <ul class="nav nav-tabs">
         <li class="active">
             <a data-toggle="tab" href="#home">
-                {@__ key="entity.e_cra_team.label_entity" /}
+                {#__ key="entity.e_cra_team.label_entity" /}
             </a>
         </li>
         <li>
             <a id="r_users-click" data-toggle="tab" href="#r_users">
-                {@__ key="entity.e_user.as_r_users" /}
+                {#__ key="entity.e_user.as_r_users" /}
             </a>
         </li>
         <li>
             <a id="r_cra_calendar_settings-click" data-toggle="tab" href="#r_cra_calendar_settings">
-                {@__ key="entity.e_cra_calendar_settings.as_r_cra_calendar_settings" /}
+                {#__ key="entity.e_cra_calendar_settings.as_r_cra_calendar_settings" /}
             </a>
         </li>
         <li>
             <a id="r_cra_calendar_exception-click" data-toggle="tab" href="#r_cra_calendar_exception">
-                {@__ key="entity.e_cra_calendar_exception.as_r_cra_calendar_exception" /}
+                {#__ key="entity.e_cra_calendar_exception.as_r_cra_calendar_exception" /}
             </a>
         </li>
-        <li><a id="r_default_cra_activity-click" data-toggle="tab" href="#r_default_cra_activity">{@__ key="entity.e_cra_activity.as_r_default_cra_activity" /}</a></li>
+        <li><a id="r_default_cra_activity-click" data-toggle="tab" href="#r_default_cra_activity">{#__ key="entity.e_cra_activity.as_r_default_cra_activity" /}</a></li>
     </ul>
     <div class="tab-content" style="min-height:275px;">
         <div id="home" class="tab-pane fade in active">
             <div id="fields" class="row">
                 <div data-field="f_name" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_name"> {@__ key="entity.e_cra_team.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{@__ key="entity.e_cra_team.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+                        <label for="f_name"> {#__ key="entity.e_cra_team.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+                        <input class="form-control input" placeholder='{#__ key="entity.e_cra_team.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
                     </div>
                 </div>
             </div>
@@ -38,27 +38,27 @@
                         <span>
                             <button class="btn btn-danger btn-confirm">
                             <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                            <span>{@__ key="button.delete"/}</span>
+                            <span>{#__ key="button.delete"/}</span>
                             </button>
                             <input name="id" type="hidden" value="{e_cra_team.id}" class="form-control">
                         </span>
                         <span>
                             <a href="/cra_team/update_form?id={e_cra_team.id}" class="btn btn-warning">
                                 <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-                                <span>{@__ key="button.update"/}</span>
+                                <span>{#__ key="button.update"/}</span>
                             </a>
                         </span>
                         {^hideButton}
                         <span>
                             <a href="/cra_team/create_form" class="btn btn-success">
                                 <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                                <span>{@__ key="button.create"/}</span>
+                                <span>{#__ key="button.create"/}</span>
                             </a>
                         </span>
                         <span>
                             <a href="/cra_team/list" type="submit" class="btn btn-primary">
                                 <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
-                                <span>{@__ key="button.list"/}</span>
+                                <span>{#__ key="button.list"/}</span>
                             </a>
                         </span>
                         {/hideButton}
@@ -69,9 +69,9 @@
         <div id="r_users" class="tab-pane fade">
             <form action="/cra_team/fieldset/r_users/add" method="post">
                 <select multiple="" class="ajax form-control" name="ids" data-source="user" data-using="f_login" style="width:200px;">
-                    <option value="">{@__ key="select.default" /}</option>
+                    <option value="">{#__ key="select.default" /}</option>
                 </select>
-                <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>
+                <button style="margin-left:7px;" type="submit" class="btn btn-success">{#__ key="button.add"/}</button>
                 <input type="hidden" value="{e_cra_team.id}" name="idEntity">
             </form>
             <br>
@@ -87,16 +87,16 @@
             {#r_cra_calendar_settings}
             {>"e_cra_calendar_settings/show_fields" /}
             {:else}
-            {@__ key="message.empty" /}<br><br>
+            {#__ key="message.empty" /}<br><br>
             {/r_cra_calendar_settings}
             {#r_cra_calendar_settings}
             <form action="/cra_calendar_settings/delete" method="post">
                 <a style="margin-right:8px;" href="/cra_calendar_settings/update_form?id={id}&amp;associationAlias=r_cra_calendar_settings&amp;associationForeignKey=fk_id_cra_calendar_settings&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team"
                     class="btn btn-warning">
-                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.update"/}</span>
                 </a>
                 <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                <span>{@__ key="button.delete" /}</span>
+                <span>{#__ key="button.delete" /}</span>
                 <input name="id" value="{id}" type="hidden">
                 <input name="associationAlias" value="r_cra_calendar_settings" type="hidden">
                 <input name="associationForeignKey" value="fk_id_cra_calendar_settings" type="hidden">
@@ -107,14 +107,14 @@
             </form>
             {:else}
             <a href="/cra_calendar_settings/create_form?associationAlias=r_cra_calendar_settings&amp;associationForeignKey=fk_id_cra_calendar_settings&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team" class="btn btn-success">
-                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
             </a>
             {/r_cra_calendar_settings}
         </div>
         <div id="r_cra_calendar_exception" class="tab-pane fade">
             <div class="form-group">
                 <form action="/cra_team/generate_holidays" method="post">
-                    <label>{@__ key="entity.e_cra_calendar_exception.generate_holidays" /}</label><br>
+                    <label>{#__ key="entity.e_cra_calendar_exception.generate_holidays" /}</label><br>
                     <select name="lang" class="form-control">
                         <option value="fr-fr">Francais</option>
                         <option value="en-us">English</option>
@@ -137,7 +137,7 @@
             {/r_cra_calendar_exception}
             <br>
             <a href="/cra_calendar_exception/create_form?associationAlias=r_cra_calendar_exception&amp;associationForeignKey=fk_id_cra_team&amp;associationFlag={e_cra_team.id}&amp;associationSource=e_cra_team&amp;associationUrl=cra_team" class="btn btn-success">
-                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
             </a>
         </div>
         <div id="r_default_cra_activity" class="tab-pane fade">
@@ -151,7 +151,7 @@
                     {/.f_name}
                     {/r_default_cra_activity_global_list}
                 </select>
-                <button style="margin-left:7px;" type="submit" class="btn btn-success">{@__ key="button.add"/}</button>
+                <button style="margin-left:7px;" type="submit" class="btn btn-success">{#__ key="button.add"/}</button>
                 <input type="hidden" value="{e_cra_team.id}" name="idEntity">
             </form>
             <br>

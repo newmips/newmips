@@ -3,7 +3,7 @@
     <ul class="nav nav-tabs">
         <li class="active">
             <a data-toggle="tab" href="#home">
-                {@__ key="entity.e_media.label_entity" /}
+                {#__ key="entity.e_media.label_entity" /}
             </a>
         </li>
     </ul>
@@ -13,21 +13,21 @@
             <div id="fields" class="row">
                 <div data-field="f_type" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_type"> {@__ key="entity.e_media.f_type"/} {@inline_help field="f_type"}&nbsp;<i data-field="f_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+                        <label for="f_type"> {#__ key="entity.e_media.f_type"/} {@inline_help field="f_type"}&nbsp;<i data-field="f_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
                         {^f_type}
-                        <input class="form-control input" placeholder='{@__ key="entity.e_media.f_type" /}' name="f_type" type="text" readonly="">
+                        <input class="form-control input" placeholder='{#__ key="entity.e_media.f_type" /}' name="f_type" type="text" readonly="">
                         {/f_type}
                         {#enum_radio.e_media.f_type}
                         {@eq key=f_type value="{.value}" }
-                        <input class="form-control input" placeholder='{@__ key="entity.e_media.f_type" /}' name="f_type" value="{.translation}" type="text" readonly="">
+                        <input class="form-control input" placeholder='{#__ key="entity.e_media.f_type" /}' name="f_type" value="{.translation}" type="text" readonly="">
                         {/eq}
                         {/enum_radio.e_media.f_type}
                     </div>
                 </div>
                 <div data-field="f_name" class="col-xs-12">
                     <div class="form-group">
-                        <label for="f_name"> {@__ key="entity.e_media.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{@__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+                        <label for="f_name"> {#__ key="entity.e_media.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+                        <input class="form-control input" placeholder='{#__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
                     </div>
                 </div>
                 {@eq key=f_type value="mail"}
@@ -35,7 +35,7 @@
                         {#r_media_mail}
                         {>"e_media_mail/show_fields" hideTab="true"/}
                         {:else}
-                        {@__ key="message.empty" /}<br><br>
+                        {#__ key="message.empty" /}<br><br>
                         {/r_media_mail}
                     </div>
                 {/eq}
@@ -44,7 +44,7 @@
                         {#r_media_notification}
                         {>"e_media_notification/show_fields" hideTab="true"/}
                         {:else}
-                        {@__ key="message.empty" /}<br><br>
+                        {#__ key="message.empty" /}<br><br>
                         {/r_media_notification}
                     </div>
                 {/eq}
@@ -53,7 +53,7 @@
                         {#r_media_sms}
                         {>"e_media_sms/show_fields" hideTab="true"/}
                         {:else}
-                        {@__ key="message.empty" /}<br><br>
+                        {#__ key="message.empty" /}<br><br>
                         {/r_media_sms}
                     </div>
                 {/eq}

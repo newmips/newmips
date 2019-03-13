@@ -2,15 +2,15 @@
     <thead class="main">
 		<tr class='fields'>
 			<th data-field="id" data-col="id">
-				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
+				{#__ key="entity.custom_data_entity.id_entity"/}&nbsp;{#__ key="entity.custom_data_entity.label_entity"/}
 			</th>
-			{@actionAccess entity="custom_url_data_entity" action="read"}
+			{#actionAccess entity="custom_url_data_entity" action="read"}
 				<th></th>
 			{/actionAccess}
-			{@actionAccess entity="custom_url_data_entity" action="update"}
+			{#actionAccess entity="custom_url_data_entity" action="update"}
 				<th></th>
 			{/actionAccess}
-			{@actionAccess entity="custom_url_data_entity" action="delete"}
+			{#actionAccess entity="custom_url_data_entity" action="delete"}
 				<th></th>
 			{/actionAccess}
 		</tr>
@@ -18,15 +18,15 @@
     <thead class='filters'>
     	<tr class='fields'>
     		<th data-field="id" data-col="id">
-				{@__ key="entity.custom_data_entity.id_entity"/}&nbsp;{@__ key="entity.custom_data_entity.label_entity"/}
+				{#__ key="entity.custom_data_entity.id_entity"/}&nbsp;{#__ key="entity.custom_data_entity.label_entity"/}
 			</th>
-			{@actionAccess entity="custom_url_data_entity" action="read"}
+			{#actionAccess entity="custom_url_data_entity" action="read"}
 				<th></th>
 			{/actionAccess}
-			{@actionAccess entity="custom_url_data_entity" action="update"}
+			{#actionAccess entity="custom_url_data_entity" action="update"}
 				<th></th>
 			{/actionAccess}
-			{@actionAccess entity="custom_url_data_entity" action="delete"}
+			{#actionAccess entity="custom_url_data_entity" action="delete"}
 				<th></th>
 			{/actionAccess}
     	</tr>

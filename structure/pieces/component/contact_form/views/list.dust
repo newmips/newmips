@@ -4,16 +4,16 @@
     <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
 {/custom_css_2}
 {<header}
-    <h1>{@__ key="module.CODE_VALUE_MODULE"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.CODE_VALUE_MODULE"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.CODE_VALUE_MODULE"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+        <li class="active">{#__ key="module.CODE_VALUE_MODULE"/}</li>
     </ol>
 {/header}
 {<content}
     <div class="box">
         <div class="box-header">
-            <h3 class="box-title">{@__ key="entity.CODE_VALUE_CONTACT.inbox"/}</h3>
+            <h3 class="box-title">{#__ key="entity.CODE_VALUE_CONTACT.inbox"/}</h3>
             <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                 <i class="fa fa-minus"></i></button>
@@ -25,7 +25,7 @@
                     {>"CODE_VALUE_CONTACT/list_fields"/}
                     <br>
                     <a href="/URL_VALUE_CONTACT/create_form">
-                        <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+                        <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
                         </button>
                     </a>
                 </div>
@@ -39,7 +39,7 @@
         var DATALIST_BUTTONS = [];
     </script>
     {! SHOW !}
-    {@actionAccess entity="URL_VALUE_CONTACT" action="read"}
+    {#actionAccess entity="URL_VALUE_CONTACT" action="read"}
     <script type="text/javascript">
         DATALIST_BUTTONS.push({
             render: function (data, type, row) {
@@ -47,7 +47,7 @@
                     <a class="btn-show" href="/URL_VALUE_CONTACT/show?id='+row['id']+'">\
                         <button class="btn btn-primary">\
                             <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
-                            <span>{@__ key="button.show" /}</span>\
+                            <span>{#__ key="button.show" /}</span>\
                         </button>\
                     </a>';
                 return aTag;
@@ -57,7 +57,7 @@
     </script>
     {/actionAccess}
     {! DELETE !}
-    {@actionAccess entity="URL_VALUE_CONTACT" action="delete"}
+    {#actionAccess entity="URL_VALUE_CONTACT" action="delete"}
     <script type="text/javascript">
         DATALIST_BUTTONS.push({
             render: function (data, type, row) {
@@ -65,7 +65,7 @@
                 <form action="/URL_VALUE_CONTACT/delete" method="post">\
                     <button class="btn btn-danger btn-confirm">\
                         <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                        <span>{@__ key="button.delete" /}</span>\
+                        <span>{#__ key="button.delete" /}</span>\
                         <input name="id" type="hidden" value="'+row['id']+'" />\
                     </button>\
                 </form>';

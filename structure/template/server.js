@@ -191,13 +191,9 @@ app.use(function(req, res, next) {
 
     res.locals.lang_user = lang;
     res.locals.config = globalConf;
-    res.locals.clean = function(item) {
-        if (item === undefined || item === null)
-            return '';
-        return item;
-    }
 
-    require("./utils/dust_helper")(req, res, dust, language, lang, block_access);
+    // Helpers / Locals / Filters
+    require("./utils/dust_helper")(req, res, dust, language(lang), block_access);
     next();
 });
 

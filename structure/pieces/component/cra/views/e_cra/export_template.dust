@@ -53,18 +53,18 @@
 	</head>
 	<body>
 		<br>
-		<h1>{@__ key="entity.e_cra.label_entity" /}</h1>
+		<h1>{#__ key="entity.e_cra.label_entity" /}</h1>
 		<div>
 			Date: <b>{cra.f_month}/{cra.f_year}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
-			{@__ key="entity.e_user.label_entity" /}: <b>{user.f_login}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
-			{@__ key="entity.e_user.f_email" /}: <b>{user.f_email}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
-			{@__ key="entity.e_cra_team.label_entity" /}: <b>{team.f_name}</b>
+			{#__ key="entity.e_user.label_entity" /}: <b>{user.f_login}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
+			{#__ key="entity.e_user.f_email" /}: <b>{user.f_email}</b>&nbsp;&nbsp;|&nbsp;&nbsp;
+			{#__ key="entity.e_cra_team.label_entity" /}: <b>{team.f_name}</b>
 		</div>
 		<br>
 		<table class="table">
 			<thead>
 				<tr>
-					<th>{@__ key="entity.e_cra_activity.label_entity" /}</th>
+					<th>{#__ key="entity.e_cra_activity.label_entity" /}</th>
 					{#daysAndLabels}
 						<th class="daysTh"><span class="dayLetter">{f_day}</span><br>{f_date}</th>
 					{/daysAndLabels}
@@ -87,7 +87,7 @@
 		Total: <b>{workedDays}/{cra.f_open_days_in_month}</b>
 		<br><br>
 		<div class="notifAdmin">
-			<label><b>{@__ key="entity.e_cra.f_notification_admin" /}</b></label><br>
+			<label><b>{#__ key="entity.e_cra.f_notification_admin" /}</b></label><br>
 			<textarea rows="5" class="notif">{f_notification_admin}</textarea>
 		</div>
 	</body>
