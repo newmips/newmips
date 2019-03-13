@@ -58,7 +58,7 @@ exports.childUrl = function(req, instruction) {
     if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
         url += '-' +req.session.name_application + globalConf.dns + child_url;
     else
-        url += ':' + (9000+parseInt(req.session.idApp)) + child_url;
+        url += ':' + (9000+parseInt(req.session.id_application)) + child_url;
     return url;
 }
 

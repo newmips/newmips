@@ -488,9 +488,10 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
 exports.deleteApplication = function(id_application, callback) {
     // Kill spawned child process by preview
-    var process_manager = require('../services/process_manager.js');
-    var process_server = process_manager.process_server;
-    var pathToWorkspace = __dirname + '/../workspace/' + id_application;
+    let process_manager = require('../services/process_manager.js');
+    let process_server = process_manager.process_server;
+    let pathToWorkspace = __dirname + '/../workspace/' + id_application;
+    let pathToAppLogs = __dirname + '/../workspace/logs/app_' + id_application + '.log';
 
     if (gitlabConf.doGit) {
         // Async delete repo in our gitlab in cloud env
@@ -527,6 +528,9 @@ exports.deleteApplication = function(id_application, callback) {
         process_server = process_manager.killChildProcess(process_server.pid, function(err) {
             try {
                 helpers.rmdirSyncRecursive(pathToWorkspace);
+                // Delete application log file
+                if (fs.existsSync(pathToAppLogs))
+                    fs.unlinkSync(pathToAppLogs);
                 callback();
             } catch (err) {
                 callback(err, null);
@@ -535,6 +539,9 @@ exports.deleteApplication = function(id_application, callback) {
     } else {
         try {
             helpers.rmdirSyncRecursive(pathToWorkspace);
+            // Delete application log file
+            if (fs.existsSync(pathToAppLogs))
+                fs.unlinkSync(pathToAppLogs);
             callback();
         } catch (err) {
             callback(err, null);
