@@ -75,6 +75,7 @@
             "import_action": "Import",
             "import_file": "SQL File",
             "import_success": "The import has been successfully completed.",
+            "import_error": "An error has occurred, please check the logs.",
             "file_needed": "Missing import file.",
             "wrong_db_pwd": "Wrong password.",
             "modal_password_title": "Password confirmation",

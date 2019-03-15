@@ -79,12 +79,12 @@ app.use(morgan('dev', {
                 for (const line of e.stack.split('\n')) {
                     const matches = line.match(/^\s+at\s+(.*)/);
                     if (matches) {
-                        if (!isFirst) {
+                        // if (!isFirst) {
                             // first line - current function
                             // second line - caller (what we are looking for)
                             initiator = matches[1];
                             break;
-                        }
+                        // }
                         isFirst = false;
                     }
                 }
