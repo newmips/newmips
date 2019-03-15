@@ -149,6 +149,7 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
         Promise.all(imagePromises).then(function() {
             // Open and render dust file
             var file = fs.readFileSync(__dirname+'/../views/e_'+source+'/print_fields.dust', 'utf8');
+            dust.insertLocalsFn(dustData ? dustData : {}, req);
             dust.renderSource(file, dustData || {}, function(err, rendered) {
                 if (err) {
                     console.error(err);
