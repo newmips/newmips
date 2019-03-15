@@ -48,7 +48,6 @@ exports.sendTemplate = function(templateName, options, attachments) {
 			dust.renderSource(template, options.data, function(err, rendered) {
 				options.html = rendered;
 
-
 				if (attachments)
 					options.attachments = attachments;
 

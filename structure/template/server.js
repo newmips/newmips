@@ -192,8 +192,16 @@ app.use(function(req, res, next) {
     res.locals.lang_user = lang;
     res.locals.config = globalConf;
 
+    // To use before calling renderSource function
+    // Insert locals function in dustData
+    dust.insertLocalsFn = function(locals, request){
+        require("./utils/dust_fn").getLocals(locals, request, language(request.session.lang_user), block_access);
+    }
+
     // Helpers / Locals / Filters
-    require("./utils/dust_helper")(req, res, dust, language(lang), block_access);
+    require("./utils/dust_fn").getHelpers(dust);
+    require("./utils/dust_fn").getLocals(res.locals, req, language(lang), block_access);
+    require("./utils/dust_fn").getFilters(dust);
     next();
 });
 

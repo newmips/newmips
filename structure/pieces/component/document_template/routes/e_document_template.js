@@ -410,7 +410,8 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
                                 mimeType: mimeType,
                                 data: data,
                                 entity: entity,
-                                lang: req.session.lang_user
+                                lang: req.session.lang_user,
+                                req: req
                             };
                             document_template_helper.generateDoc(options).then(function(infos) {
                                 var filename = (e_entity.id || '') +

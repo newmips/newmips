@@ -406,6 +406,7 @@ function generateHtmlToPDF(options) {
         options.data.staticImagePath = __dirname + '/../public/img';
 
         var dustSrc = fs.readFileSync(options.file, 'utf8');
+        dust.insertLocalsFn(options.data ? options.data : {}, options.req);
         dust.renderSource(dustSrc, options.data, function (err, html) {
             if (err)
                 return reject(err);

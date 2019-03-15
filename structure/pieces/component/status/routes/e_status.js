@@ -561,6 +561,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
         Promise.all(promisesData).then(function() {
             // Open and render dust file
             var file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
+            dust.insertLocalsFn(dustData ? dustData : {}, req);
             dust.renderSource(file, dustData || {}, function(err, rendered) {
                 if (err) {
                     console.error(err);
