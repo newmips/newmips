@@ -10,10 +10,10 @@ module.exports = {
 
         // Translate functions
         locals.__ = function(ch, con, bo, params) {
-            return ch.write(language.__(params.key));
+            return ch.write(language.__(params.key).replace("'", "&apos;"));
         }
         locals.M_ = function(ch, con, bo, params) {
-            return ch.write(language.M_(params.key));
+            return ch.write(language.M_(params.key).replace("'", "&apos;"));
         }
 
         // When user is logged

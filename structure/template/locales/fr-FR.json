@@ -75,6 +75,7 @@
             "import_action": "Importer",
             "import_file": "Fichier SQL",
             "import_success": "L'import a bien été effectué.",
+            "import_error": "Une erreur s'est produite, merci de vérifier les logs.",
             "file_needed": "Merci d'ajouter le fichier d'import.",
             "wrong_db_pwd": "Mot de passe incorrect.",
             "modal_password_title": "Confirmation du mot de passe",
