@@ -10,10 +10,10 @@ module.exports = {
 
         // Translate functions
         locals.__ = function(ch, con, bo, params) {
-            return ch.write(language.__(params.key).replace("'", "&apos;"));
+            return ch.write(language.__(params.key).replace(/'/g, "&apos;"));
         }
         locals.M_ = function(ch, con, bo, params) {
-            return ch.write(language.M_(params.key).replace("'", "&apos;"));
+            return ch.write(language.M_(params.key).replace(/'/g, "&apos;"));
         }
 
         // When user is logged
@@ -105,7 +105,7 @@ module.exports = {
             return false;
         }
     },
-    getFilters: function(dust) {
+    getFilters: function(dust, lang) {
         // ----------- Filter DUST ----------- //
         // Example {myDate|convertToDateFormat}
 
