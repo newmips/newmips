@@ -105,7 +105,7 @@ router.get('/getPage/:entity/:page', block_access.hasAccessApplication, function
     var pageUri = __dirname + '/../workspace/' + req.session.id_application + '/views/' + entity + '/' + page;
     domHelper.read(pageUri).then(function($) {
         // Encapsulate traduction with span to be able to translate, keep comment for later use
-        var tradRegex = new RegExp(/(<!--{@__ key="(.*)" ?\/}-->)/g);
+        var tradRegex = new RegExp(/(<!--{#__ key="(.*)" ?\/}-->)/g);
         $("body #fields")[0].innerHTML = $("body #fields")[0].innerHTML.replace(tradRegex, '<span class="trad-result">$2</span><span class="trad-src">$1</span>');
 
         // Translate each .trad-result
