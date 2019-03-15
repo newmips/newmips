@@ -201,7 +201,7 @@ app.use(function(req, res, next) {
     // Helpers / Locals / Filters
     require("./utils/dust_fn").getHelpers(dust);
     require("./utils/dust_fn").getLocals(res.locals, req, language(lang), block_access);
-    require("./utils/dust_fn").getFilters(dust);
+    require("./utils/dust_fn").getFilters(dust, lang);
     next();
 });
 
