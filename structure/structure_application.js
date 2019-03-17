@@ -3,6 +3,7 @@ var spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
+const path = require("path");
 
 // Global conf
 var globalConf = require('../config/global.js');
@@ -57,44 +58,20 @@ function installAppModules(attr) {
                 resolve();
             }
         } else {
-            if (fs.existsSync(dir + '/../structure/template/node_modules')) {
-                // Node modules are already in structure/template, need to move them to workspace
-                console.log("Moving workspaces node modules...");
+            // We need to reinstall node modules properly
+            console.log("Workspaces node modules initialization...");
+            fs.copySync(path.join(dir, 'template', 'package.json'), path.join(dir, '..', 'workspace', 'package.json'))
 
-                exec("mv structure/template/node_modules workspace/", {
-                    cwd: dir + '/../'
-                }, function(error, stdout, stderr) {
-                    if (error) {
-                        reject(error);
-                    }
-                    console.log('Workspaces node modules successfully initialized.');
-                    resolve();
-                });
-
-            } else {
-                // We need to reinstall node modules properly
-                console.log("Workspaces node modules initialization...");
-                var cmd = 'cp ' + dir + '/../structure/template/package.json ' + dir + '/../workspace/ || copy ' + dir + '\\..\\structure\\template\\package.json ' + dir + '\\..\\workspace\\';
-
-                exec(cmd, {
-                    cwd: process.cwd()
-                }, function(error, stdout, stderr) {
-                    if (error) {
-                        reject(error);
-                    }
-
-                    cmd = 'npm -s install';
-                    exec(cmd, {
-                        cwd: dir + '/../workspace/'
-                    }, function(error, stdout, stderr) {
-                        if (error) {
-                            reject(error);
-                        }
-                        console.log('Workspaces node modules successfuly initialized.');
-                        resolve();
-                    });
-                });
-            }
+            cmd = 'npm -s install';
+            exec(cmd, {
+                cwd: dir + '/../workspace/'
+            }, function(error, stdout, stderr) {
+                if (error) {
+                    reject(error);
+                }
+                console.log('Workspaces node modules successfuly initialized.');
+                resolve();
+            });
         }
     });
 };
