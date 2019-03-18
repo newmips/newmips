@@ -1,16 +1,15 @@
 // Global configuration file
-const fs = require('fs');
-let env = 'develop';
+var fs = require('fs');
+var env = 'docker';
 
-let config = {
+var config = {
 	'develop': {
 		env: 'develop',
 		protocol: 'http',
 		protocol_iframe: 'http',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
-		slack_chat_enabled: false,
-		authStrategy: 'local'
+		slack_chat_enabled: false
 	},
 	'recette': {
 		env: 'recette',
@@ -23,8 +22,7 @@ let config = {
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
-		slack_chat_enabled: false,
-		authStrategy: 'local'
+		slack_chat_enabled: false
 	},
 	'production': {
 		env: 'production',
@@ -37,12 +35,21 @@ let config = {
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
-		slack_chat_enabled: false,
-		authStrategy: 'local'
+		slack_chat_enabled: false
+	},
+	'docker': {
+		env: 'docker',
+		protocol: 'http',
+		protocol_iframe: 'http',
+		host: '127.0.0.1',
+		port: process.env.PORT || 1337,
+		ssl: {
+			key: /*fs.readFileSync('./cacerts/private.key')*/"fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
+			passphrase : ''
+		},
+		slack_chat_enabled: false
 	}
 }
 
-let fullConfig = config[env];
-fullConfig.version = "2.8";
-
-module.exports = fullConfig;
+module.exports = config[env]
