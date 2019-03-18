@@ -282,7 +282,7 @@ exports.statusGroupAccess = function(req, res, next) {
         if(!newStatus){
             return next();
         }
-        if(!newStatus.r_accepted_group){
+        if(!newStatus.r_accepted_group || newStatus.r_accepted_group.length == 0){
             // Not groups defined, open for all
             return next();
         }
@@ -295,7 +295,7 @@ exports.statusGroupAccess = function(req, res, next) {
             }
         }
 
-        console.log("USER "+req.session.passport.user.f_login+" TRYNG TO SET STATUS "+idNewStatus+ " BUT IS NOT AUTHORIZED.");
+        console.log("USER "+req.session.passport.user.f_login+" TRYING TO SET STATUS "+idNewStatus+ " BUT IS NOT AUTHORIZED.");
         req.session.toastr = [{
             message: "settings.auth_component.no_access_change_status",
             level: "error"
