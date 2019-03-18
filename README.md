@@ -22,16 +22,18 @@ bash install.sh</pre>
 Follow the instructions and wait for the : "Newmips ready to be started -> node server.js"
 
 
+
 ## How to start the application
 
-Command line :<br
-<pre>node server.js</pre><br
-or<br
-<pre>./start_newmips.sh</pre><br
+Command line :
+<pre>node server.js</pre>
+or
+<pre>./start_newmips.sh</pre>
 
 Open your browser on http://127.0.0.1:1337 and log as "admin/admin" by default.
 
 Notice : to create your first application, ports 9000 and 9001 must be available on your computer.
+
 
 
 ## Documentation
@@ -39,12 +41,15 @@ Notice : to create your first application, ports 9000 and 9001 must be available
 Newmips Software documentation is available at http://docs.newmips.com.
 
 
+
 ## Follow us
+
 <ul>
 <li><a href="https://twitter.com/newmips">Twitter</a></li>
 <li><a href="https://www.facebook.com/newmips">Facebook</a></li>
 <li><a href="https://www.linkedin.com/company/newmips">LinkedIn</a></li>
 </ul>
+
 
 
 ## License
