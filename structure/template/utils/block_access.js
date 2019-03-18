@@ -282,7 +282,7 @@ exports.statusGroupAccess = function(req, res, next) {
         if(!newStatus){
             return next();
         }
-        if(!newStatus.r_accepted_group){
+        if(!newStatus.r_accepted_group || newStatus.r_accepted_group.length == 0){
             // Not groups defined, open for all
             return next();
         }
