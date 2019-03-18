@@ -1,6 +1,7 @@
 var models = require('../models/');
 var fs = require('fs-extra');
 var exec = require('child_process').exec;
+const path = require("path");
 
 function capitalizeFirstLetter(word) {
 	if(typeof word === "undefined" || !word)
@@ -211,15 +212,15 @@ function build(id_application) {
 			// Write file to workspace's api folder
 			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
 			var isWin = /^win/.test(process.platform), cmd;
-			if(isWin || process.platform == "win32")
-				cmd = "node "+__dirname+'\\..\\node_modules\\apidoc\\bin\\apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
-			else
-				cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
-			exec(cmd, function(error, stdout, stderr) {
-				if (error)
-					console.error(error);
-				resolve();
-			});
+            if (isWin || process.platform == "win32")
+                cmd = 'node "' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+            else
+                cmd = '"' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+            exec(cmd, function(error, stdout, stderr) {
+                if (error)
+                    console.error(error);
+                resolve();
+            });
 		}).catch(function(err) {
 			reject(err);
 		});
