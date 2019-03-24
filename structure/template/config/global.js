@@ -1,16 +1,17 @@
 // Global configuration file
 
-var fs = require('fs');
-var env = 'docker';
-var applicationConf = require('./application.json');
+const fs = require('fs');
+let env = 'develop';
+let applicationConf = require('./application.json');
 
-var config = {
+let config = {
     'develop': {
         env: 'develop',
         protocol: 'http',
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: __dirname + "/../upload/",
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,
@@ -28,6 +29,7 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: "/var/data/localstorage/",
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,
@@ -50,6 +52,7 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: "/var/data/localstorage/",
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,
@@ -72,6 +75,7 @@ var config = {
         host: '127.0.0.1',
         port: process.env.PORT || 1337,
         localstorage: "/var/data/localstorage/",
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,

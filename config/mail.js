@@ -3,7 +3,7 @@ var globalConf = require('./global');
 var mailConf = {
     develop: {
         transport: {
-            host: 'ssl0.ovh.net',
+            host: 'mail',
             port: 465,
             secure: true,
             auth: {
@@ -17,7 +17,7 @@ var mailConf = {
     },
     recette: {
         transport: {
-            host: 'ssl0.ovh.net',
+            host: 'mail',
             port: 465,
             secure: true,
             auth: {
@@ -31,7 +31,7 @@ var mailConf = {
     },
     production: {
         transport: {
-            host: 'ssl0.ovh.net',
+            host: 'mail',
             port: 465,
             secure: true,
             auth: {
@@ -45,7 +45,7 @@ var mailConf = {
     },
     docker: {
         transport: {
-            host: 'ssl0.ovh.net',
+            host: 'mail',
             port: 465,
             secure: true,
             auth: {
