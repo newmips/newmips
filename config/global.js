@@ -1,14 +1,15 @@
 // Global configuration file
-var fs = require('fs');
-var env = 'docker';
+const fs = require('fs');
+let env = 'develop';
 
-var config = {
+let config = {
 	'develop': {
 		env: 'develop',
 		protocol: 'http',
 		protocol_iframe: 'http',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
+		authStrategy: 'local',
 		slack_chat_enabled: false
 	},
 	'recette': {
@@ -22,6 +23,7 @@ var config = {
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
+		authStrategy: 'local',
 		slack_chat_enabled: false
 	},
 	'production': {
@@ -35,6 +37,7 @@ var config = {
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
+		authStrategy: 'local',
 		slack_chat_enabled: false
 	},
 	'docker': {
@@ -48,8 +51,12 @@ var config = {
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
+		authStrategy: 'local',
 		slack_chat_enabled: false
 	}
 }
 
-module.exports = config[env]
+let fullConfig = config[env];
+fullConfig.version = "2.8";
+
+module.exports = fullConfig;
