@@ -944,9 +944,12 @@ $(document).ready(function () {
     $(document).on("click", ".btn", function () {
         $(this).prop("readOnly", true);
         $(this).css("pointer-events", "none");
+        var tmpText = $(this).html();
+        $(this).html("<i class='fa fa-spinner fa-spin'></i>");
         setTimeout(() => {
             $(this).prop("readOnly", false);
             $(this).css("pointer-events", "auto");
+            $(this).html(tmpText);
         }, 1000);
     });
 
