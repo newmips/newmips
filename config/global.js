@@ -9,8 +9,8 @@ let config = {
 		protocol_iframe: 'http',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
-		slack_chat_enabled: false,
-		authStrategy: 'local'
+		authStrategy: 'local',
+		slack_chat_enabled: false
 	},
 	'recette': {
 		env: 'recette',
@@ -23,8 +23,8 @@ let config = {
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
-		slack_chat_enabled: false,
-		authStrategy: 'local'
+		authStrategy: 'local',
+		slack_chat_enabled: false
 	},
 	'production': {
 		env: 'production',
@@ -37,8 +37,22 @@ let config = {
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
 			passphrase : ''
 		},
-		slack_chat_enabled: false,
-		authStrategy: 'local'
+		authStrategy: 'local',
+		slack_chat_enabled: false
+	},
+	'docker': {
+		env: 'docker',
+		protocol: 'http',
+		protocol_iframe: 'http',
+		host: '127.0.0.1',
+		port: process.env.PORT || 1337,
+		ssl: {
+			key: /*fs.readFileSync('./cacerts/private.key')*/"fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
+			passphrase : ''
+		},
+		authStrategy: 'local',
+		slack_chat_enabled: false
 	}
 }
 
