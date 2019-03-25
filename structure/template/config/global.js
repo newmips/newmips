@@ -1,10 +1,10 @@
 // Global configuration file
 
-var fs = require('fs');
-var env = 'develop';
-var applicationConf = require('./application.json');
+const fs = require('fs');
+let env = 'develop';
+let applicationConf = require('./application.json');
 
-var config = {
+let config = {
     'develop': {
         env: 'develop',
         protocol: 'http',
@@ -68,7 +68,31 @@ var config = {
             cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
             passphrase: ''
         }
+    },
+    'docker': {
+        env: 'docker',
+        protocol: 'http',
+        host: '127.0.0.1',
+        port: process.env.PORT || 1337,
+        localstorage: "/var/data/localstorage/",
+        authStrategy: 'local',
+        thumbnail: {
+            folder: 'thumbnail/',
+            height: 30,
+            width: 30,
+            quality: 60
+        },
+        pictureField: {
+            height: 200, //px
+            width: 200
+        },
+        ssl: {
+            key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
+            cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
+            passphrase: ''
+        }
     }
+
 }
 
 // Merge applicationConf with the returned globalConf object

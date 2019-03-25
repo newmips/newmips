@@ -27,6 +27,15 @@ var config = {
         useSSH: true,
         adminUser: "",
         privateToken: ""
+    },
+    docker: {
+        doGit: false, // Should the application try to push your app on a repository ?
+        protocol: "http",
+        url: "", // Your gitlab url
+        sshUrl: "", // Something like git@yourgitlaburl
+        useSSH: true, // Todo HTTP non handled for now
+        adminUser: "", // Gitlab admin user
+        privateToken: "" // Gitlab private token
     }
 }
 
