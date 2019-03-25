@@ -69,7 +69,6 @@
                                             <input class="form-control input" placeholder='{@__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" readonly="">
                                         </div>
                                     </div>
-                                    
                                     <div data-field="phone" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="phone">
@@ -203,7 +202,7 @@
         $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
         $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
         $('tbody').on('click', 'tr', function (e) {
-            if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger"))
+            if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0)
                 return;
             if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
                 window.location = $(this).find('td > a.btn-show:first').attr('href');
