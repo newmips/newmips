@@ -297,7 +297,7 @@ function initHasManyPreset(tab, data) {
     DATALIST_BUTTONS = [{
         render: function (data2, type, row) {
             var aTag = '\
-                <a class="btn-show" href="/'+data.option.showAs+'/show?id='+row['id']+'">\
+                <a class="btn-show" href="/'+data.option.target.substring(2)+'/show?id='+row['id']+'">\
                     <button class="btn btn-primary">\
                         <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
                         <span>'+SHOW_TEXT+'</span>\

@@ -2935,7 +2935,7 @@ exports.setIcon = function (attr, callback) {
 }
 
 exports.setIconToEntity = function (attr, callback) {
-    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
+    db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
         if (err)
             return callback(err);
         db_module.getModuleById(entity.id_module, function (err, module) {
@@ -3016,7 +3016,7 @@ exports.addTitle = function (attr, callback) {
 exports.createWidgetPiechart = function (attr, callback) {
     var entityDbFunction = '', param = '';
     if (attr.entityTarget) {
-        db_entity.getentityByName(attr.entityTarget, attr.id_module, function (err, entity) {
+        db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
             if (err)
                 return callback(err);
             withDataEntity(entity);
@@ -3039,8 +3039,12 @@ exports.createWidgetPiechart = function (attr, callback) {
             db_field.getCodeNameByNameArray([attr.field], entity.id, function (err, field) {
                 if (err)
                     return callback(err);
-                if (field.length != 1)
-                    return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [attr.field]})
+                if (field.length != 1){
+                    let err = new Error();
+                    err.message = "structure.ui.widget.unknown_fields";
+                    err.messageParams = [attr.field];
+                    return callback(err)
+                }
                 attr.field = field[0];
                 structure_ui.createWidgetPiechart(attr, function (err, info) {
                     if (err)
@@ -3055,7 +3059,7 @@ exports.createWidgetPiechart = function (attr, callback) {
 
 exports.createWidgetLastRecords = function (attr, callback) {
     if (attr.entityTarget) {
-        db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
+        db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
             if (err)
                 return callback(err);
             withDataEntity(entity);
@@ -3105,7 +3109,7 @@ exports.createWidgetLastRecords = function (attr, callback) {
 }
 
 exports.createWidgetOnEntity = function (attr, callback) {
-    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
+    db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
         if (err)
             return callback(err);
         attr.id_data_entity = entity.id;
@@ -3138,7 +3142,7 @@ exports.createWidget = createWidget;
 function deleteWidget(attr, callback) {
     if (attr.widgetType == -1)
         return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
-    db_entity.getDataEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
+    db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
         if (err)
             return callback(err);
         db_module.getModuleById(entity.id_module, function (err, module) {
