@@ -4,7 +4,7 @@ RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get -qq -y install pdftk && apt-get -y install mysql-client
+RUN apt-get update && apt-get -qq -y install pdftk && apt-get -y install mysql-client && apt-get -y install nano
 
 COPY . /usr/src/app
 
