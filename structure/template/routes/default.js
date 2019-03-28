@@ -58,7 +58,7 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                             var statusAlias = 'r_'+widget.field.substring(2);
                             models[model].findAll({
                                 attributes: [statusAlias+'.f_name', statusAlias+'.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
-                                group: [statusAlias+'.f_name'],
+                                group: [statusAlias+'.f_name', statusAlias+'.f_color', statusAlias+'.id'],
                                 include: {model: models.E_status, as: statusAlias},
                                 raw: true
                             }).then((piechartData)=> {
