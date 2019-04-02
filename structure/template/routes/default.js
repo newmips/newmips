@@ -64,9 +64,13 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                             }).then((piechartData)=> {
                                 var dataSet = {labels: [], backgroundColor: [], data: []};
                                 for (var i = 0; i < piechartData.length; i++) {
-                                    dataSet.labels.push(piechartData[i].f_name);
-                                    dataSet.backgroundColor.push(piechartData[i].f_color);
-                                    dataSet.data.push(piechartData[i].count);
+                                    if(dataSet.labels.indexOf(piechartData[i].f_name) != -1){
+                                        dataSet.data[dataSet.labels.indexOf(piechartData[i].f_name)] += piechartData[i].count
+                                    } else {
+                                        dataSet.labels.push(piechartData[i].f_name);
+                                        dataSet.backgroundColor.push(piechartData[i].f_color);
+                                        dataSet.data.push(piechartData[i].count);
+                                    }
                                 }
                                 widgetRes.data = dataSet;
                                 data[widget.widgetID] = widgetRes;
@@ -85,8 +89,13 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                                     var label = piechartData[i][widget.field];
                                     if (widget.fieldType == 'enum')
                                         label = enums_radios.translateFieldValue(widget.entity, widget.field, label, req.session.lang_user);
-                                    dataSet.labels.push(label);
-                                    dataSet.data.push(piechartData[i].count);
+
+                                    if(dataSet.labels.indexOf(label) != -1){
+                                        dataSet.data[dataSet.labels.indexOf(label)] += piechartData[i].count
+                                    } else {
+                                        dataSet.labels.push(label);
+                                        dataSet.data.push(piechartData[i].count);
+                                    }
                                 }
                                 widgetRes.data = dataSet;
                                 data[widget.widgetID] = widgetRes;
