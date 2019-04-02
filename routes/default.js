@@ -7,6 +7,7 @@ var auth = require('../utils/authStrategies');
 var helper = require('../utils/helpers');
 var fs = require("fs");
 var language = require("../services/language");
+const readLastLines = require('read-last-lines');
 
 // Bot completion
 var bot = require('../services/bot.js');
@@ -105,10 +106,15 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
 
 router.post('/update_logs', block_access.isLoggedIn, function(req, res) {
     try {
-        if(!isNaN(req.body.idApp))
-            res.status(200).send(fs.readFileSync(__dirname + "/../workspace/logs/app_"+req.body.idApp+".log"));
-        else
-            res.status(200).send(fs.readFileSync(__dirname + "/../all.log"));
+        if(!isNaN(req.body.idApp)){
+            readLastLines.read(__dirname + "/../workspace/logs/app_"+req.body.idApp+".log", 1000).then((lines) => {
+                res.status(200).send(lines);
+            });
+        } else {
+            readLastLines.read(__dirname + "/../all.log", 1000).then((lines) => {
+                res.status(200).send(lines);
+            });
+        }
     } catch(e) {
         console.log(e);
         res.send(false);

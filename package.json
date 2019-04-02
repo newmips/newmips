@@ -50,6 +50,7 @@
         "pg": "^7.4.3",
         "pretty": "^2.0.0",
         "ps-tree": "~1.1.0",
+        "read-last-lines": "^1.7.0",
         "request": "^2.87.0",
         "sequelize": "^4.37.10",
         "simple-git": "^1.95.0",

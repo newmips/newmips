@@ -21,6 +21,9 @@ select.form-control{
 select.form-control.ajax{
     width: 100% !important;
 }
+.form-group .select2-container {
+    width: 100% !important;
+}
 .select2-dropdown .select2-search__field:focus, .select2-search--inline .select2-search__field:focus {
     border: 1px solid lightgrey;
     border-radius: 3px;
