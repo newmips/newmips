@@ -14,7 +14,7 @@ function isValidJSON(string) {
 
 // Server side you can:
 // Show an error message: return res.status(500).send("My Error Message");
-// Show multiple message: return res.status(500).send([message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
+// Show multiple message: return res.status(500).send([{message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
 // You can also force the page to refresh like this: return res.status(500).send({refresh: true});
 function handleError(error, par2, par3) {
     try {
