@@ -118,7 +118,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
     var login_user = req.body.login;
     var given_mail = req.body.mail;
 
-    function resetPasswordProcess(idUser, email) {
+    function resetPasswordProcess(user) {
         // Create unique token and insert into user
         var token = crypto.randomBytes(64).toString('hex');
 
@@ -126,14 +126,14 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             f_token_password_reset: token
         }, {
             where: {
-                id: idUser
+                id: user.id
             }
         }).then(function(){
             // Send email with generated token
             var mailOptions = {
                 data: {
                     href: mailer.config.host + '/reset_password/' + token,
-                    email: given_mail
+                    user: user
                 },
                 from: mailer.config.expediteur,
                 to: given_mail,
@@ -145,7 +145,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                 });
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
-                models.E_user.update({f_token_password_reset: null}, {where: {id: idUser}}).then(function(){
+                models.E_user.update({f_token_password_reset: null}, {where: {id: user.id}}).then(function(){
                     res.render('login/reset_password', {
                         message: err.message
                     });
@@ -165,9 +165,8 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         }
     }).then(function(user){
         if(user){
-            resetPasswordProcess(user.id, user.email);
-        }
-        else{
+            resetPasswordProcess(user);
+        } else {
             res.render('login/reset_password', {
                 message: "login.reset_password.userNotExist"
             });

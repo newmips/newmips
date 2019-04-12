@@ -946,7 +946,7 @@ $(document).ready(function () {
         $(this).css("pointer-events", "none");
         var tmpText = $(this).html();
         $(this).html("<i class='fa fa-spinner fa-spin'></i>");
-        setTimeout(() => {
+        setTimeout(function(){
             $(this).prop("readOnly", false);
             $(this).css("pointer-events", "auto");
             $(this).html(tmpText);

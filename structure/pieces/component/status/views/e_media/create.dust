@@ -7,6 +7,16 @@
         <li class="active">{#__ key="entity.e_media.label_entity"/}</li>
     </ol>
 {/header}
+{<custom_css_2}
+    <style>
+        .form-group label .select2-container {
+            width: 90% !important;
+        }
+        .mosaic-label{
+            width: 100%;
+        }
+    </style>
+{/custom_css_2}
 {<content}
     <div class="row">
         <div class="col-xs-12 connectedSortable">
