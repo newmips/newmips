@@ -81,11 +81,11 @@
             render: function (data, type, row) {
                 var form = '\
                 <form action="/document_template/delete" method="post">\
-                <button class="btn btn-danger btn-confirm">\
-                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                <span>{#__ key="button.delete" /}</span>\
-                <input name="id" type="hidden" value="' + row['id'] + '" />\
-                </button>\
+                    <input name="id" type="hidden" value="' + row['id'] + '" />\
+                    <button class="btn btn-danger btn-confirm">\
+                        <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                        <span>{#__ key="button.delete" /}</span>\
+                    </button>\
                 </form>';
                 return form;
             },

@@ -40,7 +40,9 @@ function handleError(error, par2, par3) {
     }
 }
 
-function firstElementFocus(tab, idx = 0) {
+function firstElementFocus(tab, idx) {
+    if(!idx)
+        idx = 0;
     var element = $(".form-group:eq("+idx+") label:eq(0)", tab).next().focus();
     if ((element && (element.prop('disabled') == true || element.prop('readonly') == true))
     && ($(".form-group", tab).length > 0 && idx <= $(".form-group", tab).length))

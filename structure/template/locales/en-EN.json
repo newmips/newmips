@@ -239,6 +239,9 @@
             "title2": "Page not found.",
             "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
         },
+        "500": {
+            "title": "We are sorry, an internal serveur error occured."
+        },
         "title": "Error",
         "contactAdmin": "Merci de contacter votre administrateur.",
         "meanwhile": "Entre temps, vous pouvez ",
