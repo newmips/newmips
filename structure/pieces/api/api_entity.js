@@ -107,13 +107,22 @@ router.get('/:id/:association', function(req, res) {
 
     var include = null;
     for (var i = 0; i < options.length; i++) {
-        if (options[i].as == 'r_'+association) {
-            include = {
-                model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
-                as: options[i].as,
-                limit: answer.limit,
-                offset: answer.offset
-            };
+        if (options[i].as == 'r_' + association) {
+            if (options[i].relation.toLowerCase().indexOf('many') != -1) {
+                include = {
+                    model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
+                    as: options[i].as
+                };
+                delete answer.limit;
+                delete answer.offset;
+            }
+            else
+                include = {
+                    model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
+                    as: options[i].as,
+                    limit: answer.limit,
+                    offset: answer.offset
+                }
             break;
         }
     }
