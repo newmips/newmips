@@ -92,10 +92,10 @@
             render: function (data, type, row) {
                 var form = '\
                 <form action="/custom_url_data_entity/delete" method="post">\
+                    <input name="id" type="hidden" value="'+row['id']+'" />\
                     <button class="btn btn-danger btn-confirm">\
                         <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                         <span>{#__ key="button.delete" /}</span>\
-                        <input name="id" type="hidden" value="'+row['id']+'" />\
                     </button>\
                 </form>';
                 return form;

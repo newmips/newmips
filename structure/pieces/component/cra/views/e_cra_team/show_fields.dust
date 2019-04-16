@@ -37,8 +37,8 @@
                     <div class="quicklinks">
                         <span>
                             <button class="btn btn-danger btn-confirm">
-                            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                            <span>{#__ key="button.delete"/}</span>
+                                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                                <span>{#__ key="button.delete"/}</span>
                             </button>
                             <input name="id" type="hidden" value="{e_cra_team.id}" class="form-control">
                         </span>

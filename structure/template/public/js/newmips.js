@@ -941,15 +941,16 @@ $(document).ready(function () {
     });
 
     // Avoid double clicking on dynamic button
-    $(document).on("click", ".btn", function () {
+    $(document).on("click", ".btn.btn-primary, .btn.btn-default, .btn.btn-info, .btn.btn-warning, .btn.btn-danger, .btn.btn-success", function () {
+        var context = this;
         $(this).prop("readOnly", true);
-        $(this).css("pointer-events", "none");
+        $(this).css("cursor", "wait");
         var tmpText = $(this).html();
         $(this).html("<i class='fa fa-spinner fa-spin'></i>");
         setTimeout(function(){
-            $(this).prop("readOnly", false);
-            $(this).css("pointer-events", "auto");
-            $(this).html(tmpText);
+            $(context).prop("readOnly", false);
+            $(context).css("cursor", "pointer");
+            $(context).html(tmpText);
         }, 1000);
     });
 
