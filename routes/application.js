@@ -235,7 +235,7 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
             var serverCheckCount = 0;
             if (process_server_per_app[application.id] == null || typeof process_server_per_app[application.id] === "undefined") {
                 // Launch server for preview
-                process_server_per_app[application.id] = process_manager.launchChildProcess(application.id, env);
+                process_server_per_app[application.id] = process_manager.launchChildProcess(req, application.id, env);
                 timer = 500;
             }
 
@@ -484,7 +484,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                     process_manager.killChildProcess(process_server_per_app[req.session.id_application].pid, function() {
 
                         // Launch a new server instance to reload resources
-                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req, req.session.id_application, env);
 
                         // Load session values
                         var newAttr = {};

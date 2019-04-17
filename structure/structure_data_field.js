@@ -380,7 +380,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "texte standard" :
             value = "{" + dataField + "|s}";
             if (file == 'show')
-                str += "    <div class='show-textarea'>" + value + "</div>\n";
+                str += "    <textarea readonly='readonly' class='show-textarea regular-textarea'>" + value + "</textarea>\n";
             else
                 str += "    <textarea class='form-control textarea regular-textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
             break;

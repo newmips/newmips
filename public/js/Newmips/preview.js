@@ -275,6 +275,7 @@ $(document).ready(function() {
             method: 'POST',
             data: $(this).serialize(),
             success: function(data) {
+
                 if (data.toRedirect)
                     return window.location.href = data.url;
 
@@ -467,53 +468,66 @@ $(document).ready(function() {
     /////////
     var flagBottom = true;
     var flagStopReload = false;
+    var logsInitialized = false;
     var logsInterval;
     var objDiv = document.getElementById("logs-content");
     function updateLog() {
-        $.ajax({
-            url: '/default/update_logs',
-            method: "POST",
-            data: {
-                idApp: idApp
-            },
-            success: function(data) {
-                if(!flagStopReload){
+        if($('#logs-content').is(":visible") && !flagStopReload){
+            $.ajax({
+                url: '/default/update_logs',
+                method: "POST",
+                data: {
+                    idApp: idApp
+                },
+                success: function(data) {
                     $("#logs-content").html(data);
                     if(flagBottom){
                         objDiv.scrollTop = objDiv.scrollHeight;
                     }
-                    logsInterval = setTimeout(updateLog, 1000);
+                    logsInterval = window.setTimeout(updateLog, 3000);
+                },
+                error: function(err) {
+                    console.error(err);
                 }
-            },
-            error: function(err) {
-                console.error(err);
-            }
-        });
+            });
+        } else {
+            logsInterval = window.setTimeout(updateLog, 3000);
+        }
     }
 
     $(document).on("click", "#start-logs", function() {
-        updateLog();
-        $('#logs-content').slimScroll({
-            start: "bottom",
-            height: "800px",
-            railVisible: true,
-			alwaysVisible: true,
-			color: '#FFF',
-			size: '10px'
-        }).bind('slimscrolling', function (e, pos) {
-            if($(this)[0].scrollHeight - pos <= 1000) {
-                flagBottom = true;
-            } else {
-                flagBottom = false;
-            }
-        });
+        if(!logsInitialized){
+            logsInitialized = true;
+            setTimeout(function(){
+                updateLog();
+            }, 1000);
+
+            $('#logs-content').slimScroll({
+                start: "bottom",
+                height: "800px",
+                railVisible: true,
+    			alwaysVisible: true,
+    			color: '#FFF',
+    			size: '10px'
+            }).bind('slimscrolling', function (e, pos) {
+                if($(this)[0].scrollHeight - pos <= 1000) {
+                    flagBottom = true;
+                } else {
+                    flagBottom = false;
+                }
+            });
+        }
     });
 
     /* Stop logs from reloading for 10 seconds to enable user to copy/paste */
-    $(document).on('mousedown', '#logs-content', function() {
-        flagStopReload = true;
-    }).on('mouseup mouseleave', function() {
-        flagStopReload = false;
-        setTimeout(updateLog, 10000);
+    $(document).on('mousedown', '#logs-content', function(e) {
+        /* Only right click */
+        if(e.which == 1){
+            flagStopReload = true;
+            setTimeout(function(){
+                console.log("END");
+                flagStopReload = false;
+            }, 10000)
+        }
     });
 })
