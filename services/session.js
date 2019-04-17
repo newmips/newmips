@@ -143,6 +143,7 @@ exports.getSession = function(attr, req, callback) {
 // Set session in POST application
 exports.setSession = function(attrFunction, req, info, data) {
 
+    let iframeUrl;
     switch(attrFunction){
         case "selectProject":
         case "createNewProject":
@@ -163,20 +164,20 @@ exports.setSession = function(attrFunction, req, info, data) {
             req.session.id_data_entity = null;
 
             // Redirect iframe to new module
-            var iframeUrl = data.iframe_url.split("/");
+            iframeUrl = data.iframe_url.split("/");
             data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/default/"+info.moduleName.toLowerCase();
             break;
         case "selectEntity":
             req.session.id_data_entity = info.insertId;
             req.session.id_module = info.moduleId;
             if (info.doRedirect) {
-                var iframeUrl = data.iframe_url.split("/");
+                iframeUrl = data.iframe_url.split("/");
                 data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/list";
             }
             break;
         case "createNewEntity":
             req.session.id_data_entity = info.insertId;
-            var iframeUrl = data.iframe_url.split("/");
+            iframeUrl = data.iframe_url.split("/");
             data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/create_form";
             break;
         case "createNewEntityWithBelongsTo":
@@ -205,7 +206,7 @@ exports.setSession = function(attrFunction, req, info, data) {
             req.session.id_module = info.homeID;
             req.session.id_data_entity = null;
             // Redirect iframe to new module
-            var iframeUrl = data.iframe_url.split("/default/");
+            iframeUrl = data.iframe_url.split("/default/");
             data.iframe_url = iframeUrl[0]+"/default/home";
             break;
         case "deleteDataEntity":

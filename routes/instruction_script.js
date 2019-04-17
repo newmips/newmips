@@ -484,7 +484,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                             env.PORT = port;
 
                             // Launch server for preview
-                            process_server_per_app[idApplication] = process_manager.launchChildProcess(idApplication, env);
+                            process_server_per_app[idApplication] = process_manager.launchChildProcess(req, idApplication, env);
 
                             // Finish and redirect to the application
                             scriptData[userId].over = true;
@@ -772,7 +772,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                             env.PORT = port;
 
                             // Launch server for preview
-                            process_server_per_app[idApplication] = process_manager.launchChildProcess(idApplication, env);
+                            process_server_per_app[idApplication] = process_manager.launchChildProcess(req, idApplication, env);
 
                             // Finish and redirect to the application
                             scriptData[userId].over = true;

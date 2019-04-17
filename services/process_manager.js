@@ -10,11 +10,20 @@ var AnsiToHTML = require('ansi-to-html');
 var ansiToHtml = new AnsiToHTML();
 var moment = require('moment');
 
-var child_url = '';
+let childsUrlsStorage = {};
+
+function setDefaultChildUrl(sessionID, idApp){
+    if(typeof childsUrlsStorage[sessionID] === "undefined")
+        childsUrlsStorage[sessionID] = {};
+
+    if(typeof childsUrlsStorage[sessionID][idApp] === "undefined")
+        childsUrlsStorage[sessionID][idApp] = "";
+}
 
 exports.process_server_per_app = process_server_per_app;
+exports.launchChildProcess = function(req, idApp, env) {
 
-exports.launchChildProcess = function(idApp, env) {
+    setDefaultChildUrl(req.sessionID, idApp);
 
     process_server = spawn('node', [__dirname + "/../workspace/" + idApp + "/server.js", 'autologin'], {
         CREATE_NO_WINDOW: true,
@@ -29,9 +38,10 @@ exports.launchChildProcess = function(idApp, env) {
         // Check for child process log specifying current url. child_url will then be used to redirect
         // child process after restart
         if ((data + '').indexOf("IFRAME_URL") != -1) {
-            if ((data + '').indexOf("/status") == -1)
-                child_url = (data + '').split('::')[1];
-        } else{
+            if ((data + '').indexOf("/status") == -1){
+                childsUrlsStorage[req.sessionID][idApp] = (data + '').split('::')[1];
+            }
+        } else {
             allLogStream.write('<span style="color:#00ffff;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
             console.log('\x1b[36m%s\x1b[0m', 'App Log: ' + data);
         }
@@ -51,14 +61,19 @@ exports.launchChildProcess = function(idApp, env) {
 }
 
 exports.childUrl = function(req, instruction) {
+
+    setDefaultChildUrl(req.sessionID, req.session.id_application);
+
     // On entity delete, reset child_url to avoid 404
     if (instruction == 'deleteDataEntity')
-        child_url = '/default/home';
+        childsUrlsStorage[req.sessionID][req.session.id_application] = "/default/home";
+
     var url = globalConf.protocol_iframe + '://' + globalConf.host;
     if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-        url += '-' +req.session.name_application + globalConf.dns + child_url;
+        url += '-' +req.session.name_application + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.id_application];
     else
-        url += ':' + (9000+parseInt(req.session.id_application)) + child_url;
+        url += ':' + (9000+parseInt(req.session.id_application)) + childsUrlsStorage[req.sessionID][req.session.id_application];
+
     return url;
 }
 
