@@ -1,9 +1,7 @@
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var bcrypt = require('bcrypt-nodejs');
-
-//Sequelize
-var models = require('../models/');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcrypt-nodejs');
+const models = require('../models/');
 
 // Default authentication strategy : passport.authenticate('local')
 // =========================================================================
@@ -12,7 +10,7 @@ var models = require('../models/');
 passport.use(new LocalStrategy({
         usernameField: 'login_user',
         passwordField: 'password_user',
-        passReqToCallback: true // allows us to pass back the entire request to the callback
+        passReqToCallback: true // Allows us to pass back the entire request to the callback
     },
     function(req, login_user, password_user, done) {
 
@@ -26,22 +24,36 @@ passport.use(new LocalStrategy({
                 as: 'r_role'
             }]
         }).then(function(user) {
-            // if the user doesn't exist
+
+            function accessForbidden(msg){
+                if(!req.session.loginAttempt)
+                    req.session.loginAttempt = 0;
+                req.session.loginAttempt++;
+                return done(null, false, req.flash('error', msg));
+            }
+
+            // Wrong captcha
+            if(typeof req.session.loginCaptcha !== "undefined" && req.session.loginCaptcha != req.body.captcha)
+                return accessForbidden("Le captcha saisi n'est pas correct.");
+
+            // If the user doesn't exist
             if (!user)
-                return done(null, false, req.flash('loginMessage', 'Nom d\'utilisateur inexistant.'));
+                return accessForbidden("Nom d'utilisateur inexistant.");
 
-            // if the user has no password
+            // If the user has no password
             if (user.f_password == "" || user.f_password == null)
-                return done(null, false, req.flash('loginMessage', 'Compte non activé - Mot de passe manquant'));
+                return accessForbidden('Compte non activé - Mot de passe manquant');
 
-            // if the user has no password
+            // If the user has no password
             if (user.f_enabled == 0 || user.f_enabled == null)
-                return done(null, false, req.flash('loginMessage', 'Compte non activé'));
+                return accessForbidden('Compte non activé');
 
-            // if the user is found but the password is wrong
+            // If the user is found but the password is wrong
             if (!bcrypt.compareSync(password_user, user.f_password))
-                return done(null, false, req.flash('loginMessage', 'Mauvais mot de passe.'));
+                return accessForbidden('Mauvais mot de passe.');
             else {
+                // Access authorized
+                delete req.session.loginAttempt;
                 return done(null, user);
             }
         });
@@ -58,6 +70,7 @@ passport.deserializeUser(function(user_id, done) {
 
 exports.isLoggedIn = passport.authenticate('local', {
     failureRedirect: '/login',
+    badRequestMessage: "Des informations sont manquantes.",
     failureFlash: true
 });
 
