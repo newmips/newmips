@@ -1,14 +1,13 @@
-var moment = require('moment');
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var auth = require('../utils/auth_strategies');
-var bcrypt = require('bcrypt-nodejs');
-var crypto = require('crypto');
-var mailer = require('../utils/mailer');
-
-//Sequelize
-var models = require('../models/');
+const moment = require('moment');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const auth = require('../utils/auth_strategies');
+const bcrypt = require('bcrypt-nodejs');
+const crypto = require('crypto');
+const mailer = require('../utils/mailer');
+const svgCaptcha = require('svg-captcha');
+const models = require('../models/');
 
 // =====================================
 // HOME PAGE (with login links) ========
@@ -29,12 +28,29 @@ router.post('/status_comment', block_access.isLoggedIn, function(req, res) {
 // =====================================
 router.get('/login', block_access.loginAccess, function(req, res) {
 
-    var msg = "";
-    if(typeof req.session.flash !== "undefined")
-        msg = req.flash('loginMessage');
+    let message, captcha;
+    if(typeof req.session.flash !== "undefined"
+        && typeof req.session.flash.error !== "undefined"
+        && req.session.flash.error.length != 0)
+        message = req.session.flash.error[0];
+
+    delete req.session.flash;
+
+    if(req.session.loginAttempt >= 5){
+        let loginCaptcha = svgCaptcha.create({
+            size: 4, // size of random string
+            ignoreChars: '0oO1iIlL', // filter out some characters
+            noise: 1, // number of noise lines
+            color: false,
+            width: 500
+        });
+        req.session.loginCaptcha = loginCaptcha.text;
+        captcha = loginCaptcha.data;
+    }
 
     res.render('login/login', {
-        message: msg
+        message: message,
+        captcha: captcha
     });
 });
 
@@ -46,6 +62,18 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
         req.session.cookie.expires = 120 * 60 * 1000; // 2h
 
     res.redirect("/default/home");
+});
+
+router.get('/refresh_login_captcha', function(req, res) {
+    let captcha = svgCaptcha.create({
+        size: 4,
+        ignoreChars: '0oO1iIlL',
+        noise: 1,
+        color: false,
+        width: "500"
+    });
+    req.session.loginCaptcha = captcha.text;
+    res.status(200).send(captcha.data);
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
