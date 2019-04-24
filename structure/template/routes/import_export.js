@@ -54,7 +54,7 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
         let currentFile = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+file))
         // Get through tables
         for (var i=0; i < currentFile.length; i++) {
-            if(typeof currentFile[i].through !== "undefined" && through.indexOf(currentFile[i].through) == -1){
+            if(typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1){
                 through.push(currentFile[i].through);
                 entities.push({tradKey: currentFile[i].through.substring(4), tableName: currentFile[i].through});
             }
