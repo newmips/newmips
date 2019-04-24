@@ -395,7 +395,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "		<div class='input-group-addon'>\n";
                 str += "			<i class='fa fa-download'></i>\n";
                 str += "		</div>\n";
-                str += "		<a href=/default/download?entity=" + dataEntity + "&f=" + value + " class='form-control text-left' name=" + dataField + ">{" + value2 + "|filename}</a>\n";
+                str += "		<a href=/default/download?entity=" + dataEntity + "&f={" + value2 + "|urlencode} class='form-control text-left' name=" + dataField + ">{" + value2 + "|filename}</a>\n";
                 str += "	</div>\n";
             }
             break;
@@ -408,7 +408,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{" + value2 + ".buffer}\"/>\n";
             } else {
                 str += "	<div class='input-group'>\n";
-                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='400' width='400' /></a>\n";
+                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value|urlencode} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='400' width='400' /></a>\n";
                 str += "	</div>\n";
             }
             break;

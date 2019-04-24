@@ -143,5 +143,10 @@ module.exports = {
                 return value.substring(16);
             return value;
         };
+
+        // Fix for IE11, encode filename values for query value like "/download/{my_filename}"
+        dust.filters.urlencode = function(value) {
+            return encodeURI(value);
+        };
     }
 };
