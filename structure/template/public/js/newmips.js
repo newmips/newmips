@@ -940,13 +940,20 @@ $(document).ready(function () {
         return false;
     });
 
+    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     // Avoid double clicking on dynamic button
     $(document).on("click", ".btn.btn-primary, .btn.btn-default, .btn.btn-info, .btn.btn-warning, .btn.btn-danger, .btn.btn-success", function () {
         var context = this;
         $(this).prop("readOnly", true);
         $(this).css("cursor", "wait");
         var tmpText = $(this).html();
-        $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+        if($(this).hasClass("btn-confirm")){
+            if(!isChrome){
+                $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+            }
+        } else {
+            $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+        }
         setTimeout(function(){
             $(context).prop("readOnly", false);
             $(context).css("cursor", "pointer");
