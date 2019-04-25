@@ -412,7 +412,12 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function(alias) {
                                 promisesData.push(new Promise(function(resolve, reject) {
-                                    dustData[alias].getR_children().then(function(children) {
+                                    dustData[alias].getR_children({
+                                        include: [{
+                                            model: models.E_group,
+                                            as: "r_accepted_group"
+                                        }]
+                                    }).then(function(children) {
                                         dustData[alias].r_children = children;
                                         resolve();
                                     });
