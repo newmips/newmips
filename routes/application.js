@@ -366,11 +366,18 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
             }
         };
 
+        console.log("FAST PREVIEW SESSION");
+        console.log(req.session);
+        console.log("FAST PREVIEW SESSION END");
+        console.log("FAST PREVIEW DATA");
+        console.log(data.session);
+        console.log("FAST PREVIEW DATA END");
+
         try {
             /* Add instruction in chat */
             setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
 
-            /* Lower the first word for the basic parser jison */
+            /* Lower the first word for the basic parser json */
             instruction = attrHelper.lowerFirstWord(instruction);
 
             /* Parse the instruction to get an object for the designer */
@@ -387,11 +394,14 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
             attr.currentUser = req.session.passport.user;
+            attr.gitlabUser = null;
+
+            console.log("FAST PREVIEW ATTR");
+            console.log(attr);
+            console.log("FAST PREVIEW ATTR END");
 
             if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
                 attr.gitlabUser = req.session.gitlab.user;
-            else
-                attr.gitlabUser = null;
 
             if (typeof attr.error !== 'undefined'){
                 var err = new Error();
@@ -399,6 +409,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                 err.messageParams = attr.errorParams;
                 throw err;
             }
+
             if (typeof designer[attr.function] !== 'function')
                 throw new Error("Designer doesn't have function "+attr.function);
 
