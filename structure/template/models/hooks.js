@@ -42,8 +42,8 @@ module.exports = function(model_name, attributes) {
 			                (function(fieldIn) {
 			                    var historyModel = 'E_history_'+model_name+'_'+fieldIn;
 			                    getModels().E_status.findOrCreate({
-			                        where: {f_entity: model_name, f_field: fieldIn, f_default: true},
-			                        defaults: {f_entity: model_name, f_field: fieldIn, f_name: 'Initial', f_default: true},
+			                        where: {f_entity: model_name, f_field: fieldIn, f_default: true, f_color: '#999999'},
+			                        defaults: {f_entity: model_name, f_field: fieldIn, f_name: 'Initial', f_default: true, f_color: '#999999'},
 	                                include: [{
 	                                    model: getModels().E_action,
 	                                    as: 'r_actions',
