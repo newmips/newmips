@@ -57,6 +57,15 @@
                         {/r_media_sms}
                     </div>
                 {/eq}
+                {@eq key=f_type value="task"}
+                    <div id="r_media_task" class="col-xs-12">
+                        {#r_media_task}
+                        {>"e_media_task/show_fields" hideTab="true"/}
+                        {:else}
+                        {#__ key="message.empty" /}<br><br>
+                        {/r_media_task}
+                    </div>
+                {/eq}
             </div>
         </div>
     </div>

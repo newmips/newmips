@@ -1,0 +1,120 @@
+<div id="fields" class="row">
+    <div data-field="f_task_name" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_task_name">
+                {#__ key="entity.e_media_task.f_task_name"/}&nbsp;
+                {@inline_help field="f_task_name"}
+                <i data-field="f_task_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+                <br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>
+                    &nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="insert" data-type="field">
+                                {#__ key="component.status.choose_from_field" /}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_task_name" /}' name="f_task_name" value="{f_task_name}" type="text" maxlength="255">
+        </div>
+    </div>
+    <div data-field="f_media_type" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_media_type">
+                {#__ key="entity.e_media_task.f_media_type"/}&nbsp;
+                {@inline_help field="f_media_type"}
+                <i data-field="f_media_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <br>
+            <select class="form-control select" name="f_media_type" style="width: 100%;">
+                <option value="">
+                    {#__ key="select.default" /}
+                </option>
+                {#enum_radio.e_media_task.f_media_type}
+                {@eq key=f_media_type value="{.value}" }
+                <option value="{.value}" selected=""> {.translation} </option>
+                {:else}
+                <option value="{.value}"> {.translation} </option>
+                {/eq}
+                {/enum_radio.e_media_task.f_media_type}
+            </select>
+        </div>
+    </div>
+    <div data-field="f_assignment_logic" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_assignment_logic">
+                {#__ key="entity.e_media_task.f_assignment_logic"/}&nbsp;
+                {@inline_help field="f_assignment_logic"}
+                <i data-field="f_assignment_logic" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_assignment_logic" /}' name="f_assignment_logic" value="{f_assignment_logic}" type="text" maxlength="255">
+        </div>
+    </div>
+
+    <div data-field="f_program_file" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_program_file">
+                {#__ key="entity.e_media_task.f_program_file"/}&nbsp;
+                {@inline_help field="f_program_file"}
+                <i data-field="f_program_file" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <div class="dropzone dropzone-field" id="f_program_file_dropzone" data-storage="local" data-entity="e_media_task"></div>
+            <input type="hidden" name="f_program_file" id="f_program_file_dropzone_hidden" value="{f_program_file}">
+        </div>
+    </div>
+    <input name="id_media_task" type="hidden" class="media-field" value="{id}">
+    <div data-field="f_data_flow" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_data_flow">
+                {#__ key="entity.e_media_task.f_data_flow"/}&nbsp;
+                {@inline_help field="f_data_flow"}
+                <i data-field="f_data_flow" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+                <br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>
+                    &nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="insert" data-type="field">
+                                {#__ key="component.status.choose_from_field" /}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </label>
+            <textarea class="form-control textarea regular-textarea" placeholder='{#__ key="entity.e_media_task.f_data_flow" /}' name="f_data_flow" id="f_data_flow_textareaid" type="text">{f_data_flow|s}</textarea>
+        </div>
+    </div>
+    <div data-field="f_program_type" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_program_type">
+                {#__ key="entity.e_media_task.f_program_type"/}&nbsp;
+                {@inline_help field="f_program_type"}
+                <i data-field="f_program_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <select class="form-control select" name="f_program_type" style="width: 100%;">
+                <option value="">{#__ key="select.default" /}</option>
+                {#enum_radio.e_media_task.f_program_type}
+                {@eq key=f_program_type value="{.value}" }
+                <option value="{.value}" selected=""> {.translation} </option>
+                {:else}
+                <option value="{.value}"> {.translation} </option>
+                {/eq}
+                {/enum_radio.e_media_task.f_program_type}
+            </select>
+        </div>
+    </div>
+</div>
