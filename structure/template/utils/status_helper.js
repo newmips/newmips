@@ -294,6 +294,9 @@ module.exports = {
                                 }, {
                                     model: models.E_media_sms,
                                     as: 'r_media_sms'
+                                }, {
+                                    model: models.E_media_task,
+                                    as: 'r_media_task'
                                 }]
                             }]
                         }]
