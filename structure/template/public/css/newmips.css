@@ -7,6 +7,13 @@ Core: General style
 ----------------------------
 */
 
+.status-to-self:before {
+    font-family: "Font Awesome";
+    content: "\f021";
+    font: normal normal normal 14px/1 FontAwesome;
+    float: left;
+}
+
 input[type=file]: {
     height: auto;
 }
