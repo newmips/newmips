@@ -1,0 +1,120 @@
+<div id="fields" class="row">
+    <div data-field="f_task_name" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_task_name">
+                {#__ key="entity.e_media_task.f_task_name"/}&nbsp;
+                {@inline_help field="f_task_name"}
+                <i data-field="f_task_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_task_name" /}' name="f_task_name" value="{f_task_name}" type="text" maxlength="255" readonly="">
+        </div>
+    </div>
+    <div data-field="f_task_type" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_task_type">
+                {#__ key="entity.e_media_task.f_task_type"/}&nbsp;
+                {@inline_help field="f_task_type"}
+                <i data-field="f_task_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            {^f_task_type}
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_task_type" /}' name="f_task_type" type="text" readonly="">
+            {/f_task_type}
+            {#enum_radio.e_media_task.f_task_type}
+            {@eq key=f_task_type value="{.value}" }
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_task_type" /}' name="f_task_type" value="{.translation}" type="text" readonly="">
+            {/eq}
+            {/enum_radio.e_media_task.f_task_type}
+        </div>
+    </div>
+    <div data-field="f_assignment_logic" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_assignment_logic">
+                {#__ key="entity.e_media_task.f_assignment_logic"/}&nbsp;
+                {@inline_help field="f_assignment_logic"}
+                <i data-field="f_assignment_logic" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_assignment_logic" /}' name="f_assignment_logic" value="{f_assignment_logic}" type="text" maxlength="255" readonly="">
+        </div>
+    </div>
+
+    <div data-field="f_program_file" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_program_file">
+                {#__ key="entity.e_media_task.f_program_file"/}&nbsp;
+                {@inline_help field="f_program_file"}
+                <i data-field="f_program_file" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-download"></i>
+                </div>
+                <a href="/default/download?entity=e_media_task&amp;f={f_program_file}" class="form-control text-left" name="f_program_file">{f_program_file|filename}</a>
+            </div>
+        </div>
+    </div>
+    <div data-field="f_data_flow" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_data_flow">
+                {#__ key="entity.e_media_task.f_data_flow"/}&nbsp;
+                {@inline_help field="f_data_flow"}
+                <i data-field="f_data_flow" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <div class="show-textarea">{f_data_flow|s}</div>
+        </div>
+    </div>
+    <div data-field="f_program_type" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="f_program_type">
+                {#__ key="entity.e_media_task.f_program_type"/}&nbsp;
+                {@inline_help field="f_program_type"}
+                <i data-field="f_program_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            {^f_program_type}
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_program_type" /}' name="f_program_type" type="text" readonly="">
+            {/f_program_type}
+            {#enum_radio.e_media_task.f_program_type}
+            {@eq key=f_program_type value="{.value}" }
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_program_type" /}' name="f_program_type" value="{.translation}" type="text" readonly="">
+            {/eq}
+            {/enum_radio.e_media_task.f_program_type}
+        </div>
+    </div>
+</div>
+<div class="actions">
+    <form action="/media/delete" method="post">
+        <div class="quicklinks">
+            <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;
+                {#__ key="button.return"/}</a>
+            {@actionAccess entity="media_task" action="delete"}
+            <button class="btn btn-danger btn-confirm">
+                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                <span>{#__ key="button.delete"/}</span>
+            </button>
+            <input name="id" type="hidden" value="{e_media.id}" class="form-control">
+            {/actionAccess}
+            {@actionAccess entity="media_task" action="update"}
+            <a href="/media/update_form?id={e_media.id}" class="btn btn-warning">
+                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.update"/}</span>
+            </a>
+            {/actionAccess}
+            {^hideButton}
+            {@actionAccess entity="media_task" action="create"}
+            <a href="/media/create_form" class="btn btn-success">
+                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
+            </a>
+            {/actionAccess}
+            {@actionAccess entity="media_task" action="read"}
+            <a href="/media/list" type="submit" class="btn btn-primary">
+                <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.list"/}</span>
+            </a>
+            {/actionAccess}
+            {/hideButton}
+        </div>
+    </form>
+</div>
