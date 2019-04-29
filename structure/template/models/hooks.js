@@ -59,6 +59,9 @@ module.exports = function(model_name, attributes) {
 	                                        }, {
 	                                            model: getModels().E_media_sms,
 	                                            as: 'r_media_sms'
+	                                        }, {
+	                                            model: getModels().E_media_task,
+	                                            as: 'r_media_task'
 	                                        }]
 	                                    }]
 	                                }]
