@@ -281,6 +281,10 @@ function initializeWorkflow(id_application, name_application) {
                 modelMedia = fs.readFileSync(piecesPath + '/models/e_media_task.js', 'utf8');
                 modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
                 fs.writeFileSync(workspacePath + '/models/e_media_task.js', modelMedia, 'utf8');
+                // Task
+                modelMedia = fs.readFileSync(piecesPath + '/models/e_task.js.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath + '/models/e_task.js.js', modelMedia, 'utf8');
                 // Write new locales trees
                 var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
