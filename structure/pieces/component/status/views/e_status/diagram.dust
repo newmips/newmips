@@ -1,0 +1,104 @@
+{>"layout_m_administration"/}
+<script type="text/javascript" src="/js/Newmips/statusDiagram.js"></script>
+<script type="text/javascript" src="/js/plugins/jquery-ui/jquery-ui.min.js"></script>
+{<header}
+    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+        <li class="active">{#__ key="module.m_administration"/}</li>
+    </ol>
+{/header}
+{<content}
+    <div class="row">
+        <div class="col-xs-12 connectedSortable">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{#__ key="component.status.select_status" /}</h3>
+                </div>
+                <div class="box-body">
+                    <form action="/status/diagramdata">
+                        <div data-field="entityStatus" class="col-xs-12 col-sm-6">
+                            <div class="form-group">
+                                <label for="f_entity" class="required"> {#__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
+                                <select name="entityStatus" required class="form-control" style="width:100%;">
+                                    <option value="" selected>{#__ key="select.default" /}</option>
+                                    {#statuses}
+                                        {#statuses parentEntity=entity parentTrad=entityTrad}
+                                        <option value="{parentEntity}.{status}">{#__ key=parentTrad /} - {#__ key=statusTrad /}</option>
+                                        {/statuses}
+                                    {/statuses}
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="drag-drop-container" class="row">
+        <div class="col-xs-12 col-sm-4">
+            {! Status list !}
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{#__ key="component.status.available_status" /}</h3>
+                </div>
+                <div class="box-body">
+                    <div class="well" style="text-align: center;">
+                        {#__ key="component.status.diagram_description" /}
+                    </div>
+                    <div id="statusList" style="display: flex; align-items: baseline;flex-wrap: wrap"></div>
+                </div>
+            </div>
+        </div>
+        {! Status diagram !}
+        <div class="col-xs-12 col-sm-8">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{#__ key="component.status.diagram" /}</h3>
+                </div>
+                <div class="box-body">
+                    <div id="diagram-container" class="col-xs-9"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {! Hidden HTML template !}
+    <div id="sidebarStatusTemplate" style="display: none;">
+        <div class="box hover" style="display:inline-block;z-index: 100;padding:5px;margin: 20px;border-width: 3px 1px 1px 1px;border-style: solid;width: 125px;">
+            <div class="box-header" style="padding: 0;">
+                <div class="statusTitle"></div>
+            </div>
+        </div>
+    </div>
+    <div id="connectStatusTemplate" style="display: none;">
+        <div class="box" style="display:inline-block;z-index: 100;padding:5px;margin: 20px;border-width: 3px 1px 1px 1px;border-style: solid;width: 125px;height: 125px;">
+            <div class="box-body" style="padding: 0;">
+                <em class="statusTitle"></em>
+            </div>
+            <div class="box-footer" style="text-align: center;position: absolute; bottom:0;left:0;width:100%;">
+                <button class="btn btn-xs btn-default showStatus" title="Show" style="width:25px; padding:5px;display:inline-block;margin-right:10px;"><i class="fa fa-desktop"></i></button>
+                <button class="btn btn-xs btn-danger removeStatus" title="Delete" style="width:25px; padding:5px;"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+    </div>
+{/content}
+{<custom_js}
+    <script type='text/javascript'>
+        $(function() {
+
+            $('select[name=entityStatus]').change(function() {
+                var entityStatus = $(this).find('option:selected').val().split('.');
+                if (entityStatus.length != 2)
+                    return;
+                dragAndDropStatus(entityStatus[0], entityStatus[1]);
+            });
+            /*/ NOT WORKING - TODO
+            // Redraw on resize
+            // $(window).resize(function(){
+            //     if (entity && field)
+            //         dragAndDropStatus(entity, field);
+            // });*/
+        });
+    </script>
+{/custom_js}

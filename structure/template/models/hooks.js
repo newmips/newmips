@@ -43,7 +43,7 @@ module.exports = function(model_name, attributes) {
 			                    var historyModel = 'E_history_'+model_name+'_'+fieldIn;
 			                    getModels().E_status.findOrCreate({
 			                        where: {f_entity: model_name, f_field: fieldIn, f_default: true},
-			                        defaults: {f_entity: model_name, f_field: fieldIn, f_name: 'Initial', f_default: true},
+			                        defaults: {f_entity: model_name, f_field: fieldIn, f_name: 'Initial', f_default: true, f_color: '#999999'},
 	                                include: [{
 	                                    model: getModels().E_action,
 	                                    as: 'r_actions',
@@ -59,6 +59,9 @@ module.exports = function(model_name, attributes) {
 	                                        }, {
 	                                            model: getModels().E_media_sms,
 	                                            as: 'r_media_sms'
+	                                        }, {
+	                                            model: getModels().E_media_task,
+	                                            as: 'r_media_task'
 	                                        }]
 	                                    }]
 	                                }]

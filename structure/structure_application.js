@@ -236,8 +236,10 @@ function initializeWorkflow(id_application, name_application) {
         fs.copySync(piecesPath + '/views/e_media_mail/', workspacePath + '/views/e_media_mail/');
         // media notification
         fs.copySync(piecesPath + '/views/e_media_notification/', workspacePath + '/views/e_media_notification/');
-        // // media sms
+        // media sms
         fs.copySync(piecesPath + '/views/e_media_sms/', workspacePath + '/views/e_media_sms/');
+        // media taskk
+        fs.copySync(piecesPath + '/views/e_media_task/', workspacePath + '/views/e_media_task/');
         // translation
         fs.copySync(piecesPath + '/views/e_translation/', workspacePath + '/views/e_translation/');
         // action
@@ -249,6 +251,15 @@ function initializeWorkflow(id_application, name_application) {
         // Remove notification from administration sidebar
         domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
             $("#notification_menu_item").remove();
+            var diagramMenuLink = '{@actionAccess entity="status" action="read"}\n';
+            diagramMenuLink += '<li>\n';
+            diagramMenuLink += '    <a href="/status/diagram">\n';
+            diagramMenuLink += '        <i class="fa fa-sitemap"></i>\n';
+            diagramMenuLink += '        {@__ key="component.status.diagram" /}\n';
+            diagramMenuLink += '    </a>\n';
+            diagramMenuLink += '</li>\n';
+            diagramMenuLink += '{/actionAccess}\n';
+            $("#status_menu_item ul").append(diagramMenuLink);
             domHelper.write(workspacePath + '/views/layout_m_administration.dust', $).then(function() {
                 // Media pieces
                 var modelMedia = fs.readFileSync(piecesPath + '/models/e_media.js', 'utf8');
@@ -266,6 +277,14 @@ function initializeWorkflow(id_application, name_application) {
                 modelMedia = fs.readFileSync(piecesPath + '/models/e_media_sms.js', 'utf8');
                 modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
                 fs.writeFileSync(workspacePath + '/models/e_media_sms.js', modelMedia, 'utf8');
+                // Media task
+                modelMedia = fs.readFileSync(piecesPath + '/models/e_media_task.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath + '/models/e_media_task.js', modelMedia, 'utf8');
+                // Task
+                modelMedia = fs.readFileSync(piecesPath + '/models/e_task.js.js', 'utf8');
+                modelMedia = modelMedia.replace(/ID_APPLICATION/g, id_application);
+                fs.writeFileSync(workspacePath + '/models/e_task.js.js', modelMedia, 'utf8');
                 // Write new locales trees
                 var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');

@@ -534,15 +534,15 @@ function init_datatable(tableID, doPagination, context) {
         "bAutoWidth": false,
         "order": [ defaultOrder.idx, defaultOrder.direction ],
         "buttons": [
-            {
-                text: STR_LANGUAGE.choose_columns,
-                action: function(e,dt,node,config) {
-                    if ($("#columnSelector").length > 0)
-                        $(node).next().remove();
-                    else
-                        $(node).after(generateColumnSelector(tableID, columns));
-                }
-            },
+            // { HIDE BUTTON UNTIL FIX
+            //     text: STR_LANGUAGE.choose_columns,
+            //     action: function(e,dt,node,config) {
+            //         if ($("#columnSelector").length > 0)
+            //             $(node).next().remove();
+            //         else
+            //             $(node).after(generateColumnSelector(tableID, columns));
+            //     }
+            // },
             {
                 extend: 'print',
                 text: '<i class="fa fa-print"></i>',
