@@ -5,10 +5,6 @@ const gitlabConfig = require('../config/gitlab.js');
 const request = require('request');
 const fs = require("fs-extra");
 
-/////////////////////
-// Studio-manager  //
-/////////////////////
-
 exports.createApplicationDns = async (appName, appID) => {
 
     // Checking if traefik rules folder config exist

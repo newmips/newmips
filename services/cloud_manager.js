@@ -4,7 +4,7 @@ const globalConfig = require('../config/global.js');
 const portainerConfig = require('../config/portainer.js');
 const gitlabConfig = require('../config/gitlab.js');
 const math = require('math');
-var gitHelper = require("../utils/git_helper");
+const gitHelper = require("../utils/git_helper");
 let token = "";
 
 exports.deploy = async (attr) => {
@@ -17,7 +17,7 @@ exports.deploy = async (attr) => {
 	let appID = attr.id_application
 
 	// If local/develop environnement, then just give the generated application url
-    if (!(globalConfig.env == 'cloud')) {
+    if (globalConfig.env != 'cloud') {
         let port = math.add(9000, appID);
         let url = globalConfig.protocol + "://" + globalConfig.host + ":" + port;
         let info = {

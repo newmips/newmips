@@ -7,10 +7,6 @@ var gitHelper = require("../utils/git_helper");
 var fs = require('fs-extra');
 var language = require("../services/language");
 
-var manager;
-if (globalConf.env == 'cloud')
-    manager = require('../services/dns_manager');
-
 //Sequelize
 var models = require('../models/');
 
