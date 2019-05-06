@@ -48,7 +48,8 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
                 var depthInclude = {
                     model: models[modelPrefix+entityOptions[j].target.slice(2)],
                     as: depths[idx],
-                    include: []
+                    include: [],
+                    duplicating: false
                 }
                 buildInclude(entityOptions[j].target, depthInclude.include, depths, ++idx);
                 return includeObject.push(depthInclude)
