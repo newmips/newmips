@@ -28,7 +28,7 @@ exports.createApplicationDns = async (appName, appID) => {
         [frontends.' + appDomain + ']\n\
         backend = "' + appDomain + '"\n\
             [frontends.' + appDomain + '.routes.' + appDomain + ']\n\
-            rule = "Host:' + appDomain + '.newmips.studio"';
+            rule = "Host:' + appDomain + '.' + globalConfig.dns + '"';
 
     // Generate .toml file in traefik rules folder
     fs.writeFileSync(__dirname + "/../workspace/rules/" + tomlFilename, tomlContent);
