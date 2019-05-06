@@ -50,4 +50,9 @@
             {>"e_media_sms/update_fields" /}
         </div>
     {/r_media_sms}
+    {#r_media_task}
+        <div id="media-task" class="media-type col-xs-12">
+            {>"e_media_task/update_fields" /}
+        </div>
+    {/r_media_task}
 </div>

@@ -36,4 +36,7 @@
     <div id="media-sms" class="media-type col-xs-12" style="display: none;">
         {>"e_media_sms/create_fields" /}
     </div>
+    <div id="media-task" class="media-type col-xs-12" style="display: none;">
+        {>"e_media_task/create_fields" /}
+    </div>
 </div>

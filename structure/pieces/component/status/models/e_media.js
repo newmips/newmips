@@ -16,8 +16,10 @@ module.exports = (sequelize, DataTypes) => {
 
     Model.prototype.getFieldsToInclude = function() {
         var self = this;
-        if (!self['r_media_' + self.f_type.toLowerCase()])
-            return reject("No media with type " + self.f_type.toLowerCase());
+        if (!self['r_media_' + self.f_type.toLowerCase()]) {
+            console.error("No media with type " + self.f_type.toLowerCase());
+            return null;
+        }
         return self['r_media_' + self.f_type.toLowerCase()].parseForInclude();
     }
 
