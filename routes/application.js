@@ -277,8 +277,13 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                             iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/default/status';
                         else
                             iframe_status_url += host + ":" + port + "/default/status";
+
+                        let rejectUnauthorized = false;
+                        if (globalConf.env == 'cloud')
+                            rejectUnauthorized = true;
+
                         request({
-                            "rejectUnauthorized": false,
+                            "rejectUnauthorized": rejectUnauthorized,
                             "url": iframe_status_url,
                             "method": "GET"
                         }, function(error, response, body) {
@@ -529,8 +534,12 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                                     else
                                         iframe_status_url += host + ":" + port + "/default/status";
 
+                                    let rejectUnauthorized = false;
+                                    if (globalConf.env == 'cloud')
+                                        rejectUnauthorized = true;
+
                                     request({
-                                        "rejectUnauthorized": false,
+                                        "rejectUnauthorized": rejectUnauthorized,
                                         "url": iframe_status_url,
                                         "method": "GET"
                                     }, function(error, response, body) {
