@@ -273,7 +273,7 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                         }
 
                         var iframe_status_url = protocol_iframe + '://';
-                        if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                        if (globalConf.env == 'cloud')
                             iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/default/status';
                         else
                             iframe_status_url += host + ":" + port + "/default/status";
@@ -298,7 +298,7 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                             data.application = module;
 
                             var iframe_home_url = protocol_iframe + '://';
-                            if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                            if (globalConf.env == 'cloud')
                                 iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
                             else
                                 iframe_home_url += host + ":" + port + "/default/home";
@@ -524,7 +524,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                                     }
 
                                     var iframe_status_url = protocol_iframe + '://';
-                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                                    if (globalConf.env == 'cloud')
                                         iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/default/status';
                                     else
                                         iframe_status_url += host + ":" + port + "/default/status";
@@ -693,7 +693,7 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
             for(var j=0; j<projects[i].Applications.length; j++){
                 iframe_status_url = globalConf.protocol_iframe + '://';
                 port = 9000 + parseInt(projects[i].Applications[j].id);
-                if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                if (globalConf.env == 'cloud')
                     iframe_status_url += host + '-' + projects[i].Applications[j].codeName.substring(2) + globalConf.dns + '/';
                 else
                     iframe_status_url += host + ":" + port + "/";
