@@ -1,6 +1,6 @@
-var globalConf = require('./global');
+const globalConf = require('./global');
 
-var databaseConf = {
+let databaseConf = {
     develop: {
         host: '127.0.0.1',
         port: '3306', //mysql: 3306 - postgres: 5432
@@ -25,7 +25,7 @@ var databaseConf = {
         database: 'newmips',
         dialect: 'mysql'
     },
-    docker: {
+    cloud: {
         host: 'database',
         port: '3306',
         user: 'newmips',
