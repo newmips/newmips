@@ -1,5 +1,4 @@
 const globalConfig = require('../config/global.js');
-const rancherConfig = require('../config/rancher.js');
 const gitlabConfig = require('../config/gitlab.js');
 
 const request = require('request');
