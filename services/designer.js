@@ -1,16 +1,15 @@
-var designer = {};
-
 // Database Generator
-var db_project = require("../database/project");
-var db_application = require("../database/application");
-var db_module = require("../database/module");
-var db_entity = require("../database/data_entity");
-var db_field = require("../database/data_field");
-var db_component = require("../database/component");
-var database = require("../database/database");
+const db_project = require("../database/project");
+const db_application = require("../database/application");
+const db_module = require("../database/module");
+const db_entity = require("../database/data_entity");
+const db_field = require("../database/data_field");
+const db_component = require("../database/component");
+const database = require("../database/database");
 
 // Session
-var session = require("./session");
+const session = require("./session");
+const cloud_manager = require('../services/cloud_manager');
 
 // Bot
 var bot = require('../services/bot.js');
@@ -85,10 +84,16 @@ exports.showSession = function (attr, callback) {
 }
 
 exports.deploy = function (attr, callback) {
-    session.deploy(attr, function (err, info) {
+    db_application.getCodeNameApplicationById(attr.id_application, (err, codeName) => {
         if (err)
             return callback(err, null);
-        callback(null, info);
+
+        attr.appCodeName = codeName;
+        cloud_manager.deploy(attr, (err, info) => {
+            if (err)
+                return callback(err, null);
+            callback(null, info);
+        });
     });
 }
 
@@ -3171,5 +3176,3 @@ function deleteEntityWidgets(attr, callback) {
     });
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;
-
-return designer;

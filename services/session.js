@@ -8,7 +8,7 @@ var fs = require('fs-extra');
 var language = require("../services/language");
 
 var manager;
-if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+if (globalConf.env == 'cloud')
     manager = require('../services/dns_manager');
 
 //Sequelize

@@ -9,9 +9,9 @@ const path = require("path");
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.js');
 
-var dns_manager;
-if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-    dns_manager = require('../services/dns_manager');
+var studio_manager;
+if (globalConf.env == 'cloud')
+    studio_manager = require('../services/studio_manager');
 
 try {
     if (gitlabConf.doGit) {
@@ -188,13 +188,17 @@ function finalizeApplication(id_application, name_application) {
             logging: false,
             hooks: false
         }).then(function() {
-            // Create application's DNS through dns_manager
-            if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                dns_manager.createApplicationDns(globalConf.host, name_application, id_application).then(function() {
+            // Create application's DNS through studio_manager
+            if (globalConf.env == 'cloud') {
+                studio_manager.createApplicationDns(name_application, id_application).then(_ => {
                     resolve();
-                });
-            else
+                }).catch(err => {
+                    console.error(err);
+                    reject(err);
+                })
+            } else {
                 resolve();
+            }
         });
     });
 }
