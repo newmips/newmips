@@ -263,7 +263,8 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                 data.session = info;
 
                 initPreviewData(req.session.id_application, data).then(function(data) {
-                    var initialTimestamp = new Date().getTime();
+                    let initialTimestamp = new Date().getTime();
+                    let iframe_status_url;
                     function checkServer() {
                         if (new Date().getTime() - initialTimestamp > timeoutServer) {
                             setChat(req, id_application, currentUserID, "Mipsy", "structure.global.restart.error", [], true);
@@ -272,23 +273,21 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                             return res.render('front/preview', data);
                         }
 
-                        var iframe_status_url = protocol_iframe + '://';
+                        iframe_status_url = protocol_iframe + '://';
                         if (globalConf.env == 'cloud')
                             iframe_status_url += globalConf.sub_domain + '-' + application.codeName.substring(2) + "." + globalConf.dns + '/default/status';
                         else
                             iframe_status_url += host + ":" + port + "/default/status";
 
-                        console.log("URL IFRAME");
+                        console.log("URL IFRAME 1");
                         console.log(iframe_status_url);
 
-                        let rejectUnauthorized = false;
-                        if (globalConf.env == 'cloud')
-                            rejectUnauthorized = true;
+                        let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
 
                         request({
-                            "rejectUnauthorized": rejectUnauthorized,
-                            "url": iframe_status_url,
-                            "method": "GET"
+                            rejectUnauthorized: rejectUnauthorized,
+                            url: iframe_status_url,
+                            method: "GET"
                         }, function(error, response, body) {
                             if (error)
                                 return setTimeout(checkServer, 100);
@@ -304,16 +303,6 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
 
                             data.error = 0;
                             data.application = module;
-
-                            var iframe_home_url = protocol_iframe + '://';
-                            if (globalConf.env == 'cloud')
-                                iframe_status_url += globalConf.sub_domain + '-' + application.codeName.substring(2) + "." + globalConf.dns + '/default/status';
-                            else
-                                iframe_status_url += host + ":" + port + "/default/status";
-
-                            console.log("URL IFRAME");
-                            console.log(iframe_status_url);
-
                             data.iframe_url = iframe_home_url;
                             data.idApp = application.id;
 
@@ -523,8 +512,9 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                             data.session = info;
 
                             initPreviewData(req.session.id_application, data).then(function(data) {
+                                let initialTimestamp = new Date().getTime();
+                                let iframe_status_url;
 
-                                var initialTimestamp = new Date().getTime();
                                 function checkServer() {
                                     if (new Date().getTime() - initialTimestamp > timeoutServer) {
                                         // Timeout
@@ -534,21 +524,18 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                                         return res.send(data);
                                     }
 
-                                    var iframe_status_url = protocol_iframe + '://';
-
-                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
+                                    iframe_status_url = protocol_iframe + '://';
+                                    if (globalConf.env == 'cloud')
                                         iframe_status_url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + '/default/status';
                                     else
                                         iframe_status_url += host + ":" + port + "/default/status";
 
-                                    let rejectUnauthorized = false;
-                                    if (globalConf.env == 'cloud')
-                                        rejectUnauthorized = true;
+                                    let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
 
                                     request({
-                                        "rejectUnauthorized": rejectUnauthorized,
-                                        "url": iframe_status_url,
-                                        "method": "GET"
+                                        rejectUnauthorized: rejectUnauthorized,
+                                        url: iframe_status_url,
+                                        method: "GET"
                                     }, function(error, response, body) {
                                         // Check for error
                                         if (error)
@@ -699,14 +686,14 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
             [models.Application, 'id', 'DESC']
         ]
     }).then(function(projects) {
-        var data = {};
+        let data = {};
 
-        var iframe_status_url;
-        var host = globalConf.host;
-        var port;
+        let iframe_status_url;
+        let host = globalConf.host;
+        let port;
 
-        for(var i=0; i<projects.length; i++){
-            for(var j=0; j<projects[i].Applications.length; j++){
+        for (var i = 0; i < projects.length; i++) {
+            for (var j = 0; j < projects[i].Applications.length; j++) {
                 iframe_status_url = globalConf.protocol_iframe + '://';
                 port = 9000 + parseInt(projects[i].Applications[j].id);
 

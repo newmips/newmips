@@ -25,6 +25,14 @@ let databaseConf = {
         database: 'newmips',
         dialect: 'mysql'
     },
+    docker: {
+        host: 'database',
+        port: '3306',
+        user: 'newmips',
+        password: 'newmips',
+        database: 'newmips',
+        dialect: 'mysql'
+    },
     cloud: {
         host: 'database',
         port: '3306',

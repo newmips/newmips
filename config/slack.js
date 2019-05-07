@@ -19,6 +19,12 @@ var slack = {
 		SLACK_API_USER_TOKEN: '',
 		SLACK_API_TOKEN: ''
 	},
+	docker: {
+		SLACK_API_URL: 'https://slack.com/api/channels.join',
+		SLACK_API_INVITE_URL: 'https://slack.com/api/channels.invite',
+		SLACK_API_USER_TOKEN: '',
+		SLACK_API_TOKEN: ''
+	},
 	cloud: {
 		SLACK_API_URL: 'https://slack.com/api/channels.join',
 		SLACK_API_INVITE_URL: 'https://slack.com/api/channels.invite',
