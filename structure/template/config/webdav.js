@@ -22,6 +22,13 @@ var webdav = {
 		user_name: '',
 		password: ''
 	},
+	docker: {
+		url: '',
+		host: '',
+		port: '',
+		user_name: '',
+		password: ''
+	},
 	cloud: {
 		url: '',
 		host: '',

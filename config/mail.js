@@ -43,6 +43,20 @@ let mailConf = {
         administrateur: 'Responsable Newmips <contact@newmips.com>',
         host: 'host'
     },
+    docker: {
+        transport: {
+            host: 'mail',
+            port: 465,
+            secure: true,
+            auth: {
+                user: '',
+                pass: ''
+            }
+        },
+        expediteur: 'NoReply <no-reply@newmips.com>',
+        administrateur: 'Responsable Newmips <contact@newmips.com>',
+        host: 'https://'+process.env.HOSTNAME+'.newmips.studio'
+    },
     cloud: {
         transport: {
             host: 'mail',

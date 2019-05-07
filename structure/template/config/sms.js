@@ -16,6 +16,11 @@ let smsConf = {
 		appSecret: "",
 		consumerKey: ""
 	},
+	docker: {
+		appKey: "",
+		appSecret: "",
+		consumerKey: ""
+	},
 	cloud: {
 		appKey: "",
 		appSecret: "",

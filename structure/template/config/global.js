@@ -41,8 +41,8 @@ let config = {
             width: 200
         },
         ssl: {
-            key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
-            cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
+            key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
+            cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
             passphrase: ''
         }
     },
@@ -64,8 +64,32 @@ let config = {
             width: 200
         },
         ssl: {
-            key: /*fs.readFileSync('./cacerts/private.key')*/"toRemove",
-            cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"toRemove",
+            key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
+            cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
+            passphrase: ''
+        }
+    },
+    docker: {
+        env: 'docker',
+        protocol: 'http',
+        protocol_iframe: 'https',
+        host: '127.0.0.1',
+        localstorage: __dirname + "/../upload/",
+        syncfolder: __dirname + '/../sync/',
+        port: process.env.PORT || 1337,
+        thumbnail: {
+            folder: 'thumbnail/',
+            height: 30,
+            width: 30,
+            quality: 60
+        },
+        pictureField: {
+            height: 200, //px
+            width: 200
+        },
+        ssl: {
+            key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
+            cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
             passphrase: ''
         }
     },
@@ -93,7 +117,6 @@ let config = {
             passphrase: ''
         }
     }
-
 }
 
 // Merge applicationConf with the returned globalConf object

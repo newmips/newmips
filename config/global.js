@@ -40,6 +40,19 @@ let config = {
 		authStrategy: 'local',
 		slack_chat_enabled: false
 	},
+    docker: {
+        env: 'docker',
+        protocol: 'http',
+        protocol_iframe: 'https',
+        host: process.env.HOSTNAME,
+        dns: process.env.DOMAIN_STUDIO,
+        dns_cloud: process.env.DOMAIN_CLOUD,
+        sub_domain: process.env.SUB_DOMAIN,
+        port: process.env.PORT || 1337,
+        slack_chat_enabled: false,
+        authStrategy: 'local',
+        server_ip: process.env.SERVER_IP
+    },
     cloud: {
         env: 'cloud',
         protocol: 'http',
