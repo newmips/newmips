@@ -2,24 +2,24 @@ let globalConf = require('./global');
 
 let smsConf = {
 	develop: {
-		"appKey": "",
-		"appSecret": "",
-		"consumerKey": ""
+		appKey: "",
+		appSecret: "",
+		consumerKey: ""
 	},
 	recette: {
-		"appKey": "",
-		"appSecret": "",
-		"consumerKey": ""
+		appKey: "",
+		appSecret: "",
+		consumerKey: ""
 	},
 	production: {
-		"appKey": "",
-		"appSecret": "",
-		"consumerKey": ""
+		appKey: "",
+		appSecret: "",
+		consumerKey: ""
 	},
-	docker: {
-		"appKey": "",
-		"appSecret": "",
-		"consumerKey": ""
+	cloud: {
+		appKey: "",
+		appSecret: "",
+		consumerKey: ""
 	}
 }
 

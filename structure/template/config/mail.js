@@ -27,7 +27,7 @@ var mailConf = {
         },
         expediteur: 'Newmips App <no-reply@newmips.com>',
         administrateur: 'Responsable Newmips <contact@newmips.com>',
-        host: 'https://cloud.newmips.com:'
+        host: 'host'
     },
     production: {
         transport: {
@@ -41,9 +41,9 @@ var mailConf = {
         },
         expediteur: 'Newmips App <no-reply@newmips.com>',
         administrateur: 'Responsable Newmips <contact@newmips.com>',
-        host: 'https://cloud.newmips.com:' + globalConf.port
+        host: 'host'
     },
-    docker: {
+    cloud: {
         transport: {
             host: 'mail',
             port: 465,
@@ -55,7 +55,7 @@ var mailConf = {
         },
         expediteur: 'Newmips App <no-reply@newmips.com>',
         administrateur: 'Responsable Newmips <contact@newmips.com>',
-        host: 'https://cloud.newmips.com:' + globalConf.port
+        host: 'host'
     }
 }
 
