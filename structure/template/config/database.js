@@ -15,7 +15,7 @@ var databaseConf = {
         user: 'newmips',
         password: 'newmips',
         database: 'newmips',
-        dialect: 'mysql' //mysql or postgres
+        dialect: 'mysql'
     },
     production: {
         host: '127.0.0.1',
@@ -23,15 +23,15 @@ var databaseConf = {
         user: 'newmips',
         password: 'newmips',
         database: 'newmips',
-        dialect: 'mysql' //mysql or postgres
+        dialect: 'mysql'
     },
-    docker: {
+    cloud: {
         host: 'database',
         port: '3306',
         user: 'newmips',
         password: 'newmips',
         database: 'newmips',
-        dialect: 'mysql' //mysql or postgres
+        dialect: 'mysql'
     }
 }
 
