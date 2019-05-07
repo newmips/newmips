@@ -26,7 +26,7 @@ COPY . /usr/src/app
 
 VOLUME /usr/src/app/workspace
 
-EXPOSE 1337
+EXPOSE 1337 9001-9100
 
 ADD entrypoint.sh /
 # Setup for ssh onto github

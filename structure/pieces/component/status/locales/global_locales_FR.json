@@ -20,7 +20,10 @@
 			"select_status": "Sélectionner un statut",
 			"diagram_description": "Gissez/Déposez un statut sur un parent dans le diagram pour l'ajouter comme enfant.",
 			"diagram": "Diagram"
-		}
+		},
+	    "c_synchro": {
+	        "label_component": "Synchronisation"
+	    }
 	},
 	"entity": {
 		"e_status": {
@@ -62,6 +65,23 @@
             "f_color": "Couleur",
             "f_icon": "Icône",
             "as_r_notification": "Notification"
+        },
+        "e_synchro_credentials": {
+	        "label_entity": "Identifiants synchronisation",
+	        "name_entity": "Identifiants synchronisation",
+	        "plural_entity": "Identifiants synchronisation",
+	        "id_entity": "ID",
+	        "f_cloud_host": "Cloud host",
+	        "f_client_key": "Client key",
+	        "f_client_secret": "Client secret"
+	    },
+        "e_synchronization": {
+            "label_entity": "Synchronisation",
+            "name_entity": "Synchronisation",
+            "plural_entity": "Synchronisation",
+            "id_entity": "ID",
+            "r_api_credentials": "Identifiants API",
+            "f_journal_backup_file": "Fichier de sauvegarde de Journal"
         },
 		"e_action": {
 			"f_execution": "Exécution",
