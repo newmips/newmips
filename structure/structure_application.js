@@ -1,13 +1,15 @@
-var fs = require("fs-extra");
-var spawn = require('cross-spawn');
+const fs = require("fs-extra");
+const spawn = require('cross-spawn');
 var helpers = require('../utils/helpers');
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 const path = require("path");
+const mysql = require('promise-mysql');
 
-// Global conf
-var globalConf = require('../config/global.js');
-var gitlabConf = require('../config/gitlab.js');
+// Configuration files
+const globalConf = require('../config/global.js');
+const gitlabConf = require('../config/gitlab.js');
+const dbConf = require('../config/database.js');
 
 var studio_manager;
 if (globalConf.env == 'cloud')
@@ -80,16 +82,17 @@ exports.installAppModules = installAppModules;
 // Application
 exports.setupApplication = function(attr, callback) {
 
-    var id_application = attr.id_application;
+    var appID = attr.id_application;
 
     // Check each options variable to set properties
     var options = attr.options;
     var name_application = options.value;
     var show_name_application = options.showValue;
+    var repoFile = options.repoFile;
 
     installAppModules().then(function() {
         // *** Copy template folder to new workspace ***
-        fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + id_application, function(err) {
+        fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + appID, function(err) {
             if (err) {
                 var err = new Error();
                 err.message = "An error occurred while copying template folder.";
@@ -97,11 +100,11 @@ exports.setupApplication = function(attr, callback) {
             }
 
             /* --------------- New translation --------------- */
-            translateHelper.writeLocales(id_application, "application", null, show_name_application, attr.googleTranslate, function() {
+            translateHelper.writeLocales(appID, "application", null, show_name_application, attr.googleTranslate, function() {
                 // Write the config/language.json file in the workspace with the language in the generator session -> lang_user
-                var languageConfig = require(__dirname + '/../workspace/' + id_application + '/config/language');
+                var languageConfig = require(__dirname + '/../workspace/' + appID + '/config/language');
                 languageConfig.lang = attr.lang_user;
-                fs.writeFile(__dirname + '/../workspace/' + id_application + '/config/language.json', JSON.stringify(languageConfig, null, 4), function(err) {
+                fs.writeFile(__dirname + '/../workspace/' + appID + '/config/language.json', JSON.stringify(languageConfig, null, 4), function(err) {
 
                     if (err) {
                         var err = new Error();
@@ -109,61 +112,117 @@ exports.setupApplication = function(attr, callback) {
                         return callback(err, null);
                     }
 
-                    var nameAppWithoutPrefix = name_application.substring(2);
-                    // Create the application repository in gitlab
-                    if (!gitlabConf.doGit)
-                        return callback();
 
-                    var idUserGitlab;
-                    function createGitlabProject() {
-                        var newGitlabProject = {
-                            user_id: idUserGitlab,
-                            name: globalConf.host + "-" + nameAppWithoutPrefix,
-                            description: "A generated Newmips workspace.",
-                            issues_enabled: false,
-                            merge_requests_enabled: false,
-                            wiki_enabled: false,
-                            snippets_enabled: false,
-                            public: false
-                        };
+                    async function workspace_db(){
+                        if(!globalConf.separate_workspace_db)
+                            return;
 
-                        try {
-                            gitlab.projects.create_for_user(newGitlabProject, function(result) {
-                                if (typeof result === "object") {
-                                    gitlab.projects.members.add(result.id, 1, 40, function(answer) {
-                                        callback();
-                                    });
-                                } else
-                                    callback();
-                            });
-                        } catch (err) {
-                            console.log("Error connection Gitlab repository: " + err);
-                            console.log("Please set doGit in config/gitlab.js to false");
-                            callback(err);
+                        // Create database instance for application
+                        let db_requests = [
+                            "CREATE DATABASE workspace_" + appID + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
+                            "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'127.0.0.1' IDENTIFIED BY 'workspace_" + appID + "';",
+                            "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'%' IDENTIFIED BY 'workspace_" + appID + "';",
+                            "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'127.0.0.1';",
+                            "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';"
+                        ]
+
+                        var conn = await mysql.createConnection({
+                            host: globalConf.env == "cloud" ? "database" : dbConf.user,
+                            user: globalConf.env == "cloud" ? "root" : dbConf.password,
+                            password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.database
+                        });
+
+                        // await conn.connect()
+
+                        for (var i = 0; i < db_requests.length; i++) {
+                            await conn.query(db_requests[i]);
                         }
+
+                        conn.end();
                     }
 
-                    if (attr.gitlabUser != null) {
-                        idUserGitlab = attr.gitlabUser.id;
-                        createGitlabProject();
-                    } else {
-                        gitlab.users.all(function(gitlabUsers) {
-                            var exist = false;
-                            for (var i = 0; i < gitlabUsers.length; i++)
-                                if (gitlabUsers[i].email == attr.currentUser.email) {
-                                    exist = true;
-                                    idUserGitlab = gitlabUsers[i].id;
-                                }
-
-                            if (exist)
-                                createGitlabProject();
-                            else {
-                                var err = new Error();
-                                err.message = "Cannot find your Gitlab account to create the project!";
+                    workspace_db().then(_ => {
+                        if(globalConf.separate_workspace_db){
+                            try {
+                                // Change config file to point on database instance
+                                var appDatabaseConfig = fs.readFileSync(__dirname + '/../workspace/' + appID + '/config/database.js', 'utf8');
+                                appDatabaseConfig = appDatabaseConfig.replace(/newmips/g, 'workspace_' + appID, 'utf8');
+                                fs.writeFileSync(__dirname + '/../workspace/' + appID + '/config/database.js', appDatabaseConfig);
+                            } catch (err) {
+                                console.log(err);
                                 return callback(err, null);
                             }
-                        });
-                    }
+                        }
+
+                        var nameAppWithoutPrefix = name_application.substring(2);
+                        // Create the application repository in gitlab
+                        if (!gitlabConf.doGit)
+                            return callback();
+
+                        var idUserGitlab;
+                        function createGitlabProject() {
+                            var newGitlabProject = {
+                                user_id: idUserGitlab,
+                                name: globalConf.host + "-" + nameAppWithoutPrefix,
+                                description: "A generated Newmips workspace.",
+                                issues_enabled: false,
+                                merge_requests_enabled: false,
+                                wiki_enabled: false,
+                                snippets_enabled: false,
+                                public: false
+                            };
+
+                            try {
+                                // Clone template if any
+                                if (repoFile) {
+                                    gitlab.projects.import(repoFile, newGitlabProject, function(result) {
+                                        callback();
+                                    });
+                                }
+                                else {
+                                    gitlab.projects.create_for_user(newGitlabProject, function(result) {
+                                        if (typeof result === "object") {
+                                            gitlab.projects.members.add(result.id, 1, 40, function(answer) {
+                                                callback();
+                                            });
+                                        } else
+                                            callback();
+                                    });
+                                }
+                            } catch (err) {
+                                console.log("Error connection Gitlab repository: " + err);
+                                console.log("Please set doGit in config/gitlab.js to false");
+                                callback(err);
+                            }
+                        }
+
+                        if (attr.gitlabUser != null) {
+                            idUserGitlab = attr.gitlabUser.id;
+                            createGitlabProject();
+                        } else {
+                            gitlab.users.all(function(gitlabUsers) {
+                                var exist = false;
+                                for (var i = 0; i < gitlabUsers.length; i++)
+                                    if (gitlabUsers[i].email == attr.currentUser.email) {
+                                        exist = true;
+                                        idUserGitlab = gitlabUsers[i].id;
+                                    }
+
+                                if (exist)
+                                    createGitlabProject();
+                                else {
+                                    var err = new Error();
+                                    err.message = "Cannot find your Gitlab account to create the project!";
+                                    return callback(err, null);
+                                }
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        var err = new Error();
+                        err.message = "An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?";
+                        return callback(err, null);
+                    })
                 });
             });
         });
@@ -176,7 +235,7 @@ exports.setupApplication = function(attr, callback) {
 }
 
 function finalizeApplication(id_application, name_application) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
         var piecesPath = __dirname + '/pieces';
         var workspacePath = __dirname + '/../workspace/' + id_application;
 
@@ -351,7 +410,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                             uniqueField('e_role', 'f_label');
                                             uniqueField('e_group', 'f_label');
 
-                                            // Manualy add settings and db_tool to access file because it's not a real entity
+                                            // Manualy add custom menus to access file because it's not a real entity
                                             var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
                                             let arrayKey = [
                                                 "access_settings",
@@ -360,7 +419,9 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 "access_tool",
                                                 "access_settings_role",
                                                 "access_settings_group",
-                                                "access_settings_api"
+                                                "access_settings_api",
+                                                "synchro",
+                                                "synchro_credentials"
                                             ];
                                             for (var i = 0; i < arrayKey.length; i++) {
                                                 access.administration.entities.push({
@@ -388,6 +449,74 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
 
                                             domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
                                                 var li = '';
+
+                                                // Delete generated synchro in sidebar
+                                                $("#synchronization_menu_item").remove();
+                                                $("#synchro_credentials_menu_item").remove();
+                                                // Put back Synchro in sidebar
+                                                li += '{#entityAccess entity="synchro"}\n';
+                                                li += '     <li id="synchro_menu_item" style="display:block;" class="treeview">\n';
+                                                li += '         <a href="#">\n';
+                                                li += '             <i class="fa fa-refresh"></i>\n';
+                                                li += '             <span>{#__ key="synchro.title" /}</span>\n';
+                                                li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+                                                li += '         </a>\n';
+                                                li += '         <ul class="treeview-menu">\n';
+                                                li += '             {@ne key=config.env value="tablet"}\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/synchronization/show">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {#__ key="synchro.configure" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/synchronization/list_dump">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {#__ key="synchro.list" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '             {/ne}\n';
+                                                li += '             {@eq key=config.env value="tablet"}\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/synchronization/show">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {#__ key="synchro.process.synchronize" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '             {/eq}\n';
+                                                li += '         </ul>\n';
+                                                li += '     </li>\n';
+                                                li += '{/entityAccess}\n';
+
+                                                li += '{@eq key=config.env value="tablet"}\n';
+                                                li += '     {#entityAccess entity="synchro_credentials"}\n';
+                                                li += '     <li id="synchro_credentials_menu_item" style="display:block;" class="treeview">\n';
+                                                li += '         <a href="#">\n';
+                                                li += '             <i class="fa fa-unlink"></i>\n';
+                                                li += '             <span>{#__ key="entity.e_synchro_credentials.label_entity" /}</span>\n';
+                                                li += '             <i class="fa fa-angle-left pull-right"></i>\n';
+                                                li += '         </a>\n';
+                                                li += '         <ul class="treeview-menu">\n';
+                                                li += '             {#actionAccess entity="synchro_credentials" action="create"}\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/synchro_credentials/create_form">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {#__ key="operation.create" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '             {#actionAccess entity="synchro_credentials" action="read"}\n';
+                                                li += '                 <li>\n';
+                                                li += '                     <a href="/synchro_credentials/list">\n';
+                                                li += '                         <i class="fa fa-angle-double-right"></i>\n';
+                                                li += '                         {#__ key="operation.list" /}\n';
+                                                li += '                     </a>\n';
+                                                li += '                 </li>\n';
+                                                li += '             {/actionAccess}\n';
+                                                li += '         </ul>\n';
+                                                li += '     </li>\n';
+                                                li += '     {/entityAccess}\n';
+                                                li += '{/eq}\n';
 
                                                 li += '{#entityAccess entity="import_export"}\n';
                                                 li += '     <li id="import_export_menu_item" class="treeview">\n';
@@ -465,6 +594,15 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                     fs.copySync(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js');
                                                     // Copy api e_user piece
                                                     fs.copySync(piecesPath + '/api/routes/e_user.js', workspacePath + '/api/e_user.js');
+
+                                                    // Delete and copy synchronization files/pieces
+                                                    var synchroViews = fs.readdirSync(workspacePath+'/views/e_synchronization');
+                                                    for (var i = 0; i < synchroViews.length; i++)
+                                                        fs.unlink(workspacePath+'/views/e_synchronization/'+synchroViews[i], (err) => {if (err)console.error(err);});
+                                                    fs.copySync(piecesPath+'/component/synchronization/views/', workspacePath+'/views/e_synchronization/');
+                                                    fs.copySync(piecesPath+'/component/synchronization/routes/e_synchronization.js', workspacePath+'/routes/e_synchronization.js');
+                                                    fs.copySync(piecesPath+'/component/synchronization/api/e_synchronization.js', workspacePath+'/api/e_synchronization.js');
+
                                                     // API credentials must not be available to API calls, delete the file
                                                     fs.unlink(workspacePath + '/api/e_api_credentials.js', function() {
                                                         // Set french translation about API credentials
@@ -488,25 +626,28 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
     });
 }
 
-exports.deleteApplication = function(id_application, callback) {
+exports.deleteApplication = function(appID, callback) {
     // Kill spawned child process by preview
     let process_manager = require('../services/process_manager.js');
     let process_server = process_manager.process_server;
-    let pathToWorkspace = __dirname + '/../workspace/' + id_application;
-    let pathToAppLogs = __dirname + '/../workspace/logs/app_' + id_application + '.log';
+    let pathToWorkspace = __dirname + '/../workspace/' + appID;
+    let pathToAppLogs = __dirname + '/../workspace/logs/app_' + appID + '.log';
 
-    if (gitlabConf.doGit) {
-        // Async delete repo in our gitlab in cloud env
-        models.Application.findById(id_application).then(function(app) {
+    models.Application.findById(appID).then(app => {
+
+        let nameAppWithoutPrefix = app.codeName.substring(2);
+        let cleanHost = globalConf.host;
+        let nameRepo = cleanHost + "-" + nameAppWithoutPrefix;
+
+        console.log(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml");
+
+        // Removing .toml file in traefik rules folder
+        fs.unlinkSync(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml")
+
+        if (gitlabConf.doGit) {
             try {
                 gitlab.projects.all(function(projects) {
-
-                    var nameAppWithoutPrefix = app.codeName.substring(2);
-                    var cleanHost = globalConf.host;
-                    var nameRepo = cleanHost + "-" + nameAppWithoutPrefix;
-
                     var idRepoToDelete = null;
-
                     for (var i = 0; i < projects.length; i++)
                         if (nameRepo == projects[i].name)
                             idRepoToDelete = projects[i].id;
@@ -523,11 +664,21 @@ exports.deleteApplication = function(id_application, callback) {
                 console.log("Please set doGit in config/gitlab.js to false");
                 callback();
             }
-        });
-    }
+        }
 
-    if (process_server != null) {
-        process_server = process_manager.killChildProcess(process_server.pid, function(err) {
+        if (process_server != null) {
+            process_server = process_manager.killChildProcess(process_server.pid, function(err) {
+                try {
+                    helpers.rmdirSyncRecursive(pathToWorkspace);
+                    // Delete application log file
+                    if (fs.existsSync(pathToAppLogs))
+                        fs.unlinkSync(pathToAppLogs);
+                    callback();
+                } catch (err) {
+                    callback(err, null);
+                }
+            });
+        } else {
             try {
                 helpers.rmdirSyncRecursive(pathToWorkspace);
                 // Delete application log file
@@ -537,16 +688,6 @@ exports.deleteApplication = function(id_application, callback) {
             } catch (err) {
                 callback(err, null);
             }
-        });
-    } else {
-        try {
-            helpers.rmdirSyncRecursive(pathToWorkspace);
-            // Delete application log file
-            if (fs.existsSync(pathToAppLogs))
-                fs.unlinkSync(pathToAppLogs);
-            callback();
-        } catch (err) {
-            callback(err, null);
         }
-    }
+    });
 }
