@@ -68,11 +68,11 @@ exports.childUrl = function(req, instruction) {
     if (instruction == 'deleteDataEntity')
         childsUrlsStorage[req.sessionID][req.session.id_application] = "/default/home";
 
-    var url = globalConf.protocol_iframe + '://' + globalConf.host;
+    let url =  globalConf.protocol_iframe + '://';
     if (globalConf.env == 'cloud')
-        url += '-' +req.session.name_application + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.id_application];
+        url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.id_application];
     else
-        url += ':' + (9000+parseInt(req.session.id_application)) + childsUrlsStorage[req.sessionID][req.session.id_application];
+        url += globalConf.host + ':' + (9000 + parseInt(req.session.id_application)) + childsUrlsStorage[req.sessionID][req.session.id_application];
 
     return url;
 }
