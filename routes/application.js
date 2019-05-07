@@ -303,7 +303,7 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
 
                             data.error = 0;
                             data.application = module;
-                            data.iframe_url = iframe_home_url;
+                            data.iframe_url = iframe_status_url.split("/default/status")[0];
                             data.idApp = application.id;
 
                             // Let's do git init or commit depending the env (only on cloud env for now)
