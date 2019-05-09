@@ -19,4 +19,5 @@ cp structure/template/package.json workspace/
 cd workspace
 npm install
 
+cd ..
 npm start
