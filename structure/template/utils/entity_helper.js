@@ -79,6 +79,17 @@ var funcs = {
                 resolve(data)
         });
     },
+    synchro: {
+        writeJournal: function(line) {
+            if (globalConfig.env != "tablet")
+                return;
+            var journal = JSON.parse(fs.readFileSync(__dirname+'/../sync/journal.json', 'utf8'));
+            if (!journal.transactions instanceof Array)
+                journal.transactions = [];
+            journal.transactions.push(line);
+            fs.writeFileSync(__dirname+'/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
+        }
+    },
     optimizedFindOne: function(modelName, idObj, options, forceOptions) {
         // Split SQL request if too many inclusion
         return new Promise(function(resolve, reject){

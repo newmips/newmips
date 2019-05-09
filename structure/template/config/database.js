@@ -25,6 +25,13 @@ var databaseConf = {
         database: 'newmips',
         dialect: 'mysql'
     },
+    tablet: {
+        dialect: 'sqlite',
+        // iOS
+        // storage: process.env.CORDOVA_APP_DIR + '/../Library/LocalDatabase/newmips.db'
+        // ANDROID :
+        storage: __dirname + '/newmips.db'
+    },
     docker: {
         host: 'database',
         port: '3306',

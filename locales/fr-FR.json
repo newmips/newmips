@@ -25,6 +25,13 @@
         "remember_me": "Se souvenir de moi",
         "submit": "Soumettre"
     },
+    "deploy": {
+        "deploying": "Déploiement...",
+        "please_wait": "Nous déployons votre application. Cette opération peut prendre quelques minutes. Veuillez patienter...",
+        "ready": "Votre application est prête",
+        "goto": "Aller vers votre application",
+        "stayonpage": "Vous devriez rester sur cette page pendant le déploiement de votre application."
+    },
     "menu": {
         "home": "Accueil",
         "preview": "Prévisualisation",
@@ -42,6 +49,7 @@
         "logs": "Logs",
         "account": "Mon compte",
         "themes": "Mes thèmes",
+        "templates": "Modèles d'applications",
         "users": "Utilisateurs"
     },
     "button": {
@@ -117,10 +125,11 @@
         "print_page": "Page d'impression"
     },
     "instructionScript": {
-        "legend": "Executer un script Newmips",
+        "legend": "Exécuter un script Newmips",
         "redirecting": "Redirection...",
         "createScript": "Écrire un script",
-        "fromFile": "Depuis un fichier"
+        "fromFile": "Depuis un fichier",
+        "template": "Choisissez votre modèle d'application"
     },
     "template": {
         "label": "Modèle",
@@ -196,6 +205,9 @@
         "plural": "Applications",
         "not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste.",
         "no_access": "Vous n'avez pas accès à cette application."
+    },
+    "select": {
+        "default": "-- Choisir --"
     },
     "module": {
         "label": "Module"

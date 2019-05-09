@@ -25,6 +25,13 @@
         "remember_me": "Remember me",
         "submit": "Submit"
     },
+    "deploy": {
+        "deploying": "Deploying...",
+        "please_wait": "We're deploying your application, this can take a few minutes, please wait...",
+        "ready": "Your application is ready",
+        "goto": "Go to your application",
+        "stayonpage": "You should stay on this page during your application's deployment."
+    },
     "menu": {
         "home": "Home",
         "preview": "Preview",
@@ -42,6 +49,7 @@
         "logs": "Logs",
         "account": "My account",
         "themes": "My themes",
+        "templates": "Applications templates",
         "users": "Users"
     },
     "button": {
@@ -197,6 +205,9 @@
         "plural": "Applications",
         "not_started": "There is no application running. Select one in the list.",
         "no_access": "You have no access to this application."
+    },
+    "select": {
+        "default": "-- Choose --"
     },
     "module": {
         "label": "Module"

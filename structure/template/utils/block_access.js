@@ -196,6 +196,7 @@ exports.apiAuthentication = function(req, res, next) {
         if (parseInt(credentialsObj.f_token_timeout_tmsp) < currentTmsp)
             return res.status(403).json('Bearer Token expired');
 
+        req.apiCredentials = credentialsObj;
         next();
     });
 }

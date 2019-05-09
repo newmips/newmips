@@ -175,6 +175,21 @@
         "unique": "Ce champ doit être unique:"
     },
     "entity": {},
+    "synchro": {
+        "title": "Synchronisation",
+        "configure": "Configurer données de chargement",
+        "list": "Lister les synchronisations",
+        "config": {
+            "title": "Configuration"
+        },
+        "process": {
+            "title": "Synchronisation",
+            "synchronize": "Synchroniser",
+            "dumped": "Données de chargement généré",
+            "no_credentials": "Aucun identifiant synchro trouvé",
+            "connection_failed": "Impossible de se connecter a l'API"
+        }
+    },
     "global_component": {
         "local_file_storage": {
             "filename": "Nom du fichier",
