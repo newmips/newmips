@@ -45,9 +45,14 @@ function installAppModules(attr) {
 
             if(typeof attr !== "undefined"){
                 /* When we are in the "npm install" instruction from preview */
-                console.log("Installing node modules in current application("+attr.id_application+") ...");
+                let command = "npm install";
+                console.log(attr.specificModule)
+                if(attr.specificModule)
+                    command += " "+attr.specificModule;
 
-                exec("npm install", {
+                console.log("Executing "+command+" in application: "+attr.id_application+"...");
+
+                exec(command, {
                     cwd: dir + '/../workspace/'+attr.id_application+'/'
                 }, function(error, stdout, stderr) {
                     if (error) {

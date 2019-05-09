@@ -47,7 +47,14 @@ exports.restart = function (result) {
 };
 
 exports.installNodePackage = function (result) {
-    var attr = {};
+    var attr = {
+        specificModule: null
+    };
+
+    // Specific module
+    if(typeof result[1] !== "undefined")
+        attr.specificModule = result[1].trim();
+
     attr.function = "installNodePackage";
     return attr;
 };
@@ -1238,7 +1245,9 @@ var training = {
     ],
     "installNodePackage": [
         "npm install",
+        "npm install (.*)",
         "installer les modules node",
+        "installer le module node (.*)",
         "install node package"
     ],
     "gitPush": [
