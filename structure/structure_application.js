@@ -639,10 +639,9 @@ exports.deleteApplication = function(appID, callback) {
         let cleanHost = globalConf.host;
         let nameRepo = cleanHost + "-" + nameAppWithoutPrefix;
 
-        console.log(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml");
-
         // Removing .toml file in traefik rules folder
-        fs.unlinkSync(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml")
+        if(globalConf.env == "cloud" || globalConf.env == "docker")
+            fs.unlinkSync(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml")
 
         if (gitlabConf.doGit) {
             try {
