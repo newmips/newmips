@@ -1,6 +1,8 @@
-var bcrypt = require('bcrypt-nodejs');
-var fs = require('fs-extra');
-var Sequelize = require('sequelize');
+const bcrypt = require('bcrypt-nodejs');
+const fs = require('fs-extra');
+const Sequelize = require('sequelize');
+const entity_helper;
+const dbConfig = require('../config/database');
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -96,8 +98,7 @@ exports.formatSearch = function (column, searchValue, type) {
 
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
-exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) {
-    addTimestamp = typeof addTimestamp === 'undefined' ? true : addTimestamp;
+exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp = true) {
     var object = {};
     for (var prop in attributes) {
         var currentValue = attributes[prop];
@@ -112,8 +113,14 @@ exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) 
             object[prop] = currentValue;
     }
     if (addTimestamp) {
-        object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
-        object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+        if (dbConfig.dialect == 'sqlite') {
+            // SQLite3 dialect
+            object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.NOW};
+            object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.NOW};
+        } else {
+            object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+            object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+        }
     }
     return object;
 }
@@ -232,7 +239,19 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
                                 }
                             }
                             try {
-                                await model['set' + target](value)
+                                await model['set' + target](value);
+                                if (!entity_helper)
+                                    entity_helper = require('./entity_helper');
+
+                                // Log association in Journal
+                                entity_helper.synchro.writeJournal({
+                                    verb: "associate",
+                                    id: model.id,
+                                    target: options[i].target,
+                                    entityName: model._modelOptions.name.singular.toLowerCase(),
+                                    func: 'set' + target,
+                                    ids: value
+                                });
                             } catch(err){
                                 throw err
                             }

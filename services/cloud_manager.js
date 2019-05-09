@@ -1,5 +1,6 @@
 const request = require('request-promise');
 const json2yaml = require('json2yaml');
+const fs = require('fs-extra');
 const globalConfig = require('../config/global.js');
 const portainerConfig = require('../config/portainer.js');
 const gitlabConfig = require('../config/gitlab.js');
@@ -7,7 +8,7 @@ const math = require('math');
 const gitHelper = require("../utils/git_helper");
 let token = "";
 
-exports.deploy = async (attr) => {
+exports.deploy = (attr, callback) => {
 
 	console.log("STARTING DEPLOY");
 

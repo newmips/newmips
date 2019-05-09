@@ -228,7 +228,20 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 
                     var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
                     if (typeof association['add' + modelName] !== 'undefined') {
-                        association['add' + modelName](ENTITY_NAME.id).then(resolve).catch(function(err) {
+                        association['add' + modelName](ENTITY_NAME.id).then(_ => {
+                            if(globalConfig.env == "tablet"){
+                                // Write add association to synchro journal
+                                entity_helper.synchro.writeJournal({
+                                    verb: "associate",
+                                    id: req.body.associationFlag,
+                                    target: "ENTITY_NAME",
+                                    entityName: req.body.associationSource,
+                                    func: 'add' + modelName,
+                                    ids: ENTITY_NAME.id
+                                });
+                            }
+                            resolve();
+                        }).catch(function(err) {
                             reject(err);
                         });
                     } else {
@@ -639,7 +652,23 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
         }
 
         // Get all associations
-        ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(function(aliasEntities) {
+        ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(aliasEntities => {
+
+            if(globalConfig.env == "tablet"){
+                let target = "";
+                for (let i = 0; i < options.length; i++)
+                    if (options[i].as == alias)
+                        {target = options[i].target; break;}
+                entity_helper.synchro.writeJournal({
+                    verb: "associate",
+                    id: idEntity,
+                    target: target,
+                    entityName: "ENTITY_NAME",
+                    func: 'remove' + entity_helper.capitalizeFirstLetter(alias),
+                    ids: idToRemove
+                });
+            }
+
             res.sendStatus(200).end();
         }).catch(function(err) {
             entity_helper.error(err, req, res, "/", "ENTITY_NAME");

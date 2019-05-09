@@ -48,25 +48,40 @@ const operatorsAliases = {
     $col: Op.col
 };
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
-    host: dbConfig.host,
-    logging: false,
-    port: dbConfig.port,
-    dialect: dbConfig.dialect,
-    dialectOptions: {
-        multipleStatements: true
-    },
-    define: {
-        timestamps: false
-    },
-    charset: 'utf8',
-    collate: 'utf8_general_ci',
-    timezone: moment_timezone.tz.guess(),
-    operatorsAliases
-});
+let sequelizeOptions;
+if (dbConfig.dialect == 'sqlite'){
+    sequelizeOptions = {
+        dialect: dbConfig.dialect,
+        storage: dbConfig.storage,
+        logging: false,
+        operatorsAliases
+    }
+} else {
+    sequelizeOptions = {
+        host: dbConfig.host,
+        logging: false,
+        port: dbConfig.port,
+        dialect: dbConfig.dialect,
+        dialectOptions: {
+            multipleStatements: true
+        },
+        define: {
+            timestamps: false
+        },
+        charset: 'utf8',
+        collate: 'utf8_general_ci',
+        timezone: moment_timezone.tz.guess(),
+        operatorsAliases
+    }
+}
+
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, sequelizeOptions);
 
 sequelize.customAfterSync = function() {
     return new Promise(function(resolve, reject) {
+        if (globalConf.env == "tablet")
+            return resolve();
+
         var toSyncProdObject = JSON.parse(fs.readFileSync(__dirname + '/toSyncProd.json'));
 
         var promises = [];

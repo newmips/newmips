@@ -177,8 +177,11 @@ if (startedFromGenerator) {
 
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
-    var lang = languageConfig.lang;
 
+    // If not a person (healthcheck service or other spamming services)
+    if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
+
+    var lang = languageConfig.lang;
     if(req.isAuthenticated()){
 	    if (req.session.lang_user)
 	        lang = req.session.lang_user;
@@ -361,6 +364,12 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 		block_access.accessFileManagment();
 
 		server.listen(port);
+        if (globalConf.env == 'tablet') {
+            try {
+                const cordova = require('cordova-bridge');
+                cordova.channel.send('STARTED');
+            } catch(e) {console.error("Couldn't require 'cordova-bridge'");}
+        }
 		console.log("Started " + protocol + " on " + port + " !");
     }).catch(function(err) {
         console.error(err);

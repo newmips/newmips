@@ -9,6 +9,7 @@
     "license": "GPL-3.0",
     "main": "server.js",
     "dependencies": {
+        "adm-zip": "^0.4.11",
         "ansi-to-html": "^0.6.0",
         "apidoc": "^0.17.5",
         "bcrypt-nodejs": "0.0.3",
@@ -46,6 +47,7 @@
         "mysql": "^2.15.0",
         "mysql2": "^1.5.3",
         "nodemailer": "^4.6.5",
+        "npm": "^6.4.0",
         "passport": "^0.4.0",
         "passport-local": "~1.0.0",
         "pg": "^7.4.3",

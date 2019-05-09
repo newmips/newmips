@@ -158,6 +158,9 @@ app.use(flash());
 app.locals.moment = require('moment');
 
 app.use(function(req, res, next) {
+    // If not a person (healthcheck service or other spamming services)
+    if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
+
     // Applications created with newmips only have fr-FR.
     // To avoid cookie conflict between newmips and this app, set fr-FR by default
     var lang = 'fr-FR';

@@ -175,6 +175,19 @@
         "unique": "This field must be unique:"
     },
     "entity": {},
+    "synchro": {
+        "title": "Synchronisation",
+        "config": {
+            "title": "Configuration"
+        },
+        "process": {
+            "title": "Synchronisation",
+            "synchronize": "Synchronise",
+            "dumped": "Data dump generated",
+            "no_credentials": "No Synchro credentials found",
+            "connection_failed": "Impossible to connect with API."
+        }
+    },
     "global_component": {
         "local_file_storage": {
             "filename": "Filename",

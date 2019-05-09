@@ -1,13 +1,14 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 var block_access = require('../utils/block_access');
 var auth = require('../utils/authStrategies');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
 var slack_conf = require('../config/slack');
-var Slack = require('slack');
-var slackbot = new Slack({token: slack_conf.SLACK_API_USER_TOKEN})
+const Slack = require('slack');
+const slackbot = new Slack({token: slack_conf.SLACK_API_USER_TOKEN});
+const request = require('request');
 
 // Winston logger
 var logger = require('../utils/logger');
@@ -33,6 +34,31 @@ var models = require('../models/');
 
 router.get('/', block_access.loginAccess, function(req, res) {
     res.redirect('/login');
+});
+
+// Waiting room for deploy instruction
+router.get('/waiting', function(req, res) {
+    var redirect = req.query.redirect;
+    res.render('front/waiting_room', {redirect: redirect});
+});
+
+router.post('/waiting', function(req, res) {
+    let callOptions = {
+        url: req.body.redirect,
+        strictSSL: false,
+        rejectUnauthorized: false
+    }
+    request.get(callOptions, function(error, response, body) {
+        if(error)
+            console.log(error)
+
+        // Stack is not ready
+        if (error || (response && response.statusCode !== 200 && response.statusCode !== 302))
+            return res.sendStatus(503).end();
+
+        // Stack ready, container ready, lets go
+        return res.sendStatus(200);
+    });
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
