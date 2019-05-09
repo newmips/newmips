@@ -224,8 +224,8 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
         req.session.id_project = application.id_project;
 
         models.Module.findAll({where: {id_application: application.id}, order: [["id_application", "ASC"]]}).then(function(modules) {
-            var module = modules[0];
-            req.session.id_module = module.id;
+            let currentModule = modules[0];
+            req.session.id_module = currentModule.id;
             var math = require('math');
             var port = math.add(9000, application.id);
             var env = Object.create(process.env);
@@ -279,9 +279,6 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                         else
                             iframe_status_url += host + ":" + port + "/default/status";
 
-                        console.log("URL IFRAME 1");
-                        console.log(iframe_status_url);
-
                         let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
 
                         request({
@@ -302,8 +299,8 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                             console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
 
                             data.error = 0;
-                            data.application = module;
-                            data.iframe_url = iframe_status_url.split("/default/status")[0];
+                            data.application = currentModule;
+                            data.iframe_url = iframe_status_url.split("/default/status")[0]+"/default/home";
                             data.idApp = application.id;
 
                             // Let's do git init or commit depending the env (only on cloud env for now)
