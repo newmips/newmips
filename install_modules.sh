@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #Install Newmips generator node modules
 echo "INSTALLING GENERATOR NODE MODULES..."
 npm install
