@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt-nodejs');
 const fs = require('fs-extra');
 const Sequelize = require('sequelize');
-const entity_helper;
+let entity_helper;
 const dbConfig = require('../config/database');
 
 function capitalizeFirstLetter(word) {
