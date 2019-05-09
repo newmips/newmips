@@ -267,7 +267,20 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                     let iframe_status_url;
                     function checkServer() {
                         if (new Date().getTime() - initialTimestamp > timeoutServer) {
-                            setChat(req, id_application, currentUserID, "Mipsy", "structure.global.restart.error", [], true);
+
+                            // Get last error from app logs
+                            let lastError = helpers.getLastLoggedError(id_application);
+                            let chatKey = "structure.global.restart.error";
+                            let chatParams = [lastError];
+
+                            // If missing module error
+                            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                                chatKey = "structure.global.restart.missing_module";
+                                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                                chatParams = [lastError, lastError];
+                            }
+
+                            setChat(req, id_application, currentUserID, "Mipsy", chatKey, chatParams, true);
                             data.iframe_url = -1;
                             data.chat = chats[id_application][currentUserID];
                             return res.render('front/preview', data);
@@ -460,13 +473,12 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
 
                     // Store key entities in session for futur instruction
                     session_manager.setSession(attr.function, req, info, data);
-
                     if (attr.function == "deleteApplication"){
                         return res.send({
                             toRedirect: true,
                             url: "/default/home"
                         });
-                    } else if (attr.function == 'restart'){
+                    } else if (attr.function == 'restart' || attr.function == 'installNodePackage'){
                         toRestart = true;
                     }
 
@@ -513,10 +525,23 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                                 let iframe_status_url;
 
                                 function checkServer() {
+                                    // Server Timeout
                                     if (new Date().getTime() - initialTimestamp > timeoutServer) {
-                                        // Timeout
+
+                                        // Get last error from app logs
+                                        let lastError = helpers.getLastLoggedError(currentAppID);
+                                        let chatKey = "structure.global.restart.error";
+                                        let chatParams = [lastError];
+
+                                        // If missing module error
+                                        if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                                            chatKey = "structure.global.restart.missing_module";
+                                            lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                                            chatParams = [lastError, lastError];
+                                        }
+
+                                        setChat(req, currentAppID, currentUserID, "Mipsy", chatKey, chatParams, true);
                                         data.iframe_url = -1;
-                                        setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error", [], true);
                                         data.chat = chats[currentAppID][currentUserID];
                                         return res.send(data);
                                     }

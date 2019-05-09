@@ -350,7 +350,8 @@
         "global": {
             "restart": {
                 "success": "Server restarded!",
-                "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
+                "error": "Ouch, the application server is not responding.<br>Last error found in logs:<br>- <b>%s</b><br>You can check the logs and try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>",
+                "missing_module": "The node module '%s' is missing ! You can install it with the instruction:<br>- <b class='click-instruction'>npm install %s</b>"
             },
             "npmInstall": {
                 "success": "All node modules have been successfully installed !"

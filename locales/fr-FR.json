@@ -350,7 +350,8 @@
         "global": {
             "restart": {
                 "success": "Le serveur a bien été redémarré !",
-                "error": "Oups, le serveur de l'application ne répond pas, vous pouvez essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>"
+                "error": "Oups, le serveur de l'application ne répond pas.<br>Dernière erreur détectée dans les logs:<br>- <b>%s</b><br>Vous pouvez vérifier les logs en cliquant sur l'onglet correspondant et essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>",
+                "missing_module": "Le module node '%s' est manquant ! Vous pouvez l'installer à l'aide de l'instruction:<br>- <b class='click-instruction'>npm install %s</b>"
             },
             "npmInstall": {
                 "success": "Tous les modules node ont bien été installés !"
