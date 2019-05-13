@@ -376,13 +376,6 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
             }
         };
 
-        console.log("FAST PREVIEW SESSION");
-        console.log(req.session);
-        console.log("FAST PREVIEW SESSION END");
-        console.log("FAST PREVIEW DATA");
-        console.log(data.session);
-        console.log("FAST PREVIEW DATA END");
-
         try {
             /* Add instruction in chat */
             setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
