@@ -27,6 +27,7 @@
                     </div>
 
                     <div class="box-footer">
+                        <a class="btn btn-default" href="javascript:history.back();">{#__ key="button.cancel"/}</a>&nbsp;&nbsp;
                         <button type="submit" class="btn btn-primary">
                             <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
                             {#__ key="button.save"/}
