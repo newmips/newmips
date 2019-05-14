@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt-nodejs');
 const fs = require('fs-extra');
 const Sequelize = require('sequelize');
-let entity_helper;
 const dbConfig = require('../config/database');
+const validators = require('../models/validators')
+let entity_helper;
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -18,6 +19,19 @@ exports.addHooks = function (Model, model_name, attributes) {
             else
                 Model.addHook(hookType, hook.func);
         }
+    }
+}
+
+// Parse each entity's fields and check if validation is required
+// Get validator and modify attributes object so sequelize can handle validation
+exports.attributesValidation = function (attributes) {
+    for (let field in attributes) {
+        field = attributes[field];
+        let validation;
+        if (field.validate == true && (validation = validators.getValidator(field)))
+            field.validate = validation;
+        else
+            delete field.validate;
     }
 }
 
@@ -98,7 +112,7 @@ exports.formatSearch = function (column, searchValue, type) {
 
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
-exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp = true) {
+exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp = true, recursionLevel = 0) {
     var object = {};
     for (var prop in attributes) {
         var currentValue = attributes[prop];
@@ -106,13 +120,13 @@ exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp =
             if (currentValue.type == 'ENUM')
                 object[prop] = DataTypes.ENUM(currentValue.values);
             else
-                object[prop] = objectify(currentValue, DataTypes);
-        } else if (typeof currentValue === 'string')
+                object[prop] = objectify(currentValue, DataTypes, addTimestamp, recursionLevel+1);
+        } else if (typeof currentValue === 'string' && prop != 'newmipsType')
             object[prop] = DataTypes[currentValue];
         else
             object[prop] = currentValue;
     }
-    if (addTimestamp) {
+    if (addTimestamp && recursionLevel == 0) {
         if (dbConfig.dialect == 'sqlite') {
             // SQLite3 dialect
             object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.NOW};

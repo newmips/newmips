@@ -256,10 +256,6 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                 attr.gitlabUser = null;
 
             session_manager.getSession(attr, req, function(err, info) {
-                docBuilder.build(req.session.id_application).catch(function(err){
-                    console.error(err);
-                });
-
                 data.session = info;
 
                 initPreviewData(req.session.id_application, data).then(function(data) {
@@ -376,13 +372,6 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
             }
         };
 
-        console.log("FAST PREVIEW SESSION");
-        console.log(req.session);
-        console.log("FAST PREVIEW SESSION END");
-        console.log("FAST PREVIEW DATA");
-        console.log(data.session);
-        console.log("FAST PREVIEW DATA END");
-
         try {
             /* Add instruction in chat */
             setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
@@ -405,10 +394,6 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
             attr.lang_user = req.session.lang_user;
             attr.currentUser = req.session.passport.user;
             attr.gitlabUser = null;
-
-            console.log("FAST PREVIEW ATTR");
-            console.log(attr);
-            console.log("FAST PREVIEW ATTR END");
 
             if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
                 attr.gitlabUser = req.session.gitlab.user;

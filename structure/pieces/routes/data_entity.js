@@ -721,11 +721,12 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             id: id_ENTITY_NAME
         }
     }).then(function(deleteObject) {
-        models.MODEL_NAME.destroy({
-            where: {
-                id: id_ENTITY_NAME
-            }
-        }).then(function() {
+        if (!deleteObject) {
+            data.error = 404;
+            logger.debug("No data entity found.");
+            return res.render('common/error', data);
+        }
+        deleteObject.destroy().then(function() {
             req.session.toastr = [{
                 message: 'message.delete.success',
                 level: "success"
