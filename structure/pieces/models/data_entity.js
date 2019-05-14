@@ -6,6 +6,7 @@ var associations = require("./options/MODEL_NAME_LOWER.json");
 
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
+    builder.attributesValidation(attributes);
     var options = {
         tableName: 'TABLE_NAME',
         timestamps: true
