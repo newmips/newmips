@@ -52,7 +52,7 @@ var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {
 app.use(morgan('dev', {
     skip: function(req, res) {
         // Remove spamming useless logs
-        var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/"];
+        var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/watch", "/"];
         var currentURL = req.originalUrl;
         if (currentURL.indexOf("?") != -1) {
             // Remove params from URL
@@ -226,9 +226,9 @@ app.use(function(req, res, next) {
             }
             req.session.toastr = [];
         }
-        if (locals.isSlackChatEnabled = globalConf.slack_chat_enabled) {
-            var slackConf = require('./config/slack');
-            locals.slackApiToken = slackConf.SLACK_API_TOKEN;
+        if (locals.isSupportChatEnabled = globalConf.support_chat_enabled) {
+            // var slackConf = require('./config/slack');
+            // locals.slackApiToken = slackConf.SLACK_API_TOKEN;
         }
         render.call(res, view, locals, cb);
     };
