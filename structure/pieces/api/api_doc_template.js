@@ -10,11 +10,11 @@
  */
 
 /**
- * @api {get} /api/getToken/ Basic Auth
+ * @api {get} /api/getToken/ 1 - Basic Auth
 
 
  * @apiVersion 1.0.0
- * @apiGroup 1-Authentication
+ * @apiGroup 1-General knowledge
 
  * @apiDescription To be able to interact with the API, you need to generate a Bearer Token using the <code>/api/getToken/</code> url
  *
@@ -52,4 +52,15 @@
  * @apiError (Error 500) BadAuthorizationHeader There is an invalid or no authorization header
  * @apiError (Error 401) AuthenticationFailed Couldn't match clientID/clientSecret with database
  */
+
+/**
+ * @api {get} /api/user?limit=42&offset=0&f_name=Doe&f_is_children=1&fk_id_hair_style=4 2 - Filter results
+ * @apiGroup 1-General knowledge
+ * @apiDescription Each entity's services <strong>1 - Find all</strong> and <strong>2 - Find one</strong> can accept an optional query parameter to filter the results.<br><br>
+ * To filter on a specific field value, you need to specify the field and its encoded value along with the query parameters<br>
+ * All fields and foreignKeys of an entity can be filtered that way. Have a look at target entity's <strong>create</strong> service's body to know what is available<br><br>
+ * Ex:<br>You want to get all blonde users that are children of the same family "Doe", by filtering on <code>f_name</code> (string), <code>f_is_children</code> (boolean) and <code>fk_id_hair_style</code> (foreign key).<br><br>
+ * Using <code>get /api/user</code> service, you would do as follow :
+ */
+
 
