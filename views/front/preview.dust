@@ -157,13 +157,13 @@
 											<i class="fa fa-github"></i>{@__ key="preview.issue-button"/}
 										</a>
 									{/ne}
-									{! {@in key=globalConf.env value="cloud"} !}
-										<div class="btn btn-app" id="message-box" title="" data-toggle="tooltip" data-original-title="Talk bubble">
+									{@ifTrue key=isSupportChatEnabled}
+										<div class="btn btn-app" id="message-box" title="" data-toggle="tooltip" data-original-title="Support chat">
 											<i class="fa fa-comment"></i>
 											<div class="badge badge-danger slack-message-count" style="display: none;"></div>
 											{@__ key="preview.help-button"/}
 										</div>
-									{! {/in} !}
+									{/ifTrue}
 									<a class="btn btn-app" target="_blank" href="http://docs.newmips.com">
 										<i class="fa fa-book"></i>{@__ key="button.documentation"/}
 									</a>
