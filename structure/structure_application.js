@@ -129,15 +129,13 @@ exports.setupApplication = function(attr, callback) {
                             "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'%' IDENTIFIED BY 'workspace_" + appID + "';",
                             "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'127.0.0.1';",
                             "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';"
-                        ]
+                        ];
 
                         var conn = await mysql.createConnection({
-                            host: globalConf.env == "cloud" ? "database" : dbConf.user,
-                            user: globalConf.env == "cloud" ? "root" : dbConf.password,
-                            password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.database
+                            host: globalConf.env == "cloud" ? "database" : dbConf.host,
+                            user: globalConf.env == "cloud" ? "root" : dbConf.user,
+                            password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
                         });
-
-                        // await conn.connect()
 
                         for (var i = 0; i < db_requests.length; i++) {
                             await conn.query(db_requests[i]);
