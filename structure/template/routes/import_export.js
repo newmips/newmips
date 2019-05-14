@@ -56,7 +56,7 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
         for (var i=0; i < currentFile.length; i++) {
             if(typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1){
                 through.push(currentFile[i].through);
-                entities.push({tradKey: currentFile[i].through.substring(4), tableName: currentFile[i].through});
+                entities.push({tradKey: currentFile[i].through.substring(3), tableName: currentFile[i].through});
             }
         }
     })
