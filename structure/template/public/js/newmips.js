@@ -876,13 +876,8 @@ function validateForm(form) {
     /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
     form.find("input[type='tel']").each(function () {
         if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
-            console.log("MASK INVALID")
             $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
             isValid = false;
-            $(this).find("input[data-type='currency']").each(function () {
-                //replace number of zero par maskMoneyPrecision value, default 2
-                $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
-            });
         }
     });
 

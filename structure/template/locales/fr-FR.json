@@ -249,6 +249,18 @@
         "createdAt": "Date de création"
     },
     "error": {
+        "validation": {
+            "number": "La valeur du champ %s doit être un nombre",
+            "radio": "La valeur du champ %s n'est pas valide",
+            "float": "Le champ %s doit être un nombre décimal",
+            "boolean": "La valeur du champ %s doit être vrai ou faux",
+            "email": "Le champ %s n'est pas un email valide",
+            "date": "Le champ %s n'est pas une date valide",
+            "tel": "Le champ %s n'est pas un téléphone valide",
+            "color": "Le champ %s n'est pas une couleur valide",
+            "password": "Le champ %s doit faire entre 3 et 32 caractères",
+            "url": "Le champ %s n'est pas une URL valide"
+        },
         "404": {
             "title": "Nous n’avons pas pu trouver ce que vous souhaitiez.",
             "title2": "Page introuvable.",

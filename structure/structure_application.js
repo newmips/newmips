@@ -422,9 +422,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 "access_tool",
                                                 "access_settings_role",
                                                 "access_settings_group",
-                                                "access_settings_api",
-                                                "synchro",
-                                                "synchro_credentials"
+                                                "access_settings_api"
                                             ];
                                             for (var i = 0; i < arrayKey.length; i++) {
                                                 access.administration.entities.push({
