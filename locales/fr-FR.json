@@ -175,7 +175,7 @@
         "reload": "Redémarrer le serveur",
         "issue-button": "Signaler un bug",
         "help-button": "Besoin d'aide ?",
-        "help-disabled": "Le chat slack est désactivé. Activez-le dans config/global.js et fournissez les informations slack dans config/slack.js",
+        "help-disabled": "Le chat support est désactivé. Activez-le dans config/global.js et renseignez votre configuration dans config/mattermost.js",
         "session": {
             "noProject": "Aucune projet sélectionné",
             "noApplication": "Aucune application sélectionnée",

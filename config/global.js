@@ -10,7 +10,7 @@ let config = {
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		authStrategy: 'local',
-		slack_chat_enabled: false,
+		support_chat_enabled: false,
 		separate_workspace_db: false // DATABASE CREATION PRIVILEGE NEEDED (App DB will look like workspace_APPID)
 	},
 	recette: {
@@ -25,7 +25,7 @@ let config = {
 			passphrase : ''
 		},
 		authStrategy: 'local',
-		slack_chat_enabled: false,
+		support_chat_enabled: false,
 		separate_workspace_db: false
 	},
 	production: {
@@ -40,7 +40,7 @@ let config = {
 			passphrase : ''
 		},
 		authStrategy: 'local',
-		slack_chat_enabled: false,
+		support_chat_enabled: false,
 		separate_workspace_db: false
 	},
     docker: {
@@ -52,7 +52,7 @@ let config = {
         dns_cloud: process.env.DOMAIN_CLOUD,
         sub_domain: process.env.SUB_DOMAIN,
         port: process.env.PORT || 1337,
-        slack_chat_enabled: false,
+        support_chat_enabled: false,
         separate_workspace_db: true,
         authStrategy: 'local',
         server_ip: process.env.SERVER_IP
@@ -66,7 +66,7 @@ let config = {
         dns_cloud: process.env.DOMAIN_CLOUD,
         sub_domain: process.env.SUB_DOMAIN,
         port: process.env.PORT || 1337,
-        slack_chat_enabled: false,
+        support_chat_enabled: true,
         separate_workspace_db: true,
         authStrategy: 'local',
         server_ip: process.env.SERVER_IP

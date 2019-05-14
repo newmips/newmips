@@ -157,13 +157,13 @@
 											<i class="fa fa-github"></i>{@__ key="preview.issue-button"/}
 										</a>
 									{/ne}
-									{@in key=globalConf.env value="cloud"}
+									{! {@in key=globalConf.env value="cloud"} !}
 										<div class="btn btn-app" id="message-box" title="" data-toggle="tooltip" data-original-title="Talk bubble">
 											<i class="fa fa-comment"></i>
 											<div class="badge badge-danger slack-message-count" style="display: none;"></div>
 											{@__ key="preview.help-button"/}
 										</div>
-									{/in}
+									{! {/in} !}
 									<a class="btn btn-app" target="_blank" href="http://docs.newmips.com">
 										<i class="fa fa-book"></i>{@__ key="button.documentation"/}
 									</a>
@@ -348,50 +348,14 @@
 	<script type="text/javascript">var idApp = "{idApp}";</script>
 	<script src="/js/Newmips/logo-instruction.js" type="text/javascript"></script>
 	<script src="/js/Newmips/dynamic-writing.js" type="text/javascript"></script>
-	{@ifTrue key=isSlackChatEnabled}
+
+	{@ifTrue key=isSupportChatEnabled}
 		<script src="/js/plugins/moment.js" type="text/javascript"></script>
-		<script src="/js/plugins/slack/slack-chat.js" type="text/javascript"></script>
-		<script type="text/javascript">
-			/***************** Slack chat ******************/
-			/* ID des user de Slack à inviter dans la channel crée */
-			var usersToInvite = ["U1GLD90GK", "U28GY8LLW", "U1GARP962", "U1GCYEKPX", "U1HD3C60L", "U6X4BDYM6"];
-			var userId = localStorage.getItem("newmips_slack_id_user");
-
-			if(userId == null){
-				localStorage.setItem("newmips_slack_id_user", Math.random()*1000000)
-				userId = localStorage.getItem("newmips_slack_id_user");
-			}
-
-			var userUrlName = window.location.href.replace(/(^\w+:|^)\/\/*, ''); */
-			var slackChatOptions = {
-				apiToken: '#{slackApiToken}', 	/*#Slack Auth token. Required.*/
-				channelId: '',      			/*#Slack channel ID. Required.*/
-				user: 'Newmips User',           /*name of the user. Required.*/
-				userLink: '',       			/*link to the user in the application - shown in #Slack*/
-				userImg: '',        			/*image of the user*/
-				userId: userId,         		/*id of the user in the application*/
-				defaultSysImg: 'img/logo/newLogo.png',		/*image to show when the support team replies*/
-				defaultSysUser: 'Newmips',                	/*Required*/
-				queryInterval: 3000,
-				chatBoxHeader: "Need help? Talk to our support team right here",
-				slackColor: "#36a64f",
-				messageFetchCount: 100,
-				botUser: userUrlName, /*username to post to #Slack. Required.*/
-				sendOnEnter: true,
-				disableIfAway: false,
-				elementToDisable: null,
-				heightOffset: 75,
-				debug: false,
-				webCache: false,
-				privateChannel: true,
-				serverApiGateway: '/set_slack',
-				useUserDetails: true,
-				defaultInvitedUsers: usersToInvite
-			}
-
-			$("#message-box").slackChat(slackChatOptions);
-		</script>
-	{:else}
+		<script src="/js/plugins/mattermost/mattermost-chat.js" type="text/javascript"></script>
+	    <script type="text/javascript">
+	    	$("#message-box").mattermostChat();
+	    </script>
+    {:else}
 		<script type="text/javascript">
 			$("#message-box").click(function() {
 				var chatDisabledMsg = '{@__ key="preview.help-disabled"/}';
@@ -399,6 +363,7 @@
 			});
 		</script>
 	{/ifTrue}
+
 	<script type="text/javascript">
 		var intro2 = '{@__ key="editor.intro"/}' + "\n";
 		intro2 += '{@__ key="editor.intro2"/}' + "\n";

@@ -5,9 +5,6 @@ var auth = require('../utils/authStrategies');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mail = require('../utils/mailer');
-var slack_conf = require('../config/slack');
-const Slack = require('slack');
-const slackbot = new Slack({token: slack_conf.SLACK_API_USER_TOKEN});
 const request = require('request');
 
 // Winston logger
@@ -16,6 +13,7 @@ var logger = require('../utils/logger');
 // Gitlab
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.js');
+
 try{
     if(gitlabConf.doGit){
         // Gitlab connection
@@ -29,8 +27,8 @@ try{
     console.error("Please set doGit in config/gitlab.js to false");
 }
 
-//Sequelize
-var models = require('../models/');
+// Sequelize
+const models = require('../models/');
 
 router.get('/', block_access.loginAccess, function(req, res) {
     res.redirect('/login');
@@ -472,47 +470,6 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
 router.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/login');
-});
-
-router.post('/set_slack', block_access.isLoggedIn, function(req, res) {
-    try {
-        var slackData = {};
-        var invitedUsers = [];
-        if (req.body.invitedUsers != null) {
-            invitedUsers = JSON.parse(req.body.invitedUsers);
-        }
-        async function doSlackInvite() {
-            slackData = await slackbot.channels.join({
-                name: req.body.channelName
-            });
-            /* Invite users to join the #Slack channel created */
-            for (var i = 0; i < invitedUsers.length; i++) {
-                await slackbot.channels.invite({
-                    channel: slackData.channel.id,
-                    user: invitedUsers[i]
-                });
-            }
-        }
-
-        doSlackInvite().then(function() {
-            res.json({
-                ok: true,
-                data: {
-                    id: slackData.channel.id
-                }
-            });
-        }).catch(function(err) {
-            console.error(err);
-            res.json({
-                ok: false
-            });
-        })
-    } catch (err) {
-        console.error(err);
-        res.json({
-            ok: false
-        });
-    }
 });
 
 module.exports = router;
