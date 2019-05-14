@@ -12,8 +12,7 @@ var process_manager = require('../services/process_manager.js');
 var process_server_per_app = process_manager.process_server_per_app;
 var session_manager = require('../services/session.js');
 var designer = require('../services/designer.js');
-var fs = require("fs");
-var fse = require('fs-extra');
+var fs = require('fs-extra');
 var parser = require('../services/bot.js');
 var globalConf = require('../config/global.js');
 var helpers = require('../utils/helpers');
@@ -85,7 +84,7 @@ function setChat(req, idApp, idUser, user, content, params, isError){
     if(content != "chat.welcome" || chats[idApp][idUser].items.length < 1){
         chats[idApp][idUser].items.push({
             user: user,
-            dateEmission: moment().format("DD MMM HH:mm"),
+            dateEmission: req.moment().format("DD MMM HH:mm"),
             content: content,
             params: params || [],
             isError: isError || false
