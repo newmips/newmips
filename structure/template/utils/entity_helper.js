@@ -161,6 +161,10 @@ var funcs = {
     error: function(err, req, res, redirect, entity) {
         var isKnownError = false;
         var ajax = req.query.ajax || false;
+        var data = {
+            code: 500,
+            message: err.message || null
+        };
 
         try {
             var lang = "fr-FR";
@@ -176,6 +180,7 @@ var funcs = {
                     const message = __(validationError.message, [fieldTrad]);
                     req.session.toastr.push({level: 'error', message: message});
                 }
+                data.code = 400;
                 isKnownError = true;
             }
 
@@ -183,24 +188,21 @@ var funcs = {
             if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
                 var message = __('message.unique') + " " + __("entity."+entity+"."+err.errors[0].path);
                 req.session.toastr.push({level: 'error', message: message});
+                data.code = 400;
                 isKnownError = true;
             }
 
         } finally {
             if (ajax){
-                console.error(err);
-                return res.status(500).send(req.session.toastr);
+                return res.status(data.code).send(req.session.toastr);
             }
-            if (isKnownError)
+            if (isKnownError) {
                 return res.redirect(redirect || '/');
+            }
             else
                 console.error(err);
 
             logger.debug(err);
-            var data = {
-                code: 500,
-                message: err.message || null
-            };
             res.status(data.code).render('common/error', data);
         }
     },
