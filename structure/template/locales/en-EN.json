@@ -247,6 +247,18 @@
         "createdAt": "Creation date"
     },
     "error": {
+        "validation": {
+            "number": "Field %s must be a number",
+            "radio": "Field %s isn't as expected",
+            "float": "Field %s must be a floating number",
+            "boolean": "Field %s must be a true or false",
+            "email": "Field %s isn't a valid email",
+            "date": "Field %s isn't a valid date",
+            "tel": "Field %s isn't a valid phone",
+            "color": "Field %s isn't a valid colour",
+            "password": "Field %s must be between 3 and 32 characters",
+            "url": "Field %s isn't a valid URL"
+        },
         "404": {
             "title": "We could not find what you were looking for.",
             "title2": "Page not found.",

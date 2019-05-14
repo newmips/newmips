@@ -716,11 +716,13 @@ exports.setupDataField = function (attr, callback) {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues,
+            "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanEnumValues,
+            "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
     } else if (type_data_field == "radio") {
@@ -736,11 +738,13 @@ exports.setupDataField = function (attr, callback) {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues,
+            "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
         toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
             "type": typeForModel,
             "values": cleanRadioValues,
+            "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
     } else {
@@ -755,6 +759,9 @@ exports.setupDataField = function (attr, callback) {
             "defaultValue": defaultValueForOption
         }
     }
+
+    // Add default "validate" property to true, setting to false will disable sequelize's validation on the field
+    attributesObject[name_data_field.toLowerCase()].validate = true;
 
     fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4));

@@ -171,7 +171,11 @@ var funcs = {
 
             //Sequelize validation error
             if (err.name == "SequelizeValidationError") {
-                req.session.toastr.push({level: 'error', message: err.errors[0].message});
+                for (const validationError of err.errors) {
+                    const fieldTrad = __(`entity.${entity}.${validationError.path}`);
+                    const message = __(validationError.message, [fieldTrad]);
+                    req.session.toastr.push({level: 'error', message: message});
+                }
                 isKnownError = true;
             }
 
@@ -193,9 +197,10 @@ var funcs = {
                 console.error(err);
 
             logger.debug(err);
-            var data = {};
-            data.code = 500;
-            data.message = err.message || null;
+            var data = {
+                code: 500,
+                message: err.message || null
+            };
             res.status(data.code).render('common/error', data);
         }
     },
