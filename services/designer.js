@@ -243,26 +243,27 @@ exports.createNewApplication = function (attr, callback) {
     // Check if an application with this name alreadyExist or no
     db_application.exist(attr, function (err, exist) {
         if (err)
-            return callback(err, null);
+            return callback(err);
 
         if (exist) {
             var error = new Error("database.application.alreadyExist");
             error.messageParams = [attr.options.showValue];
-            return callback(error, null);
-        } else {
-            db_application.createNewApplication(attr, function (err, info) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    // Structure application
-                    attr.id_application = info.insertId;
-                    info.name_application = attr.options.urlValue;
-                    structure_application.setupApplication(attr, function () {
-                        callback(null, info);
-                    });
-                }
-            });
+            return callback(error);
         }
+
+        db_application.createNewApplication(attr, function (err, info) {
+            if (err)
+                return callback(err);
+
+            // Structure application
+            attr.id_application = info.insertId;
+            info.name_application = attr.options.urlValue;
+            structure_application.setupApplication(attr, err => {
+                if(err)
+                    return callback(err)
+                callback(null, info);
+            });
+        });
     });
 }
 
