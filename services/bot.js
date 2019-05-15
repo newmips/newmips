@@ -1067,11 +1067,11 @@ function getRightWidgetType(originalType) {
         case "statistique":
             return "stats";
 
-        case "lastrecords":
-        case "last records":
-        case "derniers enregistrements":
-        case "derniersenregistrements":
-            return "lastrecords";
+        // case "lastrecords":
+        // case "last records":
+        // case "derniers enregistrements":
+        // case "derniersenregistrements":
+        //     return "lastrecords";
 
         case "piechart":
             return "piechart";
@@ -2559,15 +2559,23 @@ var training = {
         "mettre une icone (.*)"
     ],
     "createWidgetPiechart": [
+        "create widget piechart on entity (.*) for field (.*)",
         "add widget piechart on entity (.*) for field (.*)",
+        "create widget piechart on entity (.*) for (.*)",
         "add widget piechart on entity (.*) for (.*)",
+        "create widget piechart for field (.*)",
         "add widget piechart for field (.*)",
+        "create widget piechart for (.*)",
         "add widget piechart for (.*)",
         "ajouter widget piechart sur l\’entité (.*) pour le champ (.*)",
         "ajouter widget piechart sur entité (.*) pour le champ (.*)",
         "ajouter widget piechart pour le champ (.*)"
     ],
     "createWidgetPiechartWithoutLegend": [
+        "create widget piechart on entity (.*) for field (.*) without legend",
+        "create widget piechart on entity (.*) for (.*) without legend",
+        "create widget piechart for field (.*) without legend",
+        "create widget piechart for (.*) without legend",
         "add widget piechart on entity (.*) for field (.*) without legend",
         "add widget piechart on entity (.*) for (.*) without legend",
         "add widget piechart for field (.*) without legend",
@@ -2577,6 +2585,8 @@ var training = {
         "ajouter widget piechart sur entité (.*) pour le champ (.*) sans légende"
     ],
     "createWidgetLastRecordsWithLimit": [
+        "create widget last records limited to (.*) records with columns (.*)",
+        "create widget last records on entity (.*) limited to (.*) records with columns (.*)",
         "add widget last records limited to (.*) records with columns (.*)",
         "add widget last records on entity (.*) limited to (.*) records with columns (.*)",
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
@@ -2587,6 +2597,8 @@ var training = {
         "créer widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],
     "createWidgetLastRecords": [
+        "create widget last records with columns (.*)",
+        "create widget last records on entity (.*) with columns (.*)",
         "add widget last records with columns (.*)",
         "add widget last records on entity (.*) with columns (.*)",
         "ajouter un widget derniers enregistrements avec les colonnes (.*)",

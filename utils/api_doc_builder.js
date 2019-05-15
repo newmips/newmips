@@ -38,7 +38,7 @@ function routeGet(entity, attributes, options) {
 	return doc.join('\n');
 }
 
-function routeGetId(entity, attributes) {
+function routeGetId(entity, attributes, options) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
@@ -47,6 +47,13 @@ function routeGetId(entity, attributes) {
 	doc.push(' * @apiDescription Fetch one record of <code>'+name+'</code> with <code>id</code>');
 	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
+
+	let possibleIncludes = [];
+	for (var i = 0; i < options.length; i++)
+		possibleIncludes.push(options[i].as);
+	possibleIncludes = `{String=${possibleIncludes.join(',')}}`;
+	doc.push(` * @apiParam (Query parameters) ${possibleIncludes} [include] Include specified association(s) to each <code>${name}</code> result.<br>Multiple values can be given separated by a comma <br><br>Ex: ?include=r_asso1,r_asso2`);
+
 	doc.push(' * @apiParam (Params parameters) {Integer} id The <code>id</code> of '+name+' to fetch');
 	doc.push(' * @apiSuccess {Object} '+name+' Object of '+name);
 	for (var attr in attributes)
