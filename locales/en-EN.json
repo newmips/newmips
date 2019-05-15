@@ -462,7 +462,8 @@
                 "success": "Widget %s added to module %s",
                 "delete": "Widget %s successfully deleted",
                 "all_deleted": "All widget of %s have been removed",
-                "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s"
+                "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s",
+                "no_fields": "No field given. You have to specify which field to use for this widget"
             },
             "title": {
                 "success": "The title has been successfully added !",
