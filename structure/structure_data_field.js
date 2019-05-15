@@ -1591,6 +1591,8 @@ exports.deleteDataField = function (attr, callback) {
     // Clear the require cache
     var dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
+    let deletedOptionsTarget = [];
+
     for (var i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
             if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple") {
@@ -1610,11 +1612,14 @@ exports.deleteDataField = function (attr, callback) {
                 info.fieldToDrop = dataToWrite[i].foreignKey + "_" + url_value;
             }
 
+            deletedOptionsTarget.push(dataToWrite[i]);
+
             dataToWrite.splice(i, 1);
             isInOptions = true;
             break;
         }
     }
+
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
         jsonPath = __dirname + '/../workspace/' + idApp + '/models/attributes/' + name_data_entity + '.json';
@@ -1626,123 +1631,136 @@ exports.deleteDataField = function (attr, callback) {
         info.isConstraint = false;
     }
 
+    // Look in option file for all concerned target to destroy auto_generate key no longer needed
+    let targetOption, autoGenerateFound, targetJsonPath;
+    for (var i = 0; i < deletedOptionsTarget.length; i++) {
+        autoGenerateFound = false;
+        targetJsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + deletedOptionsTarget[i].target + '.json';
+        targetOption = JSON.parse(fs.readFileSync(targetJsonPath));
+        for (var j = 0; j < targetOption.length; j++) {
+            if(targetOption[j].structureType == "auto_generate" && targetOption[j].foreignKey == deletedOptionsTarget[i].foreignKey){
+                targetOption.splice(j, 1);
+                autoGenerateFound = true;
+            }
+        }
+        if(autoGenerateFound)
+            fs.writeFileSync(targetJsonPath, JSON.stringify(targetOption, null, 4), "utf8");
+    }
+
     // Write back either options.json or attributes.json file
-    var writeStream = fs.createWriteStream(jsonPath);
-    writeStream.write(JSON.stringify(dataToWrite, null, 4));
-    writeStream.end();
-    writeStream.on('finish', function () {
-        // Remove field from create/update/show views files
-        var viewsPath = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/';
-        var fieldsFiles = ['create_fields', 'update_fields', 'show_fields', 'print_fields'];
-        var promises = [];
-        for (var i = 0; i < fieldsFiles.length; i++)
-            promises.push(new Promise(function (resolve, reject) {
-                (function (file) {
-                    domHelper.read(file).then(function ($) {
-                        $('*[data-field="' + name_data_field + '"]').remove();
-                        // In case of related to
-                        $('*[data-field="r_' + name_data_field.substring(2) + '"]').remove();
-                        domHelper.write(file, $).then(function () {
-                            resolve();
-                        });
-                    });
-                })(viewsPath + '/' + fieldsFiles[i] + '.dust');
-            }));
+    fs.writeFileSync(jsonPath, JSON.stringify(dataToWrite, null, 4), "utf8");
 
-        // Remove field from list view file
+    // Remove field from create/update/show views files
+    var viewsPath = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/';
+    var fieldsFiles = ['create_fields', 'update_fields', 'show_fields', 'print_fields'];
+    var promises = [];
+    for (var i = 0; i < fieldsFiles.length; i++)
         promises.push(new Promise(function (resolve, reject) {
-            domHelper.read(viewsPath + '/list_fields.dust').then(function ($) {
-                $("th[data-field='" + name_data_field + "']").remove();
-
-                // In case of related to
-                $("th[data-col^='r_" + name_data_field.substring(2) + ".']").remove();
-                domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
-                    resolve();
+            (function (file) {
+                domHelper.read(file).then(function ($) {
+                    $('*[data-field="' + name_data_field + '"]').remove();
+                    // In case of related to
+                    $('*[data-field="r_' + name_data_field.substring(2) + '"]').remove();
+                    domHelper.write(file, $).then(function () {
+                        resolve();
+                    });
                 });
-            });
+            })(viewsPath + '/' + fieldsFiles[i] + '.dust');
         }));
 
-        let optionsPath = __dirname + '/../workspace/' + idApp + '/models/options/';
-        let otherViewsPath = __dirname + '/../workspace/' + idApp + '/views/';
-        let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "hasManyPreset"];
-        fieldsFiles.push("list_fields");
-        // Looking for association with using of the deleted field
-        fs.readdirSync(optionsPath).filter(function (file) {
-            return (file.indexOf('.json') != -1);
-        }).forEach(function (file) {
-            let currentOption = JSON.parse(fs.readFileSync(optionsPath + file, "utf8"));
-            let currentEntity = file.split(".json")[0];
-            let toSave = false;
-            for (var i = 0; i < currentOption.length; i++) {
-                // If the option match with our source entity
-                if (structureTypeWithUsing.indexOf(currentOption[i].structureType) != -1 &&
-                        currentOption[i].target == name_data_entity &&
-                        typeof currentOption[i].usingField !== "undefined") {
-                    // Check if our deleted field is in the using fields
-                    for (var j = 0; j < currentOption[i].usingField.length; j++) {
-                        if (currentOption[i].usingField[j].value == name_data_field) {
-                            for (var k = 0; k < fieldsFiles.length; k++) {
-                                // Clean file
-                                let content = fs.readFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', "utf8")
-                                content = content.replace(new RegExp(currentOption[i].as + "." + name_data_field, "g"), currentOption[i].as + ".id");
-                                content = content.replace(new RegExp(currentOption[i].target + "." + name_data_field, "g"), currentOption[i].target + ".id_entity");
-                                fs.writeFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', content);
-                                // Looking for select in create / update / show
-                                promises.push(new Promise(function (resolve, reject) {
-                                    (function (file, option, entity) {
-                                        domHelper.read(otherViewsPath + entity + '/' + file + '.dust').then(function ($) {
-                                            let el = $("select[name='" + option.as + "'][data-source='" + option.target.substring(2) + "']");
-                                            if (el.length > 0) {
-                                                let using = el.attr("data-using").split(",");
-                                                if (using.indexOf(name_data_field) != -1) {
-                                                    // If using is alone, then replace with id, or keep just other using
-                                                    if (using.length == 1) {
-                                                        el.attr("data-using", "id")
-                                                    } else {
-                                                        using.splice(using.indexOf(name_data_field), 1)
-                                                        el.attr("data-using", using.join())
-                                                    }
-                                                    el.html(el.html().replace(new RegExp(name_data_field, "g"), "id"))
+    // Remove field from list view file
+    promises.push(new Promise(function (resolve, reject) {
+        domHelper.read(viewsPath + '/list_fields.dust').then(function ($) {
+            $("th[data-field='" + name_data_field + "']").remove();
+
+            // In case of related to
+            $("th[data-col^='r_" + name_data_field.substring(2) + ".']").remove();
+            domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
+                resolve();
+            });
+        });
+    }));
+
+    let optionsPath = __dirname + '/../workspace/' + idApp + '/models/options/';
+    let otherViewsPath = __dirname + '/../workspace/' + idApp + '/views/';
+    let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "hasManyPreset"];
+    fieldsFiles.push("list_fields");
+    // Looking for association with using of the deleted field
+    fs.readdirSync(optionsPath).filter(function (file) {
+        return (file.indexOf('.json') != -1);
+    }).forEach(function (file) {
+        let currentOption = JSON.parse(fs.readFileSync(optionsPath + file, "utf8"));
+        let currentEntity = file.split(".json")[0];
+        let toSave = false;
+        for (var i = 0; i < currentOption.length; i++) {
+            // If the option match with our source entity
+            if (structureTypeWithUsing.indexOf(currentOption[i].structureType) != -1 &&
+                    currentOption[i].target == name_data_entity &&
+                    typeof currentOption[i].usingField !== "undefined") {
+                // Check if our deleted field is in the using fields
+                for (var j = 0; j < currentOption[i].usingField.length; j++) {
+                    if (currentOption[i].usingField[j].value == name_data_field) {
+                        for (var k = 0; k < fieldsFiles.length; k++) {
+                            // Clean file
+                            let content = fs.readFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', "utf8")
+                            content = content.replace(new RegExp(currentOption[i].as + "." + name_data_field, "g"), currentOption[i].as + ".id");
+                            content = content.replace(new RegExp(currentOption[i].target + "." + name_data_field, "g"), currentOption[i].target + ".id_entity");
+                            fs.writeFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', content);
+                            // Looking for select in create / update / show
+                            promises.push(new Promise(function (resolve, reject) {
+                                (function (file, option, entity) {
+                                    domHelper.read(otherViewsPath + entity + '/' + file + '.dust').then(function ($) {
+                                        let el = $("select[name='" + option.as + "'][data-source='" + option.target.substring(2) + "']");
+                                        if (el.length > 0) {
+                                            let using = el.attr("data-using").split(",");
+                                            if (using.indexOf(name_data_field) != -1) {
+                                                // If using is alone, then replace with id, or keep just other using
+                                                if (using.length == 1) {
+                                                    el.attr("data-using", "id")
+                                                } else {
+                                                    using.splice(using.indexOf(name_data_field), 1)
+                                                    el.attr("data-using", using.join())
                                                 }
+                                                el.html(el.html().replace(new RegExp(name_data_field, "g"), "id"))
                                             }
-                                            domHelper.write(otherViewsPath + entity + '/' + file + '.dust', $).then(function () {
-                                                resolve();
-                                            })
+                                        }
+                                        domHelper.write(otherViewsPath + entity + '/' + file + '.dust', $).then(function () {
+                                            resolve();
                                         })
-                                    })(fieldsFiles[k], currentOption[i], currentEntity)
-                                }))
-                            }
-                            // Clean using
-                            currentOption[i].usingField.splice(j, 1);
-                            toSave = true;
-                            break;
+                                    })
+                                })(fieldsFiles[k], currentOption[i], currentEntity)
+                            }))
                         }
+                        // Clean using
+                        currentOption[i].usingField.splice(j, 1);
+                        toSave = true;
+                        break;
                     }
                 }
             }
-            if (toSave)
-                fs.writeFileSync(optionsPath + file, JSON.stringify(currentOption, null, 4), "utf8");
-        });
+        }
+        if (toSave)
+            fs.writeFileSync(optionsPath + file, JSON.stringify(currentOption, null, 4), "utf8");
+    });
 
-        // Wait for all promises execution
-        Promise.all(promises).then(function () {
+    // Wait for all promises execution
+    Promise.all(promises).then(function () {
 
-            // Remove translation in enum locales
-            var enumsPath = __dirname + '/../workspace/' + idApp + '/locales/enum_radio.json';
-            var enumJson = JSON.parse(fs.readFileSync(enumsPath));
+        // Remove translation in enum locales
+        var enumsPath = __dirname + '/../workspace/' + idApp + '/locales/enum_radio.json';
+        var enumJson = JSON.parse(fs.readFileSync(enumsPath));
 
-            if (typeof enumJson[name_data_entity] !== "undefined") {
-                if (typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined") {
-                    delete enumJson[name_data_entity][info.fieldToDrop];
-                    fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 4));
-                }
+        if (typeof enumJson[name_data_entity] !== "undefined") {
+            if (typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined") {
+                delete enumJson[name_data_entity][info.fieldToDrop];
+                fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 4));
             }
+        }
 
-            // Remove translation in global locales
-            var fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
-            translateHelper.removeLocales(idApp, "field", [name_data_entity, fieldToDropInTranslate], function () {
-                callback(null, info);
-            });
+        // Remove translation in global locales
+        var fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
+        translateHelper.removeLocales(idApp, "field", [name_data_entity, fieldToDropInTranslate], function () {
+            callback(null, info);
         });
     });
 }
@@ -1757,51 +1775,70 @@ exports.deleteTab = function (attr, callback) {
     var options = JSON.parse(fs.readFileSync(jsonPath));
     var found = false;
     var option;
+    let deletedOptionsTarget = []
 
     for (var i = 0; i < options.length; i++) {
         if (options[i].as.toLowerCase() !== "r_" + tabNameWithoutPrefix)
             continue;
+
         option = options[i];
-        if (options[i].relation == 'hasMany')
+
+        if(deletedOptionsTarget.indexOf(option.target) == -1)
+            deletedOptionsTarget.push(option.target);
+
+        if (option.relation == 'hasMany')
             target = option.target;
         else
             target = name_data_entity;
+
         options.splice(i, 1);
         found = true;
         break;
     }
+
     if (!found) {
         var err = new Error();
         err.message = "structure.association.error.unableTab";
         err.messageParams = [attr.options.showValue];
         return callback(err, null);
     }
-    var writeStream = fs.createWriteStream(jsonPath);
-    writeStream.write(JSON.stringify(options, null, 4));
-    writeStream.end();
-    writeStream.on('finish', function () {
-        var showFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/show_fields.dust';
-        domHelper.read(showFile).then(function ($) {
-            // Get tab type before destroying it
-            var tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');
-            // Remove tab (<li>)
-            $("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
-            // Remove tab content
-            $("#r_" + tabNameWithoutPrefix).remove();
 
-            // If last tab have been deleted, remove tab structure from view
-            if ($(".tab-content .tab-pane").length == 1)
-                $("#tabs").replaceWith($("#home").html());
+    // Look in option file for all concerned target to destroy auto_generate key no longer needed
+    let targetOption, autoGenerateFound, targetJsonPath;
+    for (var i = 0; i < deletedOptionsTarget.length; i++) {
+        autoGenerateFound = false;
+        targetJsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + deletedOptionsTarget[i] + '.json'
+        targetOption = JSON.parse(fs.readFileSync(targetJsonPath));
+        for (var j = 0; j < targetOption.length; j++) {
+            if(targetOption[j].structureType == "auto_generate" && targetOption[j].foreignKey == option.foreignKey){
+                targetOption.splice(j, 1);
+                autoGenerateFound = true;
+            }
+        }
+        if(autoGenerateFound)
+            fs.writeFileSync(targetJsonPath, JSON.stringify(targetOption, null, 4), "utf8");
+    }
+    fs.writeFileSync(jsonPath, JSON.stringify(options, null, 4), "utf8");
 
-            domHelper.write(showFile, $).then(function () {
-                var printFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/print_fields.dust';
-                domHelper.read(printFile).then(function ($) {
-                    $("#r_" + tabNameWithoutPrefix + "_print").remove();
-                    domHelper.write(printFile, $).then(function () {
-                        callback(null, option.foreignKey, target, tabType);
-                    }).catch(function (err) {
-                        callback(err, null);
-                    });
+    var showFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/show_fields.dust';
+    domHelper.read(showFile).then(function ($) {
+        // Get tab type before destroying it
+        var tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');
+        // Remove tab (<li>)
+        $("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
+        // Remove tab content
+        $("#r_" + tabNameWithoutPrefix).remove();
+
+        // If last tab have been deleted, remove tab structure from view
+        if ($(".tab-content .tab-pane").length == 1)
+            $("#tabs").replaceWith($("#home").html());
+
+        domHelper.write(showFile, $).then(function () {
+            var printFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/print_fields.dust';
+            domHelper.read(printFile).then(function ($) {
+                $("#r_" + tabNameWithoutPrefix + "_print").remove();
+                domHelper.write(printFile, $).then(function () {
+                    callback(null, option.foreignKey, target, tabType);
                 }).catch(function (err) {
                     callback(err, null);
                 });
@@ -1811,6 +1848,8 @@ exports.deleteTab = function (attr, callback) {
         }).catch(function (err) {
             callback(err, null);
         });
+    }).catch(function (err) {
+        callback(err, null);
     });
 }
 

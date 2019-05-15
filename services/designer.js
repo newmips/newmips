@@ -1321,7 +1321,9 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                             resolve();
                                     });
                                 } else {
-                                    reject("Error: Unknown target type for belongsToMany generation.")
+                                    let err = new Error();
+                                    err.message = "Unknown target type for belongsToMany generation."
+                                    reject(err);
                                 }
                             });
                         });
