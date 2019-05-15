@@ -462,7 +462,8 @@
                 "success": "Widget %s ajouté au module %s",
                 "delete": "Widget %s supprimé avec succès",
                 "all_deleted": "Tous les widgets de %s ont été supprimés",
-                "unknown_fields": "Impossible d'ajouter le widget car les champs suivants sont inconnus :<br>%s"
+                "unknown_fields": "Impossible d'ajouter le widget car les champs suivants sont inconnus :<br>%s",
+                "no_fields": "Aucun champ fourni. Vous devez spécifier les champs à utiliser pour le widget"
             },
             "title": {
                 "success": "Le titre a bien été ajouté !",
