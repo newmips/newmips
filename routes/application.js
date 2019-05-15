@@ -130,58 +130,57 @@ function execute(req, instruction) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
                     console.error(err);
-                    reject(msgErr);
-                } else {
-
-                    switch(attr.function){
-                        case "selectProject":
-                        case "createNewProject":
-                            req.session.id_project = info.insertId;
-                            req.session.id_application = null;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "selectApplication":
-                        case "createNewApplication":
-                            req.session.id_application = info.insertId;
-                            req.session.name_application = info.name_application;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "selectModule":
-                        case "createNewModule":
-                            req.session.id_module = info.insertId;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "createNewEntity":
-                        case "selectEntity":
-                        case "createNewEntityWithBelongsTo":
-                        case "createNewEntityWithHasMany":
-                        case "createNewBelongsTo":
-                        case "createNewHasMany":
-                        case "createNewFieldRelatedTo":
-                            req.session.id_data_entity = info.insertId;
-                            break;
-                        case "deleteProject":
-                            req.session.id_project = null;
-                            req.session.id_application = null;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "deleteApplication":
-                            req.session.id_application = null;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "deleteModule":
-                            req.session.id_module = info.homeID;
-                            req.session.id_data_entity = null;
-                            break;
-                    }
-
-                    var msgInfo = __(info.message, info.messageParams || []);
-                    resolve();
+                    return reject(msgErr);
                 }
+
+                switch(attr.function){
+                    case "selectProject":
+                    case "createNewProject":
+                        req.session.id_project = info.insertId;
+                        req.session.id_application = null;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "selectApplication":
+                    case "createNewApplication":
+                        req.session.id_application = info.insertId;
+                        req.session.name_application = info.name_application;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "selectModule":
+                    case "createNewModule":
+                        req.session.id_module = info.insertId;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "createNewEntity":
+                    case "selectEntity":
+                    case "createNewEntityWithBelongsTo":
+                    case "createNewEntityWithHasMany":
+                    case "createNewBelongsTo":
+                    case "createNewHasMany":
+                    case "createNewFieldRelatedTo":
+                        req.session.id_data_entity = info.insertId;
+                        break;
+                    case "deleteProject":
+                        req.session.id_project = null;
+                        req.session.id_application = null;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "deleteApplication":
+                        req.session.id_application = null;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "deleteModule":
+                        req.session.id_module = info.homeID;
+                        req.session.id_data_entity = null;
+                        break;
+                }
+
+                var msgInfo = __(info.message, info.messageParams || []);
+                resolve();
             });
         } catch (e) {
             reject(e);

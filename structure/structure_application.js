@@ -131,7 +131,7 @@ exports.setupApplication = function(attr, callback) {
                             "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';"
                         ];
 
-                        var conn = await mysql.createConnection({
+                        let conn = await mysql.createConnection({
                             host: globalConf.env == "cloud" ? "database" : dbConf.host,
                             user: globalConf.env == "cloud" ? "root" : dbConf.user,
                             password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
@@ -224,7 +224,7 @@ exports.setupApplication = function(attr, callback) {
                         console.error(err);
                         var err = new Error();
                         err.message = "An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?";
-                        return callback(err, null);
+                        return callback(err);
                     })
                 });
             });
@@ -233,7 +233,7 @@ exports.setupApplication = function(attr, callback) {
         console.error(err);
         var err = new Error();
         err.message = "An error occurred while initializing the node modules.";
-        return callback(err, null);
+        return callback(err);
     });
 }
 
@@ -664,6 +664,19 @@ exports.deleteApplication = function(appID, callback) {
                 console.log("Please set doGit in config/gitlab.js to false");
                 callback();
             }
+        }
+
+        // If separate database, then delete the workspace database
+        if(globalConf.separate_workspace_db){
+            (async () => {
+                let conn = await mysql.createConnection({
+                    host: globalConf.env == "cloud" ? "database" : dbConf.host,
+                    user: globalConf.env == "cloud" ? "root" : dbConf.user,
+                    password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
+                });
+                await conn.query("DROP DATABASE IF EXISTS workspace_"+appID+";");
+                conn.end();
+            })()
         }
 
         if (process_server != null) {
