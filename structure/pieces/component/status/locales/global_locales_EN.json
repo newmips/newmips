@@ -28,7 +28,8 @@
             "apply_default": "Apply this status to entities without status",
             "modal_title": "Comment",
             "r_accepted_group": "Accepted group (No group means accepted for all)",
-            "f_default": "Is the default status"
+            "f_default": "Is the default status",
+            "f_button_label": "Button label"
 		}
 	}
 }

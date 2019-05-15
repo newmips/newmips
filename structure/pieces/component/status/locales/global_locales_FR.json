@@ -39,7 +39,8 @@
             "modal_title": "Commentaire",
             "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tout le monde)",
             "f_default": "Est le statut par défaut",
-            "apply_default": "Appliquer ce statut aux entités sans statut"
+            "apply_default": "Appliquer ce statut aux entités sans statut",
+            "f_button_label": "Libellé du bouton"
 		},
 		"e_group": {
 			"r_user": "Utilisateurs"

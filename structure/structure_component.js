@@ -1005,7 +1005,7 @@ exports.newStatus = function (attr, callback) {
                         nextStatusHtml += '<div class="form-group">\n';
                         nextStatusHtml += '     {#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}\n';
                         nextStatusHtml += '         {#checkStatusPermission status=.}\n';
-                        nextStatusHtml += '             <a data-href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;">{f_name}</a>\n';
+                        nextStatusHtml += '             <a data-href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;">{f_button_label}</a>\n';
                         nextStatusHtml += '         {/checkStatusPermission}\n';
                         nextStatusHtml += '     {/' + statusAlias + '.r_children}\n';
                         nextStatusHtml += '</div>\n';
