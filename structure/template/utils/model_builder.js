@@ -83,23 +83,39 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 exports.formatSearch = function (column, searchValue, type) {
     var formatedSearch = {};
 
-    if (type == 'datetime') {
-        if (searchValue.indexOf(' ') != -1)
-            formatedSearch['$between'] = [searchValue, searchValue];
-        else
-            formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59']
-    } else if (type == 'date') {
-        formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59']
-    } else if (type == 'boolean') {
-        formatedSearch = searchValue;
-    } else if (type == 'currency') {
-        formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
-            like: `${searchValue}%`
-        });
-    } else {
-        formatedSearch = {
-            $like: '%' + searchValue + '%'
-        };
+    switch(type){
+        case 'datetime':
+            if (searchValue.indexOf(' ') != -1)
+                formatedSearch['$between'] = [searchValue, searchValue];
+            else
+                formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
+            break;
+        case 'date':
+            formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
+            break;
+        case 'boolean':
+            switch(searchValue){
+                case 'null':
+                    formatedSearch = null;
+                    break;
+                case 'checked':
+                    formatedSearch = true;
+                    break;
+                case 'unchecked':
+                    formatedSearch = false;
+                    break;
+            }
+            break;
+        case 'currency':
+            formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
+                like: `${searchValue}%`
+            });
+            break;
+        default:
+            formatedSearch = {
+                $like: '%' + searchValue + '%'
+            };
+            break;
     }
 
     var field = column, searchLine = {};
