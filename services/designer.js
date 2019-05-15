@@ -3090,6 +3090,10 @@ exports.createWidgetLastRecords = function (attr, callback) {
                 // Check for not found fields and build error message
                 for (var k = 0; k < attr.columns.length; k++) {
                     var kFound = false;
+                    if (attr.columns[k].toLowerCase() == 'id') {
+                        attr.columns[k] = {codeName: 'id', name: 'id', found:true};
+                        kFound = true;
+                    }
                     for (var i = 0; i < columns.length; i++) {
                         if (columns[i].codeName.indexOf('s_') == 0)
                             columns[i].codeName = 'r_'+columns[i].codeName.substring(2);
@@ -3125,6 +3129,8 @@ exports.createWidgetOnEntity = function (attr, callback) {
 function createWidget(attr, callback) {
     if (attr.widgetType == -1)
         return callback(null, {message: "structure.ui.widget.unknown", messageParams: [attr.widgetInputType]});
+                    console.log(attr);
+
     db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
         if (err)
             return callback(err);

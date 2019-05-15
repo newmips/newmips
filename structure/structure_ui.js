@@ -488,6 +488,9 @@ exports.createWidgetLastRecords = function(attr, callback) {
     if (definitlyNotFound.length > 0)
         return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [definitlyNotFound.join(', ')]});
 
+    if (!attr.columns || attr.columns.length == 0)
+        return callback(null, {message: 'structure.ui.widget.no_fields'});
+
     var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
     domHelper.read(layout_view_filename).then(function($) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
@@ -509,7 +512,8 @@ exports.createWidgetLastRecords = function(attr, callback) {
                         var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('th[data-field="'+field+'"]').data('type');
                         var col = $list('th[data-field="'+field+'"]').data('col');
-                        thead += '<th data-field="'+field+'" data-type="'+type+'" data-col="'+col+'"><!--{#__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
+                        var fieldTradKey = field != 'id' ? field : 'id_entity';
+                        thead += '<th data-field="'+field+'" data-type="'+type+'" data-col="'+col+'"><!--{#__ key="entity.'+attr.entity.codeName+'.'+fieldTradKey+'" /}--></th>';
                     }
                     thead += '</tr></thead>';
 
