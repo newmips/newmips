@@ -131,6 +131,7 @@ var mandatoryInstructions = [
     "add field Name",
     "add field Color with type color",
     "add field Accepted group related to many Group using Label",
+    "add field Button label",
     "add field Position with type number",
     "add field Default with type boolean",
     "add field Comment with type boolean",
