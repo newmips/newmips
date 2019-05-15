@@ -1,5 +1,3 @@
-// server.js
-process.env.TZ = 'UTC';
 // Set up ======================================================================
 // Get all the tools we need
 var path = require('path');
@@ -155,21 +153,23 @@ app.use(passport.session());
 app.use(flash());
 
 // Locals ======================================================================
-app.locals.moment = require('moment');
-
 app.use(function(req, res, next) {
     // If not a person (healthcheck service or other spamming services)
     if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
 
     // Applications created with newmips only have fr-FR.
     // To avoid cookie conflict between newmips and this app, set fr-FR by default
-    var lang = 'fr-FR';
+    let lang = 'fr-FR';
     if (req.isAuthenticated()) {
         if (req.session.lang_user)
             lang = req.session.lang_user;
         else
             req.session.lang_user = lang;
     }
+
+    req.moment = require('moment');
+    if(lang == "fr-FR")
+        req.moment.locale('fr');
 
     res.locals.user_lang = lang;
     // Create dust helper

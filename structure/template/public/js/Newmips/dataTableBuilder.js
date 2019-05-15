@@ -58,7 +58,13 @@ if (lang_user == "fr-FR") {
         },
         "choose_columns": "Choix Colonnes",
         "apply": "Appliquer",
-        "display": "Afficher"
+        "display": "Afficher",
+        "boolean_filter": {
+            "null": "Non renseigné",
+            "checked": "Coché",
+            "unchecked": "Décoché",
+            "all": "Tout"
+        }
     };
 } else {
     STR_LANGUAGE = {
@@ -86,8 +92,13 @@ if (lang_user == "fr-FR") {
         },
         "choose_columns": "Choose Columns",
         "apply": "Apply",
-        "display": "Display"
-
+        "display": "Display",
+        "boolean_filter": {
+            "null": "Not specified",
+            "checked": "Checked",
+            "unchecked": "Unchecked",
+            "all": "Both"
+        }
     };
 }
 
@@ -295,6 +306,7 @@ function generateColumnSelector(tableID, columns) {
     columnsSelectorDiv.append(applyBtn)
     return columnsSelectorDiv;
 }
+
 // Close column selector when click event is triggered outside of it
 $(document).mouseup(function(e) {
     // if the target of the click isn't the container nor a descendant of the container
@@ -640,32 +652,47 @@ function init_datatable(tableID, doPagination, context) {
         var currentField = mainTh.data('field');
         var val = getFilterSave(tableID.substring(1), currentField);
         var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
+
         function searchInDatalist(searchValue) {
             var valueObject = {type: '', value: ''};
             // Special data types re-formating for search
             if (typeof mainTh.data('type') !== 'undefined') {
-                // Date
                 if (mainTh.data('type') == 'date') {
                     valueObject.type = 'date';
                     searchValue = lang_user == 'fr-FR' ? formatDateFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateEN(mainTh.find("input").inputmask('unmaskedvalue'));
                 }
-                // Time
                 else if (mainTh.data('type') == 'time') {
                     valueObject.type = 'time';
                     searchValue = formatTime(mainTh.find("input").inputmask('unmaskedvalue'));
                 }
-                // DateTime
                 else if (mainTh.data('type') == 'datetime') {
                     valueObject.type = 'datetime';
                     searchValue = lang_user == 'fr-FR' ? formatDateTimeFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateTimeEN(mainTh.find("input").inputmask('unmaskedvalue'));
                 }
-                // Currency
-                else if (mainTh.data('type') == 'currency')
+                else if (mainTh.data('type') == 'currency'){
                     valueObject.type = 'currency';
+                }
+                else if (mainTh.data('type') == 'boolean'){
+                    valueObject.type = 'boolean';
+                }
             }
             valueObject.value = searchValue;
             table.columns(idx).search(JSON.stringify(valueObject)).draw();
         }
+
+        function filterSearch(el){
+            var searchValue = typeof el.value === "undefined" ? $(el).val() : el.value;
+            saveFilter(searchValue, el, $(el).parents("table").attr("id"), $(el).parent().attr("data-field"));
+
+            // If search is empty, clear previous search and draw
+            if (searchValue == "")
+                return table.columns(idx).search('').draw();
+
+            delay(function(){
+                searchInDatalist(searchValue);
+            }, 300);
+        }
+
         // If it's not an action button
         if (title != '') {
             if($(this).attr("data-hidden") == "1")
@@ -673,48 +700,52 @@ function init_datatable(tableID, doPagination, context) {
             else {
                 $(this).show().html('');
                 $(search).appendTo(this).keyup(function () {
-                    var searchValue = this.value;
-                    saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
-
-                    // If search is empty, clear previous search and draw
-                    if (searchValue == "")
-                        return table.columns(idx).search('').draw();
-
-                    delay(function(){
-                        searchInDatalist(searchValue);
-                    }, 300);
+                    filterSearch(this);
                 });
+
                 // Initialize masks on filters inputs
                 if (typeof mainTh.data('type') !== 'undefined') {
-                    if (lang_user == 'fr-FR') {
-                        if (mainTh.data('type') == 'datetime')
+
+                    var datetimeMask = lang_user == 'fr-FR' ? "d/m/y h:s:s" : "y-m-d h:s:s";
+                    var datetimePlaceholder = lang_user == 'fr-FR' ? "jj/mm/aaaa hh:mm:ss" : "yyyy-mm-dd hh:mm:ss";
+                    var dateMask = lang_user == 'fr-FR' ? "dd/mm/yyyy" : "yyyy-mm-dd";
+
+                    switch (mainTh.data('type')){
+
+                        case 'datetime':
                             $(this).find("input").inputmask({
-                                mask: "d/m/y h:s:s",
-                                placeholder: "dd/mm/yyyy hh:mm:ss",
+                                mask: datetimeMask,
+                                placeholder: datetimePlaceholder,
                                 alias: "datetime",
                                 timeseparator: ":",
                                 hourFormat: "24"
                             });
-                        if (mainTh.data('type') == 'date')
-                            $(this).find("input").inputmask({"alias": "dd/mm/yyyy"});
-                    } else if (lang_user == 'en-EN') {
-                        if (mainTh.data('type') == 'datetime')
-                            $(this).find("input").inputmask({
-                                mask: "y-m-d h:s:s",
-                                placeholder: "yyyy-mm-dd hh:mm:ss",
-                                alias: "datetime",
-                                timeseparator: ":",
-                                hourFormat: "24"
-                            });
-                        if (mainTh.data('type') == 'date')
-                            $(this).find("input").inputmask({"alias": "yyyy-mm-dd"});
+                            break;
+
+                        case 'date':
+                            $(this).find("input").inputmask({"alias": dateMask});
+                            break;
+
+                        case 'boolean':
+                            $(this).find("input").replaceWith("\
+                                <select data-type='boolean' style='width: 100% !important;' class='form-control input'>\
+                                    <option value='' selected>"+STR_LANGUAGE.boolean_filter.all+"</option>\
+                                    <option value='null'>"+STR_LANGUAGE.boolean_filter.null+"</option>\
+                                    <option value='checked'>"+STR_LANGUAGE.boolean_filter.checked+"</option>\
+                                    <option value='unchecked'>"+STR_LANGUAGE.boolean_filter.unchecked+"</option>\
+                                </select>");
+                            if(val != "")
+                                $(this).find("select").val(val);
+                            $(this).find("select").on("change", function(){filterSearch(this)});
                     }
-                    if (mainTh.data('type') == 'time')
+
+                    if (mainTh.data('type') == 'time'){
                         $(this).find("input").inputmask({
                             mask: "h:s:s",
                             placeholder: "hh:mm:ss",
                             separator: "-"
                         });
+                    }
                 }
             }
         }
