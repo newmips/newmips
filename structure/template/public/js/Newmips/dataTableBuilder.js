@@ -265,9 +265,8 @@ var delay = (function() {
 //   - display a list of the columns available on page load with a checkbox to hide/show each
 function generateColumnSelector(tableID, columns) {
     var storageColumnsShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
-    console.log("storageColumnsShow :");
-    console.log(storageColumnsShow);
-    var columnsSelectorDiv = $('<div id="columnSelector" style="position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+    var tableHeight = $(tableID).height();
+    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
 
     var columnsToShow = {columns: []};
     // Loop over the <th> available on page load
@@ -281,7 +280,6 @@ function generateColumnSelector(tableID, columns) {
 
         (function (current) {
             var element = current.element, show;
-            console.log(current);
             // If storageColumnsShow is null, it means it's the first use of this storage, all columns must be shown by default
             if (storageColumnsShow == null || current.show)
                 show = true;
@@ -311,9 +309,8 @@ function generateColumnSelector(tableID, columns) {
     // columnsSelectorDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 
     // Create Apply button and bind click
-    var applyBtn = $('<div style="text-align:center;margin-top:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
+    var applyBtn = $('<div style="text-align:center;margin-top:5px;margin-bottom:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
     applyBtn.click(function(){
-        console.log(columnsToShow);
         // Set new filters to localStorage and reload
         localStorage.setItem("newmips_shown_columns_save_" + tableID.substring(1), JSON.stringify(columnsToShow));
         setTimeout(function() {
@@ -557,7 +554,7 @@ function init_datatable(tableID, doPagination, context) {
         "bAutoWidth": false,
         "order": [ defaultOrder.idx, defaultOrder.direction ],
         "buttons": [
-            {// HIDE BUTTON UNTIL FIX
+            {
                 text: STR_LANGUAGE.choose_columns,
                 action: function(e,dt,node,config) {
                     if ($("#columnSelector").length > 0)
