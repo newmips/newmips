@@ -1,4 +1,11 @@
 {>"login_layout"/}
+{<custom_css}
+    <style>
+        .toast-top-center{
+            top: 20px;
+        }
+    </style>
+{/custom_css}
 {<content}
     <div class="header">{@__ key="login.authentication"/}</div>
     <form action="/login" method="post">

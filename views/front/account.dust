@@ -35,8 +35,29 @@
 								</div>
 							</div>
 						</div>
+						{?gitlabUser}
+							<div class="col-xs-12 col-sm-6">
+								<div class="form-group">
+									<label>Gitlab</label>
+									<br><br>
+									<div class="col-xs-12">Gitlab URL:<br>
+										<input class="form-control input" value="{gitlabHost}" disabled />
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12 col-sm-6">
+								<div class="form-group">
+									<br><br>
+									<div class="col-xs-12">Login:<br>
+										<input class="form-control input" value="{gitlabUser.email}" disabled />
+									</div>
+								</div>
+							</div>
+
+						{/gitlabUser}
 						<div class="col-xs-12"><br>
 							<div class="form-group">
+								<br><br>
 								<label>{@__ key="settings.change_password"/}</label>
 								<br><br><a class="resetPassword btn btn-primary">{@__ key="settings.reset_button"/}</a>
 							</div>

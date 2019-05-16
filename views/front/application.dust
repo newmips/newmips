@@ -46,6 +46,14 @@
 																	<span>{@__ key="button.preview"/}</span>
 																</a>
 															</td>
+															{?gitlabUser}
+															<td class="text-center">
+																<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
+																	<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
+																	<span>{@__ key="button.clone"/}</span>
+																</button>
+															</td>
+															{/gitlabUser}
 															<td class="text-center">
 																<form class="deleteAppForm">
 																	<button class="btn btn-danger">
@@ -78,14 +86,39 @@
 			</div>
 		</div>
 	</div>
+
+	{?gitlabUser}
+		<div class="modal fade" id="gitlabModal" tabindex="-1" role="dialog" aria-labelledby="gitlabModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header text-center">
+						<h5 class="modal-title" id="gitlabModalLabel">{@__ key="listApplication.gitlab.modal_title" /}</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body text-center">
+						{@__ key="listApplication.gitlab.text1" /}<br><br>
+						<i><b>git clone <span id="gitlab_repo_url"></span></b></i><br><br>
+						{@__ key="listApplication.gitlab.text2" /}<br><br>
+						<i><b>{gitlabUser.name}</b></i><br><br>
+						{@__ key="listApplication.gitlab.text3" /} <i class="fa fa-smile-o"></i>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">{@__ key="button.understand"/}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/gitlabUser}
 {/content}
 
 {<custom_js}
 	<script type="text/javascript">
-		let sureToDelete = '{@__ key="listApplication.sureToDelete"/}';
-		let loading = '{@__ key="listApplication.loading"/}';
-		let projectDelete = '{@__ key="listApplication.projectDelete"/}';
-		let appDelete = '{@__ key="listApplication.appDelete"/}';
+		var sureToDelete = '{@__ key="listApplication.sureToDelete"/}';
+		var loading = '{@__ key="listApplication.loading"/}';
+		var projectDelete = '{@__ key="listApplication.projectDelete"/}';
+		var appDelete = '{@__ key="listApplication.appDelete"/}';
 
 		function deleteApplication(formArray, index) {
 			return new Promise(function(resolve, reject) {
@@ -164,6 +197,10 @@
 					deleteApplication([$(this)], 0);
 					return false;
 				}
+			});
+
+			$(document).on("click", ".gitlab-button", function(){
+				$("#gitlab_repo_url").html($(this).attr("data-repourl"));
 			});
 		});
 	</script>
