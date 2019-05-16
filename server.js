@@ -96,7 +96,11 @@ app.use(morgan('dev', {
                 }
             }
         }
-        originalMethod.apply(console, [...args, '-', `${initiator.split(__dirname)[1]}`]);
+        const at = initiator.split(__dirname)[1];
+        if (!at)
+            originalMethod.apply(console, [...args]);
+        else
+            originalMethod.apply(console, [...args, `   - ${at}`]);
     };
 });
 
