@@ -625,26 +625,23 @@ function init_datatable(tableID, doPagination, context) {
             var entity = tableID.replace('#table_', '');
             var cellData = table.cell($(this).parent()).data();
             $.ajax({
-                url: '/default/get_file',
+                url: '/default/get_picture',
                 type: 'GET',
                 data: {entity: entity, src: cellData.value},
                 success: function (result) {
                     if (result.success) {
                         var text = '<div class="modal fade" tabindex="-1" role="dialog">'
-                                + '<div class="modal-dialog" role="document">'
-                                + '<div class="modal-content">'
-                                + '<div class="modal-header skin-blue-light">'
-                                + '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-                                + '<h4 class="modal-title">' + result.file + '</h4>'
-                                + '</div>'
-                                + '<div class="modal-body">'
-                                + '<p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
-                                + '</div>'
-                                + '<div class="modal-footer">'
-                                + ' <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>'
-                                + '</div>'
-                                + '</div>'
-                                + '</div>'
+                                + '     <div class="modal-dialog" role="document">'
+                                + '         <div class="modal-content">'
+                                + '             <div class="modal-header skin-blue-light">'
+                                + '                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                                + '                 <h4 class="modal-title">' + result.file + '</h4>'
+                                + '             </div>'
+                                + '             <div class="modal-body">'
+                                + '                 <p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
+                                + '             </div>'
+                                + '         </div>'
+                                + '     </div>'
                                 + '</div>';
                         $(text).modal('show');
                     }

@@ -6,31 +6,19 @@ var translateHelper = require("../utils/translate");
 const path = require("path");
 const mysql = require('promise-mysql');
 
-// Configuration files
+// Gitlab
 const globalConf = require('../config/global.js');
 const gitlabConf = require('../config/gitlab.js');
+const gitlab = require('../services/gitlab_api')
+
 const dbConf = require('../config/database.js');
 
-var studio_manager;
-if (globalConf.env == 'cloud')
-    studio_manager = require('../services/studio_manager');
-
-try {
-    if (gitlabConf.doGit) {
-        // Gitlab connection
-        var gitlab = require('gitlab')({
-            url: gitlabConf.protocol + "://" + gitlabConf.url,
-            token: gitlabConf.privateToken
-        });
-    }
-} catch (err) {
-    console.log("Error connection Gitlab repository: " + err);
-    console.log("Please set doGit in config/gitlab.js to false");
+if (globalConf.env == 'cloud'){
+    const studio_manager = require('../services/studio_manager');
 }
 
-//Sequelize
-var models = require('../models/');
-var exec = require('child_process').exec;
+const models = require('../models/');
+const exec = require('child_process').exec;
 
 function installAppModules(attr) {
     return new Promise(function(resolve, reject) {
@@ -157,14 +145,20 @@ exports.setupApplication = function(attr, callback) {
                             }
                         }
 
-                        var nameAppWithoutPrefix = name_application.substring(2);
-                        // Create the application repository in gitlab
+                        let nameAppWithoutPrefix = name_application.substring(2);
+
+                        // Create the application repository on gitlab
                         if (!gitlabConf.doGit)
                             return callback();
 
-                        var idUserGitlab;
-                        function createGitlabProject() {
-                            var newGitlabProject = {
+                        (async () => {
+
+                            if (!attr.gitlabUser)
+                                attr.gitlabUser = await gitlab.getUser(attr.currentUser.email);
+
+                            let idUserGitlab = attr.gitlabUser.id;
+
+                            let newGitlabProject = {
                                 user_id: idUserGitlab,
                                 name: globalConf.host + "-" + nameAppWithoutPrefix,
                                 description: "A generated Newmips workspace.",
@@ -175,51 +169,20 @@ exports.setupApplication = function(attr, callback) {
                                 public: false
                             };
 
-                            try {
-                                // Clone template if any
-                                if (repoFile) {
-                                    gitlab.projects.import(repoFile, newGitlabProject, function(result) {
-                                        callback();
-                                    });
-                                }
-                                else {
-                                    gitlab.projects.create_for_user(newGitlabProject, function(result) {
-                                        if (typeof result === "object") {
-                                            gitlab.projects.members.add(result.id, 1, 40, function(answer) {
-                                                callback();
-                                            });
-                                        } else
-                                            callback();
-                                    });
-                                }
-                            } catch (err) {
-                                console.log("Error connection Gitlab repository: " + err);
-                                console.log("Please set doGit in config/gitlab.js to false");
-                                callback(err);
-                            }
-                        }
+                            let newRepo = await gitlab.createProjectForUser(newGitlabProject);
+                            await gitlab.addMemberToProject({
+                                id: newRepo.id,
+                                user_id: 1, // Admin
+                                access_level: 40
+                            })
 
-                        if (attr.gitlabUser != null) {
-                            idUserGitlab = attr.gitlabUser.id;
-                            createGitlabProject();
-                        } else {
-                            gitlab.users.all(function(gitlabUsers) {
-                                var exist = false;
-                                for (var i = 0; i < gitlabUsers.length; i++)
-                                    if (gitlabUsers[i].email == attr.currentUser.email) {
-                                        exist = true;
-                                        idUserGitlab = gitlabUsers[i].id;
-                                    }
+                            return;
 
-                                if (exist)
-                                    createGitlabProject();
-                                else {
-                                    var err = new Error();
-                                    err.message = "Cannot find your Gitlab account to create the project!";
-                                    return callback(err, null);
-                                }
-                            });
-                        }
+                        })().then(_ => {
+                            callback();
+                        }).catch(err => {
+                            console.error(err);
+                        })
                     }).catch(err => {
                         console.error(err);
                         var err = new Error();
@@ -637,33 +600,24 @@ exports.deleteApplication = function(appID, callback) {
     models.Application.findById(appID).then(app => {
 
         let nameAppWithoutPrefix = app.codeName.substring(2);
-        let cleanHost = globalConf.host;
-        let nameRepo = cleanHost + "-" + nameAppWithoutPrefix;
+        let nameRepo = globalConf.host + "-" + nameAppWithoutPrefix;
 
         // Removing .toml file in traefik rules folder
         if(globalConf.env == "cloud" || globalConf.env == "docker")
             fs.unlinkSync(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml")
 
         if (gitlabConf.doGit) {
-            try {
-                gitlab.projects.all(function(projects) {
-                    var idRepoToDelete = null;
-                    for (var i = 0; i < projects.length; i++)
-                        if (nameRepo == projects[i].name)
-                            idRepoToDelete = projects[i].id;
-
-                    if (idRepoToDelete != null) {
-                        gitlab.projects["remove"](idRepoToDelete, function(result) {
-                            console.log("Delete Gitlab repository: " + nameRepo);
-                            console.log("Result:", result);
-                        });
-                    }
-                });
-            } catch (err) {
-                console.log("Error connection Gitlab repository: " + err);
-                console.log("Please set doGit in config/gitlab.js to false");
-                callback();
-            }
+            gitlab.getProject(nameRepo).then(project => {
+                if(!project)
+                    console.error("Unable to find gitlab project to delete.");
+                else
+                    gitlab.deleteProject(project.id).then(answer => {
+                        console.log("Delete Gitlab repository: " + nameRepo + " => " + JSON.stringify(answer));
+                    }).catch(err => {
+                        console.error("Failed to delete gitlab repository:");
+                        console.error(err);
+                    })
+            })
         }
 
         // If separate database, then delete the workspace database

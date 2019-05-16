@@ -393,8 +393,8 @@ function initForm(context) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                     } else if (!this.files[0].default) {
-                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
-                        $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
+                        $("#" + that.attr("id") + "_hidden_name").val(clearString(this.files[0].name));
+                        $("#" + that.attr("id") + "_hidden").val(clearString(this.files[0].name));
                     }
                 });
 
@@ -439,6 +439,7 @@ function initForm(context) {
                 });
             },
             renameFilename: function (filename) {
+                filename = clearString(filename);
                 if (filename.indexOf("dfltImg_") != -1)
                     return filename.replace("dfltImg_", "");
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
@@ -537,8 +538,8 @@ function initDropZone(context) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                     } else {
-                        $("#" + that.attr("id") + "_hidden_name").val(this.files[0].name);
-                        $("#" + that.attr("id") + "_hidden").val(this.files[0].name);
+                        $("#" + that.attr("id") + "_hidden_name").val(clearString(this.files[0].name));
+                        $("#" + that.attr("id") + "_hidden").val(clearString(this.files[0].name));
                     }
                 });
                 this.on("sending", function (file, xhr, formData) {
@@ -563,6 +564,7 @@ function initDropZone(context) {
                 });
             },
             renameFilename: function (filename) {
+                filename = clearString(filename);
                 var timeFile = moment().format("YYYYMMDD-HHmmss");
                 $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
                 return timeFile + '_' + filename;
@@ -1305,4 +1307,92 @@ function initMapsIfComponentAddressExists(context) {
             console.log(e);
         }
     }
+}
+
+function clearString(string){
+
+    // Remove space before and after
+    string = string.trim();
+    // Remove multipe spaces
+    string = string.replace(/\s\s+/g, ' ');
+    string = string.replace(/é/g, "e");
+    string = string.replace(/è/g, "e");
+    string = string.replace(/\ê/g, "e");
+    string = string.replace(/\ë/g, "e");
+    string = string.replace(/\È/g, "e");
+    string = string.replace(/\É/g, "e");
+    string = string.replace(/\Ê/g, "e");
+    string = string.replace(/\Ë/g, "e");
+
+    string = string.replace(/à/g, "a");
+    string = string.replace(/â/g, "a");
+    string = string.replace(/ä/g, "a");
+    string = string.replace(/\À/g, "a");
+    string = string.replace(/\Â/g, "a");
+    string = string.replace(/\Ä/g, "a");
+
+    string = string.replace(/ô/g, "o");
+    string = string.replace(/ö/g, "o");
+
+    string = string.replace(/î/g, "i");
+    string = string.replace(/ï/g, "i");
+    string = string.replace(/Î/g, "i");
+    string = string.replace(/Ï/g, "i");
+
+    string = string.replace(/û/g, "u");
+    string = string.replace(/ù/g, "u");
+    string = string.replace(/ü/g, "u");
+    string = string.replace(/\Ù/g, "u");
+    string = string.replace(/\Ü/g, "u");
+    string = string.replace(/\Û/g, "u");
+
+    string = string.replace(/ç/g, "c");
+    string = string.replace(/ĉ/g, "c");
+    string = string.replace(/\Ç/g, "c");
+    string = string.replace(/\Ĉ/g, "c");
+
+    string = string.replace(/'/g, "_");
+    string = string.replace(/,/g, "_");
+    string = string.replace(/ /g, "_");
+    string = string.replace(/-/g, "_");
+    string = string.replace(/\\/g, "_");
+    string = string.replace(/!/g, "_");
+    string = string.replace(/\(/g, "_");
+    string = string.replace(/\)/g, "_");
+    string = string.replace(/\//g, "_");
+    string = string.replace(/\\/g, "_");
+    string = string.replace(/\./g, "_");
+    string = string.replace(/\;/g, "_");
+    string = string.replace(/\?/g, "_");
+    string = string.replace(/\"/g, "_");
+    string = string.replace(/\&/g, "_");
+    string = string.replace(/\*/g, "_");
+    string = string.replace(/\$/g, "_");
+    string = string.replace(/\%/g, "_");
+    string = string.replace(/\£/g, "_");
+    string = string.replace(/\€/g, "_");
+    string = string.replace(/\µ/g, "_");
+    string = string.replace(/\°/g, "_");
+    string = string.replace(/\=/g, "_");
+    string = string.replace(/\+/g, "_");
+    string = string.replace(/\}/g, "_");
+    string = string.replace(/\{/g, "_");
+    string = string.replace(/\#/g, "_");
+    string = string.replace(/\`/g, "_");
+    string = string.replace(/\|/g, "_");
+    string = string.replace(/\@/g, "_");
+    string = string.replace(/\^/g, "_");
+    string = string.replace(/\]/g, "_");
+    string = string.replace(/\[/g, "_");
+    string = string.replace(/\~/g, "_");
+    string = string.replace(/\:/g, "_");
+    string = string.replace(/\×/g, "_");
+    string = string.replace(/\¿/g, "_");
+    string = string.replace(/\¡/g, "_");
+    string = string.replace(/\÷/g, "_");
+
+    string = string.replace(String.fromCharCode(65533), "e");
+    string = string.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+    return string;
 }
