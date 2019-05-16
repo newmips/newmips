@@ -73,7 +73,9 @@
         "add": "Ajouter",
         "documentation": "Documentation",
         "cancel": "Annuler",
-        "loading": "Chargement..."
+        "loading": "Chargement...",
+        "clone": "Cloner",
+        "understand": "Compris !"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
@@ -102,7 +104,13 @@
         "sureToDelete": "Êtes-vous sûr ?",
         "loading": "Chargement...",
         "projectDelete" : "Projet supprimé !",
-        "appDelete" : "Application supprimée !"
+        "appDelete" : "Application supprimée !",
+        "gitlab": {
+            "modal_title": "Comment cloner cette application ?",
+            "text1": "Afin de pouvoir cloner votre application il suffit d'executer cette commande :",
+            "text2": "Votre identifiant Gitlab est :",
+            "text3": "et votre mot de passe est celui de votre compte générateur"
+        }
     },
     "editor": {
         "legend": "Éditeur",
