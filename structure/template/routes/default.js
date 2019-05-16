@@ -235,67 +235,60 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     });
 });
 
-router.get('/get_file', block_access.isLoggedIn, function (req, res) {
-    var entity = req.query.entity;
-    var src = req.query.src;
-    if (!!entity && !!src) {
-        var partOfFilepath = src.split('-');
-        if (partOfFilepath.length > 1) {
-            var base = partOfFilepath[0];
-            var completeFilePath = globalConf.localstorage + 'thumbnail/' + entity + '/' + base + '/' + src;
-            fs.readFile(completeFilePath, function (err, data) {
-                if (!err) {
-                    var buffer = new Buffer(data).toString('base64');
-                    res.json({
-                        result: 200,
-                        data: buffer,
-                        file: src,
-                        success: true
-                    });
-                } else
-                    res.end();
-            });
-        } else
-            res.end();
-    } else
-        res.end();
+router.get('/get_picture', block_access.isLoggedIn, function(req, res) {
+    try {
+        let entity = req.query.entity;
+        let filename = req.query.src;
+        let cleanFilename = filename.substring(16);
+        let folderName = filename.split("-")[0];
+        let filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
+
+        if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
+            throw new Error("403 - Access forbidden");
+
+        if (!fs.existsSync(filePath))
+            throw new Error("404 - File not found");
+
+        let picture = fs.readFileSync(filePath);
+
+        res.json({
+            result: 200,
+            data: new Buffer(picture).toString('base64'),
+            file: cleanFilename,
+            success: true
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(false);
+    }
 });
 
-router.get('/download', block_access.isLoggedIn, function (req, res) {
-    var entity = req.query.entity;
-    var filepath = req.query.f;
-    // Filename without date and hours prefix
-    var filename = filepath.substring(16);
-    var p = new Promise(function (resolve, reject) {
-        if (!!entity && !!filepath) {
-            var partOfFilepath = filepath.split('-');
-            if (partOfFilepath.length > 1) {
-                var base = partOfFilepath[0];
-                // Taking dirname from globalConf cause a bug on filename param for res.download
-                // So we take again __dirname here and remove it from globalConf
-                // var dir = __dirname;
-                // var completeFilePath = dir + globalConf.localstorage.substring(dir.length) + entity + '/' + base + '/' + filepath;
-                let completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filepath;
-                res.download(completeFilePath, filename, function (err) {
-                    if (err)
-                        reject(err);
-                    else
-                        resolve();
-                });
-            } else
-                reject();
+router.get('/download', block_access.isLoggedIn, function(req, res) {
+    try {
+        let entity = req.query.entity;
+        let filename = req.query.f;
+        let cleanFilename = filename.substring(16);
+        let folderName = filename.split("-")[0];
+        let filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
 
-        } else
-            reject();
-    });
-    p.then(function () {
-        console.log("The file "+filename+" was successfully downloaded !");
-    }).catch(function (err) {
+        if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
+            throw new Error("403 - Access forbidden");
+
+        if (!fs.existsSync(filePath))
+            throw new Error("404 - File not found");
+
+        res.download(filePath, cleanFilename, function(err) {
+            if (err)
+                throw err;
+        });
+    } catch (err) {
         console.error(err);
-        req.session.toastr.push({level: 'error', message: "File not found"});
-        res.writeHead(303, {Location: req.headers.referer});
-        res.end();
-    });
+        req.session.toastr.push({
+            level: 'error',
+            message: "error.500.file"
+        });
+        res.redirect(req.headers.referer);
+    }
 });
 
 router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
