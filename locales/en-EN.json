@@ -74,7 +74,9 @@
         "documentation": "Documentation",
         "cancel": "Cancel",
         "loading": "Loading...",
-        "help": "Help"
+        "help": "Help",
+        "clone": "Clone",
+        "understand": "Get it !"
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -103,7 +105,13 @@
         "sureToDelete": "Are you sure ?",
         "loading": "Loading...",
         "projectDelete" : "Project successfully deleted!",
-        "appDelete" : "Application successfully deleted!"
+        "appDelete" : "Application successfully deleted!",
+        "gitlab": {
+            "modal_title": "How to clone this application ?",
+            "text1": "In order to clone your application just execute this command:",
+            "text2": "Your Gitlab login is:",
+            "text3": "and your password is the one you use on your generator account"
+        }
     },
     "editor": {
         "legend": "Editor",

@@ -15,6 +15,7 @@ var designer = require('../services/designer.js');
 var fs = require('fs-extra');
 var parser = require('../services/bot.js');
 var globalConf = require('../config/global.js');
+var gitlabConf = require('../config/gitlab.js');
 var helpers = require('../utils/helpers');
 var attrHelper = require('../utils/attr_helper');
 var gitHelper = require('../utils/git_helper');
@@ -696,16 +697,25 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
         let iframe_status_url;
         let host = globalConf.host;
         let port;
+        let appName;
 
         for (var i = 0; i < projects.length; i++) {
             for (var j = 0; j < projects[i].Applications.length; j++) {
+
                 iframe_status_url = globalConf.protocol_iframe + '://';
                 port = 9000 + parseInt(projects[i].Applications[j].id);
+                appName = projects[i].Applications[j].codeName.substring(2);
 
-                if (globalConf.env == 'cloud')
-                    iframe_status_url += globalConf.sub_domain + '-' + projects[i].Applications[j].codeName.substring(2) + "." + globalConf.dns + '/';
-                else
+                if (globalConf.env == 'cloud'){
+                    iframe_status_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
+                } else {
                     iframe_status_url += host + ":" + port + "/";
+                }
+
+                if(gitlabConf.doGit){
+                    projects[i].dataValues.Applications[j].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
+                    data.gitlabUser = req.session.gitlab.user;
+                }
 
                 projects[i].dataValues.Applications[j].dataValues.url = iframe_status_url;
             }
