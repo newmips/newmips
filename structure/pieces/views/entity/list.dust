@@ -147,7 +147,7 @@
 
             $('tbody').on('click', 'tr', function (e) {
                 if(!e.ctrlKey){
-                    if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0)
+                    if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0 || $(e.target).is("img"))
                         return;
                     if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
                         window.location = $(this).find('td > a.btn-show:first').attr('href');
