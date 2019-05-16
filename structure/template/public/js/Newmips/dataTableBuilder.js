@@ -242,7 +242,7 @@ function saveFilter(value, el, tableId, field) {
     localStorage.setItem("newmips_filter_save_" + tableId, JSON.stringify(filterSave));
 }
 
-function getFilterSave(tableId, field) {
+function getFilter(tableId, field) {
     var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
     if (filterSave == null)
         return "";
@@ -264,38 +264,56 @@ var delay = (function() {
 //   - append am absolute div to the datalist button
 //   - display a list of the columns available on page load with a checkbox to hide/show each
 function generateColumnSelector(tableID, columns) {
-    var columnsToShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1))) || {columns: []};
-    var columnsSelectorDiv = $('<div id="columnSelector" style="position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+    var storageColumnsShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
+    console.log("storageColumnsShow :");
+    console.log(storageColumnsShow);
+    var columnsSelectorDiv = $('<div id="columnSelector" style="position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+
+    var columnsToShow = {columns: []};
     // Loop over the <th> available on page load
     for (var i = 0; i < columns.length; i++) {
+        // Column has been hidden through hide column instruction, never show
+        if (columns[i].hidden == true)
+            continue;
+        // Button's <th> doesn't have the .sorting class
+        if (!columns[i].element.hasClass('sorting'))
+            continue;
+
         (function (current) {
-            var element = current.element;
-            // Button's <th> doesn't have the .sorting class
-            if (!element.hasClass('sorting'))
-                return;
-            if (columnsToShow.columns.indexOf(element.data('col')) == -1 && !current.hidden)
+            var element = current.element, show;
+            console.log(current);
+            // If storageColumnsShow is null, it means it's the first use of this storage, all columns must be shown by default
+            if (storageColumnsShow == null || current.show)
+                show = true;
+            // Show depending on stored columns to show.
+            else
+                show = storageColumnsShow.columns.indexOf(element.data('col')) != -1;
+            if (show)
                 columnsToShow.columns.push(element.data('col'));
 
-            var columnDiv = $('<label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(current.hidden ? '':'checked')+'>&nbsp;'+element.text()+'</label><br>');
-            // On hide/show trigger
-            columnDiv.click(function() {
-                // Hide by removing col from columnsToShow
-                if (typeof current.element.attr('data-hidden') === 'undefined' || element.attr('data-hidden') == "0")
-                    columnsToShow.columns.splice(columnsToShow.columns.indexOf(element.data('col')), 1);
-                // Show by pushing to columnsToShow
-                else
+            var columnDiv = $('<div style="width:100%;"><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
+            // Initialize column checkbox
+            var checkbox = columnDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
+
+            // Bind hide/show trigger, build new columnsToShow array. Apply button will use this array
+            checkbox.on('ifToggled', function() {
+                // Show by adding col to columnsToShow
+                if (columnsToShow.columns.indexOf(element.data('col')) == -1)
                     columnsToShow.columns.push(element.data('col'));
+                // Hide by removing col from columnsToShow
+                else
+                    columnsToShow.columns.splice(columnsToShow.columns.indexOf(element.data('col')), 1);
             });
             columnsSelectorDiv.append(columnDiv);
         })(columns[i]);
     }
 
-    // Initialize columns checkboxes
-    columnsSelectorDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
+    // columnsSelectorDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 
     // Create Apply button and bind click
     var applyBtn = $('<div style="text-align:center;margin-top:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
     applyBtn.click(function(){
+        console.log(columnsToShow);
         // Set new filters to localStorage and reload
         localStorage.setItem("newmips_shown_columns_save_" + tableID.substring(1), JSON.stringify(columnsToShow));
         setTimeout(function() {
@@ -320,37 +338,30 @@ function init_datatable(tableID, doPagination, context) {
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
     // Use localStorage shown columns definitions to set data-hidden on columns
-    var shownColumns = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1))) || {};
-    if (shownColumns.columns)
-        $(tableID + " .main th").each(function(idx) {
-            var col;
-            // Discard buttons <th>
-            if (!(col = $(this).data('col')))
-                return;
-            // Column set to be hidden in localStorage
-            if (shownColumns.columns.indexOf(col) == -1) {
-                $(this).attr('data-hidden', '1');
-                $(tableID+ ' .filters th').eq(idx).attr('data-hidden', '1');
-            }
-            // Column that default to data-hidden but set to be displayed in localStorage
-            else if (shownColumns.columns.indexOf(col) != -1 && $(this).attr('data-hidden') == "1") {
-                $(this).attr('data-hidden', "0");
-                $(tableID+ ' .filters th').eq(idx).attr('data-hidden', '0');
-            }
-        });
+    var shownColumns = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
 
     // Fetch columns from html
     var columns = [], defaultOrder = {idx: 0, direction: 'DESC'};
     $(tableID + " .main th", context).each(function (idx) {
-        if (typeof $(this).data('col') !== 'undefined'){
-            if($(this).attr("data-hidden") == "1")
-                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true, element: $(this)});
-            else
-                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: false, element: $(this)});
+        var col = $(this).data('col');
+        if (typeof col !== 'undefined'){
+            var column = {data: col, type: $(this).data('type'), element: $(this)};
+            column.hidden = $(this).attr("data-hidden") == "1" ? true : false;
+
+            var shouldShowColumn = true;
+            if (shownColumns == null || shownColumns.columns.indexOf(col) != -1) {
+                column.show = true;
+            }
+            else {
+                $(tableID + " .filters th", context).eq(idx).attr('data-show', '0');
+                column.show = false;
+            }
+
+            columns.push(column);
 
             // Look for default order on field. Presence of `data-default-order` gives the index, value gives direction. Ex: <th data-default-order="ASC">
             if ($(this).data('default-order')) {
-                defaultOrder.idx = idx;
+                defaultOrder.idx = columns.length-1;
                 defaultOrder.direction = $(this).data('default-order');
             }
         }
@@ -376,7 +387,7 @@ function init_datatable(tableID, doPagination, context) {
     var columnDefs = [], columnsTypes = {};
     for (var i = 0; i < columns.length; i++) {
         var objColumnDefToPush = {};
-        if(columns[i].hidden){
+        if(columns[i].hidden || columns[i].show == false){
             objColumnDefToPush.targets = i;
             objColumnDefToPush.render = function(){return "";};
             objColumnDefToPush.visible = false;
@@ -546,15 +557,15 @@ function init_datatable(tableID, doPagination, context) {
         "bAutoWidth": false,
         "order": [ defaultOrder.idx, defaultOrder.direction ],
         "buttons": [
-            // { HIDE BUTTON UNTIL FIX
-            //     text: STR_LANGUAGE.choose_columns,
-            //     action: function(e,dt,node,config) {
-            //         if ($("#columnSelector").length > 0)
-            //             $(node).next().remove();
-            //         else
-            //             $(node).after(generateColumnSelector(tableID, columns));
-            //     }
-            // },
+            {// HIDE BUTTON UNTIL FIX
+                text: STR_LANGUAGE.choose_columns,
+                action: function(e,dt,node,config) {
+                    if ($("#columnSelector").length > 0)
+                        $(node).next().remove();
+                    else
+                        $(node).after(generateColumnSelector(tableID, columns));
+                }
+            },
             {
                 extend: 'print',
                 text: '<i class="fa fa-print"></i>',
@@ -650,7 +661,7 @@ function init_datatable(tableID, doPagination, context) {
 
         // Custom
         var currentField = mainTh.data('field');
-        var val = getFilterSave(tableID.substring(1), currentField);
+        var val = getFilter(tableID.substring(1), currentField);
         var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
 
         function searchInDatalist(searchValue) {
@@ -695,7 +706,7 @@ function init_datatable(tableID, doPagination, context) {
 
         // If it's not an action button
         if (title != '') {
-            if($(this).attr("data-hidden") == "1")
+            if($(this).attr("data-hidden") == "1" || $(this).attr("data-show") == '0')
                 $(this).hide();
             else {
                 $(this).show().html('');
