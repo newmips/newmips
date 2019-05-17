@@ -355,8 +355,10 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "create
 });
 
 router.post('/create', block_access.actionAccessMiddleware("status", "create"), function (req, res) {
-
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
+    let [entity, field] = req.body.entityStatus.split('.');
+    createObject.f_entity = entity;
+    createObject.f_field = field;
 
     models.E_status.create(createObject).then(function (e_status) {
         var redirect = '/status/show?id='+e_status.id;
@@ -438,8 +440,11 @@ router.get('/update_form', block_access.actionAccessMiddleware("status", "update
             data.error = 404;
             return res.render('common/error', data);
         }
-
         data.e_status = e_status;
+        data.f_field = e_status.f_field;
+        data.f_entity = e_status.f_entity;
+        data.entityTrad = 'entity.'+data.f_entity+'.label_entity';
+        data.fieldTrad = 'entity.'+data.f_entity+'.'+data.f_field;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_status, "e_status", true).then(function() {
             if (req.query.ajax) {
