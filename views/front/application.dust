@@ -105,7 +105,7 @@
 						{@__ key="listApplication.gitlab.text3" /} <i class="fa fa-smile-o"></i>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary">{@__ key="button.understand"/}</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal">{@__ key="button.understand"/}</button>
 					</div>
 				</div>
 			</div>

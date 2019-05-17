@@ -53,7 +53,7 @@ exports.getValidator = function(attrDef) {
 			}}
 
 		case 'url':
-			return {isUrl: {msg: "error.validation.email"}};
+			return {isUrl: {msg: "error.validation.url"}};
 
 		case 'text':
 		case 'regular text':

@@ -615,7 +615,7 @@ router.post('/set_logo', block_access.hasAccessApplication, function (req, res) 
                 var dataEntity = req.body.dataEntity;
                 if (!!dataEntity) {
                     var basePath = __dirname + "/../workspace/" + req.body.idApp + "/public/img/" + dataEntity + '/';
-                    fse.mkdirs(basePath, function (err) {
+                    fs.mkdirs(basePath, function (err) {
                         if (!err) {
                             var uploadPath = basePath + req.file.originalname;
                             var outStream = fs.createWriteStream(uploadPath);
@@ -629,7 +629,7 @@ router.post('/set_logo', block_access.hasAccessApplication, function (req, res) 
                             if (req.body.dataType == 'picture') {
                                 //We make thumbnail and reuse it in datalist
                                 basePath = __dirname + "/../workspace/"+req.body.idApp+"/public/img/"+ dataEntity + '/' +  configLogo.folder ;
-                                fse.mkdirs(basePath, function (err) {
+                                fs.mkdirs(basePath, function (err) {
                                     if (!err) {
                                         Jimp.read(uploadPath, function (err, imgThumb) {
                                             if (!err) {
