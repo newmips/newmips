@@ -233,6 +233,20 @@ function formatDateEN(value) {
     return timeBuild + value.substring(6, 8);
 }
 
+function getValue(cellArrayKeyValue, row) {
+    var i = 0;
+    var key = cellArrayKeyValue[i];
+    do {
+        if (row != null && typeof row[key] !== 'undefined')
+            row = row[key];
+        else
+            return '-';
+        i++;
+        key = cellArrayKeyValue[i];
+    } while (i < cellArrayKeyValue.length);
+    return row;
+}
+
 // Bind search fields
 function saveFilter(value, el, tableId, field) {
     var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
@@ -261,7 +275,7 @@ var delay = (function() {
 })();
 
 // Generate the column selector on datatable button click
-//   - append am absolute div to the datalist button
+//   - append an absolute div to the datalist button
 //   - display a list of the columns available on page load with a checkbox to hide/show each
 function generateColumnSelector(tableID, columns) {
     var storageColumnsShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
@@ -305,8 +319,6 @@ function generateColumnSelector(tableID, columns) {
             columnsSelectorDiv.append(columnDiv);
         })(columns[i]);
     }
-
-    // columnsSelectorDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 
     // Create Apply button and bind click
     var applyBtn = $('<div style="text-align:center;margin-top:5px;margin-bottom:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
@@ -363,20 +375,6 @@ function init_datatable(tableID, doPagination, context) {
             }
         }
     });
-
-    function getValue(cellArrayKeyValue, row) {
-        var i = 0;
-        var key = cellArrayKeyValue[i];
-        do {
-            if (row != null && typeof row[key] !== 'undefined')
-                row = row[key];
-            else
-                return '-';
-            i++;
-            key = cellArrayKeyValue[i];
-        } while (i < cellArrayKeyValue.length);
-        return row;
-    }
 
     // Columns rendering
     // Server's object doesn't include DB table's prefix, we need to remove it

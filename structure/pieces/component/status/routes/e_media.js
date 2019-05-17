@@ -14,6 +14,7 @@ var file_helper = require('../utils/file_helper');
 var status_helper = require('../utils/status_helper');
 var globalConf = require('../config/global');
 var fs = require('fs-extra');
+var language = require('../services/language');
 
 var icon_list = require('../config/icon_list');
 
@@ -33,6 +34,23 @@ fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
         tradKey: 'entity.'+file.substring(0, file.length-5)+'.label_entity'
     });
 });
+
+function sortTargetEntities(lang_user) {
+    // Copy global object to add traducted property and sort it
+    const targetEntitiesCpy = [];
+    for (const target of targetEntities) {
+        targetEntitiesCpy.push({
+            codename: target.codename,
+            trad: language(lang_user).__(target.tradKey)
+        });
+    }
+    targetEntitiesCpy.sort((a, b) => {
+        if (a.trad.toLowerCase() > b.trad.toLowerCase()) return 1;
+        if (a.trad.toLowerCase() < b.trad.toLowerCase()) return -1;
+        return 0;
+    });
+    return targetEntitiesCpy;
+}
 
 router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
     var entityTree = status_helper.entityFieldTree(req.params.entity);
@@ -138,7 +156,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
         data.associationUrl = req.query.associationUrl;
     }
 
-    data.target_entities = targetEntities;
+    data.target_entities = sortTargetEntities(req.session.lang_user);
     data.icon_list = icon_list;
     res.render('e_media/create', data);
 });
@@ -209,7 +227,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
 
         data.e_media = e_media;
 
-        data.target_entities = targetEntities;
+        data.target_entities = sortTargetEntities(req.session.lang_user);
         data.icon_list = icon_list;
         res.render('e_media/update', data);
     }).catch(function (err) {
@@ -226,7 +244,6 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
         req.body.version = 0;
 
     var updateObject = model_builder.buildForRoute(attributes, options, req.body);
-    //updateObject = enums.values("e_media", updateObject, req.body);
 
     models.E_media.findOne({where: {id: id_e_media}}).then(function (e_media) {
         if (!e_media) {

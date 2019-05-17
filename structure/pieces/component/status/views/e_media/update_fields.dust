@@ -27,9 +27,9 @@
                 <option value="-1">{#__ key="select.default" /}</option>
                 {#target_entities}
                     {@eq key=f_target_entity value="{codename}"}
-                        <option value="{codename}" selected> {#__ key=tradKey /} </option>
+                        <option value="{codename}" selected>{trad}</option>
                     {:else}
-                        <option value="{codename}"> {#__ key=tradKey /} </option>
+                        <option value="{codename}">{trad}</option>
                     {/eq}
                 {/target_entities}
             </select>

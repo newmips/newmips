@@ -1,45 +1,27 @@
 <div id="fields" class="row">
-    <div data-field="f_entity" class="col-xs-12 col-sm-6">
-        <div class="form-group">
-            <label for="f_entity" class="required"> {#__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
-            {#f_entity}
-                <select disabled class="form-control">
-                    <option value="{f_entity}">{#__ key=entityTrad /}</option>
-                </select>
-                <input type="hidden" name="f_entity" value="{f_entity}">
-            {:else}
-                <select name="f_entity" required class="form-control" style="width:100%;">
-                    <option value="" selected>{#__ key="select.default" /}</option>
-                    {#entities}
-                        <option value="{entity}">{#__ key=entityTrad /}</option>
-                    {/entities}
-                </select>
-            {/f_entity}
-        </div>
-    </div>
-    <div data-field="f_field" class="col-xs-12 col-sm-6">
-        {#f_field}
+    {#f_entity}
+        <div class="col-xs-12 col-sm-6">
             <div class="form-group">
                 <label for="f_field" class="required">{#__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
-                <select disabled class="form-control">
-                    <option value="{f_field}">{#__ key=fieldTrad /}</option>
-                </select>
-                <input type="hidden" name="f_field" value="{f_field}">
+                <input disabled class="form-control" name="traducted" value='{#__ key=entityTrad /} - {#__ key=fieldTrad /}'>
+                <input type="hidden" name="entityStatus" value="{f_entity}.{f_field}">
             </div>
-        {:else}
-            {#entities}
-                <div id="{entity}.status" style="display: none;" class="form-group">
-                    <label for="f_field" class="required">{#__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
-                    <select name="f_field" required disabled class="form-control" style="width:100%;">
-                        <option value="" selected>{#__ key="select.default" /}</option>
-                        {#statuses}
-                            <option value="{status}">{#__ key=statusTrad /}</option>
+        </div>
+    {:else}
+        <div data-field="entityStatus" class="col-xs-12 col-sm-6">
+            <div class="form-group">
+                <label for="f_entity" class="required"> {#__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
+                <select name="entityStatus" required class="form-control" style="width:100%;">
+                    <option value="" selected>{#__ key="select.default" /}</option>
+                    {#entities}
+                        {#statuses parentEntity=entity parentTrad=entityTrad}
+                        <option value="{parentEntity}.{status}">{#__ key=parentTrad /} - {#__ key=statusTrad /}</option>
                         {/statuses}
-                    </select>
-                </div>
-            {/entities}
-        {/f_field}
-    </div>
+                    {/entities}
+                </select>
+            </div>
+        </div>
+    {/f_entity}
     <br><br><br><br>
     <div data-field="f_name" class="col-xs-12 col-sm-6">
         <div class="form-group">
