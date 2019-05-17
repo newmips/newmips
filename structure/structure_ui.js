@@ -358,7 +358,7 @@ exports.addTitle = function (attr, callback) {
     let viewsToProcess = ["create_fields", "update_fields", "show_fields"];
     let processPromises = [];
 
-    let title = "<div class='col-xs-12 text-center'><div class='form-group form-title'><h3>"+attr.options.value+"</h3></div></div>";
+    let title = "<div class='col-xs-12 text-center'>\n<div class='form-group form-title'>\n<h3>"+attr.options.value+"</h3>\n</div>\n</div>\n";
 
     for (var i = 0; i < viewsToProcess.length; i++) {
         processPromises.push(new Promise((resolve, reject) => {

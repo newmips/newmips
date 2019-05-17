@@ -1,22 +1,18 @@
 const fs = require("fs-extra");
 const spawn = require('cross-spawn');
-var helpers = require('../utils/helpers');
-var domHelper = require('../utils/jsDomHelper');
-var translateHelper = require("../utils/translate");
+const helpers = require('../utils/helpers');
+const domHelper = require('../utils/jsDomHelper');
+const translateHelper = require("../utils/translate");
 const path = require("path");
 const mysql = require('promise-mysql');
 
 // Gitlab
 const globalConf = require('../config/global.js');
 const gitlabConf = require('../config/gitlab.js');
-const gitlab = require('../services/gitlab_api')
+const gitlab = require('../services/gitlab_api');
 
 const dbConf = require('../config/database.js');
-
-if (globalConf.env == 'cloud'){
-    const studio_manager = require('../services/studio_manager');
-}
-
+const studio_manager = require('../services/studio_manager');
 const models = require('../models/');
 const exec = require('child_process').exec;
 
