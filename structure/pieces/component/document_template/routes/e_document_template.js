@@ -476,7 +476,7 @@ router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("d
     var type = req.query.t;
     if (entity) {
         if (type === 'html') {
-            var html = document_template_helper.buildHTMLHelpEntitiesAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
+            var html = document_template_helper.buildHTML_EntitiesHelperAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
             res.json({
                 HTMLRelationsList: html
             });

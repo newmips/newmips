@@ -17,26 +17,35 @@
         </div>
     </div>
     <div data-field="f_entity" class="col-xs-12">
-        <label for="f_entity"> {#__ key="entity.e_document_template.f_entity"/} </label>
-        <input class="form-control input" placeholder='{#__ key="entity.e_document_template.f_entity" /}' name="f_entity" value="{f_entity}" type="text" readonly="">
+        <div class="form-group">
+            <label for="f_entity"> {#__ key="entity.e_document_template.f_entity"/} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_document_template.f_entity" /}' name="f_entity" value="{f_entity}" type="text" readonly="" id="document_template_select_entity">
+        </div>
     </div>
     <div data-field="f_exclude_relations" class="col-xs-12">
-        <label for="f_exclude_relations" class="required"> {#__ key="entity.e_document_template.f_exclude_relations"/} </label>&nbsp;&nbsp;  <a href="#" id="info_relations"><i class="fa fa-info-circle"></i></a>
-        <select name="f_exclude_relations" style="width: 100%" class="form-control" id="f_exclude_relations" multiple="" disabled="">
-            {#document_template_relations}
-            {?isSelected}
-            <option value="{.value}" selected="">{.item}</option>
-            {:else}
-            <option value="{.value}" >{.item}</option>
-            {/isSelected}
-            {/document_template_relations}
-        </select>
+        <div class="form-group">
+            <label for="f_exclude_relations" class="required"> {#__ key="entity.e_document_template.f_exclude_relations"/} </label>&nbsp;&nbsp;  <a href="#" id="info_relations"><i class="fa fa-info-circle"></i></a>
+            <select name="f_exclude_relations" style="width: 100%" class="form-control" id="f_exclude_relations" multiple="" disabled="">
+                {#document_template_relations}
+                {?isSelected}
+                <option value="{.value}" selected="">{.item}</option>
+                {:else}
+                <option value="{.value}" >{.item}</option>
+                {/isSelected}
+                {/document_template_relations}
+            </select>
+        </div>
     </div>
 </div>
 <br>
 <div class="actions">
     <form action="/document_template/delete" method="post">
         <div class="quicklinks">
+            <span>
+                <a href="#" id="document_template_helper">
+                    <button class="btn btn-default"><i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.help"/}</span></button>
+                </a>
+            </span>
             <span>
                 <button class="btn btn-danger btn-confirm">
                     <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>

@@ -289,7 +289,7 @@ module.exports = {
         }
         return result;
     },
-    buildHTMLHelpEntitiesAjax: function (entities, userLang) {
+    buildHTML_EntitiesHelperAjax: function (entities, userLang) {
         var html = '';
         entities.forEach(function (entity) {
             html += '<div class="panel box" style="border-top-color:' + entity.color + '">';

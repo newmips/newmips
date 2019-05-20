@@ -97,7 +97,7 @@
                             });
                         });
                     });
-                    $('#global_variables').on('click', function (e) {
+                    $('#document_template_global_variables').on('click', function (e) {
                         e.preventDefault();
                         $.ajax({
                             url: '/document_template/global-variables',

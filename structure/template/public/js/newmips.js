@@ -4,7 +4,7 @@ var dropzonesComponentArray = [];
 Dropzone.autoDiscover = false;
 
 function select2_ajaxsearch(select, placeholder) {
-    if(!placeholder)
+    if (!placeholder)
         placeholder = SELECT_DEFAULT_TEXT;
 
     var searchField = select.data('using').split(',');
@@ -28,9 +28,9 @@ function select2_ajaxsearch(select, placeholder) {
                 };
                 // customwhere example: data-customwhere='{"myField": "myValue"}'
                 // Do not work for related to many fields if the field is a foreignKey !
-                if (select.data('customwhere') !== undefined){
+                if (select.data('customwhere') !== undefined) {
                     // Handle this syntax: {'myField': 'myValue'}, JSON.stringify need "", no ''
-                    if(typeof select.data('customwhere') === "object")
+                    if (typeof select.data('customwhere') === "object")
                         ajaxdata.customwhere = JSON.stringify(select.data('customwhere'));
                     else
                         ajaxdata.customwhere = JSON.stringify(JSON.parse(select.data('customwhere').replace(/'/g, '"')));
@@ -42,7 +42,7 @@ function select2_ajaxsearch(select, placeholder) {
                 if (!dataResults)
                     return {results: []};
                 var results = [];
-                if(select.attr("multiple") != "multiple" && !params.page)
+                if (select.attr("multiple") != "multiple" && !params.page)
                     results.push({id: "", text: placeholder});
                 for (var i = 0; i < dataResults.length; i++) {
                     var text = [];
@@ -84,11 +84,11 @@ function initForm(context) {
     $("select.ajax", context).each(function () {
         // Avoid new instanciation if already in select2
         // Fix width css glitch when switching tabs
-        if(typeof $(this).data("select2") === "undefined")
+        if (typeof $(this).data("select2") === "undefined")
             select2_ajaxsearch($(this));
     });
     $("select:not(.ajax):not(.regular-select)", context).each(function () {
-        if(typeof $(this).data("select2") === "undefined")
+        if (typeof $(this).data("select2") === "undefined")
             $(this).select2();
     });
 
@@ -115,7 +115,7 @@ function initForm(context) {
             ['view', ['fullscreen', 'codeview', 'help']],
             ['custom', ['stt']]
         ];
-        if($(this).hasClass("no-toolbar")){
+        if ($(this).hasClass("no-toolbar")) {
             toolbar = [];
         }
         $(this).summernote({
@@ -357,14 +357,14 @@ function initForm(context) {
 
     /* Add http:// by default if missing on given url */
     $("input[type='url']", context).each(function () {
-        $(this).blur(function(){
+        $(this).blur(function () {
             var currentUrl = $(this).val();
             if (currentUrl != "" && currentUrl.indexOf("http://") == -1 && currentUrl.indexOf("https://") == -1) {
-                if(currentUrl.indexOf("://") != -1){
+                if (currentUrl.indexOf("://") != -1) {
                     var toKeep = currentUrl.split("://")[1];
-                    $(this).val("http://"+toKeep);
+                    $(this).val("http://" + toKeep);
                 } else {
-                    $(this).val("http://"+currentUrl);
+                    $(this).val("http://" + currentUrl);
                 }
             }
         })
@@ -483,20 +483,20 @@ function initForm(context) {
     $(document).on("click", "div:not([data-field='']) .form-group label", function () {
         let htmlType = ["input", "textarea", "select"]
         let input;
-        for (var i=0; i < htmlType.length; i++) {
-            if($(this).parent().find(htmlType[i]+"[name='"+$(this).attr("for")+"']").length != 0){
-                input = $(this).parent().find(htmlType[i]+"[name='"+$(this).attr("for")+"']");
+        for (var i = 0; i < htmlType.length; i++) {
+            if ($(this).parent().find(htmlType[i] + "[name='" + $(this).attr("for") + "']").length != 0) {
+                input = $(this).parent().find(htmlType[i] + "[name='" + $(this).attr("for") + "']");
                 break;
             }
         }
-        if(typeof input !== "undefined"){
-            switch(input.attr("type")) {
+        if (typeof input !== "undefined") {
+            switch (input.attr("type")) {
                 case "checkbox":
-                    if(!input.prop("disabled"))
+                    if (!input.prop("disabled"))
                         input.icheck("toggle");
                     break;
                 default:
-                    if(!input.prop("readonly"))
+                    if (!input.prop("readonly"))
                         input.focus();
                     else
                         input.select();
@@ -505,12 +505,12 @@ function initForm(context) {
         }
     });
 
-    $(document).on("click", ".copy-button", function(){
+    $(document).on("click", ".copy-button", function () {
         var $temp = $("<input>");
         $("body").append($temp);
         $temp.val($(this).prev("a").text()).select();
         document.execCommand("copy");
-        toastr.success('<i class="fa fa-copy"></i> : '+$(this).prev("a").text()+'</i>')
+        toastr.success('<i class="fa fa-copy"></i> : ' + $(this).prev("a").text() + '</i>')
         $temp.remove();
     });
 }
@@ -689,9 +689,9 @@ function validateForm(form) {
     var isValid = true;
 
     function isFileProcessing() {
-        for (var i = 0; i < dropzonesFieldArray.length; i++){
-            if (dropzonesFieldArray[i].files.length == 1){
-                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)){
+        for (var i = 0; i < dropzonesFieldArray.length; i++) {
+            if (dropzonesFieldArray[i].files.length == 1) {
+                if (dropzonesFieldArray[i].files[0].type != 'mockfile' && (dropzonesFieldArray[i].files[0].status != 'success' || dropzonesFieldArray[i].files[0].upload.progress != 100)) {
                     return true;
                 }
             }
@@ -700,13 +700,13 @@ function validateForm(form) {
     }
 
     function isFileRequired() {
-        for (var i = 0; i < dropzonesFieldArray.length; i++){
-            if($("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).prop("required") && $("input#"+$(dropzonesFieldArray[i].element).attr("id")+"_hidden", form).val() == ""){
+        for (var i = 0; i < dropzonesFieldArray.length; i++) {
+            if ($("input#" + $(dropzonesFieldArray[i].element).attr("id") + "_hidden", form).prop("required") && $("input#" + $(dropzonesFieldArray[i].element).attr("id") + "_hidden", form).val() == "") {
                 return true;
             }
         }
-        for(let item in dropzonesComponentArray){
-            if($("input#"+$(dropzonesComponentArray[item][0].element).attr("id")+"_hidden", form).prop("required") && $("input#"+$(dropzonesComponentArray[item][0].element).attr("id")+"_hidden", form).val() == ""){
+        for (let item in dropzonesComponentArray) {
+            if ($("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).prop("required") && $("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).val() == "") {
                 return true;
             }
         }
@@ -733,7 +733,7 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                if(date.length > 1){
+                if (date.length > 1) {
                     var newDate = date[2] + "-" + date[1] + "-" + date[0];
 
                     // Remove mask to enable to transform the date
@@ -750,7 +750,7 @@ function validateForm(form) {
                 $(this).prop("readOnly", true);
 
                 var date = $(this).val().split("/");
-                if(date.length > 1){
+                if (date.length > 1) {
                     var yearDate = date[2].split(" ");
                     var newDate = yearDate[0] + "-" + date[1] + "-" + date[0] + " " + yearDate[1];
 
@@ -782,7 +782,7 @@ function validateForm(form) {
 
     /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
     form.find("input[type='checkbox']").each(function () {
-        if(!$(this).hasClass("no-formatage")){
+        if (!$(this).hasClass("no-formatage")) {
             if ($(this).prop("checked")) {
                 $(this).val(true);
             } else {
@@ -792,8 +792,8 @@ function validateForm(form) {
             }
         } else {
             // If it's a multiple checkbox, we have to set an empty value in the req.body if no checkbox are checked
-            if($("input[type='checkbox'][name='"+$(this).attr("name")+"']").length > 0){
-                if($("input[type='checkbox'][name='"+$(this).attr("name")+"']:enabled:checked").length == 0){
+            if ($("input[type='checkbox'][name='" + $(this).attr("name") + "']").length > 0) {
+                if ($("input[type='checkbox'][name='" + $(this).attr("name") + "']:enabled:checked").length == 0) {
                     var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
                     form.append($(input));
                 }
@@ -853,7 +853,8 @@ function validateForm(form) {
                         if (error)
                             message += " Le champ " + $(this).attr("placeholder") + " doit avoir une taille égale à " + len + ".";
                         break;
-                    case 'code39':                         var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
+                    case 'code39':
+                        var reg = new RegExp('\\[A-Z0-9-. $\/+]\\*', 'g');
                         if (!(/^[A-Z0-9-. $\/+]*$/).test(val)) {
                             message += " Le champ " + $(this).attr("placeholder") + " doit respècter la norme code39.";
                             error = true;
@@ -893,9 +894,9 @@ function validateForm(form) {
 
 /* --------------- Status comment modal --------------- */
 function bindStatusComment(context) {
-    if(!context)
+    if (!context)
         context = document;
-    $(".status", context).click(function() {
+    $(".status", context).click(function () {
         var url = $(this).data('href');
 
         // No comment for this status
@@ -905,10 +906,10 @@ function bindStatusComment(context) {
         // Comment required
         // Set hidden fields values
         var hrefParts = $(this).data('href').split('/');
-        $("#statusComment input[name=parentName]").val(hrefParts[hrefParts.length-5]);
-        $("#statusComment input[name=parentId]").val(hrefParts[hrefParts.length-3]);
-        $("#statusComment input[name=field]").val(hrefParts[hrefParts.length-2]);
-        $("#statusComment input[name=statusId]").val(hrefParts[hrefParts.length-1]);
+        $("#statusComment input[name=parentName]").val(hrefParts[hrefParts.length - 5]);
+        $("#statusComment input[name=parentId]").val(hrefParts[hrefParts.length - 3]);
+        $("#statusComment input[name=field]").val(hrefParts[hrefParts.length - 2]);
+        $("#statusComment input[name=statusId]").val(hrefParts[hrefParts.length - 1]);
 
         $("#statusComment").modal('show');
     });
@@ -932,7 +933,7 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".btn-confirm", function () {
-        if(confirm(DEL_CONFIRM_TEXT))
+        if (confirm(DEL_CONFIRM_TEXT))
             return true;
         return false;
     });
@@ -944,14 +945,14 @@ $(document).ready(function () {
         $(this).prop("readOnly", true);
         $(this).css("cursor", "wait");
         var tmpText = $(this).html();
-        if($(this).hasClass("btn-confirm")){
-            if(!isChrome){
+        if ($(this).hasClass("btn-confirm")) {
+            if (!isChrome) {
                 $(this).html("<i class='fa fa-spinner fa-spin'></i>");
             }
         } else {
             $(this).html("<i class='fa fa-spinner fa-spin'></i>");
         }
-        setTimeout(function(){
+        setTimeout(function () {
             $(context).prop("readOnly", false);
             $(context).css("cursor", "pointer");
             $(context).html(tmpText);
@@ -1253,6 +1254,70 @@ function initComponentAddress(context) {
     }, 500);
 }
 
+
+function initDocumentTemplateHelper() {
+
+    function onClickDocumentTemplateHelper() {
+        var select = $('#document_template_select_entity').val();
+        var onclick = "window.open('/document_template/readme/" + select + "', '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=500')";
+        $('#document_template_helper').attr('onclick', onclick);
+    }
+
+    function updateDocumentTemplateSubEntities(entity) {
+        if (entity) {
+            $.ajax({
+                url: '/document_template/entities/' + entity + '/relations',
+                methode: 'GET',
+                success: function (data) {
+                    if (data.relations) {
+                        $('#f_exclude_relations').empty();
+                        data.relations.forEach(function (relation) {
+                            $('#f_exclude_relations').append('<option value=' + relation + ' selected>' + relation + '</option>');
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    updateDocumentTemplateSubEntities($('#document_template_select_entity').val());
+
+    $('#document_template_select_entity').on('change', function () {
+        onClickDocumentTemplateHelper();
+        updateDocumentTemplateSubEntities($(this).val());
+    });
+
+    $('#document_template_sub_entities').on('click', function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/document_template/help/subEntities',
+            methode: 'GET',
+            success: function (data) {
+                if (data && data.message) {
+                    var html = '<div class="modal fade" tabindex="-1" role="dialog">';
+                    html += '<div class="modal-dialog" role="document">';
+                    html += '<div class="modal-content">';
+                    html += '<div class="modal-header" style="background:#3c8dbc;color:#ffffff">';
+                    html += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+                    html += '<h4 class="modal-title">Information</h4>';
+                    html += '</div>';
+                    html += '<div class="modal-body">';
+                    html += data.message;
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    $(html).modal('show');
+                }
+            }
+        });
+        return false;
+    });
+
+    onClickDocumentTemplateHelper();
+}
+initDocumentTemplateHelper();
+
 function initMapsIfComponentAddressExists(context) {
     if (!context)
         context = document;
@@ -1294,7 +1359,7 @@ function initMapsIfComponentAddressExists(context) {
                 var mapnik = new OpenLayers.Layer.OSM();
                 var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
                 var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-                var position = new OpenLayers.LonLat(lon,lat).transform(fromProjection, toProjection);
+                var position = new OpenLayers.LonLat(lon, lat).transform(fromProjection, toProjection);
                 var zoom = 15;
                 var markers = new OpenLayers.Layer.Markers("Markers");
 
@@ -1309,7 +1374,7 @@ function initMapsIfComponentAddressExists(context) {
     }
 }
 
-function clearString(string){
+function clearString(string) {
 
     // Remove space before and after
     string = string.trim();
