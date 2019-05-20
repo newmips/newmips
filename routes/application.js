@@ -193,8 +193,6 @@ function execute(req, instruction) {
 router.get('/preview', block_access.hasAccessApplication, function(req, res) {
 
     var id_application = req.query.id_application;
-
-    console.log(helpers.getLastLoggedError(id_application))
     var timeoutServer = 30000;
     if(typeof req.query.timeout !== "undefined")
         timeoutServer = req.query.timeout;
