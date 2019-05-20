@@ -215,11 +215,13 @@ module.exports = {
         var result = [];
         var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
         var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
+        var entityRootTranslated = language(userLang).__('entity.e_' + entityRoot.toLowerCase() + '.label_entity');
+        entityRootTranslated = entityRootTranslated.charAt(0).toUpperCase() + entityRootTranslated.slice(1);
         result.push({
             id: 0,
             message: '',
             attributes: this.getAttributes(attributes),
-            entity: entityRoot,
+            entity: entityRootTranslated,
             relation: 'root',
             color: "#ffffff"
         });
@@ -258,7 +260,7 @@ module.exports = {
                             langMessage[userLang || lang].empty + ": <br>" +
                             "<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
                             "{/" + relation.as + "}</pre><br><br>";
-                var entity = relation.target.replace('e_', '');
+                var entity = language(userLang).__('entity.' + relation.target + '.label_entity');
                 result.push({
                     id: i + 1,
                     message: message,
