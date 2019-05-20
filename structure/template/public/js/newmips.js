@@ -452,7 +452,7 @@ function initForm(context) {
                     $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
                     /*remove file extension starts With _*/
                     if (fileExt)
-                        filename = filename.substring(filename.lastIndexOf('_'), filename.length);
+                        filename = filename.substring(0, filename.lastIndexOf('_'));
                     return timeFile + '_' + filename + '.' + fileExt;
                 }
 
