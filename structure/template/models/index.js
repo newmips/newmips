@@ -194,7 +194,12 @@ sequelize.customAfterSync = function() {
                         (function(sourceEntity, option) {
                             promises.push(new Promise(function(resolve0, reject0) {
                                 var tableName = sourceEntity.substring(sourceEntity.indexOf('_')+1);
-                                var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
+                                try {
+                                    var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
+                                } catch(err) {
+                                    console.error("Unable to find model "+tableName+", skipping toSync query.")
+                                    return resolve0();
+                                }
                                 var targetName;
                                 // Status specific target. Get real history table name from attributes
                                 if (option.target.indexOf('e_history_') == 0) {

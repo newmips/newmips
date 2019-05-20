@@ -62,8 +62,13 @@ app.use(morgan('dev', {
     },
     stream: split().on('data', function(line) {
         if (allLogStream.bytesWritten < 5000) {
-            allLogStream.write(moment().format("YY-MM-DD HH:mm:ss") + ": " + ansiToHtml.toHtml(line) + "\n");
-            process.stdout.write(line + "\n");
+            if(globalConf.env != "develop"){
+                allLogStream.write(moment().format("MM-DD HH:mm:ss") + ": " + ansiToHtml.toHtml(line) + "\n");
+                process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line + "\n");
+            } else {
+                allLogStream.write(ansiToHtml.toHtml(line) + "\n");
+                process.stdout.write(line + "\n");
+            }
         } else {
             /* Clear all.log if too much bytes are written */
             fs.writeFileSync(path.join(__dirname, 'all.log'), '');
@@ -71,6 +76,17 @@ app.use(morgan('dev', {
         }
     })
 }));
+
+if(globalConf.env != "develop"){
+    require('console-stamp')(console, {
+        formatter: function() {
+            return moment().format('MM-DD HH:mm:ss');
+        },
+        label: false,
+        datePrefix: "",
+        dateSuffix: ""
+    });
+}
 
 // Overide console.warn & console.error to file+line
 ['warn', 'error'].forEach((methodName) => {
