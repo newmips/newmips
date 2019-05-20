@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.preview"/}<small>{@__ key="menu.module"/}</small>
+	{#__ key="menu.preview"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<custom_css}
 	{! Dropzone !}
@@ -25,16 +25,16 @@
 	<div class="nav-tabs-custom" id="tabs" style="margin-bottom:0px;">
 		<ul class="nav nav-tabs" id="primary-navtabs" role="tablist">
 			<li class="active">
-				<a role="primaryTab" data-toggle="tab" href="#preview">{@__ key="preview.title"/}</a>
+				<a role="primaryTab" data-toggle="tab" href="#preview">{#__ key="preview.title"/}</a>
 			</li>
 			<li>
-				<a role="primaryTab" data-toggle="tab" href="#ui-editor">{@__ key="menu.ui_editor"/}</a>
+				<a role="primaryTab" data-toggle="tab" href="#ui-editor">{#__ key="menu.ui_editor"/}</a>
 			</li>
 			<li>
-				<a id="start-editor" role="primaryTab" data-toggle="tab" href="#editor">{@__ key="menu.editor"/}</a>
+				<a id="start-editor" role="primaryTab" data-toggle="tab" href="#editor">{#__ key="menu.editor"/}</a>
 			</li>
 			<li>
-				<a id="start-logs" role="primaryTab" data-toggle="tab" href="#logs">{@__ key="menu.logs"/}</a>
+				<a id="start-logs" role="primaryTab" data-toggle="tab" href="#logs">{#__ key="menu.logs"/}</a>
 			</li>
 		</ul>
 		<div class="tab-content">
@@ -48,11 +48,11 @@
 										<i class="fa fa-microphone fa-md"></i>
 									</a>
 								</div>
-								<input class="form-control" id="instruction" name="instruction" type="text" autocomplete="off" autofocus="autofocus" required="required" x-webkit-speech="x-webkit-speech" placeholder='{@__ key="preview.execute"/}' />
+								<input class="form-control" id="instruction" name="instruction" type="text" autocomplete="off" autofocus="autofocus" required="required" x-webkit-speech="x-webkit-speech" placeholder='{#__ key="preview.execute"/}' />
 								<input class="form-control input" id="iframe_url" name="iframe_url" type="hidden" value="{iframe_url}" />
 								<input class="form-control input" id="chat" name="chat" type="hidden" value="{chat|stringify}" />
 								<div class="input-group-btn">
-									<button class="btn btn-success" id="execute_instruction">{@__ key="button.execute"/}</button>
+									<button class="btn btn-success" id="execute_instruction">{#__ key="button.execute"/}</button>
 								</div>
 							</div>
 						</form>
@@ -97,14 +97,14 @@
 												{/eq}
 											</a>
 											{@eq key=content value="chat.welcome"}
-												<span class="dynamic-writing">{@__ key=content filters="|s"/}</span>
+												<span class="dynamic-writing">{#__ key=content filters="|s"/}</span>
 											{:else}
 												{@ifTrue key=isError}
 													<span class="standard-writing" style="color:#e33939;">
-														<i class='fa fa-exclamation-circle'></i> {@__ key=content params=params filters="|s"/}
+														<i class='fa fa-exclamation-circle'></i> {#__ key=content params=params filters="|s"/}
 													</span>
 												{:else}
-													<span class="standard-writing">{@__ key=content params=params filters="|s"/}</span>
+													<span class="standard-writing">{#__ key=content params=params filters="|s"/}</span>
 												{/ifTrue}
 											{/eq}
 										</p>
@@ -122,27 +122,27 @@
 								<div class="callout callout-warning">
 									{#session}
 										{?project.id_project}
-											{@__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{project.id_project} - {project.name_project}</b>
+											{#__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{project.id_project} - {project.name_project}</b>
 										{:else}
-											{@__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{@__ key="preview.session.noProject"/}</b>
+											{#__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{#__ key="preview.session.noProject"/}</b>
 										{/project.id_project}
 										<br>
 										{?application.id_application}
-											{@__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{application.id_application} - {application.name_application}</b>
+											{#__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{application.id_application} - {application.name_application}</b>
 										{:else}
-											{@__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{@__ key="preview.session.noApplication"/}</b>
+											{#__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{#__ key="preview.session.noApplication"/}</b>
 										{/application.id_application}
 										<br>
 										{?module.id_module}
-											{@__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{module.id_module} - {module.name_module}</b>
+											{#__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{module.id_module} - {module.name_module}</b>
 										{:else}
-											{@__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{@__ key="preview.session.noModule"/}</b>
+											{#__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{#__ key="preview.session.noModule"/}</b>
 										{/module.id_module}
 										<br>
 										{?data_entity.id_data_entity}
-											{@__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{data_entity.id_data_entity} - {data_entity.name_data_entity}</b>
+											{#__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{data_entity.id_data_entity} - {data_entity.name_data_entity}</b>
 										{:else}
-											{@__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{@__ key="preview.session.noEntity"/}</b>
+											{#__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{#__ key="preview.session.noEntity"/}</b>
 										{/data_entity.id_data_entity}
 									{/session}
 								</div>
@@ -150,22 +150,22 @@
 							<div class="box-footer">
 								<div class="text-center">
 									<a class="btn btn-app" id="restart-server" href="#">
-										<i class="fa fa-refresh"></i>{@__ key="preview.reload"/}
+										<i class="fa fa-refresh"></i>{#__ key="preview.reload"/}
 									</a>
 									{@ne key=globalConf.env value="cloud"}
 										<a class="btn btn-app" target="_blank" href="https://github.com/newmips/newmips/issues/new">
-											<i class="fa fa-github"></i>{@__ key="preview.issue-button"/}
+											<i class="fa fa-github"></i>{#__ key="preview.issue-button"/}
 										</a>
 									{/ne}
 									{@ifTrue key=isSupportChatEnabled}
 										<div class="btn btn-app" id="message-box" title="" data-toggle="tooltip" data-original-title="Support chat">
 											<i class="fa fa-comment"></i>
 											<div class="badge badge-danger slack-message-count" style="display: none;"></div>
-											{@__ key="preview.help-button"/}
+											{#__ key="preview.help-button"/}
 										</div>
 									{/ifTrue}
 									<a class="btn btn-app" target="_blank" href="http://docs.newmips.com">
-										<i class="fa fa-book"></i>{@__ key="button.documentation"/}
+										<i class="fa fa-book"></i>{#__ key="button.documentation"/}
 									</a>
 								</div>
 							</div>
@@ -176,9 +176,9 @@
 			<div class="tab-pane fade in" id="ui-editor" style="min-height:750px;">
 				<div class="row">
 					<div class="col-xs-12 col-sm-2 sidebar">
-						<h4>{@__ key="entity.label"/} :</h4>
+						<h4>{#__ key="entity.label"/} :</h4>
 						<select id="entitySelect" name="entitySelect">
-							<option default="true" value="">{@__ key="ui_editor.select_entity"/}</option>
+							<option default="true" value="">{#__ key="ui_editor.select_entity"/}</option>
 							{#entities}
 								<option value="{codeName}">{name}</option>
 							{/entities}
@@ -186,51 +186,51 @@
 						<ul class="sidebar-menu" id="pages" style="display:none;">
 							<li class="ui-state-default treeview" style="display:block;">
 								<a class="ui_editor_page" href="#" data-entity="" data-page="create">
-									<i class="fa fa-file"></i>{@__ key="ui_editor.create_page"/}
+									<i class="fa fa-file"></i>{#__ key="ui_editor.create_page"/}
 								</a>
 							</li>
 							<li class="ui-state-default treeview" style="display:block;">
 								<a class="ui_editor_page" href="#" data-entity="" data-page="update">
-									<i class="fa fa-file"></i>{@__ key="ui_editor.update_page"/}
+									<i class="fa fa-file"></i>{#__ key="ui_editor.update_page"/}
 								</a>
 							</li>
 							<li class="ui-state-default treeview" style="display:block;">
 								<a class="ui_editor_page" href="#" data-entity="" data-page="show">
-									<i class="fa fa-file"></i>{@__ key="ui_editor.show_page"/}
+									<i class="fa fa-file"></i>{#__ key="ui_editor.show_page"/}
 								</a>
 							</li>
 							<li class="ui-state-default treeview" style="display:block;">
 								<a class="ui_editor_page" href="#" data-entity="" data-page="print">
-									<i class="fa fa-file"></i>{@__ key="ui_editor.print_page"/}
+									<i class="fa fa-file"></i>{#__ key="ui_editor.print_page"/}
 								</a>
 							</li>
 						</ul>
 					</div>
 					<div class="col-xs-12 col-sm-10">
 						<div id="ui_editor"></div>
-						<i id="ui_editor_tips" style="display:none;">{@__ key="ui_editor.tips"/}</i>
+						<i id="ui_editor_tips" style="display:none;">{#__ key="ui_editor.tips"/}</i>
 						<br><br>
 						<input id="ui_editor_apply_all" type="checkbox" />
-						<span id="ui_editor_apply_all_span" style="display:none;">{@__ key="ui_editor.applyAll"/}</span>
+						<span id="ui_editor_apply_all_span" style="display:none;">{#__ key="ui_editor.applyAll"/}</span>
 						<br><br>
-						<button class="btn btn-primary" id="ui_editor_save" style="display:none;">{@__ key="button.save"/}</button>
+						<button class="btn btn-primary" id="ui_editor_save" style="display:none;">{#__ key="button.save"/}</button>
 					</div>
 				</div>
 			</div>
 			<div class="tab-pane fade in" id="editor">
 				<div class="row">
 					<div class="col-xs-12 col-sm-2 sidebar" id="codemirror-menu">
-						<h4>{@__ key="editor.folders"/} :</h4>
+						<h4>{#__ key="editor.folders"/} :</h4>
 						<ul class="sidebar-menu" id="sortable">
 						</ul>
 					</div>
 					<div class="col-xs-12 col-sm-10" id="codemirror-editor" style="position:absolute;right:15px;">
 						<div class="col-xs-9">
-							<h4>{@__ key="editor.legend"/} :</h4>
+							<h4>{#__ key="editor.legend"/} :</h4>
 						</div>
 						<div class="col-xs-2">
 							<span class="pull-right" style="margin-right:50px;">
-								<b>{@__ key="editor.change_theme"/} :</b>
+								<b>{#__ key="editor.change_theme"/} :</b>
 							</span><br>
 							<select class="pull-right" id="select-theme">
 								<option value="default">default</option>
@@ -286,7 +286,7 @@
 						</div>
 						<div class="col-xs-1">
 							<button style="margin-top: 15px" class="btn btn-primary" id="update-file" disabled="true">
-								{@__ key="button.save"/}
+								{#__ key="button.save"/}
 							</button>
 						</div>
 						<div class="nav-tabs-custom" id="tabs-editor" style="margin-bottom:0px;">
@@ -310,12 +310,12 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-					<h4 class="modal-title">{@__ key="preview.logo.title"/}</h4>
+					<h4 class="modal-title">{#__ key="preview.logo.title"/}</h4>
 				</div>
 				<div class="modal-body">
 					<p class="text-center">
 						<img src="/img/avatar.png" alt="Mipsy" style="display:block;margin:auto;width: 150px;" />
-						<br>{@__ key="preview.logo.text"/}
+						<br>{#__ key="preview.logo.text"/}
 						<br><br>
 						<div class="col-xs-12" data-field="set_logo">
 							<div class="form-group">
@@ -326,12 +326,12 @@
 						</div>
 						<br><br>
 						<div class="col-xs-12 text-center">
-							<button class="btn btn-success" id="addLogo">{@__ key="button.add"/}</button>
+							<button class="btn btn-success" id="addLogo">{#__ key="button.add"/}</button>
 						</div>
 					</p>
 				</div>
 				<div class="modal-footer">
-					<button class="btn btn-default" type="button" data-dismiss="modal">{@__ key="button.close"/} </button>
+					<button class="btn btn-default" type="button" data-dismiss="modal">{#__ key="button.close"/} </button>
 				</div>
 			</div>
 		</div>
@@ -358,18 +358,18 @@
     {:else}
 		<script type="text/javascript">
 			$("#message-box").click(function() {
-				var chatDisabledMsg = '{@__ key="preview.help-disabled"/}';
+				var chatDisabledMsg = '{#__ key="preview.help-disabled"/}';
 				toastr.info(chatDisabledMsg);
 			});
 		</script>
 	{/ifTrue}
 
 	<script type="text/javascript">
-		var intro2 = '{@__ key="editor.intro"/}' + "\n";
-		intro2 += '{@__ key="editor.intro2"/}' + "\n";
-		intro2 += '{@__ key="editor.intro3"/}';
-		var savingButtonText = '{@__ key="button.save"/}';
-		var loadingButtonText = '{@__ key="button.loading"/}';
+		var intro2 = '{#__ key="editor.intro"/}' + "\n";
+		intro2 += '{#__ key="editor.intro2"/}' + "\n";
+		intro2 += '{#__ key="editor.intro3"/}';
+		var savingButtonText = '{#__ key="button.save"/}';
+		var loadingButtonText = '{#__ key="button.loading"/}';
 	</script>
 	{! Preview JS !}
 	<script type="text/javascript">var workspaceFolder = [];</script>

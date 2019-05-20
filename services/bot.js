@@ -2688,6 +2688,7 @@ var training = {
         "ajouter un titre (.*) après le champ (.*)"
     ]
 };
+
 // ******* Parse *******
 exports.parse = function (instruction) {
 
@@ -2753,7 +2754,7 @@ exports.complete = function (instruction) {
             var variable = false;
             while ((m < l) && (k < n) && (valid)) {
                 // Check if words are the same, goto next word
-                if (template[k] == instr[m]) {
+                if (template[k] == "(.*)" || template[k] == instr[m]) {
                     variable = false;
                     k++;
                 } else {
@@ -2854,7 +2855,7 @@ exports.complete = function (instruction) {
 
     // Sort array of results
     out.sort();
-    out.reverse();
+    // out.reverse();
     return out;
 }
 

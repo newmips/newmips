@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>{@__ key="app.name" /}</title>
+        <title>{#__ key="app.name" /}</title>
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
         <!-- Bootstrap 3.0.2-->
         <link href="/css/Bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -37,10 +37,10 @@
                     <div class="header-center"><br />
                         <div class="col-xs-12 logo-center"><img class="img-responsive animated pulse infinite" id="pulse-newmips" alt="Newmips Logo" src="/img/LOGO-PNG-01.png" style="width:350px;" /></div>
                         <div class="col-xs-12 first-title text-center">
-                            <h1>{@__ key="deploy.deploying" /}</h1>
+                            <h1>{#__ key="deploy.deploying" /}</h1>
                         </div>
                         <div class="col-xs-12 second-title text-center">
-                            <h2>{@__ key="deploy.please_wait" /}</h2>
+                            <h2>{#__ key="deploy.please_wait" /}</h2>
                         </div><br />
                         <div class="col-xs-12"><a id="scroll-to-trigger" style="display:none;" href="#down-arrow-scroll-to"><img class="animated pulse infinite" id="down-arrow" alt="Flèche vers le bas" src="/img/ICONE-FLECHE-BAS-01.png" /></a></div>
                     </div>
@@ -53,7 +53,7 @@
                     <div class="row">
                         <div class="col-xs-12 text-center">
                             <div>
-                                <h1>{@__ key="deploy.ready" /}</h1><br /><a class="btn-fill sign-up-btn hover" id="goto" href="{redirect}/first_connection" target="_blank" style="padding: 15px;width: 30%;">{@__ key="deploy.goto" /}</a>
+                                <h1>{#__ key="deploy.ready" /}</h1><br /><a class="btn-fill sign-up-btn hover" id="goto" href="{redirect}/first_connection" target="_blank" style="padding: 15px;width: 30%;">{#__ key="deploy.goto" /}</a>
                             </div>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
     <script>
         var redirect = "{redirect}";
         var checkLeaving = true;
-        var messageStayOnPage = '#{@__ key="deploy.stayonpage" /}';
+        var messageStayOnPage = '#{#__ key="deploy.stayonpage" /}';
         function checkDeployStatus() {
             $.ajax({
                 url: '/waiting',

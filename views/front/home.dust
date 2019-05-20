@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.home"/}<small>{@__ key="menu.module"/}</small>
+	{#__ key="menu.home"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
 	<div class="row">
@@ -13,7 +13,7 @@
 			<section class="col-xs-12 col-lg-offset-2 col-lg-8">
 				<div class="box box-solid box-default">
 					<div class="box-header bg-primary">
-						<h3 class="box-title" style="color: #fff;">{@__ key="home.header"/}</h3>
+						<h3 class="box-title" style="color: #fff;">{#__ key="home.header"/}</h3>
 					</div>
 					<div class="box-body">
 						<div class="row">
@@ -21,39 +21,39 @@
 								<form id="existing_project" action="/application/initiate" method="post"
 								style="display: {@gt key=nb_application value=0}block{:else}none{/gt};">
 									<p>
-										<h4>{@__ key="home.title"/}</h4>
+										<h4>{#__ key="home.title"/}</h4>
 									</p>
-									<p>{@__ key="home.subtitle"/}</p>
+									<p>{#__ key="home.subtitle"/}</p>
 									<div class="form-group">
-										<label for="selectProject">{@M_ key="project.label"/}</label>
+										<label for="selectProject">{#M_ key="project.label"/}</label>
 										<select class="form-control select" id="select_project" name="selectProject" style="width: 100%;">
-											<option value="" default="default">{@__ key="project.selectProject"/}</option>
+											<option value="" default="default">{#__ key="project.selectProject"/}</option>
 											{#projects}
 												<option value={id}>{name}</option>
 											{/projects}
 										</select>
-										<a id="create_new_project" href="#"><i class="fa fa-plus fa-md">&nbsp;</i>{@__ key="project.create"/}</a>
+										<a id="create_new_project" href="#"><i class="fa fa-plus fa-md">&nbsp;</i>{#__ key="project.create"/}</a>
 									</div>
 									<div class="form-group" id="select_application_form" style="display: none;">
-										<label for="selectApplication">{@M_ key="application.label"/}</label>
+										<label for="selectApplication">{#M_ key="application.label"/}</label>
 										<select class="form-control select" id="select_application" name="selectApplication" style="width: 100%;"></select>
 										<a id="create_new_application" href="#">
-											<i class="fa fa-plus fa-md">&nbsp;</i>{@__ key="application.create"/}
+											<i class="fa fa-plus fa-md">&nbsp;</i>{#__ key="application.create"/}
 										</a>
 										<br><br>
 										<a class="btn btn-info" id="btn-preview" href="#">
-											<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.preview"/}</span>
+											<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.preview"/}</span>
 										</a>
 									</div>
 									<div class="form-group" id="create_new_application_input" style="display: none;">
-										<label for="application">{@M_ key="application.label"/}</label>
+										<label for="application">{#M_ key="application.label"/}</label>
 										<input class="form-control input applicationInput" id="application" name="application" type="text" />
 										<a id="select_existing_application" href="#">
-											<i class="fa fa-plus fa-md">&nbsp;</i>{@__ key="application.selectExisting"/}
+											<i class="fa fa-plus fa-md">&nbsp;</i>{#__ key="application.selectExisting"/}
 										</a>
 										<br><br>
 										<button class="generate-button btn btn-primary" id="step2Discover1" type="submit">
-											<i class="fa fa-cog fa-md">&nbsp;&nbsp;</i>{@__ key="button.generate"/}
+											<i class="fa fa-cog fa-md">&nbsp;&nbsp;</i>{#__ key="button.generate"/}
 										</button>
 										<div class="progress active progress_generate" style="display: none;">
 											<div class="progress-bar progress-bar-striped active" id="pourcent_generation" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;"></div>
@@ -63,18 +63,18 @@
 								<form id="new_project" action="/application/initiate" method="post"
 								style="display: {@gt key=nb_application value=0}none{:else}block{/gt};">
 									<div class="form-group">
-										<label for="project">{@M_ key="project.label"/}</label>
+										<label for="project">{#M_ key="project.label"/}</label>
 										<input class="form-control input" id="project" name="project" type="text" tabindex="1" autofocus="autofocus" />
 										<a id="select_existing_project" href="#">
-											<i class="fa fa-plus fa-md">&nbsp;</i>{@__ key="project.selectExisting"/}
+											<i class="fa fa-plus fa-md">&nbsp;</i>{#__ key="project.selectExisting"/}
 										</a>
 									</div>
 									<div class="form-group">
-										<label for="application">{@M_ key="application.label"/}</label>
+										<label for="application">{#M_ key="application.label"/}</label>
 										<input class="form-control input applicationInput" id="application" name="application" tabindex="2" type="text" />
 										<br>
 										<button class="generate-button btn btn-primary" id="step2Discover2" type="submit">
-											<i class="fa fa-cog fa-md">&nbsp;&nbsp;</i>{@__ key="button.generate"/}
+											<i class="fa fa-cog fa-md">&nbsp;&nbsp;</i>{#__ key="button.generate"/}
 										</button>
 										<div class="progress active progress_generate" style="display: none;">
 											<div class="progress-bar progress-bar-striped progress-bar-success active" id="pourcent_generation" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;"></div>
@@ -93,32 +93,32 @@
 			<section class="col-xs-12 col-lg-offset-2 col-lg-8">
 				<div class="box box-solid box-default">
 					<div class="box-header">
-						<h4 class="box-title">{@__ key="home.directlinks.title"/}</h4>
+						<h4 class="box-title">{#__ key="home.directlinks.title"/}</h4>
 					</div>
 					<div class="box-body text-center">
 						<a class="btn btn-app" href="/application/list">
 							<span class="badge bg-purple">{nb_application}</span>
-							<i class="fa fa-desktop"></i>{@M_ key="application.plural"/}
+							<i class="fa fa-desktop"></i>{#M_ key="application.plural"/}
 						</a>
 						<a class="btn btn-app" href="/instruction_script/index">
-							<i class="fa fa-list-ol"></i>{@__ key="home.directlinks.script"/}
+							<i class="fa fa-list-ol"></i>{#__ key="home.directlinks.script"/}
 						</a>
 						<a class="btn btn-app" href="/templates">
-							<i class="fa fa-cube"></i>{@__ key="home.directlinks.templates"/}
+							<i class="fa fa-cube"></i>{#__ key="home.directlinks.templates"/}
 						</a>
 						<a class="btn btn-app" href="/themes">
-							<i class="fa fa-window-maximize"></i>{@__ key="home.directlinks.theme"/}
+							<i class="fa fa-window-maximize"></i>{#__ key="home.directlinks.theme"/}
 						</a>
 						<a class="btn btn-app" href="/import">
-							<i class="fa fa-hdd-o"></i>{@__ key="home.directlinks.import"/}
+							<i class="fa fa-hdd-o"></i>{#__ key="home.directlinks.import"/}
 						</a>
-						{@isAdmin}
+						{#isAdmin}
 							<a class="btn btn-app" href="/users">
-								<i class="fa fa-users"></i>{@__ key="menu.users"/}
+								<i class="fa fa-users"></i>{#__ key="menu.users"/}
 							</a>
 						{/isAdmin}
 						<a class="btn btn-app" href="/settings">
-							<i class="fa fa-cog"></i>{@__ key="menu.settings"/}
+							<i class="fa fa-cog"></i>{#__ key="menu.settings"/}
 						</a>
 					</div>
 				</div>
@@ -131,15 +131,15 @@
 				<section class="col-xs-12 col-lg-offset-2 col-lg-8">
 					<div class="box box-solid box-default">
 						<div class="box-header">
-							<h4 class="box-title">{@__ key="home.lastthreeapp"/}</h4>
+							<h4 class="box-title">{#__ key="home.lastthreeapp"/}</h4>
 						</div>
 						<div class="box-body">
 							<div class="table-responsive">
 								<table class="table no-margin">
 									<thead>
 										<tr>
-											<th>{@__ key="listApplication.name"/}</th>
-											<th class="text-right" colspan="2">{@__ key="listApplication.action"/}</th>
+											<th>{#__ key="listApplication.name"/}</th>
+											<th class="text-right" colspan="2">{#__ key="listApplication.action"/}</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -149,7 +149,7 @@
 												<td class="text-right">
 													<a class="btn btn-info" href="/application/preview?id_application={id}">
 														<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
-														<span>{@__ key="button.preview"/}</span>
+														<span>{#__ key="button.preview"/}</span>
 													</a>
 												</td>
 											</tr>
@@ -171,18 +171,18 @@
 						<button class="close" type="button" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">×</span>
 						</button>
-						<h4 class="modal-title">{@__ key="home.ytmodaltitle"/}</h4>
+						<h4 class="modal-title">{#__ key="home.ytmodaltitle"/}</h4>
 					</div>
 					<div class="modal-body">
 						<p class="text-center"><img src="/img/avatar.png" alt="Mipsy" style="display:block;margin:auto;" />
-							<br>{@__ key="home.ytmodalcontent"/}<br><br>
+							<br>{#__ key="home.ytmodalcontent"/}<br><br>
 							<a class="btn btn-primary" href="https://www.youtube.com/watch?v=C-5hPXpNu0A" target="_blank">
-								{@__ key="home.accessbuttonyt"/}
+								{#__ key="home.accessbuttonyt"/}
 							</a>
 						</p>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-default" type="button" data-dismiss="modal">{@__ key="button.close"/}</button>
+						<button class="btn btn-default" type="button" data-dismiss="modal">{#__ key="button.close"/}</button>
 					</div>
 				</div>
 			</div>
