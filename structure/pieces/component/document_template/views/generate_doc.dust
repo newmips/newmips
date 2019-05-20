@@ -10,7 +10,7 @@
             </select>
         </div>
         <button type="submit" class="btn btn-primary">
-        <span>{#__ key="button.generate" /}</span>
+            {#__ key="button.generate" /}
         </button>
     </form>
 </div>
