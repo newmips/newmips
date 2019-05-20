@@ -1272,7 +1272,7 @@ function initDocumentTemplateHelper() {
                     if (data.relations) {
                         $('#f_exclude_relations').empty();
                         data.relations.forEach(function (relation) {
-                            $('#f_exclude_relations').append('<option value=' + relation + ' selected>' + relation + '</option>');
+                            $('#f_exclude_relations').append('<option value=' + relation.value + ' selected>' + relation.item + '</option>');
                         });
                     }
                 }
@@ -1280,7 +1280,7 @@ function initDocumentTemplateHelper() {
         }
     }
 
-    updateDocumentTemplateSubEntities($('#document_template_select_entity').val());
+//    updateDocumentTemplateSubEntities($('#document_template_select_entity').val());
 
     $('#document_template_select_entity').on('change', function () {
         onClickDocumentTemplateHelper();
