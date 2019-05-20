@@ -442,7 +442,7 @@ function initForm(context) {
             renameFilename: function (filename) {
                 /*get file extension before clean*/
                 var fileExt = '';
-                if (fileExt.indexOf('.') >= 0)
+                if (filename.indexOf('.') >= 0)
                     fileExt = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
                 filename = clearString(filename);
                 if (filename.indexOf("dfltImg_") != -1)
