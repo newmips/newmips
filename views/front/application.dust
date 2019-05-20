@@ -28,7 +28,6 @@
 													<tr>
 														<th>{#__ key="listApplication.id"/}</th>
 														<th>{#__ key="listApplication.name"/}</th>
-														<th>{#__ key="listApplication.nbModules"/}</th>
 														<th>URL</th>
 														<th colspan="2" class="text-center">{#__ key="listApplication.action"/}</th>
 													</tr>
@@ -38,8 +37,7 @@
 														<tr>
 															<td>{id}</td>
 															<td>{displayName}</td>
-															<td>{Modules.length}</td>
-															<td>{dataValues.url}</td>
+															<td><a href='{dataValues.url}' target='_blank'>{dataValues.url}</a></td>
 															<td class="text-center">
 																<a class="btn btn-info" href="/application/preview?id_application={id}">
 																	<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>

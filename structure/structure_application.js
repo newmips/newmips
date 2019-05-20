@@ -599,8 +599,13 @@ exports.deleteApplication = function(appID, callback) {
         let nameRepo = globalConf.host + "-" + nameAppWithoutPrefix;
 
         // Removing .toml file in traefik rules folder
-        if(globalConf.env == "cloud" || globalConf.env == "docker")
-            fs.unlinkSync(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml")
+        if(globalConf.env == "cloud" || globalConf.env == "docker"){
+            try {
+                fs.unlinkSync(__dirname + "/../workspace/rules/"+globalConf.sub_domain + "-" + nameAppWithoutPrefix+".toml");
+            } catch(err) {
+                console.log(err);
+            }
+        }
 
         if (gitlabConf.doGit) {
             gitlab.getProject(nameRepo).then(project => {
