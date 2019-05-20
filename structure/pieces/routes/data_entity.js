@@ -161,7 +161,7 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
             status_helper.translate(ENTITY_NAME, attributes, req.session.lang_user);
-            data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
+            data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("ENTITY_NAME");
             // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('ENTITY_NAME/show', data);
@@ -259,7 +259,7 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
         // because those values are not updated for now
         model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function() {
             Promise.all(promises).then(function() {
-                component_helper.setAddressIfComponentExist(ENTITY_NAME, options, req.body).then(function() {
+                component_helper.address.setAddressIfComponentExists(ENTITY_NAME, options, req.body).then(function() {
                     res.redirect(redirect);
                 });
             }).catch(function(err) {
@@ -335,7 +335,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(ENTITY_NAME, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(ENTITY_NAME, options, req.body);
         ENTITY_NAME.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
@@ -420,7 +420,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var subentityOptions = require('../models/options/' + option.target);
-                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function(alias) {

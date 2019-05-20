@@ -7,6 +7,7 @@ var enums_radios = require('../locales/enum_radio');
 var JSZip = require('jszip');
 var Docxtemplater = require('docxtemplater');
 var pdfFiller = require('fill-pdf');
+var language = require('../services/language');
 var langMessage = require('../locales/document_template_locales');
 var lang = "fr-FR";
 
@@ -34,7 +35,7 @@ module.exports = {
                     entity_to_show = entity_to_show.charAt(0).toUpperCase() + entity_to_show.slice(1); //uc first
                     document_template_entities.push({
                         value: entity_to_show,
-                        item: entity_to_show
+                        item: language('fr-FR').__('entity.' + item.toLowerCase() + '.label_entity') || entity_to_show
                     });
                 }
             }
@@ -166,16 +167,19 @@ module.exports = {
             }
         }
     },
-    getRelations: function (entity) {
+    getRelations: function (entity, options = {lang:lang}) {
         var result = [];
-        var options = require('../models/options/e_' + entity.toLowerCase() + '.json');
-        for (var i = 0; i < options.length; i++) {
-            var option = options[i];
-            var target = option.target.charAt(0).toUpperCase() + option.target.slice(1);
+        var modelOptions = require('../models/options/e_' + entity.toLowerCase() + '.json');
+        for (var i = 0; i < modelOptions.length; i++) {
+            var modelOption = modelOptions[i];
+            var target = modelOption.target.charAt(0).toUpperCase() + modelOption.target.slice(1);
             if (target && this.entities_to_exclude.indexOf(target) < 0) {
-                target = option.target.replace('e_', '');
+                target = modelOption.target.replace('e_', '');
                 target = target.charAt(0).toUpperCase() + target.slice(1); //uc first
-                result.push(target);
+                result.push({
+                    value: target,
+                    item: language(options.lang).__('entity.' + modelOption.target + '.label_entity')
+                });
             }
         }
         return result;
