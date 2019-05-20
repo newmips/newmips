@@ -276,6 +276,7 @@ module.exports = {
         var result = [];
         var options = require('../models/options/' + entity.toLowerCase() + '.json');
         var parts_of_exclude_relations = (f_exclude_relations || '').split(',');
+        console.log(parts_of_exclude_relations)
         for (var i = 0; i < options.length; i++) {
             var found = false;
             var target = options[i].target.toLowerCase();
