@@ -23,7 +23,7 @@ exports.init = async (appName) => {
         channel = await createChannel(channelName, supportTeam.id);
 
         // Newmips team represent all the support person from newmips that will be added to the channel
-        newmipsTeam = await getTeam(mattermostConfig.newmips_members);
+        newmipsTeam = await getTeam(mattermostConfig.support_members);
 
         // Get all newmips team members
         teamMembers = await getTeamMembers(newmipsTeam.id);

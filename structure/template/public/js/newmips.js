@@ -308,6 +308,7 @@ function initForm(context) {
                 });
                 jq_element.parent().remove();
             } catch (e) {
+                console.error(e);
                 jq_element.parent().parent().find('br').remove();
                 jq_element.parent().parent().find('#' + id).remove();
             }
@@ -968,12 +969,14 @@ $(document).ready(function () {
 
     // Validate any form before submit
     $('form').submit(function (e) {
-        $(this).find("button[type='submit']").text(LOADING_TEXT).attr("disabled", true);
+        var tmpButtontext = $(this).find("button[type='submit']").html();
+        $(this).find("button[type='submit']").attr("disabled", true);
         // Prevent multiple submittion (double click)
         if ($(this).data('submitting') === true)
             return e.preventDefault();
         $(this).data('submitting', true);
         if (!validateForm($(this))) {
+            $(this).find("button[type='submit']").html(tmpButtontext).attr("disabled", false).blur();
             $(this).data('submitting', false);
             return false;
         }

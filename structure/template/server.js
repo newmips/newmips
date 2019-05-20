@@ -63,8 +63,20 @@ app.use(morgan('dev', {
     skip: function(req, res) {
         if(req.url == "/")
         	return true;
-    }
+    },
+    stream: require('split')().on('data', function(line) {
+        process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line + "\n");
+    })
 }));
+
+require('console-stamp')(console, {
+    formatter: function() {
+        return moment().format('MM-DD HH:mm:ss');
+    },
+    label: false,
+    datePrefix: "",
+    dateSuffix: ""
+});
 
 // Overide console.warn & console.error to file+line
 ['warn', 'error'].forEach((methodName) => {

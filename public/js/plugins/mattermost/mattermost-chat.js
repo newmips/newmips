@@ -14,6 +14,7 @@
                     cb();
                 },
                 error:function(err){
+                    console.log(performance.navigation.type);
                     toastr.error("Sorry, an error occured. Please check your mattermost configuration.");
                     console.log(err);
                     $('.slackchat .slack-chat-close').trigger("click");
@@ -65,6 +66,7 @@
                     sending = false;
                 },
                 error:function(err){
+                    console.log(performance.navigation.type);
                     toastr.error("Sorry, an error occured while sending a message. Please check your mattermost configuration.");
                     console.log(err);
                 }
@@ -120,6 +122,7 @@
                     }, 800);
                 },
                 error:function(err){
+                    console.log(performance.navigation.type);
                     toastr.error("Sorry, an error occured while retrieving channel history. Please check your mattermost configuration.");
                     console.log(err);
                 }
