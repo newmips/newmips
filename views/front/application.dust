@@ -1,12 +1,12 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.application"/}<small>{@__ key="menu.module"/}</small>
+	{#__ key="menu.application"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<custom_css}
 	<link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
 {/custom_css}
 {<content}
-	<legend>{@__ key="listApplication.legend"/}</legend>
+	<legend>{#__ key="listApplication.legend"/}</legend>
 	<div class="row">
 		<div class="col-xs-12">
 			<div class="box-body">
@@ -16,7 +16,7 @@
 						<div class="box box-solid box-default">
 							<div class="box-header bg-primary">
 								<h3 class="box-title" style="color: #fff;">
-									{@__ key="project.label"/}: {displayName}
+									{#__ key="project.label"/}: {displayName}
 								</h3>
 							</div>
 							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;">
@@ -26,11 +26,11 @@
 											<table class="table no-margin">
 												<thead>
 													<tr>
-														<th>{@__ key="listApplication.id"/}</th>
-														<th>{@__ key="listApplication.name"/}</th>
-														<th>{@__ key="listApplication.nbModules"/}</th>
+														<th>{#__ key="listApplication.id"/}</th>
+														<th>{#__ key="listApplication.name"/}</th>
+														<th>{#__ key="listApplication.nbModules"/}</th>
 														<th>URL</th>
-														<th colspan="2" class="text-center">{@__ key="listApplication.action"/}</th>
+														<th colspan="2" class="text-center">{#__ key="listApplication.action"/}</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -43,14 +43,14 @@
 															<td class="text-center">
 																<a class="btn btn-info" href="/application/preview?id_application={id}">
 																	<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
-																	<span>{@__ key="button.preview"/}</span>
+																	<span>{#__ key="button.preview"/}</span>
 																</a>
 															</td>
 															{?gitlabUser}
 															<td class="text-center">
 																<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
 																	<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
-																	<span>{@__ key="button.clone"/}</span>
+																	<span>{#__ key="button.clone"/}</span>
 																</button>
 															</td>
 															{/gitlabUser}
@@ -58,7 +58,7 @@
 																<form class="deleteAppForm">
 																	<button class="btn btn-danger">
 																		<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-																		<span>{@__ key="button.delete"/}</span>
+																		<span>{#__ key="button.delete"/}</span>
 																	</button>
 																	<input type="hidden" name="instruction" value="delete application {id}" />
 																</form>
@@ -75,7 +75,7 @@
 								<form class="deleteProjectForm">
 									<button class="btn btn-danger">
 										<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-										<span>{@__ key="button.delete"/}</span>
+										<span>{#__ key="button.delete"/}</span>
 									</button>
 									<input type="hidden" name="instruction" value="delete project {id}" />
 								</form>
@@ -92,20 +92,20 @@
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header text-center">
-						<h5 class="modal-title" id="gitlabModalLabel">{@__ key="listApplication.gitlab.modal_title" /}</h5>
+						<h5 class="modal-title" id="gitlabModalLabel">{#__ key="listApplication.gitlab.modal_title" /}</h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body text-center">
-						{@__ key="listApplication.gitlab.text1" /}<br><br>
+						{#__ key="listApplication.gitlab.text1" /}<br><br>
 						<i><b>git clone <span id="gitlab_repo_url"></span></b></i><br><br>
-						{@__ key="listApplication.gitlab.text2" /}<br><br>
+						{#__ key="listApplication.gitlab.text2" /}<br><br>
 						<i><b>{gitlabUser.name}</b></i><br><br>
-						{@__ key="listApplication.gitlab.text3" /} <i class="fa fa-smile-o"></i>
+						{#__ key="listApplication.gitlab.text3" /} <i class="fa fa-smile-o"></i>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary" data-dismiss="modal">{@__ key="button.understand"/}</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal">{#__ key="button.understand"/}</button>
 					</div>
 				</div>
 			</div>
@@ -115,10 +115,10 @@
 
 {<custom_js}
 	<script type="text/javascript">
-		var sureToDelete = '{@__ key="listApplication.sureToDelete"/}';
-		var loading = '{@__ key="listApplication.loading"/}';
-		var projectDelete = '{@__ key="listApplication.projectDelete"/}';
-		var appDelete = '{@__ key="listApplication.appDelete"/}';
+		var sureToDelete = '{#__ key="listApplication.sureToDelete"/}';
+		var loading = '{#__ key="listApplication.loading"/}';
+		var projectDelete = '{#__ key="listApplication.projectDelete"/}';
+		var appDelete = '{#__ key="listApplication.appDelete"/}';
 
 		function deleteApplication(formArray, index) {
 			return new Promise(function(resolve, reject) {

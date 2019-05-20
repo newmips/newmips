@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-{@__ key="menu.users"/}<small>{@__ key="menu.module"/}</small>
+{#__ key="menu.users"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
 <div class="row">
@@ -8,7 +8,7 @@
         <div class="box">
             <form action="/users/update" method="post">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="users.title"/}</h3>
+                    <h3 class="box-title">{#__ key="users.title"/}</h3>
                 </div>
                 <div class="box-body">
                     {#user}
@@ -22,31 +22,31 @@
                             <div data-field="login" class="col-xs-12">
                                 <div class="form-group">
                                     <label for="login">
-                                        {@__ key="users.login"/}&nbsp;
+                                        {#__ key="users.login"/}&nbsp;
                                     </label>
-                                    <input class="form-control input" placeholder='{@__ key="users.login" /}' value="{login}" type="text" maxlength="255" name="login">
+                                    <input class="form-control input" placeholder='{#__ key="users.login" /}' value="{login}" type="text" maxlength="255" name="login">
                                 </div>
                             </div>
                             <div data-field="first_name" class="col-xs-12 col-sm-6">
                                 <div class="form-group">
                                     <label for="first_name">
-                                        {@__ key="users.first_name"/}&nbsp;
+                                        {#__ key="users.first_name"/}&nbsp;
                                     </label>
-                                    <input class="form-control input" placeholder='{@__ key="users.first_name" /}' value="{first_name}" type="text" maxlength="255" name="first_name">
+                                    <input class="form-control input" placeholder='{#__ key="users.first_name" /}' value="{first_name}" type="text" maxlength="255" name="first_name">
                                 </div>
                             </div>
                             <div data-field="last_name" class="col-xs-12 col-sm-6">
                                 <div class="form-group">
                                     <label for="last_name">
-                                        {@__ key="users.last_name"/}&nbsp;
+                                        {#__ key="users.last_name"/}&nbsp;
                                     </label>
-                                    <input class="form-control input" placeholder='{@__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" name="last_name">
+                                    <input class="form-control input" placeholder='{#__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" name="last_name">
                                 </div>
                             </div>
                             <div data-field="role" class="col-xs-12 col-sm-12">
                                 <div class="form-group">
                                     <label for="role">
-                                        {@__ key="users.role" /}
+                                        {#__ key="users.role" /}
                                     </label>
                                     <select name="role" class="form-control select">
                                         {#roles}
@@ -62,21 +62,21 @@
                             <div data-field="phone" class="col-xs-12 col-sm-6">
                                 <div class="form-group">
                                     <label for="phone">
-                                        {@__ key="users.phone"/}&nbsp;
+                                        {#__ key="users.phone"/}&nbsp;
                                     </label>
-                                    <input class="form-control input" placeholder='{@__ key="users.phone" /}' value="{phone}" type="text" maxlength="255" name="phone">
+                                    <input class="form-control input" placeholder='{#__ key="users.phone" /}' value="{phone}" type="text" maxlength="255" name="phone">
                                 </div>
                             </div>
                             <div data-field="email" class="col-xs-12 col-sm-6">
                                 <div class="form-group">
                                     <label for="email">
-                                        {@__ key="users.email"/}&nbsp;
+                                        {#__ key="users.email"/}&nbsp;
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-addon">
                                             <i class="fa fa-envelope"></i>
                                         </div>
-                                        <input class="form-control input" placeholder='{@__ key="users.email" /}' value="{email}" type="text" data-type="email" name="email">
+                                        <input class="form-control input" placeholder='{#__ key="users.email" /}' value="{email}" type="text" data-type="email" name="email">
                                     </div>
                                 </div>
                             </div>
@@ -84,8 +84,8 @@
                     {/user}
                 </div>
                 <div class="box-footer">
-                    <a class="btn btn-default" href="javascript:history.back();">{@__ key="button.cancel"/}</a>&nbsp;&nbsp;
-                    <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                    <a class="btn btn-default" href="javascript:history.back();">{#__ key="button.cancel"/}</a>&nbsp;&nbsp;
+                    <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
                 </div>
             </form>
         </div>

@@ -1,9 +1,9 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.instruction"/}<small>{@__ key="menu.module"/}</small>
+	{#__ key="menu.instruction"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
-	<legend>{@__ key="instructionScript.legend"/}</legend>
+	<legend>{#__ key="instructionScript.legend"/}</legend>
 	<div class="row">
 		<div class="col-xs-12 connectedSortable">
 			<div class="box-body">
@@ -23,16 +23,16 @@
 								<div class="row">
 									<div class="col-xs-12">
 										<a id="createScript" href="#">
-										<i class="fa fa-plus fa-md">&nbsp;</i>{@__ key="instructionScript.createScript"/}
+										<i class="fa fa-plus fa-md">&nbsp;</i>{#__ key="instructionScript.createScript"/}
 									</a>
 										<a id="addScript" href="#" style="display: none;">
-											<i class="fa fa-file fa-md">&nbsp;</i>{@__ key="instructionScript.fromFile"/}
+											<i class="fa fa-file fa-md">&nbsp;</i>{#__ key="instructionScript.fromFile"/}
 										</a>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col-xs-3">
-										<button class="btn btn-primary" id="scriptSubmit" type="submit" style="float:left;margin-top: 15px;">{@__ key="button.execute"/}</button>
+										<button class="btn btn-primary" id="scriptSubmit" type="submit" style="float:left;margin-top: 15px;">{#__ key="button.execute"/}</button>
 									</div>
 								</div>
 							</div>
@@ -45,7 +45,7 @@
 						<div id="instructionCount" style="float: left;"></div>
 						<br><br>
 						<button class="btn btn-success" id="goTo" disabled="disabled" style="display:none;">
-						{@__ key="instructionScript.redirecting"/}</button>
+						{#__ key="instructionScript.redirecting"/}</button>
 						<br><br>
 						<div class="progress sm progress-striped active" id="progressbarcontent" style="display:none;">
 							<div class="progress-bar progress-bar-success" id="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;"></div>
