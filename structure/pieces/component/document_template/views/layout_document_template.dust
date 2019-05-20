@@ -76,7 +76,7 @@
                             {/document_template_entities}
                         </select>
                         <br>
-                        <a href="#" id="global_variables" style="color: #3c8dbc;"><strong>{readme.variables}</strong></a>
+                        <a href="#" id="document_template_global_variables" style="color: #3c8dbc;"><strong>{readme.variables}</strong></a>
                     </div>
                     {+sidebar /}
                 </section>
