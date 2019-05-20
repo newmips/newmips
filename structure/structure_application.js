@@ -108,7 +108,7 @@ exports.setupApplication = function(attr, callback) {
 
                         // Create database instance for application
                         let db_requests = [
-                            "CREATE DATABASE workspace_" + appID + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
+                            "CREATE DATABASE IF NOT EXISTS workspace_" + appID + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
                             "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'127.0.0.1' IDENTIFIED BY 'workspace_" + appID + "';",
                             "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'%' IDENTIFIED BY 'workspace_" + appID + "';",
                             "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'127.0.0.1';",

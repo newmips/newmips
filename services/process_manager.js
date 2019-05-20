@@ -41,15 +41,15 @@ exports.launchChildProcess = function(req, idApp, env) {
             if ((data + '').indexOf("/status") == -1){
                 childsUrlsStorage[req.sessionID][idApp] = (data + '').split('::')[1];
             }
-        } else {
+        } else if(data.toString().length > 15) { // Not just the date, mean avoid empty logs
             allLogStream.write('<span style="color:#00ffff;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
-            console.log('\x1b[36m%s\x1b[0m', 'App Log: ' + data);
+            console.log('\x1b[36m%s\x1b[0m', 'Log '+idApp+': ' + data);
         }
     });
 
     process_server.stderr.on('data', function(data) {
         allLogStream.write('<span style="color: red;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
-        console.log('\x1b[31m%s\x1b[0m', 'App Err: ' + data);
+        console.log('\x1b[31m%s\x1b[0m', 'Err '+idApp+': ' + data);
     });
 
     process_server.on('close', function(code) {
