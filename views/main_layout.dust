@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>{@__ key="app.name"/}</title>
+		<title>{#__ key="app.name"/}</title>
 		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 		{! Bootstrap 3.0.2 !}
 		<link href="/css/Bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -52,13 +52,13 @@
 					<div class="col-xs-12 col-sm-6  col-lg-4">
 						<div class="btn-group pull-right" role="group">
 							<a class="btn btn-default" href="/default/home">
-								<i class="fa fa-home" style="margin-right:5px;"></i>{@__ key="menu.home"/}
+								<i class="fa fa-home" style="margin-right:5px;"></i>{#__ key="menu.home"/}
 							</a>
 							<a class="btn btn-default" href="/account">
-								<i class="fa fa-user" style="margin-right:5px;"></i>{@__ key="menu.account"/}
+								<i class="fa fa-user" style="margin-right:5px;"></i>{#__ key="menu.account"/}
 							</a>
 							<a class="btn btn-default pull-right" href="/logout">
-								<i class="fa fa-sign-out fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.disconnect"/}</span>
+								<i class="fa fa-sign-out fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.disconnect"/}</span>
 							</a>
 						</div>
 					</div>

@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-{@__ key="menu.users"/}<small>{@__ key="menu.module"/}</small>
+{#__ key="menu.users"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
 <div class="row">
@@ -8,25 +8,25 @@
         <div class="box">
             <form action="/users/create" method="post">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="users.title"/}</h3>
+                    <h3 class="box-title">{#__ key="users.title"/}</h3>
                 </div>
                 <div class="box-body">
                     <div id="fields" class="row">
                         <div data-field="login" class="col-xs-12 col-sm-6">
                             <div class="form-group">
                                 <label for="login" class="required">
-                                    {@__ key="users.login"/}&nbsp;
+                                    {#__ key="users.login"/}&nbsp;
                                 </label>
-                                <input class="form-control input" placeholder='{@__ key="users.login" /}' type="text" maxlength="255" name="login" required>
+                                <input class="form-control input" placeholder='{#__ key="users.login" /}' type="text" maxlength="255" name="login" required>
                             </div>
                         </div>
                         <div data-field="role" class="col-xs-12 col-sm-6">
                             <div class="form-group">
                                 <label for="role" class="required">
-                                    {@__ key="users.role" /}
+                                    {#__ key="users.role" /}
                                 </label>
                                 <select name="role" class="form-control select" required>
-                                    <option selected>{@__ key="action.choose" /}</option>
+                                    <option selected>{#__ key="action.choose" /}</option>
                                     {#roles}
                                         <option value="{id}">{name}</option>
                                     {/roles}
@@ -36,45 +36,45 @@
                         <div data-field="first_name" class="col-xs-12 col-sm-6">
                             <div class="form-group">
                                 <label for="first_name">
-                                    {@__ key="users.first_name"/}&nbsp;
+                                    {#__ key="users.first_name"/}&nbsp;
                                 </label>
-                                <input class="form-control input" placeholder='{@__ key="users.first_name" /}' type="text" maxlength="255" name="first_name">
+                                <input class="form-control input" placeholder='{#__ key="users.first_name" /}' type="text" maxlength="255" name="first_name">
                             </div>
                         </div>
                         <div data-field="last_name" class="col-xs-12 col-sm-6">
                             <div class="form-group">
                                 <label for="last_name">
-                                    {@__ key="users.last_name"/}&nbsp;
+                                    {#__ key="users.last_name"/}&nbsp;
                                 </label>
-                                <input class="form-control input" placeholder='{@__ key="users.last_name" /}' type="text" maxlength="255" name="last_name">
+                                <input class="form-control input" placeholder='{#__ key="users.last_name" /}' type="text" maxlength="255" name="last_name">
                             </div>
                         </div>
                         <div data-field="phone" class="col-xs-12 col-sm-6">
                             <div class="form-group">
                                 <label for="phone">
-                                    {@__ key="users.phone"/}&nbsp;
+                                    {#__ key="users.phone"/}&nbsp;
                                 </label>
-                                <input class="form-control input" placeholder='{@__ key="users.phone" /}' type="text" maxlength="255" name="phone">
+                                <input class="form-control input" placeholder='{#__ key="users.phone" /}' type="text" maxlength="255" name="phone">
                             </div>
                         </div>
                         <div data-field="email" class="col-xs-12 col-sm-6">
                             <div class="form-group">
                                 <label for="email" class="required">
-                                    {@__ key="users.email"/}&nbsp;
+                                    {#__ key="users.email"/}&nbsp;
                                 </label>
                                 <div class="input-group">
                                     <div class="input-group-addon">
                                         <i class="fa fa-envelope"></i>
                                     </div>
-                                    <input class="form-control input" placeholder='{@__ key="users.email" /}' type="text" data-type="email" name="email" required>
+                                    <input class="form-control input" placeholder='{#__ key="users.email" /}' type="text" data-type="email" name="email" required>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="box-footer">
-                    <a class="btn btn-default" href="javascript:history.back();">{@__ key="button.cancel"/}</a>&nbsp;&nbsp;
-                    <button type="submit" class="btn btn-primary">{@__ key="button.create"/}</button>
+                    <a class="btn btn-default" href="javascript:history.back();">{#__ key="button.cancel"/}</a>&nbsp;&nbsp;
+                    <button type="submit" class="btn btn-primary">{#__ key="button.create"/}</button>
                 </div>
             </form>
         </div>

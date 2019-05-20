@@ -175,14 +175,7 @@ app.use(function(req, res, next) {
     if(lang == "fr-FR")
         req.moment.locale('fr');
 
-    res.locals.user_lang = lang;
-    // Create dust helper
-    dust.helpers.__ = function(ch, con, bo, params) {
-        return language(lang).__(params.key, params.params);
-    }
-    dust.helpers.M_ = function(ch, con, bo, params) {
-        return language(lang).M_(params.key, params.params);
-    }
+    // Helpers
     dust.helpers.ifTrue = function(chunk, context, bodies, params) {
         var value = params.key;
 
@@ -191,24 +184,39 @@ app.use(function(req, res, next) {
         } else{
             return false;
         }
-    }
+    };
+
     dust.helpers.in = function(chunk, context, bodies, params) {
         let paramsArray = params.value.split(",");
         if(paramsArray.indexOf(params.key) != -1)
             return true;
         else
             return false;
-    }
-    dust.helpers.isAdmin = function(chunk, context, bodies, params) {
+    };
+
+    // Locals
+    res.locals.__ = function(ch, con, bo, params) {
+        return ch.write(language(lang).__(params.key, params.params));
+    };
+
+    res.locals.M_ = function(ch, con, bo, params) {
+        return ch.write(language(lang).M_(params.key, params.params));
+    };
+
+    res.locals.isAdmin = function(chunk, context, bodies, params) {
         if(req.isAuthenticated() && req.session.passport && req.session.passport.user.id_role == 1)
             return true;
         return false;
-    }
+    };
+
+    res.locals.user_lang = lang;
+    res.locals.globalConf = globalConf;
+
+    // Filters
     dust.filters.stringify = function(value) {
         return JSON.stringify(value);
     };
 
-    res.locals.globalConf = globalConf;
     next();
 });
 

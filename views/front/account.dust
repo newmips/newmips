@@ -1,36 +1,36 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.account"/}<small>{@__ key="menu.module"/}</small>
+	{#__ key="menu.account"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
 	<div class="row">
 		<div class="col-xs-12 col-lg-offset-2 col-lg-8">
 			<div class="box box-solid box-default">
 				<div class="box-header bg-primary">
-					<h3 class="box-title" style="color: #fff;">{@__ key="menu.account"/}</h3>
+					<h3 class="box-title" style="color: #fff;">{#__ key="menu.account"/}</h3>
 				</div>
 				<div class="box-body"><br>
 					<div class="row">
 						<div class="col-xs-12">
 							<div class="form-group">
-								<label>{@__ key="settings.display_infos"/}</label>
+								<label>{#__ key="settings.display_infos"/}</label>
 								<br><br>
-								<div class="col-xs-12 col-sm-4">{@__ key="settings.infos.env"/}:<br>
+								<div class="col-xs-12 col-sm-4">{#__ key="settings.infos.env"/}:<br>
 									<input class="form-control input" id="inputEnv" disabled />
-									<br><br>{@__ key="settings.infos.login"/}:<br>
+									<br><br>{#__ key="settings.infos.login"/}:<br>
 									<input class="form-control input" value="{user.login}" disabled />
-									<br><br>{@__ key="settings.infos.role"/}:<br>
+									<br><br>{#__ key="settings.infos.role"/}:<br>
 									<input class="form-control input" value="{user.role.name}" disabled />
 									<br><br>
 								</div>
-								<div class="col-xs-12 col-sm-4">{@__ key="settings.infos.lastname"/}:<br>
+								<div class="col-xs-12 col-sm-4">{#__ key="settings.infos.lastname"/}:<br>
 									<input class="form-control input" value="{user.last_name}" disabled />
-									<br><br>{@__ key="settings.infos.firstname"/}:<br>
+									<br><br>{#__ key="settings.infos.firstname"/}:<br>
 									<input class="form-control input" value="{user.first_name}" disabled />
 								</div>
-								<div class="col-xs-12 col-sm-4">{@__ key="settings.infos.phone"/}:<br>
+								<div class="col-xs-12 col-sm-4">{#__ key="settings.infos.phone"/}:<br>
 									<input class="form-control input" value="{user.phone}" disabled />
-									<br><br>{@__ key="settings.infos.email"/}:<br>
+									<br><br>{#__ key="settings.infos.email"/}:<br>
 									<input class="form-control input" value="{user.email}" disabled />
 								</div>
 							</div>
@@ -58,8 +58,8 @@
 						<div class="col-xs-12"><br>
 							<div class="form-group">
 								<br><br>
-								<label>{@__ key="settings.change_password"/}</label>
-								<br><br><a class="resetPassword btn btn-primary">{@__ key="settings.reset_button"/}</a>
+								<label>{#__ key="settings.change_password"/}</label>
+								<br><br><a class="resetPassword btn btn-primary">{#__ key="settings.reset_button"/}</a>
 							</div>
 						</div>
 					</div>
@@ -70,7 +70,7 @@
 {/content}
 {<custom_js}
 	<script type="text/javascript">
-		var sureResetMsg = '{@__ key="settings.sure_reset"/}';
+		var sureResetMsg = '{#__ key="settings.sure_reset"/}';
 		var loginUser = "{user.login}";
 		var mailUser = "{user.email}";
 		$(document).ready(function() {

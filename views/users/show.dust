@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-{@__ key="menu.users"/}<small>{@__ key="menu.module"/}</small>
+{#__ key="menu.users"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<custom_css}
     <link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
@@ -11,19 +11,19 @@
     <div class="col-xs-12 connectedSortable">
         <div class="box">
             <div class="box-header">
-                <h3 class="box-title">{@__ key="users.title"/}</h3>
+                <h3 class="box-title">{#__ key="users.title"/}</h3>
             </div>
             <div class="box-body">
                 <div class="nav-tabs-custom" id="tabs">
                     <ul class="nav nav-tabs">
                         <li class="active">
                             <a data-toggle="tab" href="#home">
-                                {@__ key="users.title"/}
+                                {#__ key="users.title"/}
                             </a>
                         </li>
                         <li>
                             <a id="applications-click" data-toggle="tab" href="#applications">
-                                {@__ key="users.applications"/}
+                                {#__ key="users.applications"/}
                             </a>
                         </li>
                     </ul>
@@ -40,53 +40,53 @@
                                     <div data-field="login" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="login">
-                                                {@__ key="users.login"/}&nbsp;
+                                                {#__ key="users.login"/}&nbsp;
                                             </label>
-                                            <input class="form-control input" placeholder='{@__ key="users.login" /}' value="{login}" type="text" maxlength="255" readonly="">
+                                            <input class="form-control input" placeholder='{#__ key="users.login" /}' value="{login}" type="text" maxlength="255" readonly="">
                                         </div>
                                     </div>
                                     <div data-field="role" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="role">
-                                                {@__ key="users.role" /}
+                                                {#__ key="users.role" /}
                                             </label>
-                                            <input class="form-control input" placeholder='{@__ key="users.role" /}' value="{Role.name}" type="text" readonly="">
+                                            <input class="form-control input" placeholder='{#__ key="users.role" /}' value="{Role.name}" type="text" readonly="">
                                         </div>
                                     </div>
                                     <div data-field="first_name" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="first_name">
-                                                {@__ key="users.first_name"/}&nbsp;
+                                                {#__ key="users.first_name"/}&nbsp;
                                             </label>
-                                            <input class="form-control input" placeholder='{@__ key="users.first_name" /}' value="{first_name}" type="text" maxlength="255" readonly="">
+                                            <input class="form-control input" placeholder='{#__ key="users.first_name" /}' value="{first_name}" type="text" maxlength="255" readonly="">
                                         </div>
                                     </div>
                                     <div data-field="last_name" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="last_name">
-                                                {@__ key="users.last_name"/}&nbsp;
+                                                {#__ key="users.last_name"/}&nbsp;
                                             </label>
-                                            <input class="form-control input" placeholder='{@__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" readonly="">
+                                            <input class="form-control input" placeholder='{#__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" readonly="">
                                         </div>
                                     </div>
                                     <div data-field="phone" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="phone">
-                                                {@__ key="users.phone"/}&nbsp;
+                                                {#__ key="users.phone"/}&nbsp;
                                             </label>
-                                            <input class="form-control input" placeholder='{@__ key="users.phone" /}' value="{phone}" type="text" maxlength="255" readonly="">
+                                            <input class="form-control input" placeholder='{#__ key="users.phone" /}' value="{phone}" type="text" maxlength="255" readonly="">
                                         </div>
                                     </div>
                                     <div data-field="email" class="col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="email">
-                                                {@__ key="users.email"/}&nbsp;
+                                                {#__ key="users.email"/}&nbsp;
                                             </label>
                                             <div class="input-group">
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-envelope"></i>
                                                 </div>
-                                                <input class="form-control input" placeholder='{@__ key="users.email" /}' value="{email}" type="text" data-type="email" readonly="">
+                                                <input class="form-control input" placeholder='{#__ key="users.email" /}' value="{email}" type="text" data-type="email" readonly="">
                                             </div>
                                         </div>
                                     </div>
@@ -96,17 +96,17 @@
                                         <div class="quicklinks">
                                             <button class="btn btn-danger btn-confirm">
                                                 <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                                                <span>{@__ key="button.delete"/}</span>
+                                                <span>{#__ key="button.delete"/}</span>
                                             </button>&nbsp;&nbsp;
                                             <input name="id" type="hidden" value="{id}" class="form-control">
                                             <a href="/users/update/{id}" class="btn btn-warning">
-                                                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.update"/}</span>
+                                                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.update"/}</span>
                                             </a>&nbsp;&nbsp;
                                             <a href="/users/create" class="btn btn-success">
-                                                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.create"/}</span>
+                                                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
                                             </a>&nbsp;&nbsp;
                                             <a href="/users" type="submit" class="btn btn-primary">
-                                                <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.list"/}</span>
+                                                <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.list"/}</span>
                                             </a>
                                         </div>
                                     </form>
@@ -133,7 +133,7 @@
                                                 ID
                                             </th>
                                             <th data-field="displayName" data-col="displayName" data-type="string">
-                                                {@__ key="application.label"/}
+                                                {#__ key="application.label"/}
                                             </th>
                                             <th style="width:20%;">Action</th>
                                         </tr>
@@ -147,7 +147,7 @@
                                                     <a class="pull-left" href="/application/preview?id_application={id}" target="_blank">
                                                         <button class="btn btn-info">
                                                             <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
-                                                            <span>{@__ key="button.show"/}</span>
+                                                            <span>{#__ key="button.show"/}</span>
                                                         </button>
                                                     </a>&nbsp;&nbsp;&nbsp;
                                                     <form class="pull-left" action="/users/remove_access" method="POST" style="margin-left: 10px;">
@@ -155,7 +155,7 @@
                                                         <input type="hidden" name="id_user" value="{user.id}">
                                                         <button class="btn btn-danger">
                                                             <i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
-                                                            <span>{@__ key="button.remove"/}</span>
+                                                            <span>{#__ key="button.remove"/}</span>
                                                         </button>
                                                     </form>
                                                 </td>
