@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.import"/}<small>{@__ key="menu.module"/}</small>
+	{#__ key="menu.import"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
 <div class="row">
@@ -8,14 +8,14 @@
 		<section class="col-xs-12 col-lg-offset-2 col-lg-8">
 			<div class="box box-solid box-default">
 				<div class="box-header bg-primary">
-					<h3 class="box-title" style="color: #fff;">{@__ key="import.legend"/}</h3>
+					<h3 class="box-title" style="color: #fff;">{#__ key="import.legend"/}</h3>
 				</div>
 				<div class="box-body">
 					<div class="row">
 						<div class="col-xs-12">
 							<form id="importForm" method="post" enctype="multipart/form-data">
 								<div class="form-group">
-									<label for="AppID">{@__ key="application.selectExisting"/}</label>
+									<label for="AppID">{#__ key="application.selectExisting"/}</label>
 									<select class="form-control select" name="appID" style="width: 100%;" required="required">
 										{#applications}
 											<option value="{id}">{id} - {name}</option>
@@ -23,15 +23,15 @@
 									</select>
 								</div>
 								<div class="form-group">
-									<label for="configFile">{@__ key="import.confFile"/}</label>
+									<label for="configFile">{#__ key="import.confFile"/}</label>
 									<input id="configFile" name="configFile" type="file" required="required" />
 								</div>
 								<div class="form-group">
-									<label for="contentFile">{@__ key="import.fileType"/}</label>
+									<label for="contentFile">{#__ key="import.fileType"/}</label>
 									<input id="contentFile" name="contentFile" type="file" required="required" />
 								</div><br>
 								<div class="form-group">
-									<button class="btn btn-primary" id="importSubmit">{@__ key="import.action"/}</button>
+									<button class="btn btn-primary" id="importSubmit">{#__ key="import.action"/}</button>
 								</div>
 							</form>
 							<div class="progress sm progress-striped active" id="progressImportOne" style="display:none;">
@@ -39,7 +39,7 @@
 							</div>
 							<div class="form-group">
 								<a class="btn btn-info" id="downloadSQLFile" style="display:none;">
-									{@__ key="import.downloadsqlfile"/}
+									{#__ key="import.downloadsqlfile"/}
 								</a>
 							</div>
 						</div>

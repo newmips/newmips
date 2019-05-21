@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-    {@__ key="menu.users"/}<small>{@__ key="menu.module"/}</small>
+    {#__ key="menu.users"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<custom_css}
     <link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
@@ -21,18 +21,18 @@
                                 ID
                             </th>
                             <th data-field="login" data-col="login" data-type="string">
-                                {@__ key="users.login"/}
+                                {#__ key="users.login"/}
                             </th>
                             <th data-field="enabled" data-col="enabled" data-type="boolean">
-                                {@__ key="users.enabled"/}
+                                {#__ key="users.enabled"/}
                             </th>
                             <th data-field="email" data-col="email" data-type="email">
-                                {@__ key="users.email"/}
+                                {#__ key="users.email"/}
                             </th>
                             <th data-field="role" data-col="role" data-type="string">
-                                {@__ key="users.role"/}
+                                {#__ key="users.role"/}
                             </th>
-                            <th>{@__ key="users.applications"/}</th>
+                            <th>{#__ key="users.applications"/}</th>
                             <th style="width:20%;">Action</th>
                         </tr>
                     </thead>
@@ -53,20 +53,20 @@
                                 <a href="/users/show/{id}">
                                     <button class="pull-left btn btn-info">
                                         <i class="fa fa-eye fa-md">&nbsp;&nbsp;</i>
-                                        <span>{@__ key="button.show"/}</span>
+                                        <span>{#__ key="button.show"/}</span>
                                     </button>
                                 </a>
                                 <a href="/users/update/{id}">
                                     <button class="pull-left btn btn-warning" style="margin-left: 10px;">
                                         <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-                                        <span>{@__ key="button.update"/}</span>
+                                        <span>{#__ key="button.update"/}</span>
                                     </button>
                                 </a>
                                 <form class="pull-left" action="/users/delete" method="post">
                                     <input type="hidden" name="id" value="{id}">
                                     <button class="btn btn-danger btn-confirm" style="margin-left: 10px;">
                                         <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                                        <span>{@__ key="button.delete"/}</span>
+                                        <span>{#__ key="button.delete"/}</span>
                                     </button>
                                 </form>
                             </td>
@@ -78,7 +78,7 @@
                 <a href="/users/create">
                     <button class="btn btn-success">
                         <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                        <span>{@__ key="button.create"/}</span>
+                        <span>{#__ key="button.create"/}</span>
                     </button>
                 </a>
             </div>

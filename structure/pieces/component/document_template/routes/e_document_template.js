@@ -22,23 +22,23 @@ var logger = require('../utils/logger');
 
 var SELECT_PAGE_SIZE = 10;
 
-router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
+router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     res.render('e_document_template/list');
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
-    filterDataTable("E_document_template", req.body).then(function(rawData) {
-        entity_helper.prepareDatalistResult('e_document_template', rawData, req.session.lang_user).then(function(preparedData) {
+router.post('/datalist', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
+    filterDataTable("E_document_template", req.body).then(function (rawData) {
+        entity_helper.prepareDatalistResult('e_document_template', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         console.error(err);
         logger.debug(err);
         res.end();
     });
 });
 
-router.get('/show', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
+router.get('/show', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     var id_e_document_template = req.query.id;
     var tab = req.query.tab;
     var data = {
@@ -58,7 +58,7 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
         where: {
             id: id_e_document_template
         }
-    }).then(function(e_document_template) {
+    }).then(function (e_document_template) {
         if (!e_document_template) {
             data.error = 404;
             logger.debug("No data entity found.");
@@ -67,25 +67,20 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
 
         data.e_document_template = e_document_template;
         var relations = document_template_helper.getRelations(e_document_template.f_entity);
-        var reworkRelations = [];
         var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
         for (var i = 0; i < relations.length; i++) {
-            reworkRelations[i] = {
-                item: relations[i],
-                value: relations[i]
-            };
-            if (f_exclude_relations.indexOf(relations[i]) < 0)
-                reworkRelations[i].isSelected = true;
+            if (f_exclude_relations.indexOf(relations[i].value) < 0)
+                relations[i].isSelected = true;
         }
-        data.e_document_template.document_template_relations = reworkRelations;
+        data.e_document_template.document_template_relations = relations;
         res.render('e_document_template/show', data);
 
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
     var data = {
         menu: "e_document_template",
         sub_menu: "create_e_document_template",
@@ -104,29 +99,29 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
     res.render('e_document_template/create', data);
 });
 
-router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
+router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
 
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
     var relations = document_template_helper.getRelations(req.body.f_entity);
     var f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
     var exclude_relations = [];
     for (var i = 0; i < relations.length; i++)
-        if (f_exclude_relations.indexOf(relations[i]) < 0)
-            exclude_relations.push(relations[i]);
+        if (f_exclude_relations.indexOf(relations[i].value) < 0)
+            exclude_relations.push(relations[i].value);
     createObject.f_exclude_relations = exclude_relations.join(',');
-    models.E_document_template.create(createObject).then(function(e_document_template) {
+    models.E_document_template.create(createObject).then(function (e_document_template) {
         var redirect = '/document_template/show?id=' + e_document_template.id;
         req.session.toastr = [{
-            message: 'message.create.success',
-            level: "success"
-        }];
+                message: 'message.create.success',
+                level: "success"
+            }];
         res.redirect(redirect);
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error(err, req, res, '/document_template/create_form');
     });
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("document_template", "update"), function(req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
     var id_e_document_template = req.query.id;
     var data = {
         menu: "e_document_template",
@@ -147,9 +142,9 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
             id: id_e_document_template
         },
         include: [{
-            all: true
-        }]
-    }).then(function(e_document_template) {
+                all: true
+            }]
+    }).then(function (e_document_template) {
         if (!e_document_template) {
             data.error = 404;
             return res.render('common/error', data);
@@ -158,26 +153,21 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
         data.e_document_template = e_document_template;
         data.document_template_entities = document_template_helper.get_entities(models);
 
-        var relations = document_template_helper.getRelations(e_document_template.f_entity);
-        var reworkRelations = [];
+        var relations = document_template_helper.getRelations(e_document_template.f_entity, {lang: req.session.lang_user});
         var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
         for (var i = 0; i < relations.length; i++) {
-            reworkRelations[i] = {
-                item: relations[i],
-                value: relations[i]
-            };
-            if (f_exclude_relations.indexOf(relations[i]) < 0)
-                reworkRelations[i].isSelected = true;
+            if (f_exclude_relations.indexOf(relations[i].value) < 0)
+                relations[i].isSelected = true;
         }
-        data.e_document_template.document_template_relations = reworkRelations;
+        data.e_document_template.document_template_relations = relations;
 
         res.render('e_document_template/update', data);
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });
 });
 
-router.post('/update', block_access.actionAccessMiddleware("document_template", "update"), function(req, res) {
+router.post('/update', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
     var id_e_document_template = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
@@ -191,54 +181,54 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
     var f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
     var exclude_relations = [];
     for (var i = 0; i < relations.length; i++)
-        if (f_exclude_relations.indexOf(relations[i]) < 0)
-            exclude_relations.push(relations[i]);
+        if (f_exclude_relations.indexOf(relations[i].value) < 0)
+            exclude_relations.push(relations[i].value);
     updateObject.f_exclude_relations = exclude_relations.join(',');
     models.E_document_template.findOne({
         where: {
             id: id_e_document_template
         }
-    }).then(function(e_document_template) {
+    }).then(function (e_document_template) {
         if (!e_document_template) {
             data.error = 404;
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
 
-        e_document_template.update(updateObject).then(function() {
+        e_document_template.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
-            model_builder.setAssocationManyValues(e_document_template, req.body, updateObject, options).then(function() {
+            model_builder.setAssocationManyValues(e_document_template, req.body, updateObject, options).then(function () {
 
                 var redirect = '/document_template/show?id=' + id_e_document_template;
                 if (typeof req.body.associationFlag !== 'undefined')
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
                 req.session.toastr = [{
-                    message: 'message.update.success',
-                    level: "success"
-                }];
+                        message: 'message.update.success',
+                        level: "success"
+                    }];
 
                 res.redirect(redirect);
             });
-        }).catch(function(err) {
+        }).catch(function (err) {
             entity_helper.error(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error(err, req, res, '/document_template/update_form?id=' + id_e_document_template);
     });
 });
 
-router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "update"), function(req, res) {
-    status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
+router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
+    status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(() => {
         res.redirect('/document_template/show?id=' + req.params.id_document_template);
-    }).catch((err)=> {
+    }).catch((err) => {
         entity_helper.error(err, req, res, '/document_template/show?id=' + req.params.id_document_template);
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("document_template", "delete"), function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("document_template", "delete"), function (req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
@@ -246,7 +236,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
         where: {
             id: idEntity
         }
-    }).then(function(e_document_template) {
+    }).then(function (e_document_template) {
         if (!e_document_template) {
             var data = {
                 error: 404
@@ -255,7 +245,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
         }
 
         // Get all associations
-        e_document_template['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function(aliasEntities) {
+        e_document_template['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
             // Remove entity from association array
             for (var i = 0; i < aliasEntities.length; i++)
                 if (aliasEntities[i].id == idToRemove) {
@@ -263,24 +253,24 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
                     break;
                 }
 
-                // Set back associations without removed entity
-            e_document_template['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function() {
+            // Set back associations without removed entity
+            e_document_template['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             });
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
     var alias = req.params.alias;
     var idEntity = req.body.idEntity;
     models.E_document_template.findOne({
         where: {
             id: idEntity
         }
-    }).then(function(e_document_template) {
+    }).then(function (e_document_template) {
         if (!e_document_template) {
             var data = {
                 error: 404
@@ -290,7 +280,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("documen
         }
 
         var toAdd;
-        if (typeof(toAdd = req.body.ids) === 'undefined') {
+        if (typeof (toAdd = req.body.ids) === 'undefined') {
             req.session.toastr.push({
                 message: 'message.create.failure',
                 level: "error"
@@ -298,46 +288,46 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("documen
             return res.redirect('/document_template/show?id=' + idEntity + "#" + alias);
         }
 
-        e_document_template['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
+        e_document_template['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/document_template/show?id=' + idEntity + "#" + alias);
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("document_template", "delete"), function(req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("document_template", "delete"), function (req, res) {
     var id_e_document_template = parseInt(req.body.id);
 
     models.E_document_template.findOne({
         where: {
             id: id_e_document_template
         }
-    }).then(function(deleteObject) {
+    }).then(function (deleteObject) {
         models.E_document_template.destroy({
             where: {
                 id: id_e_document_template
             }
-        }).then(function() {
+        }).then(function () {
             req.session.toastr = [{
-                message: 'message.delete.success',
-                level: "success"
-            }];
+                    message: 'message.delete.success',
+                    level: "success"
+                }];
 
             var redirect = '/document_template/list';
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
             entity_helper.removeFiles("e_document_template", deleteObject, attributes);
-        }).catch(function(err) {
+        }).catch(function (err) {
             entity_helper.error(err, req, res, '/document_template/list');
         });
-    }).catch(function(err) {
+    }).catch(function (err) {
         entity_helper.error(err, req, res, '/document_template/list');
     });
 });
 
-router.post('/generate', block_access.isLoggedIn, function(req, res) {
+router.post('/generate', block_access.isLoggedIn, function (req, res) {
     var id_entity = req.body.id_entity;
     var entity = req.body.entity;
     var id_document = req.body.f_model_document;
@@ -347,7 +337,7 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
             where: {
                 id: id_document
             }
-        }).then(function(e_model_document) {
+        }).then(function (e_model_document) {
             if (e_model_document && e_model_document.f_file) {
                 // Model name
                 entity = entity.charAt(0).toUpperCase() + entity.slice(1);
@@ -371,7 +361,7 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
                         id: id_entity
                     },
                     include: includes
-                }).then(function(e_entity) {
+                }).then(function (e_entity) {
                     if (e_entity) {
                         var partOfFilepath = e_model_document.f_file.split('-');
                         if (partOfFilepath.length > 1) {
@@ -398,7 +388,7 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
                             var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user, mimeType);
 
                             // Now add others globals variables
-                            document_template_helper.globalVariables.forEach(function(g) {
+                            document_template_helper.globalVariables.forEach(function (g) {
                                 if (g.type === "date" || g.type === "datetime" || g.type === "time")
                                     data[g.name] = moment().format(document_template_helper.getDateFormatUsingLang(req.session.lang_user, g.type));
                             });
@@ -413,22 +403,22 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
                                 lang: req.session.lang_user,
                                 req: req
                             };
-                            document_template_helper.generateDoc(options).then(function(infos) {
+                            document_template_helper.generateDoc(options).then(function (infos) {
                                 var filename = (e_entity.id || '') +
-                                    '_' + today.format('DDMMYYYY_HHmmss') +
-                                    '_' + today.unix() +
-                                    infos.ext;
+                                        '_' + today.format('DDMMYYYY_HHmmss') +
+                                        '_' + today.unix() +
+                                        infos.ext;
                                 res.writeHead(200, {
                                     "Content-Type": infos.contentType,
                                     "Content-Disposition": "attachment;filename=" + filename
                                 });
                                 res.write(infos.buffer);
                                 res.end();
-                            }).catch(function(e) {
+                            }).catch(function (e) {
                                 req.session.toastr = [{
-                                    message: e.message,
-                                    level: "error"
-                                }];
+                                        message: e.message,
+                                        level: "error"
+                                    }];
                                 res.redirect(req.headers.referer);
                             });
                         } else
@@ -443,7 +433,7 @@ router.post('/generate', block_access.isLoggedIn, function(req, res) {
         res.redirect(req.headers.referer);
 });
 
-router.get('/readme/:entity', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
+router.get('/readme/:entity', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     var data = {
         "menu": "e_document_template",
         "sub_menu": "list_e_document_template"
@@ -460,7 +450,7 @@ router.get('/readme/:entity', block_access.actionAccessMiddleware("document_temp
     }
 });
 
-router.get('/help/:type', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
+router.get('/help/:type', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     var type = req.params.type;
 
     if (type === "subEntities") {
@@ -471,12 +461,12 @@ router.get('/help/:type', block_access.actionAccessMiddleware("document_template
         res.status(404).end();
 });
 
-router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
+router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     var entity = req.params.entity;
     var type = req.query.t;
     if (entity) {
         if (type === 'html') {
-            var html = document_template_helper.buildHTMLHelpEntitiesAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
+            var html = document_template_helper.buildHTML_EntitiesHelperAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
             res.json({
                 HTMLRelationsList: html
             });
@@ -488,13 +478,13 @@ router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("d
         res.end([]);
 });
 
-router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function(req, res) {
+router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     res.json({
         HTMLGlobalVariables: document_template_helper.buildHTMLGlobalVariables(req.session.lang_user)
     });
 });
 
-router.post('/search', block_access.actionAccessMiddleware('document_template', 'read'), function(req, res) {
+router.post('/search', block_access.actionAccessMiddleware('document_template', 'read'), function (req, res) {
     var search = '%' + (req.body.search || '') + '%';
     var limit = SELECT_PAGE_SIZE;
     var offset = (req.body.page - 1) * limit;
@@ -533,9 +523,9 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
     // Notice that customwhere feature do not work with related to many field if the field is a foreignKey !
 
     // Possibility to add custom where in select2 ajax instanciation
-    if (typeof req.body.customwhere !== "undefined"){
+    if (typeof req.body.customwhere !== "undefined") {
         // If customwhere from select HTML attribute, we need to parse to object
-        if(typeof req.body.customwhere === "string")
+        if (typeof req.body.customwhere === "string")
             req.body.customwhere = JSON.parse(req.body.customwhere);
         for (var param in req.body.customwhere) {
             // If the custom where is on a foreign key
@@ -553,14 +543,14 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
     where.offset = offset;
     where.limit = limit;
 
-    models.E_document_template.findAndCountAll(where).then(function(results) {
+    models.E_document_template.findAndCountAll(where).then(function (results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         // Format value like date / datetime / etc...
         for (var field in attributes) {
             for (var i = 0; i < results.rows.length; i++) {
                 for (var fieldSelect in results.rows[i]) {
-                    if(fieldSelect == field){
-                        switch(attributes[field].newmipsType) {
+                    if (fieldSelect == field) {
+                        switch (attributes[field].newmipsType) {
                             case "date":
                                 results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
                                 break;
@@ -573,7 +563,7 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
             }
         }
         res.json(results);
-    }).catch(function(e) {
+    }).catch(function (e) {
         console.error(e);
         res.status(500).json(e);
     });

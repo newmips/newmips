@@ -7,6 +7,7 @@ var enums_radios = require('../locales/enum_radio');
 var JSZip = require('jszip');
 var Docxtemplater = require('docxtemplater');
 var pdfFiller = require('fill-pdf');
+var language = require('../services/language');
 var langMessage = require('../locales/document_template_locales');
 var lang = "fr-FR";
 
@@ -34,7 +35,7 @@ module.exports = {
                     entity_to_show = entity_to_show.charAt(0).toUpperCase() + entity_to_show.slice(1); //uc first
                     document_template_entities.push({
                         value: entity_to_show,
-                        item: entity_to_show
+                        item: language('fr-FR').__('entity.' + item.toLowerCase() + '.label_entity') || entity_to_show
                     });
                 }
             }
@@ -166,16 +167,19 @@ module.exports = {
             }
         }
     },
-    getRelations: function (entity) {
+    getRelations: function (entity, options = {lang:lang}) {
         var result = [];
-        var options = require('../models/options/e_' + entity.toLowerCase() + '.json');
-        for (var i = 0; i < options.length; i++) {
-            var option = options[i];
-            var target = option.target.charAt(0).toUpperCase() + option.target.slice(1);
+        var modelOptions = require('../models/options/e_' + entity.toLowerCase() + '.json');
+        for (var i = 0; i < modelOptions.length; i++) {
+            var modelOption = modelOptions[i];
+            var target = modelOption.target.charAt(0).toUpperCase() + modelOption.target.slice(1);
             if (target && this.entities_to_exclude.indexOf(target) < 0) {
-                target = option.target.replace('e_', '');
+                target = modelOption.target.replace('e_', '');
                 target = target.charAt(0).toUpperCase() + target.slice(1); //uc first
-                result.push(target);
+                result.push({
+                    value: target,
+                    item: language(options.lang).__('entity.' + modelOption.target + '.label_entity')
+                });
             }
         }
         return result;
@@ -211,11 +215,13 @@ module.exports = {
         var result = [];
         var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
         var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
+        var entityRootTranslated = language(userLang).__('entity.e_' + entityRoot.toLowerCase() + '.label_entity');
+        entityRootTranslated = entityRootTranslated.charAt(0).toUpperCase() + entityRootTranslated.slice(1);
         result.push({
             id: 0,
             message: '',
             attributes: this.getAttributes(attributes),
-            entity: entityRoot,
+            entity: entityRootTranslated,
             relation: 'root',
             color: "#ffffff"
         });
@@ -254,7 +260,7 @@ module.exports = {
                             langMessage[userLang || lang].empty + ": <br>" +
                             "<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
                             "{/" + relation.as + "}</pre><br><br>";
-                var entity = relation.target.replace('e_', '');
+                var entity = language(userLang).__('entity.' + relation.target + '.label_entity');
                 result.push({
                     id: i + 1,
                     message: message,
@@ -276,7 +282,7 @@ module.exports = {
             var found = false;
             var target = options[i].target.toLowerCase();
             for (var j = 0; j < parts_of_exclude_relations.length; j++) {
-                if (parts_of_exclude_relations[j] && options[i].target === parts_of_exclude_relations[j].toLowerCase())
+                if (parts_of_exclude_relations[j] && target.replace('e_', '') === parts_of_exclude_relations[j].toLowerCase())
                     found = true;
             }
             if (!found) {
@@ -289,7 +295,7 @@ module.exports = {
         }
         return result;
     },
-    buildHTMLHelpEntitiesAjax: function (entities, userLang) {
+    buildHTML_EntitiesHelperAjax: function (entities, userLang) {
         var html = '';
         entities.forEach(function (entity) {
             html += '<div class="panel box" style="border-top-color:' + entity.color + '">';
