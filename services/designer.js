@@ -596,41 +596,7 @@ function deleteDataEntity(attr, callback) {
                         if (options[i].target != name_data_entity)
                             continue;
                         if (options[i].relation == 'hasMany') {
-                            var tmpAttr = {
-                                options: {
-                                    value: options[i].as,
-                                    urlValue: options[i].as.substring(2)
-                                },
-                                id_project: attr.id_project,
-                                id_application: attr.id_application,
-                                id_module: attr.id_module,
-                                structureType: options[i].structureType
-                            }
-                            promises.push({func: function (tmpAttrIn, clbk) {
-                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function (err, sourceID) {
-                                        tmpAttrIn.id_data_entity = sourceID;
-                                        if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
-                                            deleteTab(tmpAttrIn, function (err) {
-                                                if (err)
-                                                    console.error(err);
-                                                clbk();
-                                            });
-                                        } else if (tmpAttrIn.structureType == "relatedToMultiple") {
-                                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                            deleteDataField(tmpAttrIn, function (err) {
-                                                if (err)
-                                                    console.error(err);
-                                                clbk();
-                                            });
-                                        } else {
-                                            console.warn("WARNING - Unknown option to delete !");
-                                            console.warn(tmpAttrIn);
-                                            clbk();
-                                        }
-                                    });
-                                }, arg: tmpAttr});
-                        } else if (options[i].relation == 'belongsTo') {
-                            var tmpAttr = {
+                            let tmpAttr = {
                                 options: {
                                     value: options[i].as,
                                     urlValue: options[i].as.substring(2)
@@ -640,18 +606,20 @@ function deleteDataEntity(attr, callback) {
                                 id_module: attr.id_module,
                                 structureType: options[i].structureType
                             };
-                            promises.push({func: function (tmpAttrIn, clbk) {
-                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function (err, sourceID) {
+
+                            promises.push({
+                                func: function(tmpAttrIn, clbk) {
+                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
                                         tmpAttrIn.id_data_entity = sourceID;
-                                        if (tmpAttrIn.structureType == "relatedTo") {
-                                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                            deleteDataField(tmpAttrIn, function (err) {
+                                        if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
+                                            deleteTab(tmpAttrIn, function(err) {
                                                 if (err)
                                                     console.error(err);
                                                 clbk();
                                             });
-                                        } else if (tmpAttrIn.structureType == "hasOne") {
-                                            deleteTab(tmpAttrIn, function (err) {
+                                        } else if (tmpAttrIn.structureType == "relatedToMultiple") {
+                                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
+                                            deleteDataField(tmpAttrIn, function(err) {
                                                 if (err)
                                                     console.error(err);
                                                 clbk();
@@ -662,7 +630,46 @@ function deleteDataEntity(attr, callback) {
                                             clbk();
                                         }
                                     });
-                                }, arg: tmpAttr});
+                                },
+                                arg: tmpAttr
+                            });
+                        } else if (options[i].relation == 'belongsTo') {
+                            let tmpAttr = {
+                                options: {
+                                    value: options[i].as,
+                                    urlValue: options[i].as.substring(2)
+                                },
+                                id_project: attr.id_project,
+                                id_application: attr.id_application,
+                                id_module: attr.id_module,
+                                structureType: options[i].structureType
+                            };
+                            promises.push({
+                                func: function(tmpAttrIn, clbk) {
+                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
+                                        tmpAttrIn.id_data_entity = sourceID;
+                                        if (tmpAttrIn.structureType == "relatedTo") {
+                                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
+                                            deleteDataField(tmpAttrIn, function(err) {
+                                                if (err)
+                                                    console.error(err);
+                                                clbk();
+                                            });
+                                        } else if (tmpAttrIn.structureType == "hasOne") {
+                                            deleteTab(tmpAttrIn, function(err) {
+                                                if (err)
+                                                    console.error(err);
+                                                clbk();
+                                            });
+                                        } else {
+                                            console.warn("WARNING - Unknown option to delete !");
+                                            console.warn(tmpAttrIn);
+                                            clbk();
+                                        }
+                                    });
+                                },
+                                arg: tmpAttr
+                            });
                         }
                     }
                 });

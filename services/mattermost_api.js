@@ -3,66 +3,67 @@ const mattermostConfig = require('../config/mattermost.js');
 
 const request = require('request-promise');
 const fs = require("fs-extra");
+const moment = require('moment');
 
-let token, supportUser, channel, channelName, supportTeam, newmipsTeam, teamMembers, incomingHook;
+let token = false, tokenExpire, supportUser, channel = {}, channelName, supportTeam, newmipsTeam, teamMembers, incomingHook;
 
 exports.init = async (appName) => {
 
     // Get authent token
-    token = await authenticate();
+    if(!token || moment().diff(tokenExpire, "hours" >= 24))
+        token = await authenticate();
 
     // Check that channel for current app + generator exist
     channelName = appName + "-" + globalConfig.host.replace(/\./g, "");
-    channel = await getChannel(channelName);
+    channel[channelName] = await getChannel(channelName);
 
-    if(!channel){
+    if(!channel[channelName]){
 
         // Support team is the team where the discussing channel is
         supportTeam = await getTeam(mattermostConfig.team);
 
-        channel = await createChannel(channelName, supportTeam.id);
+        channel[channelName] = await createChannel(channelName, supportTeam.id);
 
         // Newmips team represent all the support person from newmips that will be added to the channel
-        newmipsTeam = await getTeam(mattermostConfig.newmips_members);
+        newmipsTeam = await getTeam(mattermostConfig.support_members);
 
         // Get all newmips team members
         teamMembers = await getTeamMembers(newmipsTeam.id);
 
         // Add all team to the channel
-        await addTeamToChannel(teamMembers, channel.id);
+        await addTeamToChannel(teamMembers, channel[channelName].id);
     }
 
-    return channel;
+    return channel[channelName];
 }
 
 exports.send = async (appName, message) => {
 
     // Get authent token
-    token = await authenticate();
+    if(!token || moment().diff(tokenExpire, "hours") >= 24)
+        token = await authenticate();
 
     // Check that channel for current app + generator exist
     channelName = appName + "-" + globalConfig.host.replace(/\./g, "");
-    channel = await getChannel(channelName);
 
-    if(!channel)
-        throw new Error("Missing mattermost channel.")
+    if(!channel[channelName] || typeof channel[channelName] === "undefined")
+        channel[channelName] = await getChannel(channelName);
 
-    return await sendMessage(channel, message);;
+    return await sendMessage(channel[channelName], message);;
 }
 
 exports.watch = async (appName) => {
 
-    // Get authent token
-    token = await authenticate();
+    if(!token || moment().diff(tokenExpire, "hours") >= 24)
+        token = await authenticate();
 
     // Check that channel for current app + generator exist
     channelName = appName + "-" + globalConfig.host.replace(/\./g, "");
-    channel = await getChannel(channelName);
 
-    if(!channel)
-        throw new Error("Missing mattermost channel.")
+    if(!channel[channelName] || typeof channel[channelName] === "undefined")
+        channel[channelName] = await getChannel(channelName);
 
-    let posts = await getPosts(channel);
+    let posts = await getPosts(channel[channelName]);
 
     return {
         posts: posts,
@@ -86,10 +87,11 @@ async function authenticate() {
         json: true // Automatically stringifies the body to JSON
     };
 
-    // console.log("CALL => Authentication");
     let callResults = await request(options);
 
     supportUser = callResults.body;
+
+    tokenExpire = moment();
 
     // Return full token
     return "Bearer " + callResults.headers.token;
@@ -178,13 +180,14 @@ async function addTeamToChannel(teamMembers, channelID) {
         },
         json: true
     };
+
     for (var i = 0; i < teamMembers.length; i++) {
         member = teamMembers[i];
         options.body = {
             user_id: member.user_id
         };
         try {
-            await request(options);
+            request(options);
         } catch(err){
             console.log("ERROR WHILE ADDING MEMBER "+member.user_id+" TO CHANNEL");
             continue;
@@ -235,7 +238,7 @@ async function getIncomingWebhook(teamID, channelID) {
     })[0];
 }
 
-async function sendMessage(channel, message) {
+async function sendMessage(chan, message) {
     let options = {
         uri: mattermostConfig.api_url + "/posts",
         method: 'POST',
@@ -244,7 +247,7 @@ async function sendMessage(channel, message) {
             'Authorization': token
         },
         body: {
-            channel_id: channel.id,
+            channel_id: chan.id,
             message: message
         },
         json: true
@@ -254,22 +257,22 @@ async function sendMessage(channel, message) {
     return await request(options);
 }
 
-async function getPosts(channel) {
+async function getPosts(chan) {
+
     let options = {
-        uri: mattermostConfig.api_url + "/channels/"+channel.id+"/posts",
+        uri: mattermostConfig.api_url + "/channels/"+chan.id+"/posts",
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': token
         },
         qs: {
-             page: "0",
-             per_page: "50"
+            page: "0",
+            per_page: "50"
         },
         json: true
     };
 
-    // console.log("CALL => getPosts");
     return await request(options);
 }
 

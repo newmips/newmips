@@ -1,9 +1,9 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.instruction"/}<small>{@__ key="menu.module"/}</small>
+	{#__ key="menu.instruction"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
-	<legend>{@__ key="instructionScript.legend"/}</legend>
+	<legend>{#__ key="instructionScript.legend"/}</legend>
 	<div class="row">
 		<div class="col-xs-12 connectedSortable">
 			<div class="box-body">
@@ -13,7 +13,7 @@
 							<div class="form-group">
 								<div class="row">
 									<div class="col-xs-12">
-										<label class='required' for='template_entry'> {@M_ key="template.label" /}</label>
+										<label class='required' for='template_entry'> {#M_ key="template.label" /}</label>
 										<select class="form-control select" id="template_entry" name="template_entry" style="width: 100%;" required="">
 											{#templates}
 												<option value="{entry}">{name}</option>
@@ -23,7 +23,7 @@
 								</div>
 								<div class="row">
 									<div class="col-xs-3">
-										<button class="btn btn-primary" id="scriptSubmit" type="submit" style="float:left;margin-top: 15px;">{@__ key="button.execute"/}</button>
+										<button class="btn btn-primary" id="scriptSubmit" type="submit" style="float:left;margin-top: 15px;">{#__ key="button.execute"/}</button>
 									</div>
 								</div>
 							</div>
@@ -36,7 +36,7 @@
 						<div id="instructionCount" style="float: left;"></div>
 						<br><br>
 						<button class="btn btn-success" id="goTo" disabled="disabled" style="display:none;">
-						{@__ key="instructionScript.redirecting"/}</button>
+						{#__ key="instructionScript.redirecting"/}</button>
 						<br><br>
 						<div class="progress sm progress-striped active" id="progressbarcontent" style="display:none;">
 							<div class="progress-bar progress-bar-success" id="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;"></div>

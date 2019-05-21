@@ -676,22 +676,23 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
             model: models.Application,
             required: true,
             include: [{
-                model: models.Module,
-                include: [{
-                    model: models.DataEntity
-                }]
-            }, {
                 model: models.User,
                 as: "users",
                 where: {
                     id: req.session.passport.user.id
-                }
+                },
+                required: true
             }]
         }],
         order: [
             [models.Application, 'id', 'DESC']
         ]
     }).then(function(projects) {
+
+        console.log("APPLICATION LIST DEBUG")
+        console.log("NB PROJECT: " + projects.length);
+        console.log("ID USER: " + req.session.passport.user.id)
+
         let data = {};
 
         let iframe_status_url;

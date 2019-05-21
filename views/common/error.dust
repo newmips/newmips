@@ -1,6 +1,6 @@
 {>"main_layout"/}
 {<title}
-	{@__ key="menu.error"/}<small>{code}</small>
+	{#__ key="menu.error"/}<small>{code}</small>
 {/title}
 {<content}
 	<div class="error-page">
@@ -9,9 +9,9 @@
 			{?msg}
 				<h3><i class="fa fa-warning text-yellow"></i>{msg}</h3>
 			{:else}
-				<h3><i class="fa fa-warning text-yellow"></i>&nbsp;{@__ key="error.oops"/}</h3>
+				<h3><i class="fa fa-warning text-yellow"></i>&nbsp;{#__ key="error.oops"/}</h3>
 			{/msg}
-			<p>{@__ key="error.textone"/}<a href="/">&nbsp;{@__ key="error.texttwo"/}</a>&nbsp;{@__ key="error.or"/}&nbsp;<a href="javascript:history.back();">{@__ key="error.textthree"/}</a></p>
+			<p>{#__ key="error.textone"/}<a href="/">&nbsp;{#__ key="error.texttwo"/}</a>&nbsp;{#__ key="error.or"/}&nbsp;<a href="javascript:history.back();">{#__ key="error.textthree"/}</a></p>
 		</div>
 	</div>
 {/content}
