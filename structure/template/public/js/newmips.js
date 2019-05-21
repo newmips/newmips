@@ -439,23 +439,26 @@ function initForm(context) {
                     }
                 });
             },
-            renameFilename: function (filename) {
+             renameFilename: function (filename) {
                 /*get file extension before clean*/
                 var fileExt = '';
-                if (fileExt.indexOf('.') >= 0)
+                if (filename.indexOf('.') >= 0)
                     fileExt = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
                 filename = clearString(filename);
                 if (filename.indexOf("dfltImg_") != -1)
                     return filename.replace("dfltImg_", "");
                 if ($("#" + that.attr("id") + "_hidden").val() != '') {
                     var timeFile = moment().format("YYYYMMDD-HHmmss");
-                    $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
                     /*remove file extension starts With _*/
                     if (fileExt)
                         filename = filename.substring(0, filename.lastIndexOf('_'));
-                    return timeFile + '_' + filename + '.' + fileExt;
+                    
+                    var completeFileName = timeFile + '_' + filename + '.' + fileExt;
+                    
+                    $("#" + that.attr("id") + "_hidden").val(completeFileName);
+                    
+                    return completeFileName;
                 }
-
             }
         });
         if (type == 'picture')
