@@ -12,6 +12,7 @@ function select2_ajaxsearch(select, placeholder) {
     // Use custom url on select or build default url
     var url = select.data('href') ? select.data('href') : select.data('url') ? select.data('url') : '/' + select.data('source') + '/search';
     select.select2({
+        placeholder: placeholder,
         ajax: {
             url: url,
             dataType: 'json',
@@ -19,7 +20,6 @@ function select2_ajaxsearch(select, placeholder) {
             delay: 250,
             contentType: "application/json",
             allowClear: true,
-            placeholder: placeholder,
             data: function (params) {
                 var ajaxdata = {
                     search: params.term,

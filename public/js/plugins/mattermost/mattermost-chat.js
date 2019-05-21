@@ -10,6 +10,7 @@
                 url: "/support_chat/init",
                 method: "POST",
                 context: this,
+                timeout: 15000,
                 success: function(data) {
                     cb();
                 },
@@ -29,8 +30,15 @@
             // Do not send the message if the value is empty
             if ($('.slack-new-message').val().trim() === '') return false;
 
+            if(sending){
+                toastr.error("A message is already being sent, please wait.");
+                return false;
+            }
+
             message = $('.slack-new-message').val();
             $('.slack-new-message').val('');
+
+            $('.slack-new-message').prop('disabled', true).prop('placeholder', 'Envoi en cours ...');
 
             sending = true;
             $.ajax({
@@ -40,6 +48,7 @@
                 data: {
                     text: message
                 },
+                timeout: 15000,
                 success: function(post) {
 
                     var messageText = methods.formatMessage(message.trim());
@@ -63,9 +72,12 @@
                         scrollTop: $(".slack-message-box")[0].scrollHeight
                     }, 800);
 
+                    $('.slack-new-message').prop('disabled', false).prop('placeholder', 'Ecrire un message ...');
+
                     sending = false;
                 },
                 error:function(err){
+                    sending = false;
                     console.log(performance.navigation.type);
                     toastr.error("Sorry, an error occured while sending a message. Please check your mattermost configuration.");
                     console.log(err);
@@ -80,6 +92,7 @@
                 url: '/support_chat/watch',
                 type: "POST",
                 dataType: 'json',
+                timeout: 15000,
                 success: function(answer) {
                     var history = answer.posts;
                     var user = answer.user;
@@ -163,7 +176,7 @@
         var options = {
             header: "Besoin d'aide ? Discutez avec nos équipes de support.",
             loading_placeholder: "Connexion en cours ...",
-            queryInterval: 3000
+            queryInterval: 5000
         };
 
         var html = '<div class="slackchat slack-chat-box">';
@@ -195,6 +208,8 @@
                 ! function watchMattermostChannel() {
                     if ($('.slack-chat-box').hasClass('open') && !sending) {
                         methods.watchChat();
+                        setTimeout(watchMattermostChannel, options.queryInterval);
+                    } else {
                         setTimeout(watchMattermostChannel, options.queryInterval);
                     }
                 }();
