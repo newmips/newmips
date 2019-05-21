@@ -121,7 +121,7 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
                 })
                 // Child Error output
                 childProcess.stderr.on('data', function(stderr) {
-                    // Avoid reject if only warngin
+                    // Avoid reject if only warning
                     if (stderr.toLowerCase().indexOf("warning") != -1){
                         console.log("!! mysqldump ignored warning !!: "+stderr)
                         return;
