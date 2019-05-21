@@ -38,6 +38,8 @@
             message = $('.slack-new-message').val();
             $('.slack-new-message').val('');
 
+            $('.slack-new-message').prop('disabled', true).prop('placeholder', 'Envoi en cours ...');
+
             sending = true;
             $.ajax({
                 url: "/support_chat/send",
@@ -69,6 +71,8 @@
                     $('.slack-message-box').stop().animate({
                         scrollTop: $(".slack-message-box")[0].scrollHeight
                     }, 800);
+
+                    $('.slack-new-message').prop('disabled', false).prop('placeholder', 'Ecrire un message ...');
 
                     sending = false;
                 },
@@ -172,7 +176,7 @@
         var options = {
             header: "Besoin d'aide ? Discutez avec nos équipes de support.",
             loading_placeholder: "Connexion en cours ...",
-            queryInterval: 3000
+            queryInterval: 5000
         };
 
         var html = '<div class="slackchat slack-chat-box">';
@@ -204,6 +208,8 @@
                 ! function watchMattermostChannel() {
                     if ($('.slack-chat-box').hasClass('open') && !sending) {
                         methods.watchChat();
+                        setTimeout(watchMattermostChannel, options.queryInterval);
+                    } else {
                         setTimeout(watchMattermostChannel, options.queryInterval);
                     }
                 }();
