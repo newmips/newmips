@@ -215,11 +215,13 @@ module.exports = {
         var result = [];
         var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
         var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
+        var entityRootTranslated = language(userLang).__('entity.e_' + entityRoot.toLowerCase() + '.label_entity');
+        entityRootTranslated = entityRootTranslated.charAt(0).toUpperCase() + entityRootTranslated.slice(1);
         result.push({
             id: 0,
             message: '',
             attributes: this.getAttributes(attributes),
-            entity: entityRoot,
+            entity: entityRootTranslated,
             relation: 'root',
             color: "#ffffff"
         });
@@ -258,7 +260,7 @@ module.exports = {
                             langMessage[userLang || lang].empty + ": <br>" +
                             "<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
                             "{/" + relation.as + "}</pre><br><br>";
-                var entity = relation.target.replace('e_', '');
+                var entity = language(userLang).__('entity.' + relation.target + '.label_entity');
                 result.push({
                     id: i + 1,
                     message: message,
@@ -276,12 +278,11 @@ module.exports = {
         var result = [];
         var options = require('../models/options/' + entity.toLowerCase() + '.json');
         var parts_of_exclude_relations = (f_exclude_relations || '').split(',');
-        console.log(parts_of_exclude_relations)
         for (var i = 0; i < options.length; i++) {
             var found = false;
             var target = options[i].target.toLowerCase();
             for (var j = 0; j < parts_of_exclude_relations.length; j++) {
-                if (parts_of_exclude_relations[j] && options[i].target === parts_of_exclude_relations[j].toLowerCase())
+                if (parts_of_exclude_relations[j] && target.replace('e_', '') === parts_of_exclude_relations[j].toLowerCase())
                     found = true;
             }
             if (!found) {
