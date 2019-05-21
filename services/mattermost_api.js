@@ -49,7 +49,7 @@ exports.send = async (appName, message) => {
     if(!channel[channelName] || typeof channel[channelName] === "undefined")
         channel[channelName] = await getChannel(channelName);
 
-    return await sendMessage(channel[channelName], message);;
+    return await sendMessage(channel[channelName], message);
 }
 
 exports.watch = async (appName) => {
@@ -84,7 +84,9 @@ async function authenticate() {
             login_id: mattermostConfig.login,
             password: mattermostConfig.password
         },
-        json: true // Automatically stringifies the body to JSON
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     let callResults = await request(options);
@@ -105,7 +107,9 @@ async function getChannel(channelName) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     // console.log("CALL => getChannel " + channelName);
@@ -124,7 +128,9 @@ async function getTeam(teamName) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     // console.log("CALL => getTeam " + teamName);
@@ -139,7 +145,9 @@ async function getTeamMembers(teamID) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     // console.log("CALL => getTeamMembers");
@@ -162,7 +170,9 @@ async function createChannel(channelName, teamID) {
             header: "A man need a name, euh no, he need help !",
             type: "P"
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     // console.log("CALL => createChannel " + channelName);
@@ -178,7 +188,9 @@ async function addTeamToChannel(teamMembers, channelID) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     for (var i = 0; i < teamMembers.length; i++) {
@@ -210,7 +222,9 @@ async function createIncomingWebhook(channelID) {
             channel_id: channelID,
             display_name: "Generated hook from newmips environment"
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
     // console.log("CALL => createIncomingWebhook");
     return await request(options);
@@ -229,7 +243,9 @@ async function getIncomingWebhook(teamID, channelID) {
             per_page: "1000",
             team_id: teamID
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
     // console.log("CALL => getIncomingWebhook");
     let incomingWebhooks = await request(options);
@@ -250,7 +266,9 @@ async function sendMessage(chan, message) {
             channel_id: chan.id,
             message: message
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     // console.log("CALL => sendMessage");
@@ -270,7 +288,9 @@ async function getPosts(chan) {
             page: "0",
             per_page: "50"
         },
-        json: true
+        json: true,
+        rejectUnauthorized: false,
+        insecure: true
     };
 
     return await request(options);
