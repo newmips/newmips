@@ -26,7 +26,7 @@ let databaseConf = {
         dialect: 'mysql'
     },
     docker: {
-        host: 'database',
+        host: process.env.DATABASE_IP,
         port: '3306',
         user: 'newmips',
         password: 'newmips',
