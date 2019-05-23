@@ -258,9 +258,9 @@ function initHasMany(tab, data) {
             render: function(data2, type, row) {
                 var form = '\
                 <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                    <input name="id" value="'+row['id']+'" type="hidden"/>\
                     <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                         <span>'+DELETE_TEXT+'</span>\
-                        <input name="id" value="'+row['id']+'" type="hidden"/>\
                     </button>\
                 </form>';
                 return form;
