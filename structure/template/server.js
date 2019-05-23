@@ -65,7 +65,7 @@ app.use(morgan('dev', {
         	return true;
     },
     stream: require('split')().on('data', function(line) {
-        process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line + "\n");
+        process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line);
     })
 }));
 
