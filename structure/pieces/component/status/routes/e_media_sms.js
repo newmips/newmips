@@ -244,7 +244,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
                     // Apply getR_children() on each current status
                     var statusGetterPromise = [],
                         subentityOptions = require('../models/options/' + option.target);
-                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function(alias) {
