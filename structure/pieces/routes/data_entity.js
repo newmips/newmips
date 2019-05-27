@@ -635,7 +635,7 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;

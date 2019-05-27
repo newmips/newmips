@@ -2,7 +2,6 @@
 var express = require('express');
 var router = express.Router();
 var block_access = require('../utils/block_access');
-var languageConfig = require('../config/language');
 var globalConf = require('../config/global');
 var multer = require('multer');
 var fs = require('fs');
