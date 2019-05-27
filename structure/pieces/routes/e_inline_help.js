@@ -689,7 +689,7 @@ router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inline_help", "delete"), function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inline_help", "update"), function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;

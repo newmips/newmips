@@ -15,7 +15,7 @@ var re = /(?:\.([^.]+))?$/;
 
 // Exclude folder from editor
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
+var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 router.post('/load_file', block_access.hasAccessApplication, function(req, res) {
 	if(!req.body.path.includes("/../workspace/"+req.session.id_application)){

@@ -990,8 +990,11 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                     if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
                         let err = new Error("structure.field.attributes.duplicateUnique");
                     } else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01")){
-                        // Table do not exist - In case of script it's totally normal,juste generate a warning
-                        console.warn("WARNING - The database unique constraint on '"+attr.options.showValue+"' could not be applied, the corresponding table '"+sourceEntity+"' does not exist at the time of the instruction.")
+                        // Handle case by Newmips, no worry about this one
+                        if(['e_group', 'e_role', 'e_user'].indexOf(attr.name_data_entity) == -1 && attr.options.showValue == 'label'){
+                            // Table do not exist - In case of script it's totally normal, just generate a warning
+                            console.warn("WARNING - The database unique constraint on '"+attr.options.showValue+"' could not be applied, the corresponding table '"+sourceEntity+"' does not exist at the time of the instruction.");
+                        }
                         structure_data_field.setUniqueField(attr, function (err) {
                             if (err)
                                 return callback(err, null);
