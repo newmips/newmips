@@ -107,7 +107,7 @@
                 var form = '\
                 <form action="/URL_COMPONENT_ADDRESS/delete" method="post">\
                     <input name="id" type="hidden" value="'+row['id']+'" />\
-                    <button onclick="return confirm(\'Etes-vous sûr de vouloir supprimer cet enregistrement ?\');" class="btn btn-danger">\
+                    <button class="btn btn-danger btn-confirm">\
                         <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                         <span>{#__ key="button.delete" /}</span>\
                     </button>\
