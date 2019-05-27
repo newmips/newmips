@@ -27,7 +27,7 @@ var pourcent_generation = {};
 
 // Exclude from Editor
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
+var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 function initPreviewData(idApplication, data){
     return new Promise(function(resolve, reject) {

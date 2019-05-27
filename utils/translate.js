@@ -1,9 +1,8 @@
-var fs = require('fs');
-var helpers = require("./helpers");
-var translateKey = require("../config/googleAPI").translate;
-
+const fs = require('fs');
+const helpers = require("./helpers");
 // Google translation
-var googleTranslate = require('google-translate')(translateKey);
+let translateKey = require("../config/googleAPI").translate;
+const googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
     writeTree: function(idApplication, object, language, replaceBoolean) {
@@ -33,8 +32,7 @@ module.exports = {
         if(type == "field"){
             var keyValueField = value[0];
             value = value[1];
-        }
-        else if(type == "aliasfield"){
+        } else if(type == "aliasfield"){
             var alias = value[0];
             value = value[1];
         }
@@ -43,15 +41,14 @@ module.exports = {
         value = value.replace(String.fromCharCode(65533), "€");
 
         // Current application language
-        var languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/language.json');
-        var appLang = JSON.parse(languageFileData);
-        appLang = appLang.lang;
+        let languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/application.json');
+        let appLang = JSON.parse(languageFileData).lang;
 
         // Google won't fr-FR, it just want fr
-        var appLang4Google = appLang.slice(0, -3);
+        let appLang4Google = appLang.slice(0, -3);
 
         // All available languages to write
-        var languagePromises = [];
+        let languagePromises = [];
 
         function pushLanguagePromise(urlFile, dataLocales, file){
             // Create an array of promises to write all translations file
@@ -59,12 +56,10 @@ module.exports = {
                 fs.writeFile(urlFile, JSON.stringify(dataLocales, null, 4), function(err) {
                     if (err){
                         console.error(err);
-                        reject();
+                        return reject(err);
                     }
-                    else{
-                        //console.log('File => locales/'+file+' ------------------ UPDATED');
-                        resolve();
-                    }
+
+                    resolve();
                 });
             }));
         }
@@ -77,7 +72,7 @@ module.exports = {
                 data.module[keyValue.toLowerCase()] = value2;
             }
             else if(type == "entity"){
-                var content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
+                let content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"name_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"plural_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"id_entity": "ID"\n';
@@ -85,7 +80,7 @@ module.exports = {
                 data.entity[keyValue.toLowerCase()] = JSON.parse(content);
             }
             else if(type == "component"){
-                var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
+                let content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
                 content += '\t\t\t"plural_component" : "'+value2+'"\n';
                 content += '\t\t}\n';

@@ -1,52 +1,52 @@
 // server.js
+
+// Set UTC
 process.env.TZ = 'UTC';
-// Set up ======================================================================
-// Get all the tools we need
-var path = require('path');
-var express = require('express');
-var session = require('express-session');
-var dbConfig = require('./config/database');
+
+const path = require('path');
+const fs = require('fs-extra');
+
+const express = require('express');
+const app = express();
+const session = require('express-session');
+
+const globalConf = require('./config/global');
+const dbConf = require('./config/database');
+const appConf = require('./config/application');
+// const appConf = JSON.parse(fs.readFileSync(__dirname + '/config/application.json'));
 
 // MySql
-if(dbConfig.dialect == "mysql")
+if(dbConf.dialect == "mysql")
     var SessionStore = require('express-mysql-session');
 
 // Postgres
-if(dbConfig.dialect == "postgres"){
+if(dbConf.dialect == "postgres"){
     var pg = require('pg');
     var SessionStore = require('connect-pg-simple')(session);
 }
 
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
-var app = express();
-var globalConf = require('./config/global');
-var protocol = globalConf.protocol;
-var port = globalConf.port;
-var passport = require('passport');
-var flash = require('connect-flash');
-var block_access = require('./utils/block_access');
-var models = require('./models/');
-var moment = require('moment');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
-// Language
-var language = require('./services/language');
-var languageConfig = require('./config/language');
+const passport = require('passport');
+const flash = require('connect-flash');
+const block_access = require('./utils/block_access');
+const models = require('./models/');
+const moment = require('moment');
+const language = require('./services/language');
 
-var extend = require('util')._extend;
-var https = require('https');
-var http = require('http');
-var fs = require('fs-extra');
+const extend = require('util')._extend;
+const https = require('https');
+const http = require('http');
+
 
 // Winston logger
-var logger = require('./utils/logger');
+const logger = require('./utils/logger');
 
 // DustJs
-var dust = require('dustjs-linkedin');
-var cons = require('consolidate');
-
-// Configuration ===============================================================
+const dust = require('dustjs-linkedin');
+const cons = require('consolidate');
 
 // Pass passport for configuration
 require('./utils/auth_strategies');
@@ -127,17 +127,17 @@ app.set('view engine', 'dust');
 
 // Required for passport
 var options = {
-	host: dbConfig.host,
-	port: dbConfig.port,
-	user: dbConfig.user,
-	password: dbConfig.password,
-	database: dbConfig.database
+	host: dbConf.host,
+	port: dbConf.port,
+	user: dbConf.user,
+	password: dbConf.password,
+	database: dbConf.database
 };
 
-if(dbConfig.dialect == "mysql")
+if(dbConf.dialect == "mysql")
     var sessionStore = new SessionStore(options);
 
-if(dbConfig.dialect == "postgres"){
+if(dbConf.dialect == "postgres"){
     var pgPool = new pg.Pool(options);
     var sessionStore = new SessionStore({
         pool: pgPool
@@ -151,7 +151,7 @@ var sessionInstance = session({
 	resave: true,
 	saveUninitialized: false,
 	maxAge: 360*5,
-	key: 'workspaceCookie'+port // We concat port for a workspace specific session, instead of generator specific
+	key: 'workspaceCookie'+globalConf.port // We concat port for a workspace specific session, instead of generator specific
 });
 var socketSession = require('express-socket.io-session');
 
@@ -197,16 +197,14 @@ app.use(function(req, res, next) {
     // If not a person (healthcheck service or other spamming services)
     if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
 
-    var lang = languageConfig.lang;
-    if(req.isAuthenticated()){
-	    if (req.session.lang_user)
-	        lang = req.session.lang_user;
-	    else
-	    	req.session.lang_user = lang;
+    let lang = appConf.lang;
+    if (req.session.lang_user)
+        lang = req.session.lang_user;
+    else
+    	req.session.lang_user = lang;
 
-	    if (typeof req.session.toastr === 'undefined')
-			req.session.toastr = [];
-    }
+    if (typeof req.session.toastr === 'undefined')
+		req.session.toastr = [];
 
     res.locals.lang_user = lang;
     res.locals.config = globalConf;
@@ -364,7 +362,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
             }
         });
         var server;
-        if (protocol == 'https')
+        if (globalConf.protocol == 'https')
             server = https.createServer(globalConf.ssl, app);
         else
             server = http.createServer(app);
@@ -379,14 +377,14 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 		// Handle access.json file for various situation
 		block_access.accessFileManagment();
 
-		server.listen(port);
+		server.listen(globalConf.port);
         if (globalConf.env == 'tablet') {
             try {
                 const cordova = require('cordova-bridge');
                 cordova.channel.send('STARTED');
             } catch(e) {console.error("Couldn't require 'cordova-bridge'");}
         }
-		console.log("Started " + protocol + " on " + port + " !");
+		console.log("Started " + globalConf.protocol + " on " + globalConf.port + " !");
     }).catch(function(err) {
         console.error(err);
         logger.silly(err);
