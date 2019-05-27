@@ -10,7 +10,7 @@
     {:else}
         <div data-field="entityStatus" class="col-xs-12 col-sm-6">
             <div class="form-group">
-                <label for="f_entity" class="required"> {#__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
+                <label for="f_entity" class="required"> {#__ key="entity.e_status.f_entity"/} - {#__ key="entity.e_status.label_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}</label>
                 <select name="entityStatus" required class="form-control" style="width:100%;">
                     <option value="" selected>{#__ key="select.default" /}</option>
                     {#entities}
