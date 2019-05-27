@@ -103,6 +103,7 @@ let config = {
         localstorage: __dirname + "/../upload/",
         syncfolder: __dirname + '/../sync/',
         port: process.env.PORT || 1337,
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,
@@ -127,6 +128,7 @@ let config = {
         localstorage: __dirname + "/../upload/",
         syncfolder: __dirname + '/../sync/',
         port: process.env.PORT || 1337,
+        authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
             height: 30,
