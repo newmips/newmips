@@ -187,7 +187,7 @@ router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), 
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_inline_help, "e_inline_help").then(function() {
             status_helper.translate(e_inline_help, attributes, req.session.lang_user);
-            data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("e_inline_help");
+            data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_inline_help");
             // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('e_inline_help/show', data);
@@ -474,7 +474,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var subentityOptions = require('../models/options/' + option.target);
-                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function(alias) {

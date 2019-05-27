@@ -164,7 +164,7 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials").then(function () {
             status_helper.translate(e_api_credentials, attributes, req.session.lang_user);
-            data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("e_api_credentials");
+            data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_api_credentials");
             res.render('e_api_credentials/show', data);
         }).catch(function (err) {
             entity_helper.error(err, req, res, "/", "e_user");
@@ -379,7 +379,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
-                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function (alias) {
