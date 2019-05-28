@@ -249,7 +249,7 @@ exports.getEntityListByModuleName = function(id_application, moduleName, callbac
     models.Module.findOne({where: {name: moduleName, id_application: id_application}, include: [models.DataEntity]}).then(function(module){
         if (!module){
             var err = new Error();
-            err.message = "database.module.notFound.notFounded";
+            err.message = "database.module.notFound.notFound";
             err.messageParams = [moduleName];
             return callback(err, null);
         }
