@@ -33,7 +33,7 @@ var databaseConf = {
         storage: __dirname + '/newmips.db'
     },
     docker: {
-        host: 'database',
+        host: process.env.DATABASE_IP || 'database',
         port: '3306',
         user: 'newmips',
         password: 'newmips',
@@ -41,7 +41,7 @@ var databaseConf = {
         dialect: 'mysql'
     },
     cloud: {
-        host: 'database',
+        host: process.env.DATABASE_IP || 'database',
         port: '3306',
         user: 'newmips',
         password: 'newmips',
