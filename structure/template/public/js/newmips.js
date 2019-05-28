@@ -689,8 +689,8 @@ function initPrint() {
     });
 
     // Component address
-    $(".print-tab .c_address_maps").attr("mapsid", $(".print-tab .c_address_maps").attr("mapsid") + "_print");
-    $(".print-tab .c_address_maps").attr("id", $(".print-tab .c_address_maps").attr("id") + "_print");
+    $(".print-tab .address_maps").attr("mapsid", $(".print-tab .address_maps").attr("mapsid") + "_print");
+    $(".print-tab .address_maps").attr("id", $(".print-tab .address_maps").attr("id") + "_print");
     setTimeout(function () {
         initMapsIfComponentAddressExists($(".print-tab"));
     }, 500);
@@ -1158,9 +1158,9 @@ $(document).ready(function () {
     /* Component print button action */
     $(document).on("click", ".component-print-button", function () {
         // Clear component address
-        $(".print-tab .section_c_address_fields .c_address_maps").replaceWith(
+        $(".print-tab .section_address_fields .address_maps").replaceWith(
                 "<div style='position:relative;height:450px;overflow:hidden;'>" +
-                $(".print-tab .section_c_address_fields .c_address_maps").find(".olLayerGrid").parent().html() +
+                $(".print-tab .section_address_fields .address_maps").find(".olLayerGrid").parent().html() +
                 "</div>");
         window.print();
         return true;
@@ -1179,16 +1179,16 @@ function initComponentAddress(context) {
             enable: true // If  enable, do query and get data, else data should be to set manually by user
         };
         if (componentAddressConf.enable) {
-            $('.c_address_field').on('keyup', function () {
+            $('.address_field').on('keyup', function () {
                 $(this).val($(this).val().toUpperCase());
             });
-            $("#c_address_search_area", context).each(function () {
+            $("#address_search_area", context).each(function () {
                 var result;
                 var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
                 $(this).autocomplete({
                     minLength: 1,
                     source: function (req, res) {
-                        var val = $('#c_address_search_area').val();
+                        var val = $('#address_search_area').val();
                         var data = {limit: 10};
                         data[componentAddressConf.query_parm] = val;
                         $.ajax({
@@ -1223,10 +1223,10 @@ function initComponentAddress(context) {
                                         $('input[field=' + key + ']').val((_address[key] + '').toUpperCase());
                                 }
                                 /** Set Lat and Long value **/
-                                $('input[name=f_c_address_lat]').val(_.geometry.coordinates[1]);
-                                $('input[name=f_c_address_lon]').val(_.geometry.coordinates[0]);
+                                $('input[name=f_address_lat]').val(_.geometry.coordinates[1]);
+                                $('input[name=f_address_lon]').val(_.geometry.coordinates[0]);
                                 if ((!_address.street || typeof _address.street === "undefined") && _address.name)
-                                    $("#f_c_address_street").val(_address.name);
+                                    $("#f_address_street").val(_address.name);
 
                             }
                         });
@@ -1235,10 +1235,10 @@ function initComponentAddress(context) {
             });
         }
     }());
-    $('#info_c_address_maps').on('click', function (e) {
+    $('#info_address_maps').on('click', function (e) {
         e.preventDefault();
         $.ajax({
-            url: '/address_settings/info_c_address_maps_ajax',
+            url: '/address_settings/info_address_maps_ajax',
             methode: 'GET',
             success: function (data) {
                 if (data && data.message) {
@@ -1334,38 +1334,38 @@ initDocumentTemplateHelper();
 function initMapsIfComponentAddressExists(context) {
     if (!context)
         context = document;
-    $('.section_c_address_fields', context).each(function () {
+    $('.section_address_fields', context).each(function () {
         var address_context = this;
 
-        var f_c_address_lat = $(address_context).find('.f_c_address_lat').val();
-        var f_c_address_lon = $(address_context).find('.f_c_address_lon').val();
-        var f_c_address_enableMaps = $(address_context).find('.f_c_address_enableMaps').val();
-        if (f_c_address_lat && f_c_address_lon && f_c_address_enableMaps) {
-            initComponentAddressMaps(f_c_address_lat, f_c_address_lon, address_context);
-        } else if ((!f_c_address_lat || !f_c_address_lon) && f_c_address_enableMaps) {
+        var f_address_lat = $(address_context).find('.f_address_lat').val();
+        var f_address_lon = $(address_context).find('.f_address_lon').val();
+        var f_address_enableMaps = $(address_context).find('.f_address_enableMaps').val();
+        if (f_address_lat && f_address_lon && f_address_enableMaps) {
+            initComponentAddressMaps(f_address_lat, f_address_lon, address_context);
+        } else if ((!f_address_lat || !f_address_lon) && f_address_enableMaps) {
             var info = '<div class="alert bg-gray alert-dismissible " >'
                     + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true" id="btnDismissInfoInvalidAddress">×</button>'
-                    + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_c_address_notValid').val() + '</h4>'
+                    + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_address_notValid').val() + '</h4>'
                     + '</div>';
-            $('.c_address_maps', address_context).append(info);
+            $('.address_maps', address_context).append(info);
             $('#btnDismissInfoInvalidAddress', address_context).on('click', function () {
-                $('.c_address_maps', address_context).parent().remove();
-                $('.c_address_fields', address_context).removeClass('col-md-6').addClass('col-md-12');
+                $('.address_maps', address_context).parent().remove();
+                $('.address_fields', address_context).removeClass('col-md-6').addClass('col-md-12');
             });
         }
     });
     function initComponentAddressMaps(lat, lon, mapsContext) {
         try {
-            $(mapsContext).find('.c_address_maps').each(function () {
+            $(mapsContext).find('.address_maps').each(function () {
                 $(this).empty();
                 var options = {
                     controls: []
                 };
-                if ($('.f_c_address_navigation', mapsContext).val() === 'true')
+                if ($('.f_address_navigation', mapsContext).val() === 'true')
                     options.controls.push(new OpenLayers.Control.Navigation());
-                if ($('.f_c_address_zoomBar', mapsContext).val() === 'true')
+                if ($('.f_address_zoomBar', mapsContext).val() === 'true')
                     options.controls.push(new OpenLayers.Control.PanZoomBar());
-                if ($('.f_c_address_mousePosition', mapsContext).val() === 'true')
+                if ($('.f_address_mousePosition', mapsContext).val() === 'true')
                     options.controls.push(new OpenLayers.Control.MousePosition());
 
                 var map = new OpenLayers.Map($(this).attr('mapsid'), options);

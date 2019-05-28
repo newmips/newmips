@@ -15,14 +15,14 @@
         <div class="col-xs-12 connectedSortable">
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{#__ key="operation.show"/} {#__ key="component.c_address_settings.label_component" /}</h3>
+                    <h3 class="box-title">{#__ key="operation.show"/} {#__ key="component.address_settings.label_component" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="box-body">
-                    {>"c_address_settings/config_fields"/}
+                    {>"e_address_settings/config_fields"/}
                 </div>
             </div>
         </div>

@@ -1,32 +1,32 @@
 $(document).ready(function () {
-    var c_address_search_config = $('#c_address_search_config').val();
-    if (!!c_address_search_config) {
+    var address_search_config = $('#address_search_config').val();
+    if (!!address_search_config) {
         try {
-            c_address_search_config = JSON.parse(c_address_search_config);
+            address_search_config = JSON.parse(address_search_config);
         } catch (e) {
-            c_address_search_config = undefined;
+            address_search_config = undefined;
         }
     }
-    if (typeof c_address_search_config !== 'undefined') {
-        if (c_address_search_config.enable) {
-            $('#c_address_search').each(function () {
+    if (typeof address_search_config !== 'undefined') {
+        if (address_search_config.enable) {
+            $('#address_search').each(function () {
                 var result;
-                var fieldsToShow = c_address_search_config.autocomplete_field.split(',');
+                var fieldsToShow = address_search_config.autocomplete_field.split(',');
                 $(this).autocomplete({
                     minLength: 2,
                     source: function (req, res) {
-                        var val = $('#c_address_search').val();
+                        var val = $('#address_search').val();
                         var data = {limit: 10};
-                        data[c_address_search_config.query_parm] = val;
+                        data[address_search_config.query_parm] = val;
                         $.ajax({
-                            url: c_address_search_config.url,
-                            type: c_address_search_config.type,
+                            url: address_search_config.url,
+                            type: address_search_config.type,
                             data: data,
                             dataType: 'json',
                             success: function (data) {
-                                result = c_address_search_config.arraydata !== '.' ? data[c_address_search_config.arraydata] : data;
+                                result = address_search_config.arraydata !== '.' ? data[address_search_config.arraydata] : data;
                                 res($.map(result, function (_address) {
-                                    var objet = c_address_search_config.whereisdata !== '.' ? _address[c_address_search_config.whereisdata] : _address;
+                                    var objet = address_search_config.whereisdata !== '.' ? _address[address_search_config.whereisdata] : _address;
                                     var toReturn = '';
                                     fieldsToShow.forEach(function (field) {
                                         toReturn += objet[field] + ' ';
@@ -39,7 +39,7 @@ $(document).ready(function () {
                     select: function (e, ui) {
                         result.forEach(function (_address) {
                             var toReturn = '';
-                            _address = c_address_search_config.whereisdata !== '.' ? _address[c_address_search_config.whereisdata] : _address;
+                            _address = address_search_config.whereisdata !== '.' ? _address[address_search_config.whereisdata] : _address;
                             var toReturn = '';
                             fieldsToShow.forEach(function (field) {
                                 toReturn += _address[field] + ' ';

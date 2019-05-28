@@ -1,4 +1,4 @@
-<div id='fields' class='c_address row'>
+<div id='fields' class='address row'>
 	<div data-field='streetnumber' class='col-xs-12'>
 		<div class='form-group'>
 			<label for='streetnumber'> {#__ key="component.address.streetnumber"/} </label>
