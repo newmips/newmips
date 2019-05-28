@@ -7,7 +7,7 @@ module.exports = {
     address: {
         setAddressIfComponentExists: function (entityObject, options, data/*req.body*/) {
             return new Promise(function (resolve, reject) {
-                var option = entity_helper.findInclude(options, 'as', "c_address");
+                var option = entity_helper.findInclude(options, 'as', "r_address");
                 if (option && option.targetType === "component") {
                     var componentAttributes = require('../models/attributes/' + option.target + '.json');
                     var componentOptions = require('../models/options/' + option.target + '.json');
@@ -28,15 +28,15 @@ module.exports = {
             });
         },
         updateAddressIfComponentExists: function (entityObject, options, data/*req.body*/) {
-            if (entityObject.fk_id_c_address) {
+            if (entityObject.fk_id_address) {
                 return new Promise(function (resolve, reject) {
-                    var option = entity_helper.findInclude(options, 'as', "c_address");
-                    if (option && option.targetType === "component" && data.c_address_id) {
+                    var option = entity_helper.findInclude(options, 'as', "r_address");
+                    if (option && option.targetType === "component" && data.address_id) {
                         var componentAttributes = require('../models/attributes/' + option.target + '.json');
                         var componentOptions = require('../models/options/' + option.target + '.json');
                         var objectToCreate = model_builder.buildForRoute(componentAttributes, componentOptions, data || {});
                         var componentModelName = option.target.charAt(0).toUpperCase() + option.target.slice(1);
-                        models[componentModelName].update(objectToCreate, {where: {id: data.c_address_id}}).then(function (e_created) {
+                        models[componentModelName].update(objectToCreate, {where: {id: data.address_id}}).then(function (e_created) {
                             resolve();
                         }).catch(function (e) {
                             resolve();
@@ -50,7 +50,7 @@ module.exports = {
         buildComponentAddressConfig: function () {
             var result = [];
             try {
-                var config = JSON.parse(fs.readFileSync(__dirname + '/../config/c_address_settings.json'));
+                var config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));
                 if (config && config.entities) {
                     for (var item in config.entities) {
                         var entity = item.replace('e_', '');
@@ -68,7 +68,7 @@ module.exports = {
         getMapsConfigIfComponentAddressExists: function (entity) {
             var result = {enableMaps: false};
             try {
-                var config = JSON.parse(fs.readFileSync(__dirname + '/../config/c_address_settings.json'));
+                var config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));
                 if (config && config.entities && config.entities[entity]) {
                     result = config.entities[entity];
                     for (var item in config.entities[entity].mapsPosition)

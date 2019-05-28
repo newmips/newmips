@@ -10,7 +10,6 @@ exports.createNewComponentOnEntity = function (attr, callback) {
     var options = attr.options;
 
     if (typeof options !== 'undefined' && options && idModule != null) {
-
         models.Component.create({
             name: options.showValue,
             codeName: options.value,
@@ -68,7 +67,7 @@ exports.getComponentByCodeNameInModule = function(idModule, codeName, displayNam
     }).then(function (component) {
         if (!component) {
             var err = new Error();
-            err.message = "database.component.notFound.notFoundedInModule";
+            err.message = "database.component.notFound.notFoundInModule";
             err.messageParams = [displayName, idModule];
             return callback(err, null);
         }
@@ -89,7 +88,7 @@ exports.getComponentByNameInModule = function (idModule, nameComponent, callback
     }).then(function (component) {
         if (!component) {
             err = new Error();
-            err.message = "database.component.notFound.notFoundedInModule";
+            err.message = "database.component.notFound.notFoundInModule";
             err.messageParams = [nameComponent, idModule];
             return callback(err, null);
         }
@@ -111,11 +110,10 @@ exports.checkIfComponentCodeNameExistOnEntity = function (codeNameComponent, idM
         if (foundEntity) {
             var alreadyExist = false;
             foundEntity.getComponents().then(function (components) {
-                for (var i = 0; i < components.length; i++) {
-                    if (components[i].codeName == codeNameComponent) {
+                for (var i = 0; i < components.length; i++)
+                    if (components[i].codeName == codeNameComponent)
                         alreadyExist = true;
-                    }
-                }
+
                 callback(null, alreadyExist);
             });
         } else {
@@ -226,7 +224,7 @@ exports.deleteComponentByCodeNameInModule = function (codeNameComponent, idModul
     }).then(function (component) {
         if (!component) {
             err = new Error();
-            err.message = "database.component.notFound.notFoundedInModule";
+            err.message = "database.component.notFound.notFoundInModule";
             err.messageParams = [codeNameComponent, idModule];
             return callback(err, null);
         } else {
