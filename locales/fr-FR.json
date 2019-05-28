@@ -292,7 +292,7 @@
                 "deleted": "Module %s supprimé !"
             },
             "notFound": {
-                "notFounded": "Impossible de trouver le module %s.",
+                "notFound": "Impossible de trouver le module %s.",
                 "withThisID": "Désolé, mais il n'y a pas de module avec cet ID : %s.",
                 "withThisName": "Désolé, mais il n'y a pas de module avec ce nom : %s.",
                 "noModuleInApp": "Désolé, il n'y a aucun module dans cette application.",
@@ -305,8 +305,8 @@
                 "successOnEntity": "Nouveau composant %s (%s) créé sur l'entité %s."
             },
             "notFound": {
-                "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s.",
-                "notFoundedOnEntity": "Désolé, aucun composant avec le nom %s existe sur l'entité avec l'ID : %s."
+                "notFoundInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s.",
+                "notFoundOnEntity": "Désolé, aucun composant avec le nom %s existe sur l'entité avec l'ID : %s."
             },
             "delete": {
                 "success": "Le composant a bien été supprimé !",
