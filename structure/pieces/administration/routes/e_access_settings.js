@@ -34,6 +34,8 @@ router.get('/show_group', block_access.isLoggedIn, block_access.actionAccessMidd
                     values.modules[i].entities[j].tradKeyEntity = "settings.title";
                 else {
                     var key = "entity.e_"+values.modules[i].entities[j].name+".label_entity";
+                    if (language.__(key) == key)
+                        key = "component.c_"+values.modules[i].entities[j].name+".label_component";
                     values.modules[i].entities[j].tradKeyEntity = key;
                 }
             }
@@ -65,6 +67,8 @@ router.get('/show_role', block_access.isLoggedIn, block_access.actionAccessMiddl
                     values.modules[i].entities[j].tradKeyEntity = "settings.title";
                 else {
                     var key = "entity.e_"+values.modules[i].entities[j].name+".label_entity";
+                    if (language.__(key) == key)
+                        key = "component.c_"+values.modules[i].entities[j].name+".label_component";
                     values.modules[i].entities[j].tradKeyEntity = key;
                 }
             }
