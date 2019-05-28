@@ -615,7 +615,7 @@ exports.deleteApplication = function(appID, callback) {
         if(globalConf.separate_workspace_db){
             (async () => {
                 let conn = await mysql.createConnection({
-                    host: globalConf.env == "cloud" ? "database" : dbConf.host,
+                    host: globalConf.env == "cloud" ? process.env.DATABASE_IP : dbConf.host,
                     user: globalConf.env == "cloud" ? "root" : dbConf.user,
                     password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
                 });
