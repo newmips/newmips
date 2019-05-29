@@ -8,7 +8,7 @@
 	{! CodeMirror !}
 	<link href="/css/codemirror/codemirror.css" rel="stylesheet" type="text/css" />
 	<link href="/css/codemirror/customcodemirror.css" rel="stylesheet" type="text/css" />
-	<link href='/css/codemirror/themes/monokai.css' rel='stylesheet' type='text/css'>
+	{! <link href='/css/codemirror/themes/monokai.css' rel='stylesheet' type='text/css'> !}
 	{! Addons CSS !}
 	<link href="/js/plugins/grid-editor/dist/grideditor.css" rel="stylesheet" type="text/css" />
 	<link href="/js/plugins/grid-editor/dist/grideditor-font-awesome.css" rel="stylesheet" type="text/css" />
@@ -260,7 +260,7 @@
 								<option value="mbo">mbo</option>
 								<option value="mdn-like">mdn-like</option>
 								<option value="midnight">midnight</option>
-								<option value="monokai" selected>monokai</option>
+								<option value="monokai">monokai</option>
 								<option value="neat">neat</option>
 								<option value="neo">neo</option>
 								<option value="night">night</option>
