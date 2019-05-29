@@ -1,8 +1,8 @@
-<table id="table_c_address" data-url="/URL_COMPONENT_ADDRESS/datalist" class="dataTable table table-bordered table-striped">
+<table id="table_address" data-url="/URL_COMPONENT_ADDRESS/datalist" class="dataTable table table-bordered table-striped">
     <thead class="main">
         <tr class='fields'>
             <th data-field="id" data-col="id">
-                {#__ key="component.c_address.id_component"/}&nbsp;{#__ key="component.c_address.label_component"/}
+                {#__ key="entity.e_address.id_entity"/}&nbsp;{#__ key="entity.e_address.label_entity"/}
             </th>
             INCLUDE_HEADER
             <th></th>
@@ -13,7 +13,7 @@
     <thead class='filters'>
         <tr class='fields'>
             <th data-field="id" data-col="id">
-                {#__ key="component.c_address.id_component"/}&nbsp;{#__ key="component.c_address.label_component"/}
+                {#__ key="entity.e_address.id_entity"/}&nbsp;{#__ key="entity.e_address.label_entity"/}
             </th>
             INCLUDE_HEADER
             <th></th>

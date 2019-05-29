@@ -232,6 +232,9 @@
         },
         "c_access_settings_api": {
             "label_component": "API access"
+        },
+        "c_address_settings": {
+            "label_component": "Address settings"
         }
     },
     "defaults": {
