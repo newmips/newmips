@@ -234,7 +234,7 @@ exports.setTheme = function(attr, callback) {
     var askedTheme = attr.options.value.toLowerCase();
     askedTheme = askedTheme.trim().replace(/ /g, "-");
 
-    function retrieveTheme(themePath){
+    function retrieveTheme(themePath) {
         var themesDir = fs.readdirSync(themePath).filter(function(folder) {
             return (folder.indexOf('.') == -1);
         });
@@ -251,51 +251,60 @@ exports.setTheme = function(attr, callback) {
     var themeWorkspacePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
     var themeListAvailableWorkspace = retrieveTheme(themeWorkspacePath);
 
-    if(themeListAvailableWorkspace.indexOf(askedTheme) != -1)
+    if (themeListAvailableWorkspace.indexOf(askedTheme) != -1)
         themeReady();
     else {
         // If not found in workspace, look for not imported theme exisiting in structure/template
         var themeTemplatePath = __dirname + '/../structure/template/public/themes';
         var themeListAvailableTemplate = retrieveTheme(themeTemplatePath);
-        if(themeListAvailableTemplate.indexOf(askedTheme) != -1){
+        if (themeListAvailableTemplate.indexOf(askedTheme) != -1) {
             fs.copySync(themeTemplatePath + "/" + askedTheme + "/", themeWorkspacePath + "/" + askedTheme + "/");
             themeReady();
-        }
-        else
-            notFound();
-    }
-
-    function notFound(){
-        var err = new Error();
-        err.message = "structure.ui.theme.cannotFind";
-        var msgParams = "";
-        for(var i=0; i<themeListAvailableWorkspace.length; i++)
-            msgParams += "-  " + themeListAvailableWorkspace[i] + "<br>";
-        err.messageParams = [msgParams];
-        callback(err, null);
-    }
-
-    function themeReady(){
-        var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
-        var themeInformation = JSON.parse(fs.readFileSync(__dirname + "/../workspace/" + idApplication + "/public/themes/"+askedTheme+"/infos.json"));
-        domHelper.read(mainLayoutPath).then(function($) {
-            var oldTheme = $("link[data-type='theme']").attr("data-theme");
-            $("link[data-type='theme']").replaceWith("<link href='/themes/"+askedTheme+"/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='"+askedTheme+"'>");
-            // If the theme need js inclusion
-            if(typeof themeInformation.js !== "undefined")
-                for(var i=0; i<themeInformation.js.length; i++){
-                    $("body script:last").after("<script type='text/javascript'></script>");
-                    $("body script:last").attr('src', "/themes/"+askedTheme+"/js/"+themeInformation.js[i]);
-                }
-            domHelper.writeMainLayout(mainLayoutPath, $).then(_ => {
-                callback(null, {
-                    message: "structure.ui.theme.successInstall",
-                    messageParams: [attr.options.value]
-                });
-            });
-        }).catch(function(err){
+        } else {
+            var err = new Error();
+            err.message = "structure.ui.theme.cannotFind";
+            var msgParams = "";
+            for (var i = 0; i < themeListAvailableWorkspace.length; i++)
+                msgParams += "-  " + themeListAvailableWorkspace[i] + "<br>";
+            err.messageParams = [msgParams];
             callback(err, null);
-        });
+        }
+    }
+
+    function themeReady() {
+        let themeInformation = JSON.parse(fs.readFileSync(__dirname + "/../workspace/" + idApplication + "/public/themes/" + askedTheme + "/infos.json"));
+        let promises = [];
+        let layoutToWrite = ["main_layout", "login_layout"];
+
+        for (let i = 0; i < layoutToWrite.length; i++) {
+            promises.push(new Promise((resolve, reject) => {
+                let layoutPath = __dirname + '/../workspace/' + idApplication + '/views/'+layoutToWrite[i]+'.dust';
+                domHelper.read(layoutPath).then(function($) {
+                    let oldTheme = $("link[data-type='theme']").attr("data-theme");
+                    $("link[data-type='theme']").replaceWith("<link href='/themes/" + askedTheme + "/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='" + askedTheme + "'>");
+                    // If the theme need js inclusion
+                    if (typeof themeInformation.js !== "undefined")
+                        for (let j = 0; j < themeInformation.js.length; j++) {
+                            $("body script:last").after("<script type='text/javascript'></script>");
+                            $("body script:last").attr('src', "/themes/" + askedTheme + "/js/" + themeInformation.js[j]);
+                        }
+                    domHelper.writeMainLayout(layoutPath, $).then(_ => {
+                        resolve();
+                    });
+                }).catch(function(err) {
+                    reject(err);
+                });
+            }))
+        }
+
+        Promise.all(promises).then(_ => {
+            callback(null, {
+                message: "structure.ui.theme.successInstall",
+                messageParams: [attr.options.value]
+            });
+        }).catch(err => {
+            callback(err, null);
+        })
     }
 }
 
