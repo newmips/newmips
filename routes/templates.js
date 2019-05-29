@@ -80,13 +80,20 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 
     gitPromise.then(() => {
         let templatesInfos = JSON.parse(fs.readFileSync(templateDir + "/templates.json", "utf8"), null, 4).templates;
+        let templatesNames = [];
         data.templates = [];
-        for(let i=0; i<templatesInfos.length; i++){
-            data.templates.push({
-                name: templatesInfos[i].name,
-                entry: templatesInfos[i].entry
-            })
-        }
+        for(let i=0; i<templatesInfos.length; i++)
+            templatesNames.push(templatesInfos[i].name);
+
+        // Sorting templates in alphabetic order
+        templatesNames.sort();
+        for (let i = 0; i < templatesNames.length; i++)
+            for (let j = 0; j < templatesInfos.length; j++)
+                if(templatesInfos[j].name == templatesNames[i])
+                    data.templates.push({
+                        name: templatesInfos[j].name,
+                        entry: templatesInfos[j].entry
+                    });
 
         res.render('front/templates', data);
     })
