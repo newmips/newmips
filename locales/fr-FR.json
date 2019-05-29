@@ -454,7 +454,8 @@
                 "missingInfo": "Le fichier infos.json est manquant !",
                 "missingScreenshot": "Le fichier screenshot.png est manquant !",
                 "alreadyExist": "Un thème avec ce nom existe déjà, merci de changer le nom du thème dans le infos.json.",
-                "successUpload": "Le thème a bien été ajouté !"
+                "successUpload": "Le thème a bien été ajouté !",
+                "successInstall": "Le thème %s a bien été appliqué !"
             },
             "layout": {
                 "list": "Layout disponibles:<br>%s<br>",
