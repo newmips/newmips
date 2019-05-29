@@ -370,11 +370,13 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             break;
         case "text" :
         case "texte" :
-            value = "{" + dataField + "|s}";
             if (file == 'show')
-                str += "    <div class='show-textarea'>" + value + "</div>\n";
-            else
+                str += "    <div class='show-textarea'>{" + dataField + "|s}</div>\n";
+            else if (file == 'create')
                 str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
+            else
+                str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">{" + value + "|s}</textarea>\n";
+
             break;
         case "regular text" :
         case "texte standard" :
@@ -497,7 +499,7 @@ exports.setupDataField = function (attr, callback) {
 
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
-        type_data_field = options.type.toLowerCase().trim();
+        type_data_field = options.type;
     else
         type_data_field = "string";
 
@@ -747,6 +749,16 @@ exports.setupDataField = function (attr, callback) {
             "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
+    } else if(["text", "texte" , "regular text", "texte standard"].indexOf(type_data_field) != -1){
+        // No DB default value for type text, mysql do not handling it.
+        attributesObject[name_data_field.toLowerCase()] = {
+            "type": typeForModel,
+            "newmipsType": type_data_field
+        };
+        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
+            "type": typeForModel,
+            "newmipsType": type_data_field
+        }
     } else {
         attributesObject[name_data_field.toLowerCase()] = {
             "type": typeForModel,

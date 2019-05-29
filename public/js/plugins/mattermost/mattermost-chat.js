@@ -10,7 +10,7 @@
                 url: "/support_chat/init",
                 method: "POST",
                 context: this,
-                timeout: 15000,
+                timeout: 30000,
                 success: function(data) {
                     cb();
                 },
@@ -48,7 +48,7 @@
                 data: {
                     text: message
                 },
-                timeout: 15000,
+                timeout: 30000,
                 success: function(post) {
 
                     var messageText = methods.formatMessage(message.trim());
@@ -62,7 +62,7 @@
                     html += "<div class='msgBox'>"
                     html += "<div class='username main'>" + userName + "</div>";
                     html += "<div class='message'>" + messageText + "</div>";
-                    html += "<div class='timestamp'>" + moment.utc(post.create_at).fromNow() + "</div>";
+                    html += "<div class='timestamp'>" + moment(post.create_at).fromNow() + "</div>";
                     html += "</div>";
                     html += "</div>";
 
@@ -92,7 +92,7 @@
                 url: '/support_chat/watch',
                 type: "POST",
                 dataType: 'json',
-                timeout: 15000,
+                timeout: 30000,
                 success: function(answer) {
                     var history = answer.posts;
                     var user = answer.user;
@@ -122,7 +122,7 @@
                             html += "<div class='msgBox'>"
                             html += "<div class='username main'>" + userName + "</div>";
                             html += "<div class='message'>" + messageText + "</div>";
-                            html += "<div class='timestamp'>" + moment.utc(post.create_at).fromNow() + "</div>";
+                            html += "<div class='timestamp'>" + moment(post.create_at).fromNow() + "</div>";
                             html += "</div>";
                             html += "</div>";
                         }

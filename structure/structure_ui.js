@@ -287,10 +287,11 @@ exports.setTheme = function(attr, callback) {
                     $("body script:last").after("<script type='text/javascript'></script>");
                     $("body script:last").attr('src', "/themes/"+askedTheme+"/js/"+themeInformation.js[i]);
                 }
-            domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
-                var info = {};
-                info.message = "Theme set to " + attr.options.value + " !";
-                callback(null, info);
+            domHelper.writeMainLayout(mainLayoutPath, $).then(_ => {
+                callback(null, {
+                    message: "structure.ui.theme.successInstall",
+                    messageParams: [attr.options.value]
+                });
             });
         }).catch(function(err){
             callback(err, null);

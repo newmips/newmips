@@ -38,7 +38,7 @@ Notice : to create your first application, ports 9000 and 9001 must be available
 
 ## Documentation
 
-Newmips Software documentation is available at http://docs.newmips.com.
+Newmips Software documentation is available at https://docs.newmips.com.
 
 
 

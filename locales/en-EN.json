@@ -454,7 +454,8 @@
                 "missingInfo": "The file infos.json is missing!",
                 "missingScreenshot": "The file screenshot.png is missing!",
                 "alreadyExist": "This theme name already exist, please rename the theme name in infos.json.",
-                "successUpload": "The theme was successfully uploaded!"
+                "successUpload": "The theme was successfully uploaded!",
+                "successInstall": "Theme successfully set to %s!"
             },
             "layout": {
                 "list": "Available layout:<br>%s<br>",

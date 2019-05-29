@@ -290,12 +290,16 @@ exports.createNewDataField = function (result) {
 exports.createNewDataFieldWithType = function (result) {
 
     var value = result[1];
-    var type = result[2];
+    var type = result[2].toLowerCase().trim();
     var defaultValue = null;
 
     // Default value ?
     if (typeof result[3] !== "undefined")
         defaultValue = result[3];
+        // if(type == 'text')
+        //     console.warn("Default value for type text is not available, it will be ignored.");
+        // else
+        //     defaultValue = result[3];
 
     // Preparing Options
     var options = {
