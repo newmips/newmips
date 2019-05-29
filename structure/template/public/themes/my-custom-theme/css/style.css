@@ -29,3 +29,18 @@
 .sidebar-menu > li.active > a {
   /*border-left-color: ;*/
 }
+
+/* Login Page Style */
+html#html-login, html#html-login body{
+  /*background-color:  !important;*/
+}
+html#html-login .form-box .header {
+  /*background: ;*/
+}
+html#html-login .btn.btn-primary:hover, html#html-login .btn.btn-primary:active, html#html-login .btn.btn-primary.hover {
+  /*background-color: ;*/
+}
+html#html-login .btn.btn-primary {
+  /*background-color: ;
+  border-color: ;*/
+}

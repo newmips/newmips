@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="bg-navy">
+<html class="bg-navy" id="html-login">
     <head>
         <meta charset="UTF-8">
         <title>{#__ key="app.name"/} | {#__ key="login.log_in"/}</title>
@@ -10,6 +10,8 @@
         <link href="/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <!-- Theme style-->
         <link href="/css/AdminLteV2/AdminLTE-login.css" rel="stylesheet" type="text/css">
+        {! Admin LTE Theme !}
+        <link href='/themes/blue-light/css/style.css' rel='stylesheet' type='text/css' data-type="theme" data-theme="blue-light">
         {! Toastr !}
         <link href="/css/toastr/toastr.min.css" rel="stylesheet" type="text/css">
         {+custom_css /}
