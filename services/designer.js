@@ -907,7 +907,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
             if (err) {
                 // Not found as a simple field, look for related to field
                 var optionsArray = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + dataEntity.codeName + '.json'));
-                var founded = false;
+                var found = false;
                 for (var i = 0; i < optionsArray.length; i++) {
                     if (optionsArray[i].showAs == attr.options.showValue) {
                         if (optionsArray[i].structureType == "relatedTo") {
@@ -915,18 +915,18 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                             if (uniqueAttribute.indexOf(wordParam) != -1) {
                                 attr.options.value = optionsArray[i].foreignKey;
                             }
-                            founded = true;
+                            found = true;
                         } else if (optionsArray[i].structureType == "relatedToMultiple") {
                             if (uniqueAttribute.indexOf(wordParam) != -1) {
                                 var err = new Error("structure.field.attributes.notUnique4RelatedToMany");
                                 return callback(err, null);
                             } else
-                                founded = true;
+                                found = true;
                         }
                         break;
                     }
                 }
-                if (!founded)
+                if (!found)
                     return callback(err, null);
             }
 
@@ -2354,7 +2354,7 @@ exports.deleteAgenda = function (attr, callback) {
     // Check if component with this name is in this module
     db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function (err, component) {
         if (!component) {
-            var err = new Error("database.component.notFound.notFoundedInModule");
+            var err = new Error("database.component.notFound.notFoundInModule");
             err.messageParams = [attr.options.showValue, attr.id_module];
             return callback(err, null);
         } else {
@@ -2568,7 +2568,7 @@ exports.createComponentChat = function (attr, callback) {
 
 //Create new component address
 exports.createNewComponentAddress = function(attr, callback) {
-    var componentCodeName = 'c_address_' + attr.id_data_entity;
+    var componentCodeName = 'e_address_' + attr.id_data_entity;
 
     if (attr.id_data_entity) {
         db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function(err, alreadyExist) {
@@ -2587,8 +2587,8 @@ exports.createNewComponentAddress = function(attr, callback) {
                                 idApp: attr.id_application,
                                 source: entity.codeName,
                                 target: componentCodeName,
-                                foreignKey: 'fk_id_c_address',
-                                as: 'c_address',
+                                foreignKey: 'fk_id_address',
+                                as: 'r_address',
                                 showAs: "",
                                 type: "relatedTo",
                                 relation: "belongsTo",
@@ -2634,7 +2634,7 @@ exports.createNewComponentAddress = function(attr, callback) {
 }
 
 exports.deleteComponentAddress = function (attr, callback) {
-    var componentName = 'c_address_' + attr.id_data_entity;
+    var componentName = 'e_address_' + attr.id_data_entity;
     if (!attr.id_data_entity){
         var err = new Error("database.field.error.selectOrCreateBefore");
         return callback(err, null);
@@ -2643,7 +2643,7 @@ exports.deleteComponentAddress = function (attr, callback) {
         if (err)
             return callback(err);
         if (!componentExist) {
-            var err = new Error("database.component.notFound.notFoundedInModule");
+            var err = new Error("database.component.notFound.notFoundInModule");
             return callback(err, null)
         }
         db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
@@ -2659,7 +2659,7 @@ exports.deleteComponentAddress = function (attr, callback) {
                         if (err)
                             return callback(err);
                         attr.name_data_entity = attr.entityName;
-                        attr.fieldToDrop = 'fk_id_c_address';
+                        attr.fieldToDrop = 'fk_id_address';
                         database.dropFKDataField(attr, function (err) {
                             callback(err, {message: 'database.component.delete.success'});
                         });
@@ -2851,7 +2851,7 @@ exports.deleteComponentDocumentTemplate = function (attr, callback) {
                                     return callback(err);
                             });
                         } else {
-                            var err = new Error("database.component.notFound.notFoundedOnEntity");
+                            var err = new Error("database.component.notFound.notFoundOnEntity");
                             err.messageParams = ["document template", attr.id_data_entity];
                             return callback(err, null);
                         }
@@ -2996,17 +2996,17 @@ exports.addTitle = function (attr, callback) {
                 if (err) {
                     // Not found as a simple field, look for related to field
                     var optionsArray = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + entity.codeName + '.json'));
-                    var founded = false;
+                    var found = false;
                     for (var i = 0; i < optionsArray.length; i++) {
                         if (optionsArray[i].showAs == attr.options.afterField) {
                             if (optionsArray[i].structureType == "relatedTo" || optionsArray[i].structureType == "relatedToMultiple") {
-                                founded = true;
+                                found = true;
                                 return resolve();
                             }
                             break;
                         }
                     }
-                    if (!founded){
+                    if (!found){
                         let err = new Error();
                         err.message = "structure.ui.title.missingField";
                         err.messageParams = [attr.options.afterField];
