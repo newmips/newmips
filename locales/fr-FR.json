@@ -110,7 +110,9 @@
             "text1": "Afin de pouvoir cloner votre application il suffit d'executer cette commande :",
             "text2": "Votre identifiant Gitlab est :",
             "text3": "et votre mot de passe est celui de votre compte générateur"
-        }
+        },
+        "no_project_1": "Aucune application générée.",
+        "no_project_2": "Vous pouvez créer une application directement depuis <a href='/'>l'accueil</a> ou à l'aide d'un <a href='/instruction_script/index'>script</a>."
     },
     "editor": {
         "legend": "Éditeur",
