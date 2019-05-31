@@ -63,7 +63,9 @@
 										{@ne key=iframe_url value=-1}
 											<iframe id="iframe" height="764px" width="600px" src="{iframe_url}" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen" style="height:764px;border: 1px solid grey;border-radius: 3px;"></iframe>
 										{/ne}
-
+										<div id="errorIframe" {@eq key=iframe_url value=-1} style='display: block;'{/eq}>
+											<img src="/img/mipsy.png" alt="Error" />
+										</div>
 										<div id="loadingIframe">
 											<img class="animated pulse infinite" src="/img/LOGO-PNG-01-min.png" alt="Loading" />
 										</div>

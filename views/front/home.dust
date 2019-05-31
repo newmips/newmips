@@ -198,6 +198,9 @@
 		</script>
 	{/showytpopup}
 	<script type="text/javascript">
+		var env_protocol = "{globalConf.protocol}";
+		var env_sub_domain = "{globalConf.sub_domain}";
+		var env_dns = "{globalConf.dns}";
 		$(function() {
 
 			/* Loading generation */
@@ -278,6 +281,12 @@
 		        string = string.replace(/\Ë/g, "e");
 
 		        if (!/^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9- ]{1,63}$/g.test(string)) {
+
+		        	if(string == ""){
+		        		$("span.applicationSpanUrl").remove();
+		        		return;
+		        	}
+
 		            var errorText = "Le nom d'application doit respecter les règles suivantes :<br>";
 		            errorText += "<ul>";
 		            errorText += "<li>- Caractères alphanumériques uniquement.</li>";
@@ -293,11 +302,15 @@
 		        		$(this).after("<span class='applicationSpan' style='color:red;'><i class='fa fa-exclamation-circle'></i> "+errorText+"</span>");
 		            }
 		        	$("#step2Discover2, #step2Discover1").prop('disabled', true);
-		        }
-		        else {
+		        } else {
 		        	$("span.applicationSpan").remove();
 		        	$("span.applicationSpanUrl").remove();
 		        	$("#step2Discover2, #step2Discover1").prop('disabled', false);
+
+		        	/* If online environment */
+		        	if(env_dns != ""){
+		        		string = env_protocol + "://" + env_sub_domain + "-" + string + "." + env_dns;
+		        	}
 		        	$(this).after("<p><span class='applicationSpanUrl' style='color:#3c8dbc;margin-bottom:10px'><i class='fa fa-info-circle'></i> L'url de votre application sera: "+string.toLowerCase()+"</span></p>");
 		        }
 			});

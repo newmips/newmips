@@ -38,6 +38,21 @@
     margin-top:300px;
     width:200px;
 }
+#errorIframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 764px;
+    background-color: rgba(0, 0, 0, 0.5);
+    display:none;
+}
+#errorIframe img{
+    display:block;
+    margin: auto;
+    margin-top:275px;
+    width:200px;
+}
 .dynamic-writing {
     display: none;
 }

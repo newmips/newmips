@@ -276,6 +276,7 @@ router.get('/preview', block_access.hasAccessApplication, function(req, res) {
                             }
 
                             setChat(req, id_application, currentUserID, "Mipsy", chatKey, chatParams, true);
+                            data.iframe_url = -1;
                             data.chat = chats[id_application][currentUserID];
                             return res.render('front/preview', data);
                         }
@@ -524,6 +525,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
                                         }
 
                                         setChat(req, currentAppID, currentUserID, "Mipsy", chatKey, chatParams, true);
+                                        data.iframe_url = -1;
                                         data.chat = chats[currentAppID][currentUserID];
                                         return res.send(data);
                                     }

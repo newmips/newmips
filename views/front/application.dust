@@ -11,6 +11,20 @@
 		<div class="col-xs-12">
 			<div class="box-body">
 				<br>
+
+				{^projects}
+				<div class="row">
+					<div class="col-xs-12 col-sm-5">
+						<img src="/img/mipsy.png" class="img-responsive pull-right" style="width:300px;"/>
+					</div>
+					<div class="col-xs-12 col-sm-7" style="padding-top: 100px;">
+						<h2 class="headline">{#__ key="listApplication.no_project_1"/}</h2>
+						<div class="error-content">
+							<h3>{#__ key="listApplication.no_project_2"/}</h3>
+						</div>
+					</div>
+				</div>
+				{/projects}
 				{#projects}
 					<div class="col-lg-offset-2 col-lg-8">
 						<div class="box box-solid box-default">
